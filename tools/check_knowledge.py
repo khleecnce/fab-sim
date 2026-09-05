@@ -40,6 +40,17 @@ SECTION = re.compile(r'^##\s+', re.M)
 VERIFY_CLAIM = re.compile(r'재현|검증|문헌값|sanity|대조')
 # 정직성 표지: 확인 못 한 것을 확인 못 했다고 쓰는가
 HONESTY = re.compile(r'미검증|추정|확인 못|불명|출처 불명|2차 인용')
+# 1차 출처 식별자 — 리뷰/초록 2차 인용과 구분한다.
+PRIMARY = re.compile(r'doi\.org/10\.|doi:\s*10\.|PMC\d{5,}|arxiv\.org/abs/'
+                     r'|patents\.google|US\d{7,}|JP\d{6,}|KR\d{6,}', re.I)
+# 정량 재현 — "문헌값/재현/대조" 근처에 단위 붙은 수치가 실제로 있는가.
+QUANT = re.compile(
+    r'(?:재현|검증|문헌값|대조|sanity)[^\n]{0,160}?'
+    r'\d+(?:\.\d+)?\s*(?:nm|µm|um|mm|m|Pa|kPa|MPa|GPa|mV|kT|%|°C|K|rpm|m/s|'
+    r'nm/min|min|h|s|배|자릿수)'
+    r'|\d+(?:\.\d+)?\s*(?:nm|µm|um|mm|Pa|kPa|MPa|GPa|mV|kT|%|nm/min)'
+    r'[^\n]{0,160}?(?:재현|문헌값|대조|일치|수렴)')
+MAX_UNVERIFIED = 6   # 이 이상이면서 정량값의 절반을 넘으면 반려
 
 
 def check(path: Path) -> list[str]:
@@ -68,6 +79,27 @@ def check(path: Path) -> list[str]:
     if not HONESTY.search(text):
         bad.append('정직성 표지 없음: 확인하지 못한 항목을 "미검증/추정"으로 '
                    '명시하지 않았다 (전부 확신하는 노트는 신뢰할 수 없다)')
+
+    # ── 품질 우선 원칙 (2026-09-05 사용자: "빨리하는 것 중요. 하지만 품질 우선")
+    # 속도를 위해 병렬 배차를 켜는 대신, 게이트를 이만큼 조인다.
+
+    # (1) 1차 출처: 2차 인용(리뷰·초록)만으로 쌓은 노트를 거른다.
+    if not PRIMARY.search(text):
+        bad.append('1차 출처 없음: DOI/PMC/arXiv/특허번호 중 최소 1건이 필요하다 '
+                   '(리뷰·초록·2차 인용만으로는 파라미터를 신뢰할 수 없다)')
+
+    # (2) 정량 재현: "검증했다"는 서술만 있고 숫자가 없으면 검증이 아니다.
+    if not QUANT.search(text):
+        bad.append('정량 재현 없음: 문헌값과 대조한 구체적 수치(단위 포함)가 없다 '
+                   '— "검증했다"는 서술만으로는 통과시키지 않는다')
+
+    # (3) 미검증 과다: 핵심 수치 대부분이 미검증이면 노트가 아니라 메모다.
+    n_un = len(re.findall(r'미검증', text))
+    n_num = len(re.findall(r'\d+(?:\.\d+)?\s*(?:nm|µm|um|mm|m|Pa|kPa|MPa|GPa|'
+                           r'mV|kT|%|°C|K|rpm|m/s|min|h|s)\b', text))
+    if n_un > MAX_UNVERIFIED and n_un > n_num * 0.5:
+        bad.append(f'미검증 과다: 미검증 {n_un}건 vs 정량값 {n_num}건 '
+                   f'— 절반 이상이 미검증이면 후속 단원에서 쓸 수 없다')
 
     return bad
 
