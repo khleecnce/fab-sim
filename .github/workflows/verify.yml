@@ -1,0 +1,16 @@
+name: verify
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install numpy scipy pytest
+      - name: 단위 테스트
+        run: python -m pytest -q
+      - name: 지식 품질 게이트
+        run: python tools/check_knowledge.py --all
+      - name: 주장 검증 (출처 실존 + 코드 재현)
+        run: python tools/verify_claims.py --all

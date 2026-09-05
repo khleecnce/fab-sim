@@ -62,6 +62,32 @@ Rs≠1이면 Preston MRR이 "엣지 fast" 프로파일이 된다.
 ## 5. 코드 검증 결과 (`sim/tier1_empirical/kinematics.py`, 2026-09-03 실행)
 300mm 웨이퍼(R_w=150mm), r_cc=200mm, 플래튼 60rpm 기준. **7/7 PASS**.
 
+> ⚠ 아래 표는 서술이다. **기계가 실행하는 실제 검증은 이 코드 블록이다** (`tools/verify_claims.py`가 매번 실행). 표의 숫자와 코드 결과가 다르면 코드가 옳다.
+
+```python verify
+"""운동학 주장 재현 — 이 블록이 실패하면 위 표의 주장은 거짓이다."""
+import sys
+sys.path.insert(0, ".")
+from sim.tier1_empirical.kinematics import speed_stats
+
+R_W, R_CC, RPM_P = 0.150, 0.200, 60.0
+
+# 주장 1: Rs=1이면 전면 균일, |v| = ω_p·r_cc = 1.256637 m/s
+s = speed_stats(R_w=R_W, r_cc=R_CC, rpm_w=RPM_P, rpm_p=RPM_P)
+assert abs(s["mean"] - 1.256637) < 1e-5, f"문헌 표기값 1.256637 불일치: {s['mean']}"
+assert s["std"] < 1e-12, f"Rs=1인데 균일하지 않다: std={s['std']:.2e}"
+assert s["nu_ref"] < 1e-12, f"NU가 0이 아니다: {s['nu_ref']:.2e}"
+
+# 주장 2: NU = 2|µ| 해석해 (표의 4개 지점)
+for rpm_w, nu_pct in [(50, 25.0), (55, 12.5), (66, 15.0), (72, 30.0)]:
+    s = speed_stats(R_w=R_W, r_cc=R_CC, rpm_w=rpm_w, rpm_p=RPM_P)
+    got = s["nu_ref"] * 100
+    assert abs(got - nu_pct) < 1e-9, f"rpm_w={rpm_w}: {got} != {nu_pct}"
+    assert abs(got - 2 * abs(s["mu"]) * 100) < 1e-9, "NU = 2|µ| 관계 깨짐"
+
+print("PASS — Rs=1 균일성(1.256637 m/s), NU=2|µ| 해석해 4점 재현 확인")
+```
+
 | 검증 항목 | 결과 |
 |---|---|
 | Rs=1 → 전면 균일 | \|v\|=1.256637 m/s = ω_p·r_cc 정확 일치, std=0.00e+00, NU=0.00e+00 ✔ |
