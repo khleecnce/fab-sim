@@ -1,0 +1,89 @@
+# Hertz 접촉이론 + Greenwood-Williamson(GW) 통계적 거칠기 접촉모델
+
+> 에이전트: pad-mechanic Lv2-1 | 작성일: 2026-09-04
+> [[pad-viscoelasticity-dma]] [[pad-structure-groove-subpad]] [[cmp-kinematics-rotary]] [[preston-luo-dornfeld-mrr]]
+
+## 1. 왜 필요한가
+Preston 모델(`preston-luo-dornfeld-mrr.md`)의 K_p는 "공정마다 다른 경험상수"로 취급했다.
+실제로는 K_p 내부에 **실접촉면적 비율(A_r/A_n)**과 **asperity당 국소압력**이 숨어 있다 —
+명목압력 P가 웨이퍼 전면에 균일해도 실제 웨이퍼가 만지는 곳은 패드 표면 asperity(돌기)
+끝부분뿐이며, 그 국소압력은 명목압력보다 수 배~수십 배 크다. 이 챕터는 그 "명목압력 →
+실접촉압력" 변환을 다루는 고전 접촉역학이다.
+
+## 2. Hertz 접촉이론 (단일 asperity)
+출처: Xiaoyin Zhu, "Tutorial on Hertz Contact Stress" (Univ. of Arizona OPTI 521, 2012-12-01,
+공개 강의자료 PDF, wp.optics.arizona.edu) — Hertz 원 이론(1881)의 표준 요약.
+Timoshenko & Goodier *Theory of Elasticity* 및 Johnson *Contact Mechanics*(1985)와 동일 형태.
+
+구형 asperity(반경 R)가 탄성 반무한체에 힘 F로 눌릴 때:
+
+```
+접촉반경   a ≈ (3FR / 4E*)^(1/3)
+압입깊이   u ≈ (2F² / (E*² R))^(1/3)  ⟺  a² = R·u  (구형 근사, 소변형)
+접촉강성   k = dF/du ≈ (E*² R F)^(1/3) ... (실제로는 k ∝ (RF)^(1/3)E*^(2/3))
+최대압력   p_max = 3F/(2πa²) = 0.4·(E*²F/R²)^(1/3)
+평균압력   p_avg = F/(πa²) = (2/3)p_max
+```
+등가탄성계수: `1/E* = (1-ν₁²)/E₁ + (1-ν₂²)/E₂`
+
+**핵심 성질(수치검증 대상):** F ∝ u^(3/2) — Hertz 접촉은 선형스프링이 아니라
+**비선형(3/2승) 스프링**이다. 이것이 GW 모델에서 개별 asperity 힘을 적분할 때 그대로 들어간다.
+
+## 3. Greenwood-Williamson(GW) 통계 모델 — 개념
+원 논문: Greenwood, J.A. & Williamson, J.B.P. (1966), "Contact of Nominally Flat Surfaces,"
+*Proc. R. Soc. Lond. A* 295, 300–319. (원문 PDF 접근 불가 — paywall. 아래는 표준 교과서
+정식화이며 Johnson *Contact Mechanics* Ch.13 및 두 개의 무료 2차 출처로 교차검증함:
+① Zhou, X. et al. 2023 리뷰 "Rough Surface Contact Modelling—A Review," *Lubricants* (MDPI,
+open access), 검색스니펫으로 "선형 real-contact-area vs load 관계"를 GW 결과로 명시 확인.
+② Yang, D. et al. 2024, "Novel PDF of Pad Asperity by Wear," PMC11051262 (오픈액세스,
+*Micromachines* 계열) — **CMP 패드 asperity에 GW를 직접 적용한 논문**, 식(1)(2)에서
+높이분포를 지수분포, 반경분포를 로그정규분포로 명시).
+
+**가정:**
+- 거친 표면(패드) = 무수한 구형 끝(반경 R, 통일 또는 분포) asperity들의 집합, 평균평면 기준 높이 z가 확률밀도 φ(z)를 따름 (원 GW 논문은 Gaussian 채택; CMP 문헌은 종종 지수분포 채택 — PMC11051262 식(1))
+- 상대 표면(웨이퍼)은 완전 평탄한 강체 반무한체로 근사, 둘 사이 평균평면 간격을 d라 함
+- asperity 상호작용(옆 돌기 간섭) 무시, 각 asperity는 독립 Hertz 접촉
+
+**높이 z > d인 asperity만 접촉**하며, 그 압입량은 δ = z − d.
+
+단위면적당 asperity 밀도 η, 공칭(명목) 접촉면적 A_n일 때:
+
+```
+접촉 asperity 개수      n = η·A_n · ∫_d^∞ φ(z) dz
+실접촉면적              A_r = π·R·η·A_n · ∫_d^∞ (z−d) φ(z) dz
+전체 하중(=F_수직)       W = (4/3)·E*·√R·η·A_n · ∫_d^∞ (z−d)^(3/2) φ(z) dz
+```//(Hertz 힘 F=(4/3)E*√R·δ^(3/2)을 각 asperity에 적용 후 φ(z)로 앙상블 평균)
+
+## 4. 지수분포 특수해 — 정확한 선형 A_r–W 관계 (검증 포인트)
+φ(z) = β·exp(−βz) (z≥0), 여기서 1/β = 평균 asperity 높이(=σ_z, PMC11051262 표기의 σ_z와 동일 스케일).
+지수분포는 **memoryless**이므로 z>d 조건부 분포도 다시 같은 지수분포가 되고, 위 적분들이
+닫힌 형태로 풀린다:
+
+```
+∫_d^∞ φ(z)dz = e^{-βd}
+∫_d^∞ (z-d)φ(z)dz = (1/β)·e^{-βd}
+∫_d^∞ (z-d)^{3/2}φ(z)dz = Γ(5/2)/β^{3/2} · e^{-βd}
+```
+
+따라서 **A_r/W = 3π/(4E*)·√(R/β) = 상수(d와 무관)** — 즉 분리거리 d가 어떻게 바뀌든
+(=명목압력이 바뀌든) 실접촉면적은 항상 하중에 정확히 비례한다. 이것이 지수분포 GW 모델의
+가장 유명한 해석적 결과이며, "왜 마찰계수(=A_r 비례)가 하중에 무관한 상수인가"(Amontons 법칙)
+를 미시적으로 설명하는 근거로 자주 인용된다(리뷰 논문 스니펫에서 재확인한 "linear
+relationship between real contact area and load" 서술과 일치).
+
+## 5. CMP로 연결 — 아직 미해결(다음 단원 Lv2-2/Lv3-2)
+- PMC11051262는 CMP 패드가 **컨디셔닝(트루잉)으로 asperity 분포 자체를 능동 갱신**한다는
+  점을 강조 — 정적 GW가 아니라 시간에 따라 η, σ_z, μ_R이 마모로 변하는 **동적 GW**가 필요
+  (disk-conditioner 에이전트 영역과 직결).
+- 실접촉압력 p_local = W/A_r는 명목압력 P_nominal = W/A_n의 수 배(A_r/A_n ≪ 1)이며, 이
+  p_local이 슬러리 입자에 전달되는 실제 하중이다 → Preston K_p의 물리적 분해:
+  `K_p_effective ∝ f(A_r/A_n, p_local)`. 미검증(다음 단원에서 코드로 확인 예정).
+- 탄성(Hertz) vs 소성 변형 전이는 무차원 **소성지수(plasticity index) ψ = (E*/H)·√(σ_z/R)**
+  (H=경도)로 판별 — Lv2-2에서 다룸(다음 단원).
+
+## 6. 한계/미검증 표기
+- GW 1966 원문을 직접 확인하지 못함(유료 저널) — 정식화는 2개 오픈액세스 2차 출처로 교차
+  검증했으나, 원논문의 정확한 표기·계수(예: F_{3/2}(h) 등 정규화 함수 정의)는 재확인 필요.
+- asperity 상호작용 무시 가정은 CMP처럼 실접촉비율이 높아질 수 있는(패드 압축) 경우
+  과소평가 위험 — 2023년 modified-GW 논문들(hexagon 배치 보정)이 이 한계를 지적함(검색
+  스니펫만 확인, 본문 미독).

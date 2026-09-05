@@ -1,0 +1,15 @@
+{
+ "prediction-of-polishing-pressure-distribution-in-cmp-process": {
+  "src": "Unpaywall",
+  "pdf": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
+  "landing": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
+  "ver": "submittedVersion",
+  "host": "repository",
+  "license": "cc-by-nc-nd",
+  "doi": "10.1016/j.cirp.2017.04.088",
+  "matched_title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
+  "confidence": "doi",
+  "title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
+  "note": "equipment/cmp-tool-architecture.md"
+ }
+}

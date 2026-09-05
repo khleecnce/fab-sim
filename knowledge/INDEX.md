@@ -1,0 +1,25 @@
+# 지식베이스 인덱스
+
+> llm-wiki 방식: 모든 노트는 [[상호링크]] + 출처 필수.
+> 상태 표기: **검증**(코드/수치 재현 완료) / 출처확인 / **미검증**(출처 불충분)
+
+## cmp/
+- [[preston-luo-dornfeld-mrr]] — Preston(1927) 선형식, Brown/Tseng-Wang/Bulsara/Luo-Dornfeld(2001)/Fu/Shi-Zhao/Bastawros 모델 계보 정리. **검증**(sim/tier1_empirical/preston.py 5/5 PASS) (2026-09-04, process-integrator Lv2-1)
+- [[colloid-zeta-dlvo-slurry-stability]] — 제타전위/Henry식(Smol·Hückel), Debye 길이 κ⁻¹≈0.304/√I, DLVO V_T=V_vdW+V_edl(장벽·2차최소), 세리아/실리카/알루미나 IEP·pH·이온세기 안정성. **검증**(sim/tier2_physics/dlvo_colloid.py 12/12 PASS) (2026-09-05, slurry-chemist Lv1-1)
+- [[wiwnu-pressure-velocity-wafer-scale]] — WIWNU 지표(half-range·σ·3σ, 산업표준 부재), MRR(r)=Kp·P(r)·V(r) 결합, 멤브레인 존압·리테이너링 엣지효과(플랫펀치 특이점·Fu-Chandra·Boning). **검증**(sim/tier1_empirical/wiwnu.py 5/5 PASS: 속도만 0.195% vs 압력만 14.1%로 압력지배 정량) (2026-09-05, process-integrator Lv2-2)
+- [[slurry-components-overview]] — 슬러리 6요소(연마입자 실리카/세리아/알루미나·산화제 H2O2/Fe/SPC·억제제 BTA·착화제 citrate/glycine·분산제·pH완충) 역할·상호작용, Kaufman 경쟁모델(산화제-MRR 정점), BTA Langmuir passivation. **검증**(sim/tier2_physics/slurry_components.py 12/12 PASS: BTA ΔG=-35.4kJ/mol→K=2.9e4, 1mM θ=0.97 / 산화제 정점 1%→3% 이동) (2026-09-05, slurry-chemist Lv1-2)
+- [[pattern-dependent-dishing-erosion]] — MIT effective-density 모델(RR=K/ρ_eff, planarization length 3–5mm), step-height 두 레짐(비압축성 선형/압축성 지수감쇠)+통합모델(h1=a1+a2exp(-ρ/a3)), Cu dishing/oxide erosion 정의·overpolish·removal-rate diagram(정상상태 d_ss), Cu interaction distance 50–100µm. **검증**(sim/tier1_empirical/pattern_density.py 9/9 PASS: 제거량∝1/ρ_eff, τ회수, d_ss 교차) (2026-09-05, process-integrator Lv3-1)
+
+## materials/
+- [[pad-viscoelasticity-dma]] — 패드 폴리우레탄 저장/손실탄성률, Maxwell 모델, DMA. **검증**(sim/tier2_physics/viscoelastic_maxwell.py 5/5 PASS) (2026-09-04, pad-mechanic Lv1-1)
+- [[pad-structure-groove-subpad]] — IC1000류 발포체·K-groove·subpad 구조, 역할분리(국소 vs 글로벌). *출처확인* (2026-09-04, pad-mechanic Lv1-2)
+- [[hertz-gw-contact-mechanics]] — Hertz 단일접촉(F~delta^1.5) + Greenwood-Williamson 통계 asperity모델(지수분포, A_r∝W 선형성). **검증**(sim/tier2_physics/gw_contact.py 5/5 PASS) (2026-09-04, pad-mechanic Lv2-1)
+
+## equipment/
+- [[conditioning-mechanism-asperity-regeneration]] — Lawing 2004 실측(경쟁효과·공격성·접촉면적%) + Ring/Prasad/Dirksen population balance 유사변수해(정성 재현, 폐형식해 수치검증은 미검증). *출처확인/부분미검증* (2026-09-04, disk-conditioner Lv1-1)
+- [[cmp-tool-architecture]] — 헤드/플래튼/리테이너링/컨디셔너 구조, 플렉시블 멤브레인·존별 압력제어(AMAT 특허), 문헌 표준 공정조건. *출처확인* (2026-09-03, process-integrator Lv1-1)
+
+## physics/
+- [[cmp-kinematics-rotary]] — 회전식 폴리셔 상대속도장 유도, ω_w=ω_p 균일성, 운동학 수 µ와 NU=2|µ|. **검증**(sim/tier1_empirical/kinematics.py 7/7 PASS) (2026-09-03, process-integrator Lv1-2)
+- [[tribology-friction-wear-stribeck]] — Amontons-Coulomb 마찰(실접촉면적), Archard 마모식 V=k·W·L/H(Kp≈k/H 대응), 윤활 3레짐·Stribeck 곡선(µ 최소점), Hersey/Sommerfeld 수로 CMP=mixed/boundary 판별. **검증**(sim/tier2_physics/tribology_basics.py 10/10 PASS) (2026-09-05, tribologist Lv1-1)
+- [[cmp-lubrication-regimes]] — CMP Sommerfeld So=μU/(p·δeff)·δeff=αRa+(1-α)δgroove(Philipossian 특허), λ ratio 레짐경계, 유체역학 길이 ℓ_hd=μU/p≈36nm≪Ra로 CMP=boundary 정량논증(So≈λ), COF 0.23~0.40 진단. **검증**(sim/tier2_physics/cmp_lubrication_regime.py 11/11 PASS) (2026-09-05, tribologist Lv1-2)

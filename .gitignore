@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# 크론 런타임 산출물 (락·로그·서브에이전트 프롬프트)
+.night_locks/
+.night_logs/
+.night_prompts/
+# 다운로드한 논문 PDF — 저작권상 저장소에 넣지 않는다 (INDEX.json은 유지)
+papers/*.pdf
+# 데모 실행 잔재
+*.png
+.streamlit/
+.DS_Store

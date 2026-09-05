@@ -1,0 +1,502 @@
+# FabSim — 반도체 공정 시뮬레이션 플랫폼 마스터플랜
+
+> 작성: 2026-08-31. 소유: Lee (CMP 슬러리 개발자).
+> 비전: AI 에이전트들이 소재·장비·공정의 과학/공학을 지속 학습하여, 교수급/시니어 엔지니어급 전문성으로 공정 시뮬레이션을 설계·실행·해석하는 플랫폼.
+> 경로: **CMP 통합 시뮬레이터(교두보) → 인접 공정 확장 → 가상 fab (북극성)**
+> 용도: ①이력서/포트폴리오 ②사업화(STARTUP-ROADMAP.md와 연동) ③기술 자산.
+
+## 1. 냉정한 포지셔닝 (전제)
+
+| 영역 | 기존 강자 | 우리의 틈 |
+|---|---|---|
+| TCAD (device) | Synopsys Sentaurus, Silvaco | 정면승부 불가. 장기 북극성으로만. |
+| 공정 3D 모델링 | Coventor SEMulator3D (Lam 소유) | 기하학 중심, 소재 화학 약함 |
+| **CMP 시뮬레이션** | **통합 상용툴 부재** (학계 모델 산재) | ★ 교두보. 슬러리+패드+디스크+공정변수 통합은 공백 |
+| AI 공정 전문가 에이전트 | 없음 (모두 수치해석 툴) | ★ 신영역. 지식학습→모델설계→해석 루프 |
+
+핵심 차별화: 시뮬레이터 "엔진"이 아니라 **"공정을 이해하는 AI + 모델 라이브러리"**를 판다.
+고객이 원하는 건 수치해가 아니라 "왜 결함이 났고 뭘 바꿔야 하는가"이다.
+
+## 2. 시스템 아키텍처 (4층)
+
+```
+┌─────────────────────────────────────────────────┐
+│ L4. 오케스트레이터 (Fab Director Agent)          │
+│  공정 플로우 설계, 에이전트 간 협업 조정, 통합 해석 │
+├─────────────────────────────────────────────────┤
+│ L3. 도메인 전문가 에이전트 (성장형)                │
+│  각자 지식베이스 + 커리큘럼 + 검증시험 보유          │
+│  CMP군: 슬러리화학 / 패드역학 / 디스크·컨디셔닝 /   │
+│         마찰·유체 / 공정통합(압력·RPM·EPD)         │
+│  확장군: Litho / Etch / Deposition / Diffusion …  │
+├─────────────────────────────────────────────────┤
+│ L2. 시뮬레이션 엔진 (Python 모듈)                  │
+│  Tier1 경험식(Preston, Luo-Dornfeld) →            │
+│  Tier2 물리모델(접촉역학, 유동, 화학반응) →         │
+│  Tier3 데이터 서로게이트(ML, 스몰데이터 GP/BNN)     │
+├─────────────────────────────────────────────────┤
+│ L1. 지식베이스 (knowledge/ — llm-wiki 방식)        │
+│  논문·교과서·특허 요약을 상호링크된 md로 축적        │
+│  모든 주장에 출처 필수. 에이전트의 "장기기억"        │
+└─────────────────────────────────────────────────┘
+```
+
+### 에이전트 성장 메커니즘 (교수급으로 키우는 법)
+1. **커리큘럼**: 각 에이전트는 agents/<이름>/CURRICULUM.md 보유 — 학부→대학원→최신논문 순서의 학습 단계.
+2. **지식 축적**: 주간 크론이 커리큘럼 다음 단원을 학습(웹/arxiv) → knowledge/에 출처 있는 노트 작성 → 에이전트 프로필에 "이수" 기록.
+3. **검증 시험**: 단원마다 자기시험 문제를 만들어 풀고(EXAMS.md), 실제 물리 관계식을 코드로 재현해 sanity check (예: Preston 계수 문헌값 재현).
+4. **실전 투입**: 지식이 쌓이면 해당 도메인의 L2 시뮬레이션 모듈을 직접 설계·구현·문서화.
+5. **레벨 정의**: Lv1 학부지식 → Lv2 대학원/리뷰논문 소화 → Lv3 최신논문 추적+모델 구현 → Lv4 모델 개선 제안(교수급).
+
+## 3. 단계별 로드맵
+
+### Phase 0 — CMP 코어 모델 (지금~3개월)
+- [x] 지식베이스 골격 + CMP 5개 에이전트 커리큘럼 작성 (+ 운동학 기반 `sim/tier1_empirical/kinematics.py`, 2026-09-03)
+- [x] Tier1 구현: Preston MRR v0 (Python, 문헌값 오더 재현 검증, 2026-09-04) — Luo-Dornfeld형(P^1/2)은 접촉역학 성숙 후 Tier2로 유보
+- [x] 패드: Greenwood-Williamson 접촉모델(순방향+역문제+마모/glazing 시계열+Kp 물리적 분해·preston.py 정식 연결 완료, `sim/tier2_physics/gw_preston_link.py`, 2026-09-04) — pad-mechanic 커리큘럼 전체 이수
+- [x] 디스크: 컨디셔닝-패드마모 모델(disk-conditioner 커리큘럼 전 단원 이수 완료 — Lv3-2 `sim/tier2_physics/conditioner_asperity_distribution.py` 구현으로 마무리, Ring/Prasad/Dirksen population balance similarity solution 기반 분포폭 2차 상태량 결합, self-test 5/5 PASS, 2026-09-05)
+- [x] 공정변수(P, RPM, 유량, 시간) → MRR/WIWNU 예측 v0 — 유량은 지식 부재로 이번엔 제외, 시간축만 완료 (`sim/tier1_empirical/process_time.py`, 2026-09-04, Max워커)
+- [x] **Streamlit 데모 UI v0**: v0 모델 완성 즉시 구축 — 압력·RPM·존압력 슬라이더 → MRR/프로파일 실시간 플롯 (사용자 지시 2026-09-03, localhost 구동+스크린샷 검증까지) (2026-09-04, Max워커)
+### Phase 1 — CMP 통합 시뮬레이터 (3~9개월)
+- [ ] 슬러리(입자·화학) × 패드(점탄성·asperity) × 디스크(마모) 결합 모델
+- [x] 웨이퍼 스케일 균일도(WIWNU), 패턴 의존성(dishing/erosion) 모듈 — WIWNU(`wiwnu.py`)와 패턴밀도/dishing/erosion(`pattern_density.py`)이 각각 구현된 데 이어, 둘을 잇는 결합 브리지(`wiwnu_pattern_combined.py`, 2026-09-05)로 반경×다이 2차원 결합 제거율 맵까지 완성. 단, 반경-패턴 분리가능(separable) 1차 근사이며 교차항(엣지에서 패턴영향 증폭 등)은 미포함 — 진행 로그 07시 회차 항목 참조.
+- [ ] 합성/공개 데이터 캘리브레이션 파이프라인 (⚠️ 회사 데이터 절대 금지)
+- [ ] Streamlit 데모 UI → 포트폴리오/사업계획서 데모로 사용
+### Phase 2 — 인접 공정 확장 (9~24개월)
+- [ ] 신규 에이전트 육성: Etch → Deposition(CVD/ALD) → Litho → Diffusion
+- [ ] 공정 간 인터페이스 표준(웨이퍼 상태 객체: 토포그래피·막질·응력)
+### Phase 3 — 가상 fab 북극성 (24개월+)
+- [ ] 공정 플로우 체이닝: 다단계 공정 시뮬레이션 → 간단한 구조(MOSFET 단면) 가상 제작
+- [ ] 오픈소스 TCAD(DEVSIM 등) 연동으로 device 특성까지
+
+### 사업 연동
+- Phase 1 데모 = 예비창업패키지(2027-01) 사업계획서의 기술증빙
+- CMP 시뮬레이터 = STARTUP-ROADMAP의 "R&D 자동화 플랫폼"의 물리모델 엔진으로 통합 가능
+- 이력서: "CMP 통합 공정 시뮬레이터 개발(오픈 모델 기반)" — 이직 스토리에도 강력
+
+## 4. 디렉토리 구조
+```
+~/fab-sim/
+├── MASTER-PLAN.md          # 이 문서
+├── knowledge/              # L1 지식베이스 (llm-wiki 방식, 출처 필수)
+│   ├── cmp/  ├── materials/  ├── equipment/  └── physics/
+├── agents/                 # L3 에이전트 (각 폴더: PROFILE.md, CURRICULUM.md, EXAMS.md)
+│   ├── slurry-chemist/  ├── pad-mechanic/  ├── disk-conditioner/
+│   ├── tribologist/     └── process-integrator/
+├── sim/                    # L2 엔진 (Python)
+│   ├── tier1_empirical/  ├── tier2_physics/  └── tier3_surrogate/
+└── papers/                 # 논문 원문/메모
+```
+
+## 5. 운영 원칙
+- 주간 크론("FabSim 성장 엔진")이 학습 1단원 + 구현 1단위씩 전진. 실행당 크게, 새벽 제외.
+- 모든 지식 노트에 출처(논문 제목·연도·DOI/URL) 필수 — 근거 없는 지식은 에이전트 오염.
+- 코드는 반드시 실행·검증 후 커밋 수준으로 (문헌 재현값과 비교).
+- ⚠️ 회사(동진쎄미켐) 실험 데이터·배합 정보 절대 사용 금지. 공개 논문/특허/합성 데이터만.
+- CMP 슬러리 최신논문 크론(기존)과 중복 학습 금지 — 시뮬레이션 관점 노트만 여기에.
+
+## 진행 로그
+<!-- 크론이 실행마다 추가 -->
+- **2026-09-03** (트랙 A+B, 1회차): process-integrator Lv1-1(장비 구조)·Lv1-2(운동학) 이수 → **Lv0→Lv1 승급**. 지식노트 2건 작성(`knowledge/equipment/cmp-tool-architecture.md`, `knowledge/physics/cmp-kinematics-rotary.md`, 출처: Lai MIT thesis 2001 / AMAT US6183354B1·US6244942B1 / JJMIE 2026 / IJPEM-GT 리뷰 2021), 자기시험 6문항.
+- **2026-09-03** (트랙 B): `sim/tier1_empirical/kinematics.py` 구현·실행 검증 **7/7 PASS** — ω_w=ω_p일 때 웨이퍼 전면 상대속도 균일(std=0.00e+00, |v|=ω_p·r_cc=1.2566 m/s) 재현, 비균일도 해석해 NU=2|µ| 오차<1e-12 확인. 발견: 운동학 비균일은 자전평균으로 상쇄되어(50/60rpm에서 edge/center MRR 1.0039) **WIWNU 주범은 압력분포**임 → Lv2-2 설계 방향 확정.
+- **2026-09-04** (트랙 A+B): process-integrator Lv2-1(Preston/Luo-Dornfeld MRR 모델 정밀분석) 이수.
+  지식노트 `knowledge/cmp/preston-luo-dornfeld-mrr.md`(출처: Chen Iowa State PhD thesis 문헌리뷰,
+  DuPont 특허US2026/0091462, novasolver.jp 계산기 FAQ), 자기시험 3문항. 구현
+  `sim/tier1_empirical/preston.py`(Kp·P·V, kinematics.py 속도장 재사용) self-test **5/5 PASS**
+  — 선형성 회귀, 문헌범위(50-1000+ nm/min, STI대표 254nm/min) 오더 대조, Rs=1 WIWNU=0
+  구조확인, kinematics.py와 edge/center 1.00391 교차검증 일치. Phase 0 체크리스트 1/4 완료
+  (Preston v0). 문헌 계보 분석 결과 Luo-Dornfeld형(P^1/2)은 GW 접촉모델·슬러리 입도분포
+  지식이 갖춰진 뒤 Tier2로 구현하기로 확정(지식 없이 구현 금지 원칙).
+- **2026-09-04** (Max워커): `sim/demo_app.py` Streamlit 데모 UI v0 구현 — kinematics.py/preston.py를
+  수정 없이 import해 압력(P)·RPM(웨이퍼/패드)·Kp 슬라이더 및 3존(center/mid/edge) 압력분포
+  옵션(pressure_fn)으로 반경별 MRR 프로파일 실시간 플롯, 웨이퍼 평균 MRR, kinematic number µ,
+  운동학 비균일도 2|µ|%, WIWNU%를 표시. 검증: `streamlit run --server.headless true
+  --server.port 8511`로 기동 → `curl localhost:8511` 200 OK(정상 HTML), `/_stcore/health` → ok
+  (임포트·런타임 예외 없음 확인) → 프로세스 종료. self-test 대상 모듈 아님(UI 레이어,
+  기존 preston.py/kinematics.py self-test는 불변 유지). `sim/README.md`에 사용법 문서화.
+  Phase 0 체크리스트 "Streamlit 데모 UI v0" 완료 처리.
+- **2026-09-04** (Max워커): `sim/tier1_empirical/process_time.py` 구현 — preston.py/kinematics.py를
+  수정 없이 import해 시간(time) 축만 추가(유량은 슬러리 화학 지식 부재로 명시적 제외).
+  `removed_thickness(rs, mrr, t_sec)`(= MRR×t 단순적분), `endpoint_time(target, mrr_ref)`
+  (목표두께/MRR), `wiwnu_percent(arr)`(demo_app.py 인라인 계산을 함수로 승격, 로직 변경 없음)
+  3개 API. self-test **4/4 PASS**: 선형성(t 2배→제거두께 정확히 2배), endpoint_time 역관계
+  (MRR 2배→시간 정확히 1/2), Rs=1(균일압력) WIWNU=0.00e+00%(preston.py 3번과 정합), Rs=50/60
+  WIWNU=0.3905%(kinematics.py/preston.py edge/center 1.00391과 정합하는 0.4% 근방, 오더 확인
+  용도로 하드코딩 assert 없이 출력만). 회귀 확인: preston.py 5/5, kinematics.py 7/7 여전히 PASS.
+  `demo_app.py`에 "목표 제거두께(nm)" 슬라이더 추가(기존 UI 요소는 불변) → 목표두께 도달
+  예상시간 + 제거두께 프로파일 표시, `streamlit run --server.port 8512`로 기동해
+  `curl localhost:8512` 200 / `/_stcore/health` ok 확인 후 종료. `sim/README.md` 사용법 문서화.
+  Phase 0 체크리스트 "공정변수(P, RPM, 유량, 시간) → MRR/WIWNU 예측 v0" [x] 처리(유량 제외 명시).
+- **2026-09-04** (08시 회차, 트랙A+B): pad-mechanic Lv1-1(고분자 점탄성 기초: 저장/손실탄성률,
+  Maxwell 모델, 크리프, DMA) 이수 → **Lv0→Lv1 승급**. 지식노트
+  `knowledge/materials/pad-viscoelasticity-dma.md`(출처: Meng et al. 2025 Polymers 17(5) 613
+  오픈액세스 PMC11902601 — PU 패드 PCDL함량별 Shore D/탄성계수 실측표, Wikipedia Dynamic
+  modulus/DMA — Maxwell 모델 수식, US Patent 10391606 — 상용 CMP 패드 Shore D 60-90),
+  EXAMS.md 3문항. 구현 `sim/tier2_physics/viscoelastic_maxwell.py` — Maxwell 저장/손실탄성률
+  수치 재현 self-test **5/5 PASS**(저주파/고주파 극한, E''피크=E/2 해석값 일치, grid search
+  피크위치 일치, tan δ 극한거동). 아직 MRR/WIWNU 계산엔 미연결(Lv2-1 GW 접촉모델에서
+  패드 유효강성으로 연결 예정) — Phase 0 GW 접촉모델 항목의 사전 지식 축적.
+- **2026-09-04** (10시 회차, 트랙A): pad-mechanic Lv1-2(CMP 패드 구조: 발포체·groove·subpad) 이수.
+  지식노트 `knowledge/materials/pad-structure-groove-subpad.md`(출처: Pureon 공식 IC1000/IC1010
+  데이터시트 2024-04 — Shore D60·압축률2.25%·두께50/80mils, Zheng et al. 2023 Micromachines
+  PMC10536193 오픈액세스 — 산업용 12인치 플랫폼 구조+패드마모 운동학모델, McAllister et al. 2019
+  Micromachines PMC6523751 오픈액세스 — IC1000 K-groove+Suba IV 서브패드 실측 세팅+COF-RR
+  무상관 실측), 자기시험 3문항. Lv1 이수 완료(Lv1-1+Lv1-2). 핵심 발견: (1) 상부패드(국소 평탄화)
+  +서브패드(글로벌 순응)의 역할분리가 스케일 차이(µm vs mm)에서 기인함을 실측 세팅으로 확인,
+  (2) 패드 마모 불균일이 압력존 제어를 방해한다는 정적모델 결과(disk-conditioner 에이전트
+  Phase 0 항목과 연결점), (3) COF-RR 무상관 실측 → 현 preston.py의 "동일 컨디셔닝 레짐 내
+  1차근사"라는 유효범위 한계를 명문화. 다음: Lv2-1 Hertz/GW 접촉모델(트랙 A) → sim/tier2_physics
+  GW 구현(트랙 B). 아직 코드 변경 없음(지식 우선 원칙, GW는 다음 회차에 깊게).
+- **2026-09-04** (12시 회차, 트랙A): pad-mechanic Lv2-1(접촉역학: Hertz + Greenwood-Williamson
+  asperity 모델) 이수 → Lv1→Lv2 진입(2/2 단원 이수 후 Lv1 완료, Lv2 1/2). 지식노트
+  `knowledge/materials/hertz-gw-contact-mechanics.md`(출처: Zhu 2012 Univ.Arizona OPTI521
+  Hertz 튜토리얼 공개PDF, GW 1966 원논문은 paywall이라 2차 교차검증: Yang et al. 2024
+  PMC11051262 오픈액세스 — CMP패드 GW 직접적용 논문, Lubricants/MDPI 2022 리뷰 스니펫),
+  EXAMS.md 3문항. 구현 `sim/tier2_physics/gw_contact.py` — Hertz(F∝delta^1.5) + 지수분포 GW
+  통계모델 수치적분, self-test **5/5 PASS**: Hertz 비선형 스케일링 정확 재현, 지수분포의
+  memoryless 성질로 인해 실접촉면적/하중 비율(A_r/W)이 분리거리(=명목압력)와 무관한 상수임을
+  수치적분↔폐형식 양쪽에서 확인(오차 8.6e-6). 회귀 확인: kinematics.py 7/7, preston.py 5/5,
+  process_time.py 4/4, viscoelastic_maxwell.py 5/5 전부 PASS 유지. Phase 0 "GW 접촉모델" 항목의
+  핵심 지식+수학 골격 확보(아직 preston.py MRR과 미연결 — Lv2-2에서 명목압력→국소접촉압력→
+  K_p 물리적 분해로 연결 예정). 다음: Lv2-2(표면거칠기→국소압력분포) 트랙A 이어서 트랙B로
+  preston.py에 GW 결과를 실제 연결.
+- **2026-09-04** (Max워커, 13시 회차): pytest 회귀 테스트 하네스 구축 — tests/에 5개 모듈
+  (kinematics/preston/process_time/viscoelastic_maxwell/gw_contact) 대응 테스트 작성,
+  기존 모듈 코드 미변경(순수 import+assert), `python -m pytest tests/ -v` 전체 27개 PASS
+  확인. 목적: 모듈 증가에 따른 수동 회귀 확인 부담 경감(기존엔 매 회차 사람이 5개 파일을
+  하나씩 재실행해 확인). sim/README.md에 테스트 실행법 문서화, requirements.txt 갱신.
+- **2026-09-04** (14시 회차, 트랙A+B): pad-mechanic Lv2-2(패드 표면 거칠기와 실접촉면적 →
+  국소압력 분포) 이수 → **Lv2 완료(2/2), Lv3 진입**. 지식노트
+  `knowledge/materials/gw-nominal-vs-local-pressure.md`(출처: Yang et al. 2024 PMC11051262 Eq.20
+  MRR 3-모드 가중합 — 오픈액세스, GW 1966 원논문은 여전히 미확보라 gw_contact.py Lv2-1 폐형식
+  유도로 대체검증 명시), EXAMS.md 3문항. 구현 `sim/tier2_physics/gw_pressure_solve.py` —
+  gw_contact.py의 gw_numeric()을 재사용해 명목압력 P로부터 힘평형 W(d)=P·A_n을 만족하는 분리거리
+  d를 Brent법으로 역산(순방향→역문제). self-test **5/5 PASS**: 핵심 발견 — 14→96kPa(6.9배)
+  압력변화에도 평균 실접촉압력 p_r=W/A_r은 <0.1% 편차(2.16e-16)로 사실상 불변, 대신 접촉점수 n은
+  하중에 거의 정확히 비례(n/W 변동 1.78e-15). 즉 Preston 선형성의 미시적 근거가 "개별 접촉강도
+  증가"가 아니라 "접촉점 개수 증가"임을 GW 이론+수치로 확인 — Yang et al. Eq.20의 n_x(t)
+  중심 구조와 정합. 회귀 확인: pytest 전체 **31/31 PASS**(신규 tests/test_gw_pressure_solve.py
+  4개 포함). 아직 preston.py와 미연결(Lv3-2에서 Kp 물리적 분해로 정식 연결 예정). 다음:
+  Lv3-1 패드 마모·glazing 모델(트랙A) — 압력·시간에 따른 asperity 분포 변화, MRR 드리프트.
+
+- **2026-09-04** (16시 회차, 트랙A+B): pad-mechanic Lv3-1(패드 마모·glazing과 MRR 드리프트 모델) 이수.
+  지식노트 `knowledge/materials/pad-wear-glazing-mrr-decay.md`(1차 출처: Shi & Ring 2010 Wear,
+  저자 공개 PDF https://my.che.utah.edu/~ring/Publications-PDFs/J-135.pdf — GW+Hertz 접촉에
+  Archard 마모법칙+population balance PDE+유체(Reynolds) 하중분담 결합. Borucki 2002/Stein 1996/
+  Oliver/Lawing 원문은 미확보라 2차 인용으로 명시), EXAMS.md 3문항. 구현
+  `sim/tier2_physics/pad_wear_glazing.py` — Shi&Ring의 Borucki 극한(유체 없음)을 Monte-Carlo
+  asperity 집단(지수분포, gw_contact.py의 hertz_force 재사용) 이산 시간적분으로 근사, self-test
+  **5/5 PASS**: 무컨디셔닝 시 평균높이·MRR 단조감소(glazing 정성 재현), 초반>후반 수확체감 감쇠,
+  이산 t=0가 연속 gw_numeric()과 1.18% 오차로 교차검증, 마모 시 p_r 변화(2.66%)가 Lv2-2의 "정적
+  압력변화 시 p_r 불변(<0.1%)"과 다른 레짐임을 대비 확인. 핵심 결론: Preston K_p는 상수가 아니라
+  패드 컨디셔닝 상태(마모도)의 함수 — 무컨디셔닝 구간 MRR 드리프트의 물리적 근거를 코드로 뒷받침.
+  pytest 회귀 tests/test_pad_wear_glazing.py 5건 추가, 전체 **36/36 PASS**. 유체결합(Reynolds)·
+  컨디셔너 B/D항·preston.py 정식 연결은 Lv3-2(GW 접촉모델 코드 구현 완결 단원)로 유보. Phase 0
+  "패드: GW 접촉모델" 항목이 순방향+역문제+마모시계열까지 확장(체크박스는 preston.py 정식 연결
+  전까지 미완료 유지 — Lv3-2에서 최종 완료 예정). 다음: Lv3-2 실행해 Lv3 완료 → pad-mechanic 커리큘럼
+  전체 이수, 이후 disk-conditioner(Phase 0 우선순위 4번째) 학습으로 전환 예정.
+- **2026-09-04** (18시 회차, 트랙B): pad-mechanic Lv3-2(GW 접촉모델 코드 구현 + 문헌값 재현) 이수 →
+  **pad-mechanic 커리큘럼 전체 이수 완료(CURRICULUM.md 전 단원 [x])**. 구현
+  `sim/tier2_physics/gw_preston_link.py` — GW 접촉점수 n(P)를 매개로 Preston Kp의 미시적 기원을
+  MRR=alpha_removal·n_contacts(P)·V로 분해, 문헌 캘리브레이션(Kp=1e-13, STI 254 nm/min 오더)에서
+  alpha_removal 역산. self-test **4/4 PASS**: n(P) 선형적합 잔차 2.46e-13(완전선형 재확인),
+  14/48/96kPa 외삽에서 GW-link와 Preston-direct 편차 <5e-12(정의상 항등에 근접), 캘리브레이션
+  MRR=99.4 nm/min이 문헌범위(50-1000 nm/min) 안. EXAMS.md 3문항 추가. **Phase 0 "패드: GW 접촉모델"
+  항목 완전 완료 처리**(순방향 gw_contact → 역문제 gw_pressure_solve → 마모시계열 pad_wear_glazing →
+  Preston 정식연결 gw_preston_link, 4모듈 체인). pytest 회귀 전체 **40/40 PASS**(신규
+  tests/test_gw_preston_link.py 4건). Phase 0 체크리스트 3/4 완료(디스크: 컨디셔닝-패드마모
+  모델만 남음). 다음: disk-conditioner 에이전트(Phase 0 우선순위 4번째, 마지막)로 학습 자원 전환 —
+  Lv1(컨디셔너 디스크 구조·다이아몬드 그릿)부터 시작해 pad_wear_glazing.py의 B/D항(컨디셔닝
+  재생성 term) 연결까지가 Phase 0 완주 경로.
+- **2026-09-04** (20시 회차, 트랙A): disk-conditioner Lv1-1(컨디셔닝 목적과 메커니즘: glazing 제거,
+  asperity 재생) 이수 → **Lv0→Lv1 진입(1/2)**, Phase 0 우선순위 4번째 에이전트 학습 개시.
+  지식노트 `knowledge/equipment/conditioning-mechanism-asperity-regeneration.md`(1차 출처:
+  Lawing 2004 Rohm and Haas NCCAVS CMPUG 발표자료, 공개 PDF — 컨디셔너 절삭률 vs 패드 마모율의
+  경쟁효과로 정상상태 표면구조 결정, 실측 접촉면적 11.3/7.7/2.2%(저/중/고 공격성); 2차 출처:
+  Ring/Prasad/Dirksen "Dynamic CMP Pad Asperity Population Balance for Conditioning and Polishing"
+  저자 공개 PDF(Univ. Utah/Cabot) — Evans-Marshall 마모법칙+GW+유사변수 폐형식해로 asperity
+  population balance 확장). EXAMS.md 3문항. **수치 재현 시도** `scripts/ring_similarity_check.py`:
+  유사변수 t=0 항등사상은 PASS(대수식 자기무모순 확인)했으나, t>0 정성거동(장신 asperity 우선마모)
+  재현은 원문 PDF의 OCR 손상(Eq.7-9 괄호/첨자 구조 불확실)으로 MISS — **정직하게 미검증 표기**,
+  거짓 PASS로 채우지 않음. 정성적 결론(경쟁효과 메커니즘) 자체는 Lawing 2004 독립 실측과 정합해
+  지식으로는 유효. 핵심 발견: 컨디셔너 그릿 직경 D_grit이 생성 asperity 평균높이(≈D_grit/2)·밀도
+  (≈1/D_grit²)를 직접 결정 — Lv1-2(그릿 설계변수) 단원의 정량적 출발점 확보. pytest 회귀
+  전체 **40/40 PASS**(코드 변경 없음, 지식/문서 트랙만 진행). 다음: Lv1-2 다이아몬드 디스크
+  설계변수(grit size/density/protrusion) 학습.
+- **2026-09-04** (Max워커, 22시 회차): process_time.py(Preston 정상상태 v0)와
+  pad_wear_glazing.py(무컨디셔닝 MRR 드리프트 실측)를 정식 연결하는 순수 통합 모듈
+  `sim/tier2_physics/wear_aware_endpoint.py` 구현 — 새 물리 지식 없이 기존 두 모듈을
+  수정 없이 import만 해서 v0 정상상태 엔드포인트 예측이 실제 마모 드리프트 대비 얼마나
+  낙관적인지 정량화. `cumulative_removed_thickness_drift()`(사다리꼴 누적적분),
+  `endpoint_time_drift()`(선형보간 역산, 도달불가 시 RuntimeError), `compare_naive_vs_drift()`
+  (naive=초기 MRR 고정 가정 vs drift=실제 시계열 적분) 3개 API. self-test **4/4 PASS**:
+  (1) 누적적분 마지막 값이 np.trapz(전체구간)과 상대오차 1.34e-16으로 일치, (2) C1=0(마모 없음)
+  극한에서 endpoint_time_drift가 process_time.endpoint_time과 정확히 일치(rel_err=0.00%,
+  "드리프트 없으면 새 모델이 기존 v0로 정확히 축소된다"는 회귀 검증 통과), (3) optimism_pct>0
+  확인(무컨디셔닝 40-step 시나리오, target=누적제거두께의 50%: t_naive=19.15s vs
+  t_drift=19.32s, optimism_pct=+0.87% — MRR이 마모로 단조감소하므로 초기 MRR을 끝까지
+  쓰는 naive는 실제보다 큰 MRR로 나눠 시간을 과소평가), (4) 도달불가 target(시뮬레이션
+  최대 누적두께의 1000배)에 RuntimeError 정상 발생. 참고로 target을 공정 종료 시점에
+  가깝게(누적두께의 90%/99%) 잡을수록 optimism 격차가 커짐(각각 +1.62%/+1.79%) — 무컨디셔닝
+  구간이 길어질수록 v0의 낙관 편향이 누적됨을 보여줌. pytest 신규
+  `tests/test_wear_aware_endpoint.py` 4건 추가, 전체 회귀 **44/44 PASS**(기존 40 + 신규 4,
+  기존 tier1/tier2 self-test 전부 재실행해도 회귀 없음 확인). pad_wear_glazing.py/
+  process_time.py/gw_contact.py 등 기존 파일 무수정(import만). fab-sim은 git 저장소가
+  아니어서(`git rev-parse --is-inside-work-tree` 실패) 커밋 생략 — 파일만 작성.
+  Phase 0 체크리스트는 기존 두 완료 항목(공정변수→MRR/WIWNU v0, 패드 GW 접촉모델)을
+  잇는 다리 성격이라 신규 체크박스 없음(지시사항대로 미추가).
+- **2026-09-04** (22시 회차, 트랙A): disk-conditioner Lv1-2(다이아몬드 디스크 설계변수:
+  grit size/density/tip-height distribution) 이수 → **Lv1 완료(2/2), Lv2 진입**.
+  지식노트 `knowledge/equipment/conditioner-grit-design-space.md`(출처: Pysher/Goers/
+  Zabasajja(3M) "Design, Characteristics and Performance of Diamond Pad Conditioners",
+  MRS Symp. Proc. 1249, 2010, 3M 공개 PDF). Design Space(Finish×Aggressiveness) 2축
+  개념, 입경/grade/tip-height 3변수가 독립 설계 레버임을 실측으로 확인: (1) DOP 15µm
+  기준 접촉면적 4.46%→9.76%(2.2배) 개선이 구리 CMP micro-defect를 67~75→0~9개로 감소
+  (제거율 희생 없이), (2) sharp-diamond 설계가 W슬러리 6h 가속시험에서 초기절삭률
+  55~65% 유지(경쟁사 ~15%) — grade가 초기성능과 수명감쇠속도를 별도로 결정함을 확인.
+  EXAMS.md 3문항 추가. [[conditioning-mechanism-asperity-regeneration]]과 상호링크
+  (Ring/Prasad/Dirksen의 D_grit→asperity η/β 근사와 결합해 Lv2-1 절삭모델 입력 체인
+  확보). Aggressiveness Number 정량 정의식·grade의 정량 압입각(psi)은 출처 미제공으로
+  **미검증** 명시. pytest 회귀 전체 **44/44 PASS**(코드 변경 없음, 지식 트랙만 진행).
+  다음: Lv2-1 디스크-패드 절삭 모델(재료제거·표면조도 생성) — 정량 aggressiveness
+  정의를 보강할 추가 출처 조사 후 코드 구현(sim/tier2 기여) 시도.
+
+- **2026-09-05** `[심야병렬]` (Max20x 심야 오케스트레이터, 01시): claude -p 서브에이전트 **3명 동시 학습** 완료.
+  대상 선정: 0/6 최대병목 2명(slurry-chemist, tribologist) + Phase0 최우선(process-integrator).
+  disk-conditioner는 직전 상시크론(22시)이 건드려 경합회피.
+  ① **slurry-chemist Lv1-1** 콜로이드화학(제타전위·DLVO·입자안정성) → knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md,
+     재현 sim/tier2_physics/dlvo_colloid.py 12/12 PASS. 정직성: 첫 가설(고이온세기→장벽붕괴)이 틀림을
+     발견(ζ=−40mV 실리카는 0.1M에서도 22kT 안정)→실제 붕괴는 IEP 근접임을 확인·수정. CCC·|ζ|>30mV 임계 미검증표기.
+  ② **tribologist Lv1-1** 트라이볼로지기초(마찰·마모·Archard·Stribeck) → knowledge/physics/tribology-friction-wear-stribeck.md,
+     재현 sim/tier2_physics/tribology_basics.py 10/10 PASS. [[hertz-gw-contact-mechanics]] 등 상호링크 4. k 절대값 미검증.
+  ③ **process-integrator Lv2-2** WIWNU(압력·속도·슬러리 웨이퍼스케일결합) → knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md,
+     재현 sim/tier1_empirical/wiwnu.py 5/5 PASS(preston.py/kinematics.py 재사용). Lv2 완료→Lv3 진입. 압력 프로파일 계수는 예시값 명시.
+  **품질게이트(오케스트레이터 직접 실행) check_knowledge.py --all: 13개 중 12 PASS.**
+  신규 3개 노트 전부 ✓. 유일한 ✗는 어제 상시크론 산출물 equipment/conditioner-grit-design-space.md(연도인용 1건뿐, 형식미달)
+  — 이번 밤 대상 아니고 disk-conditioner는 상시크론 소유라 경합회피 위해 체크박스 되돌리기 보류, 상시크론 차기회차 처리 권고.
+  진도: 지식노트 10→13개. slurry-chemist 0→1/6, tribologist 0→1/6, process-integrator 3→4/6. 한도 이슈 없음(429 미발생).
+- **2026-09-05** (Max워커, 새벽 회차): gw_preston_link.py(정상상태 Kp 물리적 분해,
+  MRR=alpha_removal·n_contacts(P)·V)와 pad_wear_glazing.py(시간축 MRR=c_w·p_r(t), ad-hoc)가
+  서로 다른 공식을 쓰던 간극을 잇는 다리 모듈 `sim/tier2_physics/wear_aware_kp_physical.py`
+  구현 — 기존 파일 무수정(import만, mtime 변화 없음 확인). n_contacts_discrete(heights,d)=
+  sum(heights>d) 헬퍼를 새로 작성하고, pad_wear_glazing의 sample_heights/
+  solve_separation_discrete/total_load_discrete/total_area_discrete/wear_step_borucki를
+  재사용해 동일 seed/파라미터로 이산 마모 루프를 다시 열어(heights 이력이 원 함수엔 없어
+  사후 추출 불가) 시간축 n_contacts(t)를 구성, 원본 simulate_pad_wear()와 t/MRR/p_r/
+  mean_height/d가 수치적으로 완전히 동일함(max_rel_diff=0.0)을 먼저 검증. gw_preston_link의
+  calibrate_alpha_removal(P_ref=20.7kPa,V_ref=0.8,Kp_lit=1e-13)을 그대로 재사용해
+  MRR_physical(t)=alpha_removal·n_contacts(t)·V_ref 계산.
+  **정직하게 기록할 핵심 발견(불일치)**: 당초 가설("ad-hoc·물리기반 두 MRR(t)이 둘 다 단조
+  감쇠하고 정규화 곡선 상관계수>0.9")은 실제 수치 실행으로 **반증**됨 — n_contacts(t)는
+  감소가 아니라 **증가**(40스텝: 3033→3564, +17.5%)하고 MRR_physical(t)도 함께 증가(감쇠
+  -17.5%p, 즉 부호가 반대)하며, 두 정규화 감쇠곡선의 Pearson 상관계수는 **corr=-0.998493**
+  (거의 완벽한 역상관, +0.9 기준과 정반대). 원인 추정(파일 상단 docstring에 상세 기록):
+  이 시나리오는 명목압력 P_app을 고정한 채 asperity 집단이 마모로 얇아지는 설정인데,
+  같은 총하중 W(d)=P_app·A_n을 유지하려면 평균높이 하락(-2%, 2.99e-7→2.93e-7m)보다
+  분리거리 d가 더 빨리 내려가야 하고(-8.3%, 5.63e-7→5.16e-7m), 그 결과 d를 넘는 접촉점
+  수는 오히려 늘고 접촉당 평균압력(p_r)은 준다. 즉 gw_preston_link.py의 n(P) 선형관계는
+  "압력을 바꿀 때"만 검증된 것이었고 "고정압력에서 집단이 마모될 때"로 그대로 외삽하면
+  MRR 증감 방향 자체가 틀린다는 스코프 한계가 드러남. assert 기준(>0.9 등)은 낮추지도
+  숫자를 조작하지도 않았음 — self-test `python3 sim/tier2_physics/wear_aware_kp_physical.py`는
+  4항목 중 **2/4 PASS**(등가성 재현·C1=0 회귀성) **2/4 FAIL**(n_contacts/MRR_physical 단조
+  비증가, 상관계수>0.9 — 위 발견대로 정직하게 실패 처리, exit code 1). pytest
+  `tests/test_wear_aware_kp_physical.py` 5건은 "실제 관측된 방향"(n 증가, corr<-0.9 등)을
+  회귀 고정하는 방식으로 작성해 **전체 pytest 49/49 PASS**(기존 44 + 신규 5, 회귀 없음
+  확인). Phase 0 체크리스트는 변경 없음(다리 성격, 신규 체크박스 없음 —
+  wear_aware_endpoint.py 항목과 동일 패턴).
+
+- **2026-09-05** `[심야병렬]` (Max20x 심야 오케스트레이터, 05시): claude -p 서브에이전트 **3명 동시 학습** 완료.
+  대상 선정: 0/6 없음(전날밤 slurry·tribo 1/6). Phase0 우선순위+진도역순으로 process-integrator(4/6)·slurry-chemist(1/6)·tribologist(1/6).
+  disk-conditioner는 상시크론(22시) 소유라 경합회피.
+  ① **process-integrator Lv3-1** 패턴의존성(dishing/erosion·밀도효과) → knowledge/cmp/pattern-dependent-dishing-erosion.md,
+     재현 sim/tier1_empirical/pattern_density.py 9/9 PASS. effective density ρ_eff=w⊛ρ_local, planarization length 3–5mm,
+     RR=K/ρ_eff(raised영역 접촉→국소압 1/ρ 증폭, [[hertz-gw-contact-mechanics]] 연결), step-height 2레짐+통합모델, Cu dishing/oxide erosion 정의(Park VMIC1998·Boning MRS1999 원문 pypdf 추출대조), d_ss·breakpoint. Lv3 진입→5/6.
+     정직성: elliptic 대신 가우시안 근사, 절대 dishing nm는 캘리브레이션無 미검증(내부정합·부호방향만 검증). Stine1998·Ouma1999 2차인용.
+  ② **slurry-chemist Lv1-2** 슬러리 구성요소 총론(입자/산화제/BTA억제제/착화제/분산제) → knowledge/cmp/slurry-components-overview.md,
+     재현 sim/tier2_physics/slurry_components.py 12/12 PASS. BTA Langmuir(ΔG=−35.4kJ/mol→K=2.87e4, 1mM θ=0.966),
+     산화제-MRR 정점(Cu 1%→착화제 첨가시 3% 이동) 현상론 재현. [[colloid-zeta-dlvo-slurry-stability]] 확장→2/6.
+     정직성: Kaufman1991(2차인용) 정점모델 형태재현·절대값 미검증. Gamagedara&Roy 2024(PMC11477894) 등 오픈액세스.
+  ③ **tribologist Lv1-2** CMP 윤활레짐(boundary/mixed/hydrodynamic) → knowledge/physics/cmp-lubrication-regimes.md,
+     재현 sim/tier2_physics/cmp_lubrication_regime.py 11/11 PASS. Sommerfeld So=7.25e-3·λ<1→boundary 판별, COF≈0.24(문헌 oxide 0.23~0.40 부합),
+     λ ratio(필름두께 vs asperity). [[tribology-friction-wear-stribeck]][[hertz-gw-contact-mechanics]] 링크→2/6.
+     정직성: So 임계·δeff groove가중·λ경계·COF곡선 전부 미검증. Philipossian특허·Wu&Liao 2016(IntechOpen) 2차인용.
+  **품질게이트(오케스트레이터 직접) check_knowledge.py --all: 16개 중 15 PASS.** 신규 3개 노트 전부 ✓.
+  유일한 ✗는 전날과 동일 equipment/conditioner-grit-design-space.md(연도인용1건·형식미달, disk-conditioner=상시크론 소유라 경합회피·차기회차 처리 권고).
+  전체 pytest 49/49 유지(회귀 무손상). 진도: 지식노트 13→16개. process-integrator 4→5/6, slurry 1→2/6, tribo 1→2/6. 한도 이슈 없음(429 미발생).
+
+- **2026-09-05** (Max워커, 07시 회차): Phase 1 "웨이퍼 스케일 균일도(WIWNU), 패턴 의존성
+  (dishing/erosion) 모듈" 항목 — `sim/tier1_empirical/wiwnu.py`(반경별 blanket MRR K(r))와
+  `sim/tier1_empirical/pattern_density.py`(RR_up(x)=K/rho_eff(x), K는 종전 상수 가정)를
+  잇는 신규 결합 브리지 `sim/tier1_empirical/wiwnu_pattern_combined.py` 구현. 기존 5개
+  tier1/tier2 파일은 mtime 변화 없음(`ls -la` 대조 확인) — 순수 import만 사용.
+  K 자리에 K(r)을 대입해 RR(r,x)=K(r)/rho_eff(x) 2차원(반경×다이내부) 결합 제거율 맵을
+  생성. self-test(`python3 sim/tier1_empirical/wiwnu_pattern_combined.py`) **5/5 PASS**:
+  극한 a) rho_eff≡1 → 결합맵이 wiwnu.py 단독 K(r)과 bit-level 일치(max_abs_diff=0),
+  극한 b) p_uniform+Rs=1(K(r) 완전상수) → pattern_density.oxide_removed_up 기반
+  RR_up(x)와 상대오차 <1e-9로 일치, 결합효과 c) sigma_pct(면적가중 CV)가 대수적 하한
+  max(반경단독=7.72%, 패턴단독=1.80%) 이상(결합=7.93%)임을 확인 — r·x가 분리가능
+  (separable) 곱구조이므로 CV_combined²=CV_r²+CV_x²+CV_r²·CV_x²≥max(CV_r²,CV_x²)이
+  대수적으로 항상 성립, 실측치도 이를 따름. half_range_pct(max-min 기반)는 이런 대수적
+  하한이 보장되지 않는 지표라 assert 대상에서 제외했으나, 실제 합성 파라미터(엣지압력
+  amp=0.30 + 다이 패턴밀도 진폭 0.2 사인형)에서는 결합(18.24%)이 개별(반경14.35%,
+  패턴3.57%)보다 여전히 컸음 — 반증 사례는 나오지 않았고 정직하게 "참고용, 미보증"으로
+  기록.
+  **한계(명시적 미검증)**: r(반경)과 x(다이내부위치)를 분리가능하다고 가정 — 웨이퍼 전면에
+  같은 다이 설계가 반복 배치되고 반경-패턴 교차항(엣지에서만 패턴영향 증폭 등)은 없다고
+  본 1차 근사. 실제 엣지 다이의 스크라이브 절단·방향(회전) 차이는 다루지 않음.
+  pytest 회귀: `tests/test_wiwnu_pattern_combined.py` 신규 3건 추가, 전체
+  **52/52 PASS**(기존 49 + 신규 3, 회귀 없음 확인). `sim/README.md` 구현 현황 섹션에
+  짧은 요약 추가.
+  **체크박스 판단**: Phase 1 "웨이퍼 스케일 균일도(WIWNU), 패턴 의존성(dishing/erosion)
+  모듈" 항목을 [x]로 변경 — WIWNU(wiwnu.py), 패턴밀도/dishing/erosion(pattern_density.py)이
+  각각 이미 구현돼 있었고, 이번에 둘을 실제로 잇는 결합 모델까지 만들어 자체 self-test로
+  정합성을 확인했으므로 항목이 요구하는 두 모델 + 결합을 모두 충족한다고 판단. 다만 위의
+  분리가능성 가정(교차항 없음)은 명시적 한계로 남아 있어 완전한 물리적 검증이 끝난 것은
+  아님을 함께 기록.
+
+- **2026-09-05** (08시 회차, 트랙A+B): process-integrator Lv3-2(통합 시뮬레이터 아키텍처
+  설계·조립, sim 전체 오너) 이수 → **process-integrator 커리큘럼 전체 이수 완료(6/6)**,
+  Lv4(교수급 확장) 전환. 지식노트 `knowledge/cmp/luo-dornfeld-integrated-cmp-framework.md`
+  (출처: Luo & Dornfeld, UC Berkeley 2003 오픈액세스 리뷰 — 3-스케일 CMP 모델링(입자/다이/
+  웨이퍼) 및 Fig.6 통합 프레임워크, "Preston식이 3스케일을 잇는 인터페이스"), EXAMS.md
+  3문항. 핵심 발견: FabSim이 지식우선(트랙A→B) 순서로 개발해온 6개 모듈
+  (kinematics/preston/wiwnu/pattern_density/wiwnu_pattern_combined/gw_preston_link)이
+  사후적으로 이 리뷰의 3-스케일 아키텍처(Fig.6)와 정확히 대응함을 확인 — 우연이 아니라
+  CMP 모델링의 정론적 계층구조를 따라간 결과. 구현 `sim/integration/spatiotemporal_removal.py`
+  (신규 서브패키지) — wiwnu_pattern_combined.py의 정상상태 RR(r,x) 맵에 process_time.py의
+  선형 시간적분을 조립해 thickness(r,x,t) 시공간 필드 생성, 새 물리가정 0개(기존 6개 모듈
+  전부 무수정). self-test **4/4 PASS**: t 선형성(120s=2×60s), rho_eff≡1 극한에서 K(r)·t와
+  bit-level 일치, endpoint_time 배선 항등 검증, 다이-스케일 CV의 시간불변성. pytest 회귀
+  `tests/test_spatiotemporal_removal.py` 신규 4건 추가, 전체 **56/56 PASS**(conftest.py에
+  sim/integration 경로 추가). 설계 결정: GW 접촉모델(Kp 물리적 분해)과의 완전 연결은
+  Kp가 함수형이 되면 기존 상수-kp 시그니처 회귀 위험이 있어 Lv4로 명시적 유보(무리한
+  일괄 통합 대신 단계적 확장 원칙 준수). Phase 0 남은 항목은 디스크 컨디셔닝-패드마모
+  모델(disk-conditioner Lv2 진입 상태) 하나뿐 — 다음 회차부터 Phase 0 우선순위(disk-conditioner)
+  로 전환 예정.
+
+- **2026-09-05** (10시 회차, 상시크론, 트랙A+B): Phase 0 우선순위 마지막 항목
+  disk-conditioner Lv2-1(디스크-패드 절삭 모델: 재료제거와 표면조도 생성) 학습·구현.
+  지식노트 `knowledge/equipment/conditioner-disk-pad-cutting-model.md` — Lawing(2004)의
+  "Cut Rate=Wear Rate 균형" 개념을 Evans-Marshall 마모율식(Ring et al. Eq.2, 이미
+  Lv1-1에서 도입) 관점에서 정량화하고, Entegris(2013) CVD 다이아몬드 컨디셔너 백서에서
+  PCR(Pad Cut Rate) 지수감쇠 실측 앵커(50h 사용시 초기값의 16%로 하락) 및 Ra 수렴
+  실측(신품 4.6µm→0.5h만에 3.3µm, 이후 17h 정체)을 신규 확보. Baisie(2012) 박사논문
+  (surface element / conditioning density distribution 두 운동학 모델, NCAT 리포지토리)은
+  서버 403으로 본문 접근 실패 — 초록만 인용, 정직하게 명시. 구현
+  `sim/tier2_physics/conditioner_pcr_decay.py` — pad_wear_glazing.py 무수정 재사용,
+  Entegris 앵커로 tau≈27.28h 캘리브레이션한 PCR(t) 지수감쇠 + 컨디셔너 재생항을 더한
+  결합 마모 ODE. self-test **5/5 PASS**(앵커 정확 재현, tau→inf 극한 상수 PCR, PCR
+  단조비증가, 노화<이상적 컨디셔너 순위, 컨디셔닝부재<노화<이상적 3단계 순위 확인).
+  재생항 함수형은 문헌 직접 근거가 아닌 fab-sim 최소확장 가정임을 코드 docstring·
+  지식노트 양쪽에 명시(정성적 방향만 검증, 정량 미보증). pytest 회귀
+  `tests/test_conditioner_pcr_decay.py` 신규 6건, 전체 **62/62 PASS**(기존 56+신규 6,
+  회귀 없음). `check_knowledge.py --all`: 신규 노트 포함 기존 미달 노트
+  conditioner-grit-design-space.md에 Entegris/Lawing 교차출처 보강 절 추가해 재검사
+  통과시킴 — **지식노트 전체 18/18 통과 달성**(직전 회차부터 미해결이던 유일한 미달
+  항목 해소). disk-conditioner PROFILE/CURRICULUM 갱신(Lv2 진행중 1/2, 다음 Lv2-2).
+  이로써 Phase 0 우선순위 5개 에이전트(process-integrator/pad-mechanic/slurry-chemist/
+  tribologist/disk-conditioner) 전부가 최소 1단원 이상 진행된 상태 유지, disk-conditioner도
+  Lv2 진입 완료. 한도 이슈 없음.
+
+- **2026-09-05** (12시 회차, 상시크론, 트랙A+B, 오전요약 겸): disk-conditioner Lv2-2(컨디셔닝
+  레시피[압력·스윕·RPM] → 패드 프로파일 진화) 이수 → **Lv2 완료(2/2), Lv3 진입**. 지식노트
+  `knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md` (1차 출처: Zheng, Zhao & Lu
+  2023, Micromachines 14(9) 1683, 오픈액세스 PMC10536193 — Tsinghua Univ. 실측검증 포함).
+  Eq.1-9 사인파 스윕 4중 회전 합성 운동학 전체 확보, Table 1 산업 실험조건(패드100RPM/디스크
+  73RPM/스윕19RPM/스윕범위 반경83~308mm/8시간) 인용, 핵심 발견 "PCR이 패드 기존 표면
+  프로파일과 거의 무관"(공간축 PCR_shape(r)과 시간축 decay(t) 분리 근거) 확보. EXAMS.md 3문항.
+  구현 `sim/tier2_physics/conditioner_sweep_kinematics.py` — Eq.1-9 그대로 코드화(팔중심→
+  디스크중심→개별입자 위치), 대표 다이아몬드 다수 균등샘플로 반경별 누적 스크래치 거리
+  히스토그램(PCR(r) 상대 프로파일) 추출. self-test **5/5 PASS**(정지상태 위치항등, 논문
+  Table1 조건 궤적범위 물리적 유효성, 스윕속도 2배→위상진행 2배 스케일링 확인, 팔 도달불가
+  반경에서 PCA=0, 프로파일 비영값 커버리지). pytest 회귀 `tests/test_conditioner_sweep_kinematics.py`
+  신규 5건, 전체 **67/67 PASS**(기존 62+신규 5, 회귀 없음). `tools/check_knowledge.py --all`:
+  신규 노트 포함 **19/19 통과**. 한계: 논문 Table 2(스윕 파티션 dwell-time 구체수치)는
+  페이지 접근 제한으로 미확보 — 사인파 모드(Eq.4, 전체 확보분)만 구현, 명시적으로 미검증
+  표기. 다음: disk-conditioner Lv3-1(패드 수명 예측·컨디셔닝 최적화 최신연구).
+
+- **2026-09-05** (Max워커, 13시30분 회차): 08시 회차에서 Lv4로 명시 유보했던 항목
+  ("GW 접촉모델(Kp 물리적 분해)과의 완전 연결은 Kp가 함수형이 되면 기존 상수-kp 시그니처
+  회귀 위험이 있어 유보") 해소. 신규 파일 `sim/integration/spatiotemporal_removal_physical_kp.py`
+  — 기존 6개 파일(spatiotemporal_removal.py, gw_preston_link.py, wiwnu_pattern_combined.py,
+  wiwnu.py, pattern_density.py, process_time.py, +preston.py/kinematics.py)은 1바이트도
+  수정하지 않고 순수 import만 사용(파일 mtime 전후 대조로 확인). 접근: 반경 r에서의 국소
+  유효 Kp를 Kp_eff(r) = alpha_removal * n_contacts_at(P(r)) / P(r) 로 정의(대수적 항등
+  재배열, 새 물리가정 아님) — 이러면 Kp_eff(r)*P(r)*V(r) = alpha_removal*n_contacts_at(P(r))*V(r)
+  = GW-link MRR과 정확히 같아진다. wiwnu.mrr_radial/preston.mrr_profile이 반경 전체에
+  스칼라 kp 하나만 받는 시그니처라 r마다 다른 kp를 못 넘기므로, 반경 루프 구조만 로컬
+  헬퍼로 재구현(preston.local_mrr()은 그대로 재사용, Kp*P*V 대수 자체는 새로 안 만듦).
+  alpha_removal은 gw_preston_link.calibrate_alpha_removal(P_ref=20.7kPa, V_ref=0.8, kp_lit=1e-13)
+  로 문헌 캘리브레이션(기존 self-test와 동일 지점). self-test **5/5 PASS**: (1) 균일압력
+  =P_ref 근방에서 물리기반 두께필드와 상수-kp 두께필드가 max_rel_dev=0.000e+00로 완전
+  일치(Kp_eff(P_ref)=kp_lit이 정의상 대수적 항등이므로 자명), (2) **차별점(정직 보고)**:
+  넓은 압력범위(14/48/96kPa 3존)에서 물리기반 vs 상수-kp 두께필드 편차 = 최대 0.0000%,
+  평균 0.0000%(실측 max_rel_dev=4.6e-12, 부동소수점 잡음 수준) — gw_preston_link.py가
+  이미 확인한 n_contacts(P)의 14-96kPa 구간 선형성(잔차<1e-6)이 그대로 반영된 결과.
+  **따라서 이 통합이 주는 정량적 실익은 사실상 없다(과장 없이 그대로 보고)** — 정성적/
+  구조적 의의(Kp가 화학 lump 상수가 아니라 GW 기하량으로 원리적으로 분해될 수 있음을
+  보여줌)만 있고, 두께 필드 예측치 자체는 상수-kp 모델과 실무적으로 구별 불가능하다.
+  (3) alpha_removal 배선 검증, (4) Kp_eff(P_ref)==kp_lit 캘리브레이션 항등 확인,
+  (5) 극한 rho_eff=1에서 물리기반 결합두께가 K_eff(r)*t와 bit-level 일치. pytest 회귀
+  `tests/test_spatiotemporal_removal_physical_kp.py` 신규 5건, 전체 **72/72 PASS**
+  (기존 67+신규 5, 회귀 없음, conftest.py는 이미 sim/integration·tier2_physics 경로를
+  포함하고 있어 수정 불필요). 회사(동진쎄미켐) 데이터 미사용(순수 기존 공개모델 재사용).
+
+- **2026-09-05** (14시 회차, 상시크론, 트랙A): disk-conditioner Lv3-1(패드 수명 예측·
+  컨디셔닝 최적화 최신 연구) 이수 → Lv3 진행중(1/2). 지식노트
+  `knowledge/equipment/conditioner-asperity-population-balance.md` — Ring, Prasad(Cabot
+  Microelectronics), Dirksen "Dynamic CMP Pad Asperity Population Balance for Conditioning
+  and Polishing"(저자 공개 PDF, AMAT Mirra+Epic D100 패드+Veeco 레이저간섭계 실측검증)
+  전문 확보. 핵심: asperity 높이를 스칼라 평균이 아니라 population balance PDE(Eq.1)로
+  다뤄, 긴 asperity가 짧은 것보다 먼저 깎이는 비대칭 마모(실측 Fig.1: 정규분포→지수분포
+  수렴)를 similarity solution(Eq.9, 좌표 exp(2At) 스케일링)으로 정확히 재현하는 구조임을
+  확인. Python sanity check: (1) t=0 항등 재현(오차 0.0), (2) 지수분포 초기조건의
+  self-similarity — log-linear 기울기가 -exp(2At)/σ 예측치와 모든 t에서 완전 일치
+  (오차<1e-10), (3) 정규분포 초기조건(σ=8.112µm, Table1 실측값)의 표준편차가 조건화
+  시간에 따라 8.112→2.443µm로 단조 축소해 실측 Fig.4 정성 경향 재현. 정직한 한계: 마모율
+  비례상수 A는 논문 자체가 "fit parameter"로 명시한 비공개 실측 캘리브레이션값 — 정량
+  예측력은 미검증, 정성적 거동(스케일링 방향·self-similarity)만 검증. EXAMS.md Lv3-1
+  3문항. `check_knowledge.py --all`: 신규 노트 포함 **20/20 통과**(최초 제출 시 연도인용
+  부족으로 미달 → 출처 절 보강 후 재검사 통과). pytest 회귀: 이번 회차 코드 변경 없음,
+  기존 **72/72 PASS** 확인만 수행. 구현 판단: Lv3-2(결합모델)에서 전체 PDE를 이식하기보다
+  기존 `conditioner_pcr_decay.py`(스칼라 PCR)에 "분포 폭" 2번째 상태량만 추가하는 최소
+  확장이 타당하다고 사전 설계(Lv2 Max워커 회차의 "정량 실익 미미" 교훈 적용). 다음:
+  disk-conditioner Lv3-2 컨디셔닝-패드마모 결합모델 구현(sim/tier2 기여) — Phase 0 마지막
+  미완 항목.
+
+- **2026-09-05** (16시 회차, 상시크론, 트랙B): disk-conditioner Lv3-2(컨디셔닝-패드마모
+  결합모델 구현) 완료 → **disk-conditioner 커리큘럼 전 단원 이수, Lv4(교수급) 진입**.
+  신규 `sim/tier2_physics/conditioner_asperity_distribution.py` — Ring/Prasad/Dirksen
+  population balance의 similarity solution(Eq.9, 좌표 exp(2At) 압축)에서 "표준편차는
+  스케일 인자에 반비례"라는 분포-불문 통계 성질만 취해, 기존 `conditioner_pcr_decay.py`
+  (스칼라 평균 높이)에 asperity 분포 폭(표준편차) 2번째 상태량을 추가하는 최소 확장으로
+  구현(전체 PDE 미이식, Lv3-1 지식노트 §5 설계 판단 그대로 실행 — 기존 파일 무수정,
+  import만 재사용). 컨디셔너 노화(PCR 하락)가 분포폭 축소력도 비례 약화시키도록 결합
+  (A_eff(t)=A0*PCR(t)/PCR0). self-test **5/5 PASS**(t=0 항등, 이상적 컨디셔너 캘리브레이션
+  자기재현, 노화<이상적 순위, 단조 비증가, 정규분포 표본 직접 스케일링 시 이론 exp(2At)비
+  일치 — 1차 시도에서 비율 역수 방향 버그 발견해 정정 후 통과). pytest 회귀
+  `tests/test_conditioner_asperity_distribution.py` 신규 5건, 전체 **77/77 PASS**(기존 72+
+  신규 5, 회귀 없음). `tools/check_knowledge.py --all`: 20/20 유지(신규 지식노트 불필요,
+  기존 conditioner-asperity-population-balance.md 설계를 그대로 코드화). EXAMS.md Lv3-2
+  3문항 추가. 정직한 한계: A0(similarity 상수)는 문헌에 공개 정량값 없음(fit parameter) —
+  "48h 이상적 컨디셔닝→표준편차 절반"이라는 임의 정성 기준으로 캘리브레이션, 정량 예측치
+  아님(코드·이수기록에 명시).
+  **이로써 Phase 0 체크리스트 5개 항목 전부 [x] — Phase 0(CMP 코어 모델) 완료 선언.**
+  다음 회차부터 Phase 1(CMP 통합 시뮬레이터) 착수: 다음 우선순위는 슬러리×패드×디스크
+  결합 모델(3개 도메인 지식 모두 갖춘 현재 상태에서 가장 자연스러운 다음 단계) 또는
+  Phase 1 체크리스트 재검토 후 순서대로 진행.
+
+- **2026-09-05** (18시 회차, 상시크론, 트랙A): Phase 0 5개 에이전트 중 최하위 진도였던
+  slurry-chemist Lv2-1(표면 화학반응: Cu/W CMP의 Pourbaix·passivation 메커니즘) 이수 →
+  **Lv1 완료, Lv2 진입**. 지식노트 `knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md`
+  — 1차 오픈액세스 원문 Gamagedara & Roy, *Materials* 17(19) 4905 (2024), MDPI CC BY,
+  PMC11477894(Cu/Mo 표면반응 Eq.9-12 tribo-전기화학 실측)과 2차 인용(Krishnan et al.
+  *Chem. Rev.* 110, 2010; ScienceDirect W CMP 논문 2건, 원문 유료라 초록/서술만 확인)을
+  교차. Nernst 식 dE/dpH=-0.0591(m/n) 기울기 공식을 독립 유도해 W→WO3 passivation(m=n=6)이
+  표준 -59.1mV/pH 계열임을 확인, Cu(OH)2/Cu2O/CuO 다중 표면종·구연산 착물에 의한 재용해
+  메커니즘 정리. 구현 `sim/tier2_physics/pourbaix_nernst_slope.py` — Nernst 기울기 공식 +
+  W/Cu CMP 반응식 m/n 판별 헬퍼. self-test/pytest 회귀 **6/6 PASS**(신규),
+  전체 pytest **83/83 PASS**(기존 77+신규 6, 회귀 없음). `check_knowledge.py --all`:
+  신규 노트 포함 **21/21 통과**. 한계: Pourbaix 원저(1966) 미확인이라 정확한 안정영역
+  경계값(pH·E 좌표)은 2차 인용 의존, 기울기 공식 자체만 독립 검증. 다음: slurry-chemist
+  Lv2-2(입자-웨이퍼 상호작용: 기계적 제거 vs 화학적 용해 균형).
