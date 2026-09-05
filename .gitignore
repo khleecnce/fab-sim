@@ -12,3 +12,7 @@ papers/*.pdf
 *.png
 .streamlit/
 .DS_Store
+
+# 고객 실데이터 — 절대 커밋 금지 (ORG.md §7.5)
+data/customer/
+*.parquet
