@@ -621,3 +621,16 @@
   🌱 **G1 하위 wafer-type 활성화**: wafer-metrology Lv1-2 완료로 선수조건 충족(progress.py 판정) →
      ORG §2/§5 [대기]→[활성], 동시활성 8명(상한10 이내).
   지식노트 총 통과 9→12/29(신규 3편 전부 통과, 나머지 17편은 기존부채·학습총괄 상환중). rate-limit 없음.
+
+- **2026-09-06** ([Max워커] 회차): `~/software/BACKLOG.md` S5(demo_app.py → engine.simulate
+  기반 재작성) 부분 완료. tab1(Preston MRR 데모)만 engine 이관: sidebar 입력을 그대로
+  두고 계산은 `Recipe(...)` + `simulate(recipe, model=...)`로 교체, preston.py/kinematics.py
+  직접 호출(mrr_profile 등) 전부 제거(grep 재확인 0건). `available_models()` 기반 모델
+  선택 드롭다운 추가(기본값 tier2.gw_physical_kp), 존압력은 zone_edges_norm에 끝점만 담아
+  엔진의 0-prepend 계약을 신뢰. `res.notes`를 st.warning()으로 그대로 노출.
+  tab2(WIWNU×패턴밀도 결합 맵)는 이관 대상에서 **제외** — pattern_density를 Recipe에
+  반영하려면 die 레이아웃/밀도맵 스키마 확장(S6, sim-architect 담당)이 선행돼야 해서
+  이번 1회 작업 범위를 넘음. 파일 상단 docstring에 명시하고 tier1_empirical 직접 호출 유지.
+  검증: `.venv/bin/python -m pytest -q` → 119/119 PASS(회귀 없음), 구문 파싱 확인 완료.
+  commit 01664fe, push 완료. `~/software/BACKLOG.md` S5는 완료 테이블이 아닌 "진행 중"
+  표에 🔶(부분)로 남김 — tab2/S6 게이트 남음.
