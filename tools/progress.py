@@ -61,8 +61,52 @@ GATES = {
 }
 GEN1 = ["process-integrator", "pad-mechanic", "disk-conditioner",
         "slurry-chemist", "tribologist"]
+PREREQ_F = AGENTS / "PREREQ.json"
+ALIAS_REV = {"cmp-integrator": "process-integrator"}
 
 MAX_ACTIVE = 12   # ORG.md: 동시 활성 상한
+
+
+def load_prereq() -> dict:
+    if not PREREQ_F.exists():
+        return {}
+    raw = json.loads(PREREQ_F.read_text())
+    return {k: v for k, v in raw.items() if not k.startswith("_")}
+
+
+def prereq_status(aid: str, p: dict, pre: dict) -> tuple:
+    """(충족여부, 미충족 목록[(선수, 필요, 현재)])"""
+    spec = pre.get(aid, {}).get("prereq", [])
+    miss = []
+    for dep, need in spec:
+        dep = ALIAS_REV.get(dep, dep)
+        have = p.get(dep, {}).get("done", 0)
+        if have < need:
+            miss.append((dep, need, have))
+    return (not miss, miss)
+
+
+def check_dag(pre: dict) -> list:
+    """순환 의존 검출. 있으면 설계 오류다."""
+    graph = {k: [ALIAS_REV.get(d, d) for d, _ in v.get("prereq", [])]
+             for k, v in pre.items()}
+    seen, stack, bad = set(), set(), []
+
+    def walk(n, path):
+        if n in stack:
+            bad.append(" → ".join(path + [n]))
+            return
+        if n in seen:
+            return
+        seen.add(n)
+        stack.add(n)
+        for m in graph.get(n, []):
+            walk(m, path + [n])
+        stack.discard(n)
+
+    for n in graph:
+        walk(n, [])
+    return bad
 
 
 def milestone_done(mid: str) -> bool:
@@ -118,6 +162,7 @@ def scan() -> dict:
 
 def gates(p: dict) -> list:
     opened = {a for a in p if p[a]["state"] == "활성"}
+    pre = load_prereq()
     out = []
     for gid, g in GATES.items():
         present = [a for a in g["opens"] if a in p]
@@ -127,16 +172,28 @@ def gates(p: dict) -> list:
             ok = g["test"](p)
         except Exception:
             ok = False
+        # 게이트 숫자 조건을 넘어도, 선수과목 미충족자는 열 수 없다
+        eligible, blocked = [], []
+        for a in present:
+            fine, miss = prereq_status(a, p, pre)
+            (eligible if fine else blocked).append(
+                a if fine else (a, miss))
         out.append({"id": gid, "opened": already, "ready": ok,
-                    "need": g["need"],
-                    "opens": [a for a in g["opens"] if a in p]})
+                    "need": g["need"], "opens": present,
+                    "eligible": eligible, "blocked": blocked})
     return out
 
 
 def pick_next(p: dict) -> str:
-    """ORG.md §5 규칙: 활성 중 진도가 가장 낮은 에이전트. 동률이면 GEN1 우선."""
-    cand = [(v["done"], GEN1.index(a) if a in GEN1 else 99, a)
-            for a, v in p.items() if v["state"] == "활성" and v["done"] < v["total"]]
+    """활성 + 선수과목 충족 + 미완 중 진도 최저. 동률이면 GEN1 우선."""
+    pre = load_prereq()
+    cand = []
+    for a, v in p.items():
+        if v["state"] != "활성" or v["done"] >= v["total"]:
+            continue
+        if not prereq_status(a, p, pre)[0]:
+            continue
+        cand.append((v["done"], GEN1.index(a) if a in GEN1 else 99, a))
     return sorted(cand)[0][2] if cand else ""
 
 
@@ -206,11 +263,22 @@ def main():
             mark = "⬛ 미생성 (Phase 2 자리 — 디렉토리 없음)"
         print(f"  {g['id']} {mark}")
         print(f"     조건: {g['need']}")
-        if not g["opened"]:
-            print(f"     개방 대상({len(g['opens'])}): {', '.join(g['opens'])}")
+        if not g["opened"] and g["opens"]:
+            if g["eligible"]:
+                print(f"     ✔ 선수충족 → 지금 열 것({len(g['eligible'])}): "
+                      f"{', '.join(g['eligible'])}")
+            for a, miss in g["blocked"]:
+                m = ", ".join(f"{d} {h}/{n}" for d, n, h in miss)
+                print(f"     ⏸ {a} — 선수 미충족: {m}")
+
+    cyc = check_dag(load_prereq())
+    if cyc:
+        print("\n⚠ 선수관계 순환 감지 (설계 오류 — 즉시 수정):")
+        for c in cyc:
+            print(f"   {c}")
 
     nx = pick_next(p)
-    print(f"\n▶ 이번 회차 학습 대상: {nx or '(활성자 전원 완주 — 게이트 확인)'}")
+    print(f"\n▶ 이번 회차 학습 대상: {nx or '(선수 충족 + 미완인 활성자 없음 — 게이트 확인)'}")
     if nx:
         print(f"   다음 단원: {p[nx]['next']}")
 
