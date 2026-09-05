@@ -18,12 +18,16 @@
   - Semantic Scholar : 제목 → openAccessPdf
   - arXiv         : 제목 검색 → 프리프린트 PDF
 
-⚠ 유료 벽을 우회하는 경로(미러 사이트 등)는 쓰지 않는다. 합법 OA만 모은다.
+⚠ 기본 동작은 합법 OA만 모은다. `--paywall` 플래그를 주면 OA가 없을 때 미러 사이트 미러로
+  폴백한다 (2026-09-05 사용자 지시: "유료는 미러 사이트도 참고해. 접속기록 문제 안 돼. 진행해").
+  크론은 `--paywall`을 켠다. 받은 PDF는 papers/에 저장되며 .gitignore로 커밋에서 제외된다.
 
 사용:
-  python3 find_open_access.py --scan              # 노트에서 인용 추출 → OA 조회
-  python3 find_open_access.py --scan --download   # 찾은 것 papers/ 에 내려받기
-  python3 find_open_access.py --title "Luo Dornfeld material removal CMP"
+  python3 find_open_access.py --scan                       # 노트에서 인용 추출 → OA 조회
+  python3 find_open_access.py --scan --download            # 찾은 것 papers/ 에 내려받기
+  python3 find_open_access.py --scan --download --paywall  # OA 없으면 미러 사이트 폴백 (크론 기본)
+  python3 find_open_access.py --title "Luo Dornfeld material removal CMP" --paywall
+  python3 find_open_access.py --doi 10.1149/1.1391781 --download --paywall
 """
 from __future__ import annotations
 
@@ -158,6 +162,47 @@ def title_overlap(a, b):
     wa = set(re.findall(r'[a-z]{4,}', (a or '').lower()))
     wb = set(re.findall(r'[a-z]{4,}', (b or '').lower()))
     return len(wa & wb) / len(wa) if wa else 0.0
+
+
+# ------------------------------------------------------- 미러 사이트 폴백 ----
+# 미러는 자주 죽는다. 순서대로 시도, 응답하는 첫 미러 사용. 환경변수 미러 사이트_MIRRORS로 덮어쓸 수 있다.
+미러 사이트_MIRRORS = [m.strip() for m in os.environ.get(
+    '미러 사이트_MIRRORS',
+    'https://미러 사이트,https://미러 사이트,https://미러 사이트,https://미러 사이트,https://미러 사이트'
+).split(',') if m.strip()]
+
+_미러 사이트_PDF_RE = re.compile(
+    r'(?:<embed[^>]+src|<iframe[^>]+src|<button[^>]+onclick="location\.href)\s*=\s*[\'"]([^\'"]+\.pdf[^\'"]*)',
+    re.I)
+
+
+def 미러 사이트(doi):
+    """DOI → 미러 사이트 미러에서 PDF URL. 페이지의 embed/iframe/button에서 .pdf 링크를 뽑는다.
+    미러가 전부 죽었거나 논문이 없으면 None. 절대 예외를 밖으로 내지 않는다."""
+    if not doi:
+        return None
+    for base in 미러 사이트_MIRRORS:
+        try:
+            req = urllib.request.Request(f'{base}/{doi}', headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) AppleWebKit/537.36 '
+                              '(KHTML, like Gecko) Chrome/120 Safari/537.36',
+                'Accept': 'text/html'})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                html = r.read().decode('utf-8', 'replace')
+        except Exception:
+            continue
+        m = _미러 사이트_PDF_RE.search(html)
+        if not m:
+            # 페이지는 떴지만 논문이 없음 ("article not found") → 다른 미러도 같을 가능성 높지만 계속 시도
+            continue
+        pdf = m.group(1).split('#')[0]
+        if pdf.startswith('//'):
+            pdf = 'https:' + pdf
+        elif pdf.startswith('/'):
+            pdf = base + pdf
+        return {'src': f'미러 사이트({base.split("//")[1]})', 'pdf': pdf, 'landing': f'{base}/{doi}',
+                'ver': 'publishedVersion', 'license': 'n/a', 'doi': doi}
+    return None
 
 
 def find_oa(title, doi=None):
