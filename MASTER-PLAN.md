@@ -569,3 +569,16 @@
   재현 완전 일치 — check_knowledge.py, verify_claims.py 모두 통과. EXAMS.md 3문항.
   다음: wafer-metrology Lv1-2(균일도 지표를 SEMI 표준, Lee-Boning 1999로 문헌 확정 →
   sim/metrics/uniformity.py의 PROVISIONAL 정의 교체, Cal-1 전 단계).
+
+- **2026-09-06 심야** ([심야병렬] 3명 동시 위임, claude -p opus): 품질게이트 3/3 통과
+  (오케스트레이터가 직접 재검증: check_knowledge 3/3 ✓, verify_claims 3/3 ✓ —
+  출처 12건 전부 Crossref/arXiv 실존 확인, python verify 3블록 실행 통과).
+  ① **surface-contamination Lv1-1** 표면 오염 종류·발생원(슬러리 Fe촉매·K완충·Ce·Cu재흡착·세정수)
+     → knowledge/cmp/post-cmp-metallic-contamination-sources.md (상호링크 9, 출처 6건).
+     G1 신규활성 에이전트 첫 이수(0/4→1/4).
+  ② **slurry-chemist Lv2-2** 입자-웨이퍼 상호작용(기계제거 vs 화학용해 균형, Hertz 입자접촉·Kaufman)
+     → knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md (상호링크 5, 출처 4건). 3/6→4/6, Lv2 완료.
+  ③ **tribologist Lv2-2** 마찰열·온도분포→Arrhenius 화학속도 결합(q=μPV, 플래시온도, Ea)
+     → knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md (상호링크 6, 출처 2건). 3/6→4/6, Lv2 완료.
+  세 노트 모두 python verify 정량대조 포함, 구현 필요분은 각 PROFILE.md "## 구현 요청"에 기록(소프트웨어 부문 인계).
+  지식노트 총 통과 6→9/26(신규 3편 전부 통과). rate-limit 없음.

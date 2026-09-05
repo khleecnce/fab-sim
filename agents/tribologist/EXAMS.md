@@ -74,3 +74,29 @@ A3. **감소한다.** 직관적으로는 회전이 빨라지면 유입 유량이
 (Thakurta 2001 Fig.7a, §5 표 "웨이퍼 회전속도만↑(패드 고정)" 항목 — 유일하게 회전 증가가
 반대 방향 효과를 갖는 파라미터). 재현: `sim/tier2_physics/slurry_film_lubrication.py`
 `h_min_wafer_rotation_effect()` — ω₁ 증가 시 대리량 감소 확인(PASS).
+
+## Lv2-2 마찰열·온도장 → Arrhenius 화학반응속도 결합 (2026-09-06)
+근거: [[../../knowledge/physics/frictional-heating-temperature-arrhenius-coupling]], [[../../knowledge/physics/tribology-friction-wear-stribeck]], [[../../knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation]]
+
+**Q1. 단위면적당 마찰발열 q=μ·P·V를 쓰고, 전형 CMP 조건으로 전체 마찰동력을 산출해 White et al.(2003)의 문헌값과 오더를 대조하라.**
+A1. 마찰응력 τ=μP에 미끄럼속도 V를 곱한 소산동력의 면적밀도가 q=μPV [W/m²]이고, 전체 마찰동력은
+Q_f=q·A_wafer. 전형값 μ=0.3(oxide CMP COF 0.23~0.40, boundary~mixed 레짐), P=0.05 MPa, V=0.75 m/s
+(Ma et al. 2023 조건)에서 q=0.3·50000·0.75=**1.13×10⁴ W/m²**, 200 mm 웨이퍼(A=0.0314 m²)에서
+Q_f=q·A≈**353 W**. White, Melvin, Boning(*J. Electrochem. Soc.* 150 G271, 2003, DOI 10.1149/1.1560642)의
+마찰열 **200~300 W**(화학열 ~1 W로 발열은 마찰 지배)와 **같은 오더**다. 역산하면 200~300 W는
+6.4~9.5×10³ W/m²로 q=μPV 오더와 부합. 재현: 노트 §6 verify 블록 PASS.
+
+**Q2. "공정온도가 Cu/oxide 선택비를 조절한다"는 Shin et al.(2025)의 주장을 Arrhenius 배율 계산으로 정량 설명하라.**
+A2. RR=A·exp(−Ea/RT)이므로 T1→T2 반응속도 배율=exp[(Ea/R)(1/T1−1/T2)]. Shin et al.(*Materials* 18(19)
+4461, 2025, DOI 10.3390/ma18194461, PMC12525981) 실측 겉보기 Ea는 SiO₂ 8.75, Ta 29.9, Cu 151.7 kJ/mol.
+ΔT=20 ℃(30→50 ℃)에서 배율은 **Cu ≈41.5배, Ta ≈2.08배, SiO₂ ≈1.24배**다. 즉 같은 온도상승이 Cu MRR을
+수십 배 키우지만 oxide는 거의 안 바꾼다 → 온도가 곧 선택비 손잡이. Ea가 큰 Cu일수록 지수항 민감도가
+커서 그렇다. 냉각으로 T_ss를 30 ℃로 낮추면 Cu 과다제거·dishing이 억제된다(Shin 2025). 재현: 노트 §6 PASS.
+
+**Q3. CMP 계면에서 마찰열이 "표면에 집중"되는 물리적 이유와, 평균온도 vs 플래시온도의 차이를 설명하라.**
+A3. 다공성 폴리우레탄 패드의 열전도도가 k≈0.02 W/m·K로 극히 낮아(Shin 2025) 열확산계수 α=k/ρc_p가
+물보다 훨씬 작다 → 마찰열이 패드 심부로 빠지지 못하고 계면 근처에 축적되어 웨이퍼·슬러리로 흐른다.
+**평균 온도상승**은 웨이퍼 전면 평균(수~수십 ℃, 실측 미제어 ~36 ℃; 슬러리 전량냉각 상한 에너지균형으로
+19~29 ℃ 오더 재현)인 반면, **플래시 온도**는 asperity 실접촉점(A_r≪A_n, [[hertz-gw-contact-mechanics]])에서만
+순간적으로 오르는 국소 고온으로, 국소 열유속 q_local=q·(A_n/A_r)이 평균의 수십 배라 평균보다 훨씬 높다
+— 화학반응온도는 이 transient flash heating이 결정한다(Shin 2025 서술). 플래시 절대값은 **미검증**(Lv3 후보).

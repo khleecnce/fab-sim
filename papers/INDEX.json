@@ -20,5 +20,40 @@
   "authors": "Thakurta, Borst, Schwendeman, Gutmann, Gill",
   "venue": "J. Electrochem. Soc. 148(4) G207-G214 (2001)",
   "note": "physics/cmp-slurry-flow-lubrication-film-thickness.md"
+ },
+ "luo-dornfeld-2001-material-removal-mechanism-cmp-theory-modeling": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
+  "pdf": null,
+  "doi": "10.1109/66.920723",
+  "title": "Material removal mechanism in chemical mechanical polishing: theory and modeling",
+  "authors": "J. Luo, D. A. Dornfeld",
+  "venue": "IEEE Trans. Semicond. Manuf. 14(2), 112-133 (2001)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "kaufman-1991-cmp-patterned-w-metal-features-chip-interconnects": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(J. Electrochem. Soc.)",
+  "pdf": null,
+  "doi": "10.1149/1.2085434",
+  "title": "Chemical-Mechanical Polishing for Fabricating Patterned W Metal Features as Chip Interconnects",
+  "authors": "F. B. Kaufman, D. B. Thompson, R. E. Broadie, M. A. Jaso, W. L. Guthrie, D. J. Pearson, M. B. Small",
+  "venue": "J. Electrochem. Soc. 138(11), 3460-3465 (1991)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "luo-dornfeld-2003-effects-of-abrasive-size-distribution-cmp": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
+  "pdf": null,
+  "doi": "10.1109/tsm.2003.815199",
+  "title": "Effects of abrasive size distribution in chemical mechanical planarization: Modeling and verification",
+  "authors": "J. Luo, D. A. Dornfeld",
+  "venue": "IEEE Trans. Semicond. Manuf. 16(3), 469-476 (2003)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "chemically-enhanced-synergistic-wear-copper-cmp-case-study": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(Wear/Elsevier)",
+  "pdf": null,
+  "doi": "10.1016/j.wear.2013.08.001",
+  "title": "Chemically enhanced synergistic wear: A copper chemical mechanical polishing case study",
+  "venue": "Wear 307(1-2), 206-212 (2013)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
  }
 }

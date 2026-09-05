@@ -96,10 +96,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | cmp-integrator (process-integrator) | 활성·유지보수 | 6/6 | 2026-09-05 |
 | pad-mechanic | 활성·유지보수 | 6/6 | 2026-09-04 |
 | disk-conditioner | 활성·유지보수 | 6/6 | 2026-09-05 |
-| slurry-chemist | 활성 | 3/6 | 2026-09-05 |
-| tribologist | 활성 | 3/6 | 2026-09-05 |
+| slurry-chemist | 활성 | 4/6 (Lv2 완료) | 2026-09-06 |
+| tribologist | 활성 | 4/6 (Lv2 완료) | 2026-09-06 |
 | wafer-metrology | 활성 (G1 개방 2026-09-05) | 1/6 | 2026-09-05 |
-| surface-contamination | 활성 (G1 개방, 선수 slurry-chemist 3/6 충족) | 0/4 | 2026-09-05 |
+| surface-contamination | 활성 (G1) | 1/4 | 2026-09-06 |
 | (G2 이후) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
