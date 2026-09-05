@@ -634,3 +634,12 @@
   검증: `.venv/bin/python -m pytest -q` → 119/119 PASS(회귀 없음), 구문 파싱 확인 완료.
   commit 01664fe, push 완료. `~/software/BACKLOG.md` S5는 완료 테이블이 아닌 "진행 중"
   표에 🔶(부분)로 남김 — tab2/S6 게이트 남음.
+
+- **2026-09-06** ([성장엔진] 상시크론): wafer-type Lv1-1/Lv1-2 통합 학습 완료 —
+  knowledge/cmp/npw-ptw-test-wafer-fundamentals.md (NPW 49점 polar 측정체계 US6922603B1,
+  PTW MIT 854계열 특성화마스크·effective density 모델 RR=K/ρ_eff, Boning et al. 1999 MRS
+  eq.1 원문 확인, python verify로 반비례관계 4배↔4배 assert 대조). Kim & Seo(2002,
+  DOI 10.1016/S0167-9317(01)00694-3) STI-CMP 패턴/비패턴 상관계수 r≈0.71은 원문 미확보
+  (미러 사이트 미러 5종 전부 무응답 — 네트워크 차단 추정, OA 경로도 전부 실패)로 2차 인용·
+  미검증 표기. check_knowledge.py ✓, verify_claims.py ✓ 통과. EXAMS.md 3문항 추가,
+  PROFILE.md/CURRICULUM.md/ORG.md §5 갱신(wafer-type 0/6→2/6). Phase 0 지식 트랙 진행 중.
