@@ -23,11 +23,11 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   │   ├─ slurry-chemistry            [대기]  산화제·억제제·킬레이트·pH·선택비
 │   │   │   └─ slurry-colloid              [대기]  분산 안정성·응집·POU 필터·쉘프라이프
 │   │   ├─ pad-mechanic ★                 [활성]  총론 → 분화 부모
-│   │   │   ├─ pad-material                [대기]  PU 조성·경도·기공·점탄성
+│   │   │   ├─ pad-material                [활성, G2 2026-09-06]  PU 조성·경도·기공·점탄성
 │   │   │   ├─ pad-structure               [대기]  그루브·서브패드·적층
-│   │   │   └─ pad-lifecycle               [대기]  마모·glazing·수명·교체 기준
+│   │   │   └─ pad-lifecycle               [활성, G3 2026-09-06]  마모·glazing·수명·교체 기준
 │   │   └─ disk-conditioner ★             [활성]  총론 → 분화 부모
-│   │       ├─ disk-design                 [대기]  다이아 그릿·밀도·돌출·본딩
+│   │       ├─ disk-design                 [활성, G3 2026-09-06]  다이아 그릿·밀도·돌출·본딩
 │   │       └─ disk-kinematics             [대기]  sweep·하중·RPM → PCR 프로파일
 │   │
 │   ├─ 웨이퍼 (Wafer) — 피가공물 기준
@@ -101,7 +101,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | wafer-metrology | 활성 (G1 개방 2026-09-05) | 2/6 (Lv1-2 완료) | 2026-09-06 |
 | wafer-type | 활성 (G1 개방 2026-09-06) | 0/4 | 2026-09-06 |
 | surface-contamination | 활성 (G1) | 1/4 | 2026-09-06 |
-| (G2 이후) | 대기 | — | — |
+| pad-material | 활성 (G2 개방 2026-09-06) | 0/6 | 2026-09-06 |
+| pad-lifecycle | 활성 (G3 개방 2026-09-06) | 0/6 | 2026-09-06 |
+| disk-design | 활성 (G3 개방 2026-09-06) | 0/6 | 2026-09-06 |
+| (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
 
