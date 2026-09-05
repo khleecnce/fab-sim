@@ -225,6 +225,27 @@ AGENTS = {
          "드리프트 감지: 소모품 로트·패드 교체·툴 PM 후 재보정 트리거",
          "sim/calibration/{prior,fit_npw,fit_ptw,predict,drift}.py 구현 + 합성 데이터 검증"],
         "이 에이전트가 §7 전체의 기술 소유자. 각 서브에이전트가 정의한 보정 파라미터를 실제로 피팅한다"),
+    # ── 출력/판정 축 (사용자 지시 9/5: uniformity·roughness·TTV·post-CMP 금속 관리)
+    "wafer-metrology": ("웨이퍼 계측·판정 전문가", "cmp-integrator",
+        "CMP 결과를 무엇으로 측정하고 합격 판정하는가. WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막·엣지 롤오프. 측정 포인트 체계와 지표 정의를 표준화한다. 이 정의가 곧 시뮬 엔진의 출력 스키마다",
+        ["cmp/wiwnu-pressure-velocity-wafer-scale", "cmp/pattern-dependent-dishing-erosion"],
+        ["두께 계측 원리와 오차: 엘립소미터(투명막)·4점탐침/와전류(금속)·XRF·프로파일러·AFM — 막질별 적합성",
+         "균일도 지표 정의 표준화: WIWNU(half-range/σ/3σ)·TTV(81pt max-min)·radial TTV(반경별 링 max-min 중 최대)·CV(σ/μ) — 정의마다 값이 다르므로 병기 원칙. 측정 포인트 체계(49/81pt·엣지 제외 폭·다이 맵)",
+         "표면 조도(Ra·Rq·Rz)와 AFM 스캔 크기 의존성, 막질·슬러리별 문헌값 범위, 조도가 후속 공정(리소·증착)에 미치는 영향",
+         "패턴 지표: step height·dishing·erosion·잔막(residual)·엣지 롤오프 — 측정 구조물과 판정 기준(스펙 예시)",
+         "최신 리뷰: 인라인 계측·가상 계측(virtual metrology)·계측 샘플링 최적화",
+         "출력 스키마 확정 + 지표 계산 라이브러리 구현 (sim/metrics/) — 반경 프로파일·다이 맵 입력 → 전 지표 동시 산출, 테스트 포함"],
+        "고객 계측 데이터(포인트 좌표·두께·조도) 스키마 소유. 지표 정의 불일치(고객마다 다른 WIWNU 정의)를 매핑하는 규칙"),
+    "surface-contamination": ("Post-CMP 표면 오염 전문가", "cmp-integrator",
+        "CMP 후 웨이퍼 표면에 남는 금속 이온(Cu·Fe·K·Ca·Al)·이온성 잔류·유기 잔류의 발생원·측정·허용치·제거. 세정 화학과 슬러리 화학의 연결고리",
+        ["cmp/surface-chemistry-cu-w-pourbaix-passivation", "cmp/colloid-zeta-dlvo-slurry-stability"],
+        ["표면 오염 종류와 발생원: 슬러리 유래(Fe 촉매·K 완충제·Ce)·패드/디스크 유래·배선 금속(Cu) 재흡착·세정수 유래",
+         "측정 기법: TXRF·VPD-ICPMS·SIMS·XPS — 검출 한계(atoms/cm²)·막질별 적합성·샘플링 위치",
+         "금속 오염이 소자에 미치는 영향: Cu 확산·게이트 산화막 열화·수명 저하 — 허용치 근거(ITRS/IRDS)",
+         "흡착 메커니즘과 제거 화학: 제타전위·pH·킬레이트(시트르산·EDTA)·희석 HF·오존수 — 막질별 세정 레시피",
+         "최신 리뷰: 저농도 금속 잔류 제어, Co/Ru 신소재 오염, 세정 후 재오염(cross-contamination)",
+         "슬러리 조성·세정 조건 → 잔류 금속 농도 예측 모델 골격 (sim/tier2) + 문헌값 대조"],
+        "고객 TXRF/ICPMS 데이터 스키마 + 슬러리 로트별 오염 기여 보정 파라미터"),
 }
 
 

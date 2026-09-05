@@ -48,6 +48,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   ├─ tribologist ★                   [활성]  마찰·윤활·유동·열
 │   │   └─ defect-scientist                [대기]  스크래치·잔류입자·부식·디싱 원인 분석
 │   │
+│   ├─ 출력/판정 (Output) — ★ 시뮬레이터가 예측해야 할 것. 입력 물리보다 먼저 정의
+│   │   ├─ wafer-metrology                 [대기→G1]  WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막. 측정 포인트 체계, 지표 정의 표준 = 엔진 출력 스키마
+│   │   └─ surface-contamination           [대기→G1]  post-CMP 금속 오염(Cu·Fe·K·Ca)·이온·유기 잔류. TXRF/VPD-ICPMS. 세정 화학 연계
+│   │
 │   └─ 데이터 (Data) — ★ 제품 핵심층 (§7 참조)
 │       ├─ cmp-data-engineer               [대기]  공개·합성 데이터, 스키마, 파이프라인
 │       └─ cmp-calibrator                  [대기]  고객 실데이터 → 모델 보정 (Tier3). NPW/PTW 분리 학습
@@ -70,7 +74,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | 게이트 | 조건 | 깨어나는 에이전트 | 동시 활성 상한 |
 |---|---|---|---|
 | **G0 (지금)** | — | 기존 5명 ★ | 5 |
-| **G1** | slurry-chemist·tribologist Lv2 완료 (=MILESTONES M1, 9/20) | `wafer-type`, `film-oxide`, `film-cu` | 8 |
+| **G1** | slurry-chemist·tribologist Lv2 완료 (=MILESTONES M1, 9/20) | **`wafer-metrology`, `surface-contamination`** (출력 축 — 먼저), `wafer-type`, `film-oxide`, `film-cu` | 10 |
 | **G2** | 5명 전원 커리큘럼 이수 + G1 3명 Lv1 완료 | `slurry-abrasive`, `slurry-chemistry`, `pad-material`, `film-w`, `tool-platen-head`, **`cmp-data-engineer`** | 10 (G1 완료자는 유지보수 모드로 전환) |
 | **G3** | MILESTONES M2 (Phase 0 완결) | `film-nitride`, `film-poly-si`, `pad-lifecycle`, `disk-design`, `tool-endpoint`, `defect-scientist`, **`cmp-calibrator`** | 10 |
 | **G4** | MILESTONES M5 (데모 v1) | 나머지 CMP [대기] 전원 | 12 |
