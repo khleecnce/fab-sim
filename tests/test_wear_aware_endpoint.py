@@ -10,7 +10,7 @@ def test_cumulative_matches_full_trapz():
     r = pwg.simulate_pad_wear(n_steps=40)
     t_arr, mrr_arr = r["t"], r["MRR"]
     cum = wae.cumulative_removed_thickness_drift(t_arr, mrr_arr)
-    full_trapz = np.trapz(mrr_arr, t_arr)
+    full_trapz = np.trapezoid(mrr_arr, t_arr)
     rel_err = abs(cum[-1] - full_trapz) / full_trapz
     assert rel_err < 1e-9
 

@@ -91,13 +91,13 @@ def _selftest():
         ok &= bool(cond)
         print(f"[{'PASS' if cond else 'FAIL'}] {name} {detail}")
 
-    # 1) 적분 일관성: cumulative의 마지막 값 == np.trapz(전체 구간) 상대오차 <1e-9
+    # 1) 적분 일관성: cumulative의 마지막 값 == np.trapezoid(전체 구간) 상대오차 <1e-9
     r = simulate_pad_wear(n_steps=40)
     t_arr, mrr_arr = r["t"], r["MRR"]
     cum = cumulative_removed_thickness_drift(t_arr, mrr_arr)
-    full_trapz = np.trapz(mrr_arr, t_arr)
+    full_trapz = np.trapezoid(mrr_arr, t_arr)
     rel_err1 = abs(cum[-1] - full_trapz) / full_trapz
-    chk("cumulative 적분 마지막 값이 np.trapz(전체구간)과 일치",
+    chk("cumulative 적분 마지막 값이 np.trapezoid(전체구간)과 일치",
         rel_err1 < 1e-9, f"cum[-1]={cum[-1]:.6e}, trapz={full_trapz:.6e}, rel_err={rel_err1:.2e}")
 
     # 2) 드리프트 없음(C1=0) 극한에서 process_time.py로 정확히 축소되는 회귀 검증
