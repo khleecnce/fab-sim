@@ -103,6 +103,9 @@ class WaferResult:
 class Model(Protocol):
     name: str
     def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray: ...
+    # 선택: 모델이 자기 한계를 스스로 보고한다(미해결 물리·미검증 가정).
+    # 구현하지 않아도 되지만, 아는 한계를 숨기면 그게 할루시네이션이다.
+    def notes(self, recipe: Recipe) -> List[str]: ...
 
 
 class PrestonRadialModel:
@@ -112,8 +115,16 @@ class PrestonRadialModel:
     def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
         import wiwnu as W            # sim/tier1_empirical/wiwnu.py (1바이트도 수정 안 함)
         p0 = recipe.pressure_psi * PSI_TO_PA
-        if recipe.zone_pressures_psi and recipe.zone_edges_norm:
-            pfn = W.p_zoned(np.asarray(recipe.zone_edges_norm),
+        if recipe.zone_pressures_psi:
+            # wiwnu.p_zoned는 경계가 [0, ..., 1] (len=N+1)이어야 한다.
+            # Recipe.zone_edges_norm은 끝점만 준다(len=N) → 0을 앞에 붙인다.
+            # 이걸 안 하면 searchsorted가 전부 같은 존으로 보내 존압력이 무시된다
+            # (2026-09-05 test_zone_pressure_applied가 잡은 실제 버그).
+            edges = list(recipe.zone_edges_norm or
+                         np.linspace(0, 1, len(recipe.zone_pressures_psi) + 1)[1:])
+            if edges[0] != 0.0:
+                edges = [0.0] + edges
+            pfn = W.p_zoned(np.asarray(edges),
                             np.asarray(recipe.zone_pressures_psi) * PSI_TO_PA)
         elif recipe.edge_pressure_amp > 0:
             pfn = W.p_edge_concentration(p0, amp=recipe.edge_pressure_amp)
@@ -143,7 +154,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     notes: List[str] = []
     r_max = recipe.wafer_radius_m - recipe.edge_exclusion_m
     radius = np.linspace(0.0, r_max, recipe.n_points)
-    mrr_m_s = _MODELS[model].mrr_radial(recipe, radius)
+    impl = _MODELS[model]
+    mrr_m_s = impl.mrr_radial(recipe, radius)
+    # 모델이 스스로 한계를 보고할 기회 — 지어내지 않고 모르는 것을 드러낸다
+    if hasattr(impl, "notes"):
+        notes.extend(impl.notes(recipe))  # type: ignore[attr-defined]
     mrr_nm_min = mrr_m_s * 1e9 * 60.0
     removed = mrr_nm_min * (recipe.time_s / 60.0)
     remaining = None
@@ -151,8 +166,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         remaining = recipe.initial_thickness_nm - removed
         if np.any(remaining < 0):
             notes.append("잔막 음수 — 오버폴리시. time_s 또는 initial_thickness 확인")
-    if recipe.wafer == "PTW":
-        notes.append("PTW: 패턴 효과(dishing/erosion) 미연결 — pattern_density.py 통합은 M3. 지금 값은 NPW 등가")
+    if recipe.wafer == "PTW" and model != "tier1.pattern_density":
+        notes.append("PTW인데 패턴 모델을 쓰지 않았다 — model='tier1.pattern_density'로 실행하라. "
+                     "지금 값은 NPW 등가")
     if recipe.film != "oxide":
         notes.append(f"film={recipe.film}: 막질별 Kp 미분화 — film-{recipe.film} 에이전트 활성 후 반영. 지금은 kp_m_per_pa 그대로")
     metrics = compute_metrics(radius, removed if remaining is None else remaining,
