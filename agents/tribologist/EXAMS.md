@@ -100,3 +100,34 @@ A3. 다공성 폴리우레탄 패드의 열전도도가 k≈0.02 W/m·K로 극�
 19~29 ℃ 오더 재현)인 반면, **플래시 온도**는 asperity 실접촉점(A_r≪A_n, [[hertz-gw-contact-mechanics]])에서만
 순간적으로 오르는 국소 고온으로, 국소 열유속 q_local=q·(A_n/A_r)이 평균의 수십 배라 평균보다 훨씬 높다
 — 화학반응온도는 이 transient flash heating이 결정한다(Shin 2025 서술). 플래시 절대값은 **미검증**(Lv3 후보).
+
+## Lv3-1 COF 실시간 모니터링과 EPD(종점검출) (2026-09-06)
+근거: [[../../knowledge/physics/friction-cof-monitoring-endpoint-detection]], [[../../knowledge/physics/cmp-lubrication-regimes]], [[../../knowledge/physics/frictional-heating-temperature-arrhenius-coupling]]
+
+**Q1. 마찰전단력에서 플래튼 모터전류까지의 신호 사슬을 쓰고, "플래튼 모터가 마찰을 이기며 쓰는 동력이 곧 마찰발열"임을 항등식으로 보여라.**
+A1. 계면 전단력 F_shear=μ·F_normal=μ·P·A(Amontons). 이 힘이 회전 플래튼에 거는 저항토크는
+τ_wafer≈F_shear·r_c(r_c=웨이퍼중심의 플래튼축 반경). DC/BLDC 모터는 τ=K_t·I이므로 모터전류
+I=τ/K_t ∝ F_shear ∝ μ. 모터가 마찰을 이기며 쓰는 기계동력은 P_motor,fric=τ_wafer·ω=F_shear·(r_c·ω)=
+F_shear·V=μ·P·V·A. 한편 [[frictional-heating-temperature-arrhenius-coupling]]의 단위면적 마찰발열
+q=μPV, 전체발열 Q_f=q·A=μPVA. 따라서 **P_motor,fric=Q_f** — 모터가 마찰에 쓴 전기동력과 계면에서
+소산된 마찰열은 같은 μPVA다. 재현(노트 §6): 3psi·300mm·0.70m/s·μ=0.4에서 둘 다 409 W(White 2003
+마찰열 200~300W와 동오더). 단 실제 모터전류엔 베어링·링·컨디셔너 baseline이 겹쳐 종점신호는 소신호.
+
+**Q2. Headley et al.(2019)에서 플래튼 모터전류(PMC)가 COF(r=0.758)보다 전단력(r=0.955)과 더 강하게 상관하는 이유를 물리로 설명하라. 그리고 COF 상관을 끌어내린 5개 케이스가 어느 윤활레짐인지 답하라.**
+A2. PMC는 토크=F_shear·r_c 이므로 **전단력의 직접 대리**다 → 거의 선형(r=0.955, R²=0.916).
+반면 COF=F_shear/F_normal 은 수직력으로 정규화가 한 번 더 들어가 F_normal의 요동이 산포로 더해져
+상관이 낮아진다(r=0.758, R²=0.608). 즉 모터전류는 엄밀히 "COF계"가 아니라 "전단력계"다
+(Headley, Sampurno, Philipossian, *ECS JSST* 8(10) P634, 2019, doi.org/10.1149/2.0251910jss). COF를
+끌어내린 5개 케이스는 COF가 pseudo-Sommerfeld 수에 거의 안 변한 **boundary 윤활**(Stribeck의
+boundary plateau, [[tribology-friction-wear-stribeck]])이다. 역으로 완전 hydrodynamic이면 μ가
+점성전단 지배로 재료무관·저값이 되어 마찰 EPD 대비가 사라진다 → 마찰 EPD는 boundary~mixed에서 성립.
+
+**Q3. 마찰기반 EPD의 "소신호-검출지연-과연마" 트레이드오프를 Li et al.(2017) 수치로 설명하고, 마찰법이 광학·와전류법 대비 갖는 근본한계 하나를 말하라.**
+A3. 종점신호(모터전력 계단 Δ≈1630 W)는 baseline(≈30,300 W)의 **약 5%**에 불과한 소신호라 잡음에
+묻힌다(Li, Lu, Luo, *Micromachines* 8(6) 177, 2017, PMC6190379). 이를 잡으려 이동평균 창을 넓히면
+검출이 지연된다: 121점(half-span 60)·12.15 Hz → 지연 T=N/R≈**4.94 s(<5 s)**, TEOS 229 nm/min에서
+**과연마≈18.8 nm(<20 nm)**. 창↑→잡음↓·지연↑·과연마↑의 저울이다(샘플링을 40Hz로 올리면 완화).
+근본한계: 마찰신호는 **웨이퍼 전면 평균값**이라 within-wafer·die-level 공간불균일을 못 본다(Lai 2001
+MIT thesis ch6) — 광학(간섭/반사)의 국소검출이나 와전류의 도전막 두께 직접측정과 달리 공간분해가 없어,
+실무에선 멀티센서로 보완한다. 또 barrier(Ta/TaN)와 하지 유전체의 COF가 유사하면 전이신호가 약해
+Cu→barrier 전이를 잡고 정해진 overpolish 시간을 더하는 방식으로 운용한다.
