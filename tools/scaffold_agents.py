@@ -230,7 +230,7 @@ AGENTS = {
         "CMP 결과를 무엇으로 측정하고 합격 판정하는가. WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막·엣지 롤오프. 측정 포인트 체계와 지표 정의를 표준화한다. 이 정의가 곧 시뮬 엔진의 출력 스키마다",
         ["cmp/wiwnu-pressure-velocity-wafer-scale", "cmp/pattern-dependent-dishing-erosion"],
         ["두께 계측 원리와 오차: 엘립소미터(투명막)·4점탐침/와전류(금속)·XRF·프로파일러·AFM — 막질별 적합성",
-         "균일도 지표 정의 표준화: WIWNU(half-range/σ/3σ)·TTV(81pt max-min)·radial TTV(반경별 링 max-min 중 최대)·CV(σ/μ) — 정의마다 값이 다르므로 병기 원칙. 측정 포인트 체계(49/81pt·엣지 제외 폭·다이 맵)",
+         "균일도 지표 정의를 문헌에서 확정: SEMI 표준(MF1530 등)·Lee & Boning 1999·장비사 매뉴얼에서 TTV·WIWNU(half-range/σ/3σ)·CV·radial 지표의 정의와 측정 포인트 체계(49/81pt·엣지 제외·다이 맵)를 조사. 정의가 갈리면 병기. 결과로 sim/metrics/uniformity.py의 잠정 정의를 교체하고 근거 노트를 docstring에 링크",
          "표면 조도(Ra·Rq·Rz)와 AFM 스캔 크기 의존성, 막질·슬러리별 문헌값 범위, 조도가 후속 공정(리소·증착)에 미치는 영향",
          "패턴 지표: step height·dishing·erosion·잔막(residual)·엣지 롤오프 — 측정 구조물과 판정 기준(스펙 예시)",
          "최신 리뷰: 인라인 계측·가상 계측(virtual metrology)·계측 샘플링 최적화",

@@ -1,20 +1,25 @@
 """
 균일도·두께 지표 라이브러리 — wafer-metrology 에이전트 소유 (엔진 출력 스키마).
 
-정의 (사용자 실무 정의 2026-09-02, 회사 보고서 기준 — 공개 문헌 정의와 병기):
-  TTV            = 전체 측정점 max − min                        [nm]
-  radial TTV     = 반경별 링(병합 없이 각 링)의 max−min 중 최대   [nm]
-  CV             = σ / μ × 100                                    [%]
-  WIWNU half-range = (max−min)/(2·mean) × 100                     [%]   (Lee & Boning 1999 정의 중 하나)
-  WIWNU 3σ       = 3σ / mean × 100                                [%]
-  edge rebound   = 엣지 링 평균 − 인접 내측 링 평균                [nm]  (+면 엣지가 두꺼움)
+⚠ 상태: **잠정(provisional)**. 지표 정의는 wafer-metrology 에이전트가 Lv1-2 단원에서
+공개 문헌(SEMI 표준, Lee & Boning 1999, 장비사 계측 매뉴얼 등)을 학습해 확정한다.
+아래 정의는 흔히 쓰이는 형태를 임시로 둔 것이며, 학습 결과와 다르면 **학습 결과가 이긴다**.
+근거 노트가 생기면 이 docstring을 그 노트 링크로 교체할 것.
 
-WIWNU는 산업 표준이 없어(process-integrator 판단, wiwnu-pressure-velocity 노트) 세 지표를 병기한다.
+잠정 정의:
+  TTV            = max − min                        [nm]  (SEMI MF1530 계열 정의 확인 필요)
+  radial TTV     = 반경 링별 (max−min) 중 최대       [nm]  (링 분할 방식·링 수는 미확정)
+  CV             = σ / μ × 100                        [%]
+  WIWNU half-range = (max−min)/(2·mean) × 100         [%]   (Lee & Boning 1999에 등장하는 정의 중 하나)
+  WIWNU 3σ       = 3σ / mean × 100                    [%]
+  edge rebound   = 엣지 링 평균 − 인접 내측 링 평균     [nm]  (미검증 — 문헌 정의 확인 필요)
+
+WIWNU는 산업 표준이 없다(process-integrator 판단, wiwnu-pressure-velocity 노트) → 병기 원칙.
 값만 인용하지 말고 정의를 함께 보고할 것.
 
 입력은 두 형태를 받는다:
   1) 반경 프로파일 (radius[], value[])            — 시뮬레이터 출력, 축대칭 가정
-  2) 측정 포인트 (x[], y[], value[])               — 실측 81pt 등. 반경 링은 r을 n_rings로 등분
+  2) 측정 포인트 (x[], y[], value[])               — 실측. 반경 링은 r을 n_rings로 등분(잠정)
 """
 from __future__ import annotations
 
@@ -40,7 +45,7 @@ class UniformityMetrics:
     wiwnu_halfrange_pct: float
     wiwnu_3sigma_pct: float
     edge_rebound_nm: Optional[float]
-    definition: str = ("TTV=max-min | radialTTV=max over rings of (ring max-min) | "
+    definition: str = ("PROVISIONAL — wafer-metrology Lv1-2 학습 후 확정 | TTV=max-min | radialTTV=max over rings of (ring max-min) | "
                        "CV=σ/μ·100 | WIWNU_hr=(max-min)/(2·mean)·100 | WIWNU_3σ=3σ/mean·100")
 
     def as_dict(self):
