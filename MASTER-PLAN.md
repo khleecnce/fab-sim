@@ -61,7 +61,7 @@
 - [ ] 슬러리(입자·화학) × 패드(점탄성·asperity) × 디스크(마모) 결합 모델
 - [x] 웨이퍼 스케일 균일도(WIWNU), 패턴 의존성(dishing/erosion) 모듈 — WIWNU(`wiwnu.py`)와 패턴밀도/dishing/erosion(`pattern_density.py`)이 각각 구현된 데 이어, 둘을 잇는 결합 브리지(`wiwnu_pattern_combined.py`, 2026-09-05)로 반경×다이 2차원 결합 제거율 맵까지 완성. 단, 반경-패턴 분리가능(separable) 1차 근사이며 교차항(엣지에서 패턴영향 증폭 등)은 미포함 — 진행 로그 07시 회차 항목 참조.
 - [ ] 합성/공개 데이터 캘리브레이션 파이프라인 (⚠️ 회사 데이터 절대 금지)
-- [ ] Streamlit 데모 UI → 포트폴리오/사업계획서 데모로 사용
+- [x] Streamlit 데모 UI(WIWNU×패턴 탭 포함) → 포트폴리오/사업계획서 데모로 사용 (2026-09-05, Max워커)
 ### Phase 2 — 인접 공정 확장 (9~24개월)
 - [ ] 신규 에이전트 육성: Etch → Deposition(CVD/ALD) → Litho → Diffusion
 - [ ] 공정 간 인터페이스 표준(웨이퍼 상태 객체: 토포그래피·막질·응력)
@@ -526,3 +526,21 @@
   코드가 독립 수치해로 재현한 것이 아님 — 재현은 "정성 부호 일치"에 한정. 다음:
   tribologist Lv2-2(마찰열-화학반응 결합) 또는 slurry-chemist Lv2-2(입자-웨이퍼 상호작용) —
   M1 게이트(둘 다 지식 병목 해소 대상) 우선순위상 진도 낮은 쪽 선택 예정.
+
+- **2026-09-05** (Max워커 회차): Phase 0/1 체크리스트 "Streamlit 데모 UI → 포트폴리오/
+  사업계획서 데모" 항목 진행 — `sim/demo_app.py`를 `st.tabs()` 2탭 구조로 재구성. 탭1은
+  기존 Preston MRR v0(로직 무수정, 껍데기만 탭 안으로 이동). 탭2 신규: WIWNU(반경 스케일)
+  × 패턴밀도(다이 스케일) 결합 제거율 맵 — `sim/tier1_empirical/wiwnu_pattern_combined.py`
+  (2026-09-05 20시 이전 회차에 이미 self-test/pytest 통과된 기존 모듈)를 그대로 import해
+  파라미터 슬라이더(R_w, r_cc, RPM, Kp, 압력 프로파일, 합성 다이 패턴 진폭/주기)로 구동,
+  matplotlib heatmap(반경×다이내부위치)과 sigma_pct(CV)/half_range_pct 지표를 표시.
+  **새 물리/지식 구현 없음 — 순수 UI 통합**이며, `wiwnu.py`/`pattern_density.py`/
+  `wiwnu_pattern_combined.py` 3개 계산 모듈은 `git diff` 확인 결과 1바이트도 수정하지
+  않음(이미 통과된 self-test/pytest 상태 보존). 화면에 "반경-패턴 분리가능(separable)
+  1차 근사, 교차항 미포함" 한계 고지 문구 포함. 검증: `streamlit run` 로컬 구동 후
+  헤드리스 응답 확인, 신규 smoke test `tests/test_demo_app_smoke.py`(Streamlit
+  `AppTest`로 예외 없이 로드 + 탭 2개 존재 확인) 추가. pytest 전체 **91/91 PASS**
+  (기존 90 + smoke 1건, 회귀 없음). Phase 0/1 체크리스트 "Streamlit 데모 UI" 항목 [x] 처리.
+  한계: heatmap의 다이 패턴은 여전히 합성 예시(사인형)이며 실제 레이아웃 데이터 아님 —
+  캘리브레이션 파이프라인(같은 체크리스트의 다음 미완 항목)이 선행되어야 정량 신뢰도 있는
+  데모가 됨.
