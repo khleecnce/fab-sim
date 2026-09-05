@@ -500,3 +500,29 @@
   신규 노트 포함 **21/21 통과**. 한계: Pourbaix 원저(1966) 미확인이라 정확한 안정영역
   경계값(pH·E 좌표)은 2차 인용 의존, 기울기 공식 자체만 독립 검증. 다음: slurry-chemist
   Lv2-2(입자-웨이퍼 상호작용: 기계적 제거 vs 화학적 용해 균형).
+
+- **2026-09-05** (20시 회차, 상시크론, 트랙A): MILESTONES.md 현재 게이트 M1(지식 병목,
+  기한 2026-09-20) 확인 — 학습 우선 지시에 따라 tribologist Lv2-1(슬러리 유동: 패드 groove
+  내 유동·필름두께 모델) 이수. 지식노트
+  `knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md` — 1차 원문 Thakurta,
+  Borst, Schwendeman, Gutmann, Gill, "Three-Dimensional Chemical Mechanical Planarization
+  Slurry Flow Model Based on Lubrication Theory," J. Electrochem. Soc. 148(4) G207-G214
+  (2001), DOI 10.1149/1.1355691 — 유료 논문을 사용자 9/5 지시(미러 사이트 활용 승인)에 따라
+  미러 사이트 미러에서 DOI로 PDF 확보(`papers/thakurta2001_slurry_flow_lubrication.pdf`,
+  `papers/INDEX.json` 등록). 핵심: 웨이퍼-패드 간극 슬러리 유동을 환산 레이놀즈수(~1e-2~1e-3)
+  로 정당화된 일반화 Reynolds 방정식(패드 다공성 k·압축성 c 포함, Eq.13)으로 풀어 최소
+  필름두께 h_min을 계산 — h_min이 패드 평균거칠기보다 크냐 작냐로 윤활/접촉 레짐을 판별하는
+  것이 Lv1-2(So·λ ratio)와 동일 물리의 정량판인 것을 확인. 무차원 길이스케일
+  z0=sqrt(2μω₂R₁R₂/P_app)(Eq.19)와 h_min의 파라미터 의존 방향 8종(압력↓·속도↑·점도↑ 시
+  두꺼워짐, 다공성·압축성↑ 시 얇아짐, 웨이퍼자전만↑ 시 반직관적으로 얇아짐, 웨이퍼곡률에
+  내부 극댓값 존재) 정리. 자기시험 3문항. 구현 `sim/tier2_physics/slurry_film_lubrication.py`
+  — 전체 2-D 비선형 PDE 수치해는 미이식(지식노트 §7에 한계 명시), z0 스케일 공식과 8개
+  정성 부호를 최소 스케일링 함수로 재현. self-test **10/10 PASS**(z0 오더가 논문 h_min=36µm과
+  동일 오더로 확인, 8개 파라미터 방향 전부 문헌 부호와 일치, 웨이퍼곡률 비단조 극값 존재
+  확인). pytest 회귀 `tests/test_slurry_film_lubrication.py` 신규 7건, 전체 **90/90 PASS**
+  (기존 83+신규 7, 회귀 없음). `check_knowledge.py --all`: 신규 노트 포함 **22/22 통과**.
+  PROFILE.md/CURRICULUM.md/EXAMS.md/sim/README.md 갱신 — tribologist Lv1 전체+Lv2-1 이수,
+  Lv2 진행중(1/2). 정직한 한계: 정량 h_min 예측치(예: 36µm)는 논문 보고값 그대로이며 우리
+  코드가 독립 수치해로 재현한 것이 아님 — 재현은 "정성 부호 일치"에 한정. 다음:
+  tribologist Lv2-2(마찰열-화학반응 결합) 또는 slurry-chemist Lv2-2(입자-웨이퍼 상호작용) —
+  M1 게이트(둘 다 지식 병목 해소 대상) 우선순위상 진도 낮은 쪽 선택 예정.

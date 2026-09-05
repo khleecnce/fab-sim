@@ -51,3 +51,26 @@ boundary에서는 COF가 So에 대해 평탄한 고값(oxide CMP 문헌 0.23~0.4
 속도↑, 점도↑는 So를 키워** mixed/hydrodynamic 쪽으로 밀어 접촉을 줄이고 MRR을 떨어뜨린다.
 반대로 boundary 유지(고 MRR)를 위해선 So를 작게 — 즉 충분한 압력과 적정 속도가 필요하다.
 저 MRR·hydroplaning 의심 시 So로 1차 점검(Lv3-1 COF·EPD에서 심화).
+
+## Lv2-1 슬러리 유동: 패드 groove 필름두께 모델 (2026-09-05)
+근거: [[../../knowledge/physics/cmp-slurry-flow-lubrication-film-thickness]], [[../../knowledge/physics/cmp-lubrication-regimes]], [[../../knowledge/physics/cmp-kinematics-rotary]]
+
+**Q1. Thakurta et al.(2001)이 3-D Navier-Stokes 대신 Reynolds 윤활방정식을 쓸 수 있다고 정당화한 근거는 무엇이며, 그 결과 몇 변수 문제가 몇 변수로 줄어드는가?**
+A1. 환산 레이놀즈수 Re* = (ρUR₁/μ)·(h̄/R₁)²를 계산하면 전형 CMP 조건(h̄~수십µm, R₁~수cm)에서
+Re*~1e-2~1e-3으로 작다 — 관성항이 점성항에 비해 무시 가능하다는 뜻이며, 이는 슬라이더 베어링
+윤활이론의 정당화 조건과 동일하다(Thakurta 2001 Eq.1). 그 결과 (u,v,w,P_f) 4변수 3-D 문제가
+**압력 P_f 하나만 푸는 2-D 문제**(일반화 Reynolds 방정식, Eq.13)로 축약된다.
+
+**Q2. h_min이 CMP 레짐 판별에 쓰이는 이유를, 이전 단원(Lv1-2)의 λ ratio와 연결해 설명하라.**
+A2. h_min(최소 슬러리 필름두께)이 패드 평균거칠기(~20µm)보다 크면 웨이퍼가 패드에서 완전히
+떠 있는 윤활레짐, 작으면 asperity가 막을 뚫는 접촉레짐이다. 이는 [[cmp-lubrication-regimes]]의
+λ=h_film/σ<1(boundary)/≥3(hydrodynamic) 판별과 **동일한 물리**를 다른 방식(3-D 압력장 직접
+계산 vs 오더 추정)으로 표현한 것 — h_min은 λ 계산에 쓰는 h_film의 정량 계산치에 해당한다.
+
+**Q3. 웨이퍼 자전 속도(ω₁)를 증가시키면 h_min이 증가하는가 감소하는가? 왜 이것이 "직관에 반하는" 결과인가?**
+A3. **감소한다.** 직관적으로는 회전이 빨라지면 유입 유량이 늘어 필름이 두꺼워질 것 같지만,
+패드 회전(ω₂)에 의한 슬러리 유입은 패드 표면속도가 만드는 압력구배(수렴유로)에 의존하는데,
+웨이퍼가 자전하면 웨이퍼 표면에서의 상대속도 분포가 바뀌어 이 패드 유입 효과를 상쇄한다
+(Thakurta 2001 Fig.7a, §5 표 "웨이퍼 회전속도만↑(패드 고정)" 항목 — 유일하게 회전 증가가
+반대 방향 효과를 갖는 파라미터). 재현: `sim/tier2_physics/slurry_film_lubrication.py`
+`h_min_wafer_rotation_effect()` — ω₁ 증가 시 대리량 감소 확인(PASS).

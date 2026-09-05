@@ -271,3 +271,23 @@ disk-conditioner Lv2-1(디스크-패드 절삭 모델) 산출물. 지식노트
 ### tests/ — pytest 회귀 하네스
 `source .venv/bin/activate && python -m pytest tests/ -v` — 신규 test_conditioner_pcr_decay.py
 (6건) 포함 전체 **62개 PASS** (2026-09-05 기준).
+
+### tier2_physics/slurry_film_lubrication.py — 슬러리 필름두께 스케일링 (2026-09-05)
+근거 지식: `knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md`
+(Thakurta et al. 2001, 3-D Reynolds 윤활방정식, 미러 사이트 경유 원문 확보)
+
+전체 2-D 비선형 Reynolds PDE(뉴턴법 수치해)는 미이식 — 대신 z0 무차원 길이스케일(Eq.19)과
+h_min의 파라미터 의존 방향(압력·속도·점도·다공성·압축성·곡률·웨이퍼자전) 8개 정성 부호를
+최소 스케일링 함수로 재현.
+
+**self-test 결과 (10/10 PASS)**
+| 검증 | 결과 |
+|---|---|
+| z0 오더가 논문 h_min(36µm)과 같은 오더 | z0≈232µm ✔ |
+| P_app↑→z0↓, 패드속도↑→z0↑ | 방향 일치 ✔ |
+| h_min_scaling: P_app↑↓, U↑↑, μ↑↑ | 방향 모두 일치 ✔ |
+| 패드 다공성·압축성↑ → h_min↓ | 방향 일치 ✔ |
+| 웨이퍼 자전↑(패드 고정) → h_min↓ (반직관 방향) | 방향 일치 ✔ |
+| 웨이퍼 곡률(d0) → h_min 내부 극댓값 존재(비단조) | imax=2/5(중간값) ✔ |
+
+pytest 회귀: `tests/test_slurry_film_lubrication.py` 신규 7건, 전체 **90/90 PASS**.

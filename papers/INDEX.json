@@ -11,5 +11,14 @@
   "confidence": "doi",
   "title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
   "note": "equipment/cmp-tool-architecture.md"
+ },
+ "thakurta2001-3d-cmp-slurry-flow-lubrication-theory": {
+  "src": "미러 사이트 (미러 사이트/.red mirror, DOI resolved)",
+  "pdf_local": "papers/thakurta2001_slurry_flow_lubrication.pdf",
+  "doi": "10.1149/1.1355691",
+  "title": "Three-Dimensional Chemical Mechanical Planarization Slurry Flow Model Based on Lubrication Theory",
+  "authors": "Thakurta, Borst, Schwendeman, Gutmann, Gill",
+  "venue": "J. Electrochem. Soc. 148(4) G207-G214 (2001)",
+  "note": "physics/cmp-slurry-flow-lubrication-film-thickness.md"
  }
 }
