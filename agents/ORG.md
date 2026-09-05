@@ -49,8 +49,8 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   └─ defect-scientist                [대기]  스크래치·잔류입자·부식·디싱 원인 분석
 │   │
 │   ├─ 출력/판정 (Output) — ★ 시뮬레이터가 예측해야 할 것. 입력 물리보다 먼저 정의
-│   │   ├─ wafer-metrology                 [대기→G1]  WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막. 측정 포인트 체계, 지표 정의 표준 = 엔진 출력 스키마
-│   │   └─ surface-contamination           [대기→G1]  post-CMP 금속 오염(Cu·Fe·K·Ca)·이온·유기 잔류. TXRF/VPD-ICPMS. 세정 화학 연계
+│   │   ├─ wafer-metrology                 [활성, G1 2026-09-05]  WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막. 측정 포인트 체계, 지표 정의 표준 = 엔진 출력 스키마
+│   │   └─ surface-contamination           [활성, G1 2026-09-05]  post-CMP 금속 오염(Cu·Fe·K·Ca)·이온·유기 잔류. TXRF/VPD-ICPMS. 세정 화학 연계
 │   │
 │   └─ 데이터 (Data) — ★ 제품 핵심층 (§7 참조)
 │       ├─ cmp-data-engineer               [대기]  공개·합성 데이터, 스키마, 파이프라인
@@ -97,8 +97,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | pad-mechanic | 활성·유지보수 | 6/6 | 2026-09-04 |
 | disk-conditioner | 활성·유지보수 | 6/6 | 2026-09-05 |
 | slurry-chemist | 활성 | 3/6 | 2026-09-05 |
-| tribologist | 활성 | 2/6 | 2026-09-05 |
-| (G1 이후) | 대기 | — | — |
+| tribologist | 활성 | 3/6 | 2026-09-05 |
+| wafer-metrology | 활성 (G1 개방 2026-09-05) | 1/6 | 2026-09-05 |
+| surface-contamination | 활성 (G1 개방, 선수 slurry-chemist 3/6 충족) | 0/4 | 2026-09-05 |
+| (G2 이후) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
 

@@ -552,3 +552,20 @@
   부채 3건(단일-런 스냅샷 한계, Kp 화학+기계 뭉뚱그림, PTW 다이맵 필드 부재) 정리.
   pytest 100 passed(문서 작업, 코드 변경 없음). 다음 회차: S3(gw_preston_link →
   engine.Model, 문헌값·자체 self-test 이미 확보) 착수 예정.
+
+- **2026-09-05 22:00** (성장엔진, 트랙 A): G1 게이트 실질 개방 — wafer-metrology,
+  surface-contamination [대기]→[활성] (agents/ORG.md §2·§5 갱신, 선수관계 PREREQ.json
+  충족 확인, tools/progress.py가 앞서 개방 조건 충족을 판정함). wafer-metrology
+  Lv1-1(두께 계측 원리: 엘립소미터·리플렉토미터·와전류·4점탐침·XRF, 막질별 적합성)
+  이수 — knowledge/cmp/wafer-metrology-thickness-methods.md. 1차 출처 3건
+  (IEEE DOI 10.1109/TIE.2021.3111570, 10.1109/ICEPT52650.2021.9567975 — Semantic
+  Scholar API 초록 확인, 본문 유료 미확보; IOP DOI 10.1088/1681-7575/ae3964 —
+  Unpaywall이 OA published version으로 표시했으나 웹 접근 hCaptcha 봉쇄로 초록만).
+  2차 확보: Kao 및 Chung, Wafer Manufacturing (2021, Wiley) 발췌본(catalogimages.wiley.com,
+  10페이지 원문 전체 확보) — SEMI MF1530 원문은 downloads.semi.org와 미러 모두
+  Cloudflare 403 봉쇄로 미확보, 교과서의 직접 인용(Eq.1.5 TTV=t_max-t_min)으로 대체.
+  정량 재현(python verify 2블록): 4PP 상수 pi/ln2=4.532 재현 일치, Cu 500nm 벌크가정
+  시트저항 33.6 mOhm/sq(문헌 오더 30-100 mOhm/sq와 자릿수 일치), 교과서 TTV 예제(0, 3.3)
+  재현 완전 일치 — check_knowledge.py, verify_claims.py 모두 통과. EXAMS.md 3문항.
+  다음: wafer-metrology Lv1-2(균일도 지표를 SEMI 표준, Lee-Boning 1999로 문헌 확정 →
+  sim/metrics/uniformity.py의 PROVISIONAL 정의 교체, Cal-1 전 단계).
