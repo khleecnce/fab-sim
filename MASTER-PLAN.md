@@ -544,3 +544,11 @@
   한계: heatmap의 다이 패턴은 여전히 합성 예시(사인형)이며 실제 레이아웃 데이터 아님 —
   캘리브레이션 파이프라인(같은 체크리스트의 다음 미완 항목)이 선행되어야 정량 신뢰도 있는
   데모가 됨.
+
+- **2026-09-05 21:30** ([소프트웨어] software-lead 회차): BACKLOG S1 완료 —
+  `docs/ARCHITECTURE.md` 신설(커밋 137a81b). 25개 sim 모듈의 실측 import 의존그래프,
+  engine.Model 이관 분류(이관됨 1건/이관 대상 2건: gw_preston_link·pattern_density/
+  이관 보류 ~18건: 시계열 상태·화학 lump 상수 등 스키마·지식 부족), Recipe 스키마
+  부채 3건(단일-런 스냅샷 한계, Kp 화학+기계 뭉뚱그림, PTW 다이맵 필드 부재) 정리.
+  pytest 100 passed(문서 작업, 코드 변경 없음). 다음 회차: S3(gw_preston_link →
+  engine.Model, 문헌값·자체 self-test 이미 확보) 착수 예정.
