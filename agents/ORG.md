@@ -31,7 +31,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │       └─ disk-kinematics             [대기]  sweep·하중·RPM → PCR 프로파일
 │   │
 │   ├─ 웨이퍼 (Wafer) — 피가공물 기준
-│   │   ├─ wafer-type                      [대기]  NPW(블랭킷) vs PTW(패턴) — 시험 목적·데이터 해석 차이
+│   │   ├─ wafer-type                      [활성, G1 2026-09-06]  NPW(블랭킷) vs PTW(패턴) — 시험 목적·데이터 해석 차이
 │   │   ├─ film-oxide                      [대기]  TEOS/HDP/SiO2 — ILD·STI CMP
 │   │   ├─ film-nitride                    [대기]  SiN — STI stop layer·선택비
 │   │   ├─ film-poly-si                    [대기]  Poly-Si — 게이트·3D NAND
@@ -96,9 +96,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | cmp-integrator (process-integrator) | 활성·유지보수 | 6/6 | 2026-09-05 |
 | pad-mechanic | 활성·유지보수 | 6/6 | 2026-09-04 |
 | disk-conditioner | 활성·유지보수 | 6/6 | 2026-09-05 |
-| slurry-chemist | 활성 | 4/6 (Lv2 완료) | 2026-09-06 |
-| tribologist | 활성 | 4/6 (Lv2 완료) | 2026-09-06 |
-| wafer-metrology | 활성 (G1 개방 2026-09-05) | 1/6 | 2026-09-05 |
+| slurry-chemist | 활성 | 5/6 (Lv3-1 완료) | 2026-09-06 |
+| tribologist | 활성 | 5/6 (Lv3-1 완료) | 2026-09-06 |
+| wafer-metrology | 활성 (G1 개방 2026-09-05) | 2/6 (Lv1-2 완료) | 2026-09-06 |
+| wafer-type | 활성 (G1 개방 2026-09-06) | 0/4 | 2026-09-06 |
 | surface-contamination | 활성 (G1) | 1/4 | 2026-09-06 |
 | (G2 이후) | 대기 | — | — |
 

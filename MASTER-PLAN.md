@@ -606,3 +606,18 @@
   pytest -q` 119/119 PASS(회귀 없음), GitHub Actions run 33978322293 **success** 확인
   (커밋 6f9fa53 → 65e0aca 순으로 2회 push, 두번째 run에서 초록 확인). commit
   6f9fa53, 65e0aca, push 완료. `~/software/BACKLOG.md` S4를 완료 테이블로 이동.
+
+- **2026-09-06 심야** ([심야병렬] 3명 동시 위임, claude -p opus, 오케스트레이터 직접 재검증):
+  품질게이트 3/3 통과 (check_knowledge 3/3 ✓, verify_claims 3/3 ✓ — 출처 15건 전부
+  Crossref/PMC/arXiv 실존, python verify 3블록 실행 통과).
+  ① **wafer-metrology Lv1-2** 균일도 지표 정의 문헌확정(TTV/WIWNU 3정의 병기·49pt체계, SEMI MF1530·Lee&Boning1999·US6922603B1)
+     → knowledge/cmp/uniformity-metrics-definitions-standards.md (상호링크 4, 출처 4건). 1/6→2/6.
+     회사관행 정의를 default로 삼지 않고 문헌 default 채택, radial 단일표준 문헌부재 명시.
+     sim/metrics/uniformity.py PROVISIONAL 교체는 PROFILE 구현요청[High]으로 소프트웨어 부문 인계(직접 sim/ 수정 안 함).
+  ② **slurry-chemist Lv3-1** 세리아 Ce3+/Ce4+ 산화환원·Si-O-Ce chemical tooth·oxide:nitride 선택비
+     → knowledge/cmp/ceria-slurry-ce-redox-selectivity.md (상호링크 5, 1차출처 3건 OA+2차 명시). 4/6→5/6.
+  ③ **tribologist Lv3-1** COF 실시간 모니터링·마찰기반 EPD(P_motor,fric=μPVA=Q_f 항등)
+     → knowledge/physics/friction-cof-monitoring-endpoint-detection.md (상호링크 3, 1차출처 4건). 4/6→5/6.
+  🌱 **G1 하위 wafer-type 활성화**: wafer-metrology Lv1-2 완료로 선수조건 충족(progress.py 판정) →
+     ORG §2/§5 [대기]→[활성], 동시활성 8명(상한10 이내).
+  지식노트 총 통과 9→12/29(신규 3편 전부 통과, 나머지 17편은 기존부채·학습총괄 상환중). rate-limit 없음.
