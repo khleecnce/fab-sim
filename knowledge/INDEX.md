@@ -17,6 +17,7 @@
 - [[pad-viscoelasticity-dma]] — 패드 폴리우레탄 저장/손실탄성률, Maxwell 모델, DMA. **검증**(sim/tier2_physics/viscoelastic_maxwell.py 5/5 PASS) (2026-09-04, pad-mechanic Lv1-1)
 - [[pad-structure-groove-subpad]] — IC1000류 발포체·K-groove·subpad 구조, 역할분리(국소 vs 글로벌). *출처확인* (2026-09-04, pad-mechanic Lv1-2)
 - [[hertz-gw-contact-mechanics]] — Hertz 단일접촉(F~delta^1.5) + Greenwood-Williamson 통계 asperity모델(지수분포, A_r∝W 선형성). **검증**(sim/tier2_physics/gw_contact.py 5/5 PASS) (2026-09-04, pad-mechanic Lv2-1)
+- [[pad-viscoelasticity-temp-frequency-dma]] — 패드 PU E'·tanδ의 온도·주파수 의존: WLF/TTS(1955 보편상수 17.44/51.6 K ↔ 8.86/101.6 K 재매개화 재현), Cabot US20170087688A1 Table 1B(D100 E' 25/50/80 °C=1000/141/19 MPa, Tg(DSC) 43~46 °C·tanδ 피크 56~67 °C @1 Hz → 25→50 °C E' 3~10배 감소), Khanna 2019(E'25/E'90 비 188/21/4 ↔ MRR 드리프트 2/1.45/1 순서 일치), GW A_r∝1/E* 연결. Kim 2006(35→10 MPa)과 15배 불일치 원인 미상·IC1000 자체 E'(T) 표 미확보로 정직 기록. **검증**(노트 §6 verify 1블록 PASS, 출처 12건 실존) (2026-09-07, pad-material Lv2-1)
 - [[pad-glazing-mechanism-mrr-decay]] — glazing 3요소(asperity 소성평탄화·기공 막힘·잔류물 응착) 정의, Jeong 2024(OA, doi 10.3390/ma17081817) 무컨디셔닝 10 min: 접촉점 109→56(−49%)·반경 7.8→19.6 µm·MRR −17%(초기 상승 후 급감), 1 min 컨디셔닝 복원; Lawing 2004 ex situ 감쇠 fumed −35% vs colloidal −7%(로그형 R²>0.95). **검증**(노트 verify 1블록 PASS, 출처 6건 실존) (2026-09-07, pad-lifecycle Lv2-1)
 
 ## equipment/
