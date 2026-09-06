@@ -17,16 +17,18 @@ def test_pack_dir_resolution_prefers_repo():
 
 
 def test_pack_dir_env_override(monkeypatch, tmp_path):
-    """고객이 자기 팩 디렉토리를 지정할 수 있어야 한다(온프레미스 요구)."""
-    import importlib
-    monkeypatch.setenv("FABSIM_PACK_DIR", str(tmp_path))
+    """고객이 자기 팩 디렉토리를 지정할 수 있어야 한다(온프레미스 요구).
+
+    ⚠ importlib.reload(sim.params)는 금지다. 다른 모듈이 이미 import한
+    ParamMissing 등의 클래스 객체가 갈려서 `except ParamMissing`이 안 걸린다
+    (2026-09-06 전체 실행에서 test_missing_param_raises_not_guesses가 이걸로 깨졌다).
+    해석 함수만 직접 호출해 검증한다.
+    """
     import sim.params as P
-    importlib.reload(P)
-    try:
-        assert P._PACK_DIR == tmp_path
-    finally:
-        monkeypatch.delenv("FABSIM_PACK_DIR")
-        importlib.reload(P)
+    monkeypatch.setattr(P, "_ENV_DIR", str(tmp_path))
+    assert P._resolve_pack_dir() == tmp_path
+    monkeypatch.setattr(P, "_ENV_DIR", None)
+    assert P._resolve_pack_dir().name == "params"
 
 
 def test_entry_points_declared():
