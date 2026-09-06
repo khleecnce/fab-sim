@@ -57,6 +57,10 @@ def main() -> int:
     ap.add_argument("--points", type=int, default=None, help="측정점 수 (미지정 시 팩값)")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--profile", action="store_true", help="반경별 프로파일 출력")
+    ap.add_argument("--sensitivity", action="store_true",
+                    help="인자별 민감도·기여 분해 (무엇을 돌려야 성능이 바뀌나)")
+    ap.add_argument("--set", action="append", metavar="KEY=VAL", default=[],
+                    help="팩 값을 이번 런에만 덮어쓴다 (예: --set oxidizer_wt_pct=6)")
     a = ap.parse_args()
 
     if a.list_models:
@@ -79,11 +83,58 @@ def main() -> int:
     if a.pad_hours is not None:
         meta["pad_hours"] = str(a.pad_hours)
 
+    overrides = {}
+    for kv in a.set:
+        if "=" not in kv:
+            print(f"오류: --set 형식은 KEY=VAL 이다 (받은 값: {kv})", file=sys.stderr)
+            return 1
+        k, v = kv.split("=", 1)
+        try:
+            overrides[k.strip()] = float(v)
+        except ValueError:
+            print(f"오류: --set 값은 숫자여야 한다: {kv}", file=sys.stderr)
+            return 1
+
     r = Recipe(pack=a.pack, wafer=a.wafer, film=a.film, pressure_psi=a.pressure,
                rpm_wafer=a.rpm_wafer, rpm_platen=a.rpm_platen, time_s=a.time,
                kp_m_per_pa=a.kp, zone_pressures_psi=_floats(a.zones),
                zone_edges_norm=_floats(a.zone_edges), edge_pressure_amp=a.edge_amp,
-               initial_thickness_nm=a.thickness, n_points=a.points, meta=meta)
+               initial_thickness_nm=a.thickness, n_points=a.points, meta=meta,
+               pack_overrides=overrides)
+
+    if a.sensitivity:
+        from sim.sensitivity import rank_factors, decompose, FACTORS, elasticity
+        print(f"■ 민감도 분석 — 팩 {a.pack} · {a.model}")
+        print("  탄성도 = 인자 1% 변화당 MRR 변화율(무차원). 레버리지 = 탄성도 × 실무 조절폭.")
+        print()
+        print(f"  {'인자':20s} {'영역':11s} {'탄성도':>8s} {'레버리지':>9s}  판정")
+        print("  " + "-" * 74)
+        for s_ in rank_factors(r, model=a.model):
+            warn = "" if s_.stable else " ⚠"
+            print(f"  {s_.factor.label:20s} {s_.factor.domain:11s} "
+                  f"{s_.elasticity:+8.3f} {s_.leverage:9.3f}  {s_.direction()}{warn}")
+        print()
+        print("  ⚠ 민감도 0의 네 가지 의미를 구분하라:")
+        print("     ★정점  = 이미 최적. 어느 쪽으로 움직여도 나빠진다")
+        print("     상쇄됨 = 모델 구조상 답할 수 없다(실데이터 캘리브레이션 필요)")
+        print("     미모델링 = 물리가 아직 엔진에 없다. '영향 없음'이 아니다")
+        print()
+        print("  [MRR vs 균일도 상충]")
+        for f in FACTORS:
+            ea = elasticity(r, f, metric="mrr", model=a.model)
+            eb = elasticity(r, f, metric="ttv", model=a.model)
+            if not ea or not eb or abs(ea.elasticity) < 1e-3:
+                continue
+            mark = "★ 양쪽 개선" if (ea.elasticity > 0 and eb.elasticity < 0) else ""
+            print(f"    {f.label:20s} MRR {ea.elasticity:+7.3f} / TTV {eb.elasticity:+7.3f}  {mark}")
+        if overrides or a.pressure is not None:
+            print()
+            print("  [기여 분해 — 팩 기본 조건 대비]")
+            contribs, total, m_cur = decompose(r, model=a.model)
+            print(f"    전체 {total:.3f}배 (MRR {m_cur:.1f} nm/min)")
+            for c in contribs:
+                print(f"    {c.label:20s} [{c.domain:11s}] ×{c.factor_x:6.3f}")
+        return 0
 
     try:
         res = simulate(r, model=a.model)

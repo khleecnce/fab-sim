@@ -76,6 +76,9 @@ class Recipe:
     initial_thickness_nm: Optional[float] = None
     # 자유 확장 (캘리브레이션 태그, 로트 ID 등)
     meta: Dict[str, str] = field(default_factory=dict)
+    # 팩 값을 이번 런에만 덮어쓴다 — 민감도 스캔·DOE의 통로.
+    # 팩 파일을 고치지 않고 "이 값만 5% 올리면?"을 물을 수 있어야 한다.
+    pack_overrides: Dict[str, float] = field(default_factory=dict)
 
     # 팩에서 채워야 하는 필드 → 팩의 키 이름
     _FROM_PACK = {
@@ -93,6 +96,20 @@ class Recipe:
         말없이 쓰이면 결과 전체가 거짓말이 된다.
         """
         pk = load_pack(self.pack)
+        if self.pack_overrides:
+            # 이번 런에만 적용되는 덮어쓰기. 원본 팩은 건드리지 않는다(캐시 오염 방지).
+            import copy as _copy
+            from sim.params import Param
+            pk = _copy.deepcopy(pk)
+            for k, v in self.pack_overrides.items():
+                if k in pk.params:
+                    p = pk.params[k]
+                    pk.params[k] = Param(key=k, value=v, unit=p.unit, source=p.source,
+                                         confidence=p.confidence,
+                                         note=(p.note + " [런 오버라이드]").strip())
+                else:
+                    pk.params[k] = Param(key=k, value=v, confidence="unverified",
+                                         note="런 오버라이드 — 팩에 없던 값")
         vals = {}
         used: List[str] = []
         for attr, key in self._FROM_PACK.items():

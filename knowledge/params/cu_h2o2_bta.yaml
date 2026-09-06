@@ -40,6 +40,16 @@ params:
     note: 이번 런의 H2O2 농도. 이 값을 바꾸면 화학층이 MRR을 바꾼다
     source: knowledge/cmp/slurry-components-overview.md
     confidence: verified
+  oxidizer_ref_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: >
+      기준 농도 — 화학 배수가 1.0이 되는 지점. Kp가 이 조성의 문헌 MRR에서
+      역산됐으므로 반드시 명시해야 한다. 없으면 로더가 '현재 농도'로 폴백해
+      항상 자기 자신과 비교하게 되고 배수가 영원히 1.0이 된다(2026-09-06 실제 발생:
+      산화제 민감도가 '미모델링'으로 오진됐다).
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
   oxidizer_peak_wt_pct:
     value: 3.0
     unit: "wt%"

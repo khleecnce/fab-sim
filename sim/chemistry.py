@@ -111,7 +111,16 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
         notes.append("⚠ oxidizer_peak_wt_pct ≤ 0 — 산화제 항 건너뜀")
         return None
     n = float(pack.get_or("oxidizer_curve_n", 2.0))
-    C_ref = float(pack.get_or("oxidizer_ref_wt_pct", C))
+    if pack.has("oxidizer_ref_wt_pct"):
+        C_ref = float(pack.get("oxidizer_ref_wt_pct"))
+    else:
+        # ⚠ 기준값이 없으면 '현재 농도'로 폴백할 수밖에 없는데, 그러면 항상 자기
+        # 자신과 비교하게 되어 배수가 영원히 1.0이다 = 산화제를 바꿔도 반응이 없다.
+        # 2026-09-06 민감도 분석에서 산화제가 '미모델링'으로 오진된 원인이었다.
+        # 조용히 넘어가지 않고 경고한다.
+        C_ref = C
+        notes.append("⚠ oxidizer_ref_wt_pct가 팩에 없어 기준=현재 농도로 폴백했다 "
+                     "— 산화제 변화가 MRR에 반영되지 않는다. 팩에 기준 농도를 명시하라.")
     cur = float(SC.mrr_oxidizer(C, C_peak, mrr_peak=1.0, n=n))
     ref = float(SC.mrr_oxidizer(C_ref, C_peak, mrr_peak=1.0, n=n))
     if ref <= 0:
@@ -159,7 +168,12 @@ def _inhibitor_term(pack, notes: List[str]) -> Optional[float]:
 
     # 기준 농도 대비 상대값 — Kp가 이미 이 억제제를 포함한 슬러리에서 역산됐으므로
     # 절대값을 곱하면 억제를 두 번 세게 된다(2026-09-06 실제 발생: Cu 20배 하락).
-    C_ref = float(pack.get_or("inhibitor_ref_mM", pack.get("inhibitor_mM"))) * 1e-3
+    if pack.has("inhibitor_ref_mM"):
+        C_ref = float(pack.get("inhibitor_ref_mM")) * 1e-3
+    else:
+        C_ref = C_molar
+        notes.append("⚠ inhibitor_ref_mM이 팩에 없어 기준=현재 농도로 폴백했다 "
+                     "— 억제제 변화가 MRR에 반영되지 않는다.")
     ref = _residual(C_ref)
     if ref <= 0:
         return None
