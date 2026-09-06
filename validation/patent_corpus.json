@@ -1,0 +1,548 @@
+{
+ "WO2020160286A1": {
+  "patent": "WO2020160286A1",
+  "title": "WO2020160286A1 - Multi-modal diamond abrasive package or slurry for polishing hard substra",
+  "assignees": [
+   "Eminess Technologies LLC"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Eminess Technologies LLC",
+  "data_tables": 3,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "oxidizer",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "JP2010188452A": {
+  "patent": "JP2010188452A",
+  "title": "JP2010188452A - Conditioning method and conditioning disk \n        - Google Patents",
+  "assignees": [
+   "Renesas Electronics Corp"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "Renesas",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "pH"
+  ],
+  "usable": false
+ },
+ "US20220355441A1": {
+  "patent": "US20220355441A1",
+  "title": "US20220355441A1 - Slurry recycling for chemical mechanical polishing system \n        - Goo",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 6,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "oxidizer",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "US5531861A": {
+  "patent": "US5531861A",
+  "title": "US5531861A - Chemical-mechanical-polishing pad cleaning process for use during the fabrica",
+  "assignees": [
+   "Motorola Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Motorola Inc",
+  "data_tables": 5,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH"
+  ],
+  "usable": false
+ },
+ "US20200102479A1": {
+  "patent": "US20200102479A1",
+  "title": "US20200102479A1 - Hard abrasive particle-free polishing of hard materials method \n      - ",
+  "assignees": [
+   "Entegris Inc",
+   "University of Florida Research Foundation Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Entegris",
+  "data_tables": 9,
+  "examples": 8,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "CN1305547C": {
+  "patent": "CN1305547C",
+  "title": "CN1305547C - \n        Filtration device and method of use thereof\n       \n        - Google",
+  "assignees": [
+   "Freescale Semiconductor Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Freescale Semiconductor Inc",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "oxidizer",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "CN112692723A": {
+  "patent": "CN112692723A",
+  "title": "CN112692723A - Container for storing slurry and chemical mechanical polishing apparatus ha",
+  "assignees": [
+   "Xia Tai Xin Semiconductor Qing Dao Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Xia Tai Xin Semiconductor Qing Dao Ltd",
+  "data_tables": 2,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "pH"
+  ],
+  "usable": false
+ },
+ "US11244834B2": {
+  "patent": "US11244834B2",
+  "title": "US11244834B2 - Slurry recycling for chemical mechanical polishing system \n        - Google",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 6,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "oxidizer",
+   "hydrogen peroxide",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "US9410063B2": {
+  "patent": "US9410063B2",
+  "title": "US9410063B2 - Polishing slurry including zirconia particles and a method of using the poli",
+  "assignees": [
+   "Saint Gobain Ceramics and Plastics Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Saint Gobain Ceramics and Plastics Inc",
+  "data_tables": 6,
+  "examples": 8,
+  "comparative": 0,
+  "rate_unit": "nm/min",
+  "to_nm_per_min": 1.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "JP2004238566A": {
+  "patent": "JP2004238566A",
+  "title": "JP2004238566A - Method for producing abrasive slurry \n        - Google Patents",
+  "assignees": [
+   "Rodel Nitta Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Rodel (CMP 패드·슬러리 선구자, → Rohm and Haas → DuPont)",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration",
+   "wt%"
+  ],
+  "usable": false
+ },
+ "CN103717353B": {
+  "patent": "CN103717353B",
+  "title": "CN103717353B - Many milling tools \n        - Google Patents",
+  "assignees": [
+   "Ren SRL"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Ren SRL",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH"
+  ],
+  "usable": false
+ },
+ "JP2015199138A": {
+  "patent": "JP2015199138A",
+  "title": "JP2015199138A - Grindstone, polishing device, polishing method and method for producing ce",
+  "assignees": [
+   "NTN Corp",
+   "NTN Toyo Bearing Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "NTN Corp",
+  "data_tables": 4,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "usable": false
+ },
+ "CN102484042B": {
+  "patent": "CN102484042B",
+  "title": "CN102484042B - Method for producing a semiconductor wafer \n        - Google Patents",
+  "assignees": [
+   "Siltronic AG"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Siltronic AG",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "WO2021231090A1": {
+  "patent": "WO2021231090A1",
+  "title": "WO2021231090A1 - Novel pad-1 n-a-bottle (pib) technology for advanced chemical-mechanical ",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 1,
+  "examples": 7,
+  "comparative": 0,
+  "rate_unit": "A/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": true
+ },
+ "CN220740774U": {
+  "patent": "CN220740774U",
+  "title": "CN220740774U - Knife sharpener \n        - Google Patents",
+  "assignees": [
+   "Jiangmen Hongli Intelligent Technology Co ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Jiangmen Hongli Intelligent Technology Co ltd",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "pH"
+  ],
+  "usable": false
+ },
+ "US20220016742A1": {
+  "patent": "US20220016742A1",
+  "title": "US20220016742A1 - Dressing apparatus and polishing apparatus \n        - Google Patents",
+  "assignees": [
+   "Okamoto Machine Tool Works Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Okamoto Machine Tool Works Ltd",
+  "data_tables": 3,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "usable": false
+ },
+ "TW201529233A": {
+  "patent": "TW201529233A",
+  "title": "TW201529233A - \n        Grinding method and grinding device\n       \n        - Google Paten",
+  "assignees": [
+   "荏原製作所股份有限公司"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "荏原製作所股份有限公司",
+  "data_tables": 3,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "pH"
+  ],
+  "usable": false
+ },
+ "JPWO2012005142A1": {
+  "patent": "JPWO2012005142A1",
+  "title": "JPWO2012005142A1 - \n        Abrasive and polishing method\n       \n      - Google Patents",
+  "assignees": [
+   "Asahi Glass Co Ltd"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "AGC / Asahi Glass",
+  "data_tables": 3,
+  "examples": 2,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "oxidizer",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "CN110774160A": {
+  "patent": "CN110774160A",
+  "title": "CN110774160A - \n        A kind of abrasive jet-assisted ultra-precision grinding method of",
+  "assignees": [
+   "Henan University of Technology"
+  ],
+  "trusted": true,
+  "category": "academic",
+  "matched_org": "Henan University of Technology",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "JP4851435B2": {
+  "patent": "JP4851435B2",
+  "title": "JP4851435B2 - \n        Roll grinding method\n       \n      - Google Patents",
+  "assignees": [
+   "サンーゴバン  アブレイシブズ，インコーポレイティド"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "サンーゴバン  アブレイシブズ，インコーポレイティド",
+  "data_tables": 4,
+  "examples": 2,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "wt%"
+  ],
+  "usable": false
+ },
+ "KR101279969B1": {
+  "patent": "KR101279969B1",
+  "title": "KR101279969B1 - CMP slurry composition for polishing metal wiring and polishing method usi",
+  "assignees": [
+   "제일모직주식회사"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "제일모직주식회사",
+  "data_tables": 4,
+  "examples": 2,
+  "comparative": 1,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "TW202020102A": {
+  "patent": "TW202020102A",
+  "title": "TW202020102A - Polishing composition and polishing system \n        - Google Patents",
+  "assignees": [
+   "日商福吉米股份有限公司"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "日商福吉米股份有限公司",
+  "data_tables": 2,
+  "examples": 3,
+  "comparative": 1,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "usable": false
+ },
+ "CN109609035B": {
+  "patent": "CN109609035B",
+  "title": "CN109609035B - Polishing composition comprising charged abrasive \n        - Google Patents",
+  "assignees": [
+   "Fujifilm Electronic Materials USA Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "FUJIFILM",
+  "data_tables": 3,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "A/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "usable": true
+ }
+}
