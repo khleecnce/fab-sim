@@ -1,0 +1,687 @@
+# 공정(레시피·시퀀스) 구성요소 스키마
+#
+# 씨앗: 2026-09-06 사용자 지시 — "장비, 패드, disk 등 다른 요소들도 이런식으로 구성해줘…
+#       내가 말했다고 그게 전체는 아니야. 필요한게 있으면 포함시켜."
+# 사용자는 슬러리 실무자다. 레시피 축(스텝 구성·존압력·회전수비·종점·컨디셔닝·SPC)은
+# 문헌과 장비 실무에서 가져왔다(origin: researched).
+#
+# ⚠ 규칙: status: wired 는 knowledge/params/*.yaml 에 실제 키가 있을 때만.
+#        모르는 값은 confidence: unverified + note "⚠ 조사 필요".
+
+version: 1
+component: process
+owner: cmp-integrator
+description: "CMP 레시피 — 다단 스텝, 압력/속도 프로파일, 종점, 컨디셔닝, 재현성·SPC·스루풋."
+
+groups:
+
+  # ═══════════════════════════════ 1) 다단 스텝 구성
+  - id: step_sequence
+    label: "다단 스텝 구성 (bulk / soft landing / over-polish / buff)"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      CMP 레시피는 단일 조건이 아니라 목적이 다른 스텝의 열이다. 벌크 제거는 높은 P·V로
+      시간을 벌고, soft landing은 정지막 근처에서 압력을 낮춰 dishing/erosion과 스크래치를
+      줄이며, over-polish는 웨이퍼 전면의 잔막을 마저 걷고, buff는 결함·잔류물을 정리한다.
+      압력·속도가 스텝마다 다르므로 시뮬레이터는 '레시피 = 스텝 리스트'로 받아야 한다.
+    fields:
+      - key: n_steps
+        label: 스텝 수
+        type: number
+        typical: [1, 4]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 미연결. 현재 엔진은 단일 조건 1회 연마만 푼다. 스텝 리스트를 받아 순차 적분하는
+          러너가 먼저 필요하다(엔진 개조 항목). typical 범위는 실무 관례 서술 수준.
+      - key: step_role
+        label: 스텝 역할
+        type: enum
+        options: [bulk_removal, soft_landing, over_polish, buff, touch_up]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          역할마다 최적화 대상이 다르다. bulk=시간, soft landing=평탄도/결함,
+          over_polish=잔막 제거, buff=결함·잔류입자. 같은 슬러리라도 스텝이 다르면 결과가 다르다.
+      - key: step_pressure_psi
+        label: 스텝 압력
+        type: number
+        unit: psi
+        typical: [0.5, 6]
+        origin: researched
+        maps_to: pressure_psi
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/preston-luo-dornfeld-mrr.md
+        note: >
+          Preston `MRR = Kp·P·V`의 P. 엔진에 존재하는 키라 스텝 값이 그대로 들어간다.
+          단, 현재는 스텝별이 아니라 단일 값으로만 소비된다(스텝 루프 미구현).
+      - key: step_time_s
+        label: 스텝 시간
+        type: number
+        unit: s
+        typical: [10, 180]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 미연결. 시간축 적분은 엔진에 있으나 '스텝별 시간'을 받는 인터페이스가 없다.
+          typical은 실무 관례 서술(정량 출처 미확보 — 조사 필요).
+      - key: step_rpm_wafer
+        label: 스텝 웨이퍼 회전수
+        type: number
+        unit: rpm
+        typical: [20, 120]
+        origin: researched
+        maps_to: rpm_wafer
+        status: wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+      - key: step_rpm_platen
+        label: 스텝 플래튼 회전수
+        type: number
+        unit: rpm
+        typical: [20, 120]
+        origin: researched
+        maps_to: rpm_platen
+        status: wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+      - key: platen_assignment
+        label: 플래튼 배정 (P1/P2/P3)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 미연결. 다중 플래튼 장비는 스텝을 서로 다른 플래튼(다른 패드·슬러리)에 나눠 싣는다.
+          Cu는 통상 벌크/배리어/버프를 분리한다. 스루풋(10번 그룹)과 직접 얽힌다.
+
+  # ═══════════════════════════════ 2) 압력 프로파일
+  - id: pressure_profile
+    label: "압력 프로파일 (존 압력 · 리테이너링 · 램프)"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      웨이퍼 내 균일도(WIWNU)를 잡는 1차 손잡이. 다존 캐리어 헤드는 반경 방향으로 압력을
+      나눠 걸어 엣지 롤오프/센터 슬로우를 보정한다. 램프는 압력 충격에 의한 스크래치·
+      웨이퍼 슬립을 줄인다.
+    fields:
+      - key: n_zones
+        label: 존 개수
+        type: number
+        typical: [3, 7]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Multi-zone Pressure Control for Improvement of Within Wafer Non-uniformity in CMP, J. Korean Soc. Precis. Eng., doi:10.7736/jkspe.025.132 (OA, find_open_access.py 확인)"
+        note: 상용 헤드는 통상 3~7존. 존 수가 늘수록 프로파일 자유도가 커지나 튜닝 부담도 커진다.
+      - key: zone_pressure_psi
+        label: 존별 압력
+        type: text
+        unit: psi
+        origin: researched
+        maps_to: pressure_psi
+        status: partial
+        confidence: literature
+        source: "doi:10.7736/jkspe.025.132"
+        note: >
+          엔진은 단일 명목압력만 받는다(pressure_psi). 반경별 압력 벡터 → WIWNU 매핑은
+          knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md 의 축과 이어야 하는데
+          아직 존 벡터 입력이 없다. 그래서 partial.
+      - key: retaining_ring_psi
+        label: 리테이너링 압력
+        type: number
+        unit: psi
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 정량 출처 미확보. 링 압력이 웨이퍼 엣지 부근 패드 변형을 바꿔 엣지 프로파일을
+          지배한다는 것이 실무·문헌의 공통 서술. 엣지 배제폭(edge_exclusion_m)과 짝.
+      - key: edge_exclusion_mm
+        label: 엣지 배제 폭
+        type: number
+        unit: mm
+        typical: [1, 5]
+        origin: researched
+        maps_to: edge_exclusion_m
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: 균일도 산출에서 제외하는 링. 정의가 바뀌면 WIWNU 숫자가 통째로 바뀐다.
+      - key: ramp_up_s
+        label: 램프업 시간
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 초기 압력 충격 억제(슬립·스크래치)와 마찰열 과도구간 완화 목적."
+      - key: ramp_down_s
+        label: 램프다운 시간
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 종점 직전 감압으로 dishing 억제. soft landing과 기능이 겹친다."
+      - key: back_pressure_kpa
+        label: 백프레셔 (멤브레인 뒷압)
+        type: number
+        unit: kPa
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 웨이퍼 휨(bow)과 척킹 상태를 바꿔 센터 프로파일에 영향. 존압력과 독립 축.
+
+  # ═══════════════════════════════ 3) 회전수 조합 (운동학)
+  - id: kinematics
+    label: "회전수 조합 (Rs 비 · 회전 방향 · 헤드 스윕)"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      상대속도가 Preston의 V다. 회전형 CMP에서 웨이퍼:플래튼 회전수를 같게 하면
+      웨이퍼 전면에서 |v_rel|이 위치 무관 상수가 되어(강체 회전 정리) 속도 기여 균일도가
+      원리적으로 평평해진다. 이 사실이 실무에서 Rs≈1을 쓰는 이유다.
+    fields:
+      - key: rpm_wafer
+        label: 웨이퍼(캐리어) 회전수
+        type: number
+        unit: rpm
+        typical: [20, 120]
+        origin: researched
+        maps_to: rpm_wafer
+        status: wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+      - key: rpm_platen
+        label: 플래튼 회전수
+        type: number
+        unit: rpm
+        typical: [20, 120]
+        origin: researched
+        maps_to: rpm_platen
+        status: wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+      - key: rs_ratio
+        label: 회전수 비 Rs (=ω_wafer/ω_platen)
+        type: number
+        typical: [0.8, 1.2]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: >
+          Rs=1이면 상대속도가 웨이퍼 전면에서 균일(노트의 운동학 결론). Rs≠1이면 반경 의존
+          속도항이 생겨 WIWNU에 기울기가 뜬다. 파생량이라 maps_to는 두지 않는다 —
+          두 rpm 키에서 계산되어야 한다.
+      - key: rotation_sense
+        label: 회전 방향 (동방향/역방향)
+        type: enum
+        options: [co_rotation, counter_rotation]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 정량 출처 미확보. 동방향(관례)은 Rs=1에서 상대속도 균일 결과를 주고, 역방향은
+          반경에 따라 상대속도가 크게 변한다. 노트의 운동학 유도를 부호까지 확장해야
+          연결식이 선다.
+      - key: relative_velocity_mps
+        label: 상대속도
+        type: number
+        unit: m/s
+        typical: [0.3, 1.5]
+        origin: researched
+        maps_to: relative_velocity_ref_mps
+        status: wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: Preston의 V. 회전수·중심간 거리에서 유도되는 값이지만 엔진에 기준값 키가 있다.
+      - key: center_distance_m
+        label: 플래튼축–웨이퍼중심 거리
+        type: number
+        unit: m
+        origin: researched
+        maps_to: center_offset_m
+        status: wired
+        confidence: estimated
+        source: knowledge/params/base.yaml
+        note: 상대속도 계산의 기하 입력. base 팩에 estimated로 존재(0.18 m).
+      - key: head_sweep_mm
+        label: 헤드 스윕(오실레이션) 진폭
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          헤드를 반경 방향으로 왕복시켜 패드 국소 마모를 분산시킨다. 패드 수명·프로파일과
+          엮이는 축(pad-mechanic 소관과 경계). 정량 출처 미확보.
+
+  # ═══════════════════════════════ 4) 슬러리 공급 스케줄
+  - id: slurry_schedule
+    label: "슬러리 유량 스케줄"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      슬러리 배합은 slurry.yaml이 담당하지만, '언제 얼마나 흘리는가'는 레시피 축이다.
+      스텝마다 유량을 바꾸고(벌크 고유량 → 버프 저유량), 마지막에 DIW 린스로 갈아탄다.
+    fields:
+      - key: flow_rate_ml_min
+        label: 유량
+        type: number
+        unit: mL/min
+        typical: [50, 300]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/components/slurry.yaml
+        note: slurry.yaml supply 그룹과 같은 축. 여기서는 스텝별 스케줄로 다룬다.
+      - key: flow_schedule
+        label: 스텝별 유량 스케줄
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 미연결. 예: bulk 200 → landing 150 → buff 100 mL/min + 종료 전 DIW 린스.
+          슬러리 소모량(원가)과 스루풋 계산의 입력.
+      - key: injection_point
+        label: 주입 위치
+        type: enum
+        options: [pad_center, leading_edge, multi_point, in_pad_delivery]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 주입 위치가 웨이퍼 아래 도달률을 바꾼다. 그루브 설계(pad.yaml)와 함께 봐야 한다.
+      - key: diw_rinse_s
+        label: 종료 린스(DIW) 시간
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          플래튼 위에서 하는 1차 린스. post_cmp.yaml의 세정 시퀀스 이전 단계이며,
+          여기서 슬러리를 못 걷으면 건조·재부착 결함으로 이어진다(post_cmp 연계).
+
+  # ═══════════════════════════════ 5) 종점 판정
+  - id: endpoint
+    label: "종점 판정 (EPD) · 오버폴리시 마진"
+    origin: researched
+    owner: tool-endpoint
+    why: >
+      "언제 멈추는가"가 레시피의 심장이다. 과연마는 dishing/erosion을, 미연마는 잔막을
+      남긴다. 마찰(모터전류)·광학·와전류가 실무 3대 방식이다.
+    fields:
+      - key: method
+        label: 종점 방식
+        type: enum
+        options: [timed, motor_current, optical_reflectance, eddy_current, friction_shear, none]
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/physics/friction-cof-monitoring-endpoint-detection.md
+        note: >
+          노트에 마찰기반 EPD의 정량 근거 확보(Li, Lu, Luo, Micromachines 8(6) 177, 2017,
+          doi:10.3390/mi8060177 — 배리어→유전체 전이에서 플래튼 모터전력 ~30,300→28,670 W 계단).
+          ⚠ 미연결: 엔진이 시간 적분만 하고 신호 모델을 내놓지 않는다.
+      - key: signal_threshold
+        label: 검출 임계 (계단/기울기)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/friction-cof-monitoring-endpoint-detection.md
+        note: 소신호 위 잡음이라 이동평균·wavelet·SPRT를 쓴다. 잡음억제와 검출지연은 트레이드오프.
+      - key: detection_delay_s
+        label: 검출 지연
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/friction-cof-monitoring-endpoint-detection.md
+        note: >
+          필터 창이 길수록 잡음은 줄지만 종점이 늦게 잡힌다. 지연×MRR이 곧 원치 않은
+          과연마 두께다 — 오버폴리시 마진과 직접 연결되는 축.
+      - key: over_polish_pct
+        label: 오버폴리시 마진
+        type: number
+        unit: "%"
+        typical: [5, 30]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ typical은 실무 관례 서술 수준(정량 출처 미확보). 마진이 크면 잔막은 안전하나
+          dishing/erosion이 커진다 — pattern-dependent-dishing-erosion.md 의 트레이드오프.
+      - key: cof_baseline
+        label: COF 기준선
+        type: number
+        origin: researched
+        maps_to: cof_boundary
+        status: wired
+        confidence: literature
+        source: knowledge/physics/tribology-friction-wear-stribeck.md
+        note: >
+          마찰 EPD의 기준선. CMP는 boundary~mixed 레짐에서 돌아 COF가 So에 둔감한 상수에
+          가깝다(cmp-lubrication-regimes.md) — 그래서 재료 전이 계단이 읽힌다.
+      - key: residual_thickness_target_nm
+        label: 목표 잔막 두께
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 종점의 실제 사양. 계측(metrology.yaml)의 두께 측정과 짝을 이뤄야 판정이 닫힌다.
+
+  # ═══════════════════════════════ 6) 컨디셔닝 스케줄
+  - id: conditioning_schedule
+    label: "컨디셔닝 스케줄 (in-situ 스윕 vs ex-situ)"
+    origin: researched
+    owner: disk-conditioner
+    why: >
+      디스크 사양은 conditioner.yaml 소관이고, 여기서는 '레시피 안에서 언제 돌리는가'를
+      다룬다. 컨디셔닝이 패드 표면을 되살려 MRR 드리프트를 막는데, 동시에 패드를 깎아
+      수명을 줄인다. 스케줄이 곧 재현성과 소모품 원가의 교환비다.
+    fields:
+      - key: mode
+        label: 방식
+        type: enum
+        options: [in_situ, ex_situ, hybrid, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "In-situ pad conditioning 관련 OA 회의록, doi:10.3850/978-981-18-6021-8_or-12-0224.html (find_open_access.py 확인)"
+        note: >
+          in-situ=연마 중 동시 컨디셔닝(정상상태 유지에 유리), ex-situ=매엽 사이에 별도 수행
+          (스루풋 손실, 대신 연마 중 외란 없음).
+      - key: disk_pressure_n
+        label: 디스크 하중
+        type: number
+        unit: N
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 하중이 패드 절삭률(cut rate)과 수명을 지배. conditioner.yaml과 중복 주의."
+      - key: sweep_profile
+        label: 스윕 프로파일 (반경별 체류시간)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          디스크가 반경별로 머무는 시간이 패드 마모 프로파일을 만들고, 그게 웨이퍼 프로파일로
+          전이된다. 존압력과 함께 WIWNU를 만드는 두 번째 손잡이.
+      - key: sweep_cycles_per_wafer
+        label: 매엽당 스윕 횟수
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 재현성(8번 그룹)의 핵심 손잡이. 부족하면 글레이징, 과다하면 패드 수명 급감.
+      - key: pad_break_in_min
+        label: 신규 패드 브레이크인 시간
+        type: number
+        unit: min
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          새 패드는 초기 MRR이 불안정하다. 브레이크인 후 더미 웨이퍼로 확인하는 것이 관례
+          (npw-ptw-test-wafer-fundamentals.md 의 더미/모니터 웨이퍼 용도와 연결).
+      - key: pad_life_hours
+        label: 패드 수명(누적 연마시간)
+        type: number
+        unit: h
+        typical: [20, 100]
+        origin: researched
+        maps_to: pad_pcr_anchor_hours
+        status: wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          base 팩에 패드 접촉면적비(PCR)의 시간 앵커가 있다(50 h에서 비율 0.16).
+          레시피 관점에서는 '몇 시간 쓰고 교체하는가'가 재현성 관리의 경계다.
+
+  # ═══════════════════════════════ 7) 온도 관리
+  - id: thermal
+    label: "온도 관리"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      마찰동력 q=μPV가 계면에서 열로 소산되고, 화학 제거율은 Arrhenius로 온도를 탄다.
+      즉 온도는 '설정값'이자 '결과값'이다 — 압력·속도를 올리면 온도가 따라 올라 MRR이
+      비선형으로 움직인다. 사용자가 지시하지 않은 축이지만 재현성 문제의 단골 원인이다.
+    fields:
+      - key: platen_setpoint_c
+        label: 플래튼 온도 설정
+        type: number
+        unit: °C
+        typical: [15, 45]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md
+        note: "⚠ 미연결. 온도 제어 플래튼(열교환)이 있는 장비에 한함."
+      - key: slurry_temp_c
+        label: 슬러리 공급 온도
+        type: number
+        unit: °C
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/components/slurry.yaml
+        note: slurry.yaml supply 그룹과 같은 축. 레시피에서는 스텝별 설정으로 잡는다.
+      - key: interface_temp_rise_c
+        label: 계면 온도 상승 (Δ)
+        type: number
+        unit: °C
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md
+        note: >
+          결과값. q = μ·P·V 로 계산되는 마찰 열유속에서 나온다. 노트의 커플링을 엔진에 넣으면
+          pressure_psi·relative_velocity_ref_mps·cof_boundary 에서 유도 가능 — 연결 후보 1순위.
+      - key: first_wafer_effect
+        label: 초두 웨이퍼 효과
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          장비가 식은 상태의 1번 웨이퍼는 MRR이 다르다. 그래서 워밍업/더미 연마를 건다.
+          8번 그룹(재현성)의 대표 사례이며 정량 출처는 미확보 — 조사 필요.
+
+  # ═══════════════════════════════ 8) 재현성 (웨이퍼간·로트간)
+  - id: reproducibility
+    label: "재현성 관리 (WTW · LTL · 드리프트 보정)"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      CMP는 소모품이 닳으면서 특성이 변하는 몇 안 되는 공정이다. 패드는 마모·글레이징되고
+      디스크는 그릿이 무뎌진다. 그래서 '같은 레시피 = 같은 결과'가 성립하지 않고,
+      드리프트를 보정하는 제어층이 레시피의 일부가 된다.
+    fields:
+      - key: rr_drift_pct_per_wafer
+        label: MRR 드리프트율
+        type: number
+        unit: "%/wafer"
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 정량 출처 미확보. 패드 수명 곡선(pad_wear_half_life_h, pad_pcr_anchor_*)에서
+          유도할 수 있는 값 — 엔진에 패드 마모 모델이 이미 있으므로 연결 가능성이 높다.
+      - key: r2r_control
+        label: 런투런(R2R) 제어
+        type: enum
+        options: [none, ewma, gaussian_process, deadband]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "R2R APC for CMP removal-rate drift, QUB 리포지터리 OA 사본 (find_open_access.py 확인)"
+        note: >
+          직전 웨이퍼 계측값으로 다음 웨이퍼 연마시간을 보정하는 게 CMP APC의 표준형.
+          EWMA가 고전, GP 기반이 최신 흐름.
+      - key: pad_state_compensation
+        label: 패드 상태 보정
+        type: text
+        origin: researched
+        maps_to: pad_wear_half_life_h
+        status: partial
+        confidence: estimated
+        source: knowledge/params/base.yaml
+        note: >
+          누적 사용시간에 따라 연마시간을 늘리는 보정. 엔진에 패드 마모 반감기 키는 있으나
+          '레시피가 그걸 읽어 시간을 바꾼다'는 제어 루프가 없어 partial.
+      - key: dummy_wafer_policy
+        label: 더미/모니터 웨이퍼 정책
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          컨디셔닝 후·유휴 후 더미를 태워 상태를 안정화하고, 모니터 웨이퍼로 MRR을 재는 관례.
+          NPW/PTW 노트가 이 축의 근거.
+      - key: idle_time_effect
+        label: 유휴 시간 영향
+        type: number
+        unit: min
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 장비가 쉬면 패드가 마르고 슬러리가 굳어 첫 장이 튄다."
+      - key: chamber_matching
+        label: 챔버/장비 간 매칭
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          같은 레시피를 여러 장비에 돌릴 때의 편차(tool-to-tool). 양산에서 로트간 산포의
+          큰 몫을 차지하지만 원인이 장비 개체차라 레시피로는 부분 보정만 가능하다.
+
+  # ═══════════════════════════════ 9) 공정 윈도우 · SPC · 리워크
+  - id: window_spc
+    label: "공정 윈도우 · SPC 한계 · 리워크 기준"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      레시피에는 '목표'뿐 아니라 '허용 범위'와 '벗어났을 때 무엇을 하는가'가 들어간다.
+      CMP는 되돌릴 수 없는 제거 공정이라, 덜 깎았으면 재연마할 수 있어도 더 깎으면 끝이다 —
+      리워크 규칙이 비대칭이라는 점이 이 그룹의 핵심.
+    fields:
+      - key: thickness_target_nm
+        label: 목표 두께
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 레시피의 출력 사양. metrology.yaml의 두께 측정법과 정의가 일치해야 한다.
+      - key: thickness_usl_lsl_nm
+        label: 두께 규격 상·하한
+        type: text
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: SPC의 규격한계(USL/LSL). 관리한계(±3σ)와 구분해야 한다 — 흔한 혼동.
+      - key: wiwnu_limit_pct
+        label: WIWNU 관리 한계
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          균일도 지표는 정의(σ/mean vs range/2mean, 엣지 배제폭)에 따라 숫자가 달라진다.
+          한계값을 쓸 때 정의를 함께 적지 않으면 무의미하다는 것이 노트의 결론.
+      - key: cpk_target
+        label: 공정능력 Cpk 목표
+        type: number
+        typical: [1.33, 2.0]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 산업 관례로 1.33 이상을 쓴다는 서술 수준. 정량 표준 출처는 미확보.
+      - key: rework_criteria
+        label: 리워크 기준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          잔막(under-polish)은 재연마로 회수 가능. 과연마·dishing 초과·스크래치는 회수 불가 →
+          스크랩. 리워크 시 총 제거량이 누적되므로 하지막 마진을 다시 계산해야 한다.
+      - key: scrap_criteria
+        label: 폐기 기준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 하지막 노출·배선 단선 등 회복 불가 손상의 판정선."
+      - key: defect_limit_per_wafer
+        label: 결함 허용 수
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 스크래치·잔류입자 카운트의 관리선. post_cmp.yaml 세정 성능과 연동."
+
+  # ═══════════════════════════════ 10) 스루풋 제약
+  - id: throughput
+    label: "스루풋 · 원가 제약"
+    origin: researched
+    owner: cmp-integrator
+    why: >
+      물리적으로 최적인 레시피가 생산에서 채택되지 않는 이유가 여기 있다. 압력을 낮춰
+      결함을 줄이면 시간이 늘고, 시간이 늘면 시간당 웨이퍼 수(WPH)가 깎인다.
+      시뮬레이터가 '좋은 레시피'를 제안하려면 이 제약을 알아야 한다.
+    fields:
+      - key: wph_target
+        label: 목표 처리량
+        type: number
+        unit: "wafers/h"
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 장비 세대·플래튼 수에 따라 크게 다르다. 공개 수치 확보 필요."
+      - key: cycle_time_s
+        label: 매엽 사이클 타임
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          연마시간 + 로딩/언로딩 + ex-situ 컨디셔닝 + 세정 대기. 순수 연마시간만 줄여도
+          사이클 타임은 잘 안 줄어든다는 점이 실무 함정.
+      - key: slurry_consumption_ml_per_wafer
+        label: 매엽 슬러리 소모량
+        type: number
+        unit: mL/wafer
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 유량 × 연마시간. CMP 운영비의 큰 축이며 폐수량(post_cmp.yaml)과 직결.
+      - key: consumable_cost_weight
+        label: 소모품 원가 가중치
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          패드·디스크·슬러리 원가를 레시피 평가에 넣기 위한 가중치. 최적화 목적함수를
+          MRR 단독에서 (품질, 시간, 원가)로 확장할 때 필요한 축.

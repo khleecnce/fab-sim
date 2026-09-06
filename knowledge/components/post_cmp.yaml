@@ -1,0 +1,678 @@
+# Post-CMP 세정·오염 관리 구성요소 스키마
+#
+# 씨앗: 2026-09-06 사용자 지시 — "장비, 패드, disk 등 다른 요소들도 이런식으로 구성해줘…
+#       내가 말했다고 그게 전체는 아니야. 필요한게 있으면 포함시켜."
+# 사용자는 슬러리 실무자다. 세정 계열은 전부 문헌 기반으로 구성했다(origin: researched).
+#
+# 관점: 슬러리를 만든 구성요소가 연마가 끝나는 순간 전부 '오염원'이 된다
+#       (knowledge/cmp/post-cmp-metallic-contamination-sources.md). 이 파일은 slurry.yaml을
+#       제거 대상의 시선으로 뒤집어 읽은 것이다.
+#
+# ⚠ 규칙: status: wired 는 knowledge/params/*.yaml 에 실제 키가 있을 때만.
+#        모르는 값은 confidence: unverified + note "⚠ 조사 필요".
+
+version: 1
+component: post_cmp
+owner: tool-post-clean
+description: "CMP 후 세정·건조·오염 관리 — 방식, 화학, 잔류입자/금속/유기, 부식·Q-time, 폐수."
+
+groups:
+
+  # ═══════════════════════════════ 1) 세정 방식 (물리력)
+  - id: clean_method
+    label: "세정 방식 (브러시 · 메가소닉 · 스핀)"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      부착된 입자를 떼려면 부착력을 이기는 힘이 필요하다. 물리력의 종류가 곧 제거 가능한
+      입자 크기의 하한을 정한다 — 입자가 작을수록 반데르발스 부착력 대비 유체 전단력이
+      불리해져서(부착력~R, 유체력~R²) 브러시·메가소닉 같은 국소 물리력이 필요해진다.
+    fields:
+      - key: method
+        label: 주 세정 방식
+        type: enum
+        options: [pva_brush_scrub, megasonic, spin_spray, dual_brush_plus_megasonic, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Brush Scrubbing for Post-CMP Cleaning, Developments in Surface Contamination and Cleaning vol.9 (2017), doi:10.1016/b978-0-323-43157-6.00004-5 (find_open_access.py 확인)"
+        note: >
+          PVA 브러시 스크러빙이 post-CMP 세정의 주력. 브러시는 웨이퍼를 '문지르는' 것이 아니라
+          노듈이 표면 근처 유체를 밀어 경계층을 얇게 만들고 화학약품을 실어 나른다는 것이
+          현대적 해석. 메가소닉은 캐비테이션/음향류로 보완
+          (Megasonic Cleaning for Particle Removal, Particle Adhesion and Removal (2015),
+          doi:10.1002/9781118831571.ch6).
+      - key: brush_material
+        label: 브러시 재질
+        type: enum
+        options: [pva_sponge, nylon, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "doi:10.1016/b978-0-323-43157-6.00004-5"
+        note: PVA(폴리비닐알코올) 스펀지가 표준. 다공성·친수성이라 화학액을 머금는다.
+      - key: brush_compression_mm
+        label: 브러시 압입량
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 압입이 크면 접촉면적·전단이 늘지만 브러시가 오염을 머금어
+          교차오염(cross-contamination) 원이 된다. 정량 관계는 미확보.
+      - key: brush_rpm
+        label: 브러시 회전수
+        type: number
+        unit: rpm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 웨이퍼 회전수와의 상대 운동이 실제 세정 전단을 만든다."
+      - key: megasonic_freq_khz
+        label: 메가소닉 주파수
+        type: number
+        unit: kHz
+        typical: [700, 1500]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "doi:10.1002/9781118831571.ch6"
+        note: >
+          MHz 대역(통상 0.7~1 MHz). 주파수가 높을수록 캐비테이션 기포가 작아 패턴 손상이
+          줄지만 제거력도 준다. typical 범위는 문헌 서술 수준이라 정밀값은 미검증.
+      - key: megasonic_power_w_cm2
+        label: 메가소닉 파워 밀도
+        type: number
+        unit: "W/cm²"
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          입자 제거와 패턴 붕괴(pattern damage)의 트레이드오프를 지배하는 값.
+          미세 패턴에서는 파워를 못 올려 세정력이 제한된다 — 선단 노드의 근본 난제.
+      - key: brush_conditioning
+        label: 브러시 컨디셔닝/세정 주기
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "doi:10.1016/b978-0-323-43157-6.00004-5"
+        note: >
+          브러시 자체가 입자·금속을 축적해 오염원이 된다. 주기적 화학 침지(DHF/SC-1 등)로
+          되살린다. 세정 장비의 재현성 축.
+
+  # ═══════════════════════════════ 2) 세정 화학
+  - id: clean_chemistry
+    label: "세정 화학 (막질별 선택)"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      물리력만으로는 화학결합한 잔류물을 못 뗀다. 세정액의 역할은 (a) 표면·입자의 제타전위
+      부호를 같게 만들어 정전 반발을 세우고, (b) 금속을 착화해 녹이고, (c) 표면 산화막을
+      살짝 식각해 입자를 들어올리는(lift-off) 것이다. 막질이 다르면 쓸 수 있는 화학이 다르다.
+    fields:
+      - key: chemistry
+        label: 세정 화학종
+        type: enum
+        options: [diw_only, dhf, sc1, citric_acid, oxalic_acid, ammonium_hydroxide, surfactant, tmah, mixed]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          산화막/STI(세리아)는 Ce–O–Si 화학결합 때문에 물리력만으로 안 떨어져 DHF 계열이
+          필요하다는 보고(Sahir et al., Microelectron. Eng. 249 (2021) 111544,
+          doi:10.1016/j.mee.2021.111544 — 노트 인용). Cu는 산성 유기산+BTA 잔류 제거 조합.
+      - key: ph
+        label: 세정액 pH
+        type: number
+        typical: [2, 12]
+        origin: researched
+        maps_to: slurry_ph
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          ⚠ maps_to는 '슬러리 pH' 키를 빌린 것이라 partial이다. 세정액 pH는 별도 키가 필요하다.
+          물리는 같다 — pH가 표면·입자 제타전위를 정하고, 그게 재부착 여부를 정한다.
+          알칼리(SC-1)는 실리카 입자와 산화막을 둘 다 음전하로 만들어 반발시킨다.
+      - key: sc1_ratio
+        label: SC-1 조성비 (NH4OH:H2O2:H2O)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Particle Adhesion and Removal on Wafer Surfaces in RCA Cleaning, Ultraclean Surface Processing of Silicon Wafers (1998), doi:10.1007/978-3-662-03535-1_10 (find_open_access.py 확인)"
+        note: >
+          고전 RCA SC-1은 1:1:5지만 post-CMP는 표면 조도 악화를 피하려 크게 희석해 쓴다.
+          SC-1의 입자 제거 기전은 미세 식각에 의한 lift-off + 음전하 반발.
+      - key: dhf_concentration
+        label: 희석 HF 농도
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          산화막을 얇게 식각해 흡착 금속·세리아를 통째로 걷는다. 대신 산화막 두께 손실과
+          Cu 표면 노출(부식 위험)이 대가. 정량 농도·식각량은 미확보 — 조사 필요.
+      - key: chelating_agent
+        label: 착화제 (구연산·옥살산 등)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: >
+          흡착된 금속이온(Cu²⁺·Fe³⁺)을 용액상 착체로 붙잡아 헹궈낸다. slurry.yaml의 착화제와
+          같은 화학이 목적만 반대(제거 촉진 → 오염 제거).
+      - key: surfactant
+        label: 계면활성제
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/components/slurry.yaml
+        note: >
+          입자 표면에 흡착해 입체장벽을 세워 재부착을 막는다. slurry.yaml 9)Defect저감제의
+          계면활성제와 짝 — 슬러리에서 넣은 것이 세정 부담을 줄인다.
+      - key: film_specific_recipe
+        label: 막질별 세정 레시피 매핑
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 미연결. oxide/STI=DHF·SC-1 희석, Cu=유기산+BTA제거+부식억제, W=산성계.
+          film-* 에이전트가 막질별로 채워야 완성된다.
+
+  # ═══════════════════════════════ 3) 세정 시퀀스
+  - id: clean_sequence
+    label: "세정 시퀀스와 시간"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      세정도 CMP처럼 다단이다. 순서가 틀리면 앞 단계에서 뗀 오염이 뒤 단계에서 다시 붙는다.
+      특히 '헹굼 전에 마르면 끝'이라 각 단계 사이의 젖음 유지가 규칙이다.
+    fields:
+      - key: sequence
+        label: 단계 순서
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "doi:10.1016/b978-0-323-43157-6.00004-5"
+        note: >
+          전형: 플래튼 위 DIW 버프 린스 → 브러시1(화학) → 브러시2(DIW/알칼리) →
+          메가소닉(선택) → 최종 린스 → 건조. 스텝 리스트로 다뤄야 한다.
+      - key: step_time_s
+        label: 단계별 시간
+        type: number
+        unit: s
+        typical: [10, 60]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: "⚠ typical은 관례 서술 수준. 정량 출처 미확보 — 조사 필요."
+      - key: wet_transfer
+        label: 습식 이송 (젖음 유지)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          연마 종료~세정 시작 사이에 표면이 마르면 슬러리가 굳어 사실상 제거 불가가 된다.
+          그래서 장비는 웨이퍼를 젖은 채 넘긴다. 8번 그룹(Q-time)의 가장 짧은 시계.
+      - key: final_rinse_resistivity
+        label: 최종 린스수 비저항
+        type: number
+        unit: "MΩ·cm"
+        typical: [17, 18.2]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          UPW 규격(18.2 MΩ·cm at 25 °C가 이론 상한). 린스수 자체가 금속·유기 오염원이라
+          IRDS가 별도 관리 대상으로 둔다(노트 §4).
+
+  # ═══════════════════════════════ 4) 건조
+  - id: drying
+    label: "건조 방식 (스핀 · IPA 마랑고니)"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      세정의 마지막이자 결함의 마지막 관문. 물방울이 표면에서 증발하면 녹아 있던 실리카·
+      금속이 그 자리에 남아 워터마크가 된다. 마랑고니 건조는 물을 '증발시키지 않고 밀어내는'
+      방식이라 원리적으로 워터마크를 피한다.
+    fields:
+      - key: method
+        label: 건조 방식
+        type: enum
+        options: [spin_dry, ipa_marangoni, rotagoni, n2_blow, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Ultraclean Marangoni Drying, Particles in Gases and Liquids 3 (1993), doi:10.1007/978-1-4899-1187-2_18 (find_open_access.py 확인)"
+        note: >
+          마랑고니: IPA 증기가 메니스커스에 흡수되면 그 지점의 표면장력이 낮아지고, 표면장력
+          구배가 액막을 웨이퍼 밖으로 끌어당긴다 → 액막이 끊기지 않고 걷혀 건조 자국이 없다.
+          메니스커스 내부 대류의 시뮬레이션 보고: doi:10.1149/ma2019-02/23/1106 (ECS 초록).
+      - key: ipa_concentration
+        label: IPA 증기 농도
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 부족하면 마랑고니 응력이 약해 액막이 끊기고, 과다는 원가·안전 문제."
+      - key: pull_speed_mm_s
+        label: 인출/메니스커스 이동 속도
+        type: number
+        unit: mm/s
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          너무 빠르면 액막을 끌고 나와(drag-out) 워터마크, 너무 느리면 스루풋 손실.
+          마랑고니 응력 vs 점성 끌림의 경쟁이라 물리 모델링이 가능한 축.
+      - key: spin_rpm
+        label: 스핀 건조 회전수
+        type: number
+        unit: rpm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 원심력으로 물을 털지만 마지막 박막은 증발에 맡겨져 워터마크 위험이 남는다."
+      - key: watermark_defect
+        label: 워터마크 결함
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          증발 잔류물 결함. 소수성 표면(HF 처리 직후 Si-H)에서 물방울이 맺혀 특히 잘 생긴다 —
+          DHF 세정을 쓰면 건조 난이도가 올라가는 연쇄. 정량 발생률은 미확보.
+
+  # ═══════════════════════════════ 5) 잔류 입자 · 재부착
+  - id: particle_residue
+    label: "잔류 입자와 재부착 (제타전위 · DLVO)"
+    origin: researched
+    owner: surface-contamination
+    why: >
+      세정의 승부처는 "떼는 것"이 아니라 "다시 안 붙게 하는 것"이다. 입자와 웨이퍼가 같은
+      부호로 충분히 대전되면 DLVO 에너지 장벽이 서서 재부착이 억제된다. 즉 세정액 pH 선택은
+      슬러리 안정성과 완전히 같은 물리(colloid-zeta-dlvo 노트)를 푸는 문제다.
+    fields:
+      - key: zeta_wafer_mv
+        label: 웨이퍼 표면 제타전위
+        type: number
+        unit: mV
+        typical: [-60, 60]
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          실리카 IEP≈2 → 그보다 높은 pH에서 SiO₂는 음전하. 노트에 DLVO 에너지장벽 재현 코드가
+          있고(0.001M→0.1M에서 46.7→22.4 kT), 그 계산이 그대로 재부착 판정에 쓰인다.
+      - key: zeta_particle_mv
+        label: 잔류 입자 제타전위
+        type: number
+        unit: mV
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          입자·표면 제타의 부호가 반대면 정전 인력으로 강하게 붙는다. 세리아 IEP≈7~8이라
+          중성 pH 부근에서 세리아는 양전하 ↔ 산화막은 음전하 → 최악 조합. 이것이 세리아
+          post-CMP 세정이 어려운 콜로이드적 이유다.
+      - key: iep_ph
+        label: 입자 등전점 (IEP)
+        type: number
+        origin: researched
+        maps_to: abrasive_iep_ph
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          팩에 실재하는 키. 세정액 pH를 입자 IEP 반대편으로 잡는 것이 재부착 억제의 1원칙.
+      - key: residual_particle_size_nm
+        label: 잔류 입자 크기
+        type: number
+        unit: nm
+        origin: researched
+        maps_to: abrasive_size_nm
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          슬러리 입도 키를 빌려 쓴 것이라 partial. 작을수록 부착력 대비 유체력이 불리해
+          제거가 어렵다(입자가 작을수록 흡착력↑ — 노트 §2의 세리아 서술과 일치).
+      - key: lpd_count
+        label: 잔류입자 수 (LPD)
+        type: number
+        unit: "count/wafer"
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          세정 성능의 최종 지표. 검사기 감도(측정 하한 입경)를 함께 적지 않으면 수치 비교가
+          무의미하다 — metrology.yaml과 정의를 맞춰야 한다.
+      - key: ce_o_si_bonding
+        label: 세리아 화학결합 잔류
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          세리아는 Ce–O–Si 결합으로 표면에 '붙는' 것이 아니라 '결합'한다. 그래서 물리력
+          (브러시·메가소닉)으로 안 떨어지고 DHF/SPM 같은 화학 식각이 필요하다
+          (doi:10.1016/j.apsusc.2021.149035, doi:10.1016/j.mee.2021.111544 — 노트 인용).
+          선단 노드 세리아 세정 난제로 별도 보고됨(ECS Meeting Abstracts,
+          doi:10.1149/ma2021-0120811mtgabs, find_open_access.py 확인 — 초록만).
+
+  # ═══════════════════════════════ 6) 금속 오염
+  - id: metal_contamination
+    label: "post-CMP 금속 오염 (Cu·Fe·K·Ca·Al)"
+    origin: researched
+    owner: surface-contamination
+    why: >
+      슬러리의 촉매(Fe)·완충제(K)·배선금속(Cu)이 연마가 끝나는 순간 표면 오염으로 남는다.
+      이동성 양이온은 게이트 산화막 신뢰성을, 전이금속은 접합 누설을 망친다. 관리 단위는
+      면밀도(atoms/cm²)이고 허용치는 단분자층의 ~1e-5 수준이라 극미량 제어 문제가 된다.
+    fields:
+      - key: species
+        label: 관리 금속종
+        type: enum
+        options: [cu, fe, k, ca, al, na, zn, ni, mixed]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          Fe=W 슬러리 Fenton 촉매, K/Ca=완충제·소모품·물, Cu=배선 재흡착, Al=알루미나 입자.
+          발생원별로 세정 화학이 달라야 한다는 것이 노트의 결론.
+      - key: surface_density_atoms_cm2
+        label: 표면 금속 면밀도
+        type: number
+        unit: "atoms/cm²"
+        typical: [1.0e9, 1.0e13]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          노트 §2: 질산철계 W 슬러리 연마 후 Fe 잔류가 세정 전 ~1–2e12, 세정 후 <1e11
+          atoms/cm² 보고(doi:10.1023/A:1011242900843 — DOI 실존 확인, 원문 표값은 미검증).
+          Si(100) 단분자층 6.78e14 대비 허용치 1e10은 ~15 ppm ML.
+      - key: irds_limit_atoms_cm2
+        label: 허용치 (IRDS/ITRS 계열)
+        type: number
+        unit: "atoms/cm²"
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 임계 표면금속 ~1e10 atoms/cm² 오더, 선단은 5e9까지라는 로드맵 서술은 2차 확인이며
+          **정확한 표값은 미검증**(노트 §5와 동일한 한계). 인용 시 반드시 이 단서를 붙여라.
+      - key: measurement_method
+        label: 정량 방법
+        type: enum
+        options: [txrf, vpd_icpms, sims, xps, tof_sims]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md
+        note: >
+          TXRF는 비파괴·빠르나 검출한계가 높고 경원소에 약하다. VPD-ICPMS는 웨이퍼 전면을
+          액적으로 걷어 농축하므로 2~3 오더 낮은 한계를 준다 — 대신 파괴적.
+      - key: cu_readsorption_ph
+        label: Cu²⁺ 재흡착 pH 의존
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          노트 §3·§6에 Boltzmann 표면과잉으로 방향성 재현 완료: pH가 높을수록 SiO₂ 표면이
+          더 음전하 → Cu²⁺ 정전흡착 강화. 그래서 산성 세정(IEP 근처)이 Cu 재오염을 줄인다.
+          세정액 pH 선택의 물리적 근거.
+      - key: brush_cross_contamination
+        label: 브러시 교차오염
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          용해된 금속이온이 PVA 브러시에 흡착해 다음 웨이퍼로 옮겨진다는 보고
+          (Surfaces and Interfaces 2025, doi:10.1016/j.surfin.2025.106939 — 노트 인용, 초록만 확인).
+          Cu 라인과 비Cu 라인의 브러시를 분리하는 실무의 근거.
+
+  # ═══════════════════════════════ 7) 유기 잔류물
+  - id: organic_residue
+    label: "유기 잔류물"
+    origin: researched
+    owner: surface-contamination
+    why: >
+      금속만 오염이 아니다. BTA·분산제·계면활성제 같은 유기 첨가제는 애초에 '표면에 잘 붙게'
+      설계된 분자다. 그래서 잘 안 떨어지고, 남으면 후속 증착 밀착 불량·젖음성 이상·결함이 된다.
+    fields:
+      - key: species
+        label: 유기 잔류종
+        type: enum
+        options: [bta, surfactant, dispersant, chelator, pad_debris, mixed]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          BTA는 Cu(I)–BTA 중합막을 만들어 남는다. 유기 잔류는 산화물 잔류 사이트에 선택적으로
+          흡착해 산화물을 떼면 함께 떨어지는 경향(doi:10.3390/lubricants13070301, MDPI OA — 노트 인용).
+      - key: removal_chemistry
+        label: 유기물 제거 화학
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          알칼리+산화제(희석 SC-1), 유기용제, UV/오존 등. 다만 Cu 위에서는 산화제가 부식을
+          부르므로 선택지가 좁다 — 8번 그룹과 충돌하는 축.
+      - key: carbon_coverage
+        label: 표면 탄소 피복률
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md
+        note: XPS/ToF-SIMS로 잰다. 정량 허용치는 공정 통합 요구에 따라 달라 일반값 미확보.
+      - key: amc_exposure
+        label: 공기 중 분자오염(AMC) 노출
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/post-cmp-metallic-contamination-sources.md
+        note: >
+          세정 후 대기 대기(待機) 중 유기물이 재흡착한다. IRDS가 UPW·환경을 별도 관리대상으로
+          두는 이유(노트 §4). Q-time 관리와 같은 뿌리.
+
+  # ═══════════════════════════════ 8) 부식 · Q-time
+  - id: corrosion_qtime
+    label: "부식과 큐 타임 (Q-time)"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      금속 CMP 후 웨이퍼는 화학적으로 살아 있는 상태다. Cu와 배리어(Ta/TaN/Co)가 전해질에
+      함께 노출되면 갈바닉 쌍이 되어 이종금속 계면에서 부식이 진행된다. 시간이 지날수록
+      나빠지므로 '다음 공정까지 몇 시간'이 사양이 된다.
+    fields:
+      - key: galvanic_pair
+        label: 갈바닉 쌍
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Galvanic Corrosion Between Copper and Tantalum under CMP Conditions, J. Electrochem. Soc. (2006), doi:10.1149/1.2170583 (OA PDF, find_open_access.py 확인)"
+        note: >
+          Cu/Ta 접촉이 CMP 조건에서 갈바닉 부식을 일으킨다는 1차 문헌. 배리어 CMP 스텝에서
+          두 금속이 동시에 노출되는 구간이 가장 위험하다.
+      - key: corrosion_inhibitor_residual
+        label: 부식억제제 잔류 (양날)
+        type: text
+        origin: researched
+        maps_to: inhibitor
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: >
+          BTA는 남으면 오염(7번 그룹)이지만, 없애면 Cu가 벌거벗어 부식한다. 세정 레시피가
+          '얼마나 남길 것인가'를 정해야 하는 모순 축. 팩의 inhibitor 키와 화학종은 같으나
+          여기서는 '잔류량' 축이라 partial.
+      - key: q_time_h
+        label: 큐 타임 허용 시간
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "Reaction chain of process queue time quality control, ISSM 2005, doi:10.1109/issm.2005.1513293 (find_open_access.py 확인)"
+        note: >
+          ⚠ CMP 후 구체적 허용시간(수 시간 오더라는 서술)은 공정·막질별로 달라 **정량 미확보**.
+          Q-time 초과 시 재세정 또는 스크랩. 인용 문헌은 Q-time 품질관리 일반론.
+      - key: storage_ambient
+        label: 대기 보관 환경
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: N2 퍼지 FOUP 등으로 산화·AMC 흡착을 늦춘다. 정량 효과는 미확보.
+      - key: rework_clean
+        label: 재세정 기준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. Q-time 초과·LPD 초과 시 재세정 판정선. process.yaml 리워크 기준과 짝."
+
+  # ═══════════════════════════════ 9) 세정 후 표면 상태
+  - id: post_clean_surface
+    label: "세정 후 표면 상태 (조도 · 산화막 · 젖음성)"
+    origin: researched
+    owner: surface-contamination
+    why: >
+      세정은 공짜가 아니다. 식각성 화학(SC-1·DHF)은 오염과 함께 표면 자체를 깎아 조도를
+      악화시키고 막 두께를 줄인다. CMP가 만든 평탄도를 세정이 되돌리면 본말전도다.
+    fields:
+      - key: roughness_delta_ra_nm
+        label: 세정에 의한 조도 변화
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-roughness-afm-scan-scale-dependence.md
+        note: >
+          AFM 조도는 스캔 크기에 따라 값이 달라진다(노트의 핵심 결론). 세정 전후 비교는
+          반드시 같은 스캔 스케일에서 해야 의미가 있다.
+      - key: oxide_loss_nm
+        label: 세정 중 산화막 손실
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          DHF·SC-1의 식각량. 두께 예산(thickness budget)에서 CMP 제거량과 함께 빼야 한다 —
+          process.yaml의 목표 잔막 두께와 연결되어야 하는 축.
+      - key: chemical_oxide_growth_nm
+        label: 화학 산화막 성장
+        type: number
+        unit: nm
+        typical: [0.5, 1.5]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          ⚠ 정량 출처 미확보. SC-1/과산화수소·DIW 린스 후 Si 표면에 화학 산화막이 자란다.
+          소수성/친수성 종점이 갈리므로 건조 방식 선택(4번 그룹)에 직접 영향.
+      - key: wettability
+        label: 표면 젖음성 (접촉각)
+        type: number
+        unit: "deg"
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          DHF 종점은 소수성(Si–H), SC-1 종점은 친수성. 소수성이면 물이 뭉쳐 워터마크가
+          잘 생긴다 — 세정 화학 선택이 건조 결함을 결정하는 연결 고리.
+      - key: film_thickness_check
+        label: 세정 후 두께 재측정
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: 세정 손실을 포함한 최종 두께가 진짜 결과값. 계측 시점 정의가 사양의 일부다.
+
+  # ═══════════════════════════════ 10) 폐수 · 회수
+  - id: waste_reclaim
+    label: "폐수 처리 · 슬러리 회수"
+    origin: researched
+    owner: tool-post-clean
+    why: >
+      CMP는 팹에서 물과 화학약품을 가장 많이 쓰는 공정군에 속한다. 세정 배수에는 연마입자·
+      금속이온·산화제·유기물이 섞여 나온다. 사용자 목록에 없던 축이지만, 유량 스케줄과
+      세정 시간이 곧 폐수량이라 레시피 설계의 실제 제약으로 돌아온다.
+    fields:
+      - key: waste_volume_l_per_wafer
+        label: 매엽 폐수량
+        type: number
+        unit: L/wafer
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          세정수 유량 × 시간 + 슬러리 배수. process.yaml의 유량 스케줄에서 계산되는 파생량.
+          정량 공개 수치는 미확보.
+      - key: segregation
+        label: 배수 분리 (금속/입자/유기)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: Cu 함유 배수는 별도 계통으로 받아 회수·처리하는 것이 관례. 정량 근거 미확보.
+      - key: particle_removal_treatment
+        label: 입자 제거 처리
+        type: enum
+        options: [coagulation, membrane_filtration, sedimentation, none]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          나노 연마입자는 콜로이드적으로 안정해서(=슬러리가 잘 만들어졌다는 뜻) 침강이 어렵다.
+          응집제로 제타전위를 죽여 뭉치게 만드는 것이 표준 접근 — colloid-zeta-dlvo 노트의
+          응집 물리를 역으로 이용하는 사례.
+      - key: water_reclaim_pct
+        label: 용수 회수율
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 린스수 회수·재이용 비율. 공개 팹 데이터 확보 필요."
+      - key: slurry_reclaim
+        label: 슬러리 회수·재사용
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 사용 슬러리를 여과·보충해 재사용하는 시도가 있으나 LPC 증가와
+          입도 분포 변화가 결함 위험이라 적용이 제한적이라는 서술 수준.
