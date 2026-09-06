@@ -24,13 +24,35 @@
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
 
-_PACK_DIR = Path(__file__).resolve().parent.parent / "knowledge" / "params"
+_ENV_DIR = os.environ.get("FABSIM_PACK_DIR")
+
+
+def _resolve_pack_dir() -> Path:
+    """팩 위치 해석. 개발(저장소)과 배포(설치본) 양쪽에서 동작해야 한다.
+
+    우선순위:
+      1. FABSIM_PACK_DIR 환경변수 — 고객이 자기 팩 디렉토리를 지정하는 통로
+      2. knowledge/params/  — 저장소 레이아웃(개발). 에이전트가 노트와 함께 갱신한다.
+      3. sim/params/        — 설치 패키지에 동봉된 사본(배포). 연구 노트는 빠지고
+                              런타임에 필요한 이 값들만 따라간다.
+    """
+    if _ENV_DIR:
+        return Path(_ENV_DIR).expanduser()
+    here = Path(__file__).resolve().parent
+    repo = here.parent / "knowledge" / "params"
+    if repo.is_dir():
+        return repo
+    return here / "params"
+
+
+_PACK_DIR = _resolve_pack_dir()
 
 
 class ParamMissing(KeyError):

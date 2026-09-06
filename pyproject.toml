@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fabsim"
+version = "0.3.0"
+description = "CMP 공정 시뮬레이터 — 물리 모델·물성 팩·실데이터 캘리브레이션"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+authors = [{ name = "Lee" }]
+dependencies = [
+    "numpy>=1.24,<3",
+    "scipy>=1.10,<2",
+    "PyYAML>=6.0,<7",
+]
+
+[project.optional-dependencies]
+# UI (FabSim Studio). 헤드리스 배포에는 필요 없다.
+ui = [
+    "streamlit>=1.30,<2",
+    "pandas>=2.0,<3",
+]
+# 웹 배포 (다중 사용자 API + 내장 UI)
+web = [
+    "fastapi>=0.110,<1",
+    "uvicorn[standard]>=0.27,<1",
+]
+# 개발·검증
+dev = [
+    "pytest>=7.4,<9",
+    "requests>=2.31,<3",
+]
+
+[project.scripts]
+fabsim = "sim.cli:main"
+fabsim-studio = "sim.launch:main"
+fabsim-web = "sim.api:main"
+
+[tool.setuptools]
+# knowledge/params 는 코드가 런타임에 읽는 데이터다 — 패키지에 포함시킨다.
+# knowledge/ 의 나머지(연구 노트)와 agents/, papers/ 는 포함하지 않는다.
+packages = [
+    "sim",
+    "sim.tier1_empirical",
+    "sim.tier2_physics",
+    "sim.integration",
+    "sim.metrics",
+]
+
+[tool.setuptools.package-data]
+sim = ["params/*.yaml", "web/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
