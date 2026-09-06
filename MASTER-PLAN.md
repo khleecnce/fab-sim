@@ -896,3 +896,22 @@ Max 20x 심야 유휴 한도로 claude -p 3개 백그라운드 병렬 실행(각
 오케스트레이터가 push(d0731e4..8b9a910). ORG.md §5 상태표 3행 갱신. 진도: pad-material 3/6,
 pad-lifecycle 3/6, wafer-metrology 4/6. 다음: pad-material Lv2-2 기공-MRR, pad-lifecycle Lv2-2 두께
 모니터링·교체기준, wafer-metrology Lv3-1 인라인/가상계측.
+
+## 2026-09-07 01:45 [Max워커] tribologist 구현요청 처리 — 마찰기반 EPD 신호모델 순수함수 라이브러리 (S20)
+
+BACKLOG 수신함의 tribologist 요청(마찰기반 EPD 신호모델)을 `sim/tier2_physics/friction_cof_epd.py`
+로 처리. 노트(knowledge/physics/friction-cof-monitoring-endpoint-detection.md) §2 마찰신호 사슬
+(F_s=μPA → τ=F_s·r_c → P=τω → I=τ/K_t) 6함수, §3·§4 종점검출 신호처리(이동평균 centered/causal,
+baseline 대비 상대임계 계단검출 with min_persist, 지연 T=N/R, 과연마 T·RR/60), 검증용 합성신호
+생성기(step+가우시안 잡음, "실측 재현 아님" docstring 명시)로 구성. 문헌 대조: 노트 §6 (1)~(5) 값
+그대로 — F_n≈1462 N/F_s≈585 N/COF=0.40, τ·ω=F_s·V=μPVA=409 W(마찰발열 Q_f와 항등, S17 모듈과
+교차확인), Li2017(PMC6190379) dP=1630 W·contrast 5.4%·N=60/12.15 Hz 지연 4.94 s(<5 s)·229 nm/min
+과연마 18.8 nm(<20 nm), Headley2019 r(PMC,SF)=0.955 > r(PMC,COF)=0.758. **노트에 없던 새 검증
+(핵심)**: 합성신호(30,300→28,670 W 계단 @T=600, σ=50 W, seed=42, 1200샘플)에 121점 causal 이동평균
++ 계단검출(threshold=contrast/2≈0.027)을 걸어 검출 idx=660 = T+N, **오차 0샘플**(허용 ±3, 10개
+seed 전부 ±1샘플 이내), centered 평활은 오프라인 idx=600·실시간 idx=660 — 이론 지연 4.94 s가
+합성실험에서 정량 재현됨. 계단 없는 잡음신호는 None(오검출 없음), threshold 8%>contrast면 미검출
+(소신호 설계지침 역방향 확인). engine 미등록: Recipe가 단발 런 스냅샷이라 모터전력 시계열을 담을
+스키마가 없음(ARCHITECTURE §4 스키마 부채) — S17/S19와 같은 순수함수 라이브러리 지위. 노트 §8 미검증
+항목(K_t 절대값·재료별 COF 절대표·전이방향)은 docstring에 그대로 명시하고 지어내지 않음(그래서
+detect 기본 direction="any"). 214 passed(기존183+신규31), self-test 8/8 PASS. BACKLOG S20 완료표 이동.
