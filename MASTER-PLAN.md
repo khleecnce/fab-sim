@@ -830,3 +830,18 @@ Gold OA) 원문 전체 확보. knowledge/equipment/conditioner-grit-wear-scratch
 CURRICULUM Lv2-1 체크, EXAMS 3문항 추가, PROFILE 이수기록과 ORG.md 5절 갱신. 구현요청
 7절 신설 디스크/패드 수명종료 판정 로직 software-lead BACKLOG 인계 예정. 문헌 공백 확인
 디스크 자체 그릿 탈락률 곡선(1차 논문) 미확보 후속 과제.
+
+## 2026-09-06 20:xx (성장엔진) wafer-type Lv2-1 확장 GW 패턴효과 물리 학습
+
+Vasilev et al.(2011, IEEE Trans. Semicond. Manuf., doi.org/10.1109/TSM.2011.2107756, 유료·
+미러 사이트 미러 경유) 원문 전체 확보(find_open_access.py의 미러 사이트() 함수가 `<object data=..>`
+임베드를 못 잡는 버그 발견 — 수동으로 페이지 그렙해 우회, 도구는 미수정·다음 회차 인계).
+knowledge/cmp/npw-ptw-pattern-effect-gw-physics.md 신설. 핵심: 확장 GW(Greenwood-Williamson)
+모델에서 up/down 유효곡률 κ_U,D=κ_asperity±4αh/size²가 NPW(h=0)에서는 항상 0으로 사라져
+패턴 크기·피치 의존성이 원리적으로 관측 불가능함을 확인. 실측 대비(Table I) basic GW 대비
+extended GW가 step-height RMS 오차 32-34% 개선(density 19→13nm, pitch 20.5→13.5nm) —
+NPW+ρ_eff만으로 PTW를 완전 예측 못하는 정량적 근거. h→0 극한 수렴·narrow-line 가속 정성거동
+python verify로 assert 검증(digitize 없이 정량 곡선 재현은 안 됨을 명시). check_knowledge.py
+verify_claims.py 둘 다 통과. wafer-type 3/6, CURRICULUM Lv2-1 체크, EXAMS 3문항 추가,
+PROFILE·ORG.md §5 갱신. 구현요청(패턴효과 결합 모듈, effective-density 모델과 통합)
+software-lead BACKLOG 인계 예정. 다음: Lv2-2(측정기법 엘립소미터·프로파일러·AFM·XRF).

@@ -83,5 +83,14 @@
   "authors": "Doug Pysher, Brian Goers, John Zabasajja",
   "venue": "MRS Proceedings 1249 (2010)",
   "note": "materials/pad-conditioning-wear-regeneration-balance.md (참고, 미인용 상세)"
+ },
+ "vasilev2011-gw-pattern-density-size-cmp": {
+  "src": "미러 사이트 mirror (via 미러 사이트 lookup)",
+  "pdf": "papers/vasilev2011-gw-pattern-density-size-cmp.pdf",
+  "doi": "10.1109/TSM.2011.2107756",
+  "title": "Greenwood-Williamson Model Combining Pattern-Density and Pattern-Size Effects in CMP",
+  "authors": "Boris Vasilev, Roland Rzehak, Sascha Bott, Peter Kucher, Johann W. Bartha",
+  "venue": "IEEE Trans. Semicond. Manuf. 24(2), 338-347 (2011)",
+  "note": "cmp/npw-ptw-pattern-effect-gw-physics.md"
  }
 }

@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 NPW: 블랭킷 막 종류·두께·측정 포인트 체계(49/81pt·엣지 제외)·WIWNU 정의
 - [x] Lv1-2 PTW: 표준 테스트 패턴(MIT/SEMATECH 마스크)·패턴밀도·피치·다이 맵
-- [ ] Lv2-1 NPW 결과가 PTW를 예측하지 못하는 이유: 패턴 효과의 물리
+- [x] Lv2-1 NPW 결과가 PTW를 예측하지 못하는 이유: 패턴 효과의 물리 (2026-09-06, knowledge/cmp/npw-ptw-pattern-effect-gw-physics.md)
 - [ ] Lv2-2 측정 기법: 엘립소미터·프로파일러·AFM·XRF — 막질별 적합성과 오차
 - [ ] Lv3-1 최신 리뷰: 제품 웨이퍼(product wafer) 대리 지표, 가상 계측
 - [ ] Lv3-2 NPW→PTW 전이 규칙 정량화: 어떤 파라미터가 이전되고 어떤 것이 새로 필요한가 (sim/calibration)
