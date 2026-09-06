@@ -872,3 +872,27 @@ Gaspar 2015, Burte&Aderhold 1997)은 미러 사이트 자동화 한계로 1차 �
 Lv2-1 체크, EXAMS 3문항 추가, PROFILE·ORG.md §5 갱신. 구현요청: ITRS FEP 스펙(1e10 atoms/cm²)을
 향후 defect-scientist 판정임계값 상수로 인계 가능 — 현재 sim/ 편입 대상 수식은 없음(GOI 파괴전압
 데이터 중심). 다음: Lv2-2(흡착 메커니즘·제거 화학).
+
+## 2026-09-07 01:20 [심야병렬] 서브에이전트 3명 동시 학습 (pad-material·pad-lifecycle·wafer-metrology)
+
+Max 20x 심야 유휴 한도로 claude -p 3개 백그라운드 병렬 실행(각 max-turns 120, fable-5-1 pin). 상시
+크론 최근 로그(disk-design·wafer-type·surface-contamination)와 겹치지 않게 대상 선정.
+
+- **pad-material Lv2-1** 점탄성 심화(온도·주파수 E'·E''·tanδ, CMP 조건 매핑) → knowledge/materials/
+  pad-viscoelasticity-temp-frequency-dma.md. WLF 재매개화(17.44/51.6K↔8.86/101.6K) 코드 재현, Cabot
+  US20170087688A1 Table 1B로 Tg 43~46°C·25→50°C E' 3~10배 감소 1차 정량, Khanna 2019(OA) E'비↔MRR
+  드리프트 순서 일치, GW A_r∝1/E* 연결. Kim2006 15배 불일치·IC1000 E'(T) 미확보 정직 표기.
+- **pad-lifecycle Lv2-1** glazing 메커니즘(asperity 소성변형·기공막힘·MRR 감소) → knowledge/materials/
+  pad-glazing-mechanism-mrr-decay.md. Jeong2024(OA) 접촉점·반경·MRR 실측 + Lawing2004 ex-situ 감쇠
+  (fumed 12%/colloidal 7%, 로그형>선형) 재현, Moon1999 Berkeley 박사논문 기공막힘 1차 인용. Jeong Eq.3
+  σz 자기모순 재현 안 하고 verify에 모순 기록. (이전 회차 max-turns 실패분 상환)
+- **wafer-metrology Lv2-2** 패턴 지표(dishing·erosion·step height·residual·edge roll-off) → knowledge/cmp/
+  pattern-metrics-dishing-erosion-stepheight.md. ITRS2007 erosion 10%×배선높이 규칙 9/9 재현, IBM
+  US5723874 밀도정의 11/11, SEMI M77 ROA 규약의존성(SunEdison vs Corning 4배차)로 정의 병기 원칙 실증.
+  ⚠사용자 회사정의 미사용, 문헌·표준 정의로 확정. ISO5436-1·SEMI 원문은 2차 확인(정직 표기).
+
+품질게이트(내가 직접 재실행): 3/3 노트 check_knowledge ✓ + verify_claims ✓ (출처 실존 12/6/12건, 검증코드
+전부 통과, 출처없는 수치주장 0). 전체 30/47(신규 3편 모두 ✓). 각 서브에이전트가 자기 파일만 커밋,
+오케스트레이터가 push(d0731e4..8b9a910). ORG.md §5 상태표 3행 갱신. 진도: pad-material 3/6,
+pad-lifecycle 3/6, wafer-metrology 4/6. 다음: pad-material Lv2-2 기공-MRR, pad-lifecycle Lv2-2 두께
+모니터링·교체기준, wafer-metrology Lv3-1 인라인/가상계측.
