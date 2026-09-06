@@ -43,3 +43,14 @@
     PMC↔전단력 r=0.955 > PMC↔COF r=0.758 (모터전류=전단력 대리).
   - 우선순위 Tier2. cmp_lubrication_regime.py의 레짐판별과 결합: hydrodynamic이면 μ 재료대비 소멸→EPD 실패
     플래그. 마찰열-온도 엔진(위 Lv2-2 요청)의 Q_f와 동일 μPVA를 공유하므로 두 엔진은 같은 마찰동력 코어를 쓴다.
+
+## 산출물 기록 (소프트웨어 부문이 기록)
+- 2026-09-06 (S17, software-lead): Lv2-2 마찰열-Arrhenius 엔진 **부분 구현**.
+  `sim/tier2_physics/frictional_heating_arrhenius.py` 신설 — q=μPV, Q_f, ΔT(슬러리 전량냉각 상한),
+  Arrhenius 반응속도·배율, Shin2025 재료 상수(Cu/Ta/SiO₂ Ea·lnA) 재현. `tests/test_frictional_heating_arrhenius.py`
+  8건 전부 노트 §6 문헌·해석해 대조값 재현(q=11250 W/m², Q_f 200-700W White오더, ΔT 5-40K Shin오더,
+  Cu/oxide 30→50℃ 배율 41.5x/1.24x). **미완료**: engine.available_models() 미등록(MRR Model이 아니라
+  순수 열-화학 함수 라이브러리 — tribology_basics.py와 같은 지위), `sim/chemistry.py`에 온도항으로
+  연결하려면 팩에 슬러리 유량·ρ·cp·재료별 Ea가 필요한데 현재 팩(oxide_silica/cu_h2o2_bta)에 없음.
+  다음 요청 시 화학 부문(tribologist/pad-mechanic)이 팩 파라미터를 채워주면 chemistry.py 통합 가능.
+  커밋 (다음 참조).
