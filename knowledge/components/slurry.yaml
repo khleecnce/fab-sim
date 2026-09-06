@@ -1,0 +1,566 @@
+# 슬러리 구성요소 스키마
+#
+# 씨앗: 2026-09-06 사용자(슬러리 실무자) 지시 10개 항목.
+# 확장: 기존 지식노트에서 근거가 확인되는 항목을 추가(origin: researched).
+#       슬러리 분화 에이전트(slurry-abrasive/chemistry/colloid)가 조사로 계속 채운다.
+#
+# ⚠ origin: user 항목은 삭제 금지. 사용자가 실무에서 쓰는 축이다.
+
+version: 1
+component: slurry
+owner: slurry-chemist
+description: "CMP 슬러리 배합 — 입자 + 화학. 실무자가 다루는 단위 그대로."
+
+groups:
+
+  # ═══════════════════════════════ 1) 입자 (사용자 지시)
+  - id: abrasive
+    label: "입자 (연마입자)"
+    origin: user
+    owner: slurry-abrasive
+    why: "제거의 기계적 주체. 종류·크기·형상·함량이 MRR과 스크래치를 동시에 결정한다."
+    fields:
+      - key: type
+        label: 종류
+        type: enum
+        options: [silica_colloidal, silica_fumed, ceria, alumina, zirconia, mixed]
+        origin: user
+        maps_to: abrasive
+        status: wired
+        source: knowledge/cmp/slurry-components-overview.md
+        confidence: literature
+        note: >
+          실리카=범용 산화막, 세리아=STI(Ce-O-Si 화학결합 tooth 메커니즘),
+          알루미나=금속(W/Cu), 지르코니아=경질막. 사용자 지시에 zirconia 포함.
+      - key: content_wt_pct
+        label: 함량
+        type: number
+        unit: wt%
+        typical: [0.5, 30]
+        origin: user
+        maps_to: null
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/slurry-components-overview.md
+        note: >
+          ⚠ 미연결. MRR은 함량에 포화 곡선(Langmuir형)을 그린다고 알려져 있으나
+          우리 엔진은 아직 함량 축이 없다. slurry-abrasive Lv2에서 연결식 필요.
+      - key: primary_size_nm
+        label: 1차 입도
+        type: number
+        unit: nm
+        typical: [10, 150]
+        origin: user
+        maps_to: abrasive_size_nm
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+      - key: secondary_size_nm
+        label: 2차 입도 (응집체)
+        type: number
+        unit: nm
+        typical: [30, 500]
+        origin: user
+        maps_to: null
+        status: not_wired
+        confidence: literature
+        note: >
+          ⚠ 미연결이지만 실무상 스크래치의 주범. 1차보다 2차 입도가 결함을 지배한다.
+          defect-scientist(G3)와 연결 필요.
+      - key: size_distribution_span
+        label: 입도 분포 폭 (D90-D10)/D50
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: 사용자 "입도 primary, secondary size 외" → 분포 폭이 그 '외'에 해당. LPC와 직결.
+      - key: shape
+        label: 형상
+        type: enum
+        options: [spherical, cocoon, angular, faceted, aggregated]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: 세리아 다면체 vs 실리카 구형. 접촉면적·응력집중이 달라 MRR/결함이 갈린다.
+      - key: hardness_mohs
+        label: 경도
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: 입자>피연마막이면 스크래치. 알루미나(9) > 세리아(6) > 실리카(6~7).
+      - key: lpc_per_ml
+        label: LPC (조대입자 수)
+        type: number
+        unit: "count/mL"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          실무 품질 지표. >0.5µm 입자 수가 스크래치와 직결. 사용자 9)Defect저감제와 짝.
+
+  # ═══════════════════════════════ 2) R/R booster (사용자 지시)
+  - id: booster
+    label: "R/R booster (막질별 제거율 촉진제)"
+    origin: user
+    owner: slurry-chemistry
+    why: >
+      막질마다 촉진 화학이 다르다. 사용자 지시: Si / TEOS / Nit / Cu / W booster 외.
+      제거율을 올리는 첨가제 계열 전체를 여기서 다룬다.
+    fields:
+      - key: si_booster_ppm
+        label: Si booster
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 미연결. Poly-Si 제거 촉진(아민류·계면활성제 계열 추정). film-poly-si 조사 필요."
+      - key: teos_booster_ppm
+        label: TEOS booster
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 산화막 제거 촉진. 실리카계 슬러리의 알칼리·아민 촉진제. film-oxide 조사 필요."
+      - key: nit_booster_ppm
+        label: Nit booster
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ SiN 제거 촉진. reverse-STI 등에서 사용. film-nitride 조사 필요."
+      - key: cu_booster_ppm
+        label: Cu booster
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ Cu 제거 촉진(착화제·산화 촉진). film-cu 조사 필요."
+      - key: w_booster_ppm
+        label: W booster
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ W 제거 촉진(Fe촉매·과산화물 활성화). film-w 조사 필요."
+      - key: catalyst
+        label: 촉매 (Fe/Cu 이온 등)
+        type: text
+        origin: researched
+        maps_to: oxidizer
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: >
+          W CMP의 Fenton 화학(Fe3+ + H2O2). 사용자 목록의 'booster 외'에 해당.
+          w_fe_oxidizer 팩에 부분 반영됨.
+
+  # ═══════════════════════════════ 3) R/R inhibitor (사용자 지시)
+  - id: inhibitor
+    label: "R/R inhibitor (막질별 억제제 — stopping CMP용)"
+    origin: user
+    owner: slurry-chemistry
+    why: >
+      선택비의 실질. 사용자 지시: "Stopping CMP용 각 막질에 대한 inhibitor".
+      멈춰야 할 막을 보호해 선택비를 만든다.
+    fields:
+      - key: cu_inhibitor
+        label: Cu 억제제 (BTA 등)
+        type: text
+        origin: user
+        maps_to: inhibitor
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: BTA/BTAH가 Cu 표면에 Cu(I)-BTA 착체 피막 형성. cu_h2o2_bta 팩에 반영됨.
+      - key: cu_inhibitor_mM
+        label: Cu 억제제 농도
+        type: number
+        unit: mM
+        typical: [0.1, 20]
+        origin: user
+        maps_to: inhibitor_mM
+        status: wired
+        confidence: literature
+      - key: nitride_inhibitor
+        label: SiN 억제제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ STI에서 SiN stop layer 보호. 아미노산(프롤린 등)·폴리머 계열. film-nitride 조사."
+      - key: oxide_inhibitor
+        label: 산화막 억제제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ reverse 선택비(SiN 우선 제거)에서 필요. 조사 대상."
+      - key: poly_si_inhibitor
+        label: Poly-Si 억제제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ poly stop 공정. film-poly-si 조사."
+      - key: barrier_inhibitor
+        label: 배리어(Ta/TaN/Co) 억제제
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          사용자 "각 막질에 대한 inhibitor"의 확장. Cu 배리어 CMP 2단계에서
+          Cu:배리어:산화막 3자 선택비를 잡는 핵심. film-cu Lv2-2 소관.
+      - key: selectivity_target
+        label: 목표 선택비
+        type: text
+        origin: researched
+        maps_to: oxide_nitride_selectivity
+        status: partial
+        confidence: literature
+        source: knowledge/params/sti_ceria.yaml
+        note: 억제제의 결과 지표. sti_ceria 팩에 산화막:질화막 선택비로 존재.
+
+  # ═══════════════════════════════ 4) oxidizer (사용자 지시)
+  - id: oxidizer
+    label: "산화제"
+    origin: user
+    owner: slurry-chemistry
+    why: "금속 CMP의 화학적 주체. 금속을 산화물/수산화물로 바꿔 기계적 제거를 쉽게 한다."
+    fields:
+      - key: type
+        label: 종류
+        type: enum
+        options: [h2o2, kio3, fe_nitrate, persulfate, periodate, none]
+        origin: user
+        maps_to: oxidizer
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+      - key: concentration_wt_pct
+        label: 농도
+        type: number
+        unit: wt%
+        typical: [0.1, 5]
+        origin: user
+        maps_to: oxidizer_wt_pct
+        status: wired
+        confidence: literature
+        note: >
+          MRR이 농도에 대해 봉우리 곡선을 그린다(과다 시 두꺼운 부동태막 → 감소).
+          cu_h2o2_bta 팩에 oxidizer_peak_wt_pct/curve_n 으로 반영됨.
+      - key: stability_h
+        label: 안정성 (분해 반감기)
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: H2O2는 금속 이온·빛에 분해된다. POU 혼합을 쓰는 이유. 안정제와 짝.
+
+  # ═══════════════════════════════ 5) chelator (사용자 지시)
+  - id: chelator
+    label: "킬레이트제 (착화제)"
+    origin: user
+    owner: slurry-chemistry
+    why: "금속 이온을 붙잡아 용해를 돕거나(제거 촉진) 재석출·오염을 막는다. 양날."
+    fields:
+      - key: type
+        label: 종류
+        type: enum
+        options: [glycine, citric_acid, oxalic_acid, edta, malic_acid, tartaric_acid, none]
+        origin: user
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: "⚠ 미연결. 글리신은 Cu CMP 표준 착화제. Pourbaix 도표를 바꾼다."
+      - key: concentration_mM
+        label: 농도
+        type: number
+        unit: mM
+        typical: [1, 100]
+        origin: user
+        status: not_wired
+        confidence: literature
+      - key: stability_constant_logK
+        label: 안정도 상수 log K
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          착화제 선택의 정량 근거. log K가 크면 용해 촉진이 강하지만 부식·재오염 위험.
+          사용자 목록에 없던 축 — 시뮬레이션에 넣으려면 이 값이 필요하다.
+
+  # ═══════════════════════════════ 6) biocide (사용자 지시)
+  - id: biocide
+    label: "살균제"
+    origin: user
+    owner: slurry-colloid
+    why: "미생물 증식은 pH 변동·응집·필터 막힘·결함으로 이어진다. 보관 안정성 항목."
+    fields:
+      - key: type
+        label: 종류
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 이소티아졸리논계 등. 시뮬레이션 물리와는 무관하나 제형 완결성을 위해 유지."
+      - key: concentration_ppm
+        label: 농도
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: unverified
+
+  # ═══════════════════════════════ 7) pH 조절제 (사용자 지시)
+  - id: ph_control
+    label: "pH 조절제 · 완충계"
+    origin: user
+    owner: slurry-chemistry
+    why: >
+      pH는 슬러리의 마스터 변수. 제타전위(안정성)·표면화학(제거율)·부식(Pourbaix)을
+      동시에 움직인다.
+    fields:
+      - key: agent
+        label: 조절제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: literature
+        note: KOH/TMAH/NH4OH(염기), HNO3/H2SO4(산). 금속 이온 오염 때문에 유기 염기 선호.
+      - key: ph
+        label: pH
+        type: number
+        typical: [2, 12]
+        origin: user
+        maps_to: slurry_ph
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+      - key: buffer_capacity
+        label: 완충 용량
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          사용자 목록에 없던 축. 연마 중 pH가 밀리면 선택비가 흔들린다.
+          장시간·다매 연마의 재현성 문제.
+      - key: ionic_strength_M
+        label: 이온세기
+        type: number
+        unit: M
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          Debye 길이 κ⁻¹≈0.304/√I nm. 이온세기가 오르면 이중층이 압축되어 응집한다
+          (노트 verify: 0.001M→0.1M 시 에너지장벽 46.7→22.4 kT). 분산제와 직결.
+
+  # ═══════════════════════════════ 8) 분산제 (사용자 지시)
+  - id: dispersant
+    label: "분산제 · 안정화제"
+    origin: user
+    owner: slurry-colloid
+    why: "입자를 떠 있게 유지. 응집하면 2차 입도가 커지고 그게 곧 스크래치다."
+    fields:
+      - key: type
+        label: 종류
+        type: enum
+        options: [polyacrylate, pvp, peg, sulfonate, none]
+        origin: user
+        status: not_wired
+        confidence: literature
+      - key: concentration_ppm
+        label: 농도
+        type: number
+        unit: ppm
+        origin: user
+        status: not_wired
+        confidence: literature
+      - key: zeta_potential_mV
+        label: 제타전위
+        type: number
+        unit: mV
+        typical: [-60, 60]
+        origin: researched
+        maps_to: null
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: >
+          분산제의 결과 지표. |ζ|>30mV가 안정 기준. 노트에 DLVO 재현 코드 있음.
+          입자-웨이퍼 부착(제거율)과 입자-입자 반발(안정성)을 동시에 지배 — 연결 1순위.
+      - key: iep_ph
+        label: 등전점 (IEP)
+        type: number
+        origin: researched
+        maps_to: abrasive_iep_ph
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+        note: IEP 근처에서 제타=0 → 응집. 실리카 pH~2, 세리아 pH~7~8.
+
+  # ═══════════════════════════════ 9) Defect 저감제 (사용자 지시)
+  - id: defect_reduction
+    label: "결함 저감제"
+    origin: user
+    owner: slurry-colloid
+    why: "스크래치·잔류입자·부식결함을 줄이는 첨가제 계열."
+    fields:
+      - key: surfactant
+        label: 계면활성제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: literature
+        note: 입자 재부착 방지, 표면 젖음성 개선. post-CMP 세정 부담을 줄인다.
+      - key: corrosion_inhibitor
+        label: 부식 저감제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: literature
+        note: 금속 CMP의 갈바닉 부식·에칭 결함 억제. 3)inhibitor와 목적이 다름(선택비 vs 결함).
+      - key: antifoam
+        label: 소포제
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 사용자 목록의 '외'. 기포는 국소 미연마·얼룩 결함을 만든다.
+      - key: filtration_pou_nm
+        label: POU 필터 등급
+        type: number
+        unit: nm
+        typical: [50, 1000]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          사용 시점 여과. 조대입자(LPC)를 직접 거른다 — 결함 저감의 가장 확실한 수단.
+          첨가제가 아니라 공급 시스템이지만 결함 축이라 여기 둔다.
+
+  # ═══════════════════════════════ 10) roughness·TTV 개선 (사용자 지시)
+  - id: surface_quality
+    label: "표면 품질 개선 (roughness · TTV 외)"
+    origin: user
+    owner: slurry-chemist
+    why: >
+      사용자 지시: "roughness 개선, TTV 개선 외". 제거율이 아니라 결과 표면의
+      품질을 겨냥한 첨가제·설계 축.
+    fields:
+      - key: roughness_additive
+        label: 조도 개선제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. wafer-metrology의 Ra/Rq 산출과 연결되어야 의미가 생긴다."
+      - key: uniformity_additive
+        label: 균일도(TTV) 개선제
+        type: text
+        origin: user
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 슬러리로 TTV를 잡는 메커니즘(엣지 화학·유동 개선)은
+          장비 존압력과 별개 축. slurry-chemist Lv3 조사 대상.
+      - key: selectivity_tuner
+        label: 선택비 조정제
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: 사용자 '외'. 패턴 의존 평탄화(dishing/erosion)를 화학으로 잡는 축.
+
+  # ═══════════════════════════════ 조사로 추가된 그룹
+  - id: rheology
+    label: "유변·물성 (조사 추가)"
+    origin: researched
+    owner: slurry-colloid
+    why: >
+      사용자 목록에 없으나 시뮬레이터에 직접 필요하다. 슬러리 막 두께와 윤활 영역
+      (Stribeck)을 점도가 지배하는데, 우리 엔진의 유체막 모듈이 이 값을 요구한다.
+    fields:
+      - key: viscosity_mpa_s
+        label: 점도
+        type: number
+        unit: mPa·s
+        typical: [0.8, 5]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md
+        note: 유체막 두께 h ∝ (ηV/P)^n. 윤활 영역 판정의 입력.
+      - key: density_g_cm3
+        label: 밀도
+        type: number
+        unit: g/cm³
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          고형분 함량에 따라 1.0~1.2 수준. 유량(mL/min)을 질량 기준으로 환산할 때와
+          입자 침강(Stokes) 계산에 필요하다.
+      - key: solid_loading_effect
+        label: 고형분-점도 관계
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 함량(1번)과 점도가 독립이 아니다. 두 축을 잇는 식이 필요.
+
+  - id: supply
+    label: "공급 조건 (조사 추가)"
+    origin: researched
+    owner: slurry-chemist
+    why: >
+      사용자 목록에 없으나 실제 MRR을 크게 흔든다. 같은 슬러리라도 유량·희석·온도가
+      다르면 결과가 다르다. 시뮬레이터가 '레시피'를 받으려면 필요한 축.
+    fields:
+      - key: flow_rate_ml_min
+        label: 유량
+        type: number
+        unit: mL/min
+        typical: [50, 300]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: 부족하면 슬러리 고갈로 MRR 저하·스크래치. 과다는 낭비.
+      - key: dilution_ratio
+        label: 희석비 (원액:DIW)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: 실무는 원액을 POU에서 희석한다. 함량·이온세기가 여기서 결정된다.
+      - key: temperature_c
+        label: 슬러리 온도
+        type: number
+        unit: °C
+        typical: [15, 45]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          화학 반응속도가 Arrhenius로 따라간다. 마찰열과 합쳐져 실제 계면 온도를 만든다
+          (tribologist Lv2-2 마찰열 커플링과 연결 대상).
+      - key: shelf_life_days
+        label: 보관 수명
+        type: number
+        unit: days
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: 6)biocide, 4)oxidizer 안정성과 묶이는 실무 축.

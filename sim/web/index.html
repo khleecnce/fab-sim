@@ -45,6 +45,24 @@ td,th{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
 th{color:var(--dim);font-weight:500}
 svg{background:var(--panel);border:1px solid var(--line);border-radius:8px}
 .err{color:var(--bad);padding:10px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tab{padding:8px 16px;cursor:pointer;border-bottom:2px solid transparent;font-size:13px;color:var(--dim)}
+.tab.on{color:var(--fg);border-bottom-color:var(--acc)}
+.cgroup{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px}
+.cgroup h4{margin:0 0 2px;font-size:13px}
+.cgroup .why{font-size:11.5px;color:var(--dim);margin-bottom:8px}
+.crow{display:grid;grid-template-columns:1fr 140px;gap:8px;align-items:center;padding:4px 0;
+      border-top:1px solid #21262d}
+.crow:first-of-type{border-top:0}
+.crow .lab{font-size:12.5px}
+.crow .st{font-size:10px;padding:1px 5px;border-radius:3px;margin-left:6px}
+.st.wired{background:#132d1a;color:var(--ok)}
+.st.partial{background:#2d2410;color:var(--warn)}
+.st.not_wired{background:#25292f;color:var(--dim)}
+.crow input,.crow select{padding:4px 6px;font-size:12px}
+.badge-user{font-size:10px;background:#1d2a3d;color:var(--src);padding:1px 6px;border-radius:3px}
+.badge-res{font-size:10px;background:#2a2438;color:#c9a4ff;padding:1px 6px;border-radius:3px}
+.cnote{font-size:11px;color:var(--dim);padding:2px 0 4px}
 </style></head>
 <body>
 <header><h1>FabSim</h1><span class="sub">CMP 시뮬레이터 — 물리 모델을 갈아끼운다</span>
@@ -72,8 +90,15 @@ svg{background:var(--panel);border:1px solid var(--line);border-radius:8px}
   <div style="margin-top:18px"><button id="run">▶ 실행</button></div>
 </aside>
 <section>
-  <div id="pipe" class="pipe"></div>
-  <div id="out"></div>
+  <div class="tabs">
+    <div class="tab on" data-t="pipe">파이프라인</div>
+    <div class="tab" data-t="comp">구성요소</div>
+  </div>
+  <div id="v_pipe">
+    <div id="pipe" class="pipe"></div>
+    <div id="out"></div>
+  </div>
+  <div id="v_comp" style="display:none"></div>
 </section>
 </main>
 <script>
@@ -92,7 +117,7 @@ async function boot(){
   $('pack').innerHTML=CAT.packs.filter(p=>p.id!=='base')
     .map(p=>`<option value="${p.id}">${p.id}</option>`).join('');
   $('pack').onchange=showPack; showPack();
-  drawPipe();
+  drawPipe(); drawComp();
 }
 function showPack(){
   const p=CAT.packs.find(x=>x.id===$('pack').value);
@@ -114,6 +139,44 @@ function drawPipe(){
       ${CFG[s.id]===i.id&&i.agent?`<div class="meta">👤 ${i.agent}</div>`:''}
     `).join('')}</div>`).join('');
 }
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  $('v_pipe').style.display=t.dataset.t==='pipe'?'':'none';
+  $('v_comp').style.display=t.dataset.t==='comp'?'':'none';
+});
+const CV={};   // 구성요소 입력값
+function drawComp(){
+  if(!CAT.components||!CAT.components.length){
+    $('v_comp').innerHTML='<div class="info">구성요소 스키마가 아직 없습니다.</div>';return}
+  const cov=CAT.coverage;
+  $('v_comp').innerHTML=`
+  <div class="info">실무 단위로 입력합니다. <b>연결</b>된 항목만 계산에 반영되고,
+    <b>미연결</b> 항목은 입력해도 결과에 영향을 주지 않습니다 — 그 사실을 결과에 표시합니다.
+    현재 ${cov.total_fields}개 필드 중 연결됨
+    ${Object.values(cov.by_component).reduce((a,b)=>a+b.wired,0)}개.</div>
+  ${CAT.components.map(c=>`
+    <h3 style="font-size:14px;margin:16px 0 8px">${c.label} <span class="sub">담당 ${c.owner}</span></h3>
+    ${c.groups.map(g=>`
+      <div class="cgroup">
+        <h4>${g.label} <span class="${g.origin==='user'?'badge-user':'badge-res'}">${g.origin==='user'?'사용자 지시':'조사 추가'}</span></h4>
+        ${g.why?`<div class="why">${g.why.split('\n')[0]}</div>`:''}
+        ${g.fields.map(f=>{
+          const id='cf_'+f.path.replace(/\./g,'_');
+          let ctl;
+          if(f.type==='enum'&&f.options) ctl=`<select id="${id}" onchange="CV['${f.path}']=this.value||undefined">
+              <option value=""></option>${f.options.map(o=>`<option>${o}</option>`).join('')}</select>`;
+          else if(f.type==='number') ctl=`<input id="${id}" type="number" step="any"
+              placeholder="${f.typical?f.typical[0]+'~'+f.typical[1]:''}"
+              oninput="CV['${f.path}']=this.value===''?undefined:+this.value">`;
+          else ctl=`<input id="${id}" type="text" oninput="CV['${f.path}']=this.value||undefined">`;
+          return `<div class="crow">
+            <div class="lab">${f.label}${f.unit?' <span class="sub">['+f.unit+']</span>':''}
+              <span class="st ${f.status}">${f.status==='wired'?'연결':f.status==='partial'?'부분':'미연결'}</span></div>
+            ${ctl}</div>
+            ${f.note&&f.note.includes('⚠')?`<div class="cnote">${f.note.split('\n')[0]}</div>`:''}`;
+        }).join('')}
+      </div>`).join('')}`).join('')}`;
+}
 $('run').onclick=async()=>{
   $('run').disabled=true;$('run').textContent='계산 중…';
   const meta={};
@@ -122,7 +185,7 @@ $('run').onclick=async()=>{
   const body={pack:$('pack').value,wafer:$('wafer').value,
     pressure_psi:+$('press').value,rpm_wafer:+$('rw').value,rpm_platen:+$('rp').value,
     time_s:+$('time').value,
-    initial_thickness_nm:+$('thick').value||null,meta,slots:CFG};
+    initial_thickness_nm:+$('thick').value||null,meta,slots:CFG,components:CV};
   try{
     const r=await fetch('/api/simulate',{method:'POST',
       headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});

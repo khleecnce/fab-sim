@@ -37,6 +37,7 @@ from sim.metrics.uniformity import compute_metrics  # noqa: E402
 from sim.params import available_packs, load_pack  # noqa: E402
 import sim.models  # noqa: F401,E402
 import sim.slots as S  # noqa: E402
+from sim.recipe_builder import load_schemas, to_overrides, coverage  # noqa: E402
 
 app = FastAPI(title="FabSim API", version="0.3.0")
 
@@ -53,6 +54,9 @@ class SimRequest(BaseModel):
     zone_edges_norm: Optional[List[float]] = None
     meta: Dict[str, str] = Field(default_factory=dict)
     slots: Dict[str, str] = Field(default_factory=dict)
+    # 구성요소 스키마 값 — "slurry.abrasive.primary_size_nm": 60 형식.
+    # 연결된 것만 팩 오버라이드가 되고, 나머지는 경고로 돌아온다.
+    components: Dict[str, Any] = Field(default_factory=dict)
 
 
 @app.get("/api/health")
@@ -88,13 +92,36 @@ def catalog():
                                       "source": p.source} for p in pk.params.values()]})
         except Exception as e:
             packs.append({"id": name, "error": str(e)})
-    return {"slots": slots, "default_config": S.default_config(), "packs": packs}
+    comps = []
+    for cname, spec in load_schemas().items():
+        comps.append({
+            "id": cname, "label": spec.get("component", cname),
+            "owner": spec.get("owner"), "description": spec.get("description", ""),
+            "groups": [{
+                "id": g["id"], "label": g.get("label", g["id"]),
+                "origin": g.get("origin"), "owner": g.get("owner", spec.get("owner")),
+                "why": g.get("why", ""),
+                "fields": [{
+                    "path": f"{cname}.{g['id']}.{fl['key']}",
+                    "key": fl["key"], "label": fl.get("label", fl["key"]),
+                    "type": fl.get("type", "text"), "unit": fl.get("unit", ""),
+                    "options": fl.get("options"), "typical": fl.get("typical"),
+                    "origin": fl.get("origin"), "status": fl.get("status"),
+                    "maps_to": fl.get("maps_to"), "confidence": fl.get("confidence"),
+                    "note": fl.get("note", ""),
+                } for fl in g.get("fields", [])],
+            } for g in spec.get("groups", [])],
+        })
+    return {"slots": slots, "default_config": S.default_config(), "packs": packs,
+            "components": comps, "coverage": coverage()}
 
 
 @app.post("/api/simulate")
 def api_simulate(req: SimRequest):
+    comp_over, comp_warn = to_overrides(req.components) if req.components else ({}, [])
     try:
         rec = Recipe(
+            pack_overrides=comp_over,
             pack=req.pack, wafer=req.wafer,  # type: ignore[arg-type]
             pressure_psi=req.pressure_psi, rpm_wafer=req.rpm_wafer,
             rpm_platen=req.rpm_platen, time_s=req.time_s,
@@ -136,7 +163,9 @@ def api_simulate(req: SimRequest):
         "profile": {"radius_mm": (radius * 1000).round(2).tolist(),
                     "mrr_nm_min": mrr_nm.round(3).tolist()},
         "trace": trace,
-        "notes": notes,
+        "notes": notes + comp_warn,
+        "component_overrides": comp_over,
+        "component_warnings": comp_warn,
         "not_computed": ["roughness_ra", "dishing", "erosion",
                          "metal_contamination", "defect_density"],
     }
