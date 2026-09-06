@@ -675,3 +675,15 @@
   Gibson-Ashby 발포 스케일링은 2차 인용(원문 미확보)으로 표기, 탄성률 계산은 Lv2-1로 이월.
   check_knowledge.py ✓, verify_claims.py ✓ 통과(출처2건 실존·코드1블록 통과). EXAMS.md 3문항
   추가, PROFILE.md/CURRICULUM.md/ORG.md §5 갱신(pad-material 0/6→2/6). M1(9/20 기한) 진행 지속.
+
+- **2026-09-06** ([Max워커] S2): 테스트 119개 재현/스냅샷 분류 감사 완료 — docs/TEST-AUDIT.md.
+  파일별 분류표(21개 테스트 파일) + 요약 통계 + 스냅샷 교체 목록. 결과: 재현 61(문헌 3·해석해 22·
+  항등식 36) / 혼합 31 / 스냅샷 10 / 스모크 17. **실제 문헌·해석해 정량 검증은 25/119 = 21%**,
+  문헌 숫자를 assert에 직접 쓰는 테스트는 3개뿐(나머지 문헌 근거는 모듈 docstring에만 존재).
+  해석해 정량 재현은 kinematics·viscoelastic·gw_contact 계열에 집중, 컨디셔너·패드마모·슬러리막
+  계열은 정성(부호·단조) 검증만. 스냅샷 10건 중 7건은 이미 있는 해석해/문헌값으로 교체 가능
+  (preston 1.00391 → 완전타원적분 폐형식, engine cv<0.5% → 해석 CV, GW-Preston 10% → 1e-3,
+  ψ 오더 → GW 1966 판정 임계 등), 3건은 S13(패드 마모 모순) 판정 전까지 정직 스냅샷이 최선.
+  부수 발견: test_models gw_and_preston_converge assert 10% vs 메시지 5% 불일치,
+  test_conditioner_sweep_kinematics pca_zero_outside_reach는 mask가 비어 **항상 공허 통과**(실측
+  확인). 코드 미수정, 119 passed 유지.
