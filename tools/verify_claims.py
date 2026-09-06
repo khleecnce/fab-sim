@@ -34,7 +34,9 @@ KNOWLEDGE = ROOT / "knowledge"
 CACHE = ROOT / "agents" / ".source_cache.json"
 
 # 출처 식별자
-DOI = re.compile(r"(?:doi\.org/|doi:\s*)(10\.\d{4,9}/[^\s\)\]\},;\"'*_`<]+)", re.I)
+DOI = re.compile(
+    r"(?:doi\.org/|doi:\s*)(10\.\d{4,9}/(?:\(\d{1,4}\)|[^\s\)\]\},;\"'*_`<])+)",
+    re.I)
 PMC = re.compile(r"PMC(\d{5,})")
 ARXIV = re.compile(r"arxiv\.org/abs/(\d{4}\.\d{4,5})", re.I)
 PATENT = re.compile(r"(?:patents\.google\.com/patent/)?\b((?:US|EP|JP|KR|CN)\d{6,}[A-Z]?\d?)\b")

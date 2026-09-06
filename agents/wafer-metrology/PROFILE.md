@@ -54,3 +54,15 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 radial 지표를 문헌 default(방위각평균 반경프로파일 σ/range = `radial_sigma_pct`/`radial_range_pct`)로
 교체하고 회사 관행은 `radial_maxring_range_nm`/`_ring`으로 강등 병기. 항등식 회귀(3σ=3×CV) 추가.
 119 tests passed. `docs/SCHEMA-CHANGELOG.md` 신설 기록. 커밋 f3ecfc6.
+
+## Lv2-1 이수 (2026-09-06)
+표면 조도(Ra·Rq·Rz)와 AFM 스캔 크기 의존성 학습. 지식노트:
+knowledge/cmp/wafer-surface-roughness-afm-scan-scale-dependence.md.
+핵심: Rq는 재질 고유 상수가 아니라 스캔 크기의 함수(self-affine fractal, w(L)∝L^H) —
+스캔 크기 명시 없는 조도 비교는 무의미함을 확인. Rq/Ra=√(π/2)≈1.2533 항등식 재현(가우시안
+합성, <1% 오차), self-affine 스케일링 지수 자기재현(<50% 오차, 합성검증). 정량 문헌값:
+SiC CMP Ra≤0.13nm(Wang et al. 2026, DOI 10.1021/acs.langmuir.5c05695). 미확보: SiO2/Cu/W
+개별 대표값(검색 오매칭), 리소 공정 영향 정량화, Sayles&Thomas(1978)/Palasantzas(1993)
+원문(미러 사이트 접속 차단) — 다음 재시도 대상으로 남김. check_knowledge.py/verify_claims.py
+둘 다 통과(정규식 버그 수정 후 재확인, tools/verify_claims.py DOI 정규식이 "(NN)" 포함
+Elsevier DOI를 절단하던 문제를 학습총괄이 수정).
