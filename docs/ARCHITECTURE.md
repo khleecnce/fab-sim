@@ -52,23 +52,32 @@ engine.py는 물리 모듈을 import할 때 `sys.path.insert`로 `tier1_empirica
 
 ## 3. engine.Model 이관 분류
 
-### 3a. 이미 이관됨
-- `PrestonRadialModel`(engine.py) — wiwnu.py의 `mrr_radial`을 감싼 얇은 어댑터. tier1 전용.
+> **2026-09-07 갱신 (S1 문서 동기화)**: 최초 작성(9/5) 이후 S3가 그날 저녁 이미 처리돼
+> `models.py`(커밋 1145ca7)로 4개 모델이 등록됐다. 아래는 `sim.models.register_all()` /
+> `available_models()` 실측(4개) 기준.
 
-### 3b. 이관 대상 — 근거·문헌값 이미 있음, 다음 항목
-| 모듈 | 이관 형태 | 담당 | 비고 |
-|---|---|---|---|
-| gw_preston_link.py | `Model` (tier2.gw_preston) — Kp를 alpha_removal×n_contacts(P)로 분해 | sim-developer (S3) | Recipe에 새 필드 불필요, kp_m_per_pa 대신 alpha_removal 옵션 추가만 |
-| pattern_density.py | `Model` 아님, WaferResult 후처리 확장(dishing_nm/erosion_nm 채움) | sim-developer (S6) | wafer=PTW 게이트, Recipe에 die 밀도맵 필드 필요 → sim-architect 스키마 검토 |
+### 3a. 이미 이관됨 (engine.available_models() 실측 4개)
+| Model 이름 | 소스 모듈 | 형태 |
+|---|---|---|
+| `tier1.preston_radial` | wiwnu.py | 얇은 어댑터, tier1 전용 |
+| `tier2.gw_physical_kp` | gw_preston_link.py (+gw_pressure_solve, gw_contact) | Kp를 alpha_removal×n_contacts(P) GW 접촉역학에서 유도 |
+| `tier2.wear_aware` | (GWPhysicalKpModel 위임, 시간보정 미적용) | S13 모순 미해결 상태를 notes로만 보고 — 마모 시계열 자체는 구현 안 됨(§3c) |
+| `tier1.pattern_density` | pattern_density.py | PTW MRR_up = blanket/ρ_eff 후처리형 Model. dishing/erosion 산출은 아직 없음(S6 스키마 확장 대기) |
+
+### 3b. 이관 대상 (근거·문헌값 있음, 다음 항목) — 현재 비어 있음
+S3(gw_preston_link)·S6 1차분(pattern_density 등록)이 이미 3a로 옮겨졌다. 다음 이관
+후보는 S12(패드/컨디셔너/윤활 계열 20개) — 대부분 §3c 보류 사유(시계열 스키마 부재,
+정량 연결식 부재)가 걸려 있어 "바로 이관 가능"은 현재 없음. S17(frictional_heating_arrhenius,
+tier2_physics/에 신규 추가)도 순수 함수 라이브러리 지위라 Model 등록 대상 아님(STATUS.md 9/6 15:30 판단 유지).
 
 ### 3c. 이관 보류 — 지식/필드 부족 또는 스코프 밖 (지금 손대지 않는다)
 | 모듈 | 보류 사유 |
 |---|---|
-| conditioner_*.py (3개), pad_wear_glazing.py, wear_aware_*.py | 시계열(패드 컨디셔닝 이력)이 Recipe에 없다. Recipe는 "한 번의 런"만 표현 — 다회차 상태(패드 나이, PCR)를 넣으려면 스키마 확장 필요. M3 결합모델 논의 시 sim-architect가 판단 |
-| dlvo_colloid.py, slurry_components.py, pourbaix_nernst_slope.py | 화학 축. slurry-* 도메인 에이전트가 "이 값을 Kp에 어떻게 반영하는지" 정량 관계를 아직 안 냄 — 구현 요청 대기 |
-| cmp_lubrication_regime.py, tribology_basics.py, viscoelastic_maxwell.py, slurry_film_lubrication.py | 마찰계수/윤활영역 축. Kp와의 정량 연결식이 지식노트에 없음 — tribologist 커리큘럼 진행 후(현재 2/6) |
+| conditioner_*.py (3개), pad_wear_glazing.py, wear_aware_*.py | 시계열(패드 컨디셔닝 이력)이 Recipe에 없다. Recipe는 "한 번의 런"만 표현 — 다회차 상태(패드 나이, PCR)를 넣으려면 스키마 확장 필요. **게다가 pad_wear_glazing 계열은 S13 모순(ad-hoc↓ vs GW↑, corr=-0.998) 미해결** — 어느 쪽이든 지금 이관하면 틀린 물리를 제품에 넣는 것 |
+| dlvo_colloid.py, slurry_components.py, pourbaix_nernst_slope.py | 화학 축. slurry-* 도메인 에이전트가 "이 값을 Kp에 어떻게 반영하는지" 정량 관계를 아직 안 냄 — 구현 요청 대기(수신함에 3건 등록됨, 우선순위 중) |
+| cmp_lubrication_regime.py, tribology_basics.py, viscoelastic_maxwell.py, slurry_film_lubrication.py | 마찰계수/윤활영역 축. Kp와의 정량 연결식이 지식노트에 없음. frictional_heating_arrhenius(S17)는 열-화학 커플링만 다루고 여전히 Kp 연결식 없음 — tribologist 커리큘럼 진행 후 재검토 |
 | gw_contact.py, gw_pressure_solve.py | gw_preston_link.py가 이미 감싸서 쓰므로 직접 Model화 불필요 |
-| integration/spatiotemporal_removal*.py | wiwnu_pattern_combined 기반 2D 맵 — S6(pattern_density)와 통합 시 재검토 |
+| integration/spatiotemporal_removal*.py | wiwnu_pattern_combined 기반 2D 맵 — S6(dishing/erosion 산출) 스키마 확장 시 재검토 |
 
 ## 4. 스키마 부채 (sim-architect가 볼 것)
 
@@ -81,5 +90,13 @@ engine.py는 물리 모듈을 import할 때 `sys.path.insert`로 `tier1_empirica
 
 ## 5. 결론 — 다음 실행에 뭘 볼 것
 
-BACKLOG S3(gw_preston_link 이관)이 유일하게 "지식+문헌값+스키마 변경 불필요"를
-동시에 만족하는 다음 항목이다. S6/S7은 스키마 확장이 선행돼야 하므로 게이트 유지.
+S3·S6(1차, pattern_density 등록)은 완료됐다. 남은 실행 가능 후보는 (a) S13 판정
+전 §3-A 스냅샷 처리는 9/6에 끝남(TEST-AUDIT S18) — 남은 §3-B 스냅샷 3건
+(`test_pad_wear_glazing::p_r_changes_significantly`, `test_slurry_film_lubrication::z0_order_of_magnitude`,
+`test_conditioner_sweep_kinematics::pca_profile_has_nonzero_coverage`)은 전부 "임의 임계값"이며
+독립 문헌 정량값이 없어 폐형식 유도가 불가능 — 스냅샷 유지가 정직한 선택(TEST-AUDIT.md 참고),
+강제 교체는 하지 않는다. (b) S13(패드 마모 모순)은 pad-lifecycle 에이전트가 아직 Lv1-2까지만
+이수(G3/실측 필요)해 판정 근거가 부족 — 지식이 코드보다 앞선다는 원칙상 지금 코드로
+추측 해결 금지, 도메인 학습 진행을 기다린다. (c) 실제 가용한 다음 항목은 **S12**(남은 20개
+모듈 중 지식·필드 요건이 갖춰진 서브셋부터 개별 판단) 또는 도메인 구현요청 수신함
+(slurry-chemist 3건 중 지식 상태 좋은 것 우선).
