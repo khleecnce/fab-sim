@@ -65,11 +65,77 @@ open access), 검색스니펫으로 "선형 real-contact-area vs load 관계"를
 ∫_d^∞ (z-d)^{3/2}φ(z)dz = Γ(5/2)/β^{3/2} · e^{-βd}
 ```
 
-따라서 **A_r/W = 3π/(4E*)·√(R/β) = 상수(d와 무관)** — 즉 분리거리 d가 어떻게 바뀌든
+위 세 적분을 A_r, W 식에 대입하면:
+
+```
+A_r = π·R·η·A_n · (1/β)·e^{-βd}
+W   = (4/3)·E*·√R·η·A_n · Γ(5/2)/β^{3/2} · e^{-βd}
+```
+
+**A_r/W = 3π√(Rβ) / (4E*·Γ(5/2)) = 상수(d와 무관)** — 즉 분리거리 d가 어떻게 바뀌든
 (=명목압력이 바뀌든) 실접촉면적은 항상 하중에 정확히 비례한다. 이것이 지수분포 GW 모델의
 가장 유명한 해석적 결과이며, "왜 마찰계수(=A_r 비례)가 하중에 무관한 상수인가"(Amontons 법칙)
 를 미시적으로 설명하는 근거로 자주 인용된다(리뷰 논문 스니펫에서 재확인한 "linear
 relationship between real contact area and load" 서술과 일치).
+
+**⚠ 2026-09-06 정정 [[preston-luo-dornfeld-mrr]]:** 이전 버전(초판)에는 이 상수가 `3π/(4E*)·√(R/β)`로 적혀 있었으나 아래 `python verify` 블록으로 실제 재현한 결과 틀린 식이었다. 검증코드 기준 초판 식은 수치적분 대비 상대오차 100%(오더 자체가 다름)이고, 재유도 식 `3π√(Rβ)/(4E*Γ(5/2))`은 수치적분과 상대오차 0.0003%(3.37e-06) 수준으로 일치한다(미검증 항목 아님 — 아래 코드가 직접 실행·확인).
+원인 두 가지: (i) β는 차원이 [1/m]이라 그대로 √β를 취하면 무차원화가 안 됨 — R·β(무차원)의 조합이어야 함, (ii) 3/2승 적분의 정규화 인자 Γ(5/2)=3√π/4가 통째로 누락됨.
+"Ar가 W에 정확히 비례한다"는 정성적 결론 자체는 두 식 모두에서 유지되지만, 비례상수의 함수형은 처음 버전이 틀렸다.
+
+```python verify
+import numpy as np
+from scipy import integrate, special
+
+# 지수분포 GW 특수해: 폐형식 적분 vs 수치적분(치환적분으로 언더플로우 회피) 대조
+beta = 1.0e6   # 1/m (asperity 높이 감쇠 스케일, 예시값 — 오더 비교용, 문헌 실측치 아님)
+d = 2.0e-6     # m
+
+def integral_num(power, d_val):
+    # u = beta*(z-d), z = d + u/beta 로 치환해 exp(-beta*d)*exp(-u) 형태로 수치안정화
+    val, _ = integrate.quad(
+        lambda u: (u/beta)**power * np.exp(-beta*d_val) * np.exp(-u), 0, np.inf)
+    return val
+
+I0_num = integral_num(0, d)
+I1_num = integral_num(1, d)
+I15_num = integral_num(1.5, d)
+
+I0_closed = np.exp(-beta*d)
+I1_closed = (1/beta)*np.exp(-beta*d)
+I15_closed = special.gamma(2.5)/beta**1.5 * np.exp(-beta*d)
+
+for name, num, closed in [("I0", I0_num, I0_closed), ("I1", I1_num, I1_closed),
+                           ("I1.5", I15_num, I15_closed)]:
+    rel_err = abs(num - closed) / abs(closed)
+    assert rel_err < 1e-5, f"{name} 폐형식-수치적분 불일치 (상대오차 {rel_err:.2e})"
+
+# Ar/W가 d(분리거리)에 무관하게 상수인지 확인 (Amontons 법칙의 미시적 근거)
+Estar, R, eta, An = 1.0e9, 20e-6, 1e12, 1e-4
+
+def Ar_W(d_val):
+    I1v = integral_num(1, d_val)
+    I15v = integral_num(1.5, d_val)
+    Ar = np.pi * R * eta * An * I1v
+    W = (4/3) * Estar * np.sqrt(R) * eta * An * I15v
+    return Ar / W
+
+ratios = [Ar_W(dv) for dv in [0.5e-6, 1e-6, 2e-6, 4e-6]]
+spread = (max(ratios) - min(ratios)) / np.mean(ratios)
+assert spread < 1e-5, f"Ar/W이 d에 따라 변함 — 상수 주장 반증 (상대편차 {spread:.2e})"
+
+# 노트 원문(초판) 식 vs 재유도 식, 어느 쪽이 수치적분과 맞는지 대조
+wrong_formula = 3*np.pi/(4*Estar) * np.sqrt(R/beta)              # 초판(틀림)
+correct_formula = 3*np.pi*np.sqrt(R*beta) / (4*Estar*special.gamma(2.5))  # 재유도
+
+rel_err_wrong = abs(wrong_formula - ratios[0]) / ratios[0]
+rel_err_correct = abs(correct_formula - ratios[0]) / ratios[0]
+
+assert rel_err_wrong > 0.9, "초판 식이 실제로는 맞았다? 재확인 필요"  # 100% 오차임을 재확인(회귀 경보용)
+assert rel_err_correct < 1e-5, f"재유도 식도 수치적분과 불일치 (상대오차 {rel_err_correct:.2e})"
+
+print(f"OK: I0/I1/I1.5 폐형식-수치 상대오차 1e-5 미만, Ar/W 상수성 상대편차 {spread:.1e}")
+print(f"OK: 초판 식 오차 {rel_err_wrong:.2e}(틀림) vs 재유도 식 오차 {rel_err_correct:.2e}(일치)")
+```
 
 ## 5. CMP로 연결 — 아직 미해결(다음 단원 Lv2-2/Lv3-2)
 - PMC11051262는 CMP 패드가 **컨디셔닝(트루잉)으로 asperity 분포 자체를 능동 갱신**한다는

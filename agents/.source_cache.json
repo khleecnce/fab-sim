@@ -54,5 +54,153 @@
  "doi:10.1149/1.1355691": {
   "ok": true,
   "msg": "Three-Dimensional Chemical Mechanical Planarization Slurry Flow Model Based on Lubrication"
+ },
+ "doi:10.1088/1681-7575/ae3964": {
+  "ok": true,
+  "msg": "Comparison of thin-film thickness measurements using ellipsometry and reflectometry with u"
+ },
+ "doi:10.1109/ICEPT52650.2021.9567975": {
+  "ok": true,
+  "msg": "Thickness measurement of multi-layer thin film alloy by X-ray fluorescence spectrometer"
+ },
+ "doi:10.1109/TIE.2021.3111570": {
+  "ok": true,
+  "msg": "High-Precision Thickness Measurement of Cu Film on Si-Based Wafer Using Erasable Printed E"
+ },
+ "pmc:10095230": {
+  "ok": true,
+  "msg": "The Effects of Friction and Temperature in the Chemical-Mechanical Planarization Process."
+ },
+ "pmc:12525981": {
+  "ok": true,
+  "msg": "Process Temperature Control for Low Dishing in CMP."
+ },
+ "doi:10.1016/j.wear.2013.08.001": {
+  "ok": true,
+  "msg": "Chemically enhanced synergistic wear: A copper chemical mechanical polishing case study"
+ },
+ "doi:10.1109/66.920723": {
+  "ok": true,
+  "msg": "Material removal mechanism in chemical mechanical polishing: theory and modeling"
+ },
+ "doi:10.1109/tsm.2003.815199": {
+  "ok": true,
+  "msg": "Effects of abrasive size distribution in chemical mechanical planarization: Modeling and v"
+ },
+ "doi:10.1149/1.2085434": {
+  "ok": true,
+  "msg": "Chemical‐Mechanical Polishing for Fabricating Patterned W Metal Features as Chip Interconn"
+ },
+ "doi:10.1016/j.apsusc.2021.149035": {
+  "ok": true,
+  "msg": "Investigation of the effect of different cleaning forces on Ce-O-Si bonding during oxide p"
+ },
+ "doi:10.1016/j.mee.2021.111544": {
+  "ok": true,
+  "msg": "Mechanisms of colloidal ceria contamination and cleaning during oxide post CMP cleaning"
+ },
+ "doi:10.1016/j.surfin.2025.106939": {
+  "ok": true,
+  "msg": "Metal ion contamination and removal on oxide surfaces and polyvinyl acetal brushes during "
+ },
+ "doi:10.1023/A:1011242900843": {
+  "ok": true,
+  "msg": "Optimization of post-CMP cleaning process for elimination of CMP slurry-induced metallic c"
+ },
+ "doi:10.1023/A:1011242900843의": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.3390/lubricants13070301": {
+  "ok": true,
+  "msg": "Tribo-Electrochemical Characterization of Brush-Scrubbed Post-CMP Cleaning: Results for Ta"
+ },
+ "pmc:9312186": {
+  "ok": true,
+  "msg": "What Are the Oxidizing Intermediates in the Fenton and Fenton-like Reactions? A Perspectiv"
+ },
+ "doi:10.1109/iemt.1995.526193": {
+  "ok": true,
+  "msg": "A robust metric for measuring within-wafer uniformity"
+ },
+ "doi:10.1109/iwstm.1999.773193": {
+  "ok": true,
+  "msg": "A study of within-wafer non-uniformity metrics"
+ },
+ "doi:10.4071/2380-4505-2019.1.000450": {
+  "ok": true,
+  "msg": "Optimizing the Within Wafer Non-Uniformity at the Chemical Mechanical Planarization step i"
+ },
+ "doi:10.1016/0022-3093(90": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/S0022-3093(01": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1021/acs.langmuir.3c00304": {
+  "ok": true,
+  "msg": "New Atomistic Insights on the Chemical Mechanical Polishing of Silica Glass with Ceria Nan"
+ },
+ "doi:10.1149/2.0061511jss": {
+  "ok": true,
+  "msg": "Further Investigation of Slurry Additives for Selective Polishing of SiO<sub>2</sub>Films "
+ },
+ "doi:10.1149/2162-8777/ab8393": {
+  "ok": true,
+  "msg": "Controlling the Cerium Oxidation State During Silicon Oxide CMP to Improve Material Remova"
+ },
+ "doi:10.1557/JMR.2005.0176": {
+  "ok": true,
+  "msg": "Effect of pH on ceria–silica interactions during chemical mechanical polishing"
+ },
+ "doi:10.3390/polym16060844": {
+  "ok": true,
+  "msg": "Characterization of Ceria Nanoparticles as Abrasives Applied with Defoaming Polymers for C"
+ },
+ "pmc:10116594": {
+  "ok": true,
+  "msg": "New Atomistic Insights on the Chemical Mechanical Polishing of Silica Glass with Ceria Nan"
+ },
+ "pmc:10974854": {
+  "ok": true,
+  "msg": "Characterization of Ceria Nanoparticles as Abrasives Applied with Defoaming Polymers for C"
+ },
+ "pmc:6190379": {
+  "ok": true,
+  "msg": "Motor Power Signal Analysis for End-Point Detection of Chemical Mechanical Planarization."
+ },
+ "doi:10.1149/2.0251910jss": {
+  "ok": true,
+  "msg": "Correlating Coefficient of Friction and Shear Force to Platen Motor Current in Tungsten an"
+ },
+ "doi:10.1149/2162-8777/ab8392": {
+  "ok": true,
+  "msg": "Correlating Coefficient of Friction and Shear Force to Platen Motor Current in Tungsten an"
+ },
+ "doi:10.3390/mi8060177": {
+  "ok": true,
+  "msg": "Motor Power Signal Analysis for End-Point Detection of Chemical Mechanical Planarization"
+ },
+ "doi:10.1016/j.diamond.2021.108239": {
+  "ok": true,
+  "msg": "Promoting the bonding strength and abrasion resistance of brazed diamond using Cu–Sn–Ti co"
+ },
+ "doi:10.18510/gctl.2016.225": {
+  "ok": true,
+  "msg": "EFFECT OF INCREASING NCO/OH MOLAR RATIO ON THE CHEMICAL AND MECHANICAL PROPERTIES OF ISOCY"
+ },
+ "doi:10.1016/0584-8547(89": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1109/issm.2005.1513404": {
+  "ok": true,
+  "msg": "Analysis of low metallic contamination on silicon wafer surfaces by VPT-TXRF - quantificat"
+ },
+ "doi:10.1116/1.589577": {
+  "ok": true,
+  "msg": "Determination of trace metallic impurities on 200-mm silicon wafers by time-of-flight seco"
  }
 }
