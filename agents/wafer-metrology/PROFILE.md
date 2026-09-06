@@ -49,3 +49,8 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - **주의**: edge exclusion 폭을 입력·출력 메타로 노출(지표와 함께 보고 필수). 회사 관행식을 삭제하지
   말고 병기(Cal-1 고객 정의 mapping에서 필요).
 - **우선순위**: High — 이 정의가 곧 엔진 출력 스키마이고 현재 잠정 상태라 다운스트림(보고/판정)이 잠정에 묶여 있음.
+
+**→ 처리 완료 (2026-09-06, software-lead)**: `sim/metrics/uniformity.py` PROVISIONAL 제거, 요청대로
+radial 지표를 문헌 default(방위각평균 반경프로파일 σ/range = `radial_sigma_pct`/`radial_range_pct`)로
+교체하고 회사 관행은 `radial_maxring_range_nm`/`_ring`으로 강등 병기. 항등식 회귀(3σ=3×CV) 추가.
+119 tests passed. `docs/SCHEMA-CHANGELOG.md` 신설 기록. 커밋 f3ecfc6.
