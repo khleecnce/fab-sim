@@ -643,3 +643,11 @@
   (미러 사이트 미러 5종 전부 무응답 — 네트워크 차단 추정, OA 경로도 전부 실패)로 2차 인용·
   미검증 표기. check_knowledge.py ✓, verify_claims.py ✓ 통과. EXAMS.md 3문항 추가,
   PROFILE.md/CURRICULUM.md/ORG.md §5 갱신(wafer-type 0/6→2/6). Phase 0 지식 트랙 진행 중.
+
+- **2026-09-06** ([소프트웨어] software-lead, 09:30): wafer-metrology "구현 요청" 수신함 처리 —
+  `sim/metrics/uniformity.py` PROVISIONAL 해제. radial 지표를 문헌 default(방위각평균 반경프로파일
+  σ/range, `radial_sigma_pct`/`radial_range_pct`)로 교체, 회사 관행(링별 max-min 최대)은
+  `radial_maxring_range_nm`으로 강등 병기(ORG 절대원칙 준수). 항등식 회귀(3σ WIWNU=3×CV) 추가.
+  `WaferResult.summary()`/`sim/cli.py`/`sim/demo_app.py` 연쇄 갱신, `docs/SCHEMA-CHANGELOG.md` 신설
+  (스키마 변경은 sim-architect 역할 규정에 따라 기록). 119 tests passed. 커밋 f3ecfc6, 8c997ea.
+  BACKLOG 수신함에 slurry-chemist 3건 + tribologist 2건 신규 구현요청 등록(다음 회차 대상).
