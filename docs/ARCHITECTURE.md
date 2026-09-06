@@ -9,7 +9,7 @@
 
 ```
 sim/engine.py                 ← 유일한 공개 API (Recipe → simulate → WaferResult)
-  ├─ sim/metrics/uniformity.py   (compute_metrics — wafer-metrology 소유, PROVISIONAL)
+  ├─ sim/metrics/uniformity.py   (compute_metrics — wafer-metrology 소유, 문헌 확정 2026-09-06)
   └─ Model 등록부
         └─ PrestonRadialModel  → tier1_empirical/wiwnu.py 만 호출
 

@@ -15,7 +15,7 @@ FabSim 통합 엔진 — 입력(Recipe) → 시뮬레이션 → 출력(WaferResu
   >>> from sim.engine import Recipe, simulate
   >>> r = Recipe(wafer="NPW", film="oxide", pressure_psi=3.0, rpm_wafer=60, rpm_platen=55, time_s=60)
   >>> res = simulate(r)
-  >>> res.metrics.ttv_nm, res.metrics.radial_ttv_nm, res.metrics.cv_pct
+  >>> res.metrics.ttv_nm, res.metrics.radial_range_pct, res.metrics.cv_pct
 """
 from __future__ import annotations
 
@@ -91,7 +91,8 @@ class WaferResult:
         return {
             "model": self.model, "wafer": self.recipe.wafer, "film": self.recipe.film,
             "mean_mrr_nm_min": float(np.mean(self.mrr_nm_per_min)),
-            "ttv_nm": m.ttv_nm, "radial_ttv_nm": m.radial_ttv_nm, "cv_pct": m.cv_pct,
+            "ttv_nm": m.ttv_nm, "radial_range_pct": m.radial_range_pct,
+            "radial_maxring_range_nm": m.radial_maxring_range_nm, "cv_pct": m.cv_pct,
             "wiwnu_halfrange_pct": m.wiwnu_halfrange_pct, "wiwnu_3sigma_pct": m.wiwnu_3sigma_pct,
             "roughness_ra_nm": self.roughness_ra_nm, "dishing_nm": self.dishing_nm,
             "metal_contamination": self.metal_contamination,

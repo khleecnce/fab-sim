@@ -98,7 +98,8 @@ def main() -> int:
     print(f"\n  균일도 — {basis} 기준 ({m.n_points}pt)")
     print(f"    정의: {m.definition.split('|')[0].strip()}")
     print(f"    TTV          {m.ttv_nm:8.3f} nm")
-    print(f"    radial TTV   {m.radial_ttv_nm:8.3f} nm  (링 #{m.radial_ttv_ring})")
+    print(f"    radial range {m.radial_range_pct:8.3f} %   (문헌default, 방위각평균반경프로파일)")
+    print(f"    radial(관행) {m.radial_maxring_range_nm:8.3f} nm  (링 #{m.radial_maxring_range_ring}, 회사관행)")
     print(f"    CV           {m.cv_pct:8.3f} %")
     print(f"    WIWNU(½R)    {m.wiwnu_halfrange_pct:8.3f} %   "
           f"WIWNU(3σ) {m.wiwnu_3sigma_pct:.3f} %")

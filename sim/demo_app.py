@@ -121,7 +121,7 @@ with tab1:
         st.subheader("요약 지표")
         st.metric("웨이퍼 평균 MRR", f"{float(np.mean(mrr_nm_min)):.1f} nm/min")
         st.metric("TTV", f"{res.metrics.ttv_nm:.2f} nm")
-        st.metric("radial TTV", f"{res.metrics.radial_ttv_nm:.2f} nm")
+        st.metric("radial range (문헌)", f"{res.metrics.radial_range_pct:.2f} %")
         st.metric("CV", f"{res.metrics.cv_pct:.2f} %")
         st.metric("WIWNU half-range", f"{res.metrics.wiwnu_halfrange_pct:.2f} %")
 

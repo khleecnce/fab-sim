@@ -67,7 +67,10 @@ def test_metric_definitions():
     assert m.cv_pct == pytest.approx(np.std(v) / np.mean(v) * 100)
     assert m.wiwnu_halfrange_pct == pytest.approx(20 / (2 * np.mean(v)) * 100)
     assert len(m.ring_ttv_nm) == 8
-    assert m.radial_ttv_nm == pytest.approx(max(m.ring_ttv_nm))
+    assert m.radial_maxring_range_nm == pytest.approx(max(m.ring_ttv_nm))
+    # 문헌 항등식 (uniformity-metrics-definitions-standards.md §2·§3)
+    assert m.wiwnu_3sigma_pct == pytest.approx(3 * m.cv_pct)  # US6922603B1: 3σ = 3×1σ
+    assert m.cv_pct == pytest.approx(m.sigma_nm / m.mean_nm * 100)  # CV ≡ 1σ WIWNU
 
 
 def test_points_and_profile_agree():
@@ -76,4 +79,4 @@ def test_points_and_profile_agree():
     v = np.linspace(500, 520, 81)
     a = compute_metrics(rr, v)
     b = compute_metrics_points(rr * np.cos(th), rr * np.sin(th), v)
-    assert a.ttv_nm == pytest.approx(b.ttv_nm) and a.radial_ttv_nm == pytest.approx(b.radial_ttv_nm)
+    assert a.ttv_nm == pytest.approx(b.ttv_nm) and a.radial_maxring_range_nm == pytest.approx(b.radial_maxring_range_nm)
