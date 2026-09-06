@@ -1,0 +1,901 @@
+# 패드 구성요소 스키마
+#
+# 씨앗: 2026-09-06 사용자 지시 — "장비, 패드, disk등 다른 요소들도 이런식으로 구성해줘.
+#       어떤 구성이 필요할지는 내가 슬러리 경험밖에 없어서 잘 모르니까 research ai agent
+#       통해서 조사해서 만들어." + "내가 말했다고 그게 전체는 아니야. 필요한게 있으면 포함시켜."
+#
+# 사용자는 슬러리 실무자다 — 패드 축은 사용자 지시가 아니라 문헌에서 왔다.
+# 따라서 이 파일의 거의 모든 항목이 origin: researched 다. 근거 없는 항목은 넣지 않았고,
+# 값 범위를 모르면 typical 을 비우고 confidence: unverified + "⚠ 조사 필요" 로 표시했다.
+#
+# 출처 표기 원칙: 노트 경로(knowledge/materials/*.md)가 있으면 그것을, 노트에 없는 신규
+# 조사분은 문헌/특허를 직접 적는다. 회사 내부 데이터·관행은 일절 쓰지 않는다.
+
+version: 1
+component: pad
+owner: pad-mechanic
+description: "CMP 패드 — 재질·기공·경도·점탄성·그루브·적층·표면통계·브레이크인·수명. 실무자가 발주/교체/튜닝하는 단위."
+
+groups:
+
+  # ═══════════════════════════════ 1) 패드 종류·용도 분류
+  - id: pad_class
+    label: "패드 종류 · 용도 분류"
+    origin: researched
+    owner: pad-mechanic
+    why: >
+      실무에서 패드를 고르는 첫 축은 물성이 아니라 "어느 스텝의 어떤 계열인가"다.
+      경질 캐스팅 PU(IC1000류), 연질 포로메릭(Politex류), PU 함침 펠트(Suba류)는
+      제조법·기공구조·경도가 계통적으로 다르고 담당 스텝도 다르다.
+    fields:
+      - key: family
+        label: 패드 계열
+        type: enum
+        options: [hard_cast_pu, soft_poromeric, pu_impregnated_felt, fixed_abrasive, other]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          hard_cast_pu = IC1000/IC1010류 경질 미세다공 캐스팅 PU(Shore D 60).
+          soft_poromeric = Politex류(수직배향 기공 + 압축성 기재, Pureon POLITEX 데이터시트 2024-04-09).
+          pu_impregnated_felt = Suba류 폴리우레탄 함침 폴리에스터 부직 펠트(Pureon SUBA IV 데이터시트 2023-08-04).
+          fixed_abrasive는 슬러리 무입자 방식 — 우리 엔진은 미지원.
+      - key: product_name
+        label: 제품명
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "IC1000 / IC1010 / Suba IV / Suba 550·600·800·X / Politex Reg·Hi 등. 데이터시트 스펙 조회 키."
+      - key: application_step
+        label: 적용 스텝
+        type: enum
+        options: [ild_oxide, sti, poly_si, w, cu_bulk, cu_barrier, buff_final, si_stock, other]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          IC1000은 W/Cu/ILD/STI/폴리 범용 하드패드(Pureon 데이터시트 적용란).
+          Politex는 Cu 배리어·버프·클리닝(제조사 제품설명), Suba는 Si 스톡/중간연마·서브패드.
+      - key: role_in_stack
+        label: 스택 내 역할
+        type: enum
+        options: [top_pad, sub_pad, single_layer]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          같은 Suba 계열이 상황에 따라 상부패드도, 서브패드도 된다(§4: IC1000 K-groove + Suba IV subpad).
+          IC1010(80 mil)은 서브패드 없이 단독 사용 가능한 두께라는 해석이 있으나 정량 근거는 미확보.
+
+  # ═══════════════════════════════ 2) 재질 · 조성
+  - id: composition
+    label: "재질 · 조성 (PU 화학)"
+    origin: researched
+    owner: pad-material
+    why: >
+      경도·탄성률·마모율의 상한을 정하는 층. %NCO(경질세그먼트 밀도)가 경도를 정하고,
+      발포 공정이 그 안에서 기공률을 따로 조절한다 — 거의 직교하는 두 손잡이.
+    fields:
+      - key: polymer_type
+        label: 고분자 계열
+        type: enum
+        options: [thermoset_pu_cast, thermoplastic_pu, pu_impregnated_felt, poromeric_pu, other]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          상용 CMP 상부패드는 열경화 캐스팅 PU가 표준(케이크 성형 후 슬라이스).
+          열가소성(TPU) 압출 패드는 별도 계열 — 우리 지식노트에 1차 문헌이 없어 옵션만 둔다.
+      - key: prepolymer
+        label: 프리폴리머
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          TDI 또는 IPDI 기반 폴리에테르/폴리에스터 프리폴리머. 문헌 예: TDI+폴리에테르폴리올
+          (US 2015/0065013 A1, Dow), IPDI+PPG1000 (Chen et al. 2024, doi:10.3390/ma17112759).
+      - key: nco_wt_pct
+        label: 미반응 NCO 함량
+        type: number
+        unit: wt%
+        typical: [8, 10]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          경질세그먼트 밀도의 대리 지표 → 경도 목표를 정한다. 8~9.5 wt% 범위가
+          연마층 청구항에 반복 등장(US 2015/0065013 A1; US 10722999 청구항 8~10 wt%).
+      - key: curative
+        label: 경화제
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          MOCA(4,4'-methylene-bis-(2-chloroaniline)) 또는 MCDEA 계열 방향족 디아민이 표준
+          (US 2015/0065013 A1 실시예, US 10722999). 경화제 조합이 tanδ·기공 팽창률을 바꾼다.
+      - key: hard_segment_wt_pct
+        label: 경질세그먼트 비율
+        type: number
+        unit: wt%
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "US 11772230 청구항은 반응혼합물의 55~75 wt%를 경질세그먼트로 규정. 경도-기공률 트레이드오프의 화학적 손잡이."
+      - key: stoichiometry_ratio
+        label: 화학양론비 (NH+OH):NCO
+        type: number
+        typical: [0.85, 1.15]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "US 11772230 = 0.85:1.0~1.15:1.0. 미반응기가 남으면 가수분해 안정성이 떨어진다(11번 그룹과 연결)."
+
+  # ═══════════════════════════════ 3) 기공 구조
+  - id: porosity
+    label: "기공 구조 (발포 · 중공 미소구체)"
+    origin: researched
+    owner: pad-material
+    why: >
+      기공은 슬러리를 국소 보유·재분배하는 저장소이자, 컨디셔닝으로 새 asperity를 계속
+      공급하는 재고다. 기공률은 밀도·탄성률(Gibson-Ashby)과 직결되므로 접촉역학 입력의 뿌리다.
+    fields:
+      - key: pore_former
+        label: 기공 형성 방식
+        type: enum
+        options: [hollow_microspheres, gas_frothing, chemical_blowing, soluble_filler, dual_porosity, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          중공 폴리아크릴로니트릴 미소구체(Expancel류) 혼입이 IC1000 계열의 표준
+          (US 2015/0065013 A1 실시예). 불활성가스 프로싱(US 8052507), 무기 발포제
+          NaHCO₃/NH₄HCO₃(Chen et al. 2024, doi:10.3390/ma17112759), 슬러리 가용성 필러로
+          표면에 2차 기공을 만드는 dual porosity(US 8052507)도 실재한다.
+      - key: porosity_vol_pct
+        label: 기공률
+        type: number
+        unit: "vol%"
+        typical: [5, 50]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          상용 경질패드 청구범위 0~50 vol%(선호 5~35 vol%, US 10722999 / US 2015/0065013 A1).
+          실험실 고발포 PU는 78~84%까지 간다(Chen et al. 2024) — 계열이 다르면 범위도 다르다.
+          P = 1 − ρ/ρ₀ (매트릭스 PU 밀도 ρ₀≈1.2 g/cm³) 로 밀도에서 역산한다.
+      - key: mean_pore_size_um
+        label: 평균 기공경
+        type: number
+        unit: µm
+        typical: [10, 80]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          미소구체 유래 기공은 대체로 20~50 µm(US 11772230: SEM X50 기준 20~50 µm 선호,
+          US 11724356: 평균 24~36 µm, 최대피크 18~28 µm). 가스 프로싱은 30 µm 초과의
+          넓은 분포를 만든다(US 8052507). IC1000 실물 기공경은 데이터시트 비공개 — 미확보.
+      - key: pore_size_distribution
+        label: 기공 분포 형태
+        type: enum
+        options: [unimodal, bimodal, broad, unknown]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          예비팽창+미팽창 미소구체를 섞으면 bimodal이 되고(US 12528152 배경기술), dual porosity
+          설계는 의도적 bimodal이다(US 8052507: 프로싱 35 µm + 가용필러 10 µm).
+          분포 폭이 실접촉 asperity 통계(8번 그룹)의 상류 원인이다.
+      - key: cell_type
+        label: 셀 구조
+        type: enum
+        options: [closed_cell, open_cell, mixed, vertical_oriented]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+        note: >
+          IC1000류는 "micro-porous" 닫힌 셀로 서술되나, 고발포 시 open-pore가 나타난다는
+          SEM 관찰이 있어 실제로는 혼합형에 가깝다(노트 §6, 미검증).
+          Politex는 "수직 배향 기공"이라는 별도 범주(Pureon POLITEX 데이터시트 2024-04-09).
+      - key: microsphere_diameter_um
+        label: 미소구체 공칭 직경
+        type: number
+        unit: µm
+        typical: [10, 60]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          Expancel 551DE40d42 / 920DE40d30 등 공칭 40 µm 등급이 실시예에 반복 등장
+          (US 2015/0065013 A1, US 10722999). 예비팽창품은 경화 중 10~60% 더 팽창해
+          최종 기공이 공칭보다 크다(US 12528152).
+      - key: density_g_cm3
+        label: 밀도 (비중)
+        type: number
+        unit: "g/cm³"
+        typical: [0.43, 1.0]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          연마층 비중 0.6~1.2(US 10722999), 0.43~0.78(US 11772230), 0.55~0.9(US 12528152).
+          밀도는 기공률의 실측 대리값이며 Gibson-Ashby로 탄성률과 이어진다 — 4번 그룹의 입구.
+
+  # ═══════════════════════════════ 4) 경도 · 압축률 · 기계물성
+  - id: mechanical
+    label: "경도 · 압축률 · 기계물성"
+    origin: researched
+    owner: pad-material
+    why: >
+      경도↑ → 국소 순응성↓ → 평탄화 효율↑ 이지만 스크래치 위험↑. 실무의 가장 오래된
+      트레이드오프이고, 접촉역학(GW) 입력 E*의 재료 쪽 뿌리다.
+    fields:
+      - key: hardness_value
+        label: 경도 값
+        type: number
+        typical: [40, 90]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+        note: >
+          IC1000/IC1010 = Shore D 60(Pureon 데이터시트). 상용 연마층 청구범위 Shore D 60~90
+          (US 10391606) 및 57~77(US 11772230). Suba IV = Shore D 44, Suba 600/800 = Asker C 80/82.
+      - key: hardness_scale
+        label: 경도 스케일
+        type: enum
+        options: [shore_d, shore_a, shore_c, asker_c]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+        note: >
+          ⚠ 스케일이 다르면 숫자를 직접 비교하면 안 된다(ASTM D2240, 압입자 형상이 다름).
+          같은 Suba 계열 안에서도 Shore D와 Asker C가 섞여 표기된다(Pureon SUBA 데이터시트).
+          이 필드가 없으면 hardness_value는 의미가 없다 — 값과 반드시 짝으로 다룬다.
+      - key: compressibility_pct
+        label: 압축률
+        type: number
+        unit: "%"
+        typical: [0.6, 15]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+        note: >
+          IC1000/IC1010 = 2.25%(경질). Suba IV = 13.5%, Suba 600/800 = 4.0%,
+          Politex Reg = 14.75%(연질, Pureon 데이터시트). 경도와 별개의 축 —
+          같은 경도라도 압축률이 다르면 글로벌 컴플라이언스가 다르다.
+      - key: youngs_modulus_mpa
+        label: 탄성계수 E
+        type: number
+        unit: MPa
+        typical: [17, 100]
+        origin: researched
+        maps_to: pad_E_star_pa
+        status: partial
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          다공성 PU 패드 실측 17~71 MPa(Meng et al. 2025, doi:10.3390/polym17050613 Table 2),
+          70.8 kgf/cm²≈6.9 MPa 사례도 있음(US 11724356 Table 1 — 시험법 다름).
+          우리 팩의 pad_E_star_pa는 1.0e9 Pa(=1000 MPa, confidence: estimated)로 이 실측 범위보다
+          한두 자릿수 크다. E*=E/(1−ν²) 변환만으로는 이 격차가 설명되지 않는다 —
+          ⚠ 팩 값 재검토 필요. 연결식이 확정되지 않았으므로 partial 로 둔다.
+      - key: tensile_strength_mpa
+        label: 인장강도
+        type: number
+        unit: MPa
+        typical: [6, 20]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: "Meng et al. 2025 실측 6.33~17.17 MPa. 컨디셔닝 시 패드가 찢겨 나가는지(tear)와 관련."
+      - key: elongation_pct
+        label: 파단 신율
+        type: number
+        unit: "%"
+        typical: [100, 300]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "US 2015/0065013 A1 연마층 100~300%. 그루브 모서리 파손·박리 저항의 지표."
+      - key: rebound_pct
+        label: 반발탄성 (Bashore rebound)
+        type: number
+        unit: "%"
+        typical: [20, 50]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          US 8551201: 20~50%(선호 30~38%). 낮을수록 감쇠(damping)가 커서 디싱이 줄고
+          균일도가 좋아진다는 주장 — 5번 그룹 tanδ와 같은 물리의 다른 측정법.
+
+  # ═══════════════════════════════ 5) 점탄성
+  - id: viscoelastic
+    label: "점탄성 (DMA · 크리프)"
+    origin: researched
+    owner: pad-mechanic
+    why: >
+      패드는 순수 탄성체가 아니다. 하중 유지 중에도 크리프가 진행되고, 공정 온도에서
+      경도가 떨어진다. 접촉압력 분포와 WIWNU의 시간의존성이 여기서 나온다.
+    fields:
+      - key: storage_modulus_mpa
+        label: 저장탄성률 E'
+        type: number
+        unit: MPa
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          ⚠ 우리 지식에 CMP 패드 실측 E'(ω,T) 표가 아직 없다. E'가 GW 접촉의 유효 강성을
+          결정하므로 pad_E_star_pa 연결의 정공법이지만, 값 미확보 상태에서 연결하지 않는다.
+      - key: loss_modulus_mpa
+        label: 손실탄성률 E''
+        type: number
+        unit: MPa
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          마찰열 소산과 감쇠의 척도. 전단 손실탄성률 G''의 온도비(104°C/150°C = 5:1 이상)를
+          제품 규격으로 청구하는 특허가 있을 만큼 실무에서 관리되는 축(US 12528152 청구항 1).
+      - key: tan_delta
+        label: 손실계수 tanδ
+        type: number
+        typical: [0.05, 0.5]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          tanδ=E''/E'. Tg에서 피크. 값 범위는 일반 PU 문헌에서 온 추정이며 CMP 패드 실측
+          1차 출처는 미확보 — ⚠ 조사 필요.
+      - key: dma_temperature_c
+        label: DMA 측정 온도
+        type: number
+        unit: °C
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: "E'·E''는 온도·주파수의 함수라 측정 조건 없는 단일값은 의미가 없다. 조건을 값과 함께 다룬다."
+      - key: hardness_temp_dependence
+        label: 경도의 온도 의존
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          실측 예: Shore D 60(23°C) → 58/54/49 (30/50/70°C) (US 11724356 Table 1).
+          마찰열로 패드 표면이 수십 °C 오르면 경도가 실제로 내려간다 —
+          "패드 경도"를 상온 상수로 다루면 틀린다는 뜻. 사용자가 몰랐을 축.
+      - key: creep_tau_s
+        label: 크리프 지연시간 τ
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        source: knowledge/materials/pad-viscoelasticity-dma.md
+        note: >
+          ⚠ 조사 필요. CMP 패드 실측 τ_creep 문헌값 미확보(노트 §4에 명시).
+          초 단위면 무시 가능, 분 단위면 MRR 시간 드리프트의 원인이 된다 — 판별 자체가 미결.
+
+  # ═══════════════════════════════ 6) 그루브
+  - id: groove
+    label: "그루브 (홈 패턴)"
+    origin: researched
+    owner: pad-structure
+    why: >
+      슬러리 공급·부산물 배출·냉각의 3기능을 동시에 맡는 기하 구조. 접촉역학에서는
+      랜드(land) 면적만 실제 접촉면이므로 명목면적 보정의 근거이기도 하다.
+    fields:
+      - key: pattern
+        label: 패턴 종류
+        type: enum
+        options: [concentric_circular, xy_cross, radial, spiral, k_groove, perforated, embossed, plain, hybrid]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          IC1000 데이터시트에 K-groove 도식 명시(치수 비공개). 동심원+방사형 조합, XY 격자,
+          나선형이 상용 범주. Suba/Politex는 grooved·embossed·plain·perforated 표면 텍스처로
+          제공된다(Pureon 데이터시트) — 그루브가 없는 판(plain)도 실재한다.
+      - key: pitch_mm
+        label: 피치
+        type: number
+        unit: mm
+        typical: [1.5, 3.1]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          특허 실시예 실측치: 3.05 mm(120 mil) 동심원 피치(US 10391606, US 10464187),
+          1.78 mm(70 mil) 동심원 + 방사형 32개 병용(US 2023 공개 CMP 패드 출원).
+          패드 구조 수치는 데이터시트보다 특허에 구체적으로 나온다.
+      - key: width_mm
+        label: 홈 폭
+        type: number
+        unit: mm
+        typical: [0.5, 0.8]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "0.51 mm(20 mil)가 반복 등장(US 10391606, US 10464187). 방사형 홈은 0.76 mm(30 mil) 사례."
+      - key: depth_mm
+        label: 홈 깊이
+        type: number
+        unit: mm
+        typical: [0.5, 0.8]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          0.76 mm(30 mil)(US 10391606, US 10464187). 상부패드 두께(IC1000 1.27 mm)의 60% 수준 —
+          홈 깊이가 곧 사용 가능 마모 여유이므로 수명(10번 그룹)의 상한을 정한다.
+      - key: cross_section
+        label: 홈 단면
+        type: enum
+        options: [rectangular, v_shape, u_shape, k_shape, unknown]
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: "⚠ 조사 필요. IC1000 데이터시트에 'K cross section' 도식만 있고 각도·반경 수치 비공개."
+      - key: land_area_fraction
+        label: 랜드 면적비
+        type: number
+        typical: [0.7, 0.9]
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          GW 접촉모델은 홈을 뺀 랜드만 접촉면으로 삼아야 한다(노트 §5-2, 면적 보정 인자).
+          피치 3.05·폭 0.51 mm면 랜드비 ≈ 1−0.51/3.05 ≈ 0.83 — 기하 계산이며 실측 아님.
+          pad_nominal_area_m2 에 이 보정을 곱해 연결하는 것이 다음 단계.
+      - key: groove_cfd_effect
+        label: 그루브별 슬러리 유동 효과
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          ⚠ 미검증. circular vs circular+radial CFD 비교 연구 존재는 확인했으나(Kim et al., Wear 2020)
+          본문 페이월로 정량 결과 미확보. 그루브→유량→막두께 연결식은 아직 없다.
+
+  # ═══════════════════════════════ 7) 적층 구조
+  - id: stack
+    label: "적층 구조 (상부패드 · 서브패드 · 강성층 · 접착)"
+    origin: researched
+    owner: pad-structure
+    why: >
+      실제 패드는 단일 재료가 아니라 스택이다. 상부패드는 µm 스케일 국소 접촉을,
+      서브패드는 mm~cm 스케일 웨이퍼 휨 순응을 맡는다 — 스케일이 다른 두 강성.
+    fields:
+      - key: top_pad_thickness_mm
+        label: 상부패드 두께
+        type: number
+        unit: mm
+        typical: [1.25, 2.5]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          IC1000 = 50 mil(1.27 mm), IC1010 = 80 mil(2.03 mm)(Pureon 데이터시트).
+          특허 청구범위는 500~3750 µm, 선호 1250~2500 µm(US 10722999).
+      - key: subpad_type
+        label: 서브패드 종류
+        type: enum
+        options: [suba_felt, pu_foam, none, other]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-structure-groove-subpad.md
+        note: >
+          "brand-new IC1000 K-grooved pads with Suba IV sub-pad"가 실험 논문에 명시
+          (McAllister et al. 2019, doi:10.3390/mi10040258) — 2층 스택이 상용 표준임을 1차 문헌으로 확인.
+      - key: subpad_compressibility_pct
+        label: 서브패드 압축률
+        type: number
+        unit: "%"
+        typical: [4, 15]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "Suba IV 13.5%, Suba 600/800 4.0%, GS 5.0%(Pureon SUBA 데이터시트). 글로벌 컴플라이언스의 실질 손잡이."
+      - key: rigid_layer_modulus_mpa
+        label: 강성층(PET) 탄성률
+        type: number
+        unit: MPa
+        typical: [2500, 7500]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          이축연신 PET 강성층 2500~7500 MPa, 두께 6~15 mil(US 2015/0065013 A1 청구항 4~5).
+          상부패드와 서브패드 사이에 끼워 국소 강성과 글로벌 순응을 분리하는 층 — 사용자가 몰랐을 축.
+      - key: adhesive_type
+        label: 접착 방식
+        type: enum
+        options: [psa_platen, hot_melt_interlayer, glue, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          층간은 hot melt, 플래튼면은 PSA(감압접착) + 릴리스 라이너가 표준 구성
+          (US 2015/0065013 A1 청구항 1). 접착층 두께·균일도가 패드 평탄도에 직접 들어간다.
+      - key: total_stack_thickness_mm
+        label: 스택 총 두께
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 상부+강성층+서브패드+접착 합산. 헤드 하강 스트로크·리테이닝링 돌출량과 짝을 이룬다."
+
+  # ═══════════════════════════════ 8) 표면 조도 · asperity 통계  (연결 집중 그룹)
+  - id: surface_texture
+    label: "표면 조도 · asperity 통계"
+    origin: researched
+    owner: pad-mechanic
+    why: >
+      시뮬레이터가 실제로 먹는 층. GW 접촉모델의 입력 4개(E*, R, 1/β, η)가 전부 여기 있다.
+      실무자에겐 "패드 표면 거칠기"지만 엔진에겐 접촉점 개수와 실접촉면적이다.
+    fields:
+      - key: roughness_sa_um
+        label: 표면 조도 Sa
+        type: number
+        unit: µm
+        typical: [3, 8]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          실측 예: 4.02 µm(US 11724356 Table 1), 청구범위 5.32~8.02 µm(US 12472602).
+          우리 엔진은 Sa가 아니라 asperity 높이 분포 스케일(1/β)을 쓴다 — 둘을 잇는 식이 아직 없다.
+      - key: asperity_radius_m
+        label: asperity 곡률반경 R
+        type: number
+        unit: m
+        origin: researched
+        maps_to: pad_asperity_radius_m
+        status: wired
+        confidence: estimated
+        source: knowledge/materials/hertz-gw-contact-mechanics.md
+        note: "base 팩 5.0e-6 m. confidence: estimated — 실측이 아니라 문헌 오더에서 고른 대표값이다."
+      - key: asperity_density_m2
+        label: asperity 밀도 η
+        type: number
+        unit: "1/m²"
+        origin: researched
+        maps_to: pad_asperity_density_m2
+        status: wired
+        confidence: estimated
+        source: knowledge/materials/hertz-gw-contact-mechanics.md
+        note: "base 팩 1.0e11 /m². 컨디셔닝 이력의 함수여야 하는데 현재는 상수 — 알려진 한계."
+      - key: height_scale_beta_inv_m
+        label: asperity 높이분포 스케일 1/β
+        type: number
+        unit: m
+        origin: researched
+        maps_to: pad_height_beta_inv_m
+        status: wired
+        confidence: estimated
+        source: knowledge/materials/hertz-gw-contact-mechanics.md
+        note: "base 팩 0.3e-6 m. 지수분포 가정. 이 값이 실접촉면적-하중 선형성을 만든다."
+      - key: sigma0_m
+        label: 초기 asperity 높이 표준편차 σ₀
+        type: number
+        unit: m
+        origin: researched
+        maps_to: pad_sigma0_m
+        status: wired
+        confidence: literature
+        source: knowledge/equipment/conditioner-disk-pad-cutting-model.md
+        note: "base 팩 8.112e-6 m (Lv3-1 노트 Table 1 실측). 컨디셔닝 절삭 모델의 초기조건."
+      - key: nominal_contact_area_m2
+        label: 명목 접촉면적 A_n
+        type: number
+        unit: "m²"
+        origin: researched
+        maps_to: pad_nominal_area_m2
+        status: wired
+        confidence: literature
+        source: knowledge/materials/gw-nominal-vs-local-pressure.md
+        note: "base 팩 1.0e-4 m² (1 cm² 셀). 6번 그룹 land_area_fraction 보정이 아직 안 들어갔다."
+      - key: real_contact_area_ratio
+        label: 실접촉면적비 A_r/A_n
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/materials/gw-nominal-vs-local-pressure.md
+        note: >
+          결과 지표(입력 아님). 지수분포 GW에서 A_r ∝ 하중, 평균 실접촉압력 p_r은 명목압력과
+          무관한 상수 — 노트에서 14/48/96 kPa에 대해 편차 <0.1%로 수치 재현 완료.
+      - key: elastic_modulus_star_pa
+        label: 등가 탄성계수 E*
+        type: number
+        unit: Pa
+        origin: researched
+        maps_to: pad_E_star_pa
+        status: wired
+        confidence: estimated
+        source: knowledge/materials/hertz-gw-contact-mechanics.md
+        note: >
+          base 팩 1.0e9 Pa. ⚠ 4번 그룹 youngs_modulus_mpa 실측(17~71 MPa)과 한두 자릿수 차이 —
+          팩 값이 재료 실측이 아니라 GW 튜닝값일 가능성이 높다. 연결은 되어 있으나 근거는 약하다.
+
+  # ═══════════════════════════════ 9) 브레이크인
+  - id: break_in
+    label: "브레이크인 (신품 패드 길들이기)"
+    origin: researched
+    owner: pad-lifecycle
+    why: >
+      신품 패드는 바로 못 쓴다. 성형 표면의 asperity 분포가 컨디셔닝 정상상태 분포와 달라서,
+      MRR·마찰·온도가 안정될 때까지 수십 분~2시간 걸린다. 이 구간을 모르면 첫 로트를 버린다.
+    fields:
+      - key: method
+        label: 브레이크인 방식
+        type: enum
+        options: [dry_conditioning, wet_conditioning, dummy_wafer_polish, water_soak, combination]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-breakin-asperity-mrr-runup.md
+        note: >
+          더미(blanket) 웨이퍼 연마 + 컨디셔닝 병행이 통상. 우리 노트는 방식 비교 1차 데이터를
+          갖고 있지 않다 — 옵션 목록은 실무 범주 정리 수준.
+      - key: duration_min
+        label: 브레이크인 소요 시간
+        type: number
+        unit: min
+        typical: [50, 135]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-breakin-asperity-mrr-runup.md
+        note: >
+          Jeong et al. 2021(doi:10.7736/JKSPE.020.082) FWU 도달 시간: 210 g/cm²에서 133 min,
+          280에서 118.6 min, 350에서 52.8 min — 압력이 높을수록 빨리 안정된다.
+          (원문 PDF 미확보, 저널 웹페이지 요약 수치.)
+      - key: mrr_runup_ratio
+        label: 브레이크인 전후 MRR 비
+        type: number
+        typical: [1.07, 1.24]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-breakin-asperity-mrr-runup.md
+        note: >
+          FWU 이전 170.8~181.6 nm → 이후 193.7~211.0 nm(Jeong et al. 2021).
+          즉 브레이크인 안 하면 MRR이 10~20% 낮게 나온다. 실무 오판의 흔한 원인.
+      - key: fwu_criterion
+        label: 안정(FWU) 판정 기준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-breakin-asperity-mrr-runup.md
+        note: >
+          MRR·마찰계수·패드 온도가 동시에 정상상태에 드는 시점으로 정의된다.
+          마찰계수 모니터링이 실무에서 가장 싼 판정 신호(별도 계측 불필요).
+      - key: water_soak_h
+        label: 사전 침수 시간
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. PU 패드는 흡수로 물성이 변한다(11번 그룹). 침수 시간 규정의 1차 출처 미확보."
+
+  # ═══════════════════════════════ 10) 수명 · 마모 · 교체
+  - id: life
+    label: "수명 · 마모 · 교체 기준"
+    origin: researched
+    owner: pad-lifecycle
+    why: >
+      패드는 소모품이고, MRR 드리프트의 최대 원인이다. 컨디셔닝 재생과 마모가 균형을
+      이루는 동안만 공정이 재현된다. 교체 시점 판단이 곧 수율·원가.
+    fields:
+      - key: pad_life_h
+        label: 패드 수명 (시간)
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 공정·컨디셔닝 조건 의존이 커서 일반값이 무의미할 수 있다.
+          참고: 우리 팩의 PCR 감쇠 앵커가 50 h 지점에 있다(아래 pcr_* 필드).
+      - key: pad_life_wafers
+        label: 패드 수명 (매수)
+        type: number
+        unit: "wafers"
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 실무 교체 기준의 1차 단위지만 공개 문헌에 신뢰할 범위를 아직 못 찾았다."
+      - key: wear_rate_um_per_h
+        label: 패드 마모율
+        type: number
+        unit: "µm/h"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-wear-glazing-mrr-decay.md
+        note: >
+          Archard 마모(dz/dt = −k_w·(L/A)·U). 반경별 컨디셔너 컷레이트가 달라 마모가
+          불균일해지고, 그 자체가 새로운 압력 비균일 원인이 된다(Zheng et al. 2023,
+          doi:10.3390/mi14091683) — 사용자가 몰랐을 축.
+      - key: wear_half_life_h
+        label: MRR 반감기
+        type: number
+        unit: h
+        origin: researched
+        maps_to: pad_wear_half_life_h
+        status: wired
+        confidence: estimated
+        source: knowledge/materials/pad-wear-glazing-mrr-decay.md
+        note: "base 팩 48 h. estimated — 실측이 아니라 감쇠 스케일 대표값."
+      - key: pcr_anchor_hours
+        label: PCR 감쇠 앵커 시간
+        type: number
+        unit: h
+        origin: researched
+        maps_to: pad_pcr_anchor_hours
+        status: wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: "base 팩 50 h (Entegris 기술자료 앵커점). PCR=패드 절삭률/접촉률 감쇠 곡선의 기준점."
+      - key: pcr_anchor_ratio
+        label: PCR 잔존비
+        type: number
+        origin: researched
+        maps_to: pad_pcr_anchor_ratio
+        status: wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: "50 h 후 PCR/PCR₀ = 0.16. 즉 절삭 성능이 6분의 1로 떨어진다 — 교체 판단의 정량 근거."
+      - key: glazing_index
+        label: 글레이징 지표
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-wear-glazing-mrr-decay.md
+        note: >
+          asperity가 마모·평탄화되어 실접촉면적·조도가 줄어드는 현상. 컨디셔닝 없으면 MRR 단조 감소.
+          유체 하중분담을 넣으면 마모가 자기제한(self-limiting)된다는 것이 Shi & Ring(2010)의 핵심.
+      - key: replacement_criterion
+        label: 교체 기준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 후보 축: 잔여 홈 깊이, 누적 두께 감소, MRR 하한, 결함 급증, 마찰계수 이탈.
+          어느 지표를 1차 기준으로 쓰는지에 대한 공개 문헌 근거를 확보하지 못했다.
+      - key: remaining_groove_depth_mm
+        label: 잔여 홈 깊이
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          홈이 사라지면 슬러리 이송이 끊긴다 — 물리적 수명 상한. 초기 깊이 0.76 mm(6번 그룹)에서
+          누적 마모를 뺀 값. 마모율×시간으로 계산 가능하나 하한 기준값의 출처는 미확보.
+
+  # ═══════════════════════════════ 11) 흡수 · 팽윤 · 화학 안정성
+  - id: fluid_interaction
+    label: "흡수 · 팽윤 · 화학 안정성"
+    origin: researched
+    owner: pad-material
+    why: >
+      패드는 젖은 채로 일한다. 물·슬러리를 흡수하면 경도·탄성률이 변하고, 장기적으로
+      가수분해로 치수가 변한다. 건조 상태 스펙만 보면 실제 공정 물성을 놓친다.
+    fields:
+      - key: water_absorption_vol_pct
+        label: 물 흡수율
+        type: number
+        unit: "vol%"
+        typical: [3, 15]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+        note: >
+          Chen et al. 2024(doi:10.3390/ma17112759) 실측: 무발포 3.47%, NaHCO₃ 3wt% 6.99%,
+          NH₄HCO₃ 1wt% 14.17% — 기공률이 오르면 흡수도 급증한다. 슬러리 보유량의 대리 지표.
+      - key: swelling_dimensional_pct
+        label: 침수 치수 변화
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          US 2015/0065013 A1은 25°C DI수 24 h 침수 시 <1%(초기 안정), 7일 침수 시 ≥1.75%
+          (지속 불안정)를 제품 특성으로 규정. 즉 팽윤은 결함이 아니라 설계 파라미터다 —
+          표면이 서서히 갱신되도록 의도적으로 가수분해성을 넣은 사례.
+      - key: hydrolytic_stability
+        label: 가수분해 안정성
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          폴리에스터계는 폴리에테르계보다 가수분해에 약하다는 것이 PU 일반론.
+          위 특허처럼 "적당히 분해되는" 설계가 존재하므로 무조건 안정이 좋은 것은 아니다.
+      - key: slurry_retention
+        label: 슬러리 보유 능력
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          기공이 슬러리를 국소 보유·재분배한다. Politex는 압축-회복의 펌핑 작용으로
+          패드 내 슬러리 흐름을 만든다고 서술(Pureon POLITEX 데이터시트 2024-04-09).
+      - key: shelf_life_months
+        label: 보관 수명
+        type: number
+        unit: months
+        typical: [12, 12]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: "Politex 데이터시트 명시 12개월. 슬러리와 마찬가지로 패드도 보관 수명이 있다."
+
+  # ═══════════════════════════════ 12) 엔드포인트 윈도우
+  - id: endpoint_window
+    label: "엔드포인트 윈도우"
+    origin: researched
+    owner: pad-structure
+    why: >
+      광학 종점검출을 쓰면 패드에 창을 뚫어야 한다. 창은 패드의 기계적·화학적 약점이자
+      국소 결함원이라, 패드 설계의 독립 축이다. 사용자 목록에 없던 항목.
+    fields:
+      - key: window_type
+        label: 윈도우 방식
+        type: enum
+        options: [integral, plug_in_place, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        note: >
+          integral(패드와 일체 성형) vs plug-in-place(별도 삽입)로 구분된다
+          (US 2015/0065013 A1 청구항 8~9). 삽입형은 단차·누액이, 일체형은 투과율 저하가 문제.
+      - key: transmittance
+        label: 투과율
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 파장대별 투과율 규격의 1차 출처 미확보. tool-endpoint 에이전트와 공동 소관."
+      - key: window_defect_risk
+        label: 윈도우 유래 결함
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 창 주변 단차·슬러리 고임이 국소 미연마/스크래치를 만든다는 것은
+          실무 통념이나, 우리가 확보한 1차 문헌 근거는 없다. defect-scientist와 공동 조사 대상.
