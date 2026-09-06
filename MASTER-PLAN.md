@@ -759,3 +759,11 @@ Mo L16(압력·pH·첨가제·입도 4인자)에서 ρ=+0.522, 쌍적중 73.7%. 
    그 재료계 안에서 검증하는 우회로도 가능하다. 단 그건 반도체 CMP 검증은 아니다.
 3. oxide_silica 팩에 화학 파라미터가 없다(산화제·억제제 항 자체가 꺼져 있음).
    실리카 슬러리의 화학 근거를 채워야 조성 스크리닝을 주장할 수 있다.
+
+## 2026-09-06 15:30 — [소프트웨어] S17 마찰열-Arrhenius 커플링 엔진 부분구현
+
+tribologist Lv2-2 구현요청 처리. `sim/tier2_physics/frictional_heating_arrhenius.py` 신설
+(q=μPV, Qf, ΔT 전량냉각상한, Arrhenius 반응속도·배율, Shin2025 재료상수 Cu/Ta/SiO₂). 8 tests
+전부 지식노트 §6 문헌·해석해 대조값 재현. 159 passed. 커밋 0e55c79.
+미완: engine.available_models() 미등록(순수 함수 라이브러리, MRR Model 아님), sim/chemistry.py
+온도항 연결은 팩(oxide_silica/cu_h2o2_bta)에 유량·ρ·cp·재료별 Ea가 없어 보류 — 화학 부문 회신 필요.
