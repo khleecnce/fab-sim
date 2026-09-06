@@ -968,3 +968,22 @@ equipment/* 노트, 학습총괄 크론이 상환 중 — 이번 신규분 아�
   0d4ea89) 확인 후 일괄 push.
 - 진도: pad-lifecycle 4/6, tool-platen-head 1/6(신규 활성). 다음: pad-lifecycle Lv3-1, tool-platen-head
   Lv1-2.
+
+## 2026-09-07 07:42 [Max워커] surface-contamination 구현요청 처리 — post-CMP 금속오염 산출 순수함수 라이브러리 (S15)
+
+`software/BACKLOG.md`의 S15("금속 오염 산출") 항목을 `sim/tier2_physics/metal_contamination_surface.py`
+로 처리. knowledge/cmp/post-cmp-metallic-contamination-sources.md §5/§6와
+knowledge/cmp/metal-contamination-device-impact-irds-limits.md §5/§7의 python verify 블록 값을
+그대로 재사용 가능한 함수 5개(+kT/e 보조 1개)로 승격: 단분자층 밀도(Si(100) 2/a²)·허용치/ML 비율·
+Boltzmann Cu2+ 표면농축(z·e·ψ/kT)·GOI 조기파괴율(Wang 2024, doi:10.3390/electronics13122391)·
+세정전/ITRS FEP 스펙(1e10 atoms/cm²) 비율. 새 상수 없음 — 두 노트 기존 숫자만 재사용.
+engine 미등록(Recipe에 pH/zeta 필드 없음, ARCHITECTURE §4 스키마 부채 — S17/S19/S20과 동일 지위,
+파일 상단 docstring에 명시). tests/test_metal_contamination_surface.py 12개 신설, 노트 assert값
+그대로 재현(Si(100) N_ML≈6.78e14, 중성 -40mV→Cu2+ 농축 22.5배(>20배), PMOS 조기파괴 11.3%(8/71),
+세정전Fe/ITRS스펙 100~200배). self-test 7/7 PASS.
+
+품질게이트(독립 재실행): `.venv/bin/python -m pytest -q` 226 passed(기존214+신규12), 회귀 없음.
+git log 확인 결과 커밋 4c335fd가 이미 push 완료(origin/main과 0 ahead/0 behind) — 이번 위임의
+첫 두 시도가 터미널 타임아웃(180s)에도 백그라운드에서 계속 실행돼 이미 작업을 끝낸 상태였고,
+세 번째 호출은 완료 확인만 수행. software/BACKLOG.md는 저장소 밖(~/software/BACKLOG.md)이라
+git 추적 대상 아님 — S15 행이 완료표로 이미 이동되어 있음을 확인.
