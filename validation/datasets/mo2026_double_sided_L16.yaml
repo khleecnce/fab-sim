@@ -1,0 +1,118 @@
+# 몰리브덴 기판 양면 CMP — L16 직교배열 (압력 4수준 x pH 4수준 x 첨가제 4수준 x 입도 2수준)
+source: >
+  "Experimental Study on Double-Sided Chemical Mechanical Polishing of Molybdenum
+  Substrates for LED Devices", Micromachines (2026). PMC12942839 (MDPI 오픈액세스).
+  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12942839/
+  Table 2(인자수준표)와 Table 3(L16 결과, MRR[nm/min])을 그대로 옮겼다.
+  회전수: 본문 §2.1 "the upper plane and lower plane rotated at 3.3 rpm and 10 rpm".
+
+used_for_calibration: false
+pack: oxide_silica
+
+conditions:
+  - label: "No.1: 64kPa, pH4, no additive, 0.6um"
+    pressure_psi: 9.2824
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 11
+    read_method: table
+  - label: "No.2: 64kPa, pH7, H2O2, 0.6um"
+    pressure_psi: 9.2824
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 94
+    read_method: table
+  - label: "No.3: 64kPa, pH9, H2O2 0.5%+Gly, 1.7um"
+    pressure_psi: 9.2824
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 18
+    read_method: table
+  - label: "No.4: 64kPa, pH11, H2O2 1%+Gly, 1.7um"
+    pressure_psi: 9.2824
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 20
+    read_method: table
+  - label: "No.5: 77kPa, pH4, H2O2, 1.7um"
+    pressure_psi: 11.1679
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 125
+    read_method: table
+  - label: "No.6: 77kPa, pH7, no additive, 1.7um"
+    pressure_psi: 11.1679
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 43
+    read_method: table
+  - label: "No.7: 77kPa, pH9, H2O2 1%+Gly, 0.6um"
+    pressure_psi: 11.1679
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 50
+    read_method: table
+  - label: "No.8: 77kPa, pH11, H2O2 0.5%+Gly, 0.6um"
+    pressure_psi: 11.1679
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 57
+    read_method: table
+  - label: "No.9: 90kPa, pH4, H2O2 0.5%+Gly, 0.6um"
+    pressure_psi: 13.0534
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 41
+    read_method: table
+  - label: "No.10: 90kPa, pH7, H2O2 1%+Gly, 0.6um"
+    pressure_psi: 13.0534
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 18
+    read_method: table
+  - label: "No.11: 90kPa, pH9, no additive, 1.7um"
+    pressure_psi: 13.0534
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 61
+    read_method: table
+  - label: "No.12: 90kPa, pH11, H2O2, 1.7um"
+    pressure_psi: 13.0534
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 144
+    read_method: table
+  - label: "No.13: 115kPa, pH4, H2O2 1%+Gly, 1.7um"
+    pressure_psi: 16.6793
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 131
+    read_method: table
+  - label: "No.14: 115kPa, pH7, H2O2 0.5%+Gly, 1.7um"
+    pressure_psi: 16.6793
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 88
+    read_method: table
+  - label: "No.15: 115kPa, pH9, H2O2, 0.6um"
+    pressure_psi: 16.6793
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 156
+    read_method: table
+  - label: "No.16: 115kPa, pH11, no additive, 0.6um"
+    pressure_psi: 16.6793
+    rpm_wafer: 3.3
+    rpm_platen: 10
+    mrr_nm_per_min: 51
+    read_method: table
+
+notes: >
+  압력만 우리 모델의 입력이고 pH·첨가제·입도는 반영되지 않는다(팩에 Mo 화학이 없다).
+  논문 자신의 극차분석에서도 지배 인자는 첨가제(R=88.25) > 압력(R=70.75) 순이므로,
+  압력만 보는 모델의 순위 상한이 낮을 수밖에 없다. **이것이 이 데이터셋의 핵심 정보다** —
+  화학층이 없는 조건에서 우리 예측이 얼마나 무력한지의 정량치.
+  피연마재가 Mo(금속)라 전용 팩이 없다. 순위는 Kp 스케일에 불변이므로 oxide_silica 팩의
+  기계 모델만 쓰되, 절대 MRR·MAPE는 의미 없다.
+  양면 연마기(상/하 정반 3.3/10 rpm)를 회전형 CMP 기구학으로 근사했다 — 모든 조건에서
+  동일하므로 순위에는 영향이 없다.
