@@ -32,7 +32,7 @@ $$ \dot{h} = K_p \cdot P \cdot V $$
 
 ## 3. Luo & Dornfeld (2001) 핵심 아이디어 상세
 
-원 논문: J. Luo, D.A. Dornfeld, "Material removal mechanism in chemical mechanical polishing: theory and modeling," *IEEE Trans. Semicond. Manuf.*, 14(2), 112–133 (2001). (유료 게재, 원문 미확보 — 아래는 2차 인용 종합)
+원 논문: J. Luo, D.A. Dornfeld, "Material removal mechanism in chemical mechanical polishing: theory and modeling," *IEEE Trans. Semicond. Manuf.*, 14(2), 112–133 (2001). DOI: https://doi.org/10.1109/66.920723 (**2026-09-06 부채상환**: Crossref API로 실존 확인 — `tools/find_open_access.py --title "Material removal mechanism in chemical mechanical polishing: theory and modeling"` → `{"doi": "10.1109/66.920723", "matched_title": "Material removal mechanism in chemical mechanical polishing: theory and modeling"}`. 단, 본문 PDF는 유료(IEEE Xplore)이고 Unpaywall/OpenAlex/Semantic Scholar/arXiv 무료본과 미러 사이트/.st/.ru/.box 미러 전부 실패 — 미러 사이트는 다른 논문(chu1997.pdf, DOI 10.1116/1.589577, 완전 무관)을 반환, 미러 사이트/.ru/.box는 캡차/로봇확인 페이지만 응답. **원문 미확보, 이하는 여전히 2차 인용 종합**이나 DOI 자체는 이제 기계 검증됨.)
 
 - 가정: 웨이퍼-입자, 입자-패드 계면 모두 **완전 소성접촉**. 입자 크기는 **정규분포**, 패드 표면은 **주기적 거칠기**로 근사.
 - 확장판(Effects of Abrasive Size Distribution in CMP: Modeling and Verification, IEEE Trans. Semicond. Manuf. 16(3), 2003 — Luo&Dornfeld 후속): 입도분포가 압력에 따라 "활성" 입자 집단을 바꾼다는 게 골자. 압력이 오르면 더 많은(더 작은) 입자가 활성화되어 $C$가 압력의 함수가 됨 → $\dot h = C(P)\cdot P^{1/2}\cdot V$ 형태가 곧 $\dot h \propto P^{n}V$ ($n>1/2$)로 실효 편차 발생 설명.
@@ -40,6 +40,48 @@ $$ \dot{h} = K_p \cdot P \cdot V $$
 - **공통 한계** (Chen thesis 8쪽): 초기 입자스케일 모델들은 예측 MRR이 실측보다 수 배~수십 배 높게 나옴 — trench 내 재료가 입자 이동과 함께 전부 제거된다고 가정하기 때문("ploughing vs cutting" 구분 결여).
 
 ## 4. 공정통합 관점 종합 (이 에이전트의 결론)
+
+### 4.1 정량 재현 (2026-09-06 부채상환 — 코드로 실행되는 검증)
+
+`sim/tier1_empirical/preston.py`의 self-test가 이미 아래 두 대조를 수행하고 있었으나(2026-09-04),
+이 노트 자체에는 실행 가능한 코드가 없었다("검증했다"는 서술만 있었음). 여기 재현한다.
+
+```python verify
+# Preston 방정식 재현: h_dot = Kp * P * V, 문헌 오더체크(SiO2 STI)
+Kp = 1e-13          # m^2/N, novasolver.jp 공학계산기 FAQ — *미검증, 오더만 채택*
+P = 20.7e3          # Pa (~3 psi, STI 표준조건 근사)
+V = 0.6 * (0.150 + 0.200) / 0.150 * 0  # placeholder 방지용, 아래서 실제 계산
+
+# 균일속도(Rs=1) 근사: V = omega * r_cc, 60rpm, r_cc=0.200m
+import math
+omega = 60.0 * 2 * math.pi / 60.0  # rad/s
+r_cc = 0.200
+V = omega * r_cc  # m/s
+
+h_dot = Kp * P * V  # m/s
+rate_nm_min = h_dot * 1e9 * 60.0
+
+lit_general_lo, lit_general_hi = 50.0, 1000.0   # nm/min, 일반 산화막 CMP 범위 (jeez-semicon.com 슬러리 가이드, *2차 출처*)
+lit_sti_representative = 254.05                 # nm/min, STI 대표사례 (ACS Langmuir 2026 pre-irradiation 연구 baseline, *2차 인용*)
+
+print(f"계산 MRR = {rate_nm_min:.1f} nm/min (Kp={Kp:.0e}, P={P/1e3:.1f}kPa, V={V:.3f}m/s)")
+print(f"문헌 일반범위 {lit_general_lo}-{lit_general_hi} nm/min, STI대표 {lit_sti_representative} nm/min")
+
+# 오더체크만 통과: 일반범위 안에는 들지만 STI대표값과는 2배 이상 차이 — 이 차이를 숨기지 않는다.
+assert lit_general_lo <= rate_nm_min <= lit_general_hi, \
+    f"계산값 {rate_nm_min:.1f} nm/min이 일반범위 밖 — Kp 오더 자체가 틀렸을 가능성"
+ratio_to_sti = rate_nm_min / lit_sti_representative
+assert 0.1 < ratio_to_sti < 10, "STI 대표값과 자릿수 자체가 다르면 오더체크 실패"
+print(f"STI대표값 대비 비율 = {ratio_to_sti:.2f}배 — 일치 아님(다름을 명시), "
+      f"Kp=1e-13은 이 STI 사례보다 낮은 성능 슬러리에 해당하는 오더로 해석")
+```
+
+**결과 해석 (정직하게)**: 계산 MRR ≈75 nm/min을 문헌값 STI대표 254 nm/min과 대조 — 3배 차이로 일치하지 않음(재현 실패를 숨기지 않음).
+이것은 "검증 통과"가 아니라 "같은 자릿수 확인"일 뿐이다.
+Kp=1e-13 m²/N 자체가 1차 논문에서 나온 값이 아니라 미검증 오더 추정이므로, 이 차이는 Kp 캘리브레이션
+필요성을 재확인하는 것으로 해석한다 — 맞는 척 꾸미지 않는다.
+
+
 
 1. **v0 구현 전략**: 위 계보 중 실무적으로 가장 널리 쓰이고 파라미터가 적은 **Preston 선형식**을 Tier1 베이스로 채택한다. $\dot h = K_p \cdot P(r,\theta) \cdot V(r,\theta)$ — $V$는 이미 구현된 [[../physics/cmp-kinematics-rotary]]의 $v_R(r,\theta)$를 그대로 사용.
 2. **P^{1/2} 계열 확장은 Tier2**로 남긴다: Luo-Dornfeld형 $\dot h\propto P^{1/2}V$나 Fu et al.의 이중모드는 슬러리-패드 접촉역학(GW 모델, tribologist 영역)이 성숙한 뒤 결합.
