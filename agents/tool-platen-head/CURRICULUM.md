@@ -4,7 +4,7 @@
 > 유료 논문은 미러 사이트 활용(사용자 지시 9/5). 출처 없는 수치는 '미검증' 표기.
 
 - [x] Lv1-1 툴 아키텍처: 플래튼·헤드·리테이너링·슬러리 아암 — 주요 벤더(AMAT/Ebara) 비교 (2026-09-07, knowledge/equipment/cmp-carrier-head-retaining-ring-vendors.md)
-- [ ] Lv1-2 멀티존 헤드 압력 제어와 존-반경 응답 행렬
+- [x] Lv1-2 멀티존 헤드 압력 제어와 존-반경 응답 행렬 (2026-09-07, knowledge/equipment/cmp-multizone-carrier-radial-response.md)
 - [ ] Lv2-1 리테이너링 압력·마모와 엣지 프로파일
 - [ ] Lv2-2 RPM 비·유량·온도 제어와 MRR 안정성
 - [ ] Lv3-1 최신 리뷰: 폐루프 프로파일 제어, 헤드 신기술

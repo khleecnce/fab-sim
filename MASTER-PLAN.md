@@ -987,3 +987,30 @@ git log 확인 결과 커밋 4c335fd가 이미 push 완료(origin/main과 0 ahea
 첫 두 시도가 터미널 타임아웃(180s)에도 백그라운드에서 계속 실행돼 이미 작업을 끝낸 상태였고,
 세 번째 호출은 완료 확인만 수행. software/BACKLOG.md는 저장소 밖(~/software/BACKLOG.md)이라
 git 추적 대상 아님 — S15 행이 완료표로 이미 이동되어 있음을 확인.
+
+
+## 2026-09-07 [성장엔진] tool-platen-head Lv1-2 이수 — 멀티존 헤드 압력 응답 행렬
+
+`agents/tool-platen-head/CURRICULUM.md` 다음 단원(Lv1-2)을 진행. 진도 최저 [활성]
+에이전트를 ORG §5에서 확인(tool-platen-head 1/6, 다른 전원 3/6 이상) → 우선순위대로
+선택. Lee, Lee, Jeong (2026, JKSPE 43(5) 443-448, DOI 10.7736/JKSPE.025.132) 원문
+PDF(Lv1-1에서 이미 확보한 오픈액세스 논문)의 존별 압력 스윕 실험(2.3.2절, Figs.
+8-11)에 집중해 knowledge/equipment/cmp-multizone-carrier-radial-response.md 작성:
+3존+리테이너링 반경 경계(0-85/85-95/95-99mm), Zone3만 독립·{Zone1,Zone2,Ring}은
+결합된 블록대각 응답 구조(원문 3.1절 직접 인용), 단일존(5psi=4.5%, 6psi=6.1%) vs
+멀티존(2.5%) NU 대조 및 이 노트가 원값에서 유도한 개선율(44.4%/59.0%)을 python
+verify 블록으로 재현·assert.
+
+Shiu et al.(2004, 다변수 CMP 제어), Zhao et al.(2013, 12인치 존압력-웨이퍼벤딩),
+Wang & Lu(2011, 수치해석+실험) 세 논문을 `find_open_access.py`로 DOI 확보 후
+미러 사이트 5개 미러(box/se/st/ru/ren)에 순차 접속 시도했으나 전부 무응답(None 반환)
+— 접속 차단이 아니라 미러 자체 가용성 문제로 판단, 1차 미확보로 정직 기록하고
+Lee et al. 2026을 통한 2차 인용으로 대체.
+
+품질게이트: check_knowledge.py PASS, verify_claims.py PASS(출처 4건 실존, 코드
+1블록 통과, 출처없는 수치주장 0 — 최초 시도에서 2건 걸려 앵커 보강 후 재통과).
+CURRICULUM [x], EXAMS Q1-Q3 추가, PROFILE 이수기록·레벨(2/6) 갱신, ORG §5 진도
+갱신(tool-platen-head 2/6). 구현요청은 낮은 우선순위로 PROFILE에 기록(정량 전달함수
+미확보 상태라 지금 구현하면 추측이 되므로 Zhao 2013 원문 확보 후 재요청 권장).
+
+진도: tool-platen-head 2/6. 다음: Lv2-1(리테이너링 압력·마모와 엣지 프로파일).
