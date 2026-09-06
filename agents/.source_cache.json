@@ -230,5 +230,13 @@
  "doi:10.1557/proc-1249-e02-04": {
   "ok": true,
   "msg": "Design, Characteristics and Performance of Diamond Pad Conditioners"
+ },
+ "doi:10.1016/j.triboint.2013.08.008": {
+  "ok": true,
+  "msg": "The impact of diamond conditioners on scratch formation during chemical mechanical planari"
+ },
+ "doi:10.3390/app11083521": {
+  "ok": true,
+  "msg": "Contact-Area-Changeable CMP Conditioning for Enhancing Pad Lifetime"
  }
 }

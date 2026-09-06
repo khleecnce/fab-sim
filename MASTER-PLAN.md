@@ -816,3 +816,17 @@ Shi & Ring (2010, DOI 10.1016/j.mee.2010.04.010) 원문 전체 확보(저자 공
 ### 다음
 크론이 코퍼스를 늘리면 `has_absolute_values=True`인 것만 `--dump`로 확인해
 데이터셋화한다. 현재 그 조건을 만족하는 캐시 특허는 0건이다.
+
+## 2026-09-06 18:xx (성장엔진) disk-design Lv2-1 그릿 마모-스크래치 연계 학습
+
+Kwon et al.(2013, Tribology International, DOI 10.1016/j.triboint.2013.08.008) 원문 전체
+확보(유료, 미러 사이트 경유) plus Son and Lee(2021, Applied Sciences, DOI 10.3390/app11083521,
+Gold OA) 원문 전체 확보. knowledge/equipment/conditioner-grit-wear-scratch-lifetime.md 신설
+그릿 밀도와 grade가 패드절삭율(17k/40k/60k에서 37/23/19 um/h) 표면조도 디브리 스크래치
+개수에 미치는 정량 관계, 디브리농도-스크래치 관계는 선형이 아니라 포화형(물리적 도달량
+상한)이라는 핵심 발견, 문헌 기반 패드수명 판정기준(그루브완전마모 또는 MRR/WIWNU급변,
+16h 시점 MRR 44.9퍼센트 감소) 확정. python verify로 포화형 정성거동 존재증명(assert 통과,
+정량재현 아님을 명시). check_knowledge.py verify_claims.py 둘 다 통과. disk-design 2/6,
+CURRICULUM Lv2-1 체크, EXAMS 3문항 추가, PROFILE 이수기록과 ORG.md 5절 갱신. 구현요청
+7절 신설 디스크/패드 수명종료 판정 로직 software-lead BACKLOG 인계 예정. 문헌 공백 확인
+디스크 자체 그릿 탈락률 곡선(1차 논문) 미확보 후속 과제.
