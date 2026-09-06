@@ -107,11 +107,14 @@ class BacktestResult:
     pairwise_accuracy: float          # (1+τ)/2 — "둘 중 나은 쪽" 적중률
     mape_pct: Optional[float]         # 참고용
     scale_factor: Optional[float]     # 계통 편향: 실측/예측 중앙값
-    used_for_calibration: bool
+    in_scope: bool = True             # 팩이 이 재료계를 실제로 다루는가
+    used_for_calibration: bool = False
     source: str = ""
     notes: List[str] = field(default_factory=list)
 
     def verdict(self) -> str:
+        if not self.in_scope:
+            return "범위밖(팩이 이 재료계를 안 다룸)"
         if np.isnan(self.spearman):
             return "판정불가(분산 없음)"
         if self.used_for_calibration:
@@ -130,12 +133,20 @@ class BacktestResult:
 
 
 def _recipe_from(cond: Dict, pack: str) -> Recipe:
-    """데이터셋의 조건 dict → Recipe. 없는 필드는 팩이 채운다."""
+    """데이터셋의 조건 dict → Recipe.
+
+    ⚠ `overrides:` 블록이 조성 변수(산화제 wt%, 입자 크기, pH 등)를 모델에 전달하는
+    유일한 통로다. 이게 없으면 조성만 바꾼 DOE에서 모델이 **모든 조건에 같은 값**을
+    뱉는다 — 2026-09-06 실제 발생: carbide L9 9조건 전부 752.02 nm/min으로 동일했고,
+    Spearman이 nan(분산 0)으로 나왔다. 그때 "화학층이 조성을 구분 못 한다"고
+    오진할 뻔했는데, 실제로는 조성이 애초에 입력되지 않았다.
+    """
     kw = {k: cond[k] for k in
           ("pressure_psi", "rpm_wafer", "rpm_platen", "time_s",
            "wafer_radius_m", "kp_m_per_pa", "n_points")
           if k in cond}
-    return Recipe(pack=cond.get("pack", pack), **kw)
+    ov = dict(cond.get("overrides") or {})
+    return Recipe(pack=cond.get("pack", pack), pack_overrides=ov, **kw)
 
 
 def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResult:
@@ -143,6 +154,16 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
     pack = raw.get("pack", "oxide_silica")
     conds = raw.get("conditions") or []
     notes: List[str] = []
+
+    # ── 커버리지 검사 ────────────────────────────────────────
+    # 팩이 다루는 재료계 밖의 데이터로 재면 그건 모델 검증이 아니라 외삽 실패다.
+    # 2026-09-06: 초경합금·Mo·SiC·석영유리를 전부 oxide_silica 팩으로 돌려놓고
+    # "모델이 못 맞힌다"고 결론낼 뻔했다. 실리콘 반도체 CMP 데이터가 하나도 없었다.
+    in_scope = bool(raw.get("in_scope", True))
+    if not in_scope:
+        notes.append(
+            f"⚠ 이 데이터셋은 팩 '{pack}'의 재료계 밖이다 — 결과는 모델 성능이 아니라 "
+            "외삽 한계를 보여준다. held-out 집계에서 제외한다.")
 
     obs, pred = [], []
     for c in conds:
@@ -152,10 +173,23 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
         pred.append(float(np.mean(res.mrr_nm_per_min)))
         obs.append(float(c["mrr_nm_per_min"]))
 
+    # ── 데이터셋 자체의 건강 검사 ────────────────────────────
+    # 예측 분산이 0이면 "모델이 못 맞힌다"가 아니라 "입력이 안 들어갔다"일 수 있다.
+    # 이 둘을 구분하지 못하면 멀쩡한 모델을 폐기하거나 고장난 데이터를 신뢰하게 된다.
+    if len(set(round(p, 9) for p in pred)) == 1 and len(pred) > 1:
+        varied = sorted({k for c in conds for k in (c.get("overrides") or {})})
+        notes.append(
+            "⚠⚠ 예측값이 전 조건 동일 — 모델 성능 문제가 아니라 **입력이 안 들어간 것**이다. "
+            + (f"overrides로 전달된 변수: {varied}. 이 변수들이 엔진에 연결돼 있는지 "
+               "`--sensitivity`로 확인하라."
+               if varied else
+               "이 데이터셋은 `overrides:` 블록이 비어 있다. 논문의 조성 변수를 "
+               "overrides로 옮기지 않으면 압력·rpm만 모델에 전달된다."))
+
     if len(obs) < 3:
         notes.append(f"조건 {len(obs)}개 — 순위 지표는 3개 이상 필요")
         return BacktestResult(path.stem, len(obs), float("nan"), float("nan"),
-                              float("nan"), None, None,
+                              float("nan"), None, None, in_scope,
                               bool(raw.get("used_for_calibration", False)),
                               raw.get("source", ""), notes)
 
@@ -171,7 +205,8 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
         notes.append(f"{digit}/{len(conds)} 조건이 그래프 판독값(digitized) — 오차 포함")
 
     return BacktestResult(path.stem, len(obs), rho, tau, (1 + tau) / 2,
-                          mape, scale, bool(raw.get("used_for_calibration", False)),
+                          mape, scale, in_scope,
+                          bool(raw.get("used_for_calibration", False)),
                           raw.get("source", ""), notes)
 
 
@@ -202,7 +237,8 @@ def main() -> int:
             print(f"    · {n}")
 
     held = [r for r in results if not r.used_for_calibration
-            and not np.isnan(r.spearman)]
+            and r.in_scope and not np.isnan(r.spearman)]
+    out_of_scope = [r for r in results if not r.in_scope]
     print("-" * 100)
     if held:
         rho = float(np.mean([r.spearman for r in held]))
@@ -211,7 +247,13 @@ def main() -> int:
               f"쌍별 적중률 {acc*100:.1f}%")
         print("→ 이 숫자가 IR·사업계획서에 쓸 수 있는 유일한 정량 근거다.")
     else:
-        print("held-out 데이터셋이 없다 — 아직 '검증했다'고 말할 수 없다.")
+        print("held-out(범위 내) 데이터셋이 없다 — 아직 '검증했다'고 말할 수 없다.")
+    if out_of_scope:
+        print()
+        print(f"범위 밖 {len(out_of_scope)}개(참고용, 집계 제외): "
+              + ", ".join(r.dataset for r in out_of_scope))
+        print("→ 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. "
+              "실리콘 반도체 CMP 데이터가 필요하다.")
     return 0
 
 

@@ -6,6 +6,8 @@ source: >
   Table 2(인자수준표)와 Table 3(L16 결과, MRR[nm/min])을 그대로 옮겼다.
   회전수: 본문 §2.1 "the upper plane and lower plane rotated at 3.3 rpm and 10 rpm".
 
+# 재료계: 몰리브덴 금속 기판. 우리 팩은 Si 산화막용이라 범위 밖.
+in_scope: false
 used_for_calibration: false
 pack: oxide_silica
 

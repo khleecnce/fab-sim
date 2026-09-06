@@ -5,6 +5,8 @@ source: >
   Table 2(L9 배치)와 Table 3(결과, MRR nm/min)을 그대로 옮겼다.
   워크피스 회전수 20 r/min은 Table 1(SRP parameters)에서.
 
+# 재료계: 4H-SiC + 전단유동 연마(SRP). 연마 방식 자체가 회전식 CMP와 다르다. 범위 밖.
+in_scope: false
 used_for_calibration: false
 pack: oxide_silica
 

@@ -5,6 +5,9 @@ source: >
   doi:10.3390/ma16031148 — MDPI 오픈액세스, PMC9920658 전문 XML에서 Table 1(인자수준표)과
   Table 3(직교실험 결과)을 그대로 옮겼다. MRR 단위는 본문(“MRR was 194.20 nm/min”) 기준 nm/min.
 
+# 재료계: 석영유리 + CeO2-LaOF. 세리아라는 점은 맞지만 피연마재가 Si 산화막이 아니다.
+# 우리 sti_ceria 팩은 STI 산화막용이므로 범위 밖으로 둔다.
+in_scope: false
 used_for_calibration: false
 pack: sti_ceria
 
