@@ -34,3 +34,36 @@ A3. n≈-1.74, 문헌값 대비 상대오차 12~24%. 3개 데이터점으로 2�
 적합한 것이라 통계적 유의성이 낮고, 온도 의존 점탄성 연화 등 압력 외 변수가 섞였을
 가능성도 있어 **오더 수준의 정성적 일치**로만 받아들여야 한다(미검증 가설). (출처: 본
 노트 §4 python verify 블록 실행 결과)
+
+## Lv1-2 정상 마모율과 컨디셔닝 강도의 균형 (마모 = 재생)
+
+**출처**: Hong Shi, Terry A. Ring, "CMP pad wear and polish-rate decay modeled by
+asperity population balance with fluid effect", *Microelectronic Engineering* 87,
+2368-2375 (2010), DOI: 10.1016/j.mee.2010.04.010 (원문 전체 확보·직접 읽음);
+A. Scott Lawing, NCCAVS CMPUG 2004 발표자료(공개 PDF).
+
+**Q1. Lawing(2004)이 말하는 "정상상태(steady state)"란 어떤 두 프로세스의 균형인가,
+그 균형이 Cut Rate < Wear Rate 쪽으로 무너지면 무슨 현상이 일어나는가?**
+
+A1. 패드 마모(Pad Wear, 웨이퍼-패드 접촉에 의한 asperity 평탄화)와 컨디셔너 절삭
+(Conditioner Cut Rate, 다이아몬드 디스크가 patrol 표면을 깎아 intrinsic 구조를
+복원)의 균형이다. Cut Rate < Wear Rate이면 "Severe glazing"(과대마모=심한 유리화)이
+진행된다. (출처: 본 노트 §1, [[conditioning-mechanism-asperity-regeneration]] §1)
+
+**Q2. Shi & Ring(2010)이 컨디셔너를 끈 극한(B=D=0)에서 유체(슬러리) 효과를 포함한
+모델과 포함하지 않은 모델은 각각 pad-wafer 분리거리 d(t)의 장기 거동에서 어떤
+차이를 보이는가?**
+
+A2. 유체를 무시하면 d가 시간에 따라 0까지 계속 감소(패드가 무한정 마모)하는 반면,
+유체를 포함하면 d가 유한한 정상상태 d*로 수렴하고 그 지점에서 하중을 유체가 전담해
+asperity 마모가 정지한다(P_f(d*)=P_app, P_a(d*)=0). (출처: 본 노트 §2.3, Shi&Ring
+2010 p.9-10 직접 확인)
+
+**Q3. 본 노트 §4의 자체 검증 스크립트에서 계산된 정상상태 분리거리 d*는 얼마이며,
+이 수치를 실제 CMP 공정값으로 얼마나 신뢰할 수 있는가?**
+
+A3. Stein et al.(1996) 조건(D=0.15m, μ=0.0016 Pa·s, U=0.153 m/s, Papp=50kPa)에서
+d* ≈ 13550 nm(13.55 µm)이며, Pf(d*)=50.000 kPa로 Papp와 정확히 일치(항등식 자기
+무모순 확인). 그러나 이는 대수적 항등식 검증이지 독립 실측치 비교가 아니며, 절대값이
+문헌상 알려진 asperity 스케일(수십 nm~수 µm)보다 커서 물리적 타당성은 확인하지
+못했다 — 미검증. (출처: 본 노트 §4 python verify 블록 실행 결과)

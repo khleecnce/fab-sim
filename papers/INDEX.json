@@ -65,5 +65,23 @@
   "year": 2007,
   "journal": "IEEE Trans. Semicond. Manuf. 20(4), 464-475",
   "note": "유료(IEEE), 미러 사이트 확보. 사용자 지시 2026-09-05 반영."
+ },
+ "shi-ring-2010-cmp-pad-wear-polish-rate-decay-fluid": {
+  "src": "author open-access (my.che.utah.edu)",
+  "pdf_local": "papers/ring2010_polish_rate_decay_fluid.pdf",
+  "doi": "10.1016/j.mee.2010.04.010",
+  "title": "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect",
+  "authors": "Hong Shi, Terry A. Ring",
+  "venue": "Microelectronic Engineering 87, 2368-2375 (2010)",
+  "note": "materials/pad-conditioning-wear-regeneration-balance.md"
+ },
+ "pysher-goers-zabasajja-2010-diamond-pad-conditioner-design": {
+  "src": "3M open-access PDF",
+  "pdf_local": "papers/3m_diamond_conditioner_design.pdf",
+  "doi": "10.1557/proc-1249-e02-04",
+  "title": "Design, Characteristics and Performance of Diamond Pad Conditioners",
+  "authors": "Doug Pysher, Brian Goers, John Zabasajja",
+  "venue": "MRS Proceedings 1249 (2010)",
+  "note": "materials/pad-conditioning-wear-regeneration-balance.md (참고, 미인용 상세)"
  }
 }

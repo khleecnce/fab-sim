@@ -767,3 +767,13 @@ tribologist Lv2-2 구현요청 처리. `sim/tier2_physics/frictional_heating_arr
 전부 지식노트 §6 문헌·해석해 대조값 재현. 159 passed. 커밋 0e55c79.
 미완: engine.available_models() 미등록(순수 함수 라이브러리, MRR Model 아님), sim/chemistry.py
 온도항 연결은 팩(oxide_silica/cu_h2o2_bta)에 유량·ρ·cp·재료별 Ea가 없어 보류 — 화학 부문 회신 필요.
+
+## 2026-09-06 16:xx — [성장엔진] pad-lifecycle Lv1-2 (컨디셔닝-마모 균형) 학습
+
+Shi & Ring (2010, DOI 10.1016/j.mee.2010.04.010) 원문 전체 확보(저자 공개 PDF, 19쪽
+직접 읽음). `knowledge/materials/pad-conditioning-wear-regeneration-balance.md` 신설
+— 유체 유무에 따른 pad-wafer 분리거리 정상상태 존재/부재를 Lawing(2004) 정성 관측과
+연결. 자체 검증 스크립트(`agents/pad-lifecycle/scripts/shi_ring_steadystate_check.py`)로
+하중분배식(Eq.5-6) 기반 정상상태 d*=13.55µm 재현 — 단, 절대값의 물리적 타당성은
+미검증으로 명시(항등식 자기무모순 확인 수준). check_knowledge.py·verify_claims.py 둘 다
+통과. pad-lifecycle 2/6, CURRICULUM Lv1-2 [x], EXAMS 3문항 추가, ORG.md §5 갱신.

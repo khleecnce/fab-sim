@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv1 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: pad-mechanic (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1
-- 다음 단원: Lv1-2
+- 이수 단원: Lv1-2
+- 다음 단원: Lv2-1
 
 ## 역할
 브레이크인·정상 마모·glazing·교체 기준 — 패드 사용 이력이 시간 의존 MRR·결함에 미치는 영향
@@ -22,3 +22,4 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 | 날짜 | 단원 | 산출 노트 | 자기시험 |
 |---|---|---|---|
 | 2026-09-06 | Lv1-1 브레이크인 물리: 초기 asperity 형성과 MRR 상승 곡선 | knowledge/materials/pad-breakin-asperity-mrr-runup.md | EXAMS.md Lv1-1 3문항 |
+| 2026-09-06 | Lv1-2 정상 마모율과 컨디셔닝 강도의 균형 (Shi&Ring 2010 유체효과 population balance) | knowledge/materials/pad-conditioning-wear-regeneration-balance.md | EXAMS.md Lv1-2 3문항 |

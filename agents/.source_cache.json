@@ -222,5 +222,13 @@
  "doi:10.1149/MA2010-02/21/1479": {
   "ok": true,
   "msg": "Effects of CMP Pad Conditioner Properties and Performance on Polishing Pad, Process and Wa"
+ },
+ "doi:10.1016/j.mee.2010.04.010": {
+  "ok": true,
+  "msg": "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effec"
+ },
+ "doi:10.1557/proc-1249-e02-04": {
+  "ok": true,
+  "msg": "Design, Characteristics and Performance of Diamond Pad Conditioners"
  }
 }
