@@ -79,3 +79,35 @@ A. 검색 도구가 반환한 후보 논문들이 CMP 조도가 아닌 다른 �
 확보한 정량값은 SiC CMP에서 머신러닝 최적화 조건의 실험 검증 결과 Ra ≤ 0.13 nm(Wang et al.
 2026, Langmuir 42(3):2851-2866, DOI 10.1021/acs.langmuir.5c05695 — Crossref 서지 확인 +
 OpenAlex 초록 확인, 본문 전체는 미확보).
+
+## Lv2-2 패턴 지표 — dishing·erosion·step height·잔막·엣지 롤오프 (2026-09-07 이수)
+
+**Q1. "dishing 30 nm, erosion 20 nm"라는 보고를 받았을 때 반드시 되물어야 할 두 가지는 무엇이며, 왜 그런가?**
+A. (i) **기준면**: Park et al. 1998 VMIC는 dishing을 "최종 oxide면과 Cu 라인 최저점의 수직거리", erosion을
+"증착 oxide 두께 − CMP 후 oxide 두께"로 정의하지만, Pan et al. 1999 CMP-MIC(AMAT/MIT)는 field oxide loss를
+따로 뺀 뒤 "필드 oxide 표면 대비 함몰"로 정의한다. 두 정의의 차이가 field loss이므로 총손실 = field loss +
+erosion + dishing 항등식을 기준으로 셋을 다 보고해야 환산이 된다. (ii) **측정 구조물과 클리어 상태**: dishing은
+선폭, erosion은 밀도·oxide 스페이스에 지배되므로(Steigerwald 1994 초록, DOI 10.1149/1.2059241; Park 1998 break
+point ≈ oxide 스페이스 100 µm) 어떤 선폭/밀도 구조(예: ITRS 기준 "500 µm 정사각 어레이 50%", "100 µm 광폭선")
+에서 쟀는지, 그리고 클리어 전 잔여 스텝인지 클리어 후 dishing인지(Pan 1999) 없이는 수치가 무의미하다.
+(knowledge/cmp/pattern-metrics-dishing-erosion-stepheight.md §1, §4)
+
+**Q2. ITRS 2007 Interconnect 표의 "Cu thinning due to erosion" 행(2007년 12 nm → 2015년 5 nm)은 어떤 규칙으로
+만들어졌고, 이를 어떻게 확인했는가?**
+A. 행 이름 자체가 "10% × height, 50% area density, 500 µm square array"다. 배선높이 = 반피치(M1 pitch/2) × A/R
+이므로 0.1 × (136/2 × 1.7) = 11.6 → 12 nm(2007), 0.1 × (50/2 × 1.9) = 4.75 → 5 nm(2015). 노트 §6(A)에서 9개 연도
+전부를 같은 표의 pitch·A/R 행으로 계산해 최대 0.48 nm(정수 반올림 이내)로 재현했다. 즉 판정 기준의 실체는
+절대 nm가 아니라 "interconnect height의 10%"라는 비율 규칙 + 기준 구조물이다. 출처: ITRS 2007 Interconnect
+Table INTC2a(semiconductors.org PDF 원문 확인). 같은 표의 100 µm 광폭선 dishing 요구 24 nm(2007)는 Pan 1999
+실측 ≈500 Å(50 nm)의 절반 이하로, 8년간 요구치가 2배 강화됐음을 두 1차 문서로 대조했다(§6(E)).
+
+**Q3. 엣지 롤오프(ROA)를 "−400 nm"라고만 보고하면 왜 부족한가? 그리고 CMP에서 "엣지 롤오프"가 가리키는 두 개념은?**
+A. ROA는 반경 위 두 점(P1, P2)으로 기준선을 피팅하고 엣지 근처 P3와 기준선의 거리로 정의되는데(SEMI M77 스코프;
+특허 US10600634가 SEMI M69 2007 preliminary·Kimura 1999 JJAP를 원류로 인용), **기준점 규약이 출처마다 다르다**:
+US10600634은 300 mm에서 P1·P2 = 120·140 mm, P3 = 148 mm(98.7%; 변형 147/149 mm), Corning US9829310은 엣지에서
+3·6 mm. 노트 §6(D)에서 같은 합성 롤오프 프로파일에 두 규약을 적용하면 ROA가 −444 nm vs −111 nm로 4배 달랐다.
+따라서 P1/P2/P3 위치·기준선 차수(1차/3차)·front/back/thickness 중 무엇인지를 병기해야 한다(WIWNU 정의 병기와
+같은 교훈). 두 개념: (a) 웨이퍼 기하 지표(SEMI M77 ROA·M68 ZDD·M67 ESFQR — 폴리시드 기판의 엣지 형상), (b) CMP
+제거율 엣지 프로파일(리테이너링·멤브레인 압력 특이점으로 엣지 수 mm가 빠르거나 느리게 깎임 — Xie & Boning 2005
+MRS DOI 10.1557/proc-867-w5.1; Fukuda 2012 JJAP DOI 10.7567/jjap.51.05ef01은 (a)가 (b)에 미치는 영향을 다룸).
+스키마에서는 두 필드를 분리한다. 한계: SEMI 원문·ISO 5436-1 원문은 미확보(스코프·벤더 자료·특허 인용으로 2차 확인).
