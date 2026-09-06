@@ -1,0 +1,46 @@
+# 세리아 슬러리 STI — oxide:nitride 선택비가 핵심. 실리카 팩과 같은 산화막이지만
+# 연마 메커니즘이 다르다(Si-O-Ce 화학결합 "chemical tooth"). 같은 film, 다른 팩.
+base: oxide_silica
+description: "STI CMP: 세리아 슬러리, oxide:nitride 고선택비"
+
+params:
+  abrasive:
+    value: ceria
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: verified
+
+  kp_m_per_pa:
+    value: 2.2e-13
+    unit: m^2/N
+    note: >
+      ⚠ 세리아는 화학결합(Si-O-Ce) 기반이라 실리카보다 산화막 MRR이 높다.
+      Netzband 2020에서 H2O2 첨가 시 Ce3+ 증가로 MRR 5.5배 변화가 보고됐는데,
+      그건 조성 의존이라 단일 상수로 뭉뚱그린 이 값은 대표값일 뿐이다. 미재현.
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: estimated
+
+  slurry_ph:
+    value: 5.5
+    unit: pH
+    note: 세리아 IEP 6.8 부근 아래 — 약양전하로 실리카 표면(음전하) 정전인력
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: verified
+  abrasive_iep_ph:
+    value: 6.8
+    unit: pH
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: verified
+  abrasive_size_nm:
+    value: 80.0
+    unit: nm
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: estimated
+
+  oxide_nitride_selectivity:
+    value: 60.0
+    unit: "-"
+    note: >
+      Hwang 2024 실측 선택비 59~80 범위의 하단. 아미노산/계면활성제 첨가로 제어된다.
+      ⚠ 엔진은 아직 이 값을 쓰지 않는다 — nitride 정지층 모델(film-nitride) 미구현.
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: literature

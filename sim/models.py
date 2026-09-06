@@ -23,12 +23,12 @@ for _p in ("tier1_empirical", "tier2_physics", "integration"):
     if _d not in sys.path:
         sys.path.insert(0, _d)
 
-from sim.engine import Recipe, register, PSI_TO_PA  # noqa: E402
+from sim.engine import Recipe, ResolvedRecipe, register, PSI_TO_PA  # noqa: E402
 from sim.tier1_empirical import kinematics as kin  # noqa: E402
 from sim.tier1_empirical import wiwnu  # noqa: E402
 
 
-def _velocity_profile(recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+def _velocity_profile(recipe: ResolvedRecipe, radius_m: np.ndarray) -> np.ndarray:
     """반경별 상대속도 [m/s] — 자전 평균. 근거: knowledge/physics/cmp-kinematics-rotary"""
     w_w = kin.rpm_to_rads(recipe.rpm_wafer)
     w_p = kin.rpm_to_rads(recipe.rpm_platen)
@@ -43,7 +43,7 @@ def _velocity_profile(recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
     return out
 
 
-def _pressure_profile(recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+def _pressure_profile(recipe: ResolvedRecipe, radius_m: np.ndarray) -> np.ndarray:
     """반경별 압력 [Pa]. 존압력 지정 시 그것을, 아니면 균일+엣지집중."""
     P0 = recipe.pressure_psi * PSI_TO_PA
     rn = radius_m / max(recipe.wafer_radius_m, 1e-9)
@@ -79,16 +79,32 @@ class GWPhysicalKpModel:
     def __init__(self, kp_ref: Optional[float] = None):
         self.kp_ref = kp_ref
 
-    def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def _pad_params(recipe: ResolvedRecipe) -> dict:
+        """패드 물성을 팩에서 읽어 물리 모듈 인자로 넘긴다.
+
+        이게 "팩을 바꾸면 다른 시뮬레이션"의 실제 배선이다. 팩에 pad_*가 없으면
+        ParamMissing으로 죽는다 — 조용히 IC1000 기본값을 쓰면 결과가 거짓말이 된다.
+        """
+        return {
+            "E_star": recipe.p("pad_E_star_pa"),
+            "R": recipe.p("pad_asperity_radius_m"),
+            "beta": 1.0 / recipe.p("pad_height_beta_inv_m"),
+            "eta": recipe.p("pad_asperity_density_m2"),
+            "A_n": recipe.p("pad_nominal_area_m2"),
+        }
+
+    def mrr_radial(self, recipe: ResolvedRecipe, radius_m: np.ndarray) -> np.ndarray:
         import gw_preston_link as gpl
         P = _pressure_profile(recipe, radius_m)
         V = _velocity_profile(recipe, radius_m)
         kp = self.kp_ref if self.kp_ref is not None else recipe.kp_m_per_pa
+        pad = self._pad_params(recipe)
         # 기준점(면적평균)에서 alpha 역산 → 반경별 n_contacts로 MRR 분포
         P_ref = float(np.mean(P))
         V_ref = float(np.mean(V))
-        alpha = gpl.calibrate_alpha_removal(P_ref, V_ref, kp)
-        return np.array([gpl.mrr_gw_link(p, v, alpha) for p, v in zip(P, V)])
+        alpha = gpl.calibrate_alpha_removal(P_ref, V_ref, kp, **pad)
+        return np.array([gpl.mrr_gw_link(p, v, alpha, **pad) for p, v in zip(P, V)])
 
 
 # ────────────────────────────────────────────── Tier2: 패드 마모 시간 이력
@@ -114,10 +130,10 @@ class WearAwareModel:
     """
     name = "tier2.wear_aware"
 
-    def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+    def mrr_radial(self, recipe: ResolvedRecipe, radius_m: np.ndarray) -> np.ndarray:
         return GWPhysicalKpModel().mrr_radial(recipe, radius_m)
 
-    def notes(self, recipe: Recipe) -> List[str]:
+    def notes(self, recipe: ResolvedRecipe) -> List[str]:
         hours = float(recipe.meta.get("pad_hours", 0) or 0)
         if hours <= 0:
             return []
@@ -146,7 +162,7 @@ class PatternDensityModel:
     name = "tier1.pattern_density"
     RHO_MIN = 0.15   # 이 아래는 1/rho 발산 — 비압축 극한이 깨진다
 
-    def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+    def mrr_radial(self, recipe: ResolvedRecipe, radius_m: np.ndarray) -> np.ndarray:
         base = GWPhysicalKpModel().mrr_radial(recipe, radius_m)
         if recipe.wafer != "PTW":
             return base
@@ -154,7 +170,7 @@ class PatternDensityModel:
         rho = min(max(rho, self.RHO_MIN), 1.0)
         return base / rho
 
-    def notes(self, recipe: Recipe) -> List[str]:
+    def notes(self, recipe: ResolvedRecipe) -> List[str]:
         if recipe.wafer != "PTW":
             return ["NPW: 패턴 효과 없음 — 블랭킷 등가로 계산"]
         rho = float(recipe.meta.get("pattern_density", 0.5) or 0.5)

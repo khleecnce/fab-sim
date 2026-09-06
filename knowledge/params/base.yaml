@@ -1,0 +1,141 @@
+# 공통 베이스 — 장비·패드·접촉역학. 막질/슬러리와 무관한 것만 여기 둔다.
+#
+# 이 파일이 존재하는 이유: 이 값들은 원래 sim/tier2_physics/*.py 에 하드코딩돼 있었다
+# (_E_STAR=1e9, _R=5e-6, _BETA=1/0.3e-6, _ETA=1e11 ...). 코드를 고쳐야만 다른 조건을
+# 돌릴 수 있었다는 뜻이다. 이제 팩을 바꾸면 된다.
+#
+# confidence 표기:
+#   verified   — 코드로 재현·검증 완료 (지식노트 verify 블록 PASS)
+#   literature — 논문/표준 인용값, 우리가 재현하진 않음
+#   estimated  — 문헌 범위에서 고른 대표값. 실제 툴마다 다르다
+#   unverified — 출처 불충분. 결과에 경고로 딸려 나간다
+
+description: "공통 베이스 — 300mm 로터리 CMP 툴, IC1000류 PU 패드, 산화막 기준"
+
+params:
+  # ── 웨이퍼/툴 기하 ──────────────────────────────────────
+  wafer_radius_m:
+    value: 0.150
+    unit: m
+    source: SEMI M1 (300mm 표준)
+    confidence: literature
+  center_offset_m:
+    value: 0.180
+    unit: m
+    note: r_cc 웨이퍼중심-플래튼중심 거리. 툴마다 다름
+    source: knowledge/physics/cmp-kinematics-rotary.md
+    confidence: estimated
+
+  # ── 패드 표면 통계 (GW 접촉역학) ────────────────────────
+  # 원래 위치: sim/tier2_physics/gw_preston_link.py 의 _E_STAR/_R/_BETA/_ETA/_A_N
+  pad_E_star_pa:
+    value: 1.0e9
+    unit: Pa
+    note: 등가 탄성계수 E*. PU 패드 ~1 GPa 오더
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+  pad_asperity_radius_m:
+    value: 5.0e-6
+    unit: m
+    note: asperity 곡률반경 R
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+  pad_height_beta_inv_m:
+    value: 0.3e-6
+    unit: m
+    note: asperity 높이 지수분포 스케일 1/beta (= 표면조도 척도)
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+  pad_asperity_density_m2:
+    value: 1.0e11
+    unit: 1/m^2
+    note: 단위면적당 asperity 수 eta
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+  pad_nominal_area_m2:
+    value: 1.0e-4
+    unit: m^2
+    note: 명목 접촉면적 A_n (1 cm^2 기준 셀)
+    source: knowledge/materials/gw-nominal-vs-local-pressure.md
+    confidence: literature
+
+  # ── 패드 마모/컨디셔닝 ──────────────────────────────────
+  # 원래 위치: conditioner_pcr_decay.py / conditioner_asperity_distribution.py
+  pad_pcr_anchor_hours:
+    value: 50.0
+    unit: h
+    source: Entegris 기술자료 (PCR 감쇠 앵커점)
+    confidence: literature
+  pad_pcr_anchor_ratio:
+    value: 0.16
+    unit: "-"
+    note: 50h 후 PCR/PCR0
+    source: Entegris 기술자료
+    confidence: literature
+  pad_sigma0_m:
+    value: 8.112e-6
+    unit: m
+    note: 초기 asperity 높이 표준편차. Lv3-1 노트 Table1 실측
+    source: knowledge/equipment/conditioner-disk-pad-cutting-model.md
+    confidence: literature
+  pad_wear_half_life_h:
+    value: 48.0
+    unit: h
+    source: knowledge/materials/pad-wear-glazing-mrr-decay.md
+    confidence: estimated
+
+  # ── 윤활/마찰 (Stribeck) ────────────────────────────────
+  # 원래 위치: cmp_lubrication_regime.py 의 cof_stribeck 기본인자
+  cof_boundary:
+    value: 0.30
+    unit: "-"
+    note: 경계윤활 영역 마찰계수 mu_bl
+    source: knowledge/physics/tribology-friction-wear-stribeck.md
+    confidence: literature
+  cof_hydro_coeff:
+    value: 8.0
+    unit: "-"
+    source: knowledge/physics/cmp-lubrication-regimes.md
+    confidence: estimated
+  cof_transition_alpha:
+    value: 40.0
+    unit: "-"
+    source: knowledge/physics/cmp-lubrication-regimes.md
+    confidence: estimated
+
+  # ── 공정 기본 조건 ──────────────────────────────────────
+  pressure_psi:
+    value: 3.0
+    unit: psi
+    note: 대표 다운포스. 20.7 kPa
+    source: knowledge/cmp/cmp-tool-architecture.md
+    confidence: literature
+  rpm_wafer:
+    value: 60.0
+    unit: rpm
+    source: knowledge/cmp/cmp-tool-architecture.md
+    confidence: literature
+  rpm_platen:
+    value: 55.0
+    unit: rpm
+    source: knowledge/cmp/cmp-tool-architecture.md
+    confidence: literature
+  relative_velocity_ref_mps:
+    value: 0.75
+    unit: m/s
+    note: 0.5~1 m/s 대표값
+    source: knowledge/physics/cmp-kinematics-rotary.md
+    confidence: literature
+
+  # ── 계측 ────────────────────────────────────────────────
+  n_points:
+    value: 81
+    unit: "-"
+    note: 웨이퍼 전체 81포인트 측정 (사용자 실무 기준)
+    source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+    confidence: verified
+  edge_exclusion_m:
+    value: 0.003
+    unit: m
+    source: knowledge/cmp/wafer-metrology-thickness-methods.md
+    confidence: literature

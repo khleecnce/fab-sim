@@ -32,7 +32,8 @@ if _TIER1_DIR not in sys.path:
     sys.path.insert(0, _TIER1_DIR)
 
 import sim.models  # noqa: E402  — import 시 tier2.gw_physical_kp 등 모델 자동등록
-from sim.engine import Recipe, simulate, available_models  # noqa: E402
+from sim.engine import Recipe, simulate, available_models
+from sim.params import available_packs, load_pack  # noqa: E402
 
 from process_time import endpoint_time, removed_thickness  # noqa: E402  — tab1 시간축 전용, 아래 주석 참고
 from wiwnu import p_uniform, p_edge_concentration  # noqa: E402
@@ -59,15 +60,27 @@ with tab1:
         "모델", model_names, index=model_names.index(default_model),
         help="tier2.gw_physical_kp = GW 접촉역학에서 Kp를 유도(기본, 가장 물리적 근거 있음)",
     )
+    # 팩이 물성(막질·슬러리·패드)을 소유한다 — film 드롭다운을 대체한다.
+    # 예전엔 film을 골라도 Kp가 그대로라 아무것도 안 바뀌었다(거짓 UI).
+    pack_name = st.sidebar.selectbox(
+        "파라미터 팩 (물성)", available_packs(),
+        index=available_packs().index("oxide_silica") if "oxide_silica" in available_packs() else 0,
+        help="막질·슬러리·패드 물성 묶음. knowledge/params/*.yaml — 여기를 바꾸면 다른 공정이 된다",
+    )
+    _pk = load_pack(pack_name)
+    st.sidebar.caption(f"{_pk.description}\n\n상속: {' → '.join(_pk.lineage)}")
     wafer_type = st.sidebar.selectbox("wafer 타입", ["NPW", "PTW"])
-    film = st.sidebar.selectbox("film", ["oxide", "nitride", "poly", "cu", "w"])
+    film = None   # 팩이 결정
     R_w_mm = st.sidebar.slider("웨이퍼 반경 R_w (mm)", 50.0, 300.0, 150.0, step=1.0)
     r_cc_mm = st.sidebar.slider("회전축 간 거리 r_cc (mm)", 50.0, 400.0, 200.0, step=1.0)
     rpm_w = st.sidebar.slider("RPM (웨이퍼)", 1.0, 200.0, 60.0, step=1.0)
     rpm_p = st.sidebar.slider("RPM (패드)", 1.0, 200.0, 60.0, step=1.0)
+    _kp_pack = float(_pk.get("kp_m_per_pa"))
     kp = st.sidebar.number_input(
-        "Kp (Preston 계수, m^2/N)", min_value=1e-15, max_value=1e-10,
-        value=1e-13, step=1e-14, format="%.2e",
+        f"Kp (Preston 계수, m^2/N) — 팩값 {_kp_pack:.2e}",
+        min_value=1e-15, max_value=1e-10,
+        value=_kp_pack, step=1e-14, format="%.2e",
+        help="팩의 값이 기본으로 들어온다. 손대면 이번 런만 덮어쓴다",
     )
     time_s = st.sidebar.slider("공정시간 time_s (s)", 1.0, 300.0, 60.0, step=1.0)
 
@@ -95,6 +108,7 @@ with tab1:
         P_kpa = st.sidebar.slider("압력 P (kPa)", 1.0, 100.0, 20.7, step=0.1)
 
     recipe = Recipe(
+        pack=pack_name,
         wafer=wafer_type, film=film, wafer_radius_m=R_w,
         pressure_psi=P_kpa * PSI_PER_KPA, rpm_wafer=rpm_w, rpm_platen=rpm_p,
         center_offset_m=r_cc, zone_pressures_psi=zone_pressures_psi,

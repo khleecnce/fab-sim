@@ -54,9 +54,20 @@ def test_remaining_and_overpolish_note():
 
 
 def test_ptw_and_film_notes_are_honest():
-    res = simulate(Recipe(wafer="PTW", film="cu"))
+    """모르는 것을 모른다고 말하는지.
+
+    ⚠ 2026-09-06 파라미터 팩 도입으로 이 테스트의 의미가 하나 바뀌었다.
+    예전에는 film='cu'로 돌려도 산화막 Kp를 그대로 써서 "막질별 Kp 미분화"라고
+    경고했다. 이제는 팩(cu_h2o2_bta)이 Cu Kp를 실제로 갖고 있으므로 그 경고는
+    사실이 아니다 — 대신 그 값이 estimated(미재현)라는 경고가 나와야 한다.
+    """
+    res = simulate(Recipe(pack="cu_h2o2_bta", wafer="PTW"))
     assert res.dishing_nm is None and res.metal_contamination is None
-    assert any("PTW" in n for n in res.notes) and any("film=cu" in n for n in res.notes)
+    assert any("PTW" in n for n in res.notes)
+    # 막질은 팩이 정한다 — 레시피에 안 써도 cu가 되어야 한다
+    assert res.film == "cu"
+    # Cu Kp는 문헌 역산(estimated)이므로 정직하게 미검증 경고가 붙어야 한다
+    assert any("미검증" in n and "kp_m_per_pa" in n for n in res.notes), res.notes
 
 
 def test_metric_definitions():

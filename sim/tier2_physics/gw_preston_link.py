@@ -52,6 +52,11 @@ from kinematics import rpm_to_rads
 
 
 # 공통 GW 파라미터 (gw_contact.py/gw_pressure_solve.py self-test와 동일 오더, 지식노트 §4 근거)
+#
+# ⚠ 이 값들은 **기본값일 뿐 진실이 아니다.** 2026-09-06부터 파라미터 팩
+# (knowledge/params/*.yaml)이 실제 소유자이고, 엔진은 pad_* 키를 읽어 아래 함수들의
+# 인자로 주입한다. 여기 남은 상수는 이 파일을 단독 실행(self-test)할 때만 쓰인다.
+# 다른 패드를 쓰고 싶으면 이 파일이 아니라 팩을 고쳐라.
 _E_STAR = 1e9
 _R = 5e-6
 _BETA = 1.0 / 0.3e-6
@@ -59,9 +64,17 @@ _ETA = 1e11
 _A_N = 1e-4  # 1 cm^2
 
 
-def n_contacts_at(P_pa):
-    """명목압력 P에서 GW 접촉점수 n(P). local_contact_state 얇은 래퍼."""
-    r = local_contact_state(P_pa, _A_N, _BETA, _ETA, _E_STAR, _R)
+def n_contacts_at(P_pa, E_star=None, R=None, beta=None, eta=None, A_n=None):
+    """명목압력 P에서 GW 접촉점수 n(P). local_contact_state 얇은 래퍼.
+
+    패드 물성을 인자로 받는다(None이면 모듈 기본값) — 팩이 다른 패드를 물릴 수 있게.
+    """
+    r = local_contact_state(P_pa,
+                            _A_N if A_n is None else A_n,
+                            _BETA if beta is None else beta,
+                            _ETA if eta is None else eta,
+                            _E_STAR if E_star is None else E_star,
+                            _R if R is None else R)
     return r["n_contacts"]
 
 
@@ -74,9 +87,9 @@ def linear_fit_slope(P_list, n_list):
     return slope, intercept
 
 
-def mrr_gw_link(P_pa, V_mps, alpha_removal):
+def mrr_gw_link(P_pa, V_mps, alpha_removal, **pad):
     """GW-link 모델: MRR = alpha_removal * n_contacts(P) * V."""
-    return alpha_removal * n_contacts_at(P_pa) * V_mps
+    return alpha_removal * n_contacts_at(P_pa, **pad) * V_mps
 
 
 def mrr_preston_direct(P_pa, V_mps, kp):
@@ -84,10 +97,10 @@ def mrr_preston_direct(P_pa, V_mps, kp):
     return kp * P_pa * V_mps
 
 
-def calibrate_alpha_removal(P_ref_pa, V_ref_mps, kp_lit):
+def calibrate_alpha_removal(P_ref_pa, V_ref_mps, kp_lit, **pad):
     """문헌 캘리브레이션점(P_ref, Kp_lit)에서 alpha_removal 역산."""
     mrr_ref = mrr_preston_direct(P_ref_pa, V_ref_mps, kp_lit)
-    n_ref = n_contacts_at(P_ref_pa)
+    n_ref = n_contacts_at(P_ref_pa, **pad)
     return mrr_ref / (n_ref * V_ref_mps)
 
 

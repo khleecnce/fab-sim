@@ -36,6 +36,7 @@ if str(_ROOT.parent) not in sys.path:
     sys.path.insert(0, str(_ROOT.parent))
 
 from sim.metrics.uniformity import compute_metrics, UniformityMetrics  # noqa: E402
+from sim.params import ParamPack, load_pack, available_packs  # noqa: E402
 
 PSI_TO_PA = 6894.757
 
@@ -43,29 +44,104 @@ PSI_TO_PA = 6894.757
 # ───────────────────────────────────────────────────────────── 입력 스키마
 @dataclass
 class Recipe:
-    """한 번의 CMP 런을 정의하는 모든 입력. 각 필드의 소유 에이전트를 주석으로 남긴다."""
+    """한 번의 CMP 런을 정의하는 모든 입력. 각 필드의 소유 에이전트를 주석으로 남긴다.
+
+    ⚠ 물리 상수는 여기가 아니라 **파라미터 팩**(knowledge/params/*.yaml)이 소유한다.
+      Recipe는 "이번 런에 사람이 정하는 것"(압력·rpm·시간)만 담는다.
+      기본값 None인 필드는 팩에서 채워진다 — from_pack()이 그 일을 한다.
+      이렇게 나눠야 "팩만 바꿔서 Cu를 돌린다"가 성립한다.
+    """
+    # 어떤 물성 묶음으로 돌릴 것인가 — 이 한 줄이 시뮬레이션의 정체성이다
+    pack: str = "oxide_silica"
     # wafer-type / film-*
     wafer: Literal["NPW", "PTW"] = "NPW"
-    film: Literal["oxide", "nitride", "poly", "cu", "w"] = "oxide"
-    wafer_radius_m: float = 0.150
+    film: Optional[str] = None              # None이면 팩의 film
+    wafer_radius_m: Optional[float] = None
     # tool-platen-head
-    pressure_psi: float = 3.0
-    rpm_wafer: float = 60.0
-    rpm_platen: float = 55.0
-    center_offset_m: float = 0.180          # r_cc: 웨이퍼 중심–플래튼 중심 거리
+    pressure_psi: Optional[float] = None
+    rpm_wafer: Optional[float] = None
+    rpm_platen: Optional[float] = None
+    center_offset_m: Optional[float] = None     # r_cc: 웨이퍼 중심–플래튼 중심 거리
     zone_pressures_psi: Optional[List[float]] = None   # 멀티존 헤드. None=균일
     zone_edges_norm: Optional[List[float]] = None      # 존 경계 (0~1, 정규화 반경)
     edge_pressure_amp: float = 0.0          # 엣지 압력 집중 진폭 (0=없음)
     time_s: float = 60.0
-    # slurry-* / pad-* / disk-* — 지금은 유효 Preston 계수 하나로 뭉뚱그림. tier2 연결 시 분해된다.
-    kp_m_per_pa: float = 1.6e-13
+    # slurry-* / pad-* / disk-* — 팩이 소유. None이면 팩값
+    kp_m_per_pa: Optional[float] = None
     # wafer-metrology — 측정 체계
-    n_points: int = 81
-    edge_exclusion_m: float = 0.003
+    n_points: Optional[int] = None
+    edge_exclusion_m: Optional[float] = None
     # 초기 두께 (잔막 계산용). None이면 제거량만 보고
     initial_thickness_nm: Optional[float] = None
     # 자유 확장 (캘리브레이션 태그, 로트 ID 등)
     meta: Dict[str, str] = field(default_factory=dict)
+
+    # 팩에서 채워야 하는 필드 → 팩의 키 이름
+    _FROM_PACK = {
+        "film": "film", "wafer_radius_m": "wafer_radius_m",
+        "pressure_psi": "pressure_psi", "rpm_wafer": "rpm_wafer",
+        "rpm_platen": "rpm_platen", "center_offset_m": "center_offset_m",
+        "kp_m_per_pa": "kp_m_per_pa", "n_points": "n_points",
+        "edge_exclusion_m": "edge_exclusion_m",
+    }
+
+    def resolve(self) -> "ResolvedRecipe":
+        """팩을 읽어 빈 필드를 채운다. 없는 값은 KeyError로 즉시 실패한다.
+
+        조용한 기본값을 쓰지 않는 게 핵심이다 — Cu 팩을 돌렸는데 산화막 Kp가
+        말없이 쓰이면 결과 전체가 거짓말이 된다.
+        """
+        pk = load_pack(self.pack)
+        vals = {}
+        used: List[str] = []
+        for attr, key in self._FROM_PACK.items():
+            cur = getattr(self, attr)
+            if cur is None:
+                vals[attr] = pk.get(key)     # 없으면 ParamMissing
+                used.append(key)
+            else:
+                vals[attr] = cur
+        return ResolvedRecipe(base=self, pack=pk, used_keys=used, **vals)
+
+
+@dataclass
+class ResolvedRecipe:
+    """팩으로 빈칸을 채운 뒤의 레시피 — 모델은 이것만 본다(전부 non-None)."""
+    base: Recipe
+    pack: ParamPack
+    used_keys: List[str]
+    film: str
+    wafer_radius_m: float
+    pressure_psi: float
+    rpm_wafer: float
+    rpm_platen: float
+    center_offset_m: float
+    kp_m_per_pa: float
+    n_points: int
+    edge_exclusion_m: float
+
+    # 팩에 없는(사람이 정하는) 필드는 원본에서 그대로 위임
+    @property
+    def wafer(self) -> str: return self.base.wafer
+    @property
+    def time_s(self) -> float: return self.base.time_s
+    @property
+    def zone_pressures_psi(self): return self.base.zone_pressures_psi
+    @property
+    def zone_edges_norm(self): return self.base.zone_edges_norm
+    @property
+    def edge_pressure_amp(self) -> float: return self.base.edge_pressure_amp
+    @property
+    def initial_thickness_nm(self): return self.base.initial_thickness_nm
+    @property
+    def meta(self) -> Dict[str, str]: return self.base.meta
+
+    def p(self, key: str):
+        """팩 값 직접 조회 — 모델이 추가 물성을 필요로 할 때."""
+        v = self.pack.get(key)
+        if key not in self.used_keys:
+            self.used_keys.append(key)
+        return v
 
 
 # ───────────────────────────────────────────────────────────── 출력 스키마
@@ -85,11 +161,16 @@ class WaferResult:
     defect_density: Optional[float] = None         # defect-scientist
     model: str = ""
     notes: List[str] = field(default_factory=list)
+    # 이 결과가 어떤 물성에서 나왔나 — 숫자의 출처 추적
+    pack: str = ""
+    film: str = ""
+    provenance: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
     def summary(self) -> Dict:
         m = self.metrics
         return {
-            "model": self.model, "wafer": self.recipe.wafer, "film": self.recipe.film,
+            "model": self.model, "pack": self.pack,
+            "wafer": self.recipe.wafer, "film": self.film,
             "mean_mrr_nm_min": float(np.mean(self.mrr_nm_per_min)),
             "ttv_nm": m.ttv_nm, "radial_range_pct": m.radial_range_pct,
             "radial_maxring_range_nm": m.radial_maxring_range_nm, "cv_pct": m.cv_pct,
@@ -103,17 +184,17 @@ class WaferResult:
 # ───────────────────────────────────────────────────────────── 모델 등록
 class Model(Protocol):
     name: str
-    def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray: ...
+    def mrr_radial(self, recipe: "ResolvedRecipe", radius_m: np.ndarray) -> np.ndarray: ...
     # 선택: 모델이 자기 한계를 스스로 보고한다(미해결 물리·미검증 가정).
     # 구현하지 않아도 되지만, 아는 한계를 숨기면 그게 할루시네이션이다.
-    def notes(self, recipe: Recipe) -> List[str]: ...
+    def notes(self, recipe: "ResolvedRecipe") -> List[str]: ...
 
 
 class PrestonRadialModel:
     """Tier1: Preston MRR = Kp·P·V, V는 kinematics.py 상대속도장의 자전 평균. 압력은 wiwnu.py 프로파일."""
     name = "tier1.preston_radial"
 
-    def mrr_radial(self, recipe: Recipe, radius_m: np.ndarray) -> np.ndarray:
+    def mrr_radial(self, recipe: "ResolvedRecipe", radius_m: np.ndarray) -> np.ndarray:
         import wiwnu as W            # sim/tier1_empirical/wiwnu.py (1바이트도 수정 안 함)
         p0 = recipe.pressure_psi * PSI_TO_PA
         if recipe.zone_pressures_psi:
@@ -150,33 +231,49 @@ register(PrestonRadialModel())
 
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
+    """레시피를 팩으로 해석한 뒤 실행한다.
+
+    핵심 순서: resolve()가 먼저다. 팩에 없는 물성을 요구하면 여기서 KeyError로
+    죽는다 — 조용히 기본값을 쓰고 그럴듯한 숫자를 뱉는 것보다 낫다.
+    """
     if model not in _MODELS:
         raise KeyError(f"등록되지 않은 모델: {model}. 사용 가능: {list(_MODELS)}")
+    rr = recipe.resolve()          # ← 팩 해석. 여기가 이 설계의 전부다.
     notes: List[str] = []
-    r_max = recipe.wafer_radius_m - recipe.edge_exclusion_m
-    radius = np.linspace(0.0, r_max, recipe.n_points)
+    r_max = rr.wafer_radius_m - rr.edge_exclusion_m
+    radius = np.linspace(0.0, r_max, rr.n_points)
     impl = _MODELS[model]
-    mrr_m_s = impl.mrr_radial(recipe, radius)
+    mrr_m_s = impl.mrr_radial(rr, radius)
     # 모델이 스스로 한계를 보고할 기회 — 지어내지 않고 모르는 것을 드러낸다
     if hasattr(impl, "notes"):
-        notes.extend(impl.notes(recipe))  # type: ignore[attr-defined]
+        notes.extend(impl.notes(rr))  # type: ignore[attr-defined]
     mrr_nm_min = mrr_m_s * 1e9 * 60.0
-    removed = mrr_nm_min * (recipe.time_s / 60.0)
+    removed = mrr_nm_min * (rr.time_s / 60.0)
     remaining = None
-    if recipe.initial_thickness_nm is not None:
-        remaining = recipe.initial_thickness_nm - removed
+    if rr.initial_thickness_nm is not None:
+        remaining = rr.initial_thickness_nm - removed
         if np.any(remaining < 0):
             notes.append("잔막 음수 — 오버폴리시. time_s 또는 initial_thickness 확인")
-    if recipe.wafer == "PTW" and model != "tier1.pattern_density":
+    if rr.wafer == "PTW" and model != "tier1.pattern_density":
         notes.append("PTW인데 패턴 모델을 쓰지 않았다 — model='tier1.pattern_density'로 실행하라. "
                      "지금 값은 NPW 등가")
-    if recipe.film != "oxide":
-        notes.append(f"film={recipe.film}: 막질별 Kp 미분화 — film-{recipe.film} 에이전트 활성 후 반영. 지금은 kp_m_per_pa 그대로")
+    # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
+    # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
+    weak = [k for k in rr.used_keys
+            if rr.pack.has(k) and rr.pack.param(k).confidence in
+            ("estimated", "unverified", "unknown")]
+    if weak:
+        notes.append(
+            f"⚠ 미검증 물성 사용: {', '.join(sorted(weak))} "
+            f"(팩 '{rr.pack.name}'). 절대값을 신뢰하지 말고 경향만 보라. "
+            f"해결: 실데이터 캘리브레이션.")
     metrics = compute_metrics(radius, removed if remaining is None else remaining,
-                              n_points=recipe.n_points)
+                              n_points=rr.n_points)
     return WaferResult(recipe=recipe, radius_m=radius, mrr_nm_per_min=mrr_nm_min,
                        removed_nm=removed, remaining_nm=remaining, metrics=metrics,
-                       model=model, notes=notes)
+                       model=model, notes=notes,
+                       pack=rr.pack.name, film=rr.film,
+                       provenance=rr.pack.provenance(rr.used_keys))
 
 
 def available_models() -> List[str]:
@@ -185,7 +282,10 @@ def available_models() -> List[str]:
 
 if __name__ == "__main__":
     import json
-    r = Recipe(pressure_psi=3.0, rpm_wafer=60, rpm_platen=55, time_s=60,
-               initial_thickness_nm=800.0, edge_pressure_amp=0.15)
-    res = simulate(r)
-    print(json.dumps(res.summary(), ensure_ascii=False, indent=2))
+    # 같은 엔진·같은 조건에 팩만 갈아끼운다 — 이게 이 설계의 목적이다
+    for pack in ("oxide_silica", "sti_ceria", "cu_h2o2_bta"):
+        r = Recipe(pack=pack, time_s=60, initial_thickness_nm=800.0, edge_pressure_amp=0.15)
+        res = simulate(r)
+        s = res.summary()
+        print(f"[{pack:14s}] film={s['film']:6s} "
+              f"MRR={s['mean_mrr_nm_min']:7.1f} nm/min  TTV={s['ttv_nm']:6.1f} nm")

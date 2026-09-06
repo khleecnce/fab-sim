@@ -7,6 +7,48 @@
 규칙: 모든 모델은 문헌 재현값 테스트 동반.
 실행: `source .venv/bin/activate` 후 각 모듈을 `python3 <파일>` 로 직접 실행하면 self-test가 돈다.
 
+## 파라미터 팩 — 껍데기(코드)와 내용(물성)의 분리
+
+**엔진은 물리 상수를 갖고 있지 않다.** 막질·슬러리·패드 물성은 전부
+`knowledge/params/*.yaml`(파라미터 팩)이 소유하고, 엔진은 팩 이름을 받아 읽는다.
+
+```bash
+python -m sim.cli --list-packs                    # 어떤 조건들이 있나
+python -m sim.cli --pack cu_h2o2_bta --time 60    # Cu CMP
+python -m sim.cli --pack w_fe_oxidizer --time 60  # W CMP — 코드 동일
+```
+
+새 공정을 추가하는 방법은 **YAML 한 장을 쓰는 것**이지 파이썬을 고치는 게 아니다.
+`w_fe_oxidizer.yaml`이 그 증거다 — sim/ 코드를 한 줄도 안 고치고 추가했다.
+
+### 팩의 규약
+
+```yaml
+base: oxide_silica          # 상속 (base → oxide_silica → 이 팩)
+description: "..."
+params:
+  kp_m_per_pa:
+    value: 3.5e-13
+    unit: m^2/N
+    source: knowledge/cmp/...md   # 필수 — 근거 없는 숫자 금지
+    confidence: estimated          # verified|literature|estimated|unverified
+    note: "왜 이 값인지, 무엇이 불확실한지"
+```
+
+- **없는 값은 지어내지 않는다.** 팩에 없는 물성을 요구하면 `ParamMissing`으로
+  즉시 죽는다. Cu 팩을 돌렸는데 산화막 Kp가 조용히 쓰이면 결과 전체가 거짓말이다.
+- **쓰인 값의 신뢰도가 결과에 따라 나온다.** `confidence`가 verified가 아닌 값을
+  쓰면 `WaferResult.notes`에 ⚠ 경고가, `provenance`에 출처가 실린다.
+- **⚠ YAML 1.1 함정**: `1.0e11`처럼 지수부에 부호가 없으면 YAML이 **문자열**로
+  파싱한다. `sim/params.py`의 `_coerce_number()`가 정규화하고
+  `test_numeric_params_are_numbers_not_strings`가 회귀를 막는다. 이걸 놓치면
+  `can't multiply sequence by non-int`라는 엉뚱한 자리에서 터진다(실제 발생).
+
+### 레시피 vs 팩
+
+`Recipe`는 **사람이 이번 런에 정하는 것**(압력·rpm·시간·존압력)만 담는다.
+물성 필드를 `None`으로 두면 팩이 채우고, 명시하면 그 값이 팩을 덮어쓴다.
+
 ## 테스트 실행법
 
 각 모듈의 self-test(위 방식)와는 별도로, `tests/`에 pytest 기반 회귀 테스트 하네스가

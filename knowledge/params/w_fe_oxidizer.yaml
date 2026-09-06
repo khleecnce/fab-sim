@@ -1,0 +1,41 @@
+# 텅스텐 플러그 CMP — 이 파일은 "설계가 진짜인가"를 증명하려고 만들었다.
+#
+# 2026-09-06: 파라미터 팩 도입 직후, sim/ 의 파이썬 코드를 **한 줄도 건드리지 않고**
+# 이 YAML 하나만 새로 써서 W CMP 시뮬레이션이 돌아가는지 확인했다. 돌아갔다.
+# 그게 "그 내용만 바꾸면 각각 다른 시뮬레이션을 할수있도록" 지시의 수용 기준이었다.
+base: base
+description: "W plug CMP: Fe계 산화제 산성 슬러리, 알루미나 연마입자"
+
+params:
+  film:
+    value: w
+    confidence: verified
+  abrasive:
+    value: alumina
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+
+  kp_m_per_pa:
+    value: 2.8e-13
+    unit: m^2/N
+    note: >
+      ⚠ 문헌 W MRR 범위(300~600 nm/min @ 3psi)에서 역산한 대표값. 미재현.
+      W는 Fe(III)/H2O2 산화 후 기계적 제거라 산화막과 메커니즘이 다르다.
+    source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+    confidence: estimated
+
+  slurry_ph:
+    value: 2.5
+    unit: pH
+    note: 강산성 — Pourbaix상 W 산화물 용해 억제하며 부동태막 유지
+    source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+    confidence: literature
+  oxidizer:
+    value: Fe(NO3)3
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+  abrasive_size_nm:
+    value: 150.0
+    unit: nm
+    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
+    confidence: estimated
