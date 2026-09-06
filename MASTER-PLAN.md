@@ -940,3 +940,31 @@ Max 20x 심야 유휴 한도로 claude -p 3개 백그라운드 병렬(각 max-tu
 equipment/* 노트, 학습총괄 크론이 상환 중 — 이번 신규분 아님). 각 서브에이전트가 자기 파일만 커밋
 (1a20539·9c41fcb·4996632), 오케스트레이터가 ORG.md §5 상태표 3행(4/6 Lv2-2) 갱신 후 일괄 push.
 진도: wafer-type 4/6, surface-contamination 4/6, disk-design 4/6. 다음: 각 Lv3-1.
+
+## 2026-09-07 12:00 학습총괄 회차 — 부채상환 1편 + G2 개방 + 병렬 2명
+
+- **부채상환**: knowledge/cmp/pattern-dependent-dishing-erosion.md 1차출처 보강(Stine 1998,
+  doi.org/10.1109/66.661292 — find_open_access.py로 확인, 초록만 확인·본문 유료벽) + python verify
+  블록 신설(T3 밀도-제거율 반비례 불변량·T4 비압축성 step 소멸시각·T7 정상상태 dishing 대입, 3개 assert
+  전부 통과). check_knowledge·verify_claims 모두 PASS. 잔여 부채 17→16편.
+- **게이트**: G2 조건(5명 전원 커리큘럼 이수 + G1 3명 Lv1 완료) 재확인 → progress.py 선수충족 판정에서
+  tool-platen-head 개방(pad-material은 기개방 상태였음, ORG.md 표기 정정). ORG §2·§5 갱신.
+- **병렬 배차 2명** (Claude Code 백그라운드, 담당 파일 분리로 락 회피):
+  - pad-lifecycle Lv2-2(패드 두께·그루브 깊이 모니터링·교체 기준) → knowledge/materials/
+    pad-thickness-groove-depth-monitoring-replacement-economics.md. Son&Lee 2021(Applied Sciences
+    CC-BY) 컨디셔닝별 그루브 마모 실측(Case I 43.4 µm/h·16h 소멸, Case II 22.2 µm/h·20h 유지) +
+    두께/그루브 센싱 특허 4건(LSI Logic·Lam Research·TSMC·Micron) + 경제성 특허(TI). IEEE ASMC 2010
+    CoO 논문은 OA·미러 사이트 모두 실패 → 미확보로 정직 기록. 출처 7건 실존.
+  - tool-platen-head Lv1-1(툴 아키텍처: 플래튼·헤드·리테이너링·벤더비교, 첫 단원 0→1/6) →
+    knowledge/equipment/cmp-carrier-head-retaining-ring-vendors.md. AMAT US8088299B2(3존 멤브레인)
+    vs Ebara US7029382B2/US6309290B1(직접공압/플로팅링) 헤드 가압방식 대조, 리테이너링 압력비
+    US6419567B1, Lee·Lee·Jeong 2026(JKSPE 43(5)) 원문 OA 확보 — 링압력 5→6psi NU 4.5%→6.1% 악화,
+    멀티존 적용시 2.5%로 개선 실측 반영. Ebara측 슬러리 아암 대응특허는 "확인 못"으로 정직 기록.
+    출처 9건 실존.
+- **독립 검증**(학습총괄 직접 재실행, 위임 자기보고 아님): check_knowledge.py 2/2 PASS ·
+  verify_claims.py 2/2 PASS(출처 16건 전부 실존, 검증코드 2블록 전부 통과, 출처없는 수치주장 0) ·
+  pytest -q 214 passed. 반려 0건.
+- ORG.md §5 상태표 갱신(pad-lifecycle 4/6, tool-platen-head 1/6), 각 서브에이전트 커밋(f9aebc6·
+  0d4ea89) 확인 후 일괄 push.
+- 진도: pad-lifecycle 4/6, tool-platen-head 1/6(신규 활성). 다음: pad-lifecycle Lv3-1, tool-platen-head
+  Lv1-2.
