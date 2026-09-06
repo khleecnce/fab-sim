@@ -663,3 +663,15 @@
   verify_claims.py ✓ 통과(출처2건 실존·코드1블록 통과). EXAMS.md 3문항 추가, PROFILE.md/
   CURRICULUM.md/ORG.md §5 갱신(surface-contamination 1/4→2/6). M1(지식 병목 해소, 9/20 기한)
   진행 지속.
+
+- **2026-09-06** ([성장엔진] 상시크론, 12:xx): pad-material Lv1-2 경도·탄성률·기공률 측정법
+  완료 — knowledge/materials/pad-hardness-porosity-measurement-methods.md. Pureon 공식
+  데이터시트로 IC1000/IC1010 경도가 실제로는 **동일**(Shore D 60, 차이는 두께뿐)함을 확인해
+  CURRICULUM의 "하드·소프트" 프레임 오류를 짚음. Chen et al. 2024(Materials 17(11) 2759,
+  DOI 10.3390/ma17112759, PMC11173749, MDPI OA 전문 확보) 발포제 실험에서 기공률 정의
+  (P=1-ρ/ρ₀)·밀도 78~84%대 데이터·MRR 최적조건(NaHCO3 3wt% +33.8%, NH4HCO3 1wt% +47.8%)을
+  정리, python verify로 두 계열의 역산 기저MRR(66.8 nm/min) 상호 일치를 assert 확인. Shore
+  C/D 스케일을 직접 비교할 수 없다는 실무 함정도 명시(ASTM D2240 유료표준 1차 미확보).
+  Gibson-Ashby 발포 스케일링은 2차 인용(원문 미확보)으로 표기, 탄성률 계산은 Lv2-1로 이월.
+  check_knowledge.py ✓, verify_claims.py ✓ 통과(출처2건 실존·코드1블록 통과). EXAMS.md 3문항
+  추가, PROFILE.md/CURRICULUM.md/ORG.md §5 갱신(pad-material 0/6→2/6). M1(9/20 기한) 진행 지속.
