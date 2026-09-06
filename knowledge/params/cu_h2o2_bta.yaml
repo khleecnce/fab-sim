@@ -37,9 +37,23 @@ params:
   oxidizer_wt_pct:
     value: 3.0
     unit: "wt%"
-    note: Kaufman 경쟁모델의 MRR 정점 부근 (1%→3% 이동 확인됨)
+    note: 이번 런의 H2O2 농도. 이 값을 바꾸면 화학층이 MRR을 바꾼다
     source: knowledge/cmp/slurry-components-overview.md
     confidence: verified
+  oxidizer_peak_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: >
+      Kaufman 경쟁모델의 MRR 정점 농도. 착화제 유무로 1%→3% 이동이 확인됨.
+      화학층은 이 정점 대비 손실을 계산한다(정점에서 배수 1.0).
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  oxidizer_curve_n:
+    value: 2.0
+    unit: "-"
+    note: 단봉 곡선의 정점 이후 감소 완만도. ⚠현상론 형상 파라미터, 미검증
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: unverified
   inhibitor:
     value: BTA
     source: knowledge/cmp/slurry-components-overview.md
@@ -47,9 +61,35 @@ params:
   inhibitor_mM:
     value: 1.0
     unit: mM
-    note: Langmuir θ=0.97 (ΔG=-35.4 kJ/mol → K=2.9e4). 거의 완전 피복
+    note: BTA 농도. Langmuir θ=0.97 → 표면 97% 피복 = 제거 억제
     source: knowledge/cmp/slurry-components-overview.md
     confidence: verified
+  inhibitor_dG_ads_kJ:
+    value: -35.4
+    unit: kJ/mol
+    note: >
+      BTA 흡착 자유에너지. K=2.9e4 L/mol로 환산되며 노트 verify 블록 PASS.
+      물리흡착(-20~-40 kJ/mol) 영역 — 세리아 화학흡착(-111~-258)과 대비된다.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  inhibitor_ref_mM:
+    value: 1.0
+    unit: mM
+    note: >
+      기준 농도. 여기서 화학 배수가 정확히 1.0이 되어 Kp가 그대로 쓰인다.
+      Kp가 이 조성의 문헌 MRR에서 역산됐기 때문에 반드시 일치시켜야 이중계상이 없다.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  inhibitor_strength_k:
+    value: 3.0
+    unit: "-"
+    note: >
+      ⚠ 억제 강도 형상 파라미터. 잔여율 = exp(-k·θ).
+      (1-θ)를 쓰면 θ가 0.97에서 포화돼 2mM과 5mM이 구분되지 않는다(실제 발생).
+      실제 억제는 피복률뿐 아니라 막 치밀도·재생속도에도 달려 고농도에서도 계속 세진다.
+      **문헌 폐형식 없음 — 캘리브레이션 1순위.** 순위는 보존되나 절대값은 신뢰 불가.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: unverified
   abrasive_size_nm:
     value: 100.0
     unit: nm

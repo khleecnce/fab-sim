@@ -37,6 +37,7 @@ if str(_ROOT.parent) not in sys.path:
 
 from sim.metrics.uniformity import compute_metrics, UniformityMetrics  # noqa: E402
 from sim.params import ParamPack, load_pack, available_packs  # noqa: E402
+from sim.chemistry import chemistry_factor, ChemistryEffect  # noqa: E402
 
 PSI_TO_PA = 6894.757
 
@@ -244,6 +245,14 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     radius = np.linspace(0.0, r_max, rr.n_points)
     impl = _MODELS[model]
     mrr_m_s = impl.mrr_radial(rr, radius)
+    # ── 화학-기계 결합 ──────────────────────────────────────
+    # 슬러리 화학은 표면 경도를 통해 기계적 제거에 곱해진다 (MRR ∝ H^-1.5).
+    # 기계 모델은 손대지 않고 배수 하나로 들어온다. sim/chemistry.py 참조.
+    chem = chemistry_factor(rr.pack)
+    if chem.active:
+        mrr_m_s = mrr_m_s * chem.factor
+    notes.append(chem.describe())
+    notes.extend(chem.notes)
     # 모델이 스스로 한계를 보고할 기회 — 지어내지 않고 모르는 것을 드러낸다
     if hasattr(impl, "notes"):
         notes.extend(impl.notes(rr))  # type: ignore[attr-defined]
