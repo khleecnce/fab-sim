@@ -858,3 +858,17 @@ mechanical-chemical-balance.md) §4 verify 블록 정량값 5건(E*≈37.6GPa, F
 테스트로 이전. Preston Kp 연결식은 여전히 없어(노트 §6 명시) engine 미등록(S17과 동일 지위,
 순수함수 라이브러리). 183 passed(기존178+신규5), 커밋 64dd279. 잔여: Kp 연결식은 slurry-chemist
 회신 대기, S13(패드마모 모순)은 pad-lifecycle 학습 대기.
+
+## 2026-09-07 (성장엔진) surface-contamination Lv2-1 금속 오염 소자영향·ITRS/IRDS 허용치
+
+Wang et al.(2024, Electronics, doi:10.3390/electronics13122391, MDPI CC-BY 완전 오픈액세스) 원문
+전체 확보 — Fe 오염 GOI 실험에서 PMOS 조기파괴율 11.3%(8/71, β-FeSi₂ 석출물, V_bd<1.5V vs 스펙
+4.14V) vs NMOS 영향 무시가능(0.19%) 정량 확인. IRDS 2024 Yield Enhancement chapter 원문(xlsx
+Table YE3 포함)에서 UPW 금속한계 <1ppt, ITRS 2.0(2015) 각주[14]에서 "FEP 스펙 1×10¹⁰ atoms/cm²"를
+직접 확인해 Lv1-1 잠정치와 오더 일치 교차검증. Cu 확산·수명저하 관련 3편(Istratov&Weber 2002,
+Gaspar 2015, Burte&Aderhold 1997)은 미러 사이트 자동화 한계로 1차 원문 미확보 — 제목·DOI만 확인,
+정성 서술로만 활용, "미검증" 명시. knowledge/cmp/metal-contamination-device-impact-irds-limits.md
+신설, verify_claims.py·check_knowledge.py 둘 다 통과. surface-contamination 3/6, CURRICULUM
+Lv2-1 체크, EXAMS 3문항 추가, PROFILE·ORG.md §5 갱신. 구현요청: ITRS FEP 스펙(1e10 atoms/cm²)을
+향후 defect-scientist 판정임계값 상수로 인계 가능 — 현재 sim/ 편입 대상 수식은 없음(GOI 파괴전압
+데이터 중심). 다음: Lv2-2(흡착 메커니즘·제거 화학).
