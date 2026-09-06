@@ -40,7 +40,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   └─ film-emerging                   [대기]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
 │   │
 │   ├─ 장비 (Equipment)
-│   │   ├─ tool-platen-head                [대기]  플래튼·헤드·존압력·리테이너링
+│   │   ├─ tool-platen-head                [활성, G2 2026-09-07]  플래튼·헤드·존압력·리테이너링
 │   │   ├─ tool-endpoint                   [대기]  EPD: 광학·모터전류·와전류
 │   │   └─ tool-post-clean                 [대기]  Post-CMP 세정·브러시·결함
 │   │
@@ -104,6 +104,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | pad-material | 활성 (G2 개방 2026-09-06) | 3/6 (Lv2-1 완료) | 2026-09-07 |
 | pad-lifecycle | 활성 (G3 개방 2026-09-06) | 3/6 (Lv2-1 완료) | 2026-09-07 |
 | disk-design | 활성 (G3 개방 2026-09-06) | 4/6 (Lv2-2 완료) | 2026-09-07 |
+| tool-platen-head | 활성 (G2 개방 2026-09-07) | 0/6 | 2026-09-07 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
