@@ -708,3 +708,17 @@ Cu 450.5 / W 360.4 nm/min. 130 tests passed, CI run 34012847439 success. 커밋 
 **다음 병목**: 팩 값 대부분이 confidence=estimated(문헌 역산). M3 실데이터
 캘리브레이션이 이 값들을 verified로 바꾸는 작업이고, 그 대상 목록은
 `python -m sim.cli --list-packs`의 미검증 카운트가 그대로 알려준다.
+
+- **2026-09-06** ([성장엔진] 상시크론, 14:xx): disk-design Lv1-2 그릿 밀도·돌출 높이 →
+  패드 절삭율 모델 완료 — knowledge/equipment/conditioner-grit-density-protrusion-cutrate.md.
+  Feng(2007) IEEE Trans. Semicond. Manuf. DOI 10.1109/TSM.2007.907618(유료, 미러 사이트
+  경유 1차 원문 확보, papers/feng2007-pad-conditioning-density-tsm.pdf)에서 컨디셔닝 밀도
+  (CD)가 그릿 밀도에 선형 비례 분해되는 구조를 확인(정확한 폐형식 수식은 PDF 수식렌더링
+  OCR 실패로 미확보, 정직 표기). "디스크/패드 반경비가 작을수록 마모 평탄" 정성 결론을
+  독립 원-원 교차 기하 근사모델로 python verify assert(CV 비교)로 방향성 재현. 3M(2010,
+  MRS) 실측(DOP≈15µm, 돌출 균일화로 Cu 블랭킷 결함 67~75개→0~9개 감소)으로 돌출 높이
+  균일성의 실무 함의 확보. ECS abstract(Kakireddy 2010, Unpaywall OA)로 정성 결론 교차
+  확인. check_knowledge.py ✓, verify_claims.py ✓ 통과(출처2건 실존·코드1블록 통과). EXAMS.md
+  3문항 추가, PROFILE.md/CURRICULUM.md/ORG.md §5 갱신(disk-design 0/6→1/6). progress.py
+  재확인 결과 신규 게이트 개방 없음(G1/G2/G3 조건 미충족 유지). M1(9/20 기한) 진행 지속,
+  다음 회차 대상은 progress.py 판정상 pad-lifecycle Lv1-2.

@@ -55,5 +55,15 @@
   "title": "Chemically enhanced synergistic wear: A copper chemical mechanical polishing case study",
   "venue": "Wear 307(1-2), 206-212 (2013)",
   "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "feng2007-pad-conditioning-density-tsm": {
+  "src": "미러 사이트 (mirror 미러 사이트 storage)",
+  "pdf": "papers/feng2007-pad-conditioning-density-tsm.pdf",
+  "doi": "10.1109/TSM.2007.907618",
+  "title": "Pad Conditioning Density Distribution in CMP Process With Diamond Dresser",
+  "author": "Tyan Feng",
+  "year": 2007,
+  "journal": "IEEE Trans. Semicond. Manuf. 20(4), 464-475",
+  "note": "유료(IEEE), 미러 사이트 확보. 사용자 지시 2026-09-05 반영."
  }
 }

@@ -214,5 +214,13 @@
  "doi:10.7736/JKSPE.020.082": {
   "ok": true,
   "msg": "Identification of the Break-In Mechanism by Asperity Deformation of CMP Pad"
+ },
+ "doi:10.1109/TSM.2007.907618": {
+  "ok": true,
+  "msg": "Pad Conditioning Density Distribution in CMP Process With Diamond Dresser"
+ },
+ "doi:10.1149/MA2010-02/21/1479": {
+  "ok": true,
+  "msg": "Effects of CMP Pad Conditioner Properties and Performance on Polishing Pad, Process and Wa"
  }
 }
