@@ -1,0 +1,701 @@
+# 계측 구성요소 스키마 — 무엇을·어떻게·어디서 재는가
+#
+# 씨앗: 2026-09-06 사용자 지시 "장비, 패드, disk등 다른 요소들도 이런식으로 구성해줘.
+#       ... research ai agent 통해서 조사해서 만들어" + "내가 말했다고 그게 전체는 아니야."
+#
+# ⛔ 이 파일의 절대 원칙 (agents/wafer-metrology SCOPE: "사용자의 회사 관행 정의를 그대로
+#    쓰지 마라 — 문헌 정의로 확정할 것"):
+#    지표 정의는 전부 knowledge/cmp/uniformity-metrics-definitions-standards.md 가 문헌
+#    (SEMI·특허·논문)으로 확정한 것을 따른다. 회사 관행 정의는 default가 아니며
+#    `_org_practice: true` 필드로 분리 표기한다.
+#
+# ⚠ status: wired 는 knowledge/params/*.yaml 에 실제 키가 있을 때만(n_points,
+#   edge_exclusion_m). 지표 계산식은 팩 파라미터가 아니라 sim/metrics/uniformity.py 의
+#   출력이므로 status: partial 로 둔다 — 엔진에 있지만 '설정 가능한 입력'은 아니라는 뜻.
+
+version: 1
+component: metrology
+owner: wafer-metrology
+description: >
+  CMP 계측 체계 — 측정 대상 · 방법(장비 원리) · 레시피(측정점/엣지제외) · 지표 정의 ·
+  스케일별 균일도 · 불확도(GR&R) · 샘플링 · SPC. 숫자보다 '정의'가 먼저인 계열.
+
+groups:
+
+  # ═══════════════════════════════ 1) 측정 대상
+  - id: measurand
+    label: "측정 대상 (무엇을 재는가)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      CMP 계측의 첫 혼선은 "TTV가 뭐의 TTV냐"에서 시작한다. 기판 두께인지, 잔막인지,
+      제거량인지에 따라 같은 이름이 다른 물리량을 가리킨다. 대상을 먼저 고정한다.
+    fields:
+      - key: target
+        label: 측정 대상
+        type: enum
+        options: [substrate_thickness, film_thickness_remaining, removal_amount, step_height, dishing, erosion, roughness, defect, contamination, flatness]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⚠ TTV는 본래 기판 두께 편차 지표(SEMI MF1530)다. CMP 후 문맥에서 쓰는
+          "TTV"는 잔막/제거량 max−min으로의 **차용**이다(노트 §1). 무엇의 max−min인지
+          명시하지 않으면 값이 비교 불가능해진다.
+      - key: removal_derivation
+        label: 제거량 산출 방식
+        type: enum
+        options: [pre_post_difference, in_situ_endpoint, motor_current_integration]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/friction-cof-monitoring-endpoint-detection.md
+        note: >
+          제거량은 직접 측정량이 아니라 (전 − 후) 차분이다. 따라서 제거량의 불확도는
+          두 측정의 불확도가 합성된 값(√2배 오더)이며, 전/후를 같은 좌표에서 재지 않으면
+          정렬 오차가 그대로 들어간다. 이 사실이 GR&R(§6)에서 흔히 누락된다.
+      - key: dishing_definition
+        label: dishing 정의
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          Park VMIC98 원문 정의: "CMP 후 최종 oxide 면과 copper 라인 내 최저점 사이
+          수직거리". 즉 기준면이 **인접 oxide 면**이지 절대 좌표가 아니다.
+      - key: erosion_definition
+        label: erosion 정의
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          Park VMIC98: "증착 시 oxide 두께와 CMP 후 oxide 두께의 차" — 보통 인접
+          비패턴 필드 대비로 잰다. dishing과 기준면이 달라 두 값을 더할 때 주의.
+          총 Cu 손실 = 필드 oxide loss + 국소 erosion + dishing.
+
+  # ═══════════════════════════════ 2) 측정 방법 (장비 원리)
+  - id: method
+    label: "측정 방법 (장비·원리)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      막질이 방법을 강제한다. 투명 유전체는 광학(SE/SR), 불투명 금속은 전기·전자기
+      (4PP/EC), 다층 금속 스택은 XRF. 방법을 잘못 고르면 값 자체가 안 나온다.
+    fields:
+      - key: thickness_method
+        label: 두께 측정 방법
+        type: enum
+        options: [ellipsometry_se, reflectometry_sr, eddy_current, four_point_probe, xrf, interferometry, cross_section_tem]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          SE는 얇은 막에서 불확도가 낮고 SR은 두꺼운 막에서 낮다(Rastgou et al.,
+          DOI 10.1088/1681-7575/ae3964, 초록 확인·본문 미확보. SiO₂/Al₂O₃ 10~2000nm).
+          SR은 100nm 미만에서 민감도가 떨어진다(Horiba 기술자료, 2차).
+          ⚠ 4PP는 접촉·탐침자국을 남기므로 제품 웨이퍼에 쓰면 안 된다.
+      - key: optical_stack_model
+        label: 광학 모델(스택·광학상수)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          ⚠ 사용자 목록에 없던 축이지만 광학 계측의 최대 오차원. SE/SR은 두께를 직접
+          재지 않고 **모델 피팅으로 역산**한다. 하지막 스택(wafer.stack.layers)이나 n,k가
+          틀리면 두께가 통째로 틀린다 — 그런데 툴은 그럴싸한 값을 뱉는다.
+      - key: sheet_resistance_conversion
+        label: 시트저항-두께 환산
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          Rs = (π/ln2)·V/I ≈ 4.532·V/I, t = ρ/Rs. 노트 verify 블록에서 상수 4.532와
+          Cu 500nm 시트저항 오더(33.6 mΩ/sq)를 재현했다. ⚠ 박막은 표면산란으로 ρ가
+          벌크보다 커지므로 벌크 ρ를 쓴 두께는 **하한 추정치**다.
+      - key: xrf_composition_coupling
+        label: XRF 조성-두께 결합
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          XRF는 조성이 미지면 두께만 단독으로 못 뽑는다 — 조성비를 알아야 강도-두께
+          검량선이 선다(Zhong & Chen, DOI 10.1109/ICEPT52650.2021.9567975, 초록 확인).
+          Cu/배리어 다층 분리에 유리한 대신 이 제약이 붙는다.
+      - key: roughness_method
+        label: 조도 측정 방법
+        type: enum
+        options: [afm, optical_profilometer, stylus_profilometer, white_light_interferometry]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-roughness-afm-scan-scale-dependence.md
+        note: >
+          ⚠ 조도값은 스캔 크기와 한 쌍이다. self-affine 표면에서 Rq(L) ∝ L^H로 커지므로
+          (노트 §2, 코드 재현) 스캔 크기 없는 Ra/Rq는 비교 불가능한 숫자다.
+      - key: step_height_method
+        label: step height/dishing 측정 방법
+        type: enum
+        options: [stylus_profilometer, afm, white_light_interferometry, electrical_test_structure]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          전기적 시험구조(serpentine 저항)는 dishing/erosion을 대면적 통계로 잡을 수 있어
+          프로파일로미터 점측정과 상보적이다(PTW 마스크 사양, 2차·정성).
+      - key: defect_method
+        label: 결함 검사 방법
+        type: enum
+        options: [optical_darkfield_ssis, optical_brightfield, e_beam_inspection, macro_inspection]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI M52 (Guide for Specifying Scanning Surface Inspection Systems for Silicon Wafers, 130nm~5nm 세대) — 스코프 확인, 원문 미확보"
+        note: >
+          광학 SSIS는 산란광 기반이라 검출 크기가 **PSL(폴리스티렌 라텍스) 구형 등가**로
+          교정된다(SEMI M53 계열 — Practice for Calibrating SSIS Using Depositions of
+          Monodisperse PSL Spheres, 제목만 확인). 즉 "50nm 결함"은 실제 치수가 아니라
+          PSL 등가 크기다. E-beam은 느리지만 전기적 결함(잔류 금속 브리지)을 잡는다.
+      - key: contamination_method
+        label: 오염 측정 방법
+        type: enum
+        options: [txrf, vpd_icpms, tof_sims, xps]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md
+        note: >
+          검출한계: TXRF 1e9~1e15 at/cm²(VPD 전처리 시 1e9 부근), VPD-ICP-MS가 감도 최고
+          이나 **공간분포 정보 없음**(전면 HF 스캔·파괴), TOF-SIMS는 깊이 프로파일,
+          XPS는 화학상태(산화수) 식별. 출처는 산업 세미나 슬라이드(Chia, UC Berkeley
+          Microlab)이며 **동료심사 논문 아님** — 실무 스펙으로만 취급.
+      - key: measurement_mode
+        label: 측정 모드 (in-line/in-situ)
+        type: enum
+        options: [standalone_offline, integrated_metrology_iim, in_situ_endpoint]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/friction-cof-monitoring-endpoint-detection.md
+        note: >
+          in-situ(마찰·모터전류·광학 종점)는 실시간이지만 절대 두께가 아니라 변화점을
+          본다. 통합계측(툴 내장)은 웨이퍼별 피드백에, 오프라인은 정밀 검증에 쓴다.
+          셋의 값은 서로 다르며 서로를 대체하지 않는다.
+
+  # ═══════════════════════════════ 3) 측정 레시피
+  - id: recipe
+    label: "측정 레시피 (측정점·배치·엣지 제외)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      같은 웨이퍼도 측정점 수·배치·엣지 제외 폭이 다르면 WIWNU가 달라진다. 지표를
+      비교하려면 레시피가 같아야 한다 — 값만 인용하고 레시피를 안 적는 게 가장 흔한 오류.
+    fields:
+      - key: n_points
+        label: 측정점 수
+        type: enum
+        options: [9, 25, 49, 81, 121, 249]
+        origin: researched
+        maps_to: n_points
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          49점 polar 배열의 1차 근거는 US6922603B1 특허 원문: "center point + three
+          concentric rings"에 8·16·24점(1+8+16+24=49). 49 또는 121점이 흔하다.
+          base 팩의 현재값은 81(사용자 실무 기준으로 들어간 값) — 문헌 표준은 49다.
+      - key: point_layout
+        label: 측정점 배치
+        type: enum
+        options: [polar_rings, grid, radial_line, diameter_scan, custom]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          Oji thesis(1999, MIT, 1차)의 grid/circular/radial 비교 결론: **grid는 30점
+          이상이면 더 많은 점·다른 패턴 대비 정확도 손실 없이 수렴**. 즉 점을 늘리는
+          것보다 배치를 맞추는 게 먼저다.
+      - key: edge_exclusion_mm
+        label: 엣지 제외 폭
+        type: number
+        unit: mm
+        typical: [1, 7]
+        origin: researched
+        maps_to: edge_exclusion_m
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          SEMI M1 계열은 공칭 2~3mm를 지정하고 첨단 공정은 1mm 방향으로 이동 중
+          (SEMI Draft 5441 발췌 확인). 실무 CMP 잔막 측정은 6~7mm를 쓰는 사례도 있다.
+          ⚠ 엣지 제외를 줄이면 엣지 롤오프가 포함돼 WIWNU가 커진다 — **지표와 반드시
+          함께 보고**할 것. 팩 기본값 0.003 m(=3mm).
+      - key: ring_count
+        label: 반경 링 수 (radial 지표용)
+        type: number
+        typical: [3, 10]
+        origin: researched
+        status: partial
+        confidence: literature
+        source: sim/metrics/uniformity.py
+        note: >
+          sim/metrics/uniformity.py 의 n_rings(default 8)에 해당한다. 팩 파라미터가
+          아니라 함수 인자라 partial. 링 수를 바꾸면 radial 지표 값이 바뀌므로
+          지표와 함께 보고해야 한다.
+      - key: die_sampling
+        label: 다이 샘플링 (PTW)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          ⚠ Oji의 "grid 30점 이상 수렴" 결론을 다이 단위로 확장하는 것은 원 논문이 다루지
+          않은 추정이다(노트 §5에 미검증으로 명시). 엣지 다이는 거동이 다르므로
+          엣지/내부를 나눠 뽑아야 한다는 정성 지침만 확실하다.
+      - key: alignment_reference
+        label: 좌표 정렬 기준 (노치/플랫)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 전/후 측정을 같은 좌표에서 하려면 노치 기준 회전 정렬이 필요하다.
+          정렬이 틀리면 제거량 맵에 가짜 방위각 성분이 생긴다 — azimuthal 비균일로 오독됨.
+      - key: measurement_delay
+        label: 측정 지연 (CMP-계측 시간)
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 세정 전/후, 건조 상태, 자연산화막 성장이 광학 두께에 들어간다."
+
+  # ═══════════════════════════════ 4) 지표 정의 (문헌 확정)
+  - id: metric_definition
+    label: "균일도 지표 정의 (문헌 기준 — 회사 관행 아님)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      이 그룹이 이 파일의 심장이다. WIWNU는 산업 단일표준이 없어 정의가 갈리므로
+      (3σ / 1σ / half-range) 전부 병기하고 각 출처를 단다. Lee & Boning(1999)이
+      "여러 지표를 병기해야 한다"고 결론낸 것이 병기 원칙의 1차 근거.
+    fields:
+      - key: ttv_nm
+        label: "TTV = t_max - t_min"
+        type: number
+        unit: nm
+        origin: researched
+        status: partial
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          1차 표준 SEMI MF1530(원문 PDF 미확보 — downloads.semi.org Cloudflare 봉쇄),
+          2차 확보 Kao & Chung "Wafer Manufacturing"(2021) Eq.(1.5)로 교과서 예제 재현 완료.
+          sim/metrics/uniformity.py 의 ttv_nm 로 구현돼 있다(엔진 출력, 팩 입력 아님).
+      - key: cv_pct
+        label: "CV = σ/μ x 100"
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          통계 표준 정의이며 **1σ WIWNU와 수학적으로 완전히 동일**(노트 verify에서
+          오차 1e-12로 항등 확인). 회사 관행(σ/μ×100)이 문헌과 일치하는 드문 항목이라
+          병기 불필요. uniformity.py 의 cv_pct.
+      - key: wiwnu_3sigma_pct
+        label: "WIWNU 3σ (문헌 default)"
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          100·3σ/t̄. **default 보고값**. 1차 근거 US6922603B1 특허 원문: "the 3-sigma
+          uniformity metric is ... 3 times the standard deviation ... divided by the mean
+          thickness", "also often referred to as the WIWNU metric". uniformity.py 의
+          wiwnu_3sigma_pct. 항등식 3σ = 3×CV 를 코드에서 assert로 검증.
+      - key: wiwnu_1sigma_pct
+        label: "WIWNU 1σ (=CV)"
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          Kumar 2019 IMAPS(DOI 10.4071/2380-4505-2019.1.000450) Eq.(2)형 σ/Avg.
+          49 site 4점탐침 Cu 두께에 적용된 사례. 본문 미확보(스니펫 확인).
+          CV와 같은 수이므로 uniformity.py는 cv_pct 하나로 출력한다.
+      - key: wiwnu_halfrange_pct
+        label: "WIWNU half-range"
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          100·(max−min)/(2·t̄). Luo & Dornfeld형(escholarship, 본문 미확보·스니펫).
+          ⚠ max/min만 쓰므로 이상점에 민감하고 통상 σ형보다 크다 — 노트 verify에서
+          이상점 1개 주입 시 Δhalf-range > Δ3σ 로 방향성 재현. uniformity.py 의
+          wiwnu_halfrange_pct. 면적가중 선형 프로파일 앵커 18.75%와 0.16% 오차로 대조 일치.
+      - key: radial_sigma_pct
+        label: "radial (문헌 default) — 방위각평균 반경프로파일의 σ/mean"
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⚠ 문헌에 radial 단일 표준식은 **존재하지 않는다**(미검증이 아니라 실제 부재).
+          Boning 그룹의 variation decomposition(systematic radial T(r) + residual)에 따라
+          방위각 평균 반경 프로파일 t̄(r)의 σ 또는 range/mean으로 보고하는 것이 문헌적으로
+          자연스럽다는 판정. uniformity.py 의 radial_sigma_pct / radial_range_pct.
+      - key: radial_maxring_range_nm
+        label: "[회사 관행] 링별 (max-min)의 최대"
+        type: number
+        unit: nm
+        origin: researched
+        status: partial
+        confidence: literature
+        _org_practice: true
+        _is_default: false
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⛔ **회사 관행 정의이며 default 아님.** 문헌 근거가 약한 변형이라 별도 이름
+          (radial_maxring_range)으로만 병기한다. uniformity.py도 같은 규칙으로 별도 필드에
+          담고 있다. 이 값을 "radial 균일도"라고 부르며 문헌값과 비교하면 안 된다.
+      - key: shape_metric
+        label: 형상 지표 (center-of-mass / annular vs azimuthal)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⚠ 사용자 목록에 없던 축. US6922603B1은 전통 3σ가 **비균일의 위치·형상 정보를
+          못 담는다**고 지적하며 center-of-mass(U_cmr, U_cmθ)·관성모멘트 기반 shape metric을
+          제안한다. 같은 3σ여도 "가운데가 볼록"과 "엣지만 튐"은 원인이 다르다 —
+          공정 진단에는 스칼라 하나로 부족하다.
+      - key: robust_metric
+        label: 강건 지표 (이상점 내성)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          "A robust metric for measuring within-wafer uniformity," IEMT 1995,
+          DOI 10.1109/iemt.1995.526193 (본문 미확보). 3σ·range가 이상점에 취약하다는
+          문제의식에서 나온 대안. 문헌 자체가 기존 지표의 한계를 인정한다는 증거.
+      - key: sigma_ddof
+        label: σ 자유도 (모집단/표본)
+        type: enum
+        options: [population_ddof0, sample_ddof1]
+        origin: researched
+        status: partial
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          문헌이 명시하지 않는 경우가 많아 **모집단 σ(ddof=0)을 default**로 두고
+          uniformity.py도 ddof=0을 쓴다. 소표본(n<10) 보고 시 ddof=1 사용 여부를
+          메타데이터로 남길 것(정성 권고).
+
+  # ═══════════════════════════════ 5) 스케일별 균일도
+  - id: uniformity_scale
+    label: "스케일별 균일도 (WIW / WTW / LTL / WID)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      같은 "균일도"라도 웨이퍼 내(WIW) · 웨이퍼 간(WTW) · 로트 간(LTL) · 다이 내(WID)는
+      원인이 다르다. Boning 그룹은 die-level 변동이 웨이퍼스케일에 필적하거나 더 크다고
+      보고했다 — WIW만 보면 절반만 본 것이다.
+    fields:
+      - key: wiwnu
+        label: WIWNU (within-wafer)
+        type: number
+        unit: "%"
+        origin: researched
+        status: partial
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: "정의는 4)를 그대로 따른다. 원인: 압력·속도 반경분포, 리테이너링, 패드 상태."
+      - key: widnu
+        label: WIDNU (within-die)
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          ⚠ 사용자 목록에 없던 축. ILD CMP 실측에서 within-die 5000~8500Å로 across-wafer와
+          비슷한 스케일(Boning et al. 1999 Fig.9). 원인은 패턴 밀도(ρ_eff)이지 장비가
+          아니다 — WIW와 원인이 완전히 다르므로 섞어 보고하면 진단이 틀린다.
+      - key: wtwnu
+        label: WTWNU (wafer-to-wafer)
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          웨이퍼 간 편차. 원인은 패드 마모 진행(pad_wear_half_life_h)·컨디셔닝 상태·
+          슬러리 배치 변동 — 즉 **시간축 드리프트**다. WIW를 아무리 잡아도 WTW가 흔들리면
+          제품은 못 만든다. run-to-run 제어의 대상.
+      - key: ltlnu
+        label: LTLNU (lot-to-lot)
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요(1차 출처 미확보). 원인은 소모품 배치(패드 로트·슬러리 로트)·
+          PM 주기·입고 웨이퍼 이력. 관리 대상이 공정 파라미터가 아니라 **공급망**으로 옮겨간다.
+      - key: within_feature
+        label: feature 내 변동 (dishing/erosion)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          가장 작은 스케일. Cu의 interaction distance는 50~100µm로 산화막 PL(3~5mm)보다
+          수십 배 짧다 — Cu CMP는 die-level보다 feature-level 모델이 중요하다는 뜻.
+      - key: scale_decomposition
+        label: 변동 분해 (스케일 분리)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          Boning 그룹의 variation decomposition: 측정 어레이를 systematic radial T(r) +
+          residual(azimuthal/random)로 분해. 총 분산을 스케일별로 쪼개야 어느 손잡이를
+          돌릴지 정해진다(본문 미확보, 개념만 스니펫 확인).
+
+  # ═══════════════════════════════ 6) 측정 불확도 · GR&R
+  - id: uncertainty
+    label: "측정 불확도 · 반복성(GR&R)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      ⚠ 사용자 목록에 없던 축이지만 없으면 나머지가 전부 무의미하다. WIWNU 3%가
+      개선됐다고 말하려면 측정 시스템의 산포가 그보다 작아야 한다. CMP에서 재는 양
+      (제거량)은 전/후 차분이라 불확도가 합성되므로 특히 취약하다.
+    fields:
+      - key: repeatability_1sigma
+        label: 반복성 (같은 장비·같은 웨이퍼 σ)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 확보된 유일한 1차 인접 수치는 와전류 Cu 두께 측정의 반복측정
+          상대오차 2%(Qu et al. 2021, DOI 10.1109/TIE.2021.3111570, 초록값·재현 안 함).
+          장비·막질별 수치는 미확보.
+      - key: reproducibility_1sigma
+        label: 재현성 (장비·작업자·날짜 간 σ)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 자동화 툴은 작업자 성분이 작고 장비 간(tool matching) 성분이 지배적."
+      - key: grr_pct
+        label: "%GR&R (측정시스템 기여율)"
+        type: number
+        unit: "%"
+        typical: [0, 30]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "AIAG MSA (Measurement Systems Analysis) 판정 관행 — 다수 2차 자료에서 일치 확인, 원문 미확보"
+        note: >
+          통용 판정선: 10% 미만 양호, 10~30% 조건부, 30% 이상 불가. ndc(구분 가능 범주 수) 5 이상.
+          ⚠ AIAG MSA 원문(자동차 산업 표준)을 확보하지 못했고 반도체 계측 전용 표준이
+          아니다 — 관행 기준으로만 쓰고 반도체 1차 근거는 재조사 대상.
+      - key: tool_matching
+        label: 장비 간 정합 (tool-to-tool offset)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 같은 웨이퍼를 두 계측기로 재면 오프셋이 있다. 라인에 계측기가
+          여러 대면 이 오프셋이 SPC 차트에 가짜 시프트로 나타난다.
+      - key: reference_traceability
+        label: 표준시료·소급성
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          광학 두께는 모델 의존이라 절대값 검증에 단면 TEM 같은 파괴적 참값이 필요하다.
+          SSIS는 PSL 구형으로 크기 교정(SEMI M53 계열).
+      - key: metric_sensitivity_to_recipe
+        label: 레시피 민감도 (같은 웨이퍼, 다른 레시피)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⚠ 불확도로 잘 안 세는 성분. 엣지 제외 3mm에서 5mm로만 바꿔도 WIWNU가 4%에서
+          3.8%로 움직인 보고가 있다(스니펫 인용, **미검증**). 장비 산포가 아니라
+          **정의 산포**다.
+
+  # ═══════════════════════════════ 7) 샘플링 전략
+  - id: sampling
+    label: "샘플링 전략 (전수 vs 샘플)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      계측은 처리량과 정보량의 거래다. 전수 측정은 못 하고, 덜 재면 놓친다.
+      무엇을 얼마나 재는가가 곧 어떤 문제를 볼 수 있는가를 정한다.
+    fields:
+      - key: strategy
+        label: 샘플링 방식
+        type: enum
+        options: [full_lot_all_wafers, sampled_wafers_per_lot, first_last_wafer, skip_lot, adaptive_event_driven]
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요(1차 출처 미확보). 실무 관행으로 로트당 1~3매(선행/후행) 측정이
+          흔하다고 알려져 있으나 문헌 근거를 확보하지 못했다.
+      - key: wafers_per_lot
+        label: 로트당 측정 매수
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. WTW 변동(5)을 잡으려면 최소 2매 이상이어야 통계가 성립한다."
+      - key: monitor_wafer_frequency
+        label: 모니터 웨이퍼 주기
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          NPW 모니터로 blanket 제거율 K와 WIWNU를 주기적으로 확인한다. 제품 웨이퍼는
+          패턴 때문에 K를 직접 못 뽑으므로 NPW가 장비 상태의 기준선 역할을 한다.
+      - key: pre_post_pairing
+        label: 전/후 측정 페어링
+        type: enum
+        options: [both_pre_and_post, post_only, pre_only]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          제거량 균일도를 보려면 전/후 둘 다 필요하다. post_only는 잔막 균일도만 보이며,
+          이 경우 입고 균일도(wafer.film.incoming_uniformity_pct)와 CMP 기여가 섞인다.
+      - key: destructive_sampling
+        label: 파괴 검사 비율
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md
+        note: >
+          VPD-ICP-MS(HF 스캔)·단면 TEM·4점탐침은 파괴적이라 제품에 못 쓴다.
+          가장 민감한 방법이 가장 못 쓰는 방법이라는 게 오염 계측의 구조적 제약.
+
+  # ═══════════════════════════════ 8) SPC 관리
+  - id: spc
+    label: "SPC 관리 항목 (무엇을 차트에 올리는가)"
+    origin: researched
+    owner: wafer-metrology
+    why: >
+      ⚠ 사용자 목록에 없던 축. 지표를 정의하는 것과 그 지표로 공정을 '관리'하는 것은
+      다른 문제다. 어떤 지표를 어떤 한계로 관리하는지가 결정되지 않으면 계측은 기록일 뿐.
+    fields:
+      - key: control_metrics
+        label: 관리 지표 목록
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          최소 셋을 함께 올려야 한다: 평균 잔막(타깃 추종), WIWNU 3σ(산포),
+          결함 수(품질). 하나만 보면 다른 하나가 무너지는 것을 못 본다.
+          Lee & Boning: 일부 지표는 처리시간에 따라 **편향**되거나 개선에 둔감하다.
+      - key: control_limits
+        label: 관리 한계 (UCL/LCL)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 관리 한계는 규격(spec)이 아니라 공정 자체 산포에서 나와야 한다.
+          우리는 아직 실측 산포 데이터가 없어 수치를 넣지 않는다.
+      - key: drift_detection
+        label: 드리프트 감지 (패드 수명·컨디셔닝)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          제거율의 시간 드리프트는 랜덤이 아니라 패드 마모의 결정론적 감쇠
+          (pad_wear_half_life_h, pad_pcr_anchor_*)를 따른다. 이 추세를 보정하고 남은
+          잔차로 관리해야 진짜 이상을 잡는다 — 단순 X-bar 차트는 마모를 이상으로 오탐한다.
+      - key: run_to_run_feedback
+        label: run-to-run 피드백
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          계측값을 다음 웨이퍼의 연마시간·존압력으로 되먹인다. 통합 step-height 모델이
+          down-area RMSE를 273Å에서 98Å로 낮춘 수준이면 "feedback 제어에 쓸 수준"이라고
+          MRS99가 평가한 바 있다 — 즉 모델 정확도 요구가 SPC보다 높다.
+      - key: excursion_response
+        label: 이상 대응 (excursion)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 결함 급증 시 소급 검사 범위(어느 로트까지 되돌릴지)를 정하는 규칙.
+          계측 주기가 곧 리스크 노출 구간이 된다 — 샘플링(7)과 직결.
+      - key: metric_reporting_rule
+        label: 지표 보고 규칙 (정의 병기 의무)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⛔ 이 파일의 결론이자 강제 규칙: WIWNU 값을 인용할 때는 **정의식(3σ/1σ/half-range)
+          · 측정점 수 · 엣지 제외 폭**을 반드시 함께 적는다. 셋 중 하나라도 빠지면 그
+          숫자는 다른 숫자와 비교할 수 없다. Lee & Boning(1999)의 "여러 지표 병기" 결론과
+          US6922603B1의 정의가 이 규칙의 근거.

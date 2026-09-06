@@ -1,0 +1,597 @@
+# 웨이퍼 구성요소 스키마 — 피연마 대상(what gets polished)
+#
+# 씨앗: 2026-09-06 사용자 지시 "장비, 패드, disk등 다른 요소들도 이런식으로 구성해줘.
+#       ... research ai agent 통해서 조사해서 만들어" + "내가 말했다고 그게 전체는 아니야."
+# 사용자는 슬러리 실무자이므로 이 계열은 origin: user 항목이 거의 없다 —
+# 대부분 wafer-type / film-* 에이전트가 문헌으로 세운 축이다(origin: researched).
+#
+# ⚠ 원칙: 지어내지 않는다. 값·범위에 문헌 근거가 없으면 confidence: unverified +
+#         note "⚠ 조사 필요". status: wired 는 knowledge/params/*.yaml 에 실제 키가
+#         있을 때만 쓴다(현재 웨이퍼 계열은 film, wafer_radius_m 둘뿐).
+
+version: 1
+component: wafer
+owner: wafer-type
+description: >
+  피연마 대상 웨이퍼 — 유형(NPW/PTW) · 기판 사양 · 막질/스택 · 패턴 · 응력 · 공정이력.
+  같은 슬러리·같은 레시피라도 이 축이 다르면 결과가 다르다. 슬러리 스키마의 '거울면'.
+
+groups:
+
+  # ═══════════════════════════════ 1) 웨이퍼 유형
+  - id: wafer_type
+    label: "웨이퍼 유형 (NPW 블랭킷 vs PTW 패턴)"
+    origin: researched
+    owner: wafer-type
+    why: >
+      시험 목적과 데이터 해석이 근본적으로 다르다. NPW는 패턴 효과를 배제하고 blanket
+      제거율 K와 웨이퍼스케일 WIWNU만 뽑는 대조 웨이퍼, PTW는 유효밀도 ρ_eff·planarization
+      length·dishing/erosion을 뽑는 웨이퍼다. NPW 결과가 PTW를 완전히 예측하지 못한다는
+      점 자체가 이 그룹을 분리해야 하는 이유.
+    fields:
+      - key: type
+        label: 유형
+        type: enum
+        options: [npw_blanket, ptw_patterned, product, monitor, dummy]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          ⚠ 미연결. 엔진은 아직 반경 프로파일(축대칭)만 다루므로 NPW 가정이 암묵적이다.
+          PTW를 넣으려면 pattern 그룹(§5)의 밀도맵이 입력으로 들어와야 한다.
+      - key: purpose
+        label: 시험 목적
+        type: enum
+        options: [rate_check, uniformity_check, selectivity_check, defect_check, pattern_planarization, qualification]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          목적이 측정 레시피(metrology.yaml sampling)를 결정한다. rate_check는 소수점
+          다점, defect_check는 전면 스캔. 목적 없이 지표만 비교하면 오독한다.
+      - key: npw_to_ptw_transfer
+        label: NPW→PTW 전이 신뢰도
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          ⚠ Kim & Seo(2002, DOI 10.1016/S0167-9317(01)00694-3)의 패턴/비패턴 상관 r≈0.71이
+          유일한 정량 앵커인데 원문 미확보이고 상관계수 정의(r인지 R²인지)조차 불확실.
+          그대로 default로 쓰지 말 것. wafer-type Lv3-2 전이규칙 조사 대상.
+      - key: test_mask
+        label: 특성화 마스크 계열 (PTW)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          MIT 854/855 계열(area/pitch/density/aspect-ratio 서브마스크)이 사실상 표준.
+          어느 마스크로 뽑은 파라미터인지 없으면 PL·ρ_eff 값이 비교 불가능해진다.
+
+  # ═══════════════════════════════ 2) 기판 사양
+  - id: substrate
+    label: "기판 사양 (직경·두께·결정방위·초기 형상)"
+    origin: researched
+    owner: wafer-type
+    why: >
+      CMP 이전에 이미 존재하는 웨이퍼의 물리적 조건. 특히 초기 warp/bow와 nanotopography는
+      CMP 후 균일도에 그대로 얹혀 나오는데, 계측에서는 공정 탓으로 오해되기 쉽다.
+    fields:
+      - key: diameter_mm
+        label: 직경
+        type: enum
+        options: [150, 200, 300, 450]
+        origin: researched
+        maps_to: wafer_radius_m
+        status: wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          base 팩은 300mm(wafer_radius_m=0.150, SEMI M1)를 기본으로 둔다. 200mm는 문헌
+          실험(Oji thesis 등)의 주력이라 논문값을 옮길 때 직경 차이를 반드시 확인할 것.
+          450mm는 표준은 존재하나 양산 인프라가 사실상 없다.
+      - key: thickness_um
+        label: 기판 두께
+        type: number
+        unit: µm
+        typical: [525, 800]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI M1 (Specification for Polished Single Crystal Silicon Wafers), store-us.semi.org 제품 스코프"
+        note: >
+          300mm 공칭 775µm 근방이 통상값. ⚠ SEMI M1 원문 PDF는 미확보(downloads.semi.org
+          Cloudflare 봉쇄, wafer-metrology 노트와 동일 상황)이며 2차 자료로 확인한 값이라
+          정확한 공차는 재확인 필요. 두께 자체는 CMP 물리에 직접 안 들어가지만
+          척 흡착·백사이드 접촉·warp 강성에 들어간다.
+      - key: crystal_orientation
+        label: 결정방위
+        type: enum
+        options: ["100", "110", "111"]
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. Si 기판 CMP(예: 노치·베벨, Si 직접 연마)에서 방위별 경도·에칭
+          이방성 차이가 알려져 있으나 우리 노트에 1차 근거가 없다. 대부분의 CMP는
+          기판이 아니라 그 위의 막을 깎으므로 2차 축이다.
+      - key: initial_warp_um
+        label: 초기 warp
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI MF1390 (Test Method for Measuring Warp on Silicon Wafers by Automated Noncontact Scanning) — 표준 존재 확인, 원문 미확보"
+        note: >
+          warp는 중앙면(median surface)의 자유상태 편차로, bow와 정의가 다르다.
+          CMP 척 흡착 시 평탄화되지만 릴리스 후 복원되어 두께 프로파일 해석을 흔든다.
+      - key: initial_bow_um
+        label: 초기 bow
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI MF534 (Test Method for Bow of Silicon Wafers) — 표준 존재 확인, 원문 미확보"
+        note: >
+          bow = 자유(비클램프) 상태에서 중앙면 중심점의 기준면 대비 편차(부호 있음).
+          막응력(§6)의 결과 지표이기도 하다 — Stoney 식의 좌변.
+      - key: nanotopography_nm
+        label: 나노토포그래피 (PV)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI M43 (Guide for Reporting Wafer Nanotopography) / SEMI M78 (Guide for Determining Nanotopography of Unpatterned Silicon Wafers) — 스코프 확인, 원문 미확보"
+        note: >
+          공간파장 0.2~20mm 대역의 미세 굴곡(dip/bump/wave). ⚠ CMP와 인과가 양방향이다 —
+          입고 나노토포가 STI CMP에서 국소 잔막 편차로 증폭되고, CMP 자체가 나노토포를
+          만들기도 한다. TTV(장파장)·조도(단파장) 사이의 '중간 스케일'이라 별도 축이 필요.
+      - key: edge_profile
+        label: 엣지/베벨 프로파일
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 엣지 롤오프·베벨 형상이 리테이너링 압력 분포와 만나 엣지 제거율을
+          바꾼다. 계측에서 edge exclusion을 얼마로 잡느냐(metrology.edge_exclusion_mm)와
+          짝을 이루는 물리 축인데 1차 근거를 아직 못 잡았다.
+      - key: backside_condition
+        label: 백사이드 상태 (연마/비연마·산화막)
+        type: enum
+        options: [dsp_polished, ssp_unpolished, backside_oxide, backside_nitride]
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 캐리어 척(진공/멤브레인) 밀착과 백사이드 조도가 압력 전달을 바꾼다.
+          tool-platen-head 소관과 겹치는 경계 축이라 여기 남기되 근거는 미확보.
+
+  # ═══════════════════════════════ 3) 막질 (무엇을 깎는가)
+  - id: film
+    label: "피연마 막질 (film stack의 top layer)"
+    origin: researched
+    owner: wafer-type
+    why: >
+      CMP의 물성 팩이 갈리는 1차 축. 막질마다 경도·화학반응성·Preston 계수가 달라
+      슬러리 화학 전체가 재설계된다. 팩(oxide_silica / cu_h2o2_bta / w_fe_oxidizer /
+      sti_ceria)이 이 축을 따라 나뉜다.
+    fields:
+      - key: material
+        label: 막질 종류
+        type: enum
+        options: [oxide, nitride, poly_si, cu, w, ta, tan, ti, tin, co, ru, low_k, sic, ge]
+        origin: researched
+        maps_to: film
+        status: wired
+        confidence: verified
+        source: knowledge/params/oxide_silica.yaml
+        note: >
+          현재 팩이 실제로 지원하는 값은 oxide / cu / w 셋뿐이다(각 팩의 film 키에서 확인).
+          나머지 옵션은 스키마상 열려 있으나 물성 팩이 없다 — 선택 시 엔진은 근사한다.
+          film-nitride / film-poly-si / film-emerging 에이전트의 조사 대상.
+      - key: deposition_method
+        label: 성막 방식
+        type: enum
+        options: [thermal_oxide, teos_pecvd, teos_lpcvd, hdp_cvd, sacvd, ald, pvd, ecp_plating, cvd_w, spin_on]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          ⚠ 미연결이지만 중요도 높음. 같은 SiO₂라도 열산화막은 치밀해 느리게 깎이고
+          TEOS/HDP는 밀도·수분함량이 달라 제거율이 다르다(Oji thesis가 LPCVD TEOS를
+          명시한 이유). 성막 방식을 안 적으면 논문 제거율을 우리 조건에 옮길 수 없다.
+      - key: thickness_nm
+        label: 초기 막두께
+        type: number
+        unit: nm
+        typical: [50, 3000]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          제거량 목표·오버폴리시 여유의 기준. Cu 다마신 도금막은 통상 0.7~1.5µm대로
+          보고된다(벤더 사양, 2차·정성). 잔막 목표와 함께 관리해야 의미가 있다.
+      - key: incoming_uniformity_pct
+        label: 입고 막 균일도 (WIWNU)
+        type: number
+        unit: "%"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/uniformity-metrics-definitions-standards.md
+        note: >
+          ⚠ 사용자 목록에 없던 축. CMP 후 균일도 = 입고 균일도 ⊕ CMP 제거 균일도다.
+          입고값을 안 재면 CMP의 기여를 분리할 수 없다. 정의는 metrology.yaml의
+          WIWNU 정의(3σ default)를 반드시 그대로 따를 것.
+      - key: hardness_gpa
+        label: 막 경도
+        type: number
+        unit: GPa
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요(막질별 1차 수치 미확보). 슬러리 입자 경도(slurry.abrasive.hardness_mohs)
+          와의 대소가 스크래치를 가른다 — 입자>막이면 긁힌다. 두 축은 같이 봐야 한다.
+      - key: youngs_modulus_gpa
+        label: 탄성계수
+        type: number
+        unit: GPa
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 접촉역학(GW)에서 E*는 패드-웨이퍼 복합값인데 지금 팩은 패드값만 쓴다."
+      - key: chemical_reactivity
+        label: 화학 반응성 (슬러리 화학과의 결합)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: >
+          금속은 Pourbaix 도표(pH·전위)로 용해/부동태/면역 영역이 갈리고, 산화막은
+          알칼리 가수분해가 지배한다. 같은 '막질'이라도 이 반응성 축이 슬러리 선택을 결정.
+      - key: kp_m_per_pa
+        label: Preston 계수 (막질별)
+        type: number
+        unit: 1/Pa
+        origin: researched
+        maps_to: kp_m_per_pa
+        status: wired
+        confidence: literature
+        source: knowledge/cmp/preston-luo-dornfeld-mrr.md
+        note: >
+          MRR = Kp·P·V의 Kp. 실제로는 막질만의 상수가 아니라 (막질 × 슬러리 × 패드)의
+          묶음 상수다 — 팩 단위로 값이 달라지는 이유. 막질 단독 값으로 오해하지 말 것.
+      - key: density_g_cm3
+        label: 막 밀도
+        type: number
+        unit: g/cm³
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 성막 방식별 밀도 차(HDP vs SACVD 등)가 제거율 차의 물리적 대리변수.
+          deposition_method를 정량화하는 다리 역할을 할 수 있다.
+
+  # ═══════════════════════════════ 4) 하지막 스택
+  - id: stack
+    label: "하지막 구조 (스택)"
+    origin: researched
+    owner: wafer-type
+    why: >
+      CMP는 top layer만 깎는 게 아니라 스택을 관통한다. stop layer가 언제 드러나는가,
+      배리어가 얼마나 남는가가 종점·선택비·dishing을 결정한다. 광학 계측(SE/SR)도
+      스택 모델이 있어야 두께를 푼다 — 계측과 직결되는 축.
+    fields:
+      - key: layers
+        label: 층 구성 (top→bottom)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-metrology-thickness-methods.md
+        note: >
+          예: Cu / TaN barrier / TEOS ILD / Si. 엘립소미터는 이 스택을 광학모델로 세워야
+          두께를 역산한다 — 스택을 모르면 계측 자체가 성립 안 한다.
+      - key: stop_layer
+        label: 정지막 (stop layer)
+        type: enum
+        options: [sin, poly_si, ta_tan, oxide, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/params/sti_ceria.yaml
+        note: >
+          STI는 SiN, 다마신은 배리어가 실질적 정지막. 선택비(oxide_nitride_selectivity)의
+          '분모'가 여기서 정해진다. 슬러리 inhibitor 설계의 상대 축.
+      - key: barrier_material
+        label: 배리어/라이너
+        type: enum
+        options: [ta, tan, ti, tin, co, ru, mn_sio, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          다마신 2단계 CMP의 주역. Co/Ru는 배리어 겸 신규 배선 후보로 Cu와 전기화학
+          전위가 달라 갈바닉 부식 위험이 새로 생긴다(film-emerging 소관).
+      - key: barrier_thickness_nm
+        label: 배리어 두께
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 배리어 제거 시간이 overpolish 총량을 정하고 그게 dishing으로 간다."
+      - key: underlayer_topography_nm
+        label: 하지 단차 (증착 전 지형)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          CMP가 지우는 대상 그 자체. step height 초기값(§5)의 근원이며, 다층 배선에서는
+          아래 층의 잔여 지형이 위로 누적 전파된다.
+
+  # ═══════════════════════════════ 5) 패턴 정보 (PTW)
+  - id: pattern
+    label: "패턴 정보 (밀도·피치·다이맵·단차)"
+    origin: researched
+    owner: process-integrator
+    why: >
+      die-level 비균일의 물리 그 자체. 패드는 볼록한 영역만 만지므로 국소압이 1/ρ로
+      증폭되고 제거율이 밀도에 따라 재분포된다. Boning 그룹은 die-level 변동이
+      웨이퍼스케일 변동에 필적하거나 더 크다고 보고한다 — 웨이퍼스케일만 보면 절반만 본 것.
+    fields:
+      - key: pattern_density
+        label: 국소 패턴 밀도 ρ
+        type: number
+        typical: [0.05, 1.0]
+        origin: researched
+        status: not_wired
+        confidence: verified
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          RR_up = K/ρ_eff (Boning MRS99 eq.1). 노트의 verify 블록에서 ρ 4배 → 제거율
+          1/4로 반비례가 재현됐다. 우리 엔진의 sim/tier1_empirical/pattern_density.py가
+          이미 이 모델을 갖고 있으나 팩 파라미터로 노출돼 있지 않아 not_wired.
+      - key: density_map
+        label: 밀도 분포 맵 (die 내 2D)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          ρ_local(x,y)를 planarization length 커널로 컨볼루션해 ρ_eff를 만든다.
+          단일 스칼라 밀도로는 dishing/erosion을 못 푼다 — 맵이 입력이어야 한다.
+      - key: planarization_length_mm
+        label: planarization length (PL)
+        type: number
+        unit: mm
+        typical: [3, 5]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          "얼마나 먼 이웃 지형이 이 지점에 영향을 주는가"의 거리. 산화막 3~5mm
+          (Park VMIC98 원문). ⚠ Cu는 interaction distance가 50~100µm로 수십 배 짧다 —
+          같은 이름의 파라미터에 두 자릿수 다른 값이 들어간다는 점을 놓치면 안 된다.
+      - key: line_width_um
+        label: 선폭 (CD)
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+      - key: pitch_um
+        label: 피치
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          50% 밀도에서 총 Cu 손실 ∝ log(pitch)(Park VMIC98). 그리고 oxide 라인스페이스
+          ~100µm 부근에 break point가 있어 그 위에서는 erosion↑·dishing↓로 거동이 뒤집힌다.
+          밀도만으로는 못 잡는 축이라 피치를 따로 둔다.
+      - key: initial_step_height_nm
+        label: 초기 단차 (step height h0)
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          비압축성 패드 가정에서 단차는 선형 감소해 t_c = ρ·h0/K 에 소멸한다(노트 verify
+          재현 완료). 즉 h0는 평탄화 시간의 직접 입력이다.
+      - key: die_size_mm
+        label: 다이 크기
+        type: text
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: "다이 크기가 PL(3~5mm)과 비슷한 스케일이면 인접 다이가 서로 간섭한다."
+      - key: die_layout
+        label: 다이 배치 (샷맵)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/npw-ptw-test-wafer-fundamentals.md
+        note: >
+          엣지 다이는 내부 다이와 거동이 다르다 — Oji thesis는 내부 다이 PL 변동이
+          0.0~0.5mm인 데 비해 엣지 다이는 최대 3.2mm 차이가 난다고 보고(1차).
+          "웨이퍼 효과 vs 패턴 효과" 분리가 여기서 무너진다.
+      - key: dummy_fill
+        label: 더미 필 (밀도 균일화)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          레이아웃↔공정 결합점. ρ_eff 편차를 줄이는 die-level 평탄화의 1차 레버이며,
+          밀도 모델이 곧 더미 필 규칙의 근거다. CMP 쪽에서 레이아웃에 요구하는 유일한 축.
+
+  # ═══════════════════════════════ 6) 응력
+  - id: stress
+    label: "막 응력 · 형상 변화"
+    origin: researched
+    owner: wafer-type
+    why: >
+      사용자 목록에 없던 축. 막 응력은 웨이퍼를 휘게 만들어(warp/bow) 척 흡착·압력분포를
+      바꾸고, CMP로 막이 제거되면 응력 균형이 달라져 형상이 또 변한다. "CMP 전후 warp가
+      달라졌다"는 현상의 원인.
+    fields:
+      - key: film_stress_mpa
+        label: 막 응력 (인장+/압축-)
+        type: number
+        unit: MPa
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요(막질별 1차 수치 미확보). Stoney 식으로 bow 변화와 연결되는 것은
+          표준 관계이나, 우리 노트에 1차 출처가 없어 수치를 넣지 않는다.
+      - key: stress_gradient
+        label: 응력 구배 (깊이 방향)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 두꺼운 막을 부분 제거하면 잔막 응력이 초기값과 다르다."
+      - key: post_cmp_warp_delta_um
+        label: CMP 후 warp 변화
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 계측 관점에서 중요: 척에서 뗀 뒤 warp가 변하면 free-state 두께맵과
+          clamped 두께맵이 어긋난다. TTV(척 흡착 가정) 정의와 직접 충돌하는 지점.
+
+  # ═══════════════════════════════ 7) 이전 공정 이력
+  - id: history
+    label: "이전 공정 이력 (incoming history)"
+    origin: researched
+    owner: wafer-type
+    why: >
+      사용자 목록에 없던 축이지만 실무 트러블슈팅의 절반이 여기다. 같은 스펙의 웨이퍼도
+      성막 장비·큐타임·어닐 이력이 다르면 CMP 거동이 달라진다. 재현성 실패의 흔한 원인.
+    fields:
+      - key: deposition_tool_id
+        label: 성막 장비 (chamber matching)
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 챔버 간 막질 편차가 CMP 결과 편차로 오해되는 사례. 데이터 태깅 축."
+      - key: anneal_history
+        label: 어닐 이력
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. Cu 도금막은 상온 self-anneal로 결정립이 성장하고, 결정립 크기가
+          제거율·조도·dishing을 바꾼다고 알려져 있다(정성). 1차 출처 확보 후 승격 대상.
+      - key: queue_time_h
+        label: 큐타임 (성막→CMP 대기)
+        type: number
+        unit: h
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 자연산화막 성장·표면 흡착이 초기 제거 거동(break-in)을 바꾼다."
+      - key: prior_cmp_steps
+        label: 선행 CMP 이력
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+        note: >
+          다층 배선은 아래 층의 잔여 지형(erosion 자국)을 위층이 물려받는다. 층별로
+          독립 최적화하면 누적 지형에서 실패한다.
+      - key: rework_count
+        label: 재작업 횟수
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 재연마는 막두께 여유를 깎아먹는다. 실무 관리 축으로만 유지."
+
+  # ═══════════════════════════════ 8) 표면 초기 상태
+  - id: incoming_surface
+    label: "입고 표면 상태 (조도·결함·오염)"
+    origin: researched
+    owner: defect-scientist
+    why: >
+      CMP 후 결함을 CMP 탓으로 돌리기 전에 입고 결함을 빼야 한다. 이 그룹이 없으면
+      metrology.yaml의 결함 수치가 전부 '공정 기여 + 입고 기여'의 혼합값이 된다.
+    fields:
+      - key: incoming_roughness_rq_nm
+        label: 입고 조도 Rq
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-roughness-afm-scan-scale-dependence.md
+        note: >
+          ⚠ 스캔 크기를 함께 적지 않은 Rq는 의미가 없다 — self-affine 표면에서
+          Rq(L) ∝ L^H로 커진다(노트 §2, 코드 재현 완료). 입고값도 같은 스캔 크기로 재야 비교된다.
+      - key: incoming_defect_count
+        label: 입고 결함 수
+        type: number
+        unit: "count/wafer"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: "SEMI M52 (Guide for Specifying Scanning Surface Inspection Systems for Silicon Wafers) — 스코프 확인, 원문 미확보"
+        note: >
+          검출 하한(sensitivity)을 함께 적지 않으면 수치가 비교 불가능하다. SSIS는
+          PSL 구형 등가 크기로 교정한다(SEMI M53 계열).
+      - key: incoming_metal_contamination
+        label: 입고 금속 오염
+        type: number
+        unit: "atoms/cm²"
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md
+        note: >
+          TXRF/VPD-ICPMS 검출한계가 10⁹~10¹⁰ at/cm² 대라 그 아래는 "0"이 아니라
+          "측정 불가"다. CMP 오염 기여를 논하려면 입고 baseline이 있어야 한다.
+      - key: native_oxide_nm
+        label: 자연산화막
+        type: number
+        unit: nm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 금속막 위 자연산화막은 초기 제거 지연(induction time)을 만든다.
+          큐타임(§7)과 짝지어 봐야 하는 축.
