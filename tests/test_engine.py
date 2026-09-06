@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from scipy.special import ellipe
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -36,9 +37,21 @@ def test_preston_linearity_in_pressure_and_time():
 
 
 def test_uniform_pressure_gives_low_nonuniformity():
-    # 자전 평균으로 운동학 비균일은 작다 (process-integrator 판단: edge/center ≈ 1.004)
-    m = simulate(Recipe(edge_pressure_amp=0.0)).metrics
-    assert m.cv_pct < 0.5, m.cv_pct
+    """균일압력에서 CV는 순수 운동학 효과 — 완전타원적분 폐형식과 대조 (TEST-AUDIT §3-A #2).
+
+    폐형식(test_preston.py::rs_neq1_edge_center_ratio_matches_kinematics와 동일 유도,
+    Lai 2001 Eq.2.11): <|v|>_theta/v_ref(x) = (2/pi)*(1+|x|)*ellipe(4|x|/(1+|x|)^2),
+    x = (r/R_w)*mu, mu=(R_w/r_cc)(1-Rs). 균일압력이므로 MRR ∝ 이 속도비(상수 배율은
+    CV에 기여 없음) → 엔진 결과와 무관하게 독립 재계산해 비교.
+    """
+    res = simulate(Recipe(edge_pressure_amp=0.0))
+    rr = Recipe(edge_pressure_amp=0.0).resolve()
+    mu = (rr.wafer_radius_m / rr.center_offset_m) * (1.0 - rr.rpm_wafer / rr.rpm_platen)
+    x = np.abs(res.radius_m / rr.wafer_radius_m * mu)
+    speed_ratio = (2.0 / np.pi) * (1.0 + x) * ellipe(4.0 * x / (1.0 + x) ** 2)
+    cv_analytic = float(np.std(speed_ratio) / np.mean(speed_ratio) * 100.0)
+    rel = abs(res.metrics.cv_pct - cv_analytic) / cv_analytic
+    assert rel < 1e-3, (res.metrics.cv_pct, cv_analytic, rel)
 
 
 def test_edge_pressure_increases_ttv():

@@ -60,7 +60,15 @@ def test_area_vs_load_slope_matches_analytic_ratio():
 
 
 def test_plasticity_index_order_of_magnitude():
-    """전형적 CMP 패드 조건에서 소성지수 psi가 합리적 오더 범위 내에 있음 (정밀 판정 아님)."""
+    """소성지수 psi가 GW 1966 소성판정 임계(gw_contact.py:87, psi>1)와 일치 (TEST-AUDIT §3-A #6).
+
+    H=50e6(모듈 주석: "미검증 오더값")에서 psi≈4.9 → psi>1이므로 GW1966 판정으로는
+    소성접촉 지배(gw_contact.py:87 "psi>1이면 소성 접촉 지배"). knowledge/materials/
+    pad-hardness-porosity-measurement-methods.md는 IC1000/IC1010 경도를 Shore D60으로만
+    보고하고(§1), Shore D→Pa 환산식은 ASTM D2240 원문 미확보로 그 노트에 의도적으로
+    없다(§2) — 따라서 문헌 H(Pa)로 정밀 대조는 불가능하고, 대신 범위를 기존 4자릿수
+    (0.01~100)에서 1자릿수(1~10)로 좁혀 GW1966 임계와의 정성적 일치만 확인한다.
+    """
     H = 50e6
     psi = gw.plasticity_index(E_STAR, H, 0.3e-6, R)
-    assert 0.01 < psi < 100
+    assert 1.0 < psi < 10.0

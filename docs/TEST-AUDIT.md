@@ -76,6 +76,16 @@
 | 4 | test_spatiotemporal_removal_physical_kp.py::`wide_pressure_range_deviation_is_small_and_finite` | `max(rel_dev) < 1e-2` | #3과 동일 근거(n∝P 정확해). 14~96 kPa에서도 편차는 ~1e-4 | 1e-3으로 조임 |
 | 5 | test_conditioner_sweep_kinematics.py::`pca_profile_has_nonzero_coverage` | `nonzero/len > 0.05` | Zheng·Zhao·Lu 2023 Table 1 조건의 PCR 반경 프로파일(논문 Fig.) — 모듈이 Eq.1-9·Table 1을 "그대로 구현"했으므로 논문 프로파일 형상(피크 위치·가장자리 감쇠)과 대조 가능 | 논문 Fig. 디지타이즈값 또는 최소한 "피크 반경이 R_p±(R_a−R_i) 범위"라는 기하 조건으로 교체. 동시에 `pca_zero_outside_reach`의 공허 통과(`or`) 제거 |
 | 6 | test_gw_contact.py::`plasticity_index_order_of_magnitude` | `0.01 < ψ < 100` | GW 1966 판정 임계(ψ<0.6 탄성, >1 소성)가 gw_contact.py:87에 이미 적혀 있음. H는 knowledge/materials/pad-hardness-porosity-measurement-methods.md(Shore D60, Pureon 데이터시트)에서 경도값 확보 가능 | 문헌 H로 ψ를 계산해 "탄성/소성 판정이 문헌 서술과 일치"를 assert. H 미확보 시 최소한 범위를 1자릿수로 |
+
+**교체 완료 (2026-09-06, [Max워커] S2 후속)**: 7건 전부 교체됨. 실제 적용 내역:
+1. `ellipe(4|x|/(1+x)²)*(2/π)(1+|x|)` 폐형식(Lai 2001 Eq.2.11에서 직접 유도, a²+b²+2ab·cosθ=(a+b)²−4ab·sin²(θ/2) 항등식 이용)과 1e-9 대조 — kinematics.py 값(1.00391) 의존 완전 제거, 수치 실행 결과 diff=0.0 확인.
+2. 동일 폐형식으로 기본 Recipe(rpm_wafer=60, rpm_platen=55, r_cc=0.18)의 CV를 독립 재계산, 상대오차 1e-3 이내(실측 ~1e-5) 대조. 해석 CV≈0.0416%(기존 <0.5% 임계보다 10배 이상 타이트).
+3. rel<1e-3으로 조이고 메시지 숫자(0.1%)를 assert와 일치시킴. 실측 rel≈2.1e-4로 여유 있게 통과.
+4. rel_dev<1e-3으로 조임. 실측 max rel_dev≈4.6e-12.
+5. `pca_profile_has_nonzero_coverage`는 논문 Fig. 디지타이즈 대신 "코사인법칙으로 구한 disk_center 도달반경대 [min(dc_r)-R_i, max(dc_r)+R_i]" 기하조건으로 교체(제안된 "R_p±(R_a−R_i)"는 이 self-test의 좁은 beta 스윕(5°~45°)에서는 성립하지 않아 — 실측 피크반경 296.8mm — 대신 실제로 성립하는 코사인법칙 도달범위를 사용). `pca_zero_outside_reach`는 r_max를 도달반경의 1.3배로 늘려 도달불가 bin이 실제로 생기게 만들고 `np.any(outside_mask)`를 먼저 assert해 공허통과(§4-2) 제거.
+6. knowledge 노트(§2)가 Shore D→Pa 환산식을 의도적으로 갖고 있지 않아(ASTM D2240 원문 미확보) 정밀 H 확보 불가 — 대신 gw_contact.py:87의 GW1966 임계(ψ>1 소성)와의 정성적 일치로 범위를 1자릿수(1~10)로 좁힘. H=50e6(기존 미검증 오더값)에서 ψ≈4.9.
+7. `pytest.approx(1/0.3, rel=1e-6)`로 교체(PatternDensityModel의 MRR_up=MRR_blanket/ρ 항등식, 균일 밀도맵이라 ρ_eff=ρ 그대로).
+
 | 7 | test_models.py::`ptw_pattern_raises_mrr` (분류상 혼합이지만 동일 성격) | `sparse > dense * 2` (주석은 "약 3.3배") | RR_up = K/ρ_eff (Boning MRS 1999 / Stine 1998)이므로 ρ=1.0 vs 0.3 → 정확히 1/0.3 = 3.333배 (PL 컨볼루션이 균일맵에선 항등) | `pytest.approx(1/0.3, rel=1e-6)` |
 
 ### 3-B. 스냅샷이 최선 — 외부 근거가 아직 없음 (3건)
@@ -96,7 +106,7 @@
 ## 4. 감사 중 발견한 사소한 문제(코드 미수정, 기록만)
 
 1. test_models.py:52 — assert 10% vs 메시지 "5% 이내" 불일치.
-2. test_conditioner_sweep_kinematics.py:45 — `(not np.any(mask)) or …` 로 범위 밖 bin이 없으면 공허 통과. **실측 확인**: 현재 r_bins=25 설정에서 bin 중심 최대 354.8 mm < 도달반경 357+5 mm 이라 mask가 비어 있고, 이 테스트는 지금 **아무것도 검증하지 않는다**(항상 통과). §3-A #5에서 함께 교체.
+2. test_conditioner_sweep_kinematics.py:45 — `(not np.any(mask)) or …` 로 범위 밖 bin이 없으면 공허 통과. **실측 확인**: 현재 r_bins=25 설정에서 bin 중심 최대 354.8 mm < 도달반경 357+5 mm 이라 mask가 비어 있고, 이 테스트는 지금 **아무것도 검증하지 않는다**(항상 통과). §3-A #5에서 함께 교체. **교체 완료(2026-09-06)**: r_max를 도달반경×1.3으로 늘려 도달불가 bin을 실제로 만들고 `np.any(outside_mask)`를 먼저 assert하도록 수정 — 더 이상 공허 통과가 불가능하다.
 3. test_conditioner_pcr_decay.py:37-38 — `import pytest` 후 `__import__("pytest")` 중복(동작 무해).
 4. test_wear_aware_endpoint.py:38-43 — try/except 수동 플래그 대신 `pytest.raises(RuntimeError)`가 관례.
 5. 문헌 근거가 모듈 docstring에만 있고 테스트 docstring엔 없는 파일이 다수(conditioner·slurry_film·pad_wear). 교체 작업 시 테스트 쪽에 출처를 옮겨 적으면 이 감사가 자동 갱신 가능해진다.

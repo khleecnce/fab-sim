@@ -36,6 +36,13 @@ def test_uniform_pressure_matches_constant_kp_field():
 
 
 def test_wide_pressure_range_deviation_is_small_and_finite():
+    """물리적 kp_eff와 상수 kp_lit 모델의 편차가 작다 (TEST-AUDIT §3-A #4).
+
+    근거: #3(test_models.py::gw_and_preston_converge)과 동일 — GW 지수분포에서
+    n_contacts ∝ P가 정확한 해석해이므로 14~96kPa 넓은 범위에서도 편차는
+    이산화 오차 수준(<1e-3, 실측시 ~1e-12)이어야 한다. 1e-2는 실제 회귀를
+    가릴 만큼 느슨했다.
+    """
     pfn = p_zoned([0.0, 0.33, 0.66, 1.0], [14e3, 48e3, 96e3])
     rs_wide, _ = mrr_radial(R_w, r_cc, rpm_w, rpm_p, kp_lit, pfn, n_r=n_r)
     rho_eff = _die_rho_eff()
@@ -45,7 +52,7 @@ def test_wide_pressure_range_deviation_is_small_and_finite():
                                            V_ref, P_ref, kp_lit, t_sec, n_r=n_r)
     rel_dev = np.abs(res_phys["thickness"] / res_const["thickness"] - 1.0)
     assert np.all(np.isfinite(rel_dev))
-    assert np.max(rel_dev) < 1e-2
+    assert np.max(rel_dev) < 1e-3
 
 
 def test_alpha_removal_matches_gw_preston_link_calibration():

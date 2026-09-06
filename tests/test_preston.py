@@ -2,6 +2,10 @@
 
 물리 로직은 재구현하지 않고 preston.py의 함수를 그대로 호출해 assert한다.
 """
+import math
+
+from scipy.special import ellipe
+
 import preston as pr
 
 R_W = 0.150  # m
@@ -38,7 +42,21 @@ def test_rs1_flat_radial_profile():
 
 
 def test_rs_neq1_edge_center_ratio_matches_kinematics():
-    """Rs!=1일 때 edge/center 비가 kinematics.py 교차검증값(1.00391)과 일치."""
+    """Rs!=1일 때 edge/center 시간평균 MRR 비가 완전타원적분 폐형식과 일치 (TEST-AUDIT §3-A #1).
+
+    폐형식 유도(Lai 2001 Eq.2.11, kinematics.py 상단 docstring 참조):
+      |v(r,theta)|/v_ref = sqrt(1 + 2*x*cos(theta) + x^2), x = r_norm*mu, v_ref = w_p*r_cc
+      a^2+b^2+2ab*cos(theta) = (a+b)^2 - 4ab*sin^2(theta/2) (a=1, b=x)
+      -> theta평균(=자전 시간평균) = (2/pi)*(1+|x|)*E(k^2), k^2 = 4|x|/(1+|x|)^2
+      (scipy.special.ellipe(m)은 m=k^2 컨벤션: E(m)=∫0^(pi/2) sqrt(1-m sin^2) dtheta)
+    center(r=0): x=0 -> 비=1. edge(r=R_w): x=mu.
+    ratio_analytic = (2/pi)*(1+|mu|)*ellipe(4|mu|/(1+|mu|)^2), mu=(R_w/r_cc)(1-Rs).
+    kinematics.py의 1.00391 스냅샷 대신 이 독립 폐형식과 대조한다(순환의존 제거).
+    """
     rs, mrr = pr.mrr_profile(R_W, R_CC, 50.0, 60.0, 20.7e3, KP)
     ratio = mrr[-1] / mrr[0]
-    assert abs(ratio - 1.00391) < 1e-4
+
+    mu = (R_W / R_CC) * (1.0 - 50.0 / 60.0)
+    x = abs(mu)
+    ratio_analytic = (2.0 / math.pi) * (1.0 + x) * ellipe(4.0 * x / (1.0 + x) ** 2)
+    assert abs(ratio - ratio_analytic) < 1e-9

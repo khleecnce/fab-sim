@@ -39,26 +39,34 @@ def test_pressure_monotonic(model):
 
 
 def test_gw_and_preston_converge():
-    """GW 물리 모델과 Preston 상수 모델이 같은 자릿수로 수렴해야 한다.
+    """GW 물리 모델과 Preston 상수 모델이 수렴해야 한다 (TEST-AUDIT §3-A #3).
 
-    근거: knowledge/materials/gw-nominal-vs-local-pressure — 서로 다른 미시가정
-    (선형 P vs GW n(P))에서 출발해도 예측이 수렴하는 것이 pad-mechanic Lv3-2의
-    핵심 주장이다. 이 테스트가 그 주장의 회귀 방어선이다.
+    근거: GW 지수분포에서 n_contacts ∝ P는 근사가 아니라 정확한 해석해다
+    (test_gw_preston_link.py에서 이미 1e-6/1e-4 수준으로 확인됨). 두 모델은
+    같은 alpha_removal 보정점에서 출발하므로 다른 압력에서도 편차는 이산화
+    오차 수준(<1e-3)이어야 한다 — 10%짜리 느슨한 허용은 존압력 배선 오류
+    같은 실제 회귀를 놓친다.
     """
     r = Recipe(pressure_psi=3.0)
     p = simulate(r, model="tier1.preston_radial").metrics.mean_nm
     g = simulate(r, model="tier2.gw_physical_kp").metrics.mean_nm
     rel = abs(g - p) / p
-    assert rel < 0.10, f"GW와 Preston이 {rel*100:.1f}% 벌어짐 — 5% 이내여야 한다 ({p:.1f} vs {g:.1f})"
+    assert rel < 1e-3, f"GW와 Preston이 {rel*100:.3f}% 벌어짐 — 0.1% 이내여야 한다 ({p:.1f} vs {g:.1f})"
 
 
 def test_ptw_pattern_raises_mrr():
-    """PTW: 패턴 밀도가 낮을수록 up-area 압력이 올라 MRR 증가."""
+    """PTW: 패턴 밀도가 낮을수록 up-area 압력이 올라 MRR 증가 (TEST-AUDIT §3-A #7).
+
+    근거: PatternDensityModel.mrr_radial (sim/models.py) 는 MRR_up = MRR_blanket/rho_eff
+    (Boning MRS 1999 / Stine 1998 eq.1)를 상수 배율로만 적용한다. 균일 밀도맵이므로
+    rho_eff=rho 그대로이고, 같은 recipe·같은 base(GW)에서 rho만 바뀌므로 비율은
+    정확히 항등식 1/0.3 = 3.333...배다.
+    """
     dense = simulate(Recipe(wafer="PTW", meta={"pattern_density": "1.0"}),
                      model="tier1.pattern_density").metrics.mean_nm
     sparse = simulate(Recipe(wafer="PTW", meta={"pattern_density": "0.3"}),
                       model="tier1.pattern_density").metrics.mean_nm
-    assert sparse > dense * 2, "ρ=0.3이면 ρ=1.0의 약 3.3배여야 한다"
+    assert sparse / dense == pytest.approx(1.0 / 0.3, rel=1e-6)
 
 
 def test_ptw_model_ignores_npw():
