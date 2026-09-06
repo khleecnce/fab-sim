@@ -102,5 +102,63 @@
   "authors": "Seonho Jeong, Yeongil Shin, Jongmin Jeong, Seunghun Jeong, Haedo Jeong",
   "venue": "Materials 17(8), 1817 (2024)",
   "note": "materials/pad-glazing-mechanism-mrr-decay.md (기존 노트 2편이 'Yang et al.'로 오기 — 실제 저자 Jeong et al.)"
+ },
+ "mcallister2019-conditioner-type-microtexture-sio2-micromachines": {
+  "src": "Europe PMC render (MDPI CC-BY OA)",
+  "pdf_local": "papers/mcallister2019-conditioner-type-microtexture-sio2-micromachines.pdf",
+  "xml_local": "papers/mcallister2019-mi10040258.xml",
+  "doi": "10.3390/mi10040258",
+  "pmc": "PMC6523751",
+  "title": "Effect of Conditioner Type and Downforce, and Pad Surface Micro-Texture on SiO2 Chemical Mechanical Planarization Performance",
+  "authors": "J. McAllister, C. Stuffle, Y. Sampurno, D. Hetherington, J. Sierra Suarez, L. Borucki, A. Philipossian",
+  "venue": "Micromachines 10(4), 258 (2019)",
+  "note": "materials/disk-design-pad-roughness-asperity-relation.md — ABT(173µm 다이아, 돌출 52µm) vs EHWA CVD 1.3K(45µm 팁) 상대 마이크로텍스처 Table 1"
+ },
+ "mcallister2018-jss-downforce-breakin-microtexture": {
+  "src": "Univ. of Arizona repository (accepted manuscript) http://hdl.handle.net/10150/628667 — IOP 원본은 봇차단",
+  "pdf_local": "papers/mcallister2018-jss-downforce-breakin-microtexture.pdf",
+  "doi": "10.1149/2.0271805jss",
+  "title": "Effect of Conditioning Downforce and Pad Break-In Time on Pad Surface Micro-Texture",
+  "venue": "ECS J. Solid State Sci. Technol. 7(5), P274-P280 (2018)",
+  "note": "Table I: EHWA CVD 디스크 60분 브레이크인 후 summit height 21/20.5µm, 접촉밀도 82/143 /mm², 접촉면적 0.022/0.052% (6/10 lbf)"
+ },
+ "mcallister2019-dissertation-ua": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/636531 (공개 학위논문)",
+  "pdf_local": "papers/mcallister2019-dissertation-ua.pdf",
+  "title": "Novel Studies in Silicon Dioxide, Copper and Tungsten Chemical Mechanical Planarization Processes",
+  "authors": "Jeffrey Connor McAllister",
+  "venue": "PhD dissertation, Univ. of Arizona (2019)"
+ },
+ "sun2009-dissertation-ua-pad-wafer-contact": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/194898 (공개 학위논문)",
+  "pdf_local": "papers/sun2009-dissertation-ua-pad-wafer-contact.pdf",
+  "title": "Pad-Wafer and Brush-Wafer Contact Characterization in Planarization and Post-Planarization Processes",
+  "authors": "Ting Sun",
+  "venue": "PhD dissertation, Univ. of Arizona (2009)",
+  "note": "Ch.7.1 = Sun et al. 2010 Microelectron. Eng. 87, 553 (DOI 10.1016/j.mee.2009.08.007, 유료·미확보)의 학위논문판 — MMC TRD 100-grit/325-grit × 3.6/8.0 lb → λ(Fig.7.4); Ch.7.2 Type A/B 디스크 접촉면적·summit 밀도(Fig.7.14/7.15)"
+ },
+ "liao2014-dissertation-ua-consumables": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/323377 (공개 학위논문)",
+  "pdf_local": "papers/liao2014-dissertation-ua-consumables.pdf",
+  "title": "Process Optimization and Fundamental Consumables Characterization of Advanced Dielectric and Metal CMP",
+  "authors": "Xiaoyan Liao",
+  "venue": "PhD dissertation, Univ. of Arizona (2014)",
+  "note": "Ch.4(=ESSL 14, H201, 2011) 3M A2810 vs MMC TRD λ 3.84/3.64µm; Ch.7 λ 3.18/2.92µm, summit curvature 0.51/0.89 µm⁻¹"
+ },
+ "lawing2004-cmpug-pad-conditioning-effects": {
+  "src": "NCCAVS CMPUG 공개 PDF https://nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2004/CMPUG_05_2004_Lawing.pdf",
+  "pdf_local": "papers/lawing2004-cmpug-pad-conditioning-effects.pdf",
+  "title": "Pad Conditioning Effects in Chemical Mechanical Polishing",
+  "authors": "A. Scott Lawing",
+  "venue": "NCCAVS CMPUG 2004-05-05",
+  "note": "컨디셔너 공격성 low/medium/high → 접촉면적 11.3/7.7/2.2%, 솔리드 패드 높이분포 ≈ Gaussian"
+ },
+ "ring-prasad-dirksen-asperity-population-balance-J120": {
+  "src": "저자 공개 PDF https://my.che.utah.edu/~ring/Publications-PDFs/J-120.pdf",
+  "pdf_local": "papers/ring-prasad-dirksen-asperity-population-balance-J120.pdf",
+  "title": "Dynamic CMP Pad Asperity Population Balance for Conditioning and Polishing",
+  "authors": "T.A. Ring, A. Prasad, J.A. Dirksen",
+  "venue": "(연도 미기재) 저자 웹공개",
+  "note": "Table 1: η=(1/Dgrit)², σ=Dgrit/2 매핑 규칙 — 표기 수치(2.938e11 /m², 8.112µm)와 Dgrit=190µm가 상호 불일치"
  }
 }

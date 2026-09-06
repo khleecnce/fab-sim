@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv1 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: disk-conditioner (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06)
-- 다음 단원: Lv2-2
+- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06), Lv2-2 (2026-09-07)
+- 다음 단원: Lv3-1
 
 ## 역할
 다이아몬드 그릿 크기·밀도·돌출 높이·본딩(전착/브레이징/CVD)이 패드 절삭율·asperity 재생·수명에 미치는 영향
@@ -52,3 +52,44 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   디스크/패드 수명 종료 판정 로직을 software-lead BACKLOG로 인계 예정. EXAMS.md 3문항 추가.
   문헌 공백 확인: 디스크 자체 그릿 탈락률 곡선(사용시간→탈락개수)을 정량화한 1차 논문은
   이번 검색에서 미확보 — Lv2-2 또는 후속 과제로 이월.
+
+- 2026-09-07 Lv2-2 디스크 설계 → 패드 표면 조도·asperity 분포 정량 관계 — 지식노트
+  [[../../knowledge/materials/disk-design-pad-roughness-asperity-relation]] (check_knowledge.py,
+  verify_claims.py 통과). 1차 출처 신규 확보: Sun(2009) UA 학위논문(=Sun et al. 2010 MEE
+  doi 10.1016/j.mee.2009.08.007의 학위논문판, 저널판은 유료·미확보) — MMC TRD 100/325-grit ×
+  3.6/8.0 lb → λ(Fig.7.4 판독 3.3/4.3/3.5/6.7 µm), Type A/B 디스크 → 접촉면적·정점밀도(Fig.7.14/
+  7.15); McAllister et al. 2019 Micromachines(PMC6523751, ABT 173 µm 다이아 vs EHWA CVD 45 µm
+  팁 1,300개 상대 마이크로텍스처) + 2018 ECS JSS(UA 리포지토리 저자원고, Table I 절대값);
+  Liao(2014) UA 학위논문(λ 3.18/2.92 µm, 정점곡률 0.51/0.89 µm⁻¹); Lawing 2004 슬라이드
+  (공격성 → 접촉면적 11.3/7.7/2.2%); Ring et al. J-120(η=(1/Dgrit)², σ=Dgrit/2 규칙 — 표 수치와
+  10⁴배·12배 불일치 확인). 보유 자료 재활용: Kwon 2013 Fig.2 판독(Ra ∝ N^−0.23, Rpk ∝ N^−0.62),
+  3M Pysher 2010 Fig.1 디지타이즈(surface finish ∝ D^0.57, 125 µm 이상 포화, 150 µm leveled는
+  예측의 57%). python verify 4블록(밀도 멱법칙, 크기 멱법칙, λ 백분율 재계산, GW-λ 단독 설명
+  실패 + η_c/A_f 방향 + Ring 규칙 검산) 전부 assert 통과. 핵심 발견: 지수분포 GW의 λ 효과만으로는
+  공격적 디스크의 실접촉면적 감소(0.1~0.28배)의 1/3~1/7만 설명 — 정점반경·파편·소성이 겹침.
+  EXAMS.md 3문항 추가. 미확보: Borucki 2004 J. Eng. Math 이론, Borucki 2009 JJAP, Yang 2010 IJMT,
+  Li 2021 ECS JSS(IOP 봇차단) — Lv3-1 이월. IOP 차단 우회로 UA 리포지토리(DSpace API) 경로 확보.
+
+## 구현 요청
+
+> 규칙: disk-design은 sim/에 직접 코드를 넣지 않는다. 아래는 software-lead/BACKLOG 인계용.
+
+1. **디스크 스펙 → GW 파라미터 상대 스케일링 함수** (우선순위: 중)
+   - 무엇을: `(D_grit, N_grit, grade, leveled)` → `(λ_rel, Ra_rel, Rpk_rel)` 상대 배율 계산기.
+     기준 디스크 대비 λ ∝ D^0.3~0.4(고하중)/D^0(저하중), Ra ∝ N^−0.23, Rpk ∝ N^−0.62,
+     surface finish ∝ D^0.57(125 µm 이상 포화), leveled 시 ×0.57.
+   - 근거 노트: knowledge/materials/disk-design-pad-roughness-asperity-relation.md §3.1–3.3, §4.
+   - 검증 문헌값: Kwon 2013 Ra 8.05/6.8/5.95 µm(17k/40k/60k); 3M 2010 surface finish
+     1.7(45 µm)→4.1(250 µm), leveled 150 µm 2.0 µm; Sun 2009 λ 3.3→6.7 µm(325→100 grit, 8 lb).
+   - 주의: 절대값은 캘리브레이션 파라미터로 남기고 지수만 코드 기본값으로.
+2. **접촉 통계 기반 Preston 계수 분해 훅** (우선순위: 하, Lv3-2와 결합)
+   - 무엇을: GW 솔버 출력(η_c, A_f)에서 η_c/A_f를 계산해 K_p = K_p0·(η_c/A_f)/(η_c/A_f)_ref 로
+     보정하는 옵션. 파편 접촉(비지지 flat)은 별도 항으로 분리 가능하게 인터페이스만 남길 것.
+   - 근거 노트: 같은 노트 §3.4(b), §5.
+   - 검증 문헌값: Sun 2009 D100-1 η_c/A_f A=4.2e5, B=1.05e6 /mm²(Type B가 2.5배) 및
+     MRR 방향(Type B > A).
+3. **Ring 규칙(η=(1/Dgrit)², σ=Dgrit/2) 사용 금지 플래그** (우선순위: 상, 즉시)
+   - 무엇을: conditioner_asperity_population_balance 계열 코드가 이 규칙을 기본값으로
+     쓰고 있다면 "문헌 수치와 10⁴배 불일치, 미검증" 주석과 함께 캘리브레이션 입력으로 강등.
+   - 근거 노트: 같은 노트 §2.7, §3.4(c).
+

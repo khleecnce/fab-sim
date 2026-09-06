@@ -6,7 +6,7 @@
 - [x] Lv1-1 다이아몬드 그릿 규격(메시·형상·품질)과 본딩 기술 비교
 - [x] Lv1-2 그릿 밀도·돌출 높이 → 패드 절삭율(cut rate) 모델
 - [x] Lv2-1 그릿 탈락·마모와 디스크 수명, 스크래치 결함 연계
-- [ ] Lv2-2 디스크 설계 → 패드 표면 조도·asperity 분포 정량 관계
+- [x] Lv2-2 디스크 설계 → 패드 표면 조도·asperity 분포 정량 관계 (2026-09-07, knowledge/materials/disk-design-pad-roughness-asperity-relation.md)
 - [ ] Lv3-1 최신 리뷰: CVD 다이아 디스크, 패턴화 그릿 배열
 - [ ] Lv3-2 디스크 파라미터 → 절삭율·asperity 재생 모델 (sim/tier2)
 
