@@ -687,3 +687,24 @@
   부수 발견: test_models gw_and_preston_converge assert 10% vs 메시지 5% 불일치,
   test_conditioner_sweep_kinematics pca_zero_outside_reach는 mask가 비어 **항상 공허 통과**(실측
   확인). 코드 미수정, 119 passed 유지.
+
+## 2026-09-06 — 파라미터 팩 도입 (물성/코드 분리)
+
+사용자 지시: "시뮬레이션툴이야 껍데기고 그 안에는 학습내용이 잘 머지되어서
+있어야되는거 아니야? 그 내용만 바꾸면 각각 다른 시뮬레이션을 할수있도록 설계해"
+
+**진단**: knowledge/*.md 36편이 코드에서 전부 주석이었다. knowledge를 open()하는
+코드가 0줄. 물리 상수는 24개 모듈에 하드코딩(_E_STAR, sigma0, ENTEGRIS_ANCHOR_RATIO).
+지식이 아무리 쌓여도 시뮬레이터에 반영되지 않는 구조였다.
+
+**변경**: 물성 소유권을 `knowledge/params/*.yaml`로 이관. 엔진은 팩 이름만 받는다.
+- 팩 5종: base(장비·패드·GW) / oxide_silica / sti_ceria(3단 상속) / cu_h2o2_bta / w_fe_oxidizer
+- 모든 값이 source·confidence 동반. 미검증 값 사용 시 결과에 ⚠ 경고 + provenance
+- 없는 물성 요구 시 ParamMissing으로 즉시 실패(조용한 기본값 금지)
+
+**검증**: w_fe_oxidizer는 sim/ 코드 0줄 수정으로 추가. oxide 128.7 / ceria 283.2 /
+Cu 450.5 / W 360.4 nm/min. 130 tests passed, CI run 34012847439 success. 커밋 e3fc042.
+
+**다음 병목**: 팩 값 대부분이 confidence=estimated(문헌 역산). M3 실데이터
+캘리브레이션이 이 값들을 verified로 바꾸는 작업이고, 그 대상 목록은
+`python -m sim.cli --list-packs`의 미검증 카운트가 그대로 알려준다.
