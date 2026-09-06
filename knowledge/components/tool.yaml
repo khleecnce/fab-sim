@@ -1,0 +1,931 @@
+# 장비(폴리셔) 구성요소 스키마
+#
+# 씨앗: 2026-09-06 사용자 지시 — "장비, 패드, disk 등 다른 요소들도 이런식으로 구성해줘.
+#       어떤 구성이 필요할지는 내가 슬러리 경험밖에 없어서 잘 모르니까
+#       research ai agent 통해서 조사해서 만들어." + "필요한게 있으면 포함시켜."
+#
+# 따라서 이 파일은 origin: user 항목이 없다. 사용자는 장비 축을 지정하지 않았고
+# 조사로 채우라고 명시했다. 전 항목 origin: researched (근거 필수).
+#
+# 근거 노트:
+#   knowledge/equipment/cmp-tool-architecture.md              (헤드·플래튼·링 기구)
+#   knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md (EPD·온도·공급 — 신규)
+#   knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md      (존압·엣지압)
+#   knowledge/physics/cmp-kinematics-rotary.md                (회전 기구학)
+#
+# ⚠ 정직성 규칙: 공개 문헌으로 확인 못 한 수치는 confidence: unverified + "⚠ 조사 필요".
+#    상용 툴(AMAT/Ebara/KCTech) 사양은 1차 자료 미확보 → 지어내지 않았다.
+
+version: 1
+component: tool
+owner: tool-platen-head
+description: "CMP 폴리셔 장비 — 플랫폼·플래튼·캐리어헤드·리테이너링·공급·EPD·열·정밀도·시퀀스."
+
+groups:
+
+  # ═══════════════════════════════ 1) 플랫폼 구성
+  - id: platform
+    label: "플랫폼 구성 (툴 아키텍처)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      같은 레시피라도 플랫폼이 다르면 재현되지 않는다. 플래튼 개수·헤드 개수가
+      다단 시퀀스와 처리량을 결정하고, 구동 방식(로터리/오비탈/벨트)이 기구학 식
+      자체를 바꾼다. 시뮬레이터가 어떤 기구학 모듈을 쓸지 고르는 최상위 스위치.
+    fields:
+      - key: kinematic_type
+        label: 구동 방식
+        type: enum
+        options: [rotary, orbital, linear_belt, rotary_dual_axis]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: >
+          우리 엔진은 rotary(회전 플래튼 + 회전 헤드)만 구현돼 있다. orbital(플래튼이
+          작은 반경으로 병진 선회 → 웨이퍼 전면 상대속도 균일)·linear_belt(벨트 패드)은
+          속도장 식이 달라 kinematics 모듈을 새로 써야 한다.
+          ⚠ 계열별 성능 우열의 정량 비교는 원문 미확보(ScienceDirect 403) — 주장하지 않는다.
+      - key: platen_count
+        label: 플래튼 수
+        type: number
+        typical: [1, 4]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          다단 폴리싱(bulk→soft-landing→buff)을 하나의 툴 안에서 하려면 플래튼이 여럿이어야
+          한다. 리뷰 문헌은 R&D용 단일 플래튼 장비로 산정한 환경부하가 양산 대비
+          과소평가라고 지적한다(PMC8617369) — 양산기는 다중 플래튼이라는 방증.
+          ⚠ 상용 툴별 정확한 플래튼 수는 1차 자료 미확보.
+      - key: head_count
+        label: 캐리어 헤드 수
+        type: number
+        typical: [1, 4]
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 헤드 수는 처리량과 직결되나 공개 사양 미확보."
+      - key: wafer_diameter_mm
+        label: 대응 웨이퍼 크기
+        type: enum
+        options: [100, 150, 200, 300]
+        origin: researched
+        status: partial
+        maps_to: wafer_radius_m
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          팩에는 반경(m)으로만 있다(0.150 = 300mm). 직경(mm) → 반경(m) 환산이 필요해
+          partial. 200mm/300mm는 헤드·링·패드가 통째로 다르다.
+      - key: integrated_cleaner
+        label: 세정 모듈 일체형 여부
+        type: enum
+        options: [dry_in_dry_out, wet_out_external_clean, polish_only]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          양산 CMP는 연마 후 웨이퍼가 마르면 슬러리 잔사가 굳어 결함이 되므로
+          툴 안에서 브러시 세정·SRD까지 끝내고 마른 상태로 내보낸다(dry-in/dry-out).
+          post_cmp.yaml 과 경계 — 여기서는 "툴이 그 모듈을 갖는가"만 다룬다.
+
+  # ═══════════════════════════════ 2) 플래튼
+  - id: platen
+    label: "플래튼 (회전 정반)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      패드를 얹는 회전 원판. 회전수는 Preston식 속도항의 절반을 만들고, 평탄도·런아웃은
+      압력 분포의 저주파 성분을 만든다. EPD 센서와 온도 제어도 대부분 플래튼에 실린다.
+    fields:
+      - key: diameter_m
+        label: 플래튼 직경
+        type: number
+        unit: m
+        typical: [0.3, 1.0]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          양산은 웨이퍼 지름의 2~3배. 실험기는 300mm 플래튼 사례(MIT Lai thesis).
+          직경이 center_offset과 sweep 가동범위의 상한을 정한다.
+      - key: rpm
+        label: 플래튼 회전수
+        type: number
+        unit: rpm
+        typical: [30, 120]
+        origin: researched
+        maps_to: rpm_platen
+        status: wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: 팩 기본값 55 rpm. 웨이퍼 회전수와의 비가 속도 균일성을 지배한다.
+      - key: rotation_direction
+        label: 회전 방향 (헤드 대비)
+        type: enum
+        options: [same_as_head, opposite]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: >
+          보통 웨이퍼와 패드는 같은 방향으로 돈다. 이 전제가 있어야
+          ω_w=ω_p 일 때 상대속도가 웨이퍼 전면에서 균일하다는 결론이 성립한다.
+          부호가 반대면 그 결론이 통째로 깨진다 — 기구학 모듈의 숨은 가정.
+      - key: material
+        label: 플래튼 재질
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          보통 알루미늄/스테인리스. 재질은 열용량·열전도로 패드 온도 거동에 들어온다.
+          (GaN 촉매 연마처럼 플래튼 재질 자체가 화학에 개입하는 특수 사례도 문헌에 있다.)
+      - key: flatness_um
+        label: 플래튼 평탄도
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 허용치 수치 미확보. 리뷰 문헌은 "패드 평탄도가 WIWNU에 직접 영향"이라고
+          명시하며, 패드 평탄도의 하부 원인이 플래튼 평탄도다(PMC8617369).
+      - key: has_window
+        label: EPD 창(window) 탑재
+        type: enum
+        options: [none, optical_window, eddy_coil, both]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          광학 EPD는 플래튼에 레이저·수광부를 묻고 패드의 투명창(폭 약 10mm)으로 본다.
+          창이 있는 패드는 그 부분만 물성이 달라 국소 결함원이 될 수 있다 — pad.yaml과 경계.
+
+  # ═══════════════════════════════ 3) 캐리어 헤드
+  - id: carrier_head
+    label: "캐리어 헤드 (멤브레인·존 압력)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      WIWNU의 1차 손잡이. 리뷰 문헌은 "WIWNU에 가장 지배적인 인자가 멤브레인 가압의
+      균일도"라고 못 박는다. 우리 재현에서도 압력분포 기여가 속도 기여의 약 70배였다.
+    fields:
+      - key: head_type
+        label: 헤드 방식
+        type: enum
+        options: [rigid_backing_film, flexible_membrane, airbag, multi_zone_membrane]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          초기 강체 헤드 → 유연 멤브레인(US6183354B1) → 멀티존. 에어백형은 별도 계열로
+          압력분포 예측 연구가 있다(Suzuki, CIRP Annals 66:329, 2017).
+      - key: zone_count
+        label: 압력 존 개수
+        type: number
+        typical: [3, 7]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md
+        note: >
+          동심 챔버 수. 우리 WIWNU 재현은 3존으로 했다. 실무 툴은 5~7존 급이 쓰인다고
+          업계 자료에 기술되나 1차 문헌 미확보 — 범위는 estimated 취급.
+      - key: zone_boundaries_mm
+        label: 존 경계 반경
+        type: text
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 경계 위치가 곧 MRR 프로파일의 변곡점 위치다. 존 개수보다
+          경계 배치가 엣지 제어에 더 결정적인데 공개된 실제 배치값을 못 찾았다.
+      - key: zone_pressure_psi
+        label: 존별 압력
+        type: text
+        unit: psi
+        typical: [0.5, 6]
+        origin: researched
+        status: partial
+        maps_to: pressure_psi
+        confidence: literature
+        source: knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md
+        note: >
+          팩에는 단일 평균 압력(pressure_psi)만 있다. 반경별 벡터가 아니라서 partial.
+          재현 결과: 3존 헤드에서 엣지존 +1%p 당 WIWNU(half-range) 약 0.49%p 이동
+          (합성 압력형상 가정 — 절대값 미검증).
+      - key: membrane_material
+        label: 멤브레인 재질
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 통상 탄성체(고무계). 강성·두께가 존 간 압력 누설(crosstalk)을 정한다."
+      - key: zone_crosstalk
+        label: 존 간 압력 간섭
+        type: number
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          이상적으로는 존이 독립이지만 멤브레인은 연속체라 인접 존 압력이 번진다.
+          존압을 그대로 P(r)로 쓰면 안 되는 이유 — 실제 프로파일은 뭉개진 형태다.
+      - key: rpm
+        label: 헤드 회전수
+        type: number
+        unit: rpm
+        typical: [30, 120]
+        origin: researched
+        maps_to: rpm_wafer
+        status: wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+      - key: gimbal
+        label: 짐벌 (자세 정렬)
+        type: enum
+        options: [gimbaled, fixed]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: 헤드가 플래튼면과 평행을 스스로 잡게 하는 기구. 없으면 기울기가 곧 편마모.
+      - key: backing_film
+        label: 백킹 필름
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          웨이퍼 뒷면과 멤브레인 사이의 소모품(문헌 분류상 '장수명 소모품').
+          마모되면 압력 전달 특성이 변해 MRR이 서서히 드리프트한다.
+      - key: vacuum_chuck_pressure
+        label: 진공 척 압력 (로딩용)
+        type: number
+        unit: kPa
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 로드/언로드 시 웨이퍼를 잡는 부압. 과하면 웨이퍼 변형·slip."
+
+  # ═══════════════════════════════ 4) 리테이너 링
+  - id: retaining_ring
+    label: "리테이너 링"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      웨이퍼 이탈 방지가 1차 기능이지만, 실제로는 엣지 압력의 보정 장치다. 웨이퍼
+      바깥 패드를 미리 눌러 플랫펀치 특이점(엣지 압력 발산)을 완화한다. 엣지 수 mm의
+      fast/slow가 여기서 갈린다.
+    fields:
+      - key: pressure_psi
+        label: 링 압력
+        type: number
+        unit: psi
+        typical: [1, 8]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          헤드와 독립 가압. Boning 그룹은 "링압 ≈ 캐리어압"일 때 균일도가 좋아진다고
+          정리한다. 실측 예: 웨이퍼/링 = 2/3 psi (Materials 18:4461, 2025 실험조건).
+          ⚠ 미연결 — 팩에 링압 키가 없다. 엣지 모델을 넣을 때 1순위 신규 파라미터.
+      - key: material
+        label: 링 재질
+        type: enum
+        options: [pps, peek, pet, metal_insert_composite]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          공학 플라스틱 계열이 쓰이며, 금속 인서트를 넣어 강성을 올린 복합 링의
+          단면 형상이 멀티존 헤드 압력분포에 미치는 영향이 연구됐다
+          (Applied Sciences 10:8362, 2020). 재질 강성 = 엣지 압력 전달 특성.
+      - key: contact_angle_deg
+        label: 링-패드 접촉각
+        type: number
+        unit: deg
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          링 하면과 패드가 이루는 각. 제거 균일도와 상관이 보고됐다
+          (Int. J. Precis. Eng. Manuf. 14:1513, 2013). ⚠ 정량 관계식은 원문 미확보.
+      - key: slot_geometry
+        label: 슬롯(홈) 형상
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          링에 낸 방사형 홈. 슬러리를 웨이퍼 밑으로 들여보내는 통로다. 홈이 막히거나
+          설계가 나쁘면 엣지가 슬러리 고갈되고, 반대로 과하면 링 지지력이 준다.
+          공급계(bow wave)와 엣지 MRR을 잇는 기구 요소.
+      - key: wafer_ring_gap_mm
+        label: 웨이퍼-링 간극
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md
+        note: >
+          간극에서 패드가 굽어 국소 압력집중이 생긴다. Boning 그룹 결론은
+          "간극을 최대화하거나 아예 없앨 때 균일도가 좋아진다"(중간이 최악).
+      - key: wear_mm
+        label: 링 마모량
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          링은 패드와 같이 닳는 소모품이다. 링 높이가 줄면 웨이퍼 대비 링 하면 위치가
+          변해 엣지 프로파일이 수명에 따라 표류한다 — 실무의 대표적 드리프트 원인.
+
+  # ═══════════════════════════════ 5) 압력 인가
+  - id: pressure_control
+    label: "압력 인가 방식과 범위"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      Preston식의 P. 절대값뿐 아니라 인가 방식(공압 vs 하중), 램프 프로파일,
+      압력하 접촉 상태가 MRR과 결함을 동시에 만든다.
+    fields:
+      - key: downforce_psi
+        label: 다운포스
+        type: number
+        unit: psi
+        typical: [1, 6]
+        origin: researched
+        maps_to: pressure_psi
+        status: wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          팩 기본 3 psi(20.7 kPa). MIT Lai 실험은 14/48 kPa(≈2/7 psi)까지 썼다.
+          압력↑ → MRR↑(Preston) 이지만 스크래치 위험도 같이 오른다.
+      - key: actuation
+        label: 인가 방식
+        type: enum
+        options: [pneumatic_membrane, mechanical_load, hydraulic]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: 현대 헤드는 공압 멤브레인. 공압은 압력 제어, 하중식은 힘 제어 — 응답특성이 다르다.
+      - key: pressure_ramp
+        label: 압력 램프 프로파일
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          스텝 시작 시 압력을 계단으로 걸면 초기 스크래치가 난다. 램프업/soft-landing이
+          실무 표준. 시간축 레시피라 process.yaml 과 공유되는 축.
+      - key: prestonian_deviation
+        label: 비(非)프레스턴 영역
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/hertz-gw-contact-mechanics.md
+        note: >
+          고압에서는 asperity 압축으로 접촉면적이 비선형이 되어 MRR이 sub-linear,
+          저압에서는 화학 반응율 제한으로 급락한다. Preston 선형 가정의 유효창을
+          정하는 축 — 우리 GW 접촉 모듈이 다루는 영역과 같은 물리.
+
+  # ═══════════════════════════════ 6) 웨이퍼-플래튼 기하 / 스윕
+  - id: kinematics_geometry
+    label: "웨이퍼-플래튼 기하 · 스윕"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      상대속도장을 만드는 기하. center offset과 스윕이 웨이퍼가 훑는 패드 면적을 정하고,
+      그게 패드 마모 균일성과 슬러리 접근성을 정한다.
+    fields:
+      - key: center_offset_m
+        label: 웨이퍼-플래튼 중심거리 (r_cc)
+        type: number
+        unit: m
+        typical: [0.1, 0.35]
+        origin: researched
+        maps_to: center_offset_m
+        status: wired
+        confidence: estimated
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: >
+          팩 기본 0.180 m. 광학 EPD의 스캔 반경식 r=√(e²+R²+2eR·cosθ) 의 e 와 같은 양이다
+          — 기구학과 EPD 신호 해석이 같은 파라미터를 공유한다.
+      - key: sweep_amplitude_m
+        label: 스윕 진폭
+        type: number
+        unit: m
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          헤드가 플래튼 반경 방향으로 왕복하는 폭. 패드를 고르게 쓰게 해
+          국소 마모(홈 파임)를 막는다. ⚠ 미연결 — 현재 center_offset은 상수다.
+      - key: sweep_frequency_hz
+        label: 스윕 주기
+        type: number
+        unit: Hz
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 스윕이 느리면 반경별 체류시간 편차가 WIWNU로 남는다."
+      - key: speed_ratio
+        label: 속도비 (ω_head/ω_platen)
+        type: number
+        typical: [0.8, 1.2]
+        origin: researched
+        status: partial
+        maps_to: relative_velocity_ref_mps
+        confidence: verified
+        source: knowledge/physics/cmp-kinematics-rotary.md
+        note: >
+          비가 1이면 상대속도가 웨이퍼 전면에서 균일해진다(검증됨). 50/60rpm에서
+          순간 비균일 25%가 자전평균으로 상쇄되어 시간평균 edge/center비 1.0039.
+          팩에는 대표 상대속도 스칼라만 있어 partial.
+      - key: edge_exclusion_m
+        label: 엣지 제외 폭
+        type: number
+        unit: m
+        origin: researched
+        maps_to: edge_exclusion_m
+        status: wired
+        confidence: literature
+        source: knowledge/params/base.yaml
+        note: >
+          장비/계측 공통 축. 링 근처 수 mm는 압력 불연속 구간이라 계측에서 뺀다.
+          팩 기본 3 mm. 문헌 실험에서는 5 mm 제외 사례도 있다.
+
+  # ═══════════════════════════════ 7) 슬러리 공급계
+  - id: slurry_delivery
+    label: "슬러리 공급 (아암·노즐·유량)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      같은 슬러리라도 어디에 어떻게 넣느냐로 MRR과 WIWNU가 바뀐다. 리뷰 문헌은
+      멤브레인 가압 균일도·패드 평탄도 다음의 WIWNU 인자로 슬러리 공급 방식을 든다.
+      슬러리 배합(slurry.yaml)과 분리된 '장비 쪽' 축이다.
+    fields:
+      - key: delivery_mode
+        label: 공급 방식
+        type: enum
+        options: [tube_drip, spray_nozzle, ring_adjacent_injection, multi_point_sis, atomized]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          스프레이 노즐은 관 적하 대비 MRR↑·WIWNU↓ 이면서 유량을 21%/52% 절감
+          (JMST 29:5057, 2015). Liao는 링 바로 옆 초승달형 주입으로 링 leading edge에
+          신선한 슬러리를 넣었고(ECS SSL 15:H118), Araca SIS는 다점 주입으로
+          링 주위 bow wave 두께를 균일화한다.
+      - key: nozzle_count
+        label: 노즐 개수
+        type: number
+        typical: [1, 6]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: 다점 주입(SIS)의 핵심 변수. ⚠ 실제 대수 범위는 벤더별로 미확인.
+      - key: arm_radial_position_m
+        label: 아암 반경 위치
+        type: number
+        unit: m
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          적하 지점이 플래튼 중심 쪽이면 원심력으로 바깥까지 퍼지지만 체류시간이 짧고,
+          웨이퍼 앞쪽(leading edge) 근처면 신선 슬러리 비율이 높아진다.
+      - key: nozzle_height_mm
+        label: 노즐 높이
+        type: number
+        unit: mm
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: 스프레이 노즐 연구에서 유량과 함께 변수로 다뤄진 축(분무 도달 패턴 결정).
+      - key: flow_rate_ml_min
+        label: 공급 유량
+        type: number
+        unit: mL/min
+        typical: [100, 300]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          MIT Lai 실험 150~250 mL/min. 부족하면 슬러리 고갈로 엣지 MRR 저하·스크래치.
+          slurry.yaml supply.flow_rate_ml_min 과 같은 물리량 — 장비 쪽 사양으로도 존재.
+      - key: pou_mixing
+        label: POU 혼합·희석
+        type: enum
+        options: [premixed, pou_dilution, pou_oxidizer_addition]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+        note: >
+          H2O2 같은 산화제는 분해되므로 사용 시점에 섞는다. 장비의 혼합 정확도가
+          곧 슬러리 조성 편차 = 웨이퍼 간 MRR 산포.
+      - key: recirculation
+        label: 슬러리 재순환 여부
+        type: enum
+        options: [single_pass, recirculated]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          재순환은 소모량을 줄이지만 연마 부산물·조대입자가 누적돼 결함 위험이 오른다.
+          슬러리는 '단수명 소모품'(1회 사용 후 폐기)으로 분류되는 게 기본.
+
+  # ═══════════════════════════════ 8) 종점 검출 (EPD)
+  - id: endpoint
+    label: "종점 검출 (EPD)"
+    origin: researched
+    owner: tool-endpoint
+    why: >
+      CMP는 깎이는 걸 볼 수 없다. EPD가 없으면 고정시간 연마가 되고, 소모품 상태와
+      입고 두께 산포가 그대로 결과 산포가 된다. 방식마다 볼 수 있는 막질이 다르다는 게
+      핵심 — 하나로 다 되지 않는다.
+    fields:
+      - key: method
+        label: 검출 방식
+        type: enum
+        options: [none_timed, motor_current, optical_reflectance, optical_interference, eddy_current, acoustic_emission, hybrid]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          모터전류=마찰 전이(금속·고선택비 STI, 창 불필요, 두께는 못 봄),
+          광학 반사=금속→배리어 계면(650nm 반사율 Cu 0.943 vs Ta 0.460),
+          광학 간섭=투명 유전막 실두께, 와전류=금속 실두께(유전막 원리상 불가).
+          US6966816B2는 광학+와전류를 한 플래튼에 통합한다.
+      - key: applicable_film
+        label: 적용 막질
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          방식↔막질 대응표는 노트 §1 요약표 참조. 이 필드는 레시피 검증용
+          (예: 산화막 공정에 와전류 EPD 지정 → 물리적으로 불가능, 경고 대상).
+      - key: optical_wavelength_nm
+        label: 광원 파장
+        type: number
+        unit: nm
+        typical: [600, 700]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          금속 EPD는 적색(650nm 등)을 쓴다. Cu/Al이 그 대역에서 반사가 높고
+          배리어(Ta/TaN, Ti/TiN)는 낮아 대비가 크기 때문.
+      - key: metal_transparency_limit_nm
+        label: 금속 투명화 두께
+        type: number
+        unit: nm
+        typical: [30, 40]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          금속막이 30~40nm 이하가 되면 빛이 투과한다 → 광학 반사 EPD의 물리적 하한.
+          그 아래 잔막 판정은 다른 수단이 필요하다.
+      - key: window_width_mm
+        label: 패드 창 폭
+        type: number
+        unit: mm
+        typical: [8, 12]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: 통상 약 10mm. 좁아서 입사각 정밀도 요구가 크고, 창 자체가 패드 물성 불연속점이다.
+      - key: signal_segmentation
+        label: 회전당 신호 구간 분리
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          플래튼 1회전 신호에 웨이퍼/리테이너링/외부 구간이 함께 잡힌다. 링 구간을
+          잘라내야 웨이퍼 평균이 나오고, 그 덕에 엣지 잔막까지 반경별로 볼 수 있다.
+      - key: overpolish_time_s
+        label: 오버폴리시 시간
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md
+        note: >
+          EPD 검출 후 추가 연마. WIWNU가 나쁘면 최악점을 맞추려 오버폴리시가 길어지고
+          그만큼 디싱·에로전과 슬러리 소모가 증가한다 — WIWNU와 소모량을 잇는 고리.
+      - key: endpoint_delay_s
+        label: 검출 지연
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          신호 평균화·필터링에 걸리는 시간. 고 MRR 공정일수록 지연 1초가 곧 수십 Å이다.
+          EPD 정밀도의 실질 한계는 센서 분해능이 아니라 이 지연인 경우가 많다.
+
+  # ═══════════════════════════════ 9) 툴 온도 관리
+  - id: thermal
+    label: "툴 온도 관리 (플래튼 냉각·계면 온도)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      사용자 목록에 없던 축이면서 선택비의 숨은 손잡이다. CMP 발열은 마찰이 200~300W,
+      화학이 약 1W로 사실상 전부 마찰열인데, 그 온도가 막질별 활성화에너지를 통해
+      제거율 선택비를 통째로 바꾼다. 압력·속도 → 열 → 화학으로 닫히는 루프.
+    fields:
+      - key: pad_surface_temp_c
+        label: 패드 표면 온도
+        type: number
+        unit: °C
+        typical: [20, 60]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          웨이퍼 접촉 직후 IR 센서로 측정하는 것이 실측 기준. Materials 18:4461(2025)
+          실험에서 30 °C가 Cu/Ta/SiO2 선택비 균형점이었다.
+          ⚠ 미연결 — 엔진에 온도 축 자체가 없다(base.yaml에 온도 키 없음).
+      - key: control_method
+        label: 온도 제어 방식
+        type: enum
+        options: [none, platen_water_cooling, vortex_tube_air, slurry_temp_control, pad_heater]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          패드 열전도도가 ≈0.02 W/m·K로 매우 낮아 플래튼 밑에서 빼기 어렵다 →
+          표면 강제대류가 유효하다. vortex tube 방식(4.5 bar 공급, 명목 냉각능력
+          180~730 W)으로 디퓨저 1단당 약 2.5 °C 강하 실측.
+      - key: activation_energy_kj_mol
+        label: 막질별 활성화에너지
+        type: text
+        unit: kJ/mol
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          실측(Materials 18:4461): SiO2 8.75, Ta 29.9, Cu 151.7 kJ/mol.
+          Cu가 압도적으로 온도 민감 → 고온=Cu 선택비↑(돌출 제거), 저온=Cu 선택비↓(디싱 보상).
+          온도 미제어 시 디싱 +12~16nm, 제어 시 4nm 및 1nm 미만.
+          ※ 이 값은 해당 슬러리·조건에서의 겉보기 값이다. 막질 팩(film-*)으로 옮길 때
+            그대로 상수화하면 안 된다.
+      - key: frictional_heat_w
+        label: 마찰 발열
+        type: number
+        unit: W
+        typical: [200, 300]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          White/Melvin/Boning(2003) 에너지 수지. 화학 발열은 약 1W로 두 자릿수 작다.
+          → 계면온도는 사실상 마찰일률(μ·P·V)의 함수. tribologist 마찰열 커플링의 입력.
+      - key: temp_sensor
+        label: 온도 센서
+        type: enum
+        options: [none, ir_point, ir_camera, contact_thermocouple]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: IR 점센서가 실장 기준. IR 카메라는 패드 전면 온도 분포(반경별 편차) 확인용.
+
+  # ═══════════════════════════════ 10) 인시츄 세정·컨디셔닝 인터페이스
+  - id: insitu_clean_condition
+    label: "인시츄 세정 · 컨디셔닝 인터페이스"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      패드는 연마 중 글레이징·잔사 축적으로 계속 변한다. 툴이 그것을 실시간으로
+      되돌리는 수단(컨디셔닝·수세)이 있는지가 MRR 안정성을 정한다.
+      디스크 자체 사양은 conditioner.yaml 소관 — 여기는 '툴이 어떻게 붙였나'만 다룬다.
+    fields:
+      - key: conditioning_mode
+        label: 컨디셔닝 방식
+        type: enum
+        options: [in_situ, ex_situ, hybrid, none]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          in-situ(연마와 동시)는 MRR을 안정시키지만 과하면 패드 입자 발생이 늘고
+          패드 수명이 준다. ex-situ는 웨이퍼 사이에만 돌린다.
+      - key: conditioner_sweep
+        label: 컨디셔너 스윕
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md
+        note: >
+          디스크 아암의 반경 왕복. 스윕 프로파일이 패드 절삭률의 반경분포(=패드 프로파일)를
+          만들고, 그게 다시 압력분포로 WIWNU에 들어온다. 노트에 기구학 모델 있음.
+      - key: pad_rinse
+        label: 인시츄 패드 수세
+        type: enum
+        options: [none, diw_spray, high_pressure_jet]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          고압 DIW 제트로 패드 그루브에 낀 잔사·응집물을 털어낸다. 조대입자 제거는
+          스크래치 저감의 직접 수단(슬러리 POU 필터와 같은 목적, 다른 위치).
+      - key: water_rinse_step
+        label: 워터 린스 스텝
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          연마 종료 직후 플래튼 위에서 DIW로 벌크 슬러리를 희석·제거하는 스텝.
+          이걸 건너뛰고 웨이퍼가 마르면 잔사가 굳어 회복 불가 결함이 된다.
+      - key: pad_break_in
+        label: 패드 브레이크인
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/materials/pad-wear-glazing-mrr-decay.md
+        note: >
+          신품 패드는 표면이 닫혀 있어 초기 MRR이 낮다. 장비 레시피로 길들이기를
+          거쳐야 정상 구간에 든다 — 웨이퍼 간 MRR 산포의 첫 원인.
+
+  # ═══════════════════════════════ 11) 기계 정밀도
+  - id: mechanical_precision
+    label: "기계 정밀도 (평행도·런아웃·진동)"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      압력 분포의 저주파 성분과 스크래치의 일부는 기구 정밀도에서 온다. 레시피로는
+      못 잡고 정비로만 잡히는 축이라, 시뮬레이터에 없으면 "왜 안 맞는지"를 설명할 수 없다.
+    fields:
+      - key: head_platen_parallelism
+        label: 헤드-플래튼 평행도
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 허용치 미확보. 기울면 웨이퍼 한쪽만 눌려 좌우 비대칭 제거가 난다.
+          짐벌이 1차 방어책이지만 완전히 상쇄하진 못한다.
+      - key: platen_runout_um
+        label: 플래튼 런아웃
+        type: number
+        unit: µm
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: "⚠ 조사 필요. 회전 1주기 압력 변동원. WIWNU가 아니라 회전 동기 무늬로 나타난다."
+      - key: vibration_level
+        label: 진동 수준
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: estimated
+        note: >
+          스핀들·베어링 진동은 순간 접촉압을 튀게 해 스크래치·chatter 무늬를 만든다.
+          음향방출(AE) 센서가 EPD 보조로 쓰이는 것과 같은 신호원이다.
+      - key: head_tilt_control
+        label: 헤드 틸트 제어
+        type: enum
+        options: [passive_gimbal, active_tilt, fixed]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: 능동 틸트는 엣지 비대칭을 의도적으로 보정하는 수단으로도 쓰인다.
+
+  # ═══════════════════════════════ 12) 다단 시퀀스 · 처리량 · 핸들링
+  - id: sequence_throughput
+    label: "다단 폴리싱 · 처리량 · 웨이퍼 핸들링"
+    origin: researched
+    owner: tool-platen-head
+    why: >
+      실무의 CMP 한 스텝은 사실 여러 스텝이다(bulk → soft-landing → buff). 어느 플래튼에서
+      무엇을 하는지가 곧 툴 구성이고, 그 합이 처리량(WPH)과 원가다. 시뮬레이터가
+      '레시피 전체'를 받으려면 이 축이 있어야 한다.
+    fields:
+      - key: step_sequence
+        label: 스텝 시퀀스
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          전형: bulk(고압·고MRR로 대부분 제거) → soft-landing(압력 낮춰 EPD 근처 정밀 제어)
+          → buff(초저압·연질 패드로 결함/조도 정리). Cu는 여기에 배리어 제거 단계가 더 붙는다.
+          process.yaml 과 공유되는 축 — 여기서는 '툴이 그 시퀀스를 어떻게 나눠 갖는가'.
+      - key: platen_assignment
+        label: 플래튼별 역할 배정
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          플래튼마다 다른 패드·슬러리를 걸어 단계를 분담한다. 그래서 '툴 1대 = 슬러리 1종'이
+          아니다 — 슬러리 실무자 관점에서 놓치기 쉬운 지점.
+      - key: step_time_s
+        label: 스텝 시간
+        type: number
+        unit: s
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/cmp/wiwnu-pressure-velocity-wafer-scale.md
+        note: >
+          EPD가 있으면 시간이 결과이고, 없으면 시간이 입력이다. WIWNU가 나쁠수록
+          최악점을 맞추느라 시간이 늘고 슬러리 소모가 비례 증가한다.
+      - key: throughput_wph
+        label: 처리량
+        type: number
+        unit: "wafer/h"
+        origin: researched
+        status: not_wired
+        confidence: unverified
+        note: >
+          ⚠ 조사 필요. 플래튼 수·헤드 수·스텝 시간·핸들링 오버헤드의 합성값.
+          상용 툴 공개 사양을 1차 자료로 확보하지 못해 대표 범위를 적지 않는다(지어내기 금지).
+      - key: wafer_transfer
+        label: 웨이퍼 반송 방식
+        type: enum
+        options: [robot_arm_load_cup, carousel_index, manual]
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          로드컵에서 헤드가 웨이퍼를 진공으로 집어 플래튼으로 간다. 반송 중 건조는
+          결함 직결이라 젖은 상태 유지가 원칙.
+      - key: consumable_life_tracking
+        label: 소모품 수명 관리
+        type: text
+        origin: researched
+        status: not_wired
+        confidence: literature
+        source: knowledge/equipment/cmp-tool-endpoint-thermal-slurry-delivery.md
+        note: >
+          장수명 소모품(패드·컨디셔너·리테이너링·백킹필름)은 사용시간으로 관리되고,
+          단수명(슬러리·UPW)은 1회 사용 후 폐기로 분류된다. 패드/링 마모는 웨이퍼 간
+          MRR·프로파일 드리프트의 주원인 — 시뮬레이터의 '시간축' 입력.
+      - key: pad_life_hours
+        label: 패드 수명
+        type: number
+        unit: h
+        origin: researched
+        status: partial
+        maps_to: pad_wear_half_life_h
+        confidence: estimated
+        source: knowledge/equipment/cmp-tool-architecture.md
+        note: >
+          T_life = C·G/PCR² (G=그루브 깊이, PCR=패드 절삭률). 낮은 PCR·깊은 그루브가
+          수명을 늘리지만 실제 수명은 부적절한 컨디셔닝에 의한 프로파일 조기 열화가 정한다.
+          팩에는 마모 반감기(48h)만 있어 partial. 패드 본체는 pad.yaml 소관.
