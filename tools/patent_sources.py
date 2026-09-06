@@ -131,6 +131,34 @@ def classify_assignee(names: List[str]) -> Tuple[bool, str, str]:
     return False, "untrusted", (names[0].strip() if names else "")
 
 
+# ── 단위 환산 → nm/min ─────────────────────────────────────
+# 특허마다 단위가 제각각이다. 2026-09-06에 μm/h를 빠뜨려 Entegris 특허
+# (표9·실시예8 보유)를 "단위 없음"으로 놓칠 뻔했다. 놓친 단위 = 놓친 데이터다.
+RATE_UNITS_FULL = {
+    "nm/min": 1.0, "nm/minute": 1.0, "nm min": 1.0,
+    "a/min": 0.1, "å/min": 0.1, "angstrom/min": 0.1, "a/minute": 0.1,
+    "angstroms/min": 0.1, "å/minute": 0.1,
+    "um/min": 1000.0, "µm/min": 1000.0, "μm/min": 1000.0, "micron/min": 1000.0,
+    "um/h": 1000.0 / 60.0, "µm/h": 1000.0 / 60.0, "μm/h": 1000.0 / 60.0,
+    "um/hr": 1000.0 / 60.0, "µm/hr": 1000.0 / 60.0, "μm/hr": 1000.0 / 60.0,
+    "micron/hour": 1000.0 / 60.0, "um/hour": 1000.0 / 60.0,
+    "nm/h": 1.0 / 60.0, "nm/hr": 1.0 / 60.0,
+    "mm/min": 1e6,
+}
+
+
+def find_rate_unit(text: str):
+    """텍스트에서 제거율 단위를 찾는다. (표기, nm/min 환산계수) 또는 None.
+
+    긴 것부터 검사한다 — 'um/min'이 'um/m'에 먼저 걸리면 안 된다.
+    """
+    low = text.lower()
+    for u in sorted(RATE_UNITS_FULL, key=len, reverse=True):
+        if u in low:
+            return u, RATE_UNITS_FULL[u]
+    return None
+
+
 # ── 2차 게이트: 물리 범위 ───────────────────────────────────
 # "벗어나는 수치는 제외" — 다만 통계적 이상치(±3σ)가 아니라 **물리적으로 불가능한
 # 값**을 기준으로 자른다. 통계 기준은 데이터가 편중돼 있으면 정상값을 버리고

@@ -34,6 +34,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -44,7 +45,7 @@ from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from patent_sources import (classify_assignee, screen_condition,  # noqa: E402
-                            internal_consistency, PHYSICAL_RANGE)
+                            internal_consistency, PHYSICAL_RANGE, find_rate_unit)
 
 _ROOT = Path(__file__).resolve().parent.parent
 CACHE = _ROOT / "papers" / "patents"
@@ -58,14 +59,38 @@ RATE_UNITS = {
     "um/min": 1000.0, "µm/min": 1000.0, "micron/min": 1000.0,
 }
 
-# 인용목록·참고문헌 표를 걸러내는 신호 (실제 데이터 표가 아니다)
-NOISE_MARKERS = ("Cited by", "Priority date", "Publication number",
-                 "Legal Events", "Similar Documents", "Family")
+# 인용목록·참고문헌 표를 걸러내는 신호 (실제 데이터 표가 아니다).
+# ⚠ 2026-09-06에 두 번 뚫렸다: 처음엔 "Cited by" 없는 Similar Documents 표가,
+# 다음엔 "Publication Publication Date Title ..." 목록이 통과했다. 특허 페이지에는
+# 데이터처럼 생긴 메타데이터 표가 여러 종류 있어서 키워드 나열만으로는 부족하다.
+NOISE_MARKERS = (
+    "Cited by", "Priority date", "Publication number", "Publication Date",
+    "Legal Events", "Similar Documents", "Family", "Also Published As",
+    "Concurrent Applications", "Patent Citations", "Non-Patent Citations",
+    "Application Number", "Filing date", "Assignee Title",
+)
+
+
+def _looks_like_citation_list(txt: str) -> bool:
+    """구조로 판별한다 — 키워드 목록은 계속 새는 구멍이 생긴다.
+
+    인용 목록의 특징: 특허번호가 많고(CN.../US.../JP...), 연도-월-일 날짜가 많고,
+    정작 측정값(소수점 숫자)은 적다. 데이터 표는 정반대다.
+    """
+    pat_ids = len(re.findall(r"\b[A-Z]{2}\d{6,}[A-Z]?\d*\b", txt))
+    iso_dates = len(re.findall(r"\b(?:19|20)\d{2}-\d{2}-\d{2}\b", txt))
+    decimals = len(re.findall(r"\b\d+\.\d+\b", txt))
+    if pat_ids >= 3 and pat_ids > decimals:
+        return True
+    if iso_dates >= 3 and iso_dates > decimals:
+        return True
+    return False
 
 
 # 요청 간격 — 2026-09-06에 1.0초로 돌렸다가 73건 연속 503을 맞았다.
 # Google Patents는 짧은 간격의 연속 요청을 차단한다. 느린 게 안 도는 것보다 낫다.
-_MIN_INTERVAL = 2.5
+# 크론이 밤새 아주 천천히 돌 수 있도록 환경변수로 조절한다.
+_MIN_INTERVAL = float(os.environ.get("FABSIM_PATENT_INTERVAL", "2.5"))
 _last_request = [0.0]
 
 
@@ -169,6 +194,8 @@ def data_tables(page: str) -> List[str]:
             continue
         if any(m in txt for m in NOISE_MARKERS):
             continue
+        if _looks_like_citation_list(txt):
+            continue
         low = txt.lower()
         if not any(k in low for k in ("removal rate", "polishing rate", "rate (",
                                       "removal", "polish")):
@@ -180,10 +207,8 @@ def data_tables(page: str) -> List[str]:
 
 
 def rate_unit_in(text: str) -> Optional[Tuple[str, float]]:
-    for u, f in RATE_UNITS.items():
-        if u.lower() in text.lower():
-            return u, f
-    return None
+    """단위 탐지는 patent_sources.find_rate_unit에 위임한다(단일 정본)."""
+    return find_rate_unit(text)
 
 
 def assess(patent_id: str, page: str) -> Dict:
@@ -210,7 +235,29 @@ def assess(patent_id: str, page: str) -> Dict:
                            "concentration", "wt %", "wt%")
                if k.lower() in page.lower()]
 
-    has_data = bool(tables) and unit is not None and (n_examples + n_comp) >= 3
+    # ⚠ 특허 데이터의 구조적 함정 (2026-09-06 발견)
+    # 많은 특허가 절대 MRR 대신 **비교예 대비 상대값**만 싣는다("Relative Polishing
+    # Speed 1.0 / 0.9 / 0.1 or less"). Kao US7118685B1이 그랬다 — 표 5개에 데이터가
+    # 가득한데 전부 상대 배수라 백테스트에 쓸 수 없다.
+    # 상대값만 있으면 순위 비교는 되지만 우리 절대 예측과 대조할 수 없고, 무엇보다
+    # "0.1 or less" 같은 구간값이 섞여 순위조차 불완전하다.
+    joined_low = joined.lower()
+    # 실시예 번호(I-1, II-3, Ex. 5)를 측정값으로 세지 않도록 앞뒤 문맥을 배제한다.
+    # 이 처리를 안 하면 Kao US7118685B1(전부 상대배수 1.0/0.9)이 "절대값 있음"으로
+    # 잘못 판정된다 — 실제로 그렇게 나왔다.
+    stripped = re.sub(r"\b(?:[IVX]+|Ex|Comp|No)\.?\s*-?\s*\d+\b", " ", joined)
+    stripped = re.sub(r"\b[IVX]+-\d+\b", " ", stripped)
+    big_numbers = re.findall(r"(?<![\w.-])\d{2,5}(?:\.\d+)?(?![\w-])", stripped)
+    has_absolute = len(big_numbers) >= 5
+
+    relative_only = (
+        ("relative" in joined_low or "based on" in joined_low
+         or "or less" in joined_low)
+        and not has_absolute
+    )
+
+    has_data = (bool(tables) and unit is not None and (n_examples + n_comp) >= 3
+                and has_absolute and not relative_only)
     usable = has_data and trusted
     return {
         "patent": patent_id,
@@ -225,6 +272,8 @@ def assess(patent_id: str, page: str) -> Dict:
         "rate_unit": unit[0] if unit else None,
         "to_nm_per_min": unit[1] if unit else None,
         "composition_terms": comp_kw[:8],
+        "has_absolute_values": has_absolute,
+        "relative_only": relative_only,
         "usable": usable,
     }
 
