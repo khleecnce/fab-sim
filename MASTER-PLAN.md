@@ -651,3 +651,15 @@
   `WaferResult.summary()`/`sim/cli.py`/`sim/demo_app.py` 연쇄 갱신, `docs/SCHEMA-CHANGELOG.md` 신설
   (스키마 변경은 sim-architect 역할 규정에 따라 기록). 119 tests passed. 커밋 f3ecfc6, 8c997ea.
   BACKLOG 수신함에 slurry-chemist 3건 + tribologist 2건 신규 구현요청 등록(다음 회차 대상).
+
+- **2026-09-06** ([성장엔진] 상시크론, 10:11): surface-contamination Lv1-2 측정 기법(TXRF·
+  VPD-ICPMS·SIMS·XPS) 완료 — knowledge/cmp/wafer-surface-metal-detection-txrf-vpdicpms-sims-xps.md.
+  Chia(UC Berkeley Microlab 세미나 슬라이드) 원문 확보로 4기법 검출한계·깊이정보·파괴여부 비교표
+  작성. 1차 학술 원문 3건(Prange 1989 doi:10.1016/0584-8547(89)80051-5, Kubo 2005 ISSM
+  doi:10.1109/issm.2005.1513404, Kasi 1997 JVSTA doi:10.1116/1.589577) DOI는 Crossref로 실존
+  확인했으나 미러 사이트 4개 미러(box/se/st/ru) 전부 캡차로 자동접근 차단되어 **1차 미확보**, 2차
+  인용으로 표기. python verify로 Si(100) 단분자층 대비 VPD-TXRF/VPD-ICPMS/고전TXRF 검출한계를 ML
+  단위로 재현, VPD 전처리의 100배 개선(문헌 주장과 일치)을 assert로 확인. check_knowledge.py ✓,
+  verify_claims.py ✓ 통과(출처2건 실존·코드1블록 통과). EXAMS.md 3문항 추가, PROFILE.md/
+  CURRICULUM.md/ORG.md §5 갱신(surface-contamination 1/4→2/6). M1(지식 병목 해소, 9/20 기한)
+  진행 지속.

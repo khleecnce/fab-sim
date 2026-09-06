@@ -100,7 +100,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | tribologist | 활성 | 5/6 (Lv3-1 완료) | 2026-09-06 |
 | wafer-metrology | 활성 (G1 개방 2026-09-05) | 2/6 (Lv1-2 완료) | 2026-09-06 |
 | wafer-type | 활성 (G1 개방 2026-09-06) | 2/6 (Lv1-1·Lv1-2 완료) | 2026-09-06 |
-| surface-contamination | 활성 (G1) | 1/4 | 2026-09-06 |
+| surface-contamination | 활성 (G1) | 2/6 (Lv1-2 완료) | 2026-09-06 |
 | pad-material | 활성 (G2 개방 2026-09-06) | 0/6 | 2026-09-06 |
 | pad-lifecycle | 활성 (G3 개방 2026-09-06) | 0/6 | 2026-09-06 |
 | disk-design | 활성 (G3 개방 2026-09-06) | 0/6 | 2026-09-06 |
