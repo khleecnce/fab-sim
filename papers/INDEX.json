@@ -92,5 +92,15 @@
   "authors": "Boris Vasilev, Roland Rzehak, Sascha Bott, Peter Kucher, Johann W. Bartha",
   "venue": "IEEE Trans. Semicond. Manuf. 24(2), 338-347 (2011)",
   "note": "cmp/npw-ptw-pattern-effect-gw-physics.md"
+ },
+ "jeong2024-pad-asperity-pdf-wear-materials": {
+  "src": "Europe PMC render (MDPI CC-BY open access)",
+  "pdf_local": "papers/jeong2024-pad-asperity-pdf-wear-materials.pdf",
+  "doi": "10.3390/ma17081817",
+  "pmc": "PMC11051262",
+  "title": "Novel Probability Density Function of Pad Asperity by Wear Effect over Time in Chemical Mechanical Planarization",
+  "authors": "Seonho Jeong, Yeongil Shin, Jongmin Jeong, Seunghun Jeong, Haedo Jeong",
+  "venue": "Materials 17(8), 1817 (2024)",
+  "note": "materials/pad-glazing-mechanism-mrr-decay.md (기존 노트 2편이 'Yang et al.'로 오기 — 실제 저자 Jeong et al.)"
  }
 }

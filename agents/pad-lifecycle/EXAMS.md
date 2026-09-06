@@ -67,3 +67,42 @@ d* ≈ 13550 nm(13.55 µm)이며, Pf(d*)=50.000 kPa로 Papp와 정확히 일치(
 무모순 확인). 그러나 이는 대수적 항등식 검증이지 독립 실측치 비교가 아니며, 절대값이
 문헌상 알려진 asperity 스케일(수십 nm~수 µm)보다 커서 물리적 타당성은 확인하지
 못했다 — 미검증. (출처: 본 노트 §4 python verify 블록 실행 결과)
+
+## Lv2-1 glazing 메커니즘: asperity 소성변형·슬러리 잔류물·MRR 감소
+
+**출처**: Seonho Jeong, Yeongil Shin, Jongmin Jeong, Seunghun Jeong, Haedo Jeong, "Novel
+Probability Density Function of Pad Asperity by Wear Effect over Time in Chemical Mechanical
+Planarization", *Materials* 17, 1817 (2024), doi.org/10.3390/ma17081817, PMC11051262 (OA 전문
+확보·직접 읽음); A. Scott Lawing, NCCAVS CMPUG 2004 발표자료(공개 PDF, 그래프 판독);
+Yongsik Moon, Ph.D. dissertation, UC Berkeley 1999 (공개 PDF). 노트:
+knowledge/materials/pad-glazing-mechanism-mrr-decay.md
+
+**Q1. glazing을 구성하는 세 가지 물리 요소는 무엇이며, 각각 어느 출처가 어떤 수준으로
+뒷받침하는가? 이 중 본 노트에서 정량화된 것은 무엇인가?**
+
+A1. (a) asperity 끝의 마모·소성 평탄화 — 높이편차 σz 감소와 등가반경 μR 증가(Jeong et al.
+2024, 1차 전문), Lawing 2004의 높이분포 2차 피크(truncation); (b) 슬러리 연마입자에 의한
+기공 막힘 → 슬러리 수송 차단(Moon 1999 박사논문, 1차); (c) 슬러리 잔류물·웨이퍼 입자
+응착층(McGrath & Davis 2004, 초록 스니펫 수준 2차 인용). 정량화된 것은 (a)뿐이며 (b)(c)의
+기공 폐색률·잔류물 두께와 마찰계수 변화는 1차 출처 미확보(미검증). (출처: 본 노트 §1, §6)
+
+**Q2. Jeong et al.(2024) Table 1에서 컨디셔닝 없이 2 psi로 10분 연마했을 때 접촉점 수는
+어떻게 변했고, 같은 조건의 Fig.9 정규화 MRR은 얼마나 줄었는가? 두 감소율이 크게 다른
+이유를 GW 접촉역학으로 설명하라.**
+
+A2. 접촉점 수는 109→56(−48.6%)인데 MRR은 1.00→0.835(−17%)만 줄었다. 하중이 일정하므로
+남은 asperity에 하중이 재분배되고(지수분포 GW에서 A_r/W는 η·d와 무관한 상수 → 접촉당
+면적이 2배), 마모로 반경이 커져(Eq.4: 7.8→19.6 µm, 2.5배) asperity당 접촉력 감소를
+보상하기 때문이다(Jeong 2024 §4.2, Fig.10). 이 보상은 접촉수·압입깊이가 함께 급감하는
+후기에 사라져 MRR이 급락한다. 1분 컨디셔닝으로 접촉점은 114(초기의 105%)로 복원된다.
+(출처: 본 노트 §2.1–2.3, §4 verify (A)(B)(D))
+
+**Q3. Lawing(2004) ex situ 감쇠 데이터에서 fumed 실리카와 colloidal 실리카 슬러리의 31분
+MRR 감쇠율은 각각 얼마였고, 저자가 말한 "logarithmic decay"는 판독 데이터로 어느 정도
+재현되었는가? 이 결과의 신뢰 한계는?**
+
+A3. Fumed(중간 공격성 컨디셔너) 2280→1480 Å/min(−35%), colloidal 2950→2730 Å/min(−7%) —
+fumed가 약 4.7배 큰 감쇠. rate = a − b·ln t 적합은 R² > 0.95이고 같은 데이터의 선형 적합보다
+R²가 높아 "로그형" 서술이 재현된다. 한계: 발표자료 그래프의 눈금 판독값(±30 Å/min)이며
+피어리뷰 논문이 아니고, fumed/colloidal 차이가 기계적 마모인지 기공 막힘·잔류물(구성요소
+b/c)인지는 이 자료로 분리 불가(미검증). (출처: 본 노트 §3, §4 verify (E))

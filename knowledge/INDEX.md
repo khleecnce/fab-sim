@@ -17,6 +17,7 @@
 - [[pad-viscoelasticity-dma]] — 패드 폴리우레탄 저장/손실탄성률, Maxwell 모델, DMA. **검증**(sim/tier2_physics/viscoelastic_maxwell.py 5/5 PASS) (2026-09-04, pad-mechanic Lv1-1)
 - [[pad-structure-groove-subpad]] — IC1000류 발포체·K-groove·subpad 구조, 역할분리(국소 vs 글로벌). *출처확인* (2026-09-04, pad-mechanic Lv1-2)
 - [[hertz-gw-contact-mechanics]] — Hertz 단일접촉(F~delta^1.5) + Greenwood-Williamson 통계 asperity모델(지수분포, A_r∝W 선형성). **검증**(sim/tier2_physics/gw_contact.py 5/5 PASS) (2026-09-04, pad-mechanic Lv2-1)
+- [[pad-glazing-mechanism-mrr-decay]] — glazing 3요소(asperity 소성평탄화·기공 막힘·잔류물 응착) 정의, Jeong 2024(OA, doi 10.3390/ma17081817) 무컨디셔닝 10 min: 접촉점 109→56(−49%)·반경 7.8→19.6 µm·MRR −17%(초기 상승 후 급감), 1 min 컨디셔닝 복원; Lawing 2004 ex situ 감쇠 fumed −35% vs colloidal −7%(로그형 R²>0.95). **검증**(노트 verify 1블록 PASS, 출처 6건 실존) (2026-09-07, pad-lifecycle Lv2-1)
 
 ## equipment/
 - [[conditioning-mechanism-asperity-regeneration]] — Lawing 2004 실측(경쟁효과·공격성·접촉면적%) + Ring/Prasad/Dirksen population balance 유사변수해(정성 재현, 폐형식해 수치검증은 미검증). *출처확인/부분미검증* (2026-09-04, disk-conditioner Lv1-1)
