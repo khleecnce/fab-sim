@@ -26,6 +26,10 @@
   Modeling of Pattern-Dependent Variation in CMP," *IEEE Trans. Semicond. Manuf.* 11(1), 1998;
   D. Ouma, PhD thesis "Modeling of CMP for Dielectric Planarization," MIT EECS, 1999,
   https://dspace.mit.edu/handle/1721.1/9704 — **원문 미독, MRS99가 [1,2,4]로 인용한 것을 2차 인용**.
+  Stine 논문의 실체는 doi.org/10.1109/66.661292 (B. Stine et al., "Rapid Characterization and
+  Modeling of Pattern-Dependent Variation in Chemical-Mechanical Polishing," IEEE Trans.
+  Semicond. Manuf. 11(1), 1998) — `tools/find_open_access.py --title`로 확인한 DOI. 초록만
+  확인, 본문은 유료벽이라 **초록만 확인**(§2 PL 6–8mm 수치의 원문 대조는 여전히 미완).
 
 ## 2. Effective density(유효밀도)와 planarization length
 밀도 모델의 심장은 **유효밀도** ρ_eff다. 국소 설계밀도 ρ_local(x,y)를 그대로 쓰지 않고,
@@ -112,5 +116,45 @@ dishing/erosion nm값은 실험 캘리브레이션 없이는 **미검증**. (c) 
 - **레이아웃↔공정 결합점**: dummy fill(밀도 균일화)로 ρ_eff 편차를 줄이는 게 die-level 평탄화의
   1차 레버 — 밀도 모델이 바로 그 dummy fill 규칙의 근거다.
 
-## 7. 자기시험
+## 8. 검증 (sim 재현, 실제 실행)
+아래 블록은 `tools/verify_claims.py`가 실제로 실행한다. §5의 self-test(T3·T4·T7)를
+assert로 재확인 — 밀도-제거율 반비례 불변량, 비압축성 step 소멸시각, 정상상태 dishing 대입.
+
+```python verify
+import sys
+sys.path.insert(0, "sim/tier1_empirical")
+from pattern_density import (
+    oxide_removed_up, step_height_incompressible, steady_state_dishing,
+)
+import numpy as np
+
+# T3 재현: 밀도 모델 불변량 removed*rho_eff = K*t (step 구간)
+K, h0, t = 3000.0, 6000.0, 0.5
+rho_in = np.array([0.4, 0.6, 0.8])  # t_c=rho*h0/K=rho*2 > t=0.5 만족
+removed = oxide_removed_up(t, K, rho_in, h0)
+invariant = removed * rho_in
+assert np.allclose(invariant, K * t, rtol=1e-9), f"불변량 불일치: {invariant} vs {K*t}"
+assert np.all(np.diff(removed) < 0), "밀도 높을수록 덜 깎여야 한다(단조감소)"
+
+# T4 재현: 비압축성 step은 t_c = rho*h0/K 에서 정확히 소멸
+rho1 = 0.5
+t_c = rho1 * h0 / K
+h_at = step_height_incompressible(t_c, K, np.array([rho1]), h0)[0]
+assert h_at <= 1e-6, f"t_c에서 step이 0으로 소멸해야 하는데 h={h_at}"
+
+# T7 재현: 정상상태 dishing d_ss에서 Cu rate == oxide rate
+RR_m, RR_ox, rho_m, dmax, b = 3000.0, 1000.0, 0.5, 2000.0, 0.0008
+d_ss = steady_state_dishing(RR_m, RR_ox, rho_m, dmax, b)
+r_cu = RR_m * (1 - d_ss / dmax)
+r_ox = RR_ox / (1 - rho_m) * (1 + b * d_ss)
+assert abs(r_cu - r_ox) / r_ox < 1e-6, f"d_ss에서 두 rate가 같아야: {r_cu} vs {r_ox}"
+
+print(f"OK: invariant={invariant[0]:.1f} (K*t={K*t}), t_c={t_c:.3f}min, d_ss={d_ss:.1f}A")
+```
+
+한계: 이 검증은 **모델 내부정합**(수식이 자기 정의대로 동작하는지)만 확인한다.
+K=3000 Å/min, PL=3mm 등은 실측 캘리브레이션 없는 예시값 — 절대 dishing/erosion nm값의
+문헌 대조는 §5에 적었듯 여전히 **미검증**이다.
+
+## 9. 자기시험
 → [[../../agents/process-integrator/EXAMS.md]] Lv3-1 문항 참조.
