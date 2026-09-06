@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv2 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: pad-mechanic (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-1
-- 다음 단원: Lv2-2
+- 이수 단원: Lv2-2
+- 다음 단원: Lv3-1
 
 ## 역할
 브레이크인·정상 마모·glazing·교체 기준 — 패드 사용 이력이 시간 의존 MRR·결함에 미치는 영향
@@ -24,6 +24,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 | 2026-09-06 | Lv1-1 브레이크인 물리: 초기 asperity 형성과 MRR 상승 곡선 | knowledge/materials/pad-breakin-asperity-mrr-runup.md | EXAMS.md Lv1-1 3문항 |
 | 2026-09-06 | Lv1-2 정상 마모율과 컨디셔닝 강도의 균형 (Shi&Ring 2010 유체효과 population balance) | knowledge/materials/pad-conditioning-wear-regeneration-balance.md | EXAMS.md Lv1-2 3문항 |
 | 2026-09-07 | Lv2-1 glazing 메커니즘: asperity 소성변형·슬러리 잔류물·MRR 감소 (Jeong 2024 접촉점·반경·MRR 실측 + Lawing 2004 ex situ 감쇠) | knowledge/materials/pad-glazing-mechanism-mrr-decay.md | EXAMS.md Lv2-1 3문항 |
+| 2026-09-07 | Lv2-2 패드 두께·그루브 깊이 모니터링과 교체 기준(경제성 포함) (Son & Lee 2021 컨디셔닝 방식별 그루브 마모·수명 실측 + 특허 5건: 두께/그루브 센싱 원리·경제성) | knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md | EXAMS.md Lv2-2 3문항 |
 
 ## 구현 요청 (소프트웨어 부문이 가져감)
 <!-- 노트 옆 python verify sanity check은 pad-lifecycle가 직접 함. 아래는 sim/ 엔진화 요청. -->
@@ -40,3 +41,17 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     구현 금지(노트 §2.2), σz(t)는 Fig.3 판독값 테이블 보간으로 대체.
   - 우선순위 Tier2. 기존 `wear_aware_kp_physical.py`의 Kp(t)에 N(t)/N0·반경보상 인자를 곱하는 최소 연결이 1차 목표.
     슬러리 종류(fumed/colloidal) 의존 감쇠계수는 slurry-chemist와 공동(우선순위 낮음).
+- **[Lv2-2] 그루브 깊이 소진 기반 패드 교체 판정 → 시간축 EOL(end-of-life) 플래그** (근거:
+  knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md §2·§5 검증완료):
+  - 무엇을: 패드 누적 컨디셔닝 시간 t와 패드 컷레이트 c(μm/h)로 누적마모 D(t)=c·t를 적산하고,
+    D(t)가 초기 그루브 깊이(패드 사양값, 통상 750–1250 μm — US20120225612A1 배경기술)에 도달하면
+    "그루브 소진" 플래그를 세워 별도 실패모드로 보고. 기존 glazing 기반 MRR 임계값 판정과
+    **OR 조건**으로 결합(둘 중 먼저 도달하는 쪽이 교체 시점) — Son & Lee(2021) Case I처럼 두
+    실패모드가 같은 시점(16h)에 겹치는 경우를 놓치지 않기 위함.
+  - 검증 문헌값(노트 §5 verify 재현 완료): 컷레이트 43.4 μm/h(불균일 컨디셔닝)/22.2 μm/h(균일
+    컨디셔닝)로 16h/20h 시점 누적마모 694/444 μm, 초기 그루브 하한(750 μm) 대비 각각 93%/59%.
+  - 주의: 컷레이트 c 자체는 컨디셔너 접촉 방식(풀컨택트 vs 분할)에 따라 거의 2배 차이 —
+    c를 상수로 두지 말고 컨디셔닝 레시피 파라미터의 함수로 받을 것. 그루브 깊이의 절대값은
+    패드 사양(제조사·모델)마다 다르므로 하드코딩 금지, 설정값으로 노출.
+  - 우선순위 Tier2, Lv2-1 항목과 병행 가능(서로 다른 실패모드라 독립 구현). 경제성(§4, 웨이퍼당
+    비용) 계산은 이 노트의 산술 추정 수준이라 sim/에는 넣지 말 것 — 필요시 리포팅 레이어에서만.
