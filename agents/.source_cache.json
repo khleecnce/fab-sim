@@ -202,5 +202,17 @@
  "doi:10.1116/1.589577": {
   "ok": true,
   "msg": "Determination of trace metallic impurities on 200-mm silicon wafers by time-of-flight seco"
+ },
+ "doi:10.3390/ma17112759": {
+  "ok": true,
+  "msg": "Effect of Secondary Foaming on the Structural Properties of Polyurethane Polishing Pad"
+ },
+ "pmc:11173749": {
+  "ok": true,
+  "msg": "Effect of Secondary Foaming on the Structural Properties of Polyurethane Polishing Pad."
+ },
+ "doi:10.7736/JKSPE.020.082": {
+  "ok": true,
+  "msg": "Identification of the Break-In Mechanism by Asperity Deformation of CMP Pad"
  }
 }
