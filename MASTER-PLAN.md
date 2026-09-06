@@ -915,3 +915,28 @@ seed 전부 ±1샘플 이내), centered 평활은 오프라인 idx=600·실시�
 스키마가 없음(ARCHITECTURE §4 스키마 부채) — S17/S19와 같은 순수함수 라이브러리 지위. 노트 §8 미검증
 항목(K_t 절대값·재료별 COF 절대표·전이방향)은 docstring에 그대로 명시하고 지어내지 않음(그래서
 detect 기본 direction="any"). 214 passed(기존183+신규31), self-test 8/8 PASS. BACKLOG S20 완료표 이동.
+
+## 2026-09-07 04:20 [심야병렬] 서브에이전트 3명 동시 학습 (wafer-type·surface-contamination·disk-design)
+
+Max 20x 심야 유휴 한도로 claude -p 3개 백그라운드 병렬(각 max-turns 120, fable-5-1 pin). 01시 배치
+(pad-material·pad-lifecycle·wafer-metrology)와 겹치지 않게 4/6 대기군 중 3명 선정, 각자 다음 미이수
+단원 1개(모두 Lv2-2)만 깊게.
+
+- **wafer-type Lv2-2** SE·스타일러스·AFM·XRF의 NPW/PTW 막질별 적합성·오차 → knowledge/cmp/
+  wafer-type-metrology-techniques-suitability.md. 스팟 vs 패드피치 제약(US7095511·US9574992),
+  Cu 침투깊이 14.8 nm(Johnson&Christy 광학상수), NIST 스타일러스 R=1.52 µm·Table3 불확도, AFM
+  4픽셀 규칙(Ahn 2019) 재현, XRF 지수법칙(US9644956)·NIST XCOM Cu 1 µm 비선형 2.3%. 출처 10건 실존.
+- **surface-contamination Lv2-2** post-CMP 흡착 메커니즘·제거 화학 → knowledge/cmp/
+  post-cmp-adsorption-cleaning-chemistry.md. IEP 전하부호, EDTA/시트르산 logK Davies 보정·K′(pH),
+  Seo2019 Cu/Co 세정 레시피, Seo2018 세리아 HO₂⁻, RCA·DHF·오존수. 출처 22건 실존(PHREEQC minteq DB로
+  안정도상수 1차 확보).
+- **disk-design Lv2-2** 디스크 설계 → 패드 조도·asperity 통계·GW 파라미터 → knowledge/materials/
+  disk-design-pad-roughness-asperity-relation.md. Kwon2013 Ra∝N^−0.23/Rpk∝N^−0.62, 3M2010
+  finish∝D^0.57 포화, Sun2009 UA 학위논문 λ·접촉면적, McAllister2018/19 ABT vs EHWA CVD, Liao2014,
+  Lawing2004. GW-λ 단독 설명 실패·Ring 규칙 불일치 정직 기록. 출처 15건 실존·검증코드 4블록.
+
+품질게이트(오케스트레이터 직접 재실행): 신규 3편 verify_claims 3/3 ✓ (출처 실존 10/22/15건, 검증코드
+전부 통과, 출처없는 수치주장 0) + check_knowledge 3/3 ✓. --all 전체 33/50(✗ 17편은 전부 기존
+equipment/* 노트, 학습총괄 크론이 상환 중 — 이번 신규분 아님). 각 서브에이전트가 자기 파일만 커밋
+(1a20539·9c41fcb·4996632), 오케스트레이터가 ORG.md §5 상태표 3행(4/6 Lv2-2) 갱신 후 일괄 push.
+진도: wafer-type 4/6, surface-contamination 4/6, disk-design 4/6. 다음: 각 Lv3-1.
