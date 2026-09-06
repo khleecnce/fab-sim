@@ -845,3 +845,16 @@ python verify로 assert 검증(digitize 없이 정량 곡선 재현은 안 됨�
 verify_claims.py 둘 다 통과. wafer-type 3/6, CURRICULUM Lv2-1 체크, EXAMS 3문항 추가,
 PROFILE·ORG.md §5 갱신. 구현요청(패턴효과 결합 모듈, effective-density 모델과 통합)
 software-lead BACKLOG 인계 예정. 다음: Lv2-2(측정기법 엘립소미터·프로파일러·AFM·XRF).
+
+## 2026-09-07 09:30 [소프트웨어] S1 문서동기화 + slurry-chemist 구현요청 처리 (S19)
+
+`docs/ARCHITECTURE.md`가 9/5 최초본 그대로였는데 그날 저녁 S3(gw_preston_link)·S6 1차분
+(pattern_density)이 이미 engine에 반영돼(커밋 1145ca7) 문서-코드가 어긋나 있었다 — 실측
+`available_models()` 4개 기준으로 §3 전체 재작성, §5 다음 후보 갱신. 이어서 slurry-chemist
+구현요청(입자스케일 화학-기계 시너지)을 `sim/tier2_physics/particle_chemomechanical_synergy.py`
+로 처리 — Hertz 탄성접촉·plastic plowing·화학연화 증폭 4개 함수, 노트(particle-wafer-interaction-
+mechanical-chemical-balance.md) §4 verify 블록 정량값 5건(E*≈37.6GPa, F=50nN p_max≈1.22GPa/
+δ≈0.271nm, H 4배↓→depth4배/volume8배, 하중2배→체적2^1.5배)을 지어내지 않고 그대로 재현
+테스트로 이전. Preston Kp 연결식은 여전히 없어(노트 §6 명시) engine 미등록(S17과 동일 지위,
+순수함수 라이브러리). 183 passed(기존178+신규5), 커밋 64dd279. 잔여: Kp 연결식은 slurry-chemist
+회신 대기, S13(패드마모 모순)은 pad-lifecycle 학습 대기.

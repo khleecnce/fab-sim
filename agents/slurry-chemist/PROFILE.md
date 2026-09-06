@@ -21,13 +21,14 @@
 - sim/tier2_physics/dlvo_colloid.py — Debye 길이·Henry식·DLVO V_T(h) 재현 (12/12 PASS, 2026-09-05)
 - sim/tier2_physics/slurry_components.py — BTA Langmuir 흡착·산화제-MRR 정점(Kaufman) 재현 (12/12 PASS, 2026-09-05)
 - sim/tier2_physics/pourbaix_nernst_slope.py — Nernst 식 pH기울기(-59.1mV/pH) 및 W/Cu CMP 표면반응 m=n 판별 재현 (6/6 PASS, 2026-09-05)
+- sim/tier2_physics/particle_chemomechanical_synergy.py — 단일입자 Hertz탄성접촉·plastic plowing·화학연화 증폭 (5/5 PASS, 소프트웨어 부문 구현, 2026-09-07)
 
 ## 구현 요청 (→ 소프트웨어 부문)
 <!-- 노트에서 유도했으나 sim/ 정식 모듈화는 소프트웨어 부문이 담당. 노트 옆 python verify sanity check은 slurry-chemist가 계속 수행. -->
-- **입자스케일 화학-기계 시너지 모듈** (근거: [[../../knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance]] §4):
-  단일입자 소성 접촉 δ_p=F/(2πR·H), plowing 홈 단면 A_f∝R^{1/2}·H^{-1.5} → 화학연화(H↓)의 마모체적 증폭을
-  Preston K_p의 화학성분으로 연결. 입력: 입자반경 R, 입자당 하중 F, 표면경도 H(슬러리 화학→H 매핑). 출력: 입자당 제거체적률.
-  (현재 노트 verify 블록에 sanity check 존재 — GPa 접촉응력·8배 시너지 재현 PASS. 정식 sim/tier2 모듈화 요청.)
+- ~~**입자스케일 화학-기계 시너지 모듈**~~ ✅ 2026-09-07 소프트웨어 부문 구현 완료
+  (`sim/tier2_physics/particle_chemomechanical_synergy.py`, 커밋 64dd279, 노트 §4 정량값 5건 재현).
+  **잔여 요청**: Preston K_p로의 정량 연결식(슬러리 화학성분 → 표면경도 H 매핑)은 여전히 없음 —
+  이 매핑을 노트로 내면 소프트웨어 부문이 chemistry.py 연결을 재개한다.
 - **Luo-Dornfeld 활성입자 MRR 모델** (근거: 동 노트 §5, doi:10.1109/66.920723 / doi:10.1109/tsm.2003.815199):
   활성입자수(입도분포 상위 꼬리)와 V₁∝F^{1.5} 결합 → MRR∝P^{1/2}·V. 원문 폐형식 유도는 유료(미확보)라
   구현 시 2차 인용 기반 근사임을 명시하고 파라미터는 캘리브레이션 대상으로 표기 필요.
