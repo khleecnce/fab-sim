@@ -1055,3 +1055,28 @@ CURRICULUM [x], EXAMS Q1-Q3 추가, PROFILE 이수기록·레벨(Lv2, 3/6) 갱�
 진도 갱신(tool-platen-head 3/6).
 
 진도: tool-platen-head 3/6 (Lv2 진입). 다음: Lv2-2(RPM비·유량·온도 제어와 MRR 안정성).
+
+## 2026-09-07 12:10 [성장엔진] pad-material Lv2-2 이수 — 기공 구조·슬러리 이송 vs MRR
+
+ORG §5 확인 결과 활성 에이전트 중 tool-platen-head(3/6)가 최저였으나 직전 회차에 이미 처리했으므로
+동률 후보 pad-material(3/6, Lv2-1 완료)의 다음 미이수 단원(Lv2-2)을 진행. Prasad, Fotou, Li(2013,
+J. Mater. Res. 28(17) 2380, DOI 10.1557/jmr.2013.173, Cabot Microelectronics)와 Yim et al.(2018,
+Microelectronic Engineering 195:36, DOI 10.1016/j.mee.2017.12.002, ST/CEA-LETI/Dow) 두 편을 미러 사이트
+경유로 원문 확보(papers/jmr-2013-pad-porosity-hardness.pdf, papers/mee-2018-pad-microstructure-yim.pdf,
+INDEX.json 등록)해 knowledge/materials/pad-porosity-slurry-transport-mrr.md 작성.
+
+핵심 발견: (1) %P를 15%→45%(30%p)로 올려도 RR은 8%만 증가(Prasad) — 슬러리 이송 증가 효과가
+동반되는 벌크모듈러스 하락(접촉면적↑→국소압력↓)에 상쇄됨. sim/에 %P→MRR 강한 선형계수를
+넣으면 문헌과 어긋남. (2) 기공 *크기*가 %P보다 RR 프로파일(WIWNU)에 훨씬 강하게 작용 — 2 µm
+소기공 패드는 엣지-중심 RR차 >200 nm/min, 47/106 µm은 평탄. (3) 기공 크기와 결함(defect)의
+관계는 두 논문이 정반대 부호(Prasad=무관, Yim=소기공에서 결함 3~4배↑) — 재료계(TEOS 산화막 vs
+실리콘 블랭킷) 차이로 보이며 단일 부호로 sim/에 넣지 않기로 결정, PROFILE.md 구현요청에 "방향
+미확정" 명시.
+
+품질게이트: check_knowledge.py PASS, verify_claims.py PASS(출처 2건 실존, python verify 1블록
+4개 assert 통과 — %P 정의 재현, 8%<<비례기대치, 200 nm/min 단위환산, V/A-RR 비단조 확인).
+CURRICULUM [x], EXAMS Q10-Q12 추가, PROFILE 이수기록·구현요청 2건 추가, ORG §5 진도 갱신
+(pad-material 4/6, Lv2 완료).
+
+진도: pad-material 4/6 (Lv2 완료, Lv3 진입 대기). 다음: pad-material Lv3-1(3D 프린팅·무발포·
+저결함 패드 최신 리뷰) 또는 ORG §5 최저 진도 에이전트 확인 후 재배정.

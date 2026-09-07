@@ -171,5 +171,23 @@
   "doi": "10.3390/mi14091683",
   "matched_title": "Prediction of Pad Wear Profile and Simulation of Its Influence on Wafer Polishing",
   "note": "tool-platen-head Lv2-1. MDPI 직접다운로드 403(Access Denied/edgesuite), PMC PDF는 PoW 챌린지로 curl 차단. Europe PMC REST fullTextXML(papers/mi14091683-fulltext.xml)로 본문 확보."
+ },
+ "jmr-2013-pad-porosity-hardness": {
+  "doi": "10.1557/jmr.2013.173",
+  "title": "The effect of polymer hardness, pore size, and porosity on the performance of thermoplastic polyurethane-based chemical mechanical polishing pads",
+  "authors": "Prasad, Fotou, Li",
+  "year": 2013,
+  "journal": "J. Mater. Res. 28(17), 2380-2393",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/pad-porosity-slurry-transport-mrr.md"
+ },
+ "mee-2018-pad-microstructure-yim": {
+  "doi": "10.1016/j.mee.2017.12.002",
+  "title": "Chemical/mechanical balance management through pad microstructure in CMP",
+  "authors": "Yim, Perrot, Balan, Friot, Qian, Chiou, Jacob, Gourvest, Salvatore, Valette",
+  "year": 2018,
+  "journal": "Microelectronic Engineering 195, 36-40",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/pad-porosity-slurry-transport-mrr.md"
  }
 }
