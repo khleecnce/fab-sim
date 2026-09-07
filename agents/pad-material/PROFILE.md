@@ -31,7 +31,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 ## 구현 요청 (sim/ 담당자에게 — 본인은 노트 verify만 수행)
 | 무엇을 | 근거 노트 | 검증 문헌값 | 우선순위 |
 |---|---|---|---|
-| 패드 유효 탄성률의 온도 의존 모델 `E_pad(T)` — Tg 근방 전이를 표현하는 구간 함수(예: 유리질 평탄부–전이–고무질 평탄부를 tanh 또는 로그-시그모이드로 보간). GW/Hertz 접촉모듈의 E* 입력을 상수에서 T의 함수로 교체 | knowledge/materials/pad-viscoelasticity-temp-frequency-dma.md §3.1, §4 | Cabot US20170087688A1 Table 1B: Epic D100 E'(25/50/80 °C)=1000/141/19 MPa, tanδ 피크 56 °C; 발명패드 1D 1590/317/5 MPa, Tg(DSC) 43.6 °C — 6종 모두 25→50 °C 3~10배 감소 재현 | 높음 (Khanna 2019: E' 온도민감도가 MRR 시간드리프트의 직접 원인) |
-| WLF shift factor 유틸 `wlf_shift(T, Tr, C1, C2)` + 기준온도 재매개화 함수 — E'(ω,T) 마스터커브 이동용. 기본 상수는 보편값(17.44, 51.6 K @Tg)로 두되 "CMP PU 미피팅" 플래그를 상수에 명시 | 같은 노트 §2, §6 verify (1) | WLF 1955 doi:10.1021/ja01619a008; 17.44/51.6 → Tr+50 K 시 8.86/101.6 K 재현(0.03% 이내) | 중간 (Tg 이상 구간 전용, 30 °C 이하 유리질엔 Arrhenius 필요) |
+| ~~패드 유효 탄성률의 온도 의존 모델 `E_pad(T)`~~ ✅ 2026-09-07 소프트웨어 부문 구현 완료(S21, `sim/tier2_physics/pad_viscoelastic_temperature.py`, 커밋 16d6147) — tanh 대신 로그-선형 구간보간(이산 앵커점만 있어 tanh 피팅파라미터를 지어낼 수 없었음), Cabot Table 1B 6패드x3앵커점 정확 재현 | knowledge/materials/pad-viscoelasticity-temp-frequency-dma.md §3.1, §4 | (재현 완료) | 높음 |
+| ~~WLF shift factor 유틸~~ ✅ 2026-09-07 구현 완료(S21, `wlf_log_aT`/`wlf_reparametrize`, 같은 커밋) — 재매개화 8.86/101.6 재현(0.03%), "CMP PU 미피팅" docstring 명시 | 같은 노트 §2, §6 verify (1) | (재현 완료) | 중간 |
 | Preston K_p 온도 보정 훅: `K_p_eff(T) = K_p0 · (E*(T0)/E*(T))^m` 형태로 GW A_r∝1/E* 함의(m=1)를 옵션화. 실측 대조 전까지 기본 OFF | 같은 노트 §4 | Khanna 2019 doi:10.1149/2.0121905jss: E'25/E'90 비 188/21/4 ↔ R90s/R15s ≈2/1.45/1 순서 일치(3점, 방향성만) | 낮음 (실측 대조값 부족 — 순서 재현 이상은 미검증) |
 

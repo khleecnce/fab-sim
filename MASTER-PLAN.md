@@ -1014,3 +1014,20 @@ CURRICULUM [x], EXAMS Q1-Q3 추가, PROFILE 이수기록·레벨(2/6) 갱신, OR
 미확보 상태라 지금 구현하면 추측이 되므로 Zhao 2013 원문 확보 후 재요청 권장).
 
 진도: tool-platen-head 2/6. 다음: Lv2-1(리테이너링 압력·마모와 엣지 프로파일).
+
+## 2026-09-07 09:30 [소프트웨어] S21 pad-material 구현요청 처리 — E_pad(T) + WLF 유틸
+
+`agents/pad-material/PROFILE.md` 구현요청(우선순위 높음·중간) 2건 처리. Claude Code 위임
+(Read/Write/Edit/Bash, max-turns 40)으로 `sim/tier2_physics/pad_viscoelastic_temperature.py`
+신설: 노트가 제안한 tanh/로그-시그모이드 보간 대신 **로그-선형 구간보간**을 채택했다 —
+문헌(Cabot US20170087688A1 Table 1B)이 이산 앵커점(25/50/80°C) 3개만 제공하고 함수형 피팅
+파라미터가 없어, tanh 피팅은 새 숫자를 지어내는 것이 되기 때문이다. `e_pad_loglinear`(범위 밖
+clamp, 외삽 금지)·`e_pad_from_table`(Cabot 6패드 룩업)·`wlf_log_aT`·`wlf_reparametrize`(보편상수
+17.44/51.6, "CMP PU 미피팅" docstring 명시) 4함수. 노트 §6 verify 값을
+`tests/test_pad_viscoelastic_temperature.py` 16건으로 이전(WLF 재매개화 8.86/101.6·shift
+항등식·60°C log_aT(-4.2)·6패드×3앵커점 정확 재현·범위밖 clamp). software-lead가 self-test
+6/6 + pytest 242 passed(기존226+신규16) 직접 재검증 후 커밋(16d6147, 다른 파일 미접촉 확인).
+engine 미등록: Recipe에 온도 필드 없음(스키마 부채, ARCHITECTURE §4) — S17/S19/S20과 동일
+지위. Kp_eff(T) 훅(우선순위 낮음, 실측 대조 없음)은 범위 밖으로 남김. pad-material PROFILE
+구현요청 섹션 완료 처리. 수신함 잔여: slurry-chemist 2건(Luo-Dornfeld, 세리아 정량모델).
+다음 회차 후보: S13(패드 마모 모순, pad-lifecycle 학습 상태 확인) 또는 잔여 수신함 항목.
