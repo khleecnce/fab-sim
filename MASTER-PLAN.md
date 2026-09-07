@@ -1095,3 +1095,28 @@ oxide_nitride_selectivity·h2o2_boost_selectivity). "미검증" 표기된 값(Ce
 
 진행 로그 중복 방지: 이 항목은 ORG §5(도메인 학습 진도)와 무관 — 소프트웨어 부문 백로그 소진이라
 활성 에이전트 진도 갱신 없음.
+
+## 2026-09-07 14:20 [성장엔진] pad-structure Lv1-2 이수 — 그루브 기하→접촉면적·유동저항 (Lv1 완료)
+
+ORG §5 확인 결과 pad-structure(0/6, Lv1-1만 이수)가 활성 에이전트 중 최저 진도. 다음 미이수
+단원 Lv1-2(그루브 폭·깊이·피치 → 유효 접촉면적·유동 저항) 진행. Mu et al.(2016, Microelectronic
+Engineering 157:60-63, DOI 10.1016/j.mee.2016.02.035, Univ. Arizona/Araca/Hitachi Chemical, RTD
+실험)을 미러 사이트 경유로 원문 확보(papers/mee-2016-mu-groove-width-residence-time.pdf), Cho et
+al.(2022, Applied Sciences 12(9) 4339, DOI 10.3390/app12094339, SKKU/삼성전자, CFD+실험, CC-BY
+오픈액세스)를 r.jina.ai 프록시로 전문 확보해 knowledge/materials/
+pad-groove-geometry-contact-area-flow-resistance.md 작성.
+
+핵심 발견: (1) Lv1-1에서 정의한 GFQ=W/P를 Mu2016 실측 패드 3종(그루브폭 300/600/900μm)에 적용한
+결과 GFQ=0.200/0.333/0.429 — JP5767280B2의 "가장 적합" 구간[0.2,0.3]을 실측 패드 3개 중 2개가
+벗어남(그루브 이송 목적 설계는 접촉안정성 최적구간과 상충). (2) 그루브 폭 확대의 슬러리 이용효율
+(η)은 단조 증가가 아니다 — 300→600μm에서 η이 9.9→13.4%(3PSI, +35%)로 크게 개선되나 600→900μm은
+13.4→12.8%로 오히려 미세 감소(반응기 부피와 체류시간이 함께 늘어 실효유량 비율 상쇄). (3) 방사형
+그루브 개수(R0/R8/R32) 축에서도 NU 개선폭이 초기(1.98%p)>후기(1.11%p)로 같은 수확체감 패턴 재현
+— 그루브 설계 전반의 일반적 현상일 가능성이나 폭·개수 통합모델은 미확보(미검증, Lv3-2 이관).
+
+품질게이트: check_knowledge.py PASS, verify_claims.py PASS(출처 3건 실존, python verify 1블록
+GFQ 재현+η 비단조 3계열 assert 통과). CURRICULUM Lv1-1·Lv1-2 [x] (Lv1 완료), EXAMS Q4-Q6 추가,
+PROFILE.md 이수기록 갱신("Lv1 완료 2/6"), ORG §5 진도 갱신(pad-structure 2/6).
+
+진도: pad-structure 2/6 (Lv1 완료, Lv2 진입). 다음: pad-structure Lv2-1(서브패드 강성 적층과
+웨이퍼 스케일 압력분포·엣지 롤오프) 또는 ORG §5 최저 진도 에이전트(disk-kinematics 1/6) 재배정.

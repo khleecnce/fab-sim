@@ -238,5 +238,365 @@
  "doi:10.3390/app11083521": {
   "ok": true,
   "msg": "Contact-Area-Changeable CMP Conditioning for Enhancing Pad Lifetime"
+ },
+ "doi:10.1016/0042-207x(74": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/s0007-8506(07": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1021/acs.langmuir.5c05695": {
+  "ok": true,
+  "msg": "Machine Learning-Driven Optimization of Silicon Carbide Chemical Mechanical Polishing with"
+ },
+ "doi:10.1038/271431a0": {
+  "ok": true,
+  "msg": "Surface topography as a nonstationary random process"
+ },
+ "doi:10.1103/physrevb.48.14472": {
+  "ok": true,
+  "msg": "Roughness spectrum and surface width of self-affine fractal surfaces via the K-correlation"
+ },
+ "doi:10.1016/0042-207x(74)92330-6)이다": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/s0007-8506(07)60110-3": {
+  "ok": true,
+  "msg": "Pad Surface Roughness and Slurry Particle Size Distribution Effects on Material Removal Ra"
+ },
+ "doi:10.1038/271431a0)로": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1103/physrevb.48.14472)의": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/0042-207x(74)92330-6": {
+  "ok": true,
+  "msg": "1478. Step coverage in the vacuum deposition of thin metal films"
+ },
+ "doi:10.1109/TSM.2011.2107756": {
+  "ok": true,
+  "msg": "Greenwood–Williamson Model Combining Pattern-Density and Pattern-Size Effects in CMP"
+ },
+ "doi:10.1016/S0038-1101(97)00016-6": {
+  "ok": true,
+  "msg": "The impact of iron, copper, and calcium contamination of silicon surfaces on the yield of "
+ },
+ "doi:10.1016/j.egypro.2015.07.084": {
+  "ok": true,
+  "msg": "Influence of Copper Diffusion on Lifetime Degradation in n-type Czochralski Silicon for So"
+ },
+ "doi:10.1149/1.1421348": {
+  "ok": true,
+  "msg": "Physics of Copper in Silicon"
+ },
+ "doi:10.3390/electronics13122391": {
+  "ok": true,
+  "msg": "Effects of Fe Contamination on the Reliability of Gate Oxide Integrity in Advanced CMOS Te"
+ },
+ "doi:10.1016/j.jmatprotec.2004.04.094": {
+  "ok": true,
+  "msg": "Polishing pad surface characterisation in chemical mechanical planarisation"
+ },
+ "doi:10.1023/A:1020305108358": {
+  "ok": true,
+  "msg": "Mathematical modeling of polish-rate decay in chemical-mechanical polishing"
+ },
+ "doi:10.1557/proc-732-i5.3": {
+  "ok": true,
+  "msg": "Pad Conditioning and Pad Surface Characterization in Oxide Chemical Mechanical Polishing"
+ },
+ "doi:10.3390/ma17081817": {
+  "ok": true,
+  "msg": "Novel Probability Density Function of Pad Asperity by Wear Effect over Time in Chemical Me"
+ },
+ "doi:10.1016/j.mee.2005.10.004": {
+  "ok": true,
+  "msg": "Temperature effects of pad conditioning process on oxide CMP: Polishing pad, slurry charac"
+ },
+ "doi:10.1016/j.tsf.2005.03.023": {
+  "ok": true,
+  "msg": "Mechanical properties of chemical mechanical polishing pads containing water-soluble parti"
+ },
+ "doi:10.1016/s1044-5803(03)00004-4": {
+  "ok": true,
+  "msg": "Applicability of dynamic mechanical analysis for CMP polyurethane pad studies"
+ },
+ "doi:10.1021/ja01619a008": {
+  "ok": true,
+  "msg": "The Temperature Dependence of Relaxation Mechanisms in Amorphous Polymers and Other Glass-"
+ },
+ "doi:10.1149/2.0121905jss": {
+  "ok": true,
+  "msg": "Impact of Pad Material Properties on CMP Performance for Sub-10nm Technologies"
+ },
+ "doi:10.3390/ijms24043944": {
+  "ok": true,
+  "msg": "Time–Temperature Superposition Principle in Shearing Tests Compared to Tension Conditions "
+ },
+ "doi:10.3390/ma18194461": {
+  "ok": true,
+  "msg": "Process Temperature Control for Low Dishing in CMP"
+ },
+ "pmc:9962352": {
+  "ok": true,
+  "msg": "Time-Temperature Superposition Principle in Shearing Tests Compared to Tension Conditions "
+ },
+ "doi:10.1016/s0167-9317(97)00104-4": {
+  "ok": true,
+  "msg": "Copper CMP evaluation: planarization issues"
+ },
+ "doi:10.1109/tsm.2016.2631145": {
+  "ok": true,
+  "msg": "Investigation of Evolution Processes of Wafer Profiles With Edge Over Erosion in Copper CM"
+ },
+ "doi:10.1117/12.772951": {
+  "ok": true,
+  "msg": "Controlling macro and micro surface topography for a 45nm copper CMP process using a high "
+ },
+ "doi:10.1149/1.2059241": {
+  "ok": true,
+  "msg": "Pattern Geometry Effects in the Chemical‐Mechanical Polishing of Inlaid Copper Structures"
+ },
+ "doi:10.1557/proc-867-w5.1": {
+  "ok": true,
+  "msg": "CMP at the Wafer Edge – Modeling the Interaction between Wafer Edge Geometry and Polish Pe"
+ },
+ "doi:10.1557/proc-867-w5.5": {
+  "ok": true,
+  "msg": "A Dishing Model for STI CMP Process"
+ },
+ "doi:10.7567/jjap.51.05ef01": {
+  "ok": true,
+  "msg": "Influence of Wafer Edge Geometry on Removal Rate Profile in Chemical Mechanical Polishing:"
+ },
+ "doi:10.1103/PhysRevB.27.985": {
+  "ok": true,
+  "msg": "Dielectric functions and optical parameters of Si, Ge, GaP, GaAs, GaSb, InP, InAs, and InS"
+ },
+ "doi:10.1103/PhysRevB.6.4370": {
+  "ok": true,
+  "msg": "Optical Constants of the Noble Metals"
+ },
+ "doi:10.1364/JOSA.55.001205": {
+  "ok": true,
+  "msg": "Interspecimen Comparison of the Refractive Index of Fused Silica*,†"
+ },
+ "doi:10.3390/coatings9030181": {
+  "ok": true,
+  "msg": "Spectrophotometric Characterization of Thin Copper and Gold Films Prepared by Electron Bea"
+ },
+ "arxiv:1210.1076": {
+  "ok": true,
+  "msg": "Application of Spectroscopic Ellipsometry and Mueller Ellipsometry to Optical Characteriza"
+ },
+ "arxiv:1909.09508": {
+  "ok": true,
+  "msg": "Measurement Anomaly of Step Width in Calibration Grating using Atomic Force Microscopy"
+ },
+ "doi:10.1016/j.heliyon.2024.e38280": {
+  "ok": true,
+  "msg": "Yield stress and zeta potential-pH behaviour of washed spherical α-Al2O3 particles with an"
+ },
+ "doi:10.1016/j.surfin.2020.100690": {
+  "ok": true,
+  "msg": "Passivation of textured crystalline silicon with small pyramids by silicon nitride films f"
+ },
+ "doi:10.1039/d0ra08517k": {
+  "ok": true,
+  "msg": "Selective leaching of lead from lead smelter residues using EDTA"
+ },
+ "doi:10.1039/d5ra05301c": {
+  "ok": true,
+  "msg": "Physicochemical aspects of adsorption efficiency of nanocrystalline ceria toward antibioti"
+ },
+ "doi:10.1088/1674-4926/36/6/066001": {
+  "ok": true,
+  "msg": "Benzotriazole removal on post-Cu CMP cleaning"
+ },
+ "doi:10.1149/1.1346618": {
+  "ok": true,
+  "msg": "Controlled Deposition of Organic Contamination and Removal with Ozone-Based Cleanings"
+ },
+ "doi:10.1149/1.1393323": {
+  "ok": true,
+  "msg": "A Detailed Study on the Growth of Thin Oxide Layers on Silicon Using Ozonated Solutions"
+ },
+ "doi:10.1149/1.1838798": {
+  "ok": true,
+  "msg": "Contamination Removal by Single‐Wafer Spin Cleaning with Repetitive Use of Ozonized Water "
+ },
+ "doi:10.1149/1.2044308": {
+  "ok": true,
+  "msg": "Mechanisms of Metallic Impurity Deposition on Silicon Substrates Dipped in Cleaning Soluti"
+ },
+ "doi:10.1149/1.2059243": {
+  "ok": true,
+  "msg": "The Etching Mechanisms of SiO2 in Hydrofluoric Acid"
+ },
+ "doi:10.1149/1.2069362": {
+  "ok": true,
+  "msg": "Effect of Chemicals on Metal Contamination on Silicon Wafers"
+ },
+ "doi:10.1149/1.2069488": {
+  "ok": true,
+  "msg": "Metal Contamination Removal on Silicon Wafers using Dilute Acidic Solutions"
+ },
+ "doi:10.1149/1.2086825": {
+  "ok": true,
+  "msg": "The Evolution of Silicon Wafer Cleaning Technology"
+ },
+ "doi:10.1149/2.0011908jss": {
+  "ok": true,
+  "msg": "Post-CMP Cleaning Solutions for the Removal of Organic Contaminants with Reduced Galvanic "
+ },
+ "doi:10.1149/2.0131805jss": {
+  "ok": true,
+  "msg": "Almost Complete Removal of Ceria Particles Down to 10 nm Size from Silicon Dioxide Surface"
+ },
+ "doi:10.3390/cells9061456": {
+  "ok": true,
+  "msg": "Iron and Chelation in Biochemistry and Medicine: New Approaches to Controlling Iron Metabo"
+ },
+ "pmc:11462379": {
+  "ok": true,
+  "msg": "Yield stress and zeta potential-pH behaviour of washed spherical α-Al(2)O(3) particles wit"
+ },
+ "pmc:12519946": {
+  "ok": true,
+  "msg": "Physicochemical aspects of adsorption efficiency of nanocrystalline ceria toward antibioti"
+ },
+ "pmc:7349684": {
+  "ok": true,
+  "msg": "Iron and Chelation in Biochemistry and Medicine: New Approaches to Controlling Iron Metabo"
+ },
+ "pmc:9057912": {
+  "ok": true,
+  "msg": "Selective leaching of lead from lead smelter residues using EDTA."
+ },
+ "doi:10.1016/j.ijmachtools.2010.06.007": {
+  "ok": true,
+  "msg": "Effects of diamond size of CMP conditioner on wafer removal rates and defects for solid (n"
+ },
+ "doi:10.1016/j.mee.2009.08.007": {
+  "ok": true,
+  "msg": "Investigating the effect of diamond size and conditioning force on chemical mechanical pla"
+ },
+ "doi:10.1023/b:engi.0000042116.09084.00": {
+  "ok": true,
+  "msg": "A theory of pad conditioning for chemical-mechanical polishing"
+ },
+ "doi:10.1143/jjap.48.115502": {
+  "ok": true,
+  "msg": "Theoretical and Experimental Investigation of Conditioner Design Factors on Tribology and "
+ },
+ "doi:10.1149/2.0261811jss": {
+  "ok": true,
+  "msg": "Effect of Conditioner Type and Downforce, and Pad Break-In Time, on Pad Surface Micro-Text"
+ },
+ "doi:10.1149/2.0271805jss": {
+  "ok": true,
+  "msg": "Effect of Conditioning Downforce and Pad Break-In Time on Pad Surface Micro-Texture"
+ },
+ "doi:10.1149/2162-8777/abf47e": {
+  "ok": true,
+  "msg": "Analysis on Pad Surface Roughness of Diamond Conditioning Process for CMP"
+ },
+ "doi:10.1109/66.661292": {
+  "ok": true,
+  "msg": "Rapid characterization and modeling of pattern-dependent variation in chemical-mechanical "
+ },
+ "doi:10.1016/j.mee.2013.03.042": {
+  "ok": true,
+  "msg": "Effect of zone pressure on wafer bending and fluid lubrication behavior during multi-zone "
+ },
+ "doi:10.7736/JKSPE.025.132": {
+  "ok": true,
+  "msg": "Multi-zone Pressure Control for Improvement of Within Wafer Non-uniformity in CMP"
+ },
+ "doi:10.1109/asmc.2010.5551459": {
+  "ok": true,
+  "msg": "Pad surface management as a strategy to reduce the cost of ownership for CMP"
+ },
+ "doi:10.1016/j.mee.2011.08.011": {
+  "ok": true,
+  "msg": "Numerical and experimental investigation on multi-zone chemical mechanical planarization"
+ },
+ "doi:10.1116/1.1761483": {
+  "ok": true,
+  "msg": "Multivariable control of multizone chemical mechanical polishing"
+ },
+ "doi:10.1016/j.mee.2017.12.002": {
+  "ok": true,
+  "msg": "Chemical/mechanical balance management through pad microstructure in CMP"
+ },
+ "doi:10.1557/jmr.2013.173": {
+  "ok": true,
+  "msg": "The effect of polymer hardness, pore size, and porosity on the performance of thermoplasti"
+ },
+ "doi:10.18494/sam5844": {
+  "ok": true,
+  "msg": "Geometric-overlap Modeling and Sweep Uniformity Optimization of Fixed Diamond Conditioning"
+ },
+ "doi:10.1016/j.mee.2020.111437": {
+  "ok": true,
+  "msg": "A numerical study on slurry flow with CMP pad grooves"
+ },
+ "doi:10.1007/s12206-015-1101-2": {
+  "ok": true,
+  "msg": "The effects of a spray slurry nozzle on copper CMP for reduction in slurry consumption"
+ },
+ "doi:10.1007/s12541-013-0204-x": {
+  "ok": true,
+  "msg": "Effect of contact angle between retaining ring and polishing pad on material removal unifo"
+ },
+ "doi:10.1016/S0007-8506(07)60427-2": {
+  "ok": true,
+  "msg": "Multi-Sensor Monitoring System in Chemical Mechanical Planarization (CMP) for Correlations"
+ },
+ "doi:10.1016/j.cirp.2017.04.088": {
+  "ok": true,
+  "msg": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrie"
+ },
+ "doi:10.1116/1.590922": {
+  "ok": true,
+  "msg": "Optical endpoint detection for chemical mechanical planarization"
+ },
+ "doi:10.1149/1.1560642": {
+  "ok": true,
+  "msg": "Characterization and Modeling of Dynamic Thermal Behavior in CMP"
+ },
+ "doi:10.1149/2.009205esl": {
+  "ok": true,
+  "msg": "Effect of Slurry Application∕Injection Schemes on Slurry Availability during Chemical Mech"
+ },
+ "doi:10.3390/app10238362": {
+  "ok": true,
+  "msg": "A Study on the Influence of the Cross-Sectional Shape of the Metal-Inserted Retainer Ring "
+ },
+ "pmc:10673209": {
+  "ok": true,
+  "msg": "Endpoint Detection Based on Optical Method in Chemical Mechanical Polishing."
+ },
+ "doi:10.1016/j.mee.2019.111101": {
+  "ok": true,
+  "msg": "Methodology for pad conditioning sweep optimization for advanced nodes"
+ },
+ "doi:10.3390/mi14010200": {
+  "ok": true,
+  "msg": "CMP Pad Conditioning Using the High-Pressure Micro-Jet Method"
+ },
+ "doi:10.1016/j.mee.2016.02.035": {
+  "ok": true,
+  "msg": "Effect of pad groove width on slurry mean residence time and slurry utilization efficiency"
+ },
+ "doi:10.3390/app12094339": {
+  "ok": true,
+  "msg": "Simulation and Experimental Investigation of the Radial Groove Effect on Slurry Flow in Ox"
  }
 }
