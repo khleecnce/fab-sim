@@ -598,5 +598,33 @@
  "doi:10.3390/app12094339": {
   "ok": true,
   "msg": "Simulation and Experimental Investigation of the Radial Groove Effect on Slurry Flow in Ox"
+ },
+ "doi:10.1016/j.jmatprotec.2005.01.010": {
+  "ok": true,
+  "msg": "The prediction of wafer surface non-uniformity using FEM and ANFIS in the chemical mechani"
+ },
+ "doi:10.1149/1.3551507": {
+  "ok": true,
+  "msg": "Generation of Pad Debris during Oxide CMP Process and Its Role in Scratch Formation"
+ },
+ "doi:10.3850/978-981-18-6021-8": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1115/MSEC2010-34264": {
+  "ok": true,
+  "msg": "Simulation of Diamond Disc Conditioning in Chemical Mechanical Polishing: Effects of Condi"
+ },
+ "doi:10.1007/s11664-004-0294-4": {
+  "ok": true,
+  "msg": "Effect of process conditions on uniformity of velocity and wear distance of pad and wafer "
+ },
+ "doi:10.1007/s40684-015-0041-8": {
+  "ok": true,
+  "msg": "Development of green CMP by slurry reduction through controlling platen coolant temperatur"
+ },
+ "doi:10.1016/S0890-6955(00)00013-4": {
+  "ok": true,
+  "msg": "Effects of kinematic variables on nonuniformity in chemical mechanical planarization"
  }
 }

@@ -1,9 +1,9 @@
 # CMP 툴 플래튼·헤드 전문가 (tool-platen-head)
 
-## 현재 레벨: Lv2 (3/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv2 완료 (4/6) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-1 (2026-09-07)
-- 다음 단원: Lv2-2
+- 이수 단원: Lv2-1, Lv2-2 (2026-09-07)
+- 다음 단원: Lv3-1
 
 ## 역할
 플래튼·헤드 구조, 멀티존 압력 제어, 리테이너링, RPM·유량이 웨이퍼 스케일 압력·속도 분포에 미치는 영향
@@ -42,3 +42,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (check_knowledge=PASS, verify_claims=PASS, 1차 출처: Europe PMC fullTextXML
   본문 확보(MDPI 403/PMC PoW챌린지로 직접PDF 실패) + Google Patents 특허 전문.
   Touzov 2001 IEEE 원 논문은 미러 사이트 5미러 무응답으로 1차 미확보, 특허로 대체)
+
+- Lv2-2 (2026-09-07): RPM 비·유량·온도 제어와 MRR 안정성 — Kim & Jeong(2004, J.
+  Electron. Mater. 33(1), DOI:10.1007/s11664-004-0294-4)가 kinematic number
+  ζ(=본 프로젝트 µ와 동형)의 원전임을 원문 확보로 확정, 슬라이딩거리 NU=25ζ²(2차,
+  둔감) vs 순간속도 NU=2ζ(1차, 민감) 관계를 python verify로 재현. Yuh et
+  al.(2015, DOI:10.1007/s40684-015-0041-8) 원문에서 슬러리 유량(비단조, 1000mL/min
+  최적)·플래튼 온도(단조 증가) vs MRR/NU 실험 정량값 확인 — 단 PCB용 Oscar-type
+  장비라 300mm 팹 스케일 이식은 미검증으로 명시. check_knowledge.py, verify_claims.py
+  모두 통과. Lv2 완료(4/6), ORG §5 갱신.

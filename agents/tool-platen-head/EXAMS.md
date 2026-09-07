@@ -80,3 +80,27 @@ A. Touzov, Fujita, Doy(2001, IEEE ISSM, DOI 10.1109/ISSM.2001.962981)의 원 논
 US7121927B2(Google Patents, 완전 공개)로 구조·주장을 확인해 대체했다 —
 특허는 청구항 형태로 구조를 명시하므로 논문 없이도 공학적 사실관계 확인이
 가능했다.
+
+## Lv2-2 RPM 비·유량·온도 제어와 MRR 안정성
+출처: knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md
+
+**Q1. Kim & Jeong(2004)의 kinematic number ζ 정의는 본 프로젝트의 µ 정의(Lai
+2001 기반, cmp-kinematics-rotary.md)와 어떤 관계인가?**
+A. ζ = (r_w/D)(1−R), µ = (R_w/r_cc)(1−Rs) — 변수명만 다를 뿐(D↔r_cc, R↔Rs)
+완전히 동일한 정의다. Kim&Jeong(2004)이 원전이며, 2026년 Hasni et al.(JJMIE)이
+극좌표로 재유도한 식의 뿌리임을 이번에 원문 확보로 확정했다.
+
+**Q2. RPM 비가 어긋났을 때 순간 속도 비균일도와 시간평균(슬라이딩거리) 비균일도의
+민감도 차수가 왜 다른가?**
+A. 순간 속도 NU는 ζ에 선형(NU_vel=2ζ×100%)이지만, 시간평균에 해당하는 슬라이딩거리
+NU는 ζ²에 비례(NU_s≈25ζ²%)한다 — 회전에 따른 시간평균이 1차항을 상쇄하고 2차항만
+남기기 때문(python verify로 S_avg=1+ζ²/8 수치적분 확인). 그래서 RPM 미스매치가
+순간적으로는 커 보여도 실제 MRR 프로파일(시간누적)은 훨씬 둔감하다.
+
+**Q3. Yuh et al.(2015) 실험 결과를 300mm 반도체 팹 CMP 툴에 그대로 적용할 수 없는
+이유는?**
+A. Yuh(2015)는 PCB용 Oscar-type 대면적(510×510mm) 폴리셔로 Cu-clad laminate를
+연마한 실험이며, 300mm 원형 웨이퍼·팹 CMP 툴과 장비 스케일·기판 재질이 다르다.
+슬러리 유량↑→NU↓, 온도↑→MRR↑ 같은 정성적 방향성은 열유체 일반원리로 채택
+가능하지만, mL/min·°C의 절대 수치는 이식할 수 없어 노트에 미검증으로 명시했다.
+

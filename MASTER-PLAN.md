@@ -1174,3 +1174,19 @@ OR 결합 EOL 시각 4함수. Son & Lee 2021(그루브 깊이 노트 §5) 정량
 재현 테스트 9건. 컷레이트·그루브깊이 하드코딩 없음, engine 미등록(Recipe 시계열 필드 부채,
 S17 이하와 동일 지위). 커밋 03e332b. pytest 279 passed(기존270+신규9). pad-lifecycle 구현요청
 2건(Lv2-1 부분완료, Lv2-2 완료) 모두 처리 끝 — 잔여는 Lv2-1 Kp(t) 정량 스케일 연결뿐.
+
+## 2026-09-07 22:xx [성장엔진] tool-platen-head Lv2-2 이수 - RPM비 kinematic number 원전 확정 + 유량/온도 실험값
+
+[[knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability]] - Kim & Jeong
+(2004, J. Electron. Mater., DOI:10.1007/s11664-004-0294-4, 미러 사이트 경유 원문 확보)가
+cmp-kinematics-rotary.md의 µ와 동형인 kinematic number ζ의 원전임을 확정, 슬라이딩거리
+NU=25ζ²(2차·둔감) vs 순간속도 NU=2ζ(1차·민감)를 python verify로 재현(S_avg=1+ζ²/8
+수치적분 상대오차<1e-3). Yuh et al.(2015, DOI:10.1007/s40684-015-0041-8, 미러 사이트
+경유 원문 확보)에서 슬러리 유량(비단조·1000mL/min 최적)·플래튼 온도(단조 증가) vs
+MRR/NU 실험값 확인 - PCB용 Oscar-type 장비라 300mm 팹 이식은 미검증 명시.
+check_knowledge.py, verify_claims.py 모두 통과. tool-platen-head Lv2 완료(4/6),
+ORG §5 갱신.
+
+진도: tool-platen-head 4/6 (Lv3 진입). 다음: tool-platen-head Lv3-1(폐루프 프로파일
+제어 최신 리뷰) 또는 progress.py 재조회로 최저 진도 에이전트 재배정.
+
