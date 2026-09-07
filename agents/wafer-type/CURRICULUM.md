@@ -7,7 +7,7 @@
 - [x] Lv1-2 PTW: 표준 테스트 패턴(MIT/SEMATECH 마스크)·패턴밀도·피치·다이 맵
 - [x] Lv2-1 NPW 결과가 PTW를 예측하지 못하는 이유: 패턴 효과의 물리 (2026-09-06, knowledge/cmp/npw-ptw-pattern-effect-gw-physics.md)
 - [x] Lv2-2 측정 기법: 엘립소미터·프로파일러·AFM·XRF — 막질별 적합성과 오차 (2026-09-07, knowledge/cmp/wafer-type-metrology-techniques-suitability.md)
-- [ ] Lv3-1 최신 리뷰: 제품 웨이퍼(product wafer) 대리 지표, 가상 계측
+- [x] Lv3-1 최신 리뷰: 제품 웨이퍼(product wafer) 대리 지표, 가상 계측 (2026-09-08, knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md)
 - [ ] Lv3-2 NPW→PTW 전이 규칙 정량화: 어떤 파라미터가 이전되고 어떤 것이 새로 필요한가 (sim/calibration)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
