@@ -27,4 +27,11 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   치환식(µ, 비균일도=2|µ|)을 대입. Zheng et al. Table 1 실측조건(패드100/디스크73RPM) 대입 결과
   µ≈0.072, 디스크 내 비균일도≈14.4%로 계산 — 당초 "매우 작을 것" 가설을 정직하게 수정해 기록.
   check_knowledge.py·verify_claims.py 통과(verify 1블록 PASS, 출처 2건 실존 확인). Lv1 완료.
+- 2026-09-07 Lv2-1 이수: [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]]
+  — in-situ(연마 중 동시 컨디셔닝) vs ex-situ(별도 사이클) 비교. Jeong et al.(2022, ASPEN 원문
+  PDF 확보) §2.2 표: 압력 2/3/4/5psi → 최소 회복 컨디셔닝시간 10/30/60/180초(5:2 배율=18배).
+  5psi·10분 폴리싱 사이클 기준 ex-situ 처리량손실 23.1%(파생계산, 미검증 표기) vs in-situ 구조적
+  손실 0%. Prasad et al.(2011, 초록만)의 in-situ→패드디브리스→스크래치 증가 소견과 Son & Lee
+  (2021, 초록만)의 패드수명 1.67배(12h→20h+) 정황 증거를 "2차 인용·미검증"으로 명확히 구분해
+  기록. check_knowledge.py·verify_claims.py 통과(verify 1블록 PASS, 출처 4건 실존 확인).
 (이후 크론이 갱신)

@@ -72,3 +72,34 @@ A3. µ=0, 비균일도=0 — 디스크 표면 전역에서 다이아몬드-패�
 실무에서 동속 근접 세팅을 쓰는 이유의 운동학적 근거가 된다(단, Zheng et al. 실험은 Rs=0.73을
 썼고 그 선택 이유는 논문에 명시되지 않음 — 미검증).
 출처: [[../../knowledge/equipment/disk-rpm-load-radius-pcr]] §3, [[../../knowledge/physics/cmp-kinematics-rotary]] §2.1.
+
+## Lv2-1 인시츄 vs 엑스시츄 컨디셔닝과 MRR 안정성
+
+**Q4. Jeong et al.(2022) §2.2 표에서 연마압력이 2→5 psi로 오르면 패드를 완전 회복시키는 데
+필요한 최소 컨디셔닝 시간은 어떻게 변하며, 5 psi/2 psi 배율은 얼마인가?**
+
+A4. 10초→30초→60초→180초로 단조증가하며, 5 psi/2 psi 배율은 정확히 18배(180/10)다. "패드
+변형이 클수록(고압) 회복에 더 긴 시간이 필요하다"는 원문 서술과 부합한다.
+출처: [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]] §3, §6 python
+verify 블록(문헌 표 원문 재현, DOI 10.3850/978-981-18-6021-8_or-12-0224.html).
+
+**Q5. ex-situ 방식의 처리량(throughput) 손실이 in-situ와 구조적으로 다른 이유는 무엇이며, 5 psi·
+10분 폴리싱 사이클에서 정량적으로 얼마의 손실이 계산되는가?**
+
+A5. ex-situ는 연마와 컨디셔닝이 시간적으로 분리되어 컨디셔닝 시간만큼 웨이퍼가 연마되지 않는
+직접 손실이 발생하지만, in-situ는 정의상(연마·컨디셔닝 동시 수행) 이 손실이 구조적으로 0이다.
+5 psi(회복시간 180초)·10분(600초) 폴리싱 사이클이면 손실 = 180/(180+600) ≈ 23.1%로 계산된다.
+단, 이 23.1%는 문헌 실측이 아니라 문헌의 회복시간표를 이 노트가 사이클 손실률 공식에 대입한
+**파생 계산**이며, 실제 팹 레시피의 폴리싱:컨디셔닝 배치는 다를 수 있다(미검증, 방향성만 신뢰).
+출처: [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]] §3, §6 python
+verify 블록.
+
+**Q6. Prasad et al.(2011)과 Son & Lee(2021)의 초록 인용은 왜 "2차 수준 인용"으로 표기되며, 그로
+인해 어떤 결론을 직접 내릴 수 없는가?**
+
+A6. 두 논문 모두 본문 PDF를 확보하지 못하고 초록만 확인했다(Prasad는 IOPscience 봇 차단, Son &
+Lee는 MDPI 403 차단) — 세부 수치(스크래치 개수, in-situ/ex-situ의 정확한 구분)를 검증할 수 없다.
+특히 Son & Lee의 "Case I"이 in-situ인지 ex-situ인지 초록에 명시되지 않아, 패드 수명 12h→20h+
+(1.67배 개선)라는 수치를 "in-situ 대 ex-situ 비교"로 직접 쓸 수 없고 "컨디셔닝 접촉균일성이
+패드 수명을 좌우한다는 정황 증거"로만 인용한다 — 확인 못 한 것을 확인 못 했다고 명시.
+출처: [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]] §2, §4, §7.
