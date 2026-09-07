@@ -1165,3 +1165,12 @@ verify_claims.py 모두 통과. disk-kinematics Lv2 완료(4/6), ORG 5절 갱신
 
 진도: disk-kinematics 4/6 (Lv3 진입). 다음: disk-kinematics Lv3-1(적응형 sweep, 폐루프 패드
 프로파일 제어 최신 리뷰) 또는 progress.py 재조회로 최저 진도 에이전트 재배정.
+
+
+## 2026-09-07 21:30 [소프트웨어] pad-lifecycle [Lv2-2] 그루브 깊이 EOL 판정 구현
+
+`sim/tier2_physics/pad_groove_eol.py` 신설 — 누적마모 D(t)=c·t, 그루브 소진 판정, glazing/groove
+OR 결합 EOL 시각 4함수. Son & Lee 2021(그루브 깊이 노트 §5) 정량값(694/444 μm, 17.28h) 그대로
+재현 테스트 9건. 컷레이트·그루브깊이 하드코딩 없음, engine 미등록(Recipe 시계열 필드 부채,
+S17 이하와 동일 지위). 커밋 03e332b. pytest 279 passed(기존270+신규9). pad-lifecycle 구현요청
+2건(Lv2-1 부분완료, Lv2-2 완료) 모두 처리 끝 — 잔여는 Lv2-1 Kp(t) 정량 스케일 연결뿐.
