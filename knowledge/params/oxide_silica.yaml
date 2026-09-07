@@ -38,3 +38,18 @@ params:
     note: 실리카 등전점 — pH 10.5에서 강한 음전하 → 정전 안정
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
     confidence: verified
+
+  # ── 윤활 레짐 진단 (Sommerfeld/λ) ────────────────────────
+  # 원래 위치: cmp_lubrication_regime.py self-test 전형 조건
+  slurry_viscosity_pa_s:
+    value: 1.0e-3
+    unit: "Pa·s"
+    note: 물기반 슬러리 점도 — 노트는 "~1e-3"으로만 명시
+    source: knowledge/physics/cmp-lubrication-regimes.md §2
+    confidence: estimated
+  pad_ra_m:
+    value: 5.0e-6
+    unit: m
+    note: 패드 raised 영역 평균거칠기 — 노트는 "~5µm 전형"으로만 명시
+    source: knowledge/physics/cmp-lubrication-regimes.md §5
+    confidence: estimated

@@ -177,6 +177,10 @@ class WaferResult:
     erosion_nm: Optional[float] = None
     metal_contamination: Optional[Dict[str, float]] = None   # surface-contamination
     defect_density: Optional[float] = None         # defect-scientist
+    # 윤활 레짐 진단 — MRR과 무관한 순수 진단. tribologist Lv2 (cmp-lubrication-regimes.md)
+    lubrication_regime: Optional[str] = None       # "boundary"/"mixed"/"hydrodynamic"
+    cmp_sommerfeld_number: Optional[float] = None
+    cof_stribeck_estimate: Optional[float] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 이 결과가 어떤 물성에서 나왔나 — 숫자의 출처 추적
@@ -195,6 +199,9 @@ class WaferResult:
             "wiwnu_halfrange_pct": m.wiwnu_halfrange_pct, "wiwnu_3sigma_pct": m.wiwnu_3sigma_pct,
             "roughness_ra_nm": self.roughness_ra_nm, "dishing_nm": self.dishing_nm,
             "metal_contamination": self.metal_contamination,
+            "lubrication_regime": self.lubrication_regime,
+            "cmp_sommerfeld_number": self.cmp_sommerfeld_number,
+            "cof_stribeck_estimate": self.cof_stribeck_estimate,
             "notes": self.notes,
         }
 
@@ -247,6 +254,37 @@ def register(model: Model) -> None:
 register(PrestonRadialModel())
 
 
+def _lubrication_diagnostics(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """윤활 레짐 진단(So·λ·COF) — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: knowledge/physics/cmp-lubrication-regimes.md §2,§5 (self-test 11/11 PASS).
+    slurry_viscosity_pa_s·pad_ra_m이 팩에 없으면(tribologist 미적용 팩) roughness_ra_nm과
+    같은 지위로 조용히 None — 지어내지 않는다.
+    """
+    out: Dict[str, object] = {"lubrication_regime": None, "cmp_sommerfeld_number": None,
+                              "cof_stribeck_estimate": None}
+    if not (rr.pack.has("slurry_viscosity_pa_s") and rr.pack.has("pad_ra_m")):
+        return out
+    try:
+        import cmp_lubrication_regime as CLR   # sim/tier2_physics (1바이트도 수정 안 함)
+        from sim.tier1_empirical import kinematics as kin
+        mu = rr.p("slurry_viscosity_pa_s")
+        Ra = rr.p("pad_ra_m")
+        p_mean = rr.pressure_psi * PSI_TO_PA
+        U_mean = kin.speed_stats(rr.wafer_radius_m, rr.center_offset_m,
+                                 rr.rpm_wafer, rr.rpm_platen)["mean"]
+        # groove 가중항은 미검증(노트 §2) → δeff≈Ra 근사만 쓴다
+        d_eff = CLR.delta_eff(Ra, 0.0, 1.0)
+        so = CLR.cmp_sommerfeld(mu, U_mean, p_mean, d_eff)
+        lam = so   # λ≈So 근사(δeff≈σ 가정, 노트 §5) — 정량 항등식 아님
+        out["lubrication_regime"] = CLR.regime_from_lambda(lam)
+        out["cmp_sommerfeld_number"] = so
+        out["cof_stribeck_estimate"] = CLR.cof_stribeck(so)
+    except Exception as e:
+        out["_note"] = f"윤활 레짐 진단 실패({e}) — lubrication_regime 등 None으로 둠"
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -283,6 +321,14 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     if rr.wafer == "PTW" and model != "tier1.pattern_density":
         notes.append("PTW인데 패턴 모델을 쓰지 않았다 — model='tier1.pattern_density'로 실행하라. "
                      "지금 값은 NPW 등가")
+    # 윤활 레짐 진단 — MRR 경로와 완전히 독립. 팩에 슬러리 점도·패드 Ra가 없으면 조용히 None.
+    lube = _lubrication_diagnostics(rr)
+    if lube.get("_note"):
+        notes.append(lube["_note"])
+    elif lube["lubrication_regime"] is not None:
+        notes.append("윤활 레짐 진단(So·λ·COF)은 λ≈So 근사(δeff≈σ 가정)이며 "
+                     "COF 절대값은 정성적 오더 추정, 실측 캘리브레이션 필요 "
+                     "(knowledge/physics/cmp-lubrication-regimes.md §5,§7)")
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -297,6 +343,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                               n_points=rr.n_points)
     return WaferResult(recipe=recipe, radius_m=radius, mrr_nm_per_min=mrr_nm_min,
                        removed_nm=removed, remaining_nm=remaining, metrics=metrics,
+                       lubrication_regime=lube["lubrication_regime"],
+                       cmp_sommerfeld_number=lube["cmp_sommerfeld_number"],
+                       cof_stribeck_estimate=lube["cof_stribeck_estimate"],
                        model=model, notes=notes,
                        pack=rr.pack.name, film=rr.film,
                        provenance=rr.pack.provenance(rr.used_keys))
