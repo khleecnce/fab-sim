@@ -1218,3 +1218,14 @@ Lv2, knowledge/physics/cmp-lubrication-regimes.md)를 `sim/engine.py`에 진단 
 simulate() 필드 채움 확인, 압력↑→So↓ 방향성(분모에 p) 확인. pytest 282 passed(기존279+신규3).
 커밋 e0ba399. S12(남은 20개 모듈 이관)는 이 1개만 부분 완료 — 나머지 19개는 그대로 ⬜
 (`software/BACKLOG.md` S13-NOTE에 기록).
+
+## 2026-09-08 [심야병렬] pad-material Lv3-1 이수 — 3D 프린팅·무발포·저결함 패드 소재 리뷰
+
+서브에이전트(fable-5-1) 단일 단원 학습. [[knowledge/materials/pad-3dprinted-nonporous-lowdefect-review]]
+— Yang 2010(IJMT, 미러 사이트 확보) 무발포 SURE2000 vs IC-1010: 접촉면적 7.5 vs 0.7%, 컨디셔너 180→70 µm로
+RR ∝ A^0.5(1.201 vs 1.207, 0.5% 일치)·스크래치 −68%; 원문 초록 오타(2587↔3587)·라벨 오류(1.206) 기록.
+Kenchappa 2021(ECS JSS OA, AMAT 적층제조 패드) 40D 소프트 패드 세리아 RR 1.9배·asperity 높이폭 8 vs 30 µm,
+결함 카운트 부재 명시. 특허 US10875145(E'30/E'90>6)·WO2015120430(래티스 공극 43.75%). Morsada 2025 리뷰는
+초록만. 출처 7건 실존·verify 1블록(assert 14개) 통과·check_knowledge ✓. Semantic Scholar API 429 → 해당
+경로 중단(다른 소스로 대체). PROFILE 구현 요청 3건(패드 유형 플래그·경도→MRR 슬러리 종속 부호, 무발포
+컨디셔너→A→MRR 훅, additive 패드 GW σ 비율). pad-material 5/6. 다음: Lv3-2(소재→GW 유효강성 정량모델).

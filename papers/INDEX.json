@@ -216,5 +216,33 @@
         "journal": "Int. J. Precis. Eng. Manuf.-Green Technol. 2(4), 339-344",
         "src": "미러 사이트(미러 사이트)",
         "note": "tool-platen-head Lv2-2. slurry flow rate / platen coolant temperature vs MRR_avg, NU (Oscar-type Cu CMP, PCB scale)."
+    },
+    "kenchappa2021-soft-pad-oxide-cmp-jss": {
+        "src": "OA(CC BY-NC-ND) — Semantic Scholar PDF 미러(pdfs.semanticscholar.org/fe08/3e2cde6e6e283da4a4ecaf82d9dd348900e4.pdf); IOP 직접은 봇차단",
+        "pdf_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.pdf",
+        "txt_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.txt",
+        "doi": "10.1149/2162-8777/abdc40",
+        "title": "Soft Chemical Mechanical Polishing Pad for Oxide CMP Applications",
+        "authors": "N.B. Kenchappa, R. Popuri, A. Chockkalingam, P. Jawali, S. Jayanath, D. Redfield, R. Bajaj",
+        "venue": "ECS J. Solid State Sci. Technol. 10, 014008 (2021)",
+        "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — AMAT 적층제조(참고문헌 34–36·39) 소프트 패드 40D: 세리아 산화막 RR 3250 vs 상용 1700 Å/min, asperity 높이폭 8 vs 30 µm; 결함 카운트 없음"
+    },
+    "yang2010-ijmt-solid-pad-microholes-conditioner": {
+        "src": "미러 사이트 (미러 사이트 → 미러 사이트, DOI resolved) — Elsevier 유료, 합법 OA 없음",
+        "pdf_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.pdf",
+        "txt_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.txt",
+        "doi": "10.1016/j.ijmachtools.2010.06.007",
+        "title": "Effects of diamond size of CMP conditioner on wafer removal rates and defects for solid (non-porous) CMP pad with micro-holes",
+        "authors": "J.C. Yang, J.H. Choi, T. Hwang, C.-G. Lee, T. Kim",
+        "venue": "Int. J. Mach. Tools Manuf. 50, 860–868 (2010)",
+        "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 무발포 SURE2000 vs IC-1010: 접촉면적 7.5 vs 0.7%, RR ∝ A^0.5 (1.201 vs 1.207); 초록 '2587'은 오타(본문 3587); fitz 추출 시 ± 기호 깨짐 주의"
+    },
+    "morsada2025-jss-pu-pad-innovations-perspective": {
+        "src": "초록만 — Unpaywall closed, IOP 봇차단, 미러 사이트 .box/.ru/.ren 미보유(2026-09-08)",
+        "doi": "10.1149/2162-8777/add808",
+        "title": "Innovations in Polyurethane Pads Used in Chemical-Mechanical Planarization: A Perspective and Future Directions",
+        "authors": "Z. Morsada, H.B. Gunasekaran, N.R. Visaveliya, D.A. Shipp",
+        "venue": "ECS J. Solid State Sci. Technol. 14, 054009 (2025)",
+        "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 리뷰, 본문 수치 미사용"
     }
 }

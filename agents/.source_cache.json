@@ -798,5 +798,13 @@
  "doi:10.36001/phmconf.2018.v10i1.462": {
   "ok": true,
   "msg": "Review of PHM Data Competitions from 2008 to 2017"
+ },
+ "doi:10.1149/2162-8777/abdc40": {
+  "ok": true,
+  "msg": "Soft Chemical Mechanical Polishing Pad for Oxide CMP Applications"
+ },
+ "doi:10.1149/2162-8777/add808": {
+  "ok": true,
+  "msg": "Innovations in Polyurethane Pads Used in Chemical-Mechanical Planarization: A Perspective "
  }
 }

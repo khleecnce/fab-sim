@@ -7,7 +7,7 @@
 - [x] Lv1-2 경도·탄성률·기공률 측정법과 문헌값 범위 (IC1000/IC1010/하드·소프트)
 - [x] Lv2-1 점탄성 심화: 온도·주파수 의존 저장/손실 탄성률과 CMP 조건 매핑 (2026-09-07, knowledge/materials/pad-viscoelasticity-temp-frequency-dma.md — verify_claims·check_knowledge 통과)
 - [x] Lv2-2 기공 구조와 슬러리 보유·이송: 기공률-MRR 관계 (2026-09-07, knowledge/materials/pad-porosity-slurry-transport-mrr.md — verify_claims·check_knowledge 통과)
-- [ ] Lv3-1 최신 리뷰: 3D 프린팅 패드, 무발포 패드, 저결함 패드 소재
+- [x] Lv3-1 최신 리뷰: 3D 프린팅 패드, 무발포 패드, 저결함 패드 소재 (2026-09-08, knowledge/materials/pad-3dprinted-nonporous-lowdefect-review.md — verify_claims·check_knowledge 통과)
 - [ ] Lv3-2 소재 파라미터 → GW 유효 강성·asperity 분포 정량모델 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
