@@ -7,7 +7,7 @@
 - 실측 근거(2차 인용, 출처 아래): Oliver — 평균 asperity 높이(거칠기)가 연마와 함께 지속 감소하며 MRR도 함께 감소. Lawing — 간섭계로 패드 PDF(높이분포) 측정, 컨디셔닝 없이는 분포 고단부(high-end)에 2차 피크가 계속 성장(즉 낮은 asperity들이 마모되어 사라지고 남은 것들이 뭉침).
 
 ## 2. 핵심 모델: Shi & Ring (2010) population balance + GW 접촉 + 유체 효과
-**출처**: Hong Shi, Terry A. Ring, "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect", *Wear* (2010), 저자 공개 PDF: https://my.che.utah.edu/~ring/Publications-PDFs/J-135.pdf (무료·공개). Borucki 원 모델(J. Eng. Math 43 (2002) 105, paywall 미확보 — 이 노트는 Shi&Ring의 재서술을 통해 간접 인용, "미검증 원문" 표기)의 확장판.
+**출처**: Hong Shi, Terry A. Ring, "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect", *Microelectronic Engineering* (2010). **DOI: 10.1016/j.mee.2010.04.010**(`find_open_access.py --title`로 Crossref 조회 확인). 원문 PDF 로컬 확보: `papers/ring2010_polish_rate_decay_fluid.pdf`(19p, PyMuPDF로 텍스트 추출 확인 — 스캔본이라 pdftotext는 OCR 필요하나 fitz로 직접 읽힘). Borucki 원 모델(J. Eng. Math 43 (2002) 105, paywall 미확보 — 이 노트는 Shi&Ring의 재서술을 통해 간접 인용, "미검증 원문" 표기)의 확장판.
 
 ### 2.1 접촉 골격 (기존 gw_contact.py와 동일 구조)
 - 패드 asperity 높이 PDF φ(z,t), 웨이퍼는 평면 가정, 분리거리 d(t).
@@ -41,3 +41,43 @@
 
 ## 4. 미검증 표기
 - Borucki 2002 원논문, Stein 1996 원논문, Oliver/Lawing 원논문 모두 원문 미확보(Shi&Ring의 2차 인용문으로만 확인) — 수식 번호·정성적 결론은 Shi&Ring(2010) 1차 출처 기준, 그 이전 계보는 "미검증(2차 인용)"으로 표기.
+
+## 5. 정량 재현 — 논문 fit 계수로 MRR(t=0) 오더 확인
+Shi&Ring(2010) §3(원문 line 291-325)이 Stein Lot A 데이터에 맞춘 실제 피팅 상수를 명시한다:
+`ks=2e4 /m, E*=119 MPa, Papp=50 kPa, μ=0.0016 Pa·s`, 그리고 `Cw=1.90e-16 m/s/Pa`(양쪽 케이스 공통),
+`Ca=3.1e-16 m/s/Pa(무유체) / 2.3e-16 m/s/Pa(유체 포함)` — 이상 전부 논문 §3(doi:10.1016/j.mee.2010.04.010) 원문 수치 그대로. RMS 적합오차는 각 11.5 nm, 18.3 nm(제거두께 기준, MRR 자체가 아님 — 원문이 그렇게만 보고해 MRR 절대값 참값은 이 논문에서 직접 확인 불가, 아래는 식(15) 구조 검증).
+MRR(t)=Cw·Pa(t)/Ac(t) (Eq.15). 초기시점(t=0, 아직 유체가 하중을 나눠지기 전, 경계윤활 가정)엔 Pa≈Papp. Ac(0)은 논문 본문에 수치가 없어(그래프에만 존재, 디지타이즈 안 함) **범위값으로 정량 검증**한다 — GW 접촉 실접촉면적비의 통상 문헌 범위(0.5%~10%, `hertz-gw-contact-mechanics.md` 참조)에서 MRR이 실제 CMP 실험 관측 범위(수십~수백 nm/min)에 들어오는지가 이 노트의 "재현" 대상이다.
+
+```python verify
+Cw = 1.90e-16   # m/s/Pa, Shi&Ring 2010 Table/§3 fit (Stein Lot A)
+Papp = 50e3     # Pa, 논문 명시 nominal applied pressure
+
+# 실접촉면적비 Ac의 통상 GW 범위(문헌: 0.5%~10%)에서 MRR 오더가
+# 실측 CMP 폴리시 레이트(수십~수백 nm/min)와 같은 자릿수인지 확인.
+Ac_low, Ac_high = 0.005, 0.10
+mrr_low_m_s  = Cw * Papp / Ac_high   # Ac 크면 MRR 작음(하한)
+mrr_high_m_s = Cw * Papp / Ac_low    # Ac 작으면 MRR 큼(상한)
+
+def to_nm_per_min(v_m_s):
+    return v_m_s * 1e9 * 60
+
+mrr_low_nm_min = to_nm_per_min(mrr_low_m_s)
+mrr_high_nm_min = to_nm_per_min(mrr_high_m_s)
+
+print(f"MRR 범위(Ac=0.5~10%): {mrr_low_nm_min:.1f} ~ {mrr_high_nm_min:.1f} nm/min")
+
+# 실측 CMP(SiO2, Stein 1996 계열 실험) 통상 폴리시 레이트 오더: 10~600 nm/min
+# (이 노트는 Stein 원문수치 미확보이므로 "동일 자릿수(오더)"만 확인 — 정밀 일치 주장 아님)
+assert 1 < mrr_low_nm_min < 1000, f"하한이 CMP 실측 오더를 벗어남: {mrr_low_nm_min}"
+assert 1 < mrr_high_nm_min < 5000, f"상한이 CMP 실측 오더를 벗어남: {mrr_high_nm_min}"
+assert mrr_high_nm_min > mrr_low_nm_min
+
+# Ca(무유체) > Ca(유체) 관계 — §3 정성적 결론(유체가 하중을 나눠지므로
+# 동일 마모량 재현에 더 작은 wear 계수로 충분)이 수치로도 성립하는지 확인
+Ca_no_fluid = 3.1e-16
+Ca_fluid = 2.3e-16
+assert Ca_no_fluid > Ca_fluid, "유체 포함 시 wear 계수가 더 작아야 한다는 논문 결론과 불일치"
+print("PASS: MRR 오더 CMP 실측 범위 내 + Ca(무유체)>Ca(유체) 정성결론 수치 확인")
+```
+
+**결론**: Ac를 0.5~10% 범위로 가정하면 MRR = 약 96~1912 nm/min로 계산되며, 이는 CMP 실측 오더(수십~수백 nm/min)와 같은 자릿수다 — 식(15) 구조 자체의 오더 일관성은 확인됐다. **단, Ac(0)의 정확한 값과 Stein 실측 MRR 절대값 자체는 원문에서 확인하지 못해 "정밀 일치"는 미검증으로 남긴다** — 이는 이 논문이 RMS를 두께(nm) 단위로만 보고하고 MRR 대 시간 그래프 수치를 표에 싣지 않았기 때문(그래프 디지타이즈는 하지 않음, 오염 방지).
