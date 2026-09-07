@@ -1120,3 +1120,9 @@ PROFILE.md 이수기록 갱신("Lv1 완료 2/6"), ORG §5 진도 갱신(pad-stru
 
 진도: pad-structure 2/6 (Lv1 완료, Lv2 진입). 다음: pad-structure Lv2-1(서브패드 강성 적층과
 웨이퍼 스케일 압력분포·엣지 롤오프) 또는 ORG §5 최저 진도 에이전트(disk-kinematics 1/6) 재배정.
+
+[소프트웨어] 2026-09-07 21:30 (software-lead): S13(패드 마모 모순) 부분판정 — Jeong et al. 2024
+1차 출처 실측(Table 1)이 접촉점 수·MRR 동시감소를 보여 ad-hoc 방향이 GW discrete Monte-Carlo
+예측(접촉점 증가)보다 실측 근거 우위. `sim/tier2_physics/pad_glazing_jeong2024.py` 신설(접촉비·
+반경비 근사), 노트값 재현 테스트 6건. 정량 Kp(t) 스케일 연결은 척도 불일치로 스코프 밖(후속
+요청 대기). 260 passed. 커밋 10c8f97.
