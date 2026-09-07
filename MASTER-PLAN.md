@@ -1150,3 +1150,18 @@ CURRICULUM Lv2-1 [x], PROFILE 이수기록 갱신(3/6), ORG §5 갱신(pad-struc
 
 진도: pad-structure 3/6 (Lv2 진입). 다음: pad-structure Lv2-2(그루브 마모→유동 특성 변화·수명
 판정) 또는 ORG §5 최저 진도 에이전트 재배정.
+
+
+## 2026-09-07 20:xx [성장엔진] disk-kinematics Lv2-2 이수 - sweep 레시피 최적화 (Baisie et al. 2010)
+
+[[knowledge/equipment/disk-sweep-recipe-flattening-baisie2010]] - Baisie, Li & Zhang(2010, ASME
+MSEC2010, DOI:10.1115/MSEC2010-34264, 미러 사이트 경유 원문 전체 확보) 표면요소법 모델의 Table 3
+(20세그먼트 스윕시간 5종)을 python verify로 재현: UNIFORM TTV=0.00s(문헌 "최평탄" 결론과 일치),
+DESCENT TTV=3.80s(5종 중 최댓값, 문헌 서술과 일치). NU 순위는 일부 어긋나 정직 기록(원인 미상).
+6절에서 Baisie(체류시간 균일)와 Wang et al. 2025(각속도 균일, Lv1-1 노트)의 겉보기 모순을
+"서로 다른 최적화 변수"로 해소 - 각속도 균일 스윕은 반환점에서 체류시간이 자동 증가하므로 두
+"균일"은 양립 불가능함을 밝힘. 구현 요청(7절)을 소프트웨어 부문으로 이관. check_knowledge.py,
+verify_claims.py 모두 통과. disk-kinematics Lv2 완료(4/6), ORG 5절 갱신.
+
+진도: disk-kinematics 4/6 (Lv3 진입). 다음: disk-kinematics Lv3-1(적응형 sweep, 폐루프 패드
+프로파일 제어 최신 리뷰) 또는 progress.py 재조회로 최저 진도 에이전트 재배정.

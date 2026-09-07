@@ -103,3 +103,22 @@ Lee는 MDPI 403 차단) — 세부 수치(스크래치 개수, in-situ/ex-situ�
 (1.67배 개선)라는 수치를 "in-situ 대 ex-situ 비교"로 직접 쓸 수 없고 "컨디셔닝 접촉균일성이
 패드 수명을 좌우한다는 정황 증거"로만 인용한다 — 확인 못 한 것을 확인 못 했다고 명시.
 출처: [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]] §2, §4, §7.
+
+**Q7. Baisie et al.(2010)의 "UNIFORM 프로파일이 최평탄"이라는 결론과 Wang et al.(2025)의 "정속
+스윕이 오히려 중심을 과다컨디셔닝한다"는 결론은 서로 모순되는가?**
+
+A7. 모순처럼 보이지만 아니다 — 두 논문은 서로 다른 변수를 "균일"하다고 부른다. Baisie et al.의
+UNIFORM은 반경 세그먼트별 **체류시간(tᵢ)**이 균일한 것이고, Wang et al.의 정속 스윕은 **각속도
+(dθ/dt)**가 균일한 것이다. 각속도가 균일하면 반환점 근방에서 dr/dθ→0이 되어 그 위치의 체류시간이
+자동으로 커진다([[conditioner-sweep-algorithm-trajectory-density]] §3) — 즉 각속도 균일은 체류시간
+불균일을 유발하므로, 체류시간을 균일하게 만들려면 오히려 반환점 근처에서 각속도를 가속해야 한다.
+출처: [[../../knowledge/equipment/disk-sweep-recipe-flattening-baisie2010]] §6.
+
+**Q8. Baisie et al.(2010) Table 3 데이터를 세그먼트 체류시간=국소마모 프록시로 재현했을 때, 어느
+지표가 논문 서술과 정확히 일치했고 어느 지표가 어긋났는가?**
+
+A8. TTV 순위(DESCENT가 최고, UNIFORM이 최소=0)는 정확히 일치했다. 반면 NU 순위는 어긋났다 — 논문은
+"ASCENT and CONVEX show the highest values of NU"라고 서술했으나 재현 결과는 ASCENT=DESCENT가 NU
+공동최고(54.92%)이고 CONVEX는 48.0%로 중간이었다. 원인은 본 재현이 논문의 실제 파이프라인(반경별
+환형면적 가중 + 세그먼트 겹침 적산, Eq.5–7)을 생략하고 체류시간 자체를 직접 프록시로 썼기 때문으로
+추정되나 확인하지 못했다(정직하게 미상으로 기록). 출처: [[../../knowledge/equipment/disk-sweep-recipe-flattening-baisie2010]] §5.
