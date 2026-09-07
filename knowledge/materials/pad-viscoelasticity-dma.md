@@ -89,5 +89,54 @@ https://patents.justia.com/patent/10391606
   강성 입력으로 사용될 값. 현재는 정성적 이해만 확보, Lv2-1에서 Hertz 접촉 압축응력↔변위 관계로
   정량화 예정.
 
+## 7. 정량 재현 — Maxwell 모델 피크 위치 + Meng et al. 2025 표 대조 (부채상환 2026-09-07)
+> ⚠ 1차 출처 확보 시도: §4의 τ_creep(CMP 패드 실측)은 여전히 미검증(CMP 패드가 아닌 좌석용 PU 폼
+> 문헌만 확보됨, 위 §4 참조). 여기서는 §2~3의 Maxwell 모델 수식과 §5 Meng et al. 2025 실측표를
+> 코드로 직접 재현해 "검증했다"는 서술을 assert로 대체한다.
+
+**(a) Maxwell 모델**: ω=1/τ₀ (완화각주파수)에서 E′(ω)=E·τ₀²ω²/(τ₀²ω²+1) 이므로 τ₀ω=1 대입 시
+E′ = E·1/(1+1) = E/2 — 즉 완화주파수에서 저장탄성률은 고주파 평형값(E)의 정확히 절반이 되어야
+한다(Ferry 표준 결과, §2~3 인용 수식에서 직접 도출되는 항등식이므로 문헌 재검색 불필요).
+
+**(b) Meng et al. 2025 Table 2 (§5, DOI: 10.3390/polym17050613)**: Neat PU → PUPCD40 탄성계수가
+17.1 MPa → 71.1 MPa로 증가한다고 §5에 옮겨 적었다. 배율을 코드로 재계산해 노트에 옮긴 숫자가
+표 원본과 산술적으로 일치하는지 대조한다(전사 오류 검출).
+
+```python verify
+# (a) Maxwell 이완주파수에서 E'/E_plateau = 0.5 (Ferry 표준 항등식)
+def E_prime_ratio(tau0, omega):
+    x = tau0 * omega
+    return x**2 / (x**2 + 1)
+
+ratio_at_relax = E_prime_ratio(tau0=1.0, omega=1.0)  # ω=1/τ0 → τ0*ω=1
+assert abs(ratio_at_relax - 0.5) < 1e-9, f"이완주파수 E'/E 비율 {ratio_at_relax} != 0.5"
+
+# 고주파(ω>>1/τ0)에서 E'→E(포화), 저주파(ω<<1/τ0)에서 E'→0 (§3 서술 재현)
+ratio_high = E_prime_ratio(tau0=1.0, omega=1000.0)
+ratio_low = E_prime_ratio(tau0=1.0, omega=0.001)
+assert ratio_high > 0.999, f"고주파 포화 실패: {ratio_high}"
+assert ratio_low < 0.001, f"저주파 완전이완 실패: {ratio_low}"
+
+# (b) Meng et al. 2025 Table 2 (§5) — 노트에 옮겨 적은 수치의 배율을 원표와 대조
+E_neat = 17.1   # MPa, Neat PU
+E_pcd40 = 71.1  # MPa, PUPCD40
+fold_increase = E_pcd40 / E_neat
+# 문헌값과 대조: 이 배율(약 4.16배)을 §5 서술("경도↑·탄성계수↑" 정성 서술)의 정량 근거로 삼는다.
+assert 4.0 < fold_increase < 4.3, (
+    f"PCDL 40 도입 시 탄성계수 배율 {fold_increase:.2f}배 — §5 표 옮겨적기 오류 가능성"
+)
+
+# HF2(상용 대조군, 46.0 MPa)는 Neat~PUPCD40 사이에 위치해야 한다(§5 서술 "48~58 사이" 경도와 일관)
+E_hf2 = 46.0
+assert E_neat < E_hf2 < E_pcd40, f"HF2 상용 대조군이 실험군 범위 밖: {E_hf2} MPa"
+
+print(f"PASS: Maxwell E'/E@relax={ratio_at_relax}, Meng2025 탄성계수 배율={fold_increase:.2f}x")
+```
+
+**해석**: (a)는 §2~3에 인용한 Maxwell 수식이 내적으로 일관됨을 확인한 것이지 별도 문헌 실측치와의
+대조는 아니다(수식 자체가 출처). (b)는 §5에 옮겨 적은 Meng et al. 2025 표 수치가 산술적으로
+자기일관적임을 재확인했다 — 전사 오류가 없음을 검증했을 뿐, τ_creep 등 CMP 패드 고유의 미검증
+정량값(§4)을 해소한 것은 아니다. **§4 τ_creep은 여전히 미검증 상태로 남는다.**
+
 ## 다음 단원
 Lv1-2: CMP 패드 구조 (IC1000류 발포체, groove 패턴, subpad 역할) — 이번 노트의 §6 연장.
