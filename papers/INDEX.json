@@ -160,5 +160,16 @@
   "authors": "T.A. Ring, A. Prasad, J.A. Dirksen",
   "venue": "(연도 미기재) 저자 웹공개",
   "note": "Table 1: η=(1/Dgrit)², σ=Dgrit/2 매핑 규칙 — 표기 수치(2.938e11 /m², 8.112µm)와 Dgrit=190µm가 상호 불일치"
+ },
+ "zheng-zhao-lu-2023-pad-wear-profile-mi14091683": {
+  "src": "EuropePMC fullTextXML",
+  "pdf": null,
+  "landing": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10536193/",
+  "ver": "publishedVersion",
+  "host": "PMC (Europe PMC fullTextXML mirror)",
+  "license": "cc-by",
+  "doi": "10.3390/mi14091683",
+  "matched_title": "Prediction of Pad Wear Profile and Simulation of Its Influence on Wafer Polishing",
+  "note": "tool-platen-head Lv2-1. MDPI 직접다운로드 403(Access Denied/edgesuite), PMC PDF는 PoW 챌린지로 curl 차단. Europe PMC REST fullTextXML(papers/mi14091683-fulltext.xml)로 본문 확보."
  }
 }

@@ -1031,3 +1031,27 @@ engine 미등록: Recipe에 온도 필드 없음(스키마 부채, ARCHITECTURE 
 지위. Kp_eff(T) 훅(우선순위 낮음, 실측 대조 없음)은 범위 밖으로 남김. pad-material PROFILE
 구현요청 섹션 완료 처리. 수신함 잔여: slurry-chemist 2건(Luo-Dornfeld, 세리아 정량모델).
 다음 회차 후보: S13(패드 마모 모순, pad-lifecycle 학습 상태 확인) 또는 잔여 수신함 항목.
+
+## 2026-09-07 10:10 [성장엔진] tool-platen-head Lv2-1 이수 — 리테이너링 FEA 접촉응력 + 특허 구조
+
+ORG §5 확인 결과 tool-platen-head가 진도 최저(2/6, 다른 [활성] 전원 3/6 이상)라
+이어서 진행. Zheng, Zhao, Lu(2023, Micromachines 14(9) 1683, DOI 10.3390/mi14091683)
+FEA 정적모델: 리테이너링 유무에 따른 웨이퍼 엣지 접촉응력 배율(mainstream 대비
+링있음 3배/링없음 4배, 33.3% 악화)과 US7121927B2 특허(개선형 리테이너링 접촉
+세그먼트=웨이퍼 둘레의 11.5%, ITP 조절만으로 엣지 제거율을 능동 튜닝 가능)를
+결합해 "리테이너링=수동보호가 아니라 능동 엣지제거율 조절 변수"라는 결론을
+knowledge/equipment/cmp-retaining-ring-wear-edge-profile.md에 정리.
+
+원문 확보 과정 기록: MDPI 직접 PDF 다운로드는 Akamai edgesuite 403(Access Denied)로
+차단, PMC PDF는 PoW(proof-of-work) 챌린지로 curl 차단 — 두 경로 모두 실패 후
+**Europe PMC REST API의 fullTextXML**로 본문 텍스트 확보(papers/mi14091683-fulltext.xml).
+Touzov, Fujita, Doy(2001, IEEE ISSM, DOI 10.1109/ISSM.2001.962981) 원 논문은
+미러 사이트 5개 미러 무응답으로 1차 미확보, 완전 공개된 후속 특허(US7121927B2)로
+대체해 정직 기록.
+
+품질게이트: check_knowledge.py PASS, verify_claims.py PASS(출처 4건 실존, python
+verify 1블록 통과 — 특허 접촉세그먼트 비율·FEA 응력배율 악화율(33.3%) 재현).
+CURRICULUM [x], EXAMS Q1-Q3 추가, PROFILE 이수기록·레벨(Lv2, 3/6) 갱신, ORG §5
+진도 갱신(tool-platen-head 3/6).
+
+진도: tool-platen-head 3/6 (Lv2 진입). 다음: Lv2-2(RPM비·유량·온도 제어와 MRR 안정성).
