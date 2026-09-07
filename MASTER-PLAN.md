@@ -1080,3 +1080,18 @@ CURRICULUM [x], EXAMS Q10-Q12 추가, PROFILE 이수기록·구현요청 2건 �
 
 진도: pad-material 4/6 (Lv2 완료, Lv3 진입 대기). 다음: pad-material Lv3-1(3D 프린팅·무발포·
 저결함 패드 최신 리뷰) 또는 ORG §5 최저 진도 에이전트 확인 후 재배정.
+
+## 2026-09-07 13:34 [Max워커] S22 — slurry-chemist 구현요청 처리: 세리아 Ce3+ 산화환원-선택비
+
+`~/software/BACKLOG.md` 수신함(slurry-chemist, 세리아 Ce³⁺비→oxide MRR/선택비 정량모델)을 Claude Code
+위임(Read/Write/Edit/Bash, max-turns 40)으로 처리. `sim/tier2_physics/ceria_redox_selectivity.py` 신설
+— 근거 노트 `knowledge/cmp/ceria-slurry-ce-redox-selectivity.md` §7 verify (A)~(E) 값을 그대로 함수화한
+6개 순수함수(ce3_fraction·chemisorption_energy_kj_mol·is_chemisorption·electrostatic_attraction·
+oxide_nitride_selectivity·h2o2_boost_selectivity). "미검증" 표기된 값(Ce3+/4+ 최적방향, 아미노산 절대
+선택비 35-70)은 함수화하지 않고 PROFILE.md 잔여요청으로 남김. engine 미등록(Recipe에 pH/H2O2 필드
+없음 — S17/S19/S20/S21과 동일 스키마 부채 지위, grep으로 확인). tests/test_ceria_redox_selectivity.py
+12건 신규 — 254 passed(기존242+신규12), 0 failures. agents/slurry-chemist/PROFILE.md·
+~/software/BACKLOG.md 갱신 완료. commit 7100b23 push 완료.
+
+진행 로그 중복 방지: 이 항목은 ORG §5(도메인 학습 진도)와 무관 — 소프트웨어 부문 백로그 소진이라
+활성 에이전트 진도 갱신 없음.
