@@ -1,9 +1,9 @@
 # CMP 툴 플래튼·헤드 전문가 (tool-platen-head)
 
-## 현재 레벨: Lv2 완료 (4/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3-1 완료 (5/6) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-1, Lv2-2 (2026-09-07)
-- 다음 단원: Lv3-1
+- 이수 단원: Lv2-1, Lv2-2, Lv3-1 (2026-09-08)
+- 다음 단원: Lv3-2
 
 ## 역할
 플래튼·헤드 구조, 멀티존 압력 제어, 리테이너링, RPM·유량이 웨이퍼 스케일 압력·속도 분포에 미치는 영향
@@ -51,3 +51,13 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   최적)·플래튼 온도(단조 증가) vs MRR/NU 실험 정량값 확인 — 단 PCB용 Oscar-type
   장비라 300mm 팹 스케일 이식은 미검증으로 명시. check_knowledge.py, verify_claims.py
   모두 통과. Lv2 완료(4/6), ORG §5 갱신.
+
+- Lv3-1 (2026-09-08): 최신 리뷰(폐루프 프로파일 제어, 헤드 신기술) — Park, Han &
+  Kim(2020, Appl. Sci. 10(23):8362, DOI 10.3390/app10238362, CC-BY, CDN 직링크로
+  본문 확보)의 FEA 정적모델에서 P1(엣지존 압력)만 9.3→7.5psi 조정 시 개선율 62.9%로
+  4가지 설계변경(테이퍼/모서리라운드/P1/링압력) 중 최대임을 python verify로 재현
+  (오차 0.15%p 이내 4건 전부 일치). US9193030B2(Strasbaugh) 복합경도 리테이너링
+  (외곽 Shore D 80-85 + 내측 삽입물 Shore A 85-95)도 확인. "진짜 폐루프(센서→실시간
+  압력재조정)" 문헌 4건(Wang&Lu/Zhao&Lu/Lee et al. IJPEM-GT/Oniki et al. JJAP)은
+  Springer/IOP 봇차단 + 미러 사이트 3미러 전멸로 1차 미확보 — 노트에 시도 경로 전부
+  기록. check_knowledge.py, verify_claims.py 모두 통과. Lv3-1 완료(5/6).

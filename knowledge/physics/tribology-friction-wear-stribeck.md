@@ -26,8 +26,13 @@ A_r ∝ N이 성립함을 [[hertz-gw-contact-mechanics]] §4에서 이미 해석
 
 ## 3. Archard 마모식 — V = k·W·L/H
 원 논문: J.F. Archard, "Contact and Rubbing of Flat Surfaces," *J. Appl. Phys.* 24, 981–988 (1953).
-(원문 유료 — 2차 교차검증: DoITPoMS 'Wear' TLP(Cambridge, doitpoms.ac.uk); Encyclopedia MDPI
-"Archard's Law: Foundations, Extensions, and Critiques" (encyclopedia.pub/entry/58780, 2024).)
+**DOI: 10.1063/1.1721448** (`find_open_access.py --title` + Crossref API로 2026-09-08 실존·서지 확인:
+title="Contact and Rubbing of Flat Surfaces", published 1953-08-01 — 단 원문 유료, OA 미확보이므로
+본문 수식·k값은 여전히 2차 교차검증: DoITPoMS 'Wear' TLP(Cambridge, doitpoms.ac.uk); Encyclopedia MDPI
+"Archard's Law: Foundations, Extensions, and Critiques" (encyclopedia.pub/entry/58780, 2024)).
+k의 1차원리 예측 미해결 문제 참고문헌 **arXiv:2110.03647** "A criterion for critical junctions in
+elastic-plastic adhesive wear" (2021-10-07, arXiv API로 2026-09-08 실존 확인 — 제목 일치, 초록만 확인·
+본문 미독).
 
 ```
 마모부피   V = k · W · L / H
@@ -103,6 +108,38 @@ So = η · V / (P · δ_eff)
 - **Stribeck 곡선 정성 재현:** 접촉분율 f=exp(-αSo) 단순모델로 µ(So)를 그리면 **내부에 최소점**
   존재(min µ≈0.004 @ So≈0.12), 좌측 boundary µ≈0.15, 우측 hydrodynamic 재상승 — Stribeck의
   J자 형상과 최소점 위치를 **정성적으로 재현**. (정량 곡선은 실측 캘리브레이션 필요 — 미검증.)
+
+```python verify
+import sys, math
+sys.path.insert(0, "sim/tier2_physics")
+from tribology_basics import archard_wear_volume, cmp_sommerfeld, stribeck_cof
+
+# Archard 스케일링 (V ∝ W, V ∝ L, V ∝ 1/H) — §3
+k, W, L, H = 1e-3, 10.0, 100.0, 1e9
+V0 = archard_wear_volume(k, W, L, H)
+assert math.isclose(archard_wear_volume(k, 2*W, L, H), 2*V0)
+assert math.isclose(archard_wear_volume(k, W, 3*L, H), 3*V0)
+assert math.isclose(archard_wear_volume(k, W, L, 2*H), 0.5*V0)
+
+# Archard 오더 대조: 연강 pin-on-disk 예시 (k=1e-3, W=10N, H=1.8GPa, L=1000m)
+# 문헌 오더(금속 비윤활 마모, mm^3 스케일) 대조 — §7
+V_ex = archard_wear_volume(1e-3, 10.0, 1000.0, 1.8e9)
+assert math.isclose(V_ex, 5.5556e-9, rel_tol=1e-3), f"V_ex={V_ex:.4e}"
+assert 1e-9 < V_ex < 1e-7  # 문헌 오더 범위 안
+
+# CMP Sommerfeld 오더 (η=1e-3 Pa·s, V=1 m/s, P=3e4 Pa, δeff=5µm) — §5
+So = cmp_sommerfeld(1e-3, 1.0, 3e4, 5e-6)
+assert math.isclose(So, 6.667e-3, rel_tol=1e-2), f"So={So:.4e}"
+assert 1e-3 < So < 1e-1  # mixed/boundary 영역 오더
+
+# Stribeck 곡선: 내부에 최소점 존재 (정성 재현) — §4,§7
+Hs = [10**x for x in range(-4, 1)]
+cofs = [stribeck_cof(h) for h in Hs]
+min_idx = cofs.index(min(cofs))
+assert 0 < min_idx < len(cofs) - 1, "최소점이 양 끝이 아니라 내부에 있어야 함(J자 곡선)"
+
+print("PASS: Archard 스케일링 3종 + 오더 대조 + Sommerfeld 오더 + Stribeck 최소점 내부 존재 — 전부 확인")
+```
 
 ## 8. 한계 / 미검증 표기
 - Archard 1953 원문·k 표 절대값은 유료로 미확보 — **2차 인용, 오더만 채택**.

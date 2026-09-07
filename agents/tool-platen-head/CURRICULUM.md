@@ -7,7 +7,7 @@
 - [x] Lv1-2 멀티존 헤드 압력 제어와 존-반경 응답 행렬 (2026-09-07, knowledge/equipment/cmp-multizone-carrier-radial-response.md)
 - [x] Lv2-1 리테이너링 압력·마모와 엣지 프로파일 (2026-09-07, knowledge/equipment/cmp-retaining-ring-wear-edge-profile.md)
 - [x] Lv2-2 RPM 비·유량·온도 제어와 MRR 안정성 (2026-09-07, knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md)
-- [ ] Lv3-1 최신 리뷰: 폐루프 프로파일 제어, 헤드 신기술
+- [x] Lv3-1 최신 리뷰: 폐루프 프로파일 제어, 헤드 신기술 (2026-09-08, knowledge/equipment/tool-platen-head-closed-loop-profile-new-tech.md)
 - [ ] Lv3-2 툴 설정 → 압력·속도 분포 모델 (sim/tier2, 기존 kinematics·wiwnu 확장)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
