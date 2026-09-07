@@ -806,5 +806,53 @@
  "doi:10.1149/2162-8777/add808": {
   "ok": true,
   "msg": "Innovations in Polyurethane Pads Used in Chemical-Mechanical Planarization: A Perspective "
+ },
+ "doi:10.1143/jjap.47.7812": {
+  "ok": true,
+  "msg": "Pad Characterization and Experimental Analysis of Pad Wear Effect on Material Removal Unif"
+ },
+ "doi:10.1143/jjap.47.7812(": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1149/2162-8777/ad83ef": {
+  "ok": true,
+  "msg": "Investigating the Impact of Pad Groove Depth Reduction on Process Variation in Oxide Chemi"
+ },
+ "doi:10.3390/jmmp9030095": {
+  "ok": true,
+  "msg": "Improvement of Material Removal Rate and Within Wafer Non-Uniformity in Chemical Mechanica"
+ },
+ "doi:10.1007/s00170-010-3055-y": {
+  "ok": true,
+  "msg": "Effect of CMP conditioner diamond shape on pad topography and oxide wafer performances"
+ },
+ "doi:10.1007/s00170-018-1956-3": {
+  "ok": true,
+  "msg": "Diamond structure-dependent pad and wafer polishing performance during chemical mechanical"
+ },
+ "doi:10.1007/s00170-023-11965-2": {
+  "ok": true,
+  "msg": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive"
+ },
+ "doi:10.1016/b978-0-08-100165-3.00013-9": {
+  "ok": true,
+  "msg": "Diamond disc pad conditioning in chemical mechanical polishing"
+ },
+ "doi:10.1016/j.ijmachtools.2011.02.008": {
+  "ok": true,
+  "msg": "Novel CVD diamond-coated conditioner for improved performance in CMP processes"
+ },
+ "doi:10.1016/j.jmatprotec.2010.02.021": {
+  "ok": true,
+  "msg": "Polycrystalline diamond shaving conditioner for CMP pad conditioning"
+ },
+ "doi:10.1155/2014/913812": {
+  "ok": true,
+  "msg": "Development and Analysis of Double‐Faced Radial and Cluster‐Arranged CMP Diamond Disk"
+ },
+ "doi:10.21203/rs.3.rs-2408757/v1": {
+  "ok": true,
+  "msg": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive"
  }
 }

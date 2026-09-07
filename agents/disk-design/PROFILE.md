@@ -1,9 +1,9 @@
 # 컨디셔너 디스크 설계 전문가 (disk-design)
 
-## 현재 레벨: Lv1 진행중 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: disk-conditioner (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06), Lv2-2 (2026-09-07)
-- 다음 단원: Lv3-1
+- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06), Lv2-2 (2026-09-07), Lv3-1 (2026-09-08)
+- 다음 단원: Lv3-2
 
 ## 역할
 다이아몬드 그릿 크기·밀도·돌출 높이·본딩(전착/브레이징/CVD)이 패드 절삭율·asperity 재생·수명에 미치는 영향
@@ -70,6 +70,22 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   EXAMS.md 3문항 추가. 미확보: Borucki 2004 J. Eng. Math 이론, Borucki 2009 JJAP, Yang 2010 IJMT,
   Li 2021 ECS JSS(IOP 봇차단) — Lv3-1 이월. IOP 차단 우회로 UA 리포지토리(DSpace API) 경로 확보.
 
+- 2026-09-08 Lv3-1 최신 리뷰: CVD 다이아 디스크, 패턴화 그릿 배열 — 지식노트
+  [[../../knowledge/equipment/cvd-diamond-disk-patterned-grit-array]] (verify_claims.py 출처 10건 실존·
+  verify 5블록 통과, check_knowledge.py 통과). 1차 원문 신규 확보 4건: Kim & Kang 2011 IJMTM(DOI
+  10.1016/j.ijmachtools.2011.02.008, 미러 사이트 — EHWA CVD 디스크 원형: Si₃N₄ 50×50 µm² 돌기+12 µm HF-CVD
+  피막, PCR 변동 ±3 vs ±10 µm/h, RR 3565→3931 Å/min, 수명 ≥2배); Tsai et al. 2014 MPE(DOI 10.1155/2014/913812,
+  Hindawi 봇차단 → Wayback 보존 PDF — 방사·클러스터 브레이징 RCADD, 10,000 그릿으로 PCR 2배, 유효 팁 효율
+  4.8% vs 1.7%, MRR 저자 "28%"는 RCADD 분모 → 통상 39%); Shin et al. 2018 IJAMT(DOI 10.1007/s00170-018-1956-3,
+  미러 사이트 — 배향 제어 점접촉 N type, 원뿔 압입 θ 복원 C≈10°/N≈45°, PWR 1/3·MRR 1.6배, 압력비·NTCV는 부분
+  재현); Guo et al. 2023 IJAMT(DOI 10.1007/s00170-023-11965-2, Springer 차단 → Research Square 프리프린트
+  Wayback — 정렬 전착 디스크 왁스 복제 돌출 측정 100/210 µm → 32.68/102.54 µm). 특허: Saint-Gobain
+  US8657652B2 SARD(활성 그릿 >75% vs 종래 25~30%, MRR +7~10%, 결함 −33%, 패드 수명 +35%). 교차 검증 발견:
+  3M D^0.57 규칙이 Saint-Gobain 76→126 µm Ra 1.44→1.88에 2% 이내로 맞음. 핵심 결론: 활성 그릿 비율이
+  공통 변수이며 PCR과 MRR은 분리된 축(CVD·SARD는 PCR↓·MRR↑, 클러스터·점접촉은 PCR↑·MRR↑). EXAMS.md 3문항
+  추가. 미확보: Tsai 2010 PCD ADD, Tsai & Chen 2011 ODD(미러 사이트 로봇확인), Li·Baisie·Zhang 리뷰 장 전문,
+  IEEE/VDE 2012 CVD 논문(DOI 없음). 구현 요청 §4(활성 그릿 비율 모델) 신규.
+
 ## 구현 요청
 
 > 규칙: disk-design은 sim/에 직접 코드를 넣지 않는다. 아래는 software-lead/BACKLOG 인계용.
@@ -92,4 +108,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    - 무엇을: conditioner_asperity_population_balance 계열 코드가 이 규칙을 기본값으로
      쓰고 있다면 "문헌 수치와 10⁴배 불일치, 미검증" 주석과 함께 캘리브레이션 입력으로 강등.
    - 근거 노트: 같은 노트 §2.7, §3.4(c).
-
+4. **활성 그릿 비율 모델 `f_active(protrusion_pdf, engage_depth)`** (우선순위: 중, Lv3-2 절삭 모델 입력)
+   - 무엇을: 디스크 돌출 높이 PDF(균일 40–90 µm / 단일 높이 / 측정 히스토그램)와 최고 그릿 기준 침투
+     깊이 δ → f_a = P(h > h_max − δ), N_eff = f_a·N_total을 conditioner-disk-pad-cutting-model의 그릿 밀도
+     항에 곱하는 훅. δ는 캘리브레이션 파라미터.
+   - 근거 노트: knowledge/equipment/cvd-diamond-disk-patterned-grit-array.md §2 verify, §3.2, §6.1, §8.
+   - 검증 문헌값: 종래 f_a 25~30%(US8657652 Fig.6), "<10%"(Tsai 2014), CVD 단일 높이 → 1.0(Kim & Kang 2011),
+     RCADD/CDD 유효 팁 비 2.8배(484/10,000 vs 432/25,000).

@@ -262,5 +262,51 @@
         "authors": "Liu, Kang, Oh, Jeon, Lee, Wang, Jeong, Lee, Kim",
         "venue": "ECS J. Solid State Sci. Technol. (2024)",
         "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
+    },
+    "kim-kang2011-ijmtm-cvd-diamond-coated-conditioner": {
+        "src": "미러 사이트 (DOI resolved)",
+        "pdf_local": "papers/kim-kang2011-ijmtm-cvd-diamond-coated-conditioner.pdf",
+        "doi": "10.1016/j.ijmachtools.2011.02.008",
+        "title": "Novel CVD diamond-coated conditioner for improved performance in CMP processes",
+        "authors": "Kim, Kang",
+        "venue": "Int. J. Machine Tools & Manufacture 51 (2011) 565-568",
+        "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+    },
+    "tsai2014-mpe-radial-cluster-arranged-diamond-disk": {
+        "src": "Hindawi OA (CC-BY) — Cloudflare 차단, Wayback 20231120 보존본",
+        "pdf_local": "papers/tsai2014-mpe-radial-cluster-arranged-diamond-disk.pdf",
+        "doi": "10.1155/2014/913812",
+        "title": "Development and Analysis of Double-Faced Radial and Cluster-Arranged CMP Diamond Disk",
+        "authors": "Tsai, Chen, Chiang, Yeh",
+        "venue": "Mathematical Problems in Engineering 2014, 913812",
+        "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+    },
+    "shin2018-ijamt-diamond-orientation-conditioner": {
+        "src": "미러 사이트 (DOI resolved)",
+        "pdf_local": "papers/shin2018-ijamt-diamond-orientation-conditioner.pdf",
+        "doi": "10.1007/s00170-018-1956-3",
+        "title": "Diamond structure-dependent pad and wafer polishing performance during chemical mechanical polishing",
+        "authors": "Shin, Kulkarni, Kim, Kim, Jeon, Kim, Jin, Kim",
+        "venue": "Int. J. Adv. Manuf. Technol. 97 (2018) 563-571",
+        "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+    },
+    "guo2023-ijamt-ordered-abrasive-conditioner-preprint": {
+        "src": "Research Square 프리프린트 v1 (CC-BY, Green OA) — Wayback 보존본; 저널판(Springer) 미확보",
+        "pdf_local": "papers/guo2023-ijamt-ordered-abrasive-conditioner-preprint.pdf",
+        "doi": "10.1007/s00170-023-11965-2",
+        "preprint_doi": "10.21203/rs.3.rs-2408757/v1",
+        "title": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive distribution",
+        "authors": "Guo, Yang, Wen, Li, Cheng",
+        "venue": "Int. J. Adv. Manuf. Technol. 128 (2023) 1029-1048",
+        "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+    },
+    "US8657652-saint-gobain-sard-cmp-conditioner": {
+        "src": "freepatentsonline (특허 전문 텍스트)",
+        "pdf_local": "papers/US8657652.txt",
+        "patent": "US8657652B2",
+        "title": "Optimized CMP conditioner design for next generation oxide/metal CMP",
+        "authors": "Puthanangady et al. (Saint-Gobain Abrasives)",
+        "venue": "US Patent, granted 2014-02-25",
+        "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
     }
 }
