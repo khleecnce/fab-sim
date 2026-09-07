@@ -181,6 +181,10 @@ class WaferResult:
     lubrication_regime: Optional[str] = None       # "boundary"/"mixed"/"hydrodynamic"
     cmp_sommerfeld_number: Optional[float] = None
     cof_stribeck_estimate: Optional[float] = None
+    # 슬러리 필름두께 스케일 진단 — MRR과 무관. Thakurta(2001) Eq.19 z0
+    # (cmp-slurry-flow-lubrication-film-thickness.md). z0는 h_min의 스케일이지 정확한 값이 아니다.
+    film_z0_scale_um: Optional[float] = None
+    film_lubrication_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 이 결과가 어떤 물성에서 나왔나 — 숫자의 출처 추적
@@ -202,6 +206,8 @@ class WaferResult:
             "lubrication_regime": self.lubrication_regime,
             "cmp_sommerfeld_number": self.cmp_sommerfeld_number,
             "cof_stribeck_estimate": self.cof_stribeck_estimate,
+            "film_z0_scale_um": self.film_z0_scale_um,
+            "film_lubrication_note": self.film_lubrication_note,
             "notes": self.notes,
         }
 
@@ -285,6 +291,37 @@ def _lubrication_diagnostics(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _film_thickness_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """슬러리 필름두께 길이 스케일 z0 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/slurry_film_lubrication.py (Thakurta et al. 2001 Eq.19,
+    knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md §4).
+    z0 = sqrt(2·μ·ω2·R1·R2 / P_app). 모듈 docstring이 명시하듯 z0는 무차원화 기준
+    길이 스케일이며 정확한 최소필름두께 h_min이 아니다(전체 2-D Reynolds PDE 수치해 미이식).
+    slurry_viscosity_pa_s가 팩에 없으면 roughness_ra_nm과 같은 지위로 조용히 None.
+    """
+    out: Dict[str, object] = {"film_z0_scale_um": None, "film_lubrication_note": None}
+    if not rr.pack.has("slurry_viscosity_pa_s"):
+        return out
+    try:
+        import slurry_film_lubrication as SFL   # sim/tier2_physics (1바이트도 수정 안 함)
+        from sim.tier1_empirical import kinematics as kin
+        mu = rr.p("slurry_viscosity_pa_s")
+        omega2 = kin.rpm_to_rads(rr.rpm_platen)
+        R1 = rr.wafer_radius_m
+        R2 = rr.center_offset_m
+        P_app = rr.pressure_psi * PSI_TO_PA
+        z0_m = SFL.z0_length_scale(mu, omega2, R1, R2, P_app)
+        out["film_z0_scale_um"] = float(z0_m) * 1e6
+        out["film_lubrication_note"] = (
+            "film_z0_scale_um은 Thakurta(2001) Eq.19의 길이 스케일 z0이며 정확한 최소필름두께 "
+            "h_min이 아니다 — h_min/z0는 d0/z0 등 무차원군의 함수이고 전체 2-D Reynolds PDE "
+            "수치해는 미이식 (knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md §4,§7)")
+    except Exception as e:
+        out["_note"] = f"필름두께 스케일 진단 실패({e}) — film_z0_scale_um None으로 둠"
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -329,6 +366,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         notes.append("윤활 레짐 진단(So·λ·COF)은 λ≈So 근사(δeff≈σ 가정)이며 "
                      "COF 절대값은 정성적 오더 추정, 실측 캘리브레이션 필요 "
                      "(knowledge/physics/cmp-lubrication-regimes.md §5,§7)")
+    # 슬러리 필름두께 스케일 z0 진단 — MRR 경로와 완전히 독립. 팩에 슬러리 점도가 없으면 조용히 None.
+    film = _film_thickness_diagnostic(rr)
+    if film.get("_note"):
+        notes.append(film["_note"])
+    elif film["film_lubrication_note"] is not None:
+        notes.append(film["film_lubrication_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -346,6 +389,8 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        lubrication_regime=lube["lubrication_regime"],
                        cmp_sommerfeld_number=lube["cmp_sommerfeld_number"],
                        cof_stribeck_estimate=lube["cof_stribeck_estimate"],
+                       film_z0_scale_um=film["film_z0_scale_um"],
+                       film_lubrication_note=film["film_lubrication_note"],
                        model=model, notes=notes,
                        pack=rr.pack.name, film=rr.film,
                        provenance=rr.pack.provenance(rr.used_keys))

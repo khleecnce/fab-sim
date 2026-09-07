@@ -1233,3 +1233,14 @@ Kenchappa 2021(ECS JSS OA, AMAT 적층제조 패드) 40D 소프트 패드 세리
 ## 2026-09-08 심야 [심야병렬] 오케스트레이터 게이트 확인 — 3편 동시 이수 전원 통과
 서브에이전트 3명 병렬(claude -p, fable-5-1): pad-structure Lv2-2 · pad-material Lv3-1 · disk-design Lv3-1.
 오케스트레이터 직접 게이트(정본): check_knowledge 3/3 ✓, verify_claims 3/3 ✓(출처 실존 11/7/10건, verify 1/1/5블록, 출처없는 수치 0). 커밋 81fa172·d30ce50·32b0f41 전부 origin/main 푸시 완료. Anthropic 한도 흔적 없음(로그의 429는 Semantic Scholar API, 워커가 우회). 진도: pad-structure 4/6, pad-material 5/6, disk-design 5/6. 누적 지식노트 69편.
+
+## 2026-09-08 [Max워커] slurry_film_lubrication 정량화 + engine 연결
+
+`sim/tier2_physics/slurry_film_lubrication.py` self-test에 노트 §5 앵커(P_app=21kPa, ω2=60rpm, R1=4in,
+R2=7in, μ=0.005 Pa·s)로 z0=232.48 µm를 계산하고 논문 h_min=36 µm와의 비율 check(0.3<h_min/z0<3.0)를
+기존 8개 정성 check에 **추가**(기존 함수 시그니처·로직 무수정). 결과: ratio=0.1548로 범위 밖 → self-test
+**10/11 PASS(비율 check FAIL)**. z0가 h_min보다 약 6.5배 큼 — **원인 미상**(Eq.19 인용 오류인지, h_min/z0가
+d0/z0 함수라 이 조건에서 O(1)이 아닌지 미확인). 범위를 넓혀 통과시키지 않고 FAIL 그대로 둠.
+`sim/engine.py`에 `_film_thickness_diagnostic()` 신설(cmp_lubrication_regime 패턴) → `WaferResult`에
+`film_z0_scale_um`·`film_lubrication_note` 추가, `summary()`에도 포함. 팩에 slurry_viscosity_pa_s 없으면 None.
+`tests/test_film_thickness_diagnostic.py` 3건 신설. pytest **285 passed**(기존 282 + 신규 3), 회귀 0건.
