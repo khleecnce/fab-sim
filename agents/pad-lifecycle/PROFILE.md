@@ -28,7 +28,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 
 ## 구현 요청 (소프트웨어 부문이 가져감)
 <!-- 노트 옆 python verify sanity check은 pad-lifecycle가 직접 함. 아래는 sim/ 엔진화 요청. -->
-- **[Lv2-1] glazing 시간의존 접촉점·반경 모델 → wear-aware Kp 보정** (근거: knowledge/materials/pad-glazing-mechanism-mrr-decay.md §2·§4 검증완료):
+- **[Lv2-1] glazing 시간의존 접촉점·반경 모델 → wear-aware Kp 보정** ✅ 부분 완료(2026-09-07,
+  `sim/tier2_physics/pad_glazing_jeong2024.py`) — 접촉비·반경비 근사 함수 구현. **잔여**: 실제
+  Kp(t) 정량 스케일 연결은 미구현(Recipe.meta pad_hours와 분 단위 실험 시간의 척도 매핑 필요).
+  (근거: knowledge/materials/pad-glazing-mechanism-mrr-decay.md §2·§4 검증완료):
   - 무엇을: 기존 `sim/tier2_physics/pad_wear_glazing.py`(높이 마모만, Archard/Monte-Carlo)에 **asperity 반경 성장 항**과
     **접촉점 수 감쇠 항**을 추가. 반경: μR(t) = (0.28·p + 0.621)·t + 5.45·exp(0.18·p) [µm, t: min, p: psi]
     (Jeong 2024 Eq.4). 접촉점: N(t)/N0 = exp(−t/τ(p)), τ(2 psi)≈15 min → τ(5 psi)≈5–6 min(Table 1 지수적합).
