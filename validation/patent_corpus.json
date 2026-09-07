@@ -544,5 +544,697 @@
    "benzotriazole"
   ],
   "usable": true
+ },
+ "KR102533083B1": {
+  "patent": "KR102533083B1",
+  "title": "KR102533083B1 - Chemical mechanical polishing slurry composition of wafer contaning poly-s",
+  "assignees": [
+   "주식회사 케이씨텍"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "주식회사 케이씨텍",
+  "data_tables": 0,
+  "examples": 8,
+  "comparative": 8,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "BTA",
+   "pH",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP2365042B1": {
+  "patent": "EP2365042B1",
+  "title": "EP2365042B1 - Polishing composition and polishing method using the same \n        - Google ",
+  "assignees": [
+   "Fujimi Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Fujimi Incorporated",
+  "data_tables": 3,
+  "examples": 4,
+  "comparative": 3,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP2215176B1": {
+  "patent": "EP2215176B1",
+  "title": "EP2215176B1 - Improved silicon carbide particles, methods of fabrication, and methods usin",
+  "assignees": [
+   "Saint Gobain Ceramics and Plastics Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Saint Gobain Ceramics and Plastics Inc",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US20130000214A1": {
+  "patent": "US20130000214A1",
+  "title": "US20130000214A1 - Abrasive Particles for Chemical Mechanical Polishing \n        - Google P",
+  "assignees": [
+   "Individual"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Individual",
+  "data_tables": 2,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "nm/min",
+  "to_nm_per_min": 1.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US20150114928A1": {
+  "patent": "US20150114928A1",
+  "title": "US20150114928A1 - Abrasive Particles for Chemical Mechanical Polishing \n        - Google P",
+  "assignees": [
+   "Individual"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Individual",
+  "data_tables": 1,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "nm/min",
+  "to_nm_per_min": 1.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR20220086255A": {
+  "patent": "KR20220086255A",
+  "title": "KR20220086255A - High-efficient hybrid polishing system using hydroxyl radical and dissolv",
+  "assignees": [
+   "동명대학교산학협력단"
+  ],
+  "trusted": true,
+  "category": "academic",
+  "matched_org": "동명대학교산학협력단",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "mm/min",
+  "to_nm_per_min": 1000000.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR101557514B1": {
+  "patent": "KR101557514B1",
+  "title": "KR101557514B1 - Compositions and methods for ruthenium and tantalum barrier cmp \n        -",
+  "assignees": [
+   "캐보트 마이크로일렉트로닉스 코포레이션"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "캐보트 마이크로일렉트로닉스 코포레이션",
+  "data_tables": 0,
+  "examples": 9,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR20220086258A": {
+  "patent": "KR20220086258A",
+  "title": "KR20220086258A - High-efficient hybrid polishing system using dispersion improvement of th",
+  "assignees": [
+   "동명대학교산학협력단"
+  ],
+  "trusted": true,
+  "category": "academic",
+  "matched_org": "동명대학교산학협력단",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "mm/min",
+  "to_nm_per_min": 1000000.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR20130116188A": {
+  "patent": "KR20130116188A",
+  "title": "KR20130116188A - Cmp slurry regeneration apparatus and method \n        - Google Patents",
+  "assignees": [
+   "니혼 캐보트 마이크로일렉트로닉스 가부시키가이샤"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "니혼 캐보트 마이크로일렉트로닉스 가부시키가이샤",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR20200017269A": {
+  "patent": "KR20200017269A",
+  "title": "KR20200017269A - Cmp slurry composition for polishing copper layer and method for polishin",
+  "assignees": [
+   "삼성에스디아이 주식회사"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "삼성에스디아이 주식회사",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 3,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US6435944B1": {
+  "patent": "US6435944B1",
+  "title": "US6435944B1 - CMP slurry for planarizing metals \n        - Google Patents",
+  "assignees": [
+   "Applied Materials Inc"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "Applied Materials",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP3101076B1": {
+  "patent": "EP3101076B1",
+  "title": "EP3101076B1 - Barrier chemical mechanical planarization slurries using ceria-coated silica",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 8,
+  "examples": 6,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": true
+ },
+ "CN106085245A": {
+  "patent": "CN106085245A",
+  "title": "CN106085245A - The copper CMP of low depression \n        - Google Patents",
+  "assignees": [
+   "Air Products and Chemicals Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Air Products (CMP 사업 → Versum)",
+  "data_tables": 0,
+  "examples": 6,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN107109135A": {
+  "patent": "CN107109135A",
+  "title": "CN107109135A - For polishing the slurry composition for CMP of copper cash and using its p",
+  "assignees": [
+   "Samsung SDI Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Samsung SDI Co Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "hydrogen peroxide",
+   "benzotriazole",
+   "pH",
+   "wt %",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US7931714B2": {
+  "patent": "US7931714B2",
+  "title": "US7931714B2 - Composition useful to chemical mechanical planarization of metal \n        - ",
+  "assignees": [
+   "Uwiz Technology Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Uwiz Technology Co Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "a/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "wt %"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US20110186542A1": {
+  "patent": "US20110186542A1",
+  "title": "US20110186542A1 - Slurry containing multi-oxidizer and mixed nano-abrasives for tungsten c",
+  "assignees": [
+   "ASPT Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "ASPT Inc",
+  "data_tables": 2,
+  "examples": 8,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP0946979B1": {
+  "patent": "EP0946979B1",
+  "title": "EP0946979B1 - Method for chemical-mechanical planarization of a substrate on a fixed-abras",
+  "assignees": [
+   "Micron Technology Inc"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "Micron Technology",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US6565422B1": {
+  "patent": "US6565422B1",
+  "title": "US6565422B1 - Polishing apparatus using substantially abrasive-free liquid with mixture un",
+  "assignees": [
+   "Hitachi Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Hitachi Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "nm/min",
+  "to_nm_per_min": 1.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP2008153571A": {
+  "patent": "JP2008153571A",
+  "title": "JP2008153571A - \n        Manufacturing method of semiconductor device\n       \n        - Go",
+  "assignees": [
+   "Fujitsu Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Fujitsu Ltd",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US10570313B2": {
+  "patent": "US10570313B2",
+  "title": "US10570313B2 - Dishing reducing in tungsten chemical mechanical polishing \n        - Googl",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 0,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US11884859B2": {
+  "patent": "US11884859B2",
+  "title": "US11884859B2 - Tungsten chemical mechanical planarization (CMP) with low dishing and low e",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 5,
+  "examples": 8,
+  "comparative": 0,
+  "rate_unit": "angstrom/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": true
+ },
+ "EP3597711B1": {
+  "patent": "EP3597711B1",
+  "title": "EP3597711B1 - Tungsten chemical mechanical polishing for reduced oxide erosion \n        - ",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 1,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": "angstroms/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": true
+ },
+ "US7041599B1": {
+  "patent": "US7041599B1",
+  "title": "US7041599B1 - High through-put Cu CMP with significantly reduced erosion and dishing \n    ",
+  "assignees": [
+   "Applied Materials Inc"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "Applied Materials",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR102732305B1": {
+  "patent": "KR102732305B1",
+  "title": "KR102732305B1 - Tungsten chemical-mechanical polishing composition \n        - Google Paten",
+  "assignees": [
+   "씨엠씨 머티리얼즈 엘엘씨"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "씨엠씨 머티리얼즈 엘엘씨",
+  "data_tables": 0,
+  "examples": 11,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US7060573B2": {
+  "patent": "US7060573B2",
+  "title": "US7060573B2 - Extended poly buffer STI scheme \n        - Google Patents",
+  "assignees": [
+   "Chartered Semiconductor Manufacturing Pte Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Chartered Semiconductor Manufacturing Pte Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
  }
 }
