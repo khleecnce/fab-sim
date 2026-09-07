@@ -1190,3 +1190,15 @@ ORG §5 갱신.
 진도: tool-platen-head 4/6 (Lv3 진입). 다음: tool-platen-head Lv3-1(폐루프 프로파일
 제어 최신 리뷰) 또는 progress.py 재조회로 최저 진도 에이전트 재배정.
 
+
+
+## 2026-09-08 01:2x [심야병렬] Lv3-1 3편 동시 이수 — wafer-metrology · wafer-type · surface-contamination
+
+서브에이전트 3명 병렬(claude -p, fable-5-1) 학습. 세 노트 모두 오케스트레이터 직접 게이트 통과 확인(check_knowledge ✓ / verify_claims ✓). 429·overloaded 흔적 없음.
+
+- [[knowledge/cmp/inline-virtual-metrology-sampling-optimization]] — 계측 3층위(in-situ/통합=W2W·오프라인=L2L, AMD US6645780·IBM US9240360), PHM 2016 CMP VM 벤치마크 표 재현(Di/Jia/Lee 2017 IJPHM, 가중앙상블 MSE 7.07=24팀 중 1위), FSCA 50→7점 NMSE 0.96%(McLoone 2018 IEEE TASE), static/adaptive/dynamic 로트 샘플링(Nduhura-Munga 2013). 출처 17건 실존·verify 4블록 통과. 미확보: Rao 2000·Zhang 2021 MSE 6.33은 스니펫뿐(미검증). wafer-metrology 5/6.
+- [[knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology]] — 모니터 웨이퍼 전이(TSMC US7333875B2, work function 변환계수 STI 1.12·IMD 1.41 재현), NPW→PTW 유효압력비 2.2/1.7/1.3 vs 밀도모델 10/2/1.11 3.7배 괴리(Sorooshian 2005 학위논문), 전기 대리(Park 1999·Chang 2004 IEEE TED, R_dish 모델 w≥2µm서 30% 이내), PTW VM은 제품ID·밀도·이전층 특징 필요(Jebri 2017 MAPE 3.2~4.4%). 출처 12건 실존·verify 1블록. wafer-type 5/6.
+- [[knowledge/cmp/low-level-metal-cobalt-ruthenium-cross-contamination]] — IRDS 2024 YE6 게이트금속 표면한계 2e10 at/cm²(Co/Ru 표면한계는 미규정), Cu/Co·Cu/Ru 갈바닉 방향 CRC E°와 정합(크기는 산화제·킬레이트로 불일치, assert 명시), minteq Co(OH)₂ 전이 pH 7.9 vs Cu 5.7(Bisht 2022 관찰 ≈6 정합), PVA 브러시 Cu(II)-PVA 착물 재오염. 출처 24건 실존·verify 1블록. 미확보: Co 세정후 atoms/cm² 실측 1차논문. surface-contamination 5/6.
+
+품질게이트: 3/3 통과(오케스트레이터 직접 확인). ORG §5 상태표 3행 갱신(5/6, 2026-09-08).
+누적 진도: 지식노트 66편(신규 3), 세 에이전트 각 5/6(Lv3 진입). G1 3명 전원 Lv3-1 완료.
