@@ -244,5 +244,23 @@
         "authors": "Z. Morsada, H.B. Gunasekaran, N.R. Visaveliya, D.A. Shipp",
         "venue": "ECS J. Solid State Sci. Technol. 14, 054009 (2025)",
         "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 리뷰, 본문 수치 미사용"
+    },
+    "irfan2025-jmmp-cfd-groove-depth-lifetime": {
+        "src": "MDPI CC-BY (mdpi-res.com CDN 직링크; mdpi.com은 403)",
+        "pdf_local": "papers/irfan2025-jmmp-cfd-groove-depth-lifetime.pdf",
+        "doi": "10.3390/jmmp9030095",
+        "title": "Improvement of Material Removal Rate and Within Wafer Non-Uniformity in Chemical Mechanical Polishing Using Computational Fluid Dynamic Modeling",
+        "authors": "Irfan, Lee, Muzumdar, Aryanfar, Wu",
+        "venue": "J. Manuf. Mater. Process. 9(3), 95 (2025)",
+        "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
+    },
+    "liu2024-ecsjss-pad-groove-depth-reduction-oxide-cmp": {
+        "src": "초록만 — bronze OA이나 IOP Radware 캡차로 PDF/HTML 차단, 미러 사이트 미러 5종 캡차, Wayback/fatcat/CORE 사본 없음",
+        "pdf_local": null,
+        "doi": "10.1149/2162-8777/ad83ef",
+        "title": "Investigating the Impact of Pad Groove Depth Reduction on Process Variation in Oxide Chemical Mechanical Polishing",
+        "authors": "Liu, Kang, Oh, Jeon, Lee, Wang, Jeong, Lee, Kim",
+        "venue": "ECS J. Solid State Sci. Technol. (2024)",
+        "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
     }
 }
