@@ -626,5 +626,177 @@
  "doi:10.1016/S0890-6955(00)00013-4": {
   "ok": true,
   "msg": "Effects of kinematic variables on nonuniformity in chemical mechanical planarization"
+ },
+ "doi:10.1002/advs.202207321": {
+  "ok": true,
+  "msg": "Materials Quest for Advanced Interconnect Metallization in Integrated Circuits"
+ },
+ "doi:10.1016/j.apsusc.2025.162858는": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/j.colsurfa.2021.127189": {
+  "ok": true,
+  "msg": "Study on particle removal during the Co post-CMP cleaning process"
+ },
+ "doi:10.1016/j.colsurfa.2024.135721": {
+  "ok": true,
+  "msg": "Mechanisms of multiple functional groups in post-CMP cleaning solutions for Co interconnec"
+ },
+ "doi:10.1016/j.matchemphys.2024.130293": {
+  "ok": true,
+  "msg": "Inhibition of cobalt-titanium galvanic corrosion in post-CMP cleaning: Experimental and th"
+ },
+ "doi:10.1016/j.polymertesting.2019.105921": {
+  "ok": true,
+  "msg": "Study on possible root causes of contamination from an incoming PVA brush during post-CMP "
+ },
+ "doi:10.1021/acs.langmuir.4c02862": {
+  "ok": true,
+  "msg": "Removal of Nanoparticles by Surface Nanobubbles Generated via Solvent–Water Exchange: A Cr"
+ },
+ "doi:10.1021/acsomega.2c00683": {
+  "ok": true,
+  "msg": "Coupling Supramolecular Assemblies and Reactive Oxygen Species (ROS) with Megasonic Action"
+ },
+ "doi:10.1021/la981153r": {
+  "ok": true,
+  "msg": "Electrolyzed Water as the Novel Cleaning Media in Ultra-Large-Scale Integration and Liquid"
+ },
+ "doi:10.1038/s41598-021-00689-6": {
+  "ok": true,
+  "msg": "Galvanic corrosion inhibition from aspect of bonding orbital theory in Cu/Ru barrier CMP"
+ },
+ "doi:10.1039/d1ra08243d": {
+  "ok": true,
+  "msg": "Effect of ethylenediamine on CMP performance of ruthenium in H\n                    <sub>2<"
+ },
+ "doi:10.1039/d5tc02573g": {
+  "ok": true,
+  "msg": "Cobalt interconnect integration: progress in metal deposition, chemical mechanical polishi"
+ },
+ "doi:10.1116/1.1815319": {
+  "ok": true,
+  "msg": "Particle adhesion and removal mechanisms during brush scrubber cleaning"
+ },
+ "doi:10.1149/2.0191708jss": {
+  "ok": true,
+  "msg": "Investigation of Copper Oxide Ring Formation during Post Chemical Mechanical Polishing Cle"
+ },
+ "doi:10.1149/2162-8777/adcc54": {
+  "ok": true,
+  "msg": "Combined Effects of PVA Brush Scrubbing Parameters and Processes on Post-CMP Cross-Contami"
+ },
+ "doi:10.3390/nano15070480": {
+  "ok": true,
+  "msg": "Micro-Nano Bubbles: A New Field of Eco-Friendly Cleaning"
+ },
+ "pmc:10427378": {
+  "ok": true,
+  "msg": "Materials Quest for Advanced Interconnect Metallization in Integrated Circuits."
+ },
+ "pmc:11697338": {
+  "ok": true,
+  "msg": "Removal of Nanoparticles by Surface Nanobubbles Generated via Solvent-Water Exchange: A Cr"
+ },
+ "pmc:11990430": {
+  "ok": true,
+  "msg": "Micro-Nano Bubbles: A New Field of Eco-Friendly Cleaning."
+ },
+ "pmc:8551296": {
+  "ok": true,
+  "msg": "Galvanic corrosion inhibition from aspect of bonding orbital theory in Cu/Ru barrier CMP."
+ },
+ "pmc:8978706": {
+  "ok": true,
+  "msg": "Effect of ethylenediamine on CMP performance of ruthenium in H(2)O(2)-based slurries."
+ },
+ "pmc:9352252": {
+  "ok": true,
+  "msg": "Coupling Supramolecular Assemblies and Reactive Oxygen Species (ROS) with Megasonic Action"
+ },
+ "doi:10.1016/j.apsusc.2025.162858": {
+  "ok": true,
+  "msg": "Interaction study of copper ions and polyvinyl acetal (PVA) brush during copper post-CMP c"
+ },
+ "doi:10.1007/s10845-024-02335-0": {
+  "ok": true,
+  "msg": "Virtual metrology for chemical mechanical planarization of semiconductor wafers"
+ },
+ "doi:10.1007/s10845-025-02753-8": {
+  "ok": true,
+  "msg": "Process data-driven machine learning for non-uniformity prediction and virtual metrology i"
+ },
+ "doi:10.1016/j.cirp.2017.04.013": {
+  "ok": true,
+  "msg": "A deep learning-based approach to material removal rate prediction in polishing"
+ },
+ "doi:10.1016/j.eswa.2009.05.053": {
+  "ok": true,
+  "msg": "A virtual metrology system for semiconductor manufacturing"
+ },
+ "doi:10.1016/j.ifacol.2017.08.980": {
+  "ok": true,
+  "msg": "The Impact of the Virtual Metrology on a Run-to-Run control for a Chemical Mechanical Plan"
+ },
+ "doi:10.1080/00207543.2021.1976433": {
+  "ok": true,
+  "msg": "Virtual metrology as an approach for product quality estimation in Industry 4.0: a systema"
+ },
+ "doi:10.1088/1742-6596/783/1/012042": {
+  "ok": true,
+  "msg": "Virtual Metrology applied in Run-to-Run Control for a Chemical Mechanical Planarization pr"
+ },
+ "doi:10.1109/TASE.2017.2786213": {
+  "ok": true,
+  "msg": "A Methodology for Efficient Dynamic Spatial Sampling and Reconstruction of Wafer Profiles"
+ },
+ "doi:10.1109/TSM.2013.2256943": {
+  "ok": true,
+  "msg": "A Literature Review on Sampling Techniques in Semiconductor Manufacturing"
+ },
+ "doi:10.1109/issm.2000.993700": {
+  "ok": true,
+  "msg": "Run-to-run process control of oxide CMP using integrated metrology"
+ },
+ "doi:10.1115/1.4042051": {
+  "ok": true,
+  "msg": "Prediction of Material Removal Rate for Chemical Mechanical Planarization Using Decision T"
+ },
+ "doi:10.1145/3497623.3497679": {
+  "ok": true,
+  "msg": "Virtual Metrology for Semiconductor Chemical Mechanical Planarization Process Using Wide &"
+ },
+ "doi:10.3390/pr5030039": {
+  "ok": true,
+  "msg": "Big Data Analytics for Smart Manufacturing: Case Studies in Semiconductor Manufacturing"
+ },
+ "doi:10.36001/ijphm.2017.v8i2.2641": {
+  "ok": true,
+  "msg": "Enhanced Virtual Metrology on Chemical Mechanical Planarization Process using an Integrate"
+ },
+ "doi:10.1016/S0167-9317(01)00694-3": {
+  "ok": true,
+  "msg": "Correlation analysis between pattern and non-pattern wafer for characterization of shallow"
+ },
+ "doi:10.1109/ACCESS.2023.3347289": {
+  "ok": true,
+  "msg": "Predicting the Material Removal Rate in Chemical Mechanical Planarization Based on Improve"
+ },
+ "doi:10.1109/TED.2004.834898": {
+  "ok": true,
+  "msg": "Modeling the Electrical Effects of Metal Dishing Due to CMP for On-Chip Interconnect Optim"
+ },
+ "doi:10.1149/1.1785933": {
+  "ok": true,
+  "msg": "Estimating the Effective Pressure on Patterned Wafers during STI CMP"
+ },
+ "doi:10.2991/iceea-18.2018.26": {
+  "ok": true,
+  "msg": "Assessment of Physics-Based and Data-Driven Models for Material Removal Rate Prediction in"
+ },
+ "doi:10.36001/phmconf.2018.v10i1.462": {
+  "ok": true,
+  "msg": "Review of PHM Data Competitions from 2008 to 2017"
  }
 }

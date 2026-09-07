@@ -118,3 +118,41 @@ Ca 4.87−5.53=−0.7(<0, 착화 불가), Fe³⁺ 13.1−5.53=7.6(여전히 착�
 Co 12.9 µA/cm²(Table II). 해법은 억제제 병용 — Cys 0.75 mM + UA 9.25 mM 첨가로 ΔE_corr ≈5 mV, I_gc ≈0.7 µA/cm², Cu 6.1 / Co
 8.9 µA/cm²(Table IV)로 낮추면서 접촉각은 처녀 Cu/Co의 ≈57°로 복귀(BTA 제거 유지). 출처: Seo, Vegi, Babu 2019 ECS JSS 8,
 P379, doi:10.1149/2.0011908jss(CC-BY 본문 확인); 노트 §4.2·§5.1·§6(B).
+
+## Lv3-1 최신 리뷰: 저농도 금속 잔류 제어, Co/Ru 신소재 오염, 세정 후 재오염(cross-contamination)
+
+**Q1. CRC 표준환원전위(Co²⁺/Co −0.28 V, Cu²⁺/Cu 0.34 V, Ru²⁺/Ru 0.455 V)로 Cu/Co·Cu/Ru 쌍의 갈바닉 방향을 판정하고,
+Lee 2021(Cu/Ru, KIO₄+H₂O₂ pH 10)과 Seo 2019(Cu/Co, En pH 11)의 측정 ΔE_corr이 표준전위차와 얼마나·왜 다른지 설명하라.**
+
+A1. 더 비(卑)한 금속이 양극이다: Cu/Co 쌍은 Co(−0.28)가 양극으로 용해되고(ΔE°=0.62 V), Cu/Ru 쌍은 Cu(0.34)가 양극이다
+(ΔE°=0.113 V). 방향은 두 측정과 일치하지만 크기는 다르다. Lee et al. 2021은 E_corr Cu −0.27 V, Ru 0.22 V로 ΔE_oc 0.49 V —
+표준의 ≈4.3배로 커졌는데, 산화제 IO₄⁻가 Ru를 더 귀하게 만드는 혼합전위 때문이다(니코틴산 0.05 M으로 0.09 V까지 축소).
+Seo et al. 2019는 En 50 mM pH 11에서 ΔE_corr ≈40 mV — 표준의 1/15로 작아졌는데, En이 Cu²⁺·Co²⁺를 모두 강하게 착화해
+두 금속 전위를 함께 끌어내리기 때문이다(Cys 0.75 mM + UA 9.25 mM 추가 시 5 mV, I_gc 0.7 µA/cm²). 결론: 표준전위는 방향
+판정에만 쓰고 ΔE_corr 크기는 세정액별 실측이 필요하다. 근거: 노트 §3.1·§3.2·§6(A), CRC Vanýsek 표, PMC8551296,
+doi.org/10.1149/2.0011908jss.
+
+**Q2. minteq(NIST46.4) 용해도상수 Cu(OH)₂ log K 8.674, Co(OH)₂ 13.094를 써서 100 ppm에서 두 금속의 수산화물 전이 pH를
+계산하고, Bisht 2022의 PVA 브러시 Cu loading 관찰(pH 3/7/11)과 연결해 "Co 세정 pH 창이 Cu와 달라야 하는 이유"를 답하라.**
+
+A2. M(OH)₂ + 2H⁺ = M²⁺ + 2H₂O 이므로 포화 시 pH* = (log K − log C)/2. 100 ppm Cu = 1.57×10⁻³ M → pH* = (8.674+2.80)/2 = 5.74;
+100 ppm Co = 1.70×10⁻³ M → pH* = (13.094+2.77)/2 = 7.93. Cu 값은 Bisht et al. 2022가 인용한 "전이 pH ≈6"과 0.3 이내로 맞는다
+(노트 §6(B) assert 통과). Bisht의 관찰은 pH 3에서는 Cu가 이온이라 DIW 린스로 제거되지만 pH 7에서 Cu(OH)₂ 바늘형 석출물이
+브러시에 실리고(ICP-AES Cu 함량 pH 7 > 3 > 11) pH 7·11에서는 Cu(II)–PVA 착물로 브러시 내부에 잔류한다는 것이다. Co는
+전이 pH가 2.2 단위 높아 pH ≲8 중성 세정에서도 이온 상태로 남아 정전흡착·PVA 흡수 대상이 되고, pH 11에서도 포화 [Co²⁺]가
+Cu보다 4자릿수 이상 크다. 따라서 Co 세정은 알칼리 + 킬레이트(Co–EDTA log K 18.2로 Cu보다 2.3 낮으므로 더 높은 농도)로
+유리 이온을 없애야 하고, Cu처럼 산성 린스로 이온화시키는 전략은 Co 갈바닉 용해를 키운다. 근거: 노트 §3.3·§4.1·§6(B),
+papers/phreeqc-minteq.v4.dat, papers/bisht2022-icpt-pva-brush-cu-ions.pdf.
+
+**Q3. IRDS 2024 YE 표에서 표면 금속 허용치가 어디에 어떤 값으로 있는지, Co/Ru에 대해서는 무엇이 없는지 말하고, Yamanaka 1999
+전해 양극수의 달성치와 비교하라. 또 "세정 후 재오염" 관점에서 왜 잔류 atoms/cm² 숫자만으로는 부족한지 답하라.**
+
+A3. IRDS 2024 Table YE6는 게이트 스택 non-ionic metals(Ca, Fe, Ni, Cu, Zn) 2×10¹⁰ at/cm²(row 15, DHF/SC1), ionic metals
+2×10¹⁰(row 14), 후면·TSV·buried rail 유래 Cu·금속이온 2×10¹⁰(row 18, New)을 준다. Table YE3 row 76은 UPW 금속 24원소(Co 포함)
+<1 ppt, row 86은 49% HF 금속 20→10 ppt. 그러나 Co·Ru의 **표면 잔류** 한계는 어느 표에도 없다(Co는 약액·UPW 목록에만, Ru는
+NH₄OH 목록에만). Yamanaka et al. 1999(doi.org/10.1021/la981153r, 초록)의 양극수(10 mM HCl 전해, ClO⁻+산성 pH)는 Cu를
+>10¹² → <10¹⁰ atoms/cm²로 낮췄고, 이는 YE6 2×10¹⁰의 0.5배·ITRS FEP 1E10의 경계값이다 — 1999년에 이미 허용치 오더에 도달했다.
+그래서 이후 과제는 (i) IRDS 2024가 말하는 "target level below limits of detection"의 측정 문제와 (ii) 재오염이다: 브러시 내부의
+Cu(II)–PVA 착물(Bisht 2022), incoming 브러시의 PDMS·SDS(Lee 2019), 약액 농도가 낮은 노즐 사각지대의 브러시 직접접촉(Kim 2017)
+같은 저장고는 세정 직후 TXRF에는 안 보이다가 다음 웨이퍼로 전사된다. Han et al. 2025는 갭 −1.5 mm·400 rpm·코어 DIW·측면
+노즐로 재오염을 ≈100개 수준까지 줄였다. 근거: 노트 §2.1·§2.2·§4·§6(C), papers/irds2024-ye-tables.xlsx.
