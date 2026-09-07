@@ -19,3 +19,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 
 ## 이수 기록
 (크론이 갱신)
+
+| 단원 | 일자 | 노트 | 비고 |
+|---|---|---|---|
+| Lv1-1 | 2026-09-07 | `knowledge/materials/pad-groove-slurry-transport.md` | 1차 특허 2건(EP0806267A1, JP5767280B2), verify 블록 통과(GFQ 정합·면적비 재현) |
