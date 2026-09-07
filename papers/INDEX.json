@@ -189,5 +189,14 @@
   "journal": "Microelectronic Engineering 195, 36-40",
   "src": "미러 사이트(미러 사이트)",
   "note": "materials/pad-porosity-slurry-transport-mrr.md"
+ },
+ "lo-lin-2005-fem-anfis-jmatprotec": {
+  "doi": "10.1016/j.jmatprotec.2005.01.010",
+  "title": "The prediction of wafer surface non-uniformity using FEM and ANFIS in the chemical mechanical polishing process",
+  "authors": "Lo, Lin",
+  "year": 2005,
+  "journal": "Journal of Materials Processing Technology 168, 250-257",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "pad-structure Lv2-1. FEM material properties table (pad/wafer/carrier E, thickness) + 35 sets simulated non-uniformity R=sigma_max/sigma_c vs pad E0,T0,L0."
  }
 }

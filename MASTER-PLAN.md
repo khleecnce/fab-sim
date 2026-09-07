@@ -1135,3 +1135,18 @@ process-integrator의 Lai(2001) 운동학수(µ) 치환식을 대입. Zheng et a
 정직하게 기록(가설 수정). MDPI·Wiley·미러 사이트 원문 서버는 모두 접근 차단(403/캡차) —
 PMC 사본과 Lawing(2004) NCCAVS 슬라이드(이미 확보)로 대체. check_knowledge.py·
 verify_claims.py 모두 통과. disk-kinematics Lv1 완료(2/6), ORG §5 갱신.
+
+
+## 2026-09-07 18:xx [성장엔진] pad-structure Lv2-1 이수 — 서브패드 강성 적층과 엣지 응력비
+
+[[knowledge/materials/pad-subpad-stiffness-edge-nonuniformity]] — Lo & Lin(2005, J. Mater. Process.
+Technol. 168, DOI:10.1016/j.jmatprotec.2005.01.010, 미러 사이트 경유 원문 전체 확보·pypdf 추출)
+2D 축대칭 FEM Table 1(35세트) 두 부분집합을 python verify로 재현: 패드두께 T0 0.6985→2.0955mm
+스윕에서 엣지/중심 응력비 R이 1.7938→2.0760(변화율 15.7%, 단조증가 — 직관과 반대), 패드탄성률
+E0 1.148→3.4345MPa 스윕에서 R이 1.7938→1.6766(변화율 6.5%, 단조감소). T0 축 민감도가 E0 축의
+약 2.5배. 서브패드 2층 명시분해(IC1000/Suba IV) 1차 문헌은 이번 조사에서 미확보(Elmufdi 2004
+초록만) — Lv2-2/Lv3-2로 이관. check_knowledge.py·verify_claims.py 모두 통과.
+CURRICULUM Lv2-1 [x], PROFILE 이수기록 갱신(3/6), ORG §5 갱신(pad-structure 3/6).
+
+진도: pad-structure 3/6 (Lv2 진입). 다음: pad-structure Lv2-2(그루브 마모→유동 특성 변화·수명
+판정) 또는 ORG §5 최저 진도 에이전트 재배정.
