@@ -22,6 +22,7 @@
 - sim/tier2_physics/slurry_components.py — BTA Langmuir 흡착·산화제-MRR 정점(Kaufman) 재현 (12/12 PASS, 2026-09-05)
 - sim/tier2_physics/pourbaix_nernst_slope.py — Nernst 식 pH기울기(-59.1mV/pH) 및 W/Cu CMP 표면반응 m=n 판별 재현 (6/6 PASS, 2026-09-05)
 - sim/tier2_physics/particle_chemomechanical_synergy.py — 단일입자 Hertz탄성접촉·plastic plowing·화학연화 증폭 (5/5 PASS, 소프트웨어 부문 구현, 2026-09-07)
+- sim/tier2_physics/ceria_redox_selectivity.py — Ce³⁺ 전하균형·Si-O-Ce 화학흡착·IEP 정전인력·oxide:nitride 선택비 재현 (12/12 PASS, 소프트웨어 부문 구현, 2026-09-07)
 
 ## 구현 요청 (→ 소프트웨어 부문)
 <!-- 노트에서 유도했으나 sim/ 정식 모듈화는 소프트웨어 부문이 담당. 노트 옆 python verify sanity check은 slurry-chemist가 계속 수행. -->
@@ -32,9 +33,7 @@
 - **Luo-Dornfeld 활성입자 MRR 모델** (근거: 동 노트 §5, doi:10.1109/66.920723 / doi:10.1109/tsm.2003.815199):
   활성입자수(입도분포 상위 꼬리)와 V₁∝F^{1.5} 결합 → MRR∝P^{1/2}·V. 원문 폐형식 유도는 유료(미확보)라
   구현 시 2차 인용 기반 근사임을 명시하고 파라미터는 캘리브레이션 대상으로 표기 필요.
-- **세리아 Ce³⁺비 → oxide MRR / 아미노산 → 선택비 정량모델** (근거: [[../../knowledge/cmp/ceria-slurry-ce-redox-selectivity]] §2·§5):
-  입력: 산소공공 x(→Ce³⁺ 분율 f=2x, 전하균형), H₂O₂ 농도(catalase-mimetic Ce³⁺ 재생), pH(세리아 IEP 6.8·
-  실리카 IEP 2.5 정전인력), 아미노산·계면활성제 농도(nitride 억제). 출력: oxide MRR·oxide:nitride 선택비.
-  검증 문헌값: 선택비 59–80(Hwang & Kim 2024, doi:10.3390/polym16060844), H₂O₂ 0.5wt%→MRR 5.5배·선택비
-  1:1→3:1(Netzband & Dunn 2020, doi:10.1149/2162-8777/ab8393). 우선순위: 중(Lv3-2 파라미터→MRR 모델에 흡수).
-  주의: Ce³⁺ vs Ce⁴⁺ 최적방향은 상충 보고 존재(미검증), 아미노산 선택비 절대값은 조건의존 캘리브레이션 대상.
+- ~~**세리아 Ce³⁺비 → oxide MRR / 아미노산 → 선택비 정량모델**~~ ✅ 2026-09-07 소프트웨어 부문 구현 완료
+  (`sim/tier2_physics/ceria_redox_selectivity.py`, 노트 §7 A~E 5개 값 그대로 재현).
+  **잔여 요청**: 아미노산 선택비 정량모델(35–70, 조건의존 캘리브레이션 대상), Ce³⁺ vs Ce⁴⁺ 최적방향
+  (상충 보고 존재, 미검증)은 여전히 미구현 — 노트로 명확히 정리되면 소프트웨어 부문이 재개한다.
