@@ -1126,3 +1126,12 @@ PROFILE.md 이수기록 갱신("Lv1 완료 2/6"), ORG §5 진도 갱신(pad-stru
 예측(접촉점 증가)보다 실측 근거 우위. `sim/tier2_physics/pad_glazing_jeong2024.py` 신설(접촉비·
 반경비 근사), 노트값 재현 테스트 6건. 정량 Kp(t) 스케일 연결은 척도 불일치로 스코프 밖(후속
 요청 대기). 260 passed. 커밋 10c8f97.
+
+[성장엔진] 2026-09-07 (오후) disk-kinematics Lv1-2 이수: [[knowledge/equipment/disk-rpm-load-radius-pcr]]
+— Zheng, Zhao & Lu(2023, DOI 10.3390/mi14091683) Eq.10-12 Preston형 PCR=Kp·P·v 모델에
+process-integrator의 Lai(2001) 운동학수(µ) 치환식을 대입. Zheng et al. Table 1 실측조건
+(패드100RPM/디스크73RPM, 디스크유효반경52.25mm) 대입 결과 µ≈0.072, 디스크 내 상대속도
+비균일도≈14.4% — 당초 "디스크가 작으니 균일도가 좋을 것"이라는 가설과 반대로 크게 나와
+정직하게 기록(가설 수정). MDPI·Wiley·미러 사이트 원문 서버는 모두 접근 차단(403/캡차) —
+PMC 사본과 Lawing(2004) NCCAVS 슬라이드(이미 확보)로 대체. check_knowledge.py·
+verify_claims.py 모두 통과. disk-kinematics Lv1 완료(2/6), ORG §5 갱신.

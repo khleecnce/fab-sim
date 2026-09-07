@@ -40,3 +40,35 @@ PCR(r)을 구한다. Wang et al.(2025, DOI 10.18494/sam5844)은 GPU가속 2D 히
 균일 마모를 위해서는 반환점 근처에서 각속도를 오히려 높이는 가변속 프로파일이 필요하다.
 출처: [[../../knowledge/equipment/conditioner-sweep-algorithm-trajectory-density]] §2, §4, §5;
 [[../../knowledge/equipment/conditioner-sweep-kinematics-pcr-profile]] (Zheng et al. 2023 방법론).
+
+## Lv1-2 하중·RPM·디스크 반경이 PCR 프로파일에 미치는 영향
+
+**Q1. Zheng et al.(2023) Eq.11의 PCR=Kp·P·v 모델에서, 하중 P와 상대속도 v는 PCR의 공간분포에
+각각 어떻게 기여하는가?**
+
+A1. P는 선형 상수배로만 곱해지며(균일압력 가정 시 반경 의존 없음), 공간(반경·각도)분포는
+전적으로 v(디스크-패드 상대속도)의 공간 함수 형태로 결정된다. 따라서 균일압력 조건에서
+PCR의 반경 프로파일 모양은 v(r,θ)의 프로파일과 동형이다.
+출처: [[../../knowledge/equipment/disk-rpm-load-radius-pcr]] §2 (Zheng, Zhao & Lu 2023, DOI
+10.3390/mi14091683, Eq.10-12).
+
+**Q2. Lai(2001) 치환식을 Zheng et al.(2023) Table 1 실측 RPM 조건(패드100/디스크73 RPM, 디스크
+유효반경 52.25mm, r_cc≈195.5mm 근사)에 대입하면 운동학수 µ와 디스크 내 상대속도 비균일도는
+얼마로 계산되며, 이 값이 "Rs≠1이면 균일도가 나빠진다"는 방향성 가설과 어떻게 부합/불일치하는가?**
+
+A2. µ≈0.0722, 비균일도(v_max−v_min)/(ω_p·r_cc) ≈14.4%. 당초 "디스크가 패드보다 훨씬 작으므로
+µ가 매우 작을 것"이라 예상했으나 실제 계산 결과 R_disk/r_cc≈0.267이 작지 않아 µ가 예상보다
+커졌다 — 방향성(Rs≠1→불균일 증가)은 맞지만 크기(14%)는 "미미하다"고 볼 수 없는 수준으로,
+당초 가설을 정직하게 수정해야 했다.
+출처: [[../../knowledge/equipment/disk-rpm-load-radius-pcr]] §4 verify 블록(직접 계산, r_cc는
+논문 미기재로 근사 가정 — 미검증 전제 포함).
+
+**Q3. Rs=ω_d/ω_p=1(디스크-패드 동속)일 때 µ와 디스크 내 상대속도 비균일도는 이론상 어떤 값이
+되며, 그 물리적 의미는 무엇인가?**
+
+A3. µ=0, 비균일도=0 — 디스크 표면 전역에서 다이아몬드-패드 상대속도 크기가 위치와 무관하게
+동일해진다(process-integrator 노트 §2.1의 웨이퍼-패드 동속 결과와 동일 구조). 이는 디스크
+자체의 국소 절삭 불균일(에지 vs 중심 aggressive 차이)을 이론상 완전히 없앨 수 있다는 뜻이며,
+실무에서 동속 근접 세팅을 쓰는 이유의 운동학적 근거가 된다(단, Zheng et al. 실험은 Rs=0.73을
+썼고 그 선택 이유는 논문에 명시되지 않음 — 미검증).
+출처: [[../../knowledge/equipment/disk-rpm-load-radius-pcr]] §3, [[../../knowledge/physics/cmp-kinematics-rotary]] §2.1.
