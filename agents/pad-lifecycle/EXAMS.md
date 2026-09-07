@@ -153,3 +153,34 @@ CMP 스텝 수에 비례한다"는 구조적 관계를 이 노트가 산술적�
 문헌 중 어느 쪽도 이 절감률 자체를 실측·보고하지 않았다 — 처리량·가동률 등 다른 변수를
 무시한 1차 근사이며, 노트 본문에도 "문헌 수치 아님"으로 명시했다. (출처: 본 노트 §4, §5
 verify (D))
+
+## Lv3-1 최신 리뷰: 패드 수명 예측, 인시츄 패드 상태 센싱
+
+출처: Kim, Choi, "In Situ Metrology for Pad Surface Monitoring in CMP Using a
+Common-Path Phase-Shifting Interferometry", Appl. Sci. 11(15), 6839 (2021),
+doi.org/10.3390/app11156839; Je, Kang, Kim, "Challenges and Innovations in CMP in the
+More-than-Moore Era", IJPEM-GT (2026), doi.org/10.1007/s40684-025-00819-9 (초록만).
+
+Q1. Kim, Choi(2021)의 공통경로(common-path) 위상천이 간섭계가 기존 이중빔(double-arm)
+간섭계보다 진동 환경에 강한 이유는 무엇이며, 정량적으로 얼마나 개선됐는가?
+
+A1. 기준빔과 시료빔이 하나의 광경로를 공유해(공통경로) 외부진동이 두 빔에 동일하게
+걸리므로 위상차가 상쇄된다. 정량적으로 진동+태핑 조건에서 신호 표준편차가 이중빔
+방식 대비 제안 방식이 9~13배 작았다(Fig. 2b). (출처: 본 노트 1.3, 4절 verify 블록)
+
+Q2. 이 논문이 실제 사용 후(worn-out) CMP 패드에서 측정한 표면거칠기(Ra)는 얼마이며,
+이 값과 저자가 명시한 시스템의 횡분해능(lateral resolution)을 비교했을 때 어떤 관계가
+성립하는가?
+
+A2. Ra=303 nm(습식 침지 조건), 횡분해능은 약 3 µm(=3000 nm)로 Ra보다 약 10배 크다.
+이 시스템은 수직(높이) 방향으로는 nm급 정밀도를 갖지만 수평 방향으로는 그보다
+훨씬 거친 분해능을 갖는 비대칭 성능 구조다. (출처: 본 노트 1.3~1.4, 4절 verify 2블록)
+
+Q3. 2026년 최신 리뷰(Je et al.)가 인시츄 센싱을 어떤 맥락에 위치시켰으며, 이 노트가
+패드 수명 예측에 대해 확보하지 못한 것은 무엇인가?
+
+A3. Je et al.(2026) 초록은 AI 기반 공정예측과 인시츄 센싱을 CMP를 data-informed,
+sustainable manufacturing platform으로 전환시키는 핵심 축으로 언급한다(초록만 확인,
+본문 미확보). 그러나 이 회차에서 패드 잔여수명(RUL) 정량 예측 모델 자체의 1차 출처는
+확보하지 못했다. 원류로 추정되는 Muthukrishnan/Boning(1997, SPIE)은 DOI 실존만
+확인했고 본문, 미러 사이트 3개 미러 모두 봇 차단으로 미확보. (출처: 본 노트 2.1, 2.3, 5절)

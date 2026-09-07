@@ -7,7 +7,7 @@
 - [x] Lv1-2 정상 마모율과 컨디셔닝 강도의 균형 (마모 = 재생)
 - [x] Lv2-1 glazing 메커니즘: asperity 소성변형·슬러리 잔류물·MRR 감소 (2026-09-07, knowledge/materials/pad-glazing-mechanism-mrr-decay.md)
 - [x] Lv2-2 패드 두께·그루브 깊이 모니터링과 교체 기준(경제성 포함) (2026-09-07, knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md)
-- [ ] Lv3-1 최신 리뷰: 패드 수명 예측, 인시츄 패드 상태 센싱
+- [x] Lv3-1 최신 리뷰: 패드 수명 예측, 인시츄 패드 상태 센싱 <!-- 이수 2026-09-08, knowledge/materials/pad-lifetime-prediction-insitu-sensing-review.md -->
 - [ ] Lv3-2 사용시간·컨디셔닝 이력 → 시간 의존 Kp·asperity 모델 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)

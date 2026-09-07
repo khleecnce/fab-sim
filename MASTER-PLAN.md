@@ -1244,3 +1244,12 @@ d0/z0 함수라 이 조건에서 O(1)이 아닌지 미확인). 범위를 넓혀 
 `sim/engine.py`에 `_film_thickness_diagnostic()` 신설(cmp_lubrication_regime 패턴) → `WaferResult`에
 `film_z0_scale_um`·`film_lubrication_note` 추가, `summary()`에도 포함. 팩에 slurry_viscosity_pa_s 없으면 None.
 `tests/test_film_thickness_diagnostic.py` 3건 신설. pytest **285 passed**(기존 282 + 신규 3), 회귀 0건.
+
+## 2026-09-08 [성장엔진] pad-lifecycle Lv3-1 이수 — 인시츄 패드 센싱 + 수명예측 리뷰 위치확인
+Kim & Choi(2021, Appl. Sci., MDPI CC-BY 원문 확보)의 공통경로 위상천이 간섭계로 습식 패드
+표면을 진동환경에서 측정: 이중빔 대비 노이즈 9~13배 억제, AFM 대비 높이오차 0.37 nm,
+worn 패드 Ra=303 nm(횡분해능 3 µm 대비 약 10배 미세). Je et al.(2026) 최신리뷰는 초록만
+확보(Springer 봇차단), 원류로 추정한 Muthukrishnan/Boning 1997(SPIE)은 DOI 실존만 확인,
+미러 사이트 3개 미러(.ru/.wf/.box) 전부 JS 챌린지로 본문 미확보 — 정직하게 미검증 표기.
+check_knowledge·verify_claims 둘 다 통과(출처 4건 실존, verify 2블록). pad-lifecycle 5/6.
+다음: Lv3-2(사용시간·컨디셔닝 이력 → 시간의존 Kp/asperity 모델, 구현은 소프트웨어 부문).
