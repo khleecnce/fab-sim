@@ -106,3 +106,42 @@ vs Corning 엣지 3/6 mm)에 따라 같은 프로파일에서 4배 차이 — �
 측정 구조물 8종(MIT area/pitch/density 마스크, AMAT 100 µm 트렌치·5 µm 루프, IBM 정사각/서펜타인 모니터,
 PDF Solutions MT-Kelvin, ITRS 기준 구조)의 치수를 1차 문서에서 표로 정리. 미확보: ISO 5436-1·SEMI 원문,
 Steigerwald 1994 본문, STI 필드폭-dishing 수치 출처. check_knowledge.py/verify_claims.py 둘 다 통과.
+
+## Lv3-1 이수 (2026-09-08)
+최신 리뷰 — 인라인(통합) 계측 vs 오프라인 계측, 가상 계측(VM), 계측 샘플링 최적화. 지식노트:
+knowledge/cmp/inline-virtual-metrology-sampling-optimization.md.
+핵심: (1) 계측 3층위(in-situ EPD / 통합·인라인 / 오프라인)는 시간축·출력·제어 대상이 달라 대체 불가 — AMD US6645780이
+통합 계측=W2W(dynamic-time) 루프, 오프라인=L2L(constant-time) 루프로 분리하고 오프라인의 문제를 "too late"(지연)로 명시.
+(2) VM 공개 벤치마크 PHM 2016 CMP(Di, Jia & Lee 2017, CC-BY 원문): FDC 125특징 → 가중 앙상블 테스트 MSE 7.07(1위),
+DBN 7.29 < tree bagging 7.22, persistent 8.23 < KNN 9.60 — 특징공학·시계열성이 딥러닝을 이김; Table 4/5/6 재현.
+IBM US9240360은 VM 예측오차와 실측오차에 신뢰도 가중을 두어 "실측 간격 최대화"를 청구. (3) 샘플링: 로트 수준
+static→adaptive→dynamic(Nduhura-Munga 2013 원문, material-at-risk 개념), 웨이퍼 내 사이트는 FSCA로 50→7점(NMSE 0.96 %)
++ 동적 공간 샘플링(MSSI/WOI, 정적 검출률 43.8 %→100 %)(McLoone, Johnston & Susto 2018 저자원고; Table I~IV 재현, CDS WOI
+8행 닫힌형 ±0.1 %p). 합성 검증 2건: 49→9점 SE 2.33배·range WIWNU 과소추정·엣지 롤오프 무감; VM 보강 EWMA R2R에서
+VM 오차가 드리프트보다 작을 때만 이득. 미확보: Rao 2000 ISSM·Jebri 2017·Kang 2009·Dreyfus 2021·Breidung 2025(초록만),
+Zhang 2021 Wide&Deep MSE 6.33(스니펫, 미검증), 통합 계측기 정밀도/포인트/처리량의 1차 비교, CMP 실데이터 FSCA 성분수.
+check_knowledge.py/verify_claims.py 둘 다 통과(출처 17건 실존, verify 4블록). EXAMS.md 3문항 작성.
+
+### [Medium] sim/metrics/sampling_plan.py 신설 — 계측 샘플링 플랜 객체와 샘플링 손실 정량화 (구현 요청)
+- **무엇을**: (a) `SitePlan`(사이트 좌표 목록 + 이름: `p49_us6922603`, `p9_center_4_4`, `fsca_custom`) 과
+  `LotPlan`(static 1/n, adaptive, dynamic 자리표시자)을 정의하고, 엔진의 전 반경 프로파일/다이 맵에서 플랜대로
+  샘플링해 [[uniformity.py]] 지표를 계산하는 `sample_and_score(profile_map, site_plan) -> metrics + meta`.
+  (b) `material_at_risk(lot_plan)` = 두 계측 사이 처리 로트 수(Nduhura-Munga 2013). (c) `fsca_select(X, tau=0.99)`
+  — 이력 두께 행렬 X(N×V)에서 전진선택 성분분석으로 사이트 우선순위·k*·CVE 벡터 반환, `pca_lower_bound(X, tau)`
+  병기; `wmr_fit/predict`(측정 사이트→미측정 사이트 선형회귀). (d) 동적 공간 샘플링 `sds_plan(clusters, t)`와
+  지표 `mssi`, `woi = (ceil(V/Vm)-1)/MSSI*100`.
+- **근거노트**: knowledge/cmp/inline-virtual-metrology-sampling-optimization.md §3.2·§3.3·§4 블록 2·3 (게이트 2종 통과).
+- **검증 문헌값(회귀테스트)**: McLoone 2018 Table I 누적분산 → φ_PCA=5, k*=7 (τ=99 %); Table III CDS WOI 8행 =
+  (ceil(50/Vm)−1)/(50−Vm)×100 (±0.1 %p); RDS WOI=100; 합성 RBF 프로파일에서 FSCA NMSE < 무작위 NMSE(모든 Vm);
+  49점→9점 잡음 SE 비 √(49/9)=2.33(±10 %); range형 WIWNU는 부분집합에서 항상 ≤ 전체(항등).
+- **주의**: 사이트 플랜 이름·엣지 제외 폭을 지표와 함께 메타로 출력(Lv1-2 요청과 동일 원칙). FSCA 산업 사례는 CMP가
+  아니므로 CMP 성분수는 시뮬레이터 합성 데이터로만 보고하고 "문헌값 아님" 표기.
+- **우선순위**: Medium — Lv3-2 출력 스키마에 `measurement_mode`/`site_plan` 메타가 들어가야 하므로 그 전에 인터페이스만이라도 확정 필요.
+
+### [Low] sim/metrics/vm_baseline.py — Di 2017형 VM 베이스라인(persistent + LR + tree bagging 가중 앙상블)
+- **무엇을**: 시뮬레이터 런 로그(P 존별·V·패드/디스크 사용량·폴리싱 시간·선행 MRR 시차)를 특징으로 웨이퍼별 평균 MRR을
+  예측하는 베이스라인. 가중치 w=(1/e³)/Σ(1/e³), e=mean(ε)+3·std(ε)(Monte-Carlo CV). 의존성은 numpy(+선택적 sklearn).
+- **근거노트**: 같은 노트 §2.2·§4 블록 1·4.
+- **검증**: 합성 데이터에서 persistent MSE < KNN MSE, 앙상블 MSE ≤ 최고 단일 모델(Di 2017의 상대 순위 재현 — 절대 MSE
+  7.07은 툴·레시피 종속이라 비교 대상 아님); VM 보강 EWMA R2R에서 σ_VM < 드리프트일 때만 출력 σ 감소(블록 4).
+- **우선순위**: Low — APC 연계(G3 이후) 전까지는 데모 성격.
