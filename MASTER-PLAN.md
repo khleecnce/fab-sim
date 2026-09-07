@@ -1202,3 +1202,19 @@ ORG §5 갱신.
 
 품질게이트: 3/3 통과(오케스트레이터 직접 확인). ORG §5 상태표 3행 갱신(5/6, 2026-09-08).
 누적 진도: 지식노트 66편(신규 3), 세 에이전트 각 5/6(Lv3 진입). G1 3명 전원 Lv3-1 완료.
+
+## 2026-09-08 [Max워커] S12 부분 착수 — cmp_lubrication_regime.py 엔진 등록
+
+이미 self-test 11/11 PASS 상태였던 `sim/tier2_physics/cmp_lubrication_regime.py`(tribologist
+Lv2, knowledge/physics/cmp-lubrication-regimes.md)를 `sim/engine.py`에 진단 필드로 연결했다.
+`WaferResult`에 `lubrication_regime`/`cmp_sommerfeld_number`/`cof_stribeck_estimate` 3필드
+추가(전부 Optional, MRR 계산과 완전 독립 — roughness_ra_nm과 동일 지위). `simulate()`가
+반경평균 압력·속도로 So=μU/(p·δeff)(δeff≈Ra 근사)·λ≈So 근사·Stribeck COF를 계산해 채우고,
+정성적 오더 추정이라는 한계를 notes에 명시한다. oxide_silica 팩에 `slurry_viscosity_pa_s`
+(1e-3 Pa·s)·`pad_ra_m`(5e-6 m) 추가(둘 다 confidence=estimated, 노트 §2·§5 그대로 인용 —
+새 물리 상수 없음). `cmp_lubrication_regime.py` 자체 로직은 무수정.
+
+`tests/test_lubrication_regime_diagnostic.py` 신설 3건: 노트 §5 전형조건 So≈7.25e-3 재현,
+simulate() 필드 채움 확인, 압력↑→So↓ 방향성(분모에 p) 확인. pytest 282 passed(기존279+신규3).
+커밋 e0ba399. S12(남은 20개 모듈 이관)는 이 1개만 부분 완료 — 나머지 19개는 그대로 ⬜
+(`software/BACKLOG.md` S13-NOTE에 기록).
