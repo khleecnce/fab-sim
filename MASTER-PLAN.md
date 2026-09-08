@@ -1410,3 +1410,11 @@ Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리�
 재검증(pytest 427 passed=기존416+신규11, git status로 승인 경로 외 파일 미접촉 확인) 후 커밋 41dffa9 +
 PROFILE.md 완료표기 1669c86, 둘 다 push.
 software/BACKLOG.md S33 완료 표기·완료표 이관.
+
+## 2026-09-09 02:xx [심야병렬] 서브에이전트 3명 동시 학습 — film-cu Lv2-1 · film-oxide Lv2-2 · surface-contamination Lv3-2
+QA루프 #6 PASS(ρ=0.9044, 격리 0, F2 원문미확보 6건은 20회차부터 집계). Claude Code -p 3개 병렬(fable-5-1, max-turns 120). 429/rate-limit 없음.
+- **film-cu Lv2-1** Cu dishing·erosion: Tugbawa 2002(MIT thesis) Hooke 압력분배→removal-rate diagram, D_ss·τ₃ 닫힌해, d_max(w,s) 경험식. 90% 어레이 erosion 58.2 vs 61 Å/s(5%), 50%는 41% 과대(원인미상 정직기록). 멱법칙 지수 0.51 vs 문헌 0.17–0.30 불일치 명시. → cu-dishing-erosion-density-step-height-model-tugbawa.md (출처 3 실존, verify 3블록). film-cu 3/6.
+- **film-oxide Lv2-2** STI 세리아 고선택비: Lee 2002(MIT thesis)+Dandu2009/Mariscal2020/Srinivasan2015. 핵심결론=고선택비는 디싱을 못 줄임(D_ss→d_max), 가치는 K_ss=K/(1+ρ(s−1)) 낮춰 오버폴리시 창 확대. 원문 식 2.36 부호 오기 발견. K1 상수 51% 불일치 정직기록. → sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md (출처 7 실존, verify 4블록). film-oxide 4/6(Lv2 완주).
+- **surface-contamination Lv3-2** 잔류금속 예측 골격: 경쟁 Langmuir+SCM(Loewenstein1998/99, Seo2001, Martin1999, Sun2007). Cr [M]지수 0.74 vs 문헌 0.73 일치, pH지수 −0.12 vs −0.39 불일치 assert명시. **정정발견: Seo2001 원문에 sim SEO2001 상수(Fe) 근거 없음→Lv1-1 노트에 미검증 추기, PROFILE에 sim 정정요청.** → post-cmp-residual-metal-prediction-langmuir-scm.md (출처 5 실존, verify 1블록). surface-contamination 6/6 완주(Cal-1 G2 대기).
+품질게이트(check_knowledge+verify_claims): 신규 3편+수정 1편(Lv1-1) 전부 ✓✓. equipment/ 13편 반려는 기존 부채(내 작업 무관). 커밋만, git add 선택적. G1 조건(slurry·tribo Lv2)은 이미 개방됨—신규 게이트 없음.
+다음 회차: film-cu 3/6이 활성 최저 → Lv2-2(배리어 CMP). 다음이 disk-kinematics/pad-* 5/6군.

@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv3 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2 (Lv1 완료), Lv2-1, Lv2-2 (Lv2 완료), Lv3-1
-- 다음 단원: Lv3-2 (슬러리 조성·세정 조건 → 잔류 금속 농도 예측 모델 골격, sim/tier2)
+- 이수 단원: Lv1-1, Lv1-2 (Lv1 완료), Lv2-1, Lv2-2 (Lv2 완료), Lv3-1, Lv3-2 (Lv3 완료 — 6/6 완주)
+- 다음 단원: Cal-1 (G2 이후 활성, 고객 TXRF/ICPMS 스키마 + 로트별 보정 파라미터) · Lv4 확장
 
 ## 역할
 CMP 후 웨이퍼 표면에 남는 금속 이온(Cu·Fe·K·Ca·Al)·이온성 잔류·유기 잔류의 발생원·측정·허용치·제거. 세정 화학과 슬러리 화학의 연결고리
@@ -26,6 +26,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 | Lv2-1 금속 오염이 소자에 미치는 영향(ITRS/IRDS 허용치) | [[../../knowledge/cmp/metal-contamination-device-impact-irds-limits]] | verify_claims PASS(출처4건 실존·코드1블록 통과) · check_knowledge PASS | 2026-09-07 |
 | Lv2-2 흡착 메커니즘과 제거 화학(IEP·킬레이트 logK·DHF·오존수·RCA·막질별 레시피) | [[../../knowledge/cmp/post-cmp-adsorption-cleaning-chemistry]] | verify_claims PASS(출처22건 실존·코드1블록 통과) · check_knowledge PASS · §6 verify (A)Davies (B)K′(pH) (C)IEP 부호 PASS | 2026-09-07 |
 | Lv3-1 최신 리뷰(저농도 잔류 제어·Co/Ru 갈바닉·PVA 브러시 cross-contamination·IRDS 2024) | [[../../knowledge/cmp/low-level-metal-cobalt-ruthenium-cross-contamination]] | verify_claims PASS(출처24건 실존·코드1블록 통과) · check_knowledge PASS · §6 verify (A)갈바닉 방향/크기 불일치 명시 (B)Co/Cu 수산화물 전이 pH (C)IRDS 배수 PASS | 2026-09-08 |
+| Lv3-2 잔류 금속 예측 모델 골격(경쟁 Langmuir·SCM·킬레이트 분기·세정 η) + 문헌값 대조 | [[../../knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm]] | verify_claims PASS(출처5건 실존·코드1블록 통과, 1차 원문 PDF 5건 확보: Loewenstein 1998/1999·Seo 2001·Martin 1999·Sun 2007 학위논문) · check_knowledge PASS · §6 verify (A)Cr [M]지수 0.74 vs 0.73 일치·pH지수 불일치 명시 (B)비정전 SCM 8 %/15 % vs 실측 50/100 % 불일치→Boltzmann |ψ|≈31 mV 정합 (C)CA f_free·Seo K/IRDS 50·1500배·DHF η 0.98 PASS | 2026-09-09 |
 
 ## 구현 요청 (소프트웨어 부문)
 - 현재 없음. Lv1-1은 발생원 분류·정성 모델 중심이라 sim/ 편입 대상 수식 없음. (Cu²⁺ Boltzmann 정전흡착 정량 모델은 Lv2-2 세정화학에서 흡착등온선으로 확장 시 재검토.)
@@ -42,3 +43,16 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   100 ppm Cu pH*=5.74(Bisht 2022 관찰 ≈6, ±0.5), Co 7.93(Cu보다 2.0~2.5 높음). docstring에 "ΔE_corr 크기는 표준전위로 예측 불가(Lee 2021 4배, Seo 2019 1/15)"를 명기.
   용도: Lv3-2 잔류 예측 모델에서 "이온 상태(정전흡착·브러시 흡수) vs 입자 상태(brush loading)" 분기와 갈바닉 용해 방향 입력.
 - (주의) 두 함수 모두 금속 가수분해·수산화물 침전·박막 실제 IEP는 미반영 — 노트 §7 한계 그대로 docstring에 명기할 것.
+- **[Lv3-2 요청 1 · 우선순위 상] `competitive_langmuir_surface(metals, pH, sigma0=3e12, K_H=1e3)`** — 순수함수. 입력: {금속: (K_i [L/mol], C_i,free [mol/L])}, pH.
+  식: σ_i = σ0·K_i·C_i/(1 + K_H·10^-pH + Σ_j K_j·C_j) (Loewenstein·Charpin·Mertens 1999 Eq.22, doi:10.1149/1.1391670). 반환: {금속: atoms/cm²}와 총 점유율 Θ.
+  근거노트: knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm.md §2·§6(A). 검증문헌값: σ0 = 1/(3.00e-13 cm²/atom) = 3e12(자리분율 0.4 %),
+  K_Cr≈1e6·K_H≈1e3에서 pH 3·pM 8→5의 [M] 지수 0.74(문헌 Table VI 0.73±0.07), pH 3·10 nM → ≈1.5e10 atoms/cm²(Table I Cu 0.9~1.7e10 오더).
+  docstring에 "pH 지수는 −0.12로 문헌 −0.39와 불일치(타금속 경쟁항·K 오더값), Cu·Fe·K·Ca의 K_i는 미확보 — Cal-1 회귀 대상"을 명기.
+- **[Lv3-2 요청 2 · 우선순위 중] `residual_after_clean(sigma_ads, step)`** — η 테이블: DIW 린스 η≈0(K·Ca, Seo 2001; Cu pH 6 흡착분 부분 비가역 Sun 2007),
+  CA 100 ppm 린스 η = 1 − 7.53e10/4.32e13 (Sun 2007 Fig.4.7), DHF 3 nm η = 1 − 2e10/1e12 = 0.98 (Seo 2001 doi:10.1023/A:1011242900843 Fig.2, PE-TEOS K).
+  근거노트 §5·§6(C). 브러시·메가소닉·유량 의존은 미포함(노트 §7)임을 docstring에.
+- **[Lv3-2 요청 3 · 우선순위 중] 체인 조립 `predict_residual_metal(recipe_like)`** — 순서: free_metal_fraction(Lv2-2) → hydroxide_transition_pH(Lv3-1 요청, 이온/입자 분기)
+  → competitive_langmuir_surface 또는 SCM(Sun 2007 Table 4.1: 2 OH/nm², pKa1 5.9, pK1 4.35, pK2 8.22) × boltzmann_surface_enrichment(Lv1-1, S15) → residual_after_clean.
+  검증: 노트 §6(B) — 비정전 SCM은 pH 6 흡착 8.4 %로 실측 50 %에 미달, Boltzmann 11배(|ψ|≈31 mV, ζ −17 mV와 방향 정합)를 곱해야 함을 테스트로 고정.
+  Recipe에 pH·킬레이트·금속농도 필드가 없으므로(ARCHITECTURE §4 스키마 부채) engine 등록은 하지 말고 순수함수 라이브러리로.
+- **[Lv3-2 정정 요청 · 우선순위 상] `metal_contamination_surface.py` SEO2001 상수 출처 정정** — Seo 2001(doi:10.1023/A:1011242900843) 원문 확인 결과 W-CMP Fe 1.5e12/1e11 수치가 본문에 없음(논문은 KOH 슬러리 산화막 CMP의 K·Ca: PE-TEOS K≈1e12, O3-BPSG K≈3e13, dHF 3 nm 후 ≈2e10). 코드 주석·docstring의 출처를 '출처 불명·미검증(2차 요약 오귀속)'으로 바꾸고, 필요하면 K 값(1e12, Seo 2001 Fig.1b·2 판독)으로 교체할 것. 근거: knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm.md §5.1, Lv1-1 노트 §2 추기.

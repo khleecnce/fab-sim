@@ -23,7 +23,9 @@ CMP 슬러리는 [[slurry-components-overview]]에서 본 대로 연마입자·�
   세정 후 <10×10¹⁰ atoms/cm²(<1×10¹¹)로 보고됨(Seo, Lee, Kim, Park, "Optimization of post-CMP
   cleaning process for elimination of CMP slurry-induced metallic contaminations", *J. Mater. Sci.:
   Mater. Electron.* 12, 2001, doi:10.1023/A:1011242900843 — DOI 실존 확인, 수치는 2차 요약/초록
-  기반이라 **원문 표값 미검증**).
+  기반이라 **원문 표값 미검증**). **2026-09-09 원문 PDF 확인(Lv3-2)**: 이 DOI 논문은 KOH 슬러리 산화막 CMP의
+  K·Ca TXRF 연구이며 **W-CMP Fe 1–2×10¹² 수치는 본문에 없다** — 위 Fe 값은 출처 불명·미검증으로 격하하고,
+  sim/tier2_physics/metal_contamination_surface.py의 SEO2001 상수도 같은 표기가 필요하다(PROFILE 구현요청 참조).
 - **K/NH₄ 완충제·pH조절제**: 같은 연구에서 **모든 산화막 표면이 연마 중 K·Ca로 심하게 오염**됨이
   TXRF로 확인됨 — K는 슬러리 pH완충제(KOH)·안정제에서, Ca는 소모품/물에서 유래(같은 doi,
   2차 요약 확인). K⁺·NH₄⁺ 같은 이동성 양이온(mobile ion)은 게이트 산화막 신뢰성의 고전적 위협.
@@ -106,6 +108,7 @@ print("PASS: 단위·오더·pH방향 모두 문헌 정성서술과 정합")
 - (C) 재현 결과 Cu²⁺ 표면농축은 ζ=−40 mV에서 약 22배로, ζ=0(IEP)의 1배 대비 단조 증가함을 대조 확인 — "pH↑ → SiO₂ 음전하↑ → Cu²⁺ 정전흡착↑"의 방향과 정합. 단, 이는 확산이중층 Boltzmann **정성 방향** 재현이며 절대 흡착량(자리수·특이흡착)은 **미검증**.
 
 ## 7. 한계 (정직 표기)
+- (2026-09-09 추기: 원문 PDF 확보 — [[post-cmp-residual-metal-prediction-langmuir-scm]] §5.1. 원문은 KOH 슬러리 산화막 CMP의 K·Ca이며 Fe 값은 본문에 없음. 아래 원표기 유지)
 - §2의 Fe·K·Ca atoms/cm² 수치는 doi:10.1023/A:1011242900843 (2차 요약/초록 기반) — 원문 유료로
   표값·측정조건은 확인 못함.
 - §5 허용치 1e10 atoms/cm²는 IRDS/ITRS 로드맵의 오더 서술로, 노드·금속종별 정확 표값은 **미검증**

@@ -55,3 +55,35 @@ QCM: 0.12 µg/cm² = 6.06×10¹⁴ 분자/cm² = 단분자층(수직 3.3×10¹�
 
 출처: [[../../knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]] (Tamilmani 2005 UA 학위논문 hdl 10150/280774,
 CRC Vanýsek 전기화학 시리즈, Lee H. 2023 Micromachines PMC9966509)
+
+## Lv2-1 Cu dishing·erosion 물리와 패턴밀도·선폭 의존성 (2026-09-09)
+
+**Q1.** 오버폴리시 단계에서 "dishing이 깊어지면 Cu 제거율은 줄고 유전체 제거율은 는다"는 removal-rate diagram의 두 직선 기울기는
+자유 파라미터인가? 기울기가 어디서 오는지 수식으로 말하고, 정상상태 dishing D_ss와 정상상태 erosion 속도 Y₁을 써라.
+**A1.** 자유 파라미터가 아니다. 패드를 Hooke 스프링으로 보면 Cu 위 압력은 P_cu = P₁(1 − D/d_max)로 선형 감소하고, 면적가중 평균압이
+P₁로 보존되어야 하므로 유전체 위 압력은 P_ox = P₁[1 + Φ/(1−Φ)·D/d_max]가 된다 — 유전체 쪽 기울기는 Φ_cu/((1−Φ_cu)·d_max)로 **고정**된다
+(Tugbawa 2002 eq 3.31–3.34). Preston형을 대입하면 RR_cu = r_cu(1 − D/d_max), RR_ox = r_ox[1 + Φ/(1−Φ)·D/d_max], 교점이
+D_ss = d_max(r_cu − r_ox)(1−Φ)/[r_cu(1−Φ) + r_oxΦ], 그때 erosion 속도 Y₁ = r_cu·r_ox/[r_cu(1−Φ) + r_oxΦ] (eq 3.39, 3.41).
+Y₁은 Φ에 단조증가(밀도↑ → erosion↑)이고, d_max·w·s는 Y₁에 직접 안 들어간다 — 선폭 효과는 d_max(τ₃)를 통해서만 dishing에 들어간다.
+현행 sim의 steady_state_dishing이 쓰는 자유 기울기 b는 이 유도로 제거해야 한다(노트 §6).
+
+**Q2.** 캘리브레이션에서 유효 유전체 제거율 r_ox를 자유 추출하면 측정 블랭킷 속도(< 1 Å/s)의 6–10배가 나온다. 왜 그런가, 그리고 Tugbawa 2001
+데이터로 어떻게 확인했는가?
+**A2.** 밀도 모델은 스페이스 효과를 d_max 안에 2차로만 담는데, 실측 erosion은 스페이스가 좁을수록 훨씬 크다(w = 20 µm 어레이에서 s = 1 µm
+2050 Å vs 100 µm 60 Å, Fig 3.16). 원인은 up-area 가장자리의 국소 압력 피크에 의한 엣지/코너 라운딩이며, 밀도 접근은 L₃ 창으로 평균하면서
+이 피크를 지운다. 그래서 피팅이 r_ox를 부풀려 흡수한다. 처방은 ψ(s) = C·e^{−s/s_c} + 1 승수(C ≈ 3–7, s_c ≈ 15–23 µm) — 넣으면 r_ox가
+4.34 → 2.22/0.9 Å/s로 내려가고 RMS도 107→70, 74→46 Å로 준다(Table 3.9/3.10). 확인: Tugbawa 2001 Fig 4의 erosion 기울기(80 %: 32 Å/s,
+33 %: 15 Å/s)에 eq 3.41을 역으로 풀면 유효 r_ox = 7.8/10.3 Å/s로, 캡션의 측정 블랭킷 1.5 Å/s의 5–7배가 나오고 두 밀도에서 30 % 안에 일치한다
+(노트 verify 2).
+
+**Q3.** d_max의 선폭·스페이스 의존을 경험식으로 쓰고, 추출 지수의 크기가 뜻하는 바와 밀도-스텝하이트 모델이 설명 못 하는 세 가지 현상을 들어라.
+**A3.** d_max = B·(w/w₀)^α₂·(min(s, s_l)/s₀)^β₂ (eq 3.46; s_l ≈ 100 µm에서 스페이스 포화) 또는 B·w^α₂·ln(s/s_m) (eq 3.47). 추출값 α₂ = 0.17–0.30,
+β₂ = 0.19–0.29(Mirra, EPC-5001, 4 psi·75 rpm) — 둘 다 1보다 훨씬 작아 선폭 10배에 dishing 1.5–2배의 **체감 멱법칙**이다. 고립선 판독
+(Fig 3.12)에서 10 µm/1 µm 비 2.12는 10^0.303 = 2.01과 6 % 일치하지만 0.25–10 µm 전 구간 지수는 0.51로 표와 어긋난다(원인 미상).
+설명 못 하는 것: ① ear/어레이 가장자리 효과(고립선이 같은 폭 어레이선보다 더 파임, 0.25 µm 고립선도 파이는데 H_ex는 0 → d_max ≠ H_ex,
+슬러리·입자 효과 포함), ② 과도 오버폴리시(Φ≈99 % 어레이의 erosion 기울기가 꺾이는데 모델은 선형 → 과대예측; 어레이-필드 장거리 높이차가
+유효압을 낮추는 항 부재), ③ 순수 선폭 효과(Vasilev 2011: 좁은 nitride up-area가 더 빨리 깎여 dishing이 오히려 줄어드는 현상 — 확장 GW의
+곡률항 κ_D = κ_asp − 4αh/s²이 필요).
+
+출처: [[../../knowledge/cmp/cu-dishing-erosion-density-step-height-model-tugbawa]] (Tugbawa 2002 MIT 학위논문 hdl 1721.1/8083,
+Tugbawa et al. 2001 CMP-MIC, Park et al. 1998 VMIC, Ruan et al. 2009 J. Semicond., Steigerwald 1994 JES 초록, Vasilev 2011 IEEE TSM)

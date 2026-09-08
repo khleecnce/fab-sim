@@ -348,11 +348,12 @@
  "tugbawa2002-thesis-mit-chip-scale-cu-cmp": {
   "src": "MIT DSpace REST API (server/api/core/bitstreams/.../content)",
   "pdf": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf",
-  "handle": "1721.1/8083",
+  "handle": "https://dspace.mit.edu/handle/1721.1/8083",
   "title": "Chip-scale modeling of pattern dependencies in copper chemical mechanical polishing processes",
-  "authors": "Tamba E. Tugbawa",
-  "venue": "MIT PhD thesis, EECS, 2002",
-  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+  "authors": "Tugbawa, Tamba E.",
+  "venue": "MIT EECS PhD thesis (2002)",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md; cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md",
+  "pdf_local": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf"
  },
  "ouma1998-thesis-mit-cmp-dielectric-planarization": {
   "src": "MIT DSpace REST API (scanned PDF, no text layer - pages rendered with fitz and read visually)",
@@ -371,5 +372,130 @@
   "authors": "Subramanian Tamilmani (advisor: Srini Raghavan)",
   "venue": "The University of Arizona PhD dissertation, 2005 (journal version of ch.4.1: Tamilmani et al. 2002 JES 149 G638, doi 10.1149/1.1516224 — not obtained)",
   "note": "cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md — Cu-H2O/Cu-BTA potential-pH diagrams (fig 4.1, 4.4 read visually), XPS Cu(I)-BTA, QCM BTA multilayer kinetics"
+ },
+ "lee2002-mit-thesis-sti-cmp-modeling": {
+  "src": "MIT DSpace REST API (item b43f42de-07fd-4df2-8088-eb3d5c2a1343, ORIGINAL bundle 51550156-MIT.pdf; text layer present, equations garbled -> pages rendered with fitz and read visually)",
+  "pdf": "papers/lee2002-mit-thesis-sti-cmp-modeling.pdf",
+  "handle": "1721.1/29907",
+  "title": "Modeling of chemical mechanical polishing for shallow trench isolation",
+  "authors": "Brian Lee (advisor: Duane S. Boning)",
+  "venue": "MIT PhD thesis, EECS, May 2002 (201 pp.)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ch.2 two-phase STI model (eq.2.32-2.49, Tables 2.1/2.3/2.4), §3.7 ceria HSS case study (Table 3.9/3.10, PL 1.6/4.7 mm, 28 s activation offset)"
+ },
+ "srinivasan2015-ecsjss-sti-cmp-review": {
+  "src": "iopscience.iop.org/article/10.1149/2.0071511jss/pdf (CC-BY open access; direct curl worked 2026-09-09)",
+  "pdf": "papers/srinivasan2015-ecsjss-sti-cmp-review.pdf",
+  "doi": "10.1149/2.0071511jss",
+  "title": "Shallow Trench Isolation Chemical Mechanical Planarization: A Review",
+  "authors": "Ramanathan Srinivasan, Pradeep VR Dandu, S. V. Babu",
+  "venue": "ECS J. Solid State Sci. Technol. 4(11) P5029-P5039 (2015)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Table I (24 high-selectivity slurries), nitride oxidation/suppression mechanism, patterned-STI section (Seo PAA+PEG dishing 800->600 A, Lim particle size, Merricks overpolish)"
+ },
+ "urban2016-cmpug-ferro-high-selectivity-ceria-sti": {
+  "src": "nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2016/CMP2016_4Urban.pdf (vendor conference slides, weight 0.5)",
+  "pdf": "papers/urban2016-cmpug-ferro-high-selectivity-ceria-sti.pdf",
+  "title": "High Selectivity Ceria Slurry for Next Generation STI CMP Processes",
+  "authors": "Nate D. Urban (Ferro Corp.)",
+  "venue": "AVS CMP Users Group Meeting, 2016-04-07",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Ferro STI slurry generations table (HDP RR 2000-3500 A/min, nitride <20 A/min, 4->0.5 wt% ceria), amine SiN passivation, >500:1 customer report"
+ },
+ "hwang2026-polymers-paa-ceria-sti-slurry": {
+  "src": "mdpi-res.com/d_attachment/polymers/polymers-18-01899/article_deploy/polymers-18-01899.pdf (CC-BY)",
+  "pdf": "papers/hwang2026-polymers-paa-ceria-sti-slurry.pdf",
+  "doi": "10.3390/polym18151899",
+  "title": "Poly(acrylic acid)-Containing Ceria Slurries for Shallow Trench Isolation Chemical Mechanical Polishing: Colloidal Stability, Planarization Efficiency, and Selectivity",
+  "authors": "Sohee Hwang, Tao Lyu, Woonjung Kim",
+  "venue": "Polymers 18, 1899 (2026)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — PAA-only ceria slurry: HDP 114.4 / SiN 14.3 A/min (selectivity 8.0), HC10 57.5/12.3; Ce3+ fraction 22.1 vs 17.7 %"
+ },
+ "johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry": {
+  "src": "MIT DSpace REST API (item 6782e9b8-a60f-41ef-a13c-7dd8a01e8b4c)",
+  "pdf": "papers/johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry.pdf",
+  "handle": "1721.1/52807",
+  "title": "Modeling of advanced integrated circuit planarization processes: eCMP, STI CMP using non-conventional slurries",
+  "authors": "Joy Marie Johnson (advisor: Duane S. Boning)",
+  "venue": "MIT SM thesis, EECS, 2009 (99 pp.)",
+  "note": "obtained for film-oxide Lv2-2 but only skimmed (silica-slurry STI evolving-pattern-density model); not cited in note"
+ },
+ "tugbawa2001-cmpmic-multistep-cu-pattern-model": {
+  "src": "boning.mit.edu reprint",
+  "pdf_local": "papers/tugbawa2001-cmpmic-cu-model.pdf",
+  "doi": null,
+  "title": "Modeling of Pattern Dependencies in Multi-Step Copper Chemical Mechanical Polishing Processes",
+  "authors": "Tugbawa, Park, Boning, Camilletti, Brongo, Lefevre",
+  "venue": "CMP-MIC 2001, Santa Clara",
+  "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md"
+ },
+ "ruan2009-jos-pattern-effects-cu-cmp": {
+  "src": "Wayback (web.archive.org/web/2015id_/ jos.ac.cn PDF; jos.ac.cn DNS 불해석, IOP pdf 차단)",
+  "pdf_local": "papers/ruan2009-jos-pattern-effects-cu-cmp.pdf",
+  "doi": "10.1088/1674-4926/30/4/046001",
+  "title": "Effects of pattern characteristics on copper CMP",
+  "authors": "Ruan Wenbiao, Chen Lan, Li Zhigang, Ye Tianchun",
+  "venue": "J. Semicond. 30(4) 046001 (2009)",
+  "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md (시뮬레이터 출력 주의)"
+ },
+ "loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09; IOP bronze OA는 봇차단)",
+  "pdf": "papers/loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph.pdf",
+  "doi": "10.1149/1.1838723",
+  "title": "Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution: Effect of pH",
+  "authors": "L. M. Loewenstein, P. W. Mertens",
+  "venue": "J. Electrochem. Soc. 145(8) 2841-2847 (1998)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — pH 3-5.6, 5e-8 M 10종 금속 TXRF; pH 5.6→3 최대 78배 감소; 전하/반경 비례(Fig.5-7); Table A-I Q_r"
+ },
+ "loewenstein1999-jes-competitive-adsorption-metal-ions-si": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09)",
+  "pdf": "papers/loewenstein1999-jes-competitive-adsorption-metal-ions-si.pdf",
+  "doi": "10.1149/1.1391670",
+  "title": "Competitive Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution",
+  "authors": "L. M. Loewenstein, F. Charpin, P. W. Mertens",
+  "venue": "J. Electrochem. Soc. 146(2) 719-727 (1999)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — 경쟁 Langmuir Eq.22; Table I(TXRF, pH 3-5.5, pM 5-8), Table V/VI 지수, Fig.8 σ0=3e12, K_H~1e3, K_Cr~1e6 (Table I은 페이지 렌더 판독)"
+ },
+ "seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09); 텍스트 레이어 깨져 fitz 렌더 후 판독",
+  "pdf": "papers/seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination.pdf",
+  "doi": "10.1023/A:1011242900843",
+  "title": "Optimization of post-CMP cleaning process for elimination of CMP slurry-induced metallic contaminations",
+  "authors": "Y.-J. Seo, W.-S. Lee, S.-Y. Kim, J.-S. Park, E.-G. Chang",
+  "venue": "J. Mater. Sci.: Mater. Electron. 12, 411-415 (2001)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — KOH 슬러리(Cabot SS-12) PE-TEOS K~1e12/Ca~1e11, O3-BPSG K~3e13/Ca~2e12, dHF 3 nm 제거로 as-dep 복귀(Fig.2); Lv1-1 노트의 '2차 요약' 표기를 1차로 승격"
+ },
+ "martin1999-mee-alkaline-cleaning-additives-metal-contamination": {
+  "src": "미러 사이트→미러 사이트 → 미러 사이트 storage (2026-09-09)",
+  "pdf": "papers/martin1999-mee-alkaline-cleaning-additives-metal-contamination.pdf",
+  "doi": "10.1016/S0167-9317(99)00150-1",
+  "title": "Alkaline cleaning of silicon wafers: additives for the prevention of metal contamination",
+  "authors": "A. R. Martin, M. Baeyens, W. Hub, P. W. Mertens, B. O. Kolbesen",
+  "venue": "Microelectron. Eng. 45, 197-208 (1999)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — SC-1 1 w-ppb 스파이크 + 1 ppm cTRAMP/Dequest/EDTA, VPD-DSE-TXRF Fig.4/5(막대 판독), SPV Fe 1e10-1e11 /cm3"
+ },
+ "sun2007-ua-thesis-colloidal-electrochemical-cu-cmp": {
+  "src": "Univ. of Arizona DSpace 7 REST API (item e13f89ff-6de7-43c1-b3e4-0a394edd3c1b, ORIGINAL bundle azu_etd_2457_sip1_m.pdf)",
+  "pdf": "papers/sun2007-ua-thesis-colloidal-electrochemical-cu-cmp.pdf",
+  "handle": "10150/194903",
+  "title": "Colloidal and Electrochemical Aspects of Copper-CMP",
+  "authors": "Yuxia Sun (advisor: Srini Raghavan)",
+  "venue": "The University of Arizona PhD dissertation, 2007",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — Cu/SiO2(TEOS·Cabosil) 등온선 pH 4/6 (Fig.4.3, 4.12), pH edge Fig.4.13, SCM Table 4.1 (2 OH/nm2, pKa1 5.9, pK1 4.35, pK2 8.22), CA 100 ppm·H2O2·BTA 효과, ζ(pH) Fig.4.11"
+ },
+ "dandu2009-jes-selective-sio2-sin-ceria-sti": {
+  "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
+  "pdf": "papers/dandu2009-jes-selective-sio2-sin-ceria-sti.pdf",
+  "doi": "10.1149/1.3230624",
+  "title": "Selective Chemical Mechanical Polishing of Silicon Dioxide over Silicon Nitride for Shallow Trench Isolation Using Ceria Slurries",
+  "authors": "P. R. Dandu Veera, Shivaji Peddeti, S. V. Babu",
+  "venue": "J. Electrochem. Soc. 156(12) H936-H943 (2009)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ceria 0.25 % oxide 350 / nitride 80 nm/min; +0.05 % pyridine HCl nitride 2 nm/min; Fig.14 nitride stops after 3 nm"
+ },
+ "mariscal2020-jss-sio2-si3n4-sti-kinetic": {
+  "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
+  "pdf": "papers/mariscal2020-jss-sio2-si3n4-sti-kinetic.pdf",
+  "doi": "10.1149/2162-8777/ab89bc",
+  "title": "Tribological, Thermal and Kinetic Characterization of SiO2 and Si3N4 Polishing for STI CMP on Blanket and Patterned Wafers",
+  "authors": "J. C. Mariscal, J. McAllister, Y. Sampurno, J. Sierra Suarez, M. O'Neill, H. Zhou, M. Grief, D. Slutz, A. Philipossian",
+  "venue": "ECS J. Solid State Sci. Technol. 9, 044008 (2020)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — selectivity 32-101 vs P·V, L-H k1/k2, MIT 864 patterned clear at 6 min, COF endpoint"
  }
 }
