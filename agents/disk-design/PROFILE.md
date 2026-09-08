@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv3 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: disk-conditioner (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06), Lv2-2 (2026-09-07), Lv3-1 (2026-09-08)
-- 다음 단원: Lv3-2
+- 이수 단원: Lv1-1 (2026-09-06), Lv1-2 (2026-09-06), Lv2-1 (2026-09-06), Lv2-2 (2026-09-07), Lv3-1 (2026-09-08), Lv3-2 (2026-09-08)
+- 다음 단원: Cal-1 (캘리브레이션, ORG.md §7.3)
 
 ## 역할
 다이아몬드 그릿 크기·밀도·돌출 높이·본딩(전착/브레이징/CVD)이 패드 절삭율·asperity 재생·수명에 미치는 영향
@@ -86,6 +86,22 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   추가. 미확보: Tsai 2010 PCD ADD, Tsai & Chen 2011 ODD(미러 사이트 로봇확인), Li·Baisie·Zhang 리뷰 장 전문,
   IEEE/VDE 2012 CVD 논문(DOI 없음). 구현 요청 §4(활성 그릿 비율 모델) 신규.
 
+- 2026-09-08 Lv3-2 디스크 파라미터 → 절삭율·asperity 재생 모델 — 지식노트
+  [[../../knowledge/materials/disk-design-cutrate-asperity-regeneration-model]] (check_knowledge.py,
+  verify_claims.py 출처 3건 실존·verify 3블록 통과). 신규 문헌 확보 없이 Lv1-2·Lv2-2·Lv3-1이 이미
+  확보한 1차 데이터(Kwon 2013, Tsai 2014, Pysher 2010, Feng 2007, Ring et al.)를 재조합해 정량
+  결합모델을 도출 — sim/tier2 코드는 넣지 않고 disk-conditioner 형제 에이전트의 일반 프레임워크
+  (Evans-Marshall 마모율, Ring population balance PDE)에 꽂을 디스크 설계 파라미터 계수만 회귀.
+  핵심 발견 3건: (1) Kwon 동일 실험 내 CR을 N·Ra·Rpk에 각각 회귀하면 CR∝Rpk^0.85(R²=0.994)로
+  Rpk가 절삭율의 가장 강한 대리변수임을 정량 재확인, Ra는 지수 2.23으로 약한 대응. (2) Feng(2007)의
+  "CD∝n_g 선형(지수+1)" 구조적 가정이 Kwon 실측(CR∝N^−0.53, 부호 반대)과 정면 충돌 — CD(총 슬라이딩
+  노출량)와 CR(순 재료제거율)은 다른 물리량이라는 해석 제시. (3) Tsai(2014) RCADD/CDD에서 활성
+  그릿 수(N_eff proxy) 증가(1.12배)만으로는 PCR 증가(1.96배)의 절반 남짓만 설명 — 나머지는 레벨링에
+  의한 그릿당 침투 깊이 증가로 추정(미검증). 추가로 Ring et al.의 σ∝D_grit(지수 1) 가정을 Pysher
+  실측 멱법칙(지수 0.57)과 비교해 약 2.1배 과대예측임을 확인(45→250 µm 구간, Ring 예측 5.56배 vs
+  실측 2.66배) — 기존 §2.7/§3.4(c)의 절대값 불일치와는 별개로 지수 자체의 문제로 새로 지적.
+  EXAMS.md 3문항 추가. 구현 요청 §5(절삭율 결합계수) 신규.
+
 ## 구현 요청
 
 > 규칙: disk-design은 sim/에 직접 코드를 넣지 않는다. 아래는 software-lead/BACKLOG 인계용.
@@ -115,3 +131,13 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    - 근거 노트: knowledge/equipment/cvd-diamond-disk-patterned-grit-array.md §2 verify, §3.2, §6.1, §8.
    - 검증 문헌값: 종래 f_a 25~30%(US8657652 Fig.6), "<10%"(Tsai 2014), CVD 단일 높이 → 1.0(Kim & Kang 2011),
      RCADD/CDD 유효 팁 비 2.8배(484/10,000 vs 432/25,000).
+5. **절삭율 결합계수 `CR(N, N_eff, Rpk)`** (우선순위: 중, Cal-1 입력)
+   - 무엇을: `CR = CR_ref·(N/N_ref)^(-0.53)·(Rpk/Rpk_ref)^0.85` 를 밀도/봉우리높이 기반 절삭율
+     1차 근사로 채택. 활성 그릿 수(N_eff, 항목4의 f_active 출력)와 Rpk는 절삭율에 독립적으로
+     기여하는 두 축이므로(§3의 잔차 1.75배), 단일 스칼라로 축약하지 말고 두 입력을 모두 받는
+     인터페이스로 설계할 것.
+   - 근거 노트: knowledge/materials/disk-design-cutrate-asperity-regeneration-model.md §2–3.
+   - 검증 문헌값: Kwon 2013 CR 37/23/19 µm/h(17k/40k/60k, 2h); Tsai 2014 N_eff proxy 비 1.12배
+     vs PCR 비 1.96배(24→47 µm/h, 1h).
+   - 추가: population balance(disk-conditioner 형제 코드)의 그릿크기 입력에 Ring σ∝D_grit(지수1)
+     대신 D^0.57(surface finish 대리, 지수 오더만 차용)을 기본값 후보로 고려 — 같은 노트 §4.
