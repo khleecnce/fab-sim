@@ -265,3 +265,41 @@ params:
     note: 120 mil 피치
     source: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md
     confidence: literature
+  groove_width_um:
+    value: 600.0
+    unit: um
+    note: >
+      Mu 2016 패드 B. 슬러리 이용효율 η이 이 폭 부근에서 최대(13.4% @3PSI)이고
+      900 µm로 더 넓히면 오히려 정체·감소한다(12.8%).
+    source: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md §2
+    confidence: literature
+  groove_ref_width_um:
+    value: 600.0
+    unit: um
+    note: τ 기준점 — 위와 같은 조건
+    source: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md §2
+    confidence: literature
+  pad_porosity_pct:
+    value: 35.0
+    unit: "%"
+    note: >
+      IC1000류 캐스트 PU 패드 전형 기공률. Prasad 2013은 15~45% 범위를 실험했다.
+    source: knowledge/materials/pad-porosity-slurry-transport-mrr.md
+    confidence: estimated
+  pad_ref_porosity_pct:
+    value: 35.0
+    unit: "%"
+    note: τ 기준점 — 위와 같은 값
+    source: knowledge/materials/pad-porosity-slurry-transport-mrr.md
+    confidence: estimated
+  tau_mrr_exponent:
+    value: 0.07
+    unit: "-"
+    note: >
+      슬러리 전달 → MRR 결합 지수. Prasad 2013 III.D.3에서 역산:
+      기공률 15→45%(보유용량 3배)에 평균 RR은 8%만 증가 ⟹ ln(1.08)/ln(3) ≈ 0.07.
+      ⚠ "슬러리를 더 나르면 MRR이 비례해 오른다"는 직관은 이 실측으로 기각됐다.
+      ⚠ 기공률 실험에서 뽑아 그루브 축에 교차 대입한 값이라 미검증 —
+      순위만 신뢰하고 크기는 캘리브레이션 대상이다.
+    source: knowledge/materials/pad-porosity-slurry-transport-mrr.md §5
+    confidence: unverified

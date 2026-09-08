@@ -56,7 +56,10 @@ FACTOR_SPEC = {
 
 #: 팩터가 MRR에 곱해지는가, 아니면 진단 전용인가.
 #: ⚠ 여기에 넣는 순간 이중 계상 위험이 생긴다 — 기준 1.0 계약을 반드시 확인할 것.
-MRR_COUPLED = {"chi", "psi", "kappa"}
+#: τ는 결합이 매우 약하다(지수 0.07) — 그래도 넣는 이유는 사용자가 그루브를
+#: 바꿨을 때 "아무 반응 없음"과 "약하게 반응함"을 구분해야 하기 때문이다.
+#: 실측이 말하는 것은 '효과 없음'이 아니라 '효과가 작음'이다.
+MRR_COUPLED = {"chi", "psi", "kappa", "tau"}
 
 
 @dataclass
@@ -567,14 +570,40 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
 def _f_tau(rr: "ResolvedRecipe") -> Factor:
     """τ 슬러리 전달 — 접촉부에 도달하는 신선 슬러리 유효분율.
 
-    그루브가 슬러리를 나르고, 기공이 머금고, 점도가 저항한다.
-    ⚠ 현재 물리 통로가 없다. 이 팩터를 만든 목적은 **없다는 사실을 드러내기 위해서**다
-    — 그루브 depth/pitch를 바꿔도 결과가 안 변한다는 걸 UI에서 보이게 한다.
+    ⚠⚠ 이 팩터의 가장 중요한 사실: **"슬러리를 더 많이 나르면 MRR이 비례해서
+    오른다"는 직관은 실측으로 기각됐다.**
+
+    근거 ①  Prasad 2013 (doi:10.1557/jmr.2013.173, III.D.3, Mirra 툴 TEOS):
+      동일 수지경도·유사 기공크기에서 기공률 %P만 15%→45%로 30%p 올렸는데
+      평균 RR 증가는 **단 8%**("nominal increase", 원문 표현). 저자 스스로
+      "기공=슬러리 저장소이므로 비례 증가"를 기대했다가 빗나갔다고 적었다.
+
+    근거 ②  Mu et al. 2016 (doi:10.1016/j.mee.2016.02.035, Table 3):
+      그루브 폭 → 슬러리 이용효율 η (3 PSI 기준)
+          300 µm → η 9.9%
+          600 µm → η 13.4%   (+35% 상대)
+          900 µm → η 12.8%   (정체·미세 감소)
+      **단조가 아니다.** 600 µm 부근에서 꺾인다. 넓힐수록 좋다는 가정은
+      틀렸다 — V_groove와 V_total이 함께 커져 q_actual 비율이 안 변하기 때문이다
+      (저류 부피가 과하면 정체 슬러리가 늘어난다).
+
+    그래서 이 구현은 두 가지를 지킨다:
+      1. η는 **실측 3점 보간**으로 낸다(단조 멱함수 금지 — 정체 구간을 놓친다).
+      2. η→MRR 결합은 **매우 약하게** 들어간다. 지수는 Prasad 데이터에서 역산:
+         보유용량 3배(15→45%)에 RR 1.08배 ⟹ n = ln(1.08)/ln(3) ≈ 0.07.
+         ⚠ 이건 기공률 실험에서 뽑아 그루브 축에 적용한 **교차 대입**이라
+         미검증이다. 순위(전달이 나아지면 조금 낫다)만 신뢰하고 크기는
+         캘리브레이션 대상이다.
+
+    τ가 진짜로 지배하는 것은 평균 MRR이 아니라 **반경 프로파일**이다.
+    Prasad III.D.2: 기공 2 µm 패드는 중심이 슬러리 기아로 처지고 엣지가 올라
+    엣지-중심 RR 차이가 200 nm/min을 넘었다. 그 프로파일 결합은 아직 미구현이며
+    이 사실을 notes에 싣는다.
     """
     f = _new("tau")
     pk = rr.pack
-    for k in ("groove_depth_mm", "groove_pitch_mm", "pad_porosity_pct",
-              "slurry_viscosity_pa_s"):
+    for k in ("groove_depth_mm", "groove_pitch_mm", "groove_width_um",
+              "pad_porosity_pct", "slurry_viscosity_pa_s"):
         if pk.has(k):
             try:
                 f.drivers[k] = float(pk.get(k))
@@ -583,13 +612,81 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
     if not f.drivers:
         f.notes.append("⚠ τ 미모델링: 그루브 형상·기공률·점도가 팩에 없다.")
         return f
-    f.status = "unmodeled"
+
+    # ── η(그루브 폭) — Mu 2016 Table 3 실측 3점 선형보간 ──────────
+    ETA_W = [300.0, 600.0, 900.0]        # µm
+    ETA_V = [0.099, 0.134, 0.128]        # 슬러리 이용효율 (3 PSI)
+    terms: Dict[str, float] = {}
+    srcs: List[str] = []
+
+    w = pk.get_or("groove_width_um", None)
+    w_ref = pk.get_or("groove_ref_width_um", None)
+    if w is not None and w_ref is not None:
+        def _eta(x: float) -> float:
+            x = float(x)
+            if x <= ETA_W[0]:
+                # 300 µm 아래는 실측이 없다 — 외삽하지 않고 끝값으로 고정한다
+                return ETA_V[0]
+            if x >= ETA_W[-1]:
+                return ETA_V[-1]
+            for i in range(len(ETA_W) - 1):
+                if ETA_W[i] <= x <= ETA_W[i + 1]:
+                    t = (x - ETA_W[i]) / (ETA_W[i + 1] - ETA_W[i])
+                    return ETA_V[i] + t * (ETA_V[i + 1] - ETA_V[i])
+            return ETA_V[-1]
+
+        e_cur, e_ref = _eta(w), _eta(float(w_ref))
+        if e_ref > 0:
+            n = float(pk.get_or("tau_mrr_exponent", 0.07))
+            terms["groove_eta"] = (e_cur / e_ref) ** n
+            srcs.append("knowledge/materials/pad-groove-geometry-"
+                        "contact-area-flow-resistance.md §2")
+            f.notes.append(
+                f"그루브 폭 {float(w):g} µm → 슬러리 이용효율 η={e_cur*100:.1f}% "
+                f"(기준 {float(w_ref):g} µm, η={e_ref*100:.1f}%). "
+                "⚠ η는 600 µm 부근에서 정체·반전한다 — 넓힐수록 좋지 않다"
+                "(Mu 2016 Table 3 실측).")
+            if float(w) < ETA_W[0] or float(w) > ETA_W[-1]:
+                f.notes.append(f"⚠ 그루브 폭 {float(w):g} µm는 실측 범위"
+                               f"({ETA_W[0]:g}~{ETA_W[-1]:g} µm) 밖 — 끝값으로 고정했다"
+                               "(외삽하지 않는다).")
+
+    # ── 기공률 → 보유용량 (Prasad 2013: 매우 약한 효과) ────────────
+    por = pk.get_or("pad_porosity_pct", None)
+    por_ref = pk.get_or("pad_ref_porosity_pct", None)
+    if por is not None and por_ref is not None and float(por_ref) > 0:
+        n = float(pk.get_or("tau_mrr_exponent", 0.07))
+        terms["porosity"] = (float(por) / float(por_ref)) ** n
+        srcs.append("knowledge/materials/pad-porosity-slurry-transport-mrr.md §5")
+        f.notes.append(
+            f"기공률 {float(por):g}% (기준 {float(por_ref):g}%). "
+            "⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 "
+            "기각됐다(Prasad 2013). 지수 0.07은 그 8%에서 역산한 값이다.")
+
+    if not terms:
+        f.notes.append(
+            "⚠ τ 입력은 있으나 **엔진에 연결되지 않았다** — 기준값"
+            "(groove_ref_width_um / pad_ref_porosity_pct)이 팩에 없어 배수를 낼 수 "
+            "없다. 조용히 1.0을 쓰면 '그루브를 반영했다'는 거짓말이 된다.")
+        f.notes.append(f"현재 입력값: {f.drivers}")
+        return f
+
+    val = 1.0
+    for v in terms.values():
+        val *= v
+    f.value = val
+    f.terms = terms
+    f.status = "partial"
+    f.confidence = "unverified"
+    f.sources = sorted(set(srcs))
     f.notes.append(
-        "⚠ τ는 입력은 있으나 **엔진에 연결되지 않았다** — 그루브 depth/pitch를 "
-        "바꿔도 MRR이 변하지 않는다. 슬러리 유동-접촉 결합 모델이 필요하다. "
-        "담당 R3-pad × R2-slurry 공동. 이것을 조용히 1.0으로 두면 "
-        "'그루브를 반영했다'는 거짓말이 된다.")
-    f.notes.append(f"현재 입력값: {f.drivers}")
+        "⚠ τ의 MRR 결합 지수(tau_mrr_exponent=0.07)는 기공률 실험에서 역산해 "
+        "그루브 축에 교차 대입한 값이다 — 미검증. 순위만 신뢰하라.")
+    f.notes.append(
+        "⚠ τ가 실제로 지배하는 것은 평균 MRR이 아니라 **반경 프로파일**이다. "
+        "기공 2 µm 패드에서 중심이 슬러리 기아로 처지고 엣지-중심 RR 차이가 "
+        "200 nm/min을 넘었다(Prasad 2013 III.D.2). 이 프로파일 결합은 미구현 — "
+        "담당 R3-pad × R2-slurry.")
     return f
 
 

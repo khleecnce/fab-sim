@@ -102,14 +102,75 @@ def test_ph_moves_mrr():
 def test_unmodeled_factors_report_none_not_silent_one():
     """미모델링 축은 value=None + status='unmodeled'이어야 한다.
 
-    조용히 1.0을 쓰면 "반영했다"는 거짓말이 된다. 팩에서 필요 파라미터를 다
-    지우고, 그래도 1.0을 반환하지 않는지 본다.
+    조용히 1.0을 쓰면 "반영했다"는 거짓말이 된다.
     """
-    f = _factors()["tau"]     # τ는 물리 통로가 아직 없다
+    f = _factors()["stab"]     # S는 엔진에 시간축이 없어 아직 미모델링
     assert f.status == "unmodeled"
-    assert f.value is None, "τ가 미연결인데 숫자를 내고 있다 — 거짓 정밀도다."
-    assert any("미모델링" in n or "연결되지 않" in n for n in f.notes), (
+    assert f.value is None, "S가 미연결인데 숫자를 내고 있다 — 거짓 정밀도다."
+    assert any("미모델링" in n or "시간축" in n for n in f.notes), (
         "미모델링 팩터가 그 사실을 notes로 신고하지 않는다.")
+
+
+# ═══════════════════════════════ τ 슬러리 전달 — 실측이 직관을 기각한 축
+
+def test_tau_porosity_reproduces_prasad_8_percent():
+    """기공률 15→45%(3배)에 MRR은 **8%만** 오른다 (Prasad 2013 III.D.3).
+
+    ⚠ 이 테스트가 지키는 것: "슬러리를 더 많이 나르면 MRR이 비례해 오른다"는
+      직관은 실측으로 기각됐다. 저자 스스로 비례 증가를 기대했다가 빗나갔다고
+      적었다("nominal increase"). 누군가 이 지수를 '상식적으로' 키우면
+      여기서 잡힌다.
+    """
+    lo = _factors(pad_porosity_pct=15.0, pad_ref_porosity_pct=15.0)["tau"].value
+    hi = _factors(pad_porosity_pct=45.0, pad_ref_porosity_pct=15.0)["tau"].value
+    assert lo == pytest.approx(1.0)
+    assert hi / lo == pytest.approx(1.08, abs=0.005), (
+        f"기공률 3배에 τ가 {hi/lo:.4f}배 — 문헌은 1.08배다. "
+        "비례 가정으로 퇴행했을 수 있다.")
+
+
+def test_tau_groove_width_is_not_monotonic():
+    """그루브 폭 η은 600 µm에서 정점이고 900 µm에서 오히려 내려간다.
+
+    Mu 2016 Table 3 (3 PSI): 300→9.9%, 600→13.4%, 900→12.8%
+    ⚠ 단조 증가 모델("넓힐수록 잘 흐른다")로 바꾸면 여기서 잡힌다. 실측은
+      V_groove와 V_total이 함께 커져 q_actual 비율이 안 변한다고 말한다.
+    """
+    t300 = _factors(groove_width_um=300.0)["tau"].value
+    t600 = _factors(groove_width_um=600.0)["tau"].value
+    t900 = _factors(groove_width_um=900.0)["tau"].value
+    assert t600 > t300, "600 µm가 300 µm보다 나아야 한다(η 9.9→13.4%)"
+    assert t900 < t600, (
+        f"900 µm({t900:.5f})가 600 µm({t600:.5f})보다 크다 — 단조 모델로 "
+        "퇴행했다. 실측은 정체·감소다.")
+
+
+def test_tau_does_not_extrapolate_outside_measured_range():
+    """실측 범위(300~900 µm) 밖은 외삽하지 않고 끝값으로 고정한다."""
+    assert _factors(groove_width_um=200.0)["tau"].value == pytest.approx(
+        _factors(groove_width_um=300.0)["tau"].value)
+    assert _factors(groove_width_um=1200.0)["tau"].value == pytest.approx(
+        _factors(groove_width_um=900.0)["tau"].value)
+    f = _factors(groove_width_um=200.0)["tau"]
+    assert any("범위" in n and "밖" in n for n in f.notes), (
+        "외삽 구간인데 경고하지 않는다.")
+
+
+def test_tau_effect_is_weak_not_zero():
+    """τ는 약하게라도 MRR을 움직여야 한다 — '반응 없음'과 '약한 반응'은 다르다."""
+    a = _mean_mrr(groove_width_um=300.0)
+    b = _mean_mrr(groove_width_um=600.0)
+    assert a != pytest.approx(b, rel=1e-9), "그루브를 바꿔도 MRR이 전혀 안 변한다"
+    assert abs(b / a - 1.0) < 0.10, (
+        f"그루브 폭 변화가 MRR을 {abs(b/a-1)*100:.1f}% 바꾼다 — 실측 대비 과하다. "
+        "τ 결합은 약해야 한다(지수 0.07).")
+
+
+def test_tau_admits_profile_coupling_is_missing():
+    """τ의 진짜 효과(반경 프로파일)가 미구현임을 스스로 신고해야 한다."""
+    f = _factors()["tau"]
+    assert any("프로파일" in n for n in f.notes), (
+        "τ가 '평균 MRR이 아니라 프로파일을 지배한다'는 한계를 숨기고 있다.")
 
 
 def test_unmodeled_factors_are_excluded_from_mrr():

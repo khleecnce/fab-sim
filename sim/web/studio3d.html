@@ -42,6 +42,7 @@
          padding:6px;border-radius:5px;font-size:12px}
   .meta{font-size:10px;color:var(--dim);margin-top:3px;line-height:1.45}
   .dead{color:var(--warn)}
+  .weak{color:#8ab4d8}
   #out{border-top:1px solid var(--line);padding:11px 14px;background:var(--panel2);
        max-height:44vh;overflow-y:auto;flex-shrink:0}
   .row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
@@ -118,10 +119,14 @@ const PARTS = {
     sub:"패드는 접촉 강도(κ)와 슬러리 전달(τ)을 동시에 결정한다.",
     fields:[
       {k:"pad_hardness_shore_d", l:"경도", u:"Shore D", min:35, max:80, step:1, pk:"pad_hardness_shore_d"},
+      {k:"groove_width_um", l:"그루브 폭", u:"µm", min:200, max:1200, step:25, pk:"groove_width_um",
+       weak:"⚠ η는 600µm에서 정점이고 900µm에선 오히려 내려간다(Mu 2016 실측). 넓힐수록 좋지 않다. 실측범위 300~900µm 밖은 외삽하지 않고 끝값 고정."},
+      {k:"pad_porosity_pct", l:"기공률", u:"%", min:10, max:50, step:1, pk:"pad_porosity_pct",
+       weak:"⚠ 기공률 15→45%(3배)에도 MRR은 8%만 오른다(Prasad 2013). '슬러리를 더 나르면 비례해 오른다'는 직관은 실측으로 기각됐다."},
       {k:"groove_depth_mm", l:"그루브 깊이", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
-       dead:"τ(슬러리 전달)가 엔진에 미연결이다. 값을 바꿔도 MRR이 안 변한다 — 이 사실을 숨기지 않는다."},
+       dead:"깊이는 아직 τ에 연결되지 않았다 — 확보된 문헌이 폭·기공률만 정량화했다. 값을 바꿔도 MRR이 안 변한다."},
       {k:"groove_pitch_mm", l:"그루브 간격", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
-       dead:"τ 미연결. 위와 같다."},
+       dead:"간격도 미연결. 위와 같다."},
     ]},
   disk:{ name:"④ 디스크", icon:"◈",
     sub:"컨디셔너 디스크. 형상은 소모품(κ), 하중·스윕은 장비 설정(Γ)이다 — 축이 다르므로 섞지 않는다.",
@@ -416,6 +421,7 @@ function drawPanel(){
       <label><span>${f.l}</span><span class="val" id="v-${f.k}">${fmt(cur)} ${f.u||""}</span></label>
       <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${cur}">
       ${f.dead?`<div class="meta dead">⚠ 미연결: ${f.dead}</div>`:""}
+      ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
     </div>`;
   }
   h += `<button class="btn" id="reset">기준 조건으로 되돌리기</button>`;
