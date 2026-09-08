@@ -18,3 +18,5 @@ data/customer/*
 !data/customer/README.md
 *.parquet
 papers/patents/
+validation/raw/phm2016/timeseries/
+validation/raw/phm2016/joined.json
