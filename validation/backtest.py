@@ -42,6 +42,8 @@ datasets/*.yaml 한 파일 = 한 논문의 한 DOE. 반드시 포함:
 from __future__ import annotations
 
 import sys
+import itertools
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -111,6 +113,14 @@ class BacktestResult:
     used_for_calibration: bool = False
     source: str = ""
     notes: List[str] = field(default_factory=list)
+    p_value: Optional[float] = None   # 순열검정 — 우연히 이만큼 맞을 확률
+
+    #: 유의 판정 기준. n=3은 최소 p가 0.167이라 **구조적으로** 이 문턱을 넘을 수 없다.
+    P_THRESHOLD = 0.05
+
+    @property
+    def significant(self) -> bool:
+        return self.p_value is not None and self.p_value < self.P_THRESHOLD
 
     def verdict(self) -> str:
         if not self.in_scope:
@@ -119,6 +129,11 @@ class BacktestResult:
             return "판정불가(분산 없음)"
         if self.used_for_calibration:
             return "참고용(캘리브레이션에 쓴 데이터 — 검증 아님)"
+        # ⚠ 유의성을 먼저 본다. ρ가 아무리 높아도 우연과 구분이 안 되면
+        #   '사용 가능'이라 말할 수 없다 — n=3의 ρ=1.000이 정확히 그 경우다.
+        if not self.significant:
+            p = f"p={self.p_value:.3f}" if self.p_value is not None else "p=?"
+            return f"유의하지 않음({p}, n={self.n}) — 우연과 구분 불가"
         if self.spearman >= 0.8:
             return "스크리닝 사용 가능"
         if self.spearman >= 0.5:
@@ -127,9 +142,44 @@ class BacktestResult:
 
     def line(self) -> str:
         m = f"{self.mape_pct:.1f}%" if self.mape_pct is not None else "—"
+        p = f"p={self.p_value:.3f}" if self.p_value is not None else "p=—"
         return (f"{self.dataset:34s} n={self.n:3d}  ρ={self.spearman:+.3f}  "
-                f"τ={self.kendall:+.3f}  쌍적중={self.pairwise_accuracy*100:4.1f}%  "
+                f"τ={self.kendall:+.3f}  {p:>9s}  "
                 f"MAPE={m:>7s}  {self.verdict()}")
+
+
+def perm_p_value(rho: float, n: int, iters: int = 20000,
+                 seed: int = 0) -> Optional[float]:
+    """관측 ρ 이상이 **무작위 순열에서** 나올 확률 (단측 정확/몬테카를로 순열검정).
+
+    ⚠ 왜 이게 반드시 필요한가 (2026-09-08에 실제로 잡은 함정):
+      n=3에서 ρ=+1.000은 **완벽한 예측처럼 보이지만 p=0.167이다** — 6가지 순열 중
+      하나라 우연히 맞을 확률이 6분의 1이다. 그런 데이터셋 여러 개가 held-out
+      평균에 들어가 ρ=+0.481을 만들었고, 백테스트는 그걸 "IR·사업계획서에 쓸 수
+      있는 유일한 정량 근거"라고 출력하고 있었다. 투자자 앞에 들고 갈 숫자가
+      동전 던지기였다는 뜻이다.
+
+      n=3 → 최소 p=0.167, n=4 → 0.042. **즉 n≤3짜리는 아무리 완벽해도 단독으로
+      유의할 수 없다.** 조건 수가 적은 데이터셋은 '증거'가 아니라 '정황'이다.
+    """
+    if n < 3 or np.isnan(rho):
+        return None
+    base = list(range(n))
+    if n <= 8:                      # 정확검정 (8! = 40320)
+        total = hit = 0
+        for q in itertools.permutations(base):
+            total += 1
+            if spearman_rho(base, list(q)) >= rho - 1e-9:
+                hit += 1
+        return hit / total
+    rng = random.Random(seed)       # 몬테카를로
+    hit = 0
+    for _ in range(iters):
+        q = base[:]
+        rng.shuffle(q)
+        if spearman_rho(base, q) >= rho - 1e-9:
+            hit += 1
+    return hit / iters
 
 
 def _recipe_from(cond: Dict, pack: str) -> Recipe:
@@ -207,7 +257,8 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
     return BacktestResult(path.stem, len(obs), rho, tau, (1 + tau) / 2,
                           mape, scale, in_scope,
                           bool(raw.get("used_for_calibration", False)),
-                          raw.get("source", ""), notes)
+                          raw.get("source", ""), notes,
+                          p_value=perm_p_value(rho, len(obs)))
 
 
 def run_all(model: str = "tier2.gw_physical_kp") -> List[BacktestResult]:
@@ -241,11 +292,38 @@ def main() -> int:
     out_of_scope = [r for r in results if not r.in_scope]
     print("-" * 100)
     if held:
+        sig = [r for r in held if r.significant]
+        weak = [r for r in held if not r.significant]
         rho = float(np.mean([r.spearman for r in held]))
         acc = float(np.mean([r.pairwise_accuracy for r in held]))
-        print(f"held-out {len(held)}개 데이터셋 평균: Spearman ρ={rho:+.3f}, "
-              f"쌍별 적중률 {acc*100:.1f}%")
-        print("→ 이 숫자가 IR·사업계획서에 쓸 수 있는 유일한 정량 근거다.")
+        print(f"held-out {len(held)}개 전체 평균: ρ={rho:+.3f}, 쌍별 적중률 {acc*100:.1f}%")
+
+        # ⚠ 전체 평균을 근거로 쓰면 안 된다. n=3짜리 ρ=1.000이 섞여 평균을
+        #   부풀리는데, 그건 6분의 1 확률로 우연히 나오는 값이다.
+        if sig:
+            srho = float(np.mean([r.spearman for r in sig]))
+            sacc = float(np.mean([r.pairwise_accuracy for r in sig]))
+            ntot = sum(r.n for r in sig)
+            print(f"  └ 그중 **통계적으로 유의한 것만** ({len(sig)}개, 총 {ntot}조건): "
+                  f"ρ={srho:+.3f}, 쌍별 적중률 {sacc*100:.1f}%")
+            print("→ 외부에 제시할 수 있는 숫자는 이 줄뿐이다 "
+                  "(p<0.05, 순열검정).")
+            for r in sig:
+                print(f"     · {r.dataset} (n={r.n}, ρ={r.spearman:+.3f}, "
+                      f"p={r.p_value:.4f})")
+        else:
+            print("→ ⚠ 유의한 데이터셋이 하나도 없다. 아직 '검증했다'고 말할 수 없다.")
+        if weak:
+            print(f"  └ 유의하지 않음 {len(weak)}개 — 평균에서 빼고 봐야 한다: "
+                  + ", ".join(f"{r.dataset}(n={r.n})" for r in weak))
+            print("     n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. "
+                  "조건 수를 늘리거나 여러 데이터셋을 합쳐야 한다.")
+        # 절대값 사용 금지 경고 — 계통 편향이 큰 데이터셋이 다수다
+        biased = [r for r in held if r.scale_factor is not None
+                  and (r.scale_factor < 0.5 or r.scale_factor > 2.0)]
+        if biased:
+            print(f"  └ ⚠ 계통 편향 2배 초과 {len(biased)}/{len(held)}개 — "
+                  "**절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.")
     else:
         print("held-out(범위 내) 데이터셋이 없다 — 아직 '검증했다'고 말할 수 없다.")
     if out_of_scope:
