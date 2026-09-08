@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 옥사이드 막 종류(TEOS/HDP/BPSG/SOD)와 밀도·경도·수화층 차이
 - [x] Lv1-2 옥사이드 CMP 메커니즘: 수화층 형성과 기계 제거 (Cook 모델)
-- [ ] Lv2-1 ILD CMP: 다층 배선 평탄화, 글로벌/로컬 평탄도
+- [x] Lv2-1 ILD CMP: 다층 배선 평탄화, 글로벌/로컬 평탄도 (2026-09-09, knowledge/cmp/ild-cmp-planarization-global-local-density.md)
 - [ ] Lv2-2 STI CMP: 세리아 슬러리 고선택비, 나이트라이드 정지, 디싱
 - [ ] Lv3-1 최신 리뷰: 세리아 첨가제 선택비 제어, 저결함 옥사이드 CMP
 - [ ] Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현 (sim/tier2)
