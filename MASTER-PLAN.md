@@ -1354,3 +1354,15 @@ film-oxide-teos-hdp-bpsg-sod-density-hardness.md 신설, check_knowledge·verify
 통과. CURRICULUM 1/6, PROFILE·ORG §5 갱신(film-oxide 1/6).
 현재 6/6 완주 7명 유지, film-oxide·film-cu(둘 다 1/6)가 신규 최하위. 다음 회차: ORG §5
 진도표 기준 최저 에이전트(film-oxide Lv1-2 또는 표 순서상 film-cu) 학습.
+
+## 2026-09-08 [Max워커] S32 완료 — sim/tier2_physics/recipe_conversion_factor.py 신설 (software/BACKLOG.md에서 선정)
+
+wafer-type 구현요청(레시피 변환계수) 처리. 특허 US20060116785A1 식(1) work function
+`work_function(downforce_psi, slurry_flow_ml_min, platen_rpm)`과 레시피간 변환계수
+`recipe_conversion_factor(recipe_from, recipe_to)`, 표 1 레시피 상수 `RECIPE_TABLE`(ILD/STI/IMD)
+구현. 노트(product-wafer-proxy-metrics-virtual-metrology.md §2.2, §6 verify (A)) 표 2 정량값
+(ILD 기준 STI 1.12, IMD 1.41) 그대로 재현 테스트 6건. engine 미등록(Recipe에 레시피 전이 개념
+없음, S17/S19/S31 등과 동일 지위).
+Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → 오케스트레이터(Max워커)가
+재검증(pytest 370 passed=기존364+신규6, git status로 승인 경로 외 파일 미접촉 확인) 후 커밋 3ea9d3d push.
+software/BACKLOG.md S32 완료 표기·완료표 이관.
