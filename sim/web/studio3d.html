@@ -2006,7 +2006,7 @@ async function run(){
     state.lastRunId = d.run_id||null;
   }catch(e){
     document.getElementById("out").innerHTML =
-      `<div class="banner">API unreachable: ${e.message}</div>`;
+      `<div class="banner">API unreachable (${e.message}). The server was probably restarted — <a href="#" onclick="location.reload();return false" style="color:var(--accent)">reload the page</a>. If it persists, check that the address is http://localhost:8848/3d and the server is running (~/fab-sim/fabsim.command).</div>`;
   }
 }
 
