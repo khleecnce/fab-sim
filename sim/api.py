@@ -34,7 +34,7 @@ except ImportError:  # pragma: no cover
 
 from sim.engine import Recipe, available_models  # noqa: E402
 from sim.metrics.uniformity import compute_metrics  # noqa: E402
-from sim.params import available_packs, load_pack  # noqa: E402
+from sim.params import available_packs, load_pack, ParamMissing  # noqa: E402
 import sim.models  # noqa: F401,E402
 import sim.slots as S  # noqa: E402
 from sim.recipe_builder import load_schemas, to_overrides, coverage  # noqa: E402
@@ -323,14 +323,125 @@ def api_calibration(pack: str):
     return cal.to_dict()
 
 
+@app.get("/api/factors/lineage/{pack}")
+def api_factor_lineage(pack: str):
+    """팩터 계보 — 어떤 입력 항목에서 어떤 파라미터가 산출되는지.
+
+    사용자 지시: "수많은 데이터에서 뽑아낸 파라미터들을 표시해. 어떤 항목들에서
+    어떤 파라미터가 산출되었는지 확인할 수 있게."
+
+    기준 조건에서 팩터를 계산해 drivers(입력 필드→값)·terms(항별 기여)·sources(문헌)를
+    그대로 돌려준다. 미모델링 팩터는 왜 없는지(필요 파라미터)를 표시한다.
+    """
+    from sim.engine import simulate as _sim
+    from sim.factors import FACTOR_SPEC
+    from sim.store import get_setting
+    overrides = get_setting("factor_symbols", {}) or {}
+    try:
+        res = _sim(Recipe(pack=pack))
+    except ParamMissing as e:
+        raise HTTPException(422, str(e))
+    out = []
+    for key, (sym, name, axis, parts) in FACTOR_SPEC.items():
+        f = (res.factors or {}).get(key)
+        d = f.to_dict() if f is not None else {
+            "key": key, "symbol": sym, "name": name, "axis": axis, "parts": parts,
+            "value": None, "status": "unmodeled", "drivers": {}, "terms": {},
+            "confidence": "unverified", "sources": [], "notes": [], "mrr_coupled": False}
+        d["symbol"] = overrides.get(key, sym)
+        d["default_symbol"] = sym
+        out.append(d)
+    return {"pack": pack, "factors": out}
+
+
 @app.get("/api/factors")
 def api_factors():
-    """병합 파라미터 정의 — UI가 축·파트 매핑을 그리는 데 쓴다."""
+    """병합 파라미터 정의 — UI가 축·파트 매핑을 그리는 데 쓴다.
+
+    symbol은 사용자가 바꿀 수 있다(/api/factors/symbols). 기본 기호는 FACTOR_SPEC.
+    """
     from sim.factors import FACTOR_SPEC, MRR_COUPLED
+    from sim.store import get_setting
+    overrides = get_setting("factor_symbols", {}) or {}
     return {"factors": [
-        {"key": k, "symbol": sym, "name": name, "axis": axis, "parts": parts,
+        {"key": k, "symbol": overrides.get(k, sym), "default_symbol": sym,
+         "name": name, "axis": axis, "parts": parts,
          "mrr_coupled": k in MRR_COUPLED}
         for k, (sym, name, axis, parts) in FACTOR_SPEC.items()]}
+
+
+class SymbolMap(BaseModel):
+    symbols: Dict[str, str]
+
+
+@app.post("/api/factors/symbols")
+def api_set_symbols(body: SymbolMap):
+    """팩터 기호 변경 — DB settings에 저장되어 서버 재시작 후에도 유지된다.
+
+    빈 문자열이면 기본 기호로 되돌린다. 기호는 1~3자.
+    """
+    from sim.factors import FACTOR_SPEC
+    from sim.store import get_setting, set_setting
+    cur = get_setting("factor_symbols", {}) or {}
+    for k, v in body.symbols.items():
+        if k not in FACTOR_SPEC:
+            raise HTTPException(400, f"알 수 없는 팩터: {k}")
+        v = (v or "").strip()
+        if not v:
+            cur.pop(k, None)
+        elif len(v) > 3:
+            raise HTTPException(400, f"기호는 1~3자: {k}={v!r}")
+        else:
+            cur[k] = v
+    set_setting("factor_symbols", cur)
+    return {"ok": True, "symbols": cur}
+
+
+class TimelineRequest(BaseModel):
+    """스택 연마 시간축 요청.
+
+    layers: 위→아래. 각 {name, thickness_nm, pack|null, stop?, color?}
+    pack이 null인 층은 이전 층 팩의 선택비로 근사하거나(있으면) 멈춘다.
+    """
+    layers: List[Dict[str, Any]]
+    total_s: float = 120.0
+    dt_s: float = 2.0
+    pressure_psi: Optional[float] = None
+    platen_rpm: Optional[float] = None
+    wafer_rpm: Optional[float] = None
+    slurry_flow_ml_min: Optional[float] = None
+    zone_pressures_psi: Optional[List[float]] = None
+    zone_edges_norm: Optional[List[float]] = None
+    pack_overrides: Optional[Dict[str, float]] = None
+
+
+@app.post("/api/timeline")
+def api_timeline(body: TimelineRequest):
+    """연마 중 두께 변화 — 프레임별 층 잔량(반경별)·MRR·온도·μ·토크."""
+    from sim.timeline import Layer, run_timeline
+    if not body.layers:
+        raise HTTPException(400, "layers가 비어 있다")
+    layers = []
+    for L in body.layers:
+        try:
+            layers.append(Layer(name=str(L["name"]), thickness_nm=float(L["thickness_nm"]),
+                                pack=L.get("pack") or None, stop=bool(L.get("stop", False)),
+                                color=str(L.get("color", "#7fb3ff"))))
+        except (KeyError, ValueError, TypeError) as e:
+            raise HTTPException(400, f"층 정의 오류 {L}: {e}")
+    kw: Dict[str, Any] = {"pack": layers[0].pack or "oxide_silica"}
+    for f in ("pressure_psi", "platen_rpm", "wafer_rpm", "slurry_flow_ml_min",
+              "zone_pressures_psi", "zone_edges_norm", "pack_overrides"):
+        v = getattr(body, f)
+        if v is not None:
+            kw[f] = v
+    try:
+        res = run_timeline(layers, Recipe(**kw), total_s=body.total_s, dt_s=body.dt_s)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except ParamMissing as e:
+        raise HTTPException(422, str(e))
+    return res.to_dict()
 
 
 @app.get("/api/scope/{agent}")

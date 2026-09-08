@@ -76,7 +76,25 @@ CREATE TABLE IF NOT EXISTS imports (
   n_measurements INTEGER,
   warnings_json TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS settings (
+  key           TEXT PRIMARY KEY,
+  value_json    TEXT NOT NULL,
+  ts            REAL NOT NULL
+);
 """
+
+
+def get_setting(key: str, default: Any = None) -> Any:
+    """UI 설정(팩터 기호 등) — 없으면 default."""
+    with _conn() as c:
+        r = c.execute("SELECT value_json FROM settings WHERE key=?", (key,)).fetchone()
+    return json.loads(r["value_json"]) if r else default
+
+
+def set_setting(key: str, value: Any) -> None:
+    with _conn() as c:
+        c.execute("INSERT OR REPLACE INTO settings (key, value_json, ts) VALUES (?,?,?)",
+                  (key, _j(value), time.time()))
 
 
 def _conn() -> sqlite3.Connection:
