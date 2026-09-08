@@ -8,7 +8,7 @@
 - [x] Lv2-1 NPW 결과가 PTW를 예측하지 못하는 이유: 패턴 효과의 물리 (2026-09-06, knowledge/cmp/npw-ptw-pattern-effect-gw-physics.md)
 - [x] Lv2-2 측정 기법: 엘립소미터·프로파일러·AFM·XRF — 막질별 적합성과 오차 (2026-09-07, knowledge/cmp/wafer-type-metrology-techniques-suitability.md)
 - [x] Lv3-1 최신 리뷰: 제품 웨이퍼(product wafer) 대리 지표, 가상 계측 (2026-09-08, knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md)
-- [ ] Lv3-2 NPW→PTW 전이 규칙 정량화: 어떤 파라미터가 이전되고 어떤 것이 새로 필요한가 (sim/calibration)
+- [x] Lv3-2 NPW→PTW 전이 규칙 정량화: 어떤 파라미터가 이전되고 어떤 것이 새로 필요한가 (sim/calibration) (2026-09-09, knowledge/cmp/npw-ptw-transfer-rules-quantitative.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 NPW/PTW 메타데이터 스키마 소유. 두 유형 실데이터 정렬·비교 규칙 정의 (§7.2 전이 규칙의 구현)
