@@ -96,6 +96,11 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    ρ_Cu·L/(R·(W−2T_L)) + T_L, 라이너 병렬 무시 오차 경고(R_L/R_Cu<100이면). 검증값: Park et al. 1999 W 0.35 µm·T_M 0.4 µm·
    T_L 0.025 µm·ρ_L 100 µΩ·cm → R_L/R_Cu≈200(ρ_Cu 2.0). dishing 보정은 Chang et al. 2004 segment 식(R_dish 40 µm, 5 µm 선
    ΔR 9.39%·모델 11.6%). 근거: 같은 노트 §3, verify (C)(D). 우선순위: 중.
+   **→ 처리 완료 (2026-09-09, Max워커)**: `sim/tier2_physics/electrical_thickness_extraction.py` 신설
+   (`cu_thickness_from_resistance`/`liner_parallel_resistance_ratio`/`liner_neglect_error_fraction`/
+   `is_liner_negligible`/`dishing_delta_R_fraction`). 테스트 11건 §6 verify (C)(D) 정량값 그대로 재현
+   (ρ_Cu=2.2는 오차 0.53%로 <0.5% 경계 초과함을 정직 기록, w=0.4 µm은 dishing 모델 범위 밖임을 명시).
+   engine 미등록(Recipe에 전기측정 스키마 없음). 427 tests passed. 커밋 41dffa9, push 완료.
 4. **PTW VM 입력 스키마 필드**(Cal-1 연계): `product_id`, `layer`, `die_density_mean`, `local_density`, `prev_layer_topography`,
    `e_test_R_ohm`, `forced_measurement_flag`, `mrr_lag_1..11`, `consumable_usage_neighbors`. 근거: 같은 노트 §5.3 표
    (Jebri et al. 2017 제품별 국소모델·k_est^max 강제 실측, Di et al. 2017 시간지연·사용량 이웃 특징). 우선순위: 중.
