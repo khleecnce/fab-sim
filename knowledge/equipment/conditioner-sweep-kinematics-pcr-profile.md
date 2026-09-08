@@ -100,6 +100,59 @@ Zheng et al. Eq.1–9를 그대로 코드화하여 시간축 T에 대해 각 다
 `PCR(r,t) = PCR_shape(r) · decay(t)` 형태의 2차원 결합이 가능하다(다음 구현 후보,
 process-integrator의 [[luo-dornfeld-integrated-cmp-framework]] 3-스케일 아키텍처와도 정합).
 
+## 6b. 정량 재현 — Zheng et al. Table 1 하중·운동학 수치 대조
+
+Table 1의 "디스크 하중 4 lbf ≈ 17.8 N" 및 4중 회전 궤적 좌표식(Eq.1-3, §2)을 코드로 재현해
+문헌 수치·기하 제약과 직접 대조한다.
+
+```python verify
+import numpy as np
+
+# --- (a) 하중 단위 환산: 4 lbf -> N, 논문 본문 "≈17.8 N" 표기와 대조 ---
+LBF_TO_N = 4.4482216153
+load_lbf = 4.0
+load_N = load_lbf * LBF_TO_N
+assert abs(load_N - 17.8) < 0.05, f"4 lbf={load_N:.3f} N, 문헌 표기 17.8 N과 불일치"
+
+# --- (b) 팔 중심(arm center) 궤적: 반경 R_p로 고정된 원운동이어야 한다 (Eq.1 기하 제약) ---
+R_p = 0.30  # m, 임의 테스트 반경(패드 반경 스케일)
+n_p = 100.0  # RPM (Table 1 실측값)
+alpha0 = 0.3  # rad, 임의 초기각
+T = np.linspace(0, 60.0 / n_p, 50)  # 정확히 1회전 구간 샘플
+alpha = alpha0 - (2 * n_p / 60.0) * np.pi * T
+x_ac = R_p * np.cos(alpha)
+y_ac = R_p * np.sin(alpha)
+r_ac = np.sqrt(x_ac**2 + y_ac**2)
+assert np.allclose(r_ac, R_p, atol=1e-9), "팔 중심 궤적이 반경 R_p로 고정돼야 한다(원운동 제약)"
+
+# 1회전 후 각도가 정확히 2π만큼 회전했는지(회전속도 n_p=100 RPM 정의 재현)
+period_s = 60.0 / n_p
+alpha_start = alpha0 - (2 * n_p / 60.0) * np.pi * 0.0
+alpha_end = alpha0 - (2 * n_p / 60.0) * np.pi * period_s
+assert abs((alpha_start - alpha_end) - 2 * np.pi) < 1e-9, "n_p=100 RPM이면 60/100초에 정확히 1회전(2π)해야 한다"
+
+# --- (c) 스윕 범위(83~308 mm) 기하 일관성: 범위 폭과 중간값 확인 ---
+sweep_min_mm, sweep_max_mm = 83.0, 308.0
+sweep_range_mm = sweep_max_mm - sweep_min_mm
+assert abs(sweep_range_mm - 225.0) < 1e-9, "Table 1 스윕 범위 83~308mm의 폭은 225mm"
+
+# --- (d) PCR=k·P·v Preston형 선형성 재현: P 또는 v를 2배로 하면 PCR도 정확히 2배 (형태 검증) ---
+k = 1.0
+P, v = 17.8, 0.5  # 임의 단위(형태 검증 목적, 절대 물리단위 아님)
+pcr_base = k * P * v
+pcr_double_P = k * (2 * P) * v
+pcr_double_v = k * P * (2 * v)
+assert abs(pcr_double_P - 2 * pcr_base) < 1e-9
+assert abs(pcr_double_v - 2 * pcr_base) < 1e-9
+print(f"OK: 4lbf={load_N:.2f}N(문헌 17.8N), 팔궤적 반경오차<1e-9, 스윕범위={sweep_range_mm}mm, PCR 선형성 확인")
+```
+
+결과: (a) 4 lbf 환산값 17.79 N ≈ 문헌 "17.8 N" 일치. (b)(c) Table 1 수치(RPM·스윕범위)는 좌표
+기하 제약을 정확히 만족 — 이는 트리비얼한 검증(하중·회전 정의 자체를 코드화한 것)이라
+**PCR(r) 절대 프로파일 자체는 여전히 미검증**이다(§7 참조, MATLAB 몬테카를로 적산 결과의
+숫자표는 원문 확보 실패). 이 verify 블록은 "본 노트가 인용한 실험 파라미터가 내적으로
+일관적임"만 보증한다.
+
 ## 7. 한계/미검증
 - Table 2 이후(스윕 파티션·스플라인 피팅 구체 수치)는 페이지 뒷부분 접근 제한으로 본문 발췌
   실패 — **미검증**, 구현 시엔 사인파 모드(Eq.4, 전체 확보)만 재현한다.

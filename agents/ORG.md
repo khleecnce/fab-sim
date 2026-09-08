@@ -19,8 +19,8 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │
 │   ├─ 소모품 (Consumables)
 │   │   ├─ slurry-chemist ★               [활성]  총론 → 분화 부모
-│   │   │   ├─ slurry-abrasive             [대기]  입자: 실리카/세리아/알루미나, 크기·형상·농도·경도
-│   │   │   ├─ slurry-chemistry            [대기]  산화제·억제제·킬레이트·pH·선택비
+│   │   │   ├─ slurry-abrasive             [활성, G2 2026-09-09]  입자: 실리카/세리아/알루미나, 크기·형상·농도·경도
+│   │   │   ├─ slurry-chemistry            [활성, G2 2026-09-09]  산화제·억제제·킬레이트·pH·선택비
 │   │   │   └─ slurry-colloid              [대기]  분산 안정성·응집·POU 필터·쉘프라이프
 │   │   ├─ pad-mechanic ★                 [활성]  총론 → 분화 부모
 │   │   │   ├─ pad-material                [활성, G2 2026-09-06]  PU 조성·경도·기공·점탄성
@@ -36,7 +36,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   ├─ film-nitride                    [대기]  SiN — STI stop layer·선택비
 │   │   ├─ film-poly-si                    [대기]  Poly-Si — 게이트·3D NAND
 │   │   ├─ film-cu                         [활성, G1 2026-09-08]  Cu — 배선, dishing/erosion, 부식
-│   │   ├─ film-w                          [대기]  W — 플러그·contact, 산화제 화학
+│   │   ├─ film-w                          [활성, G2 2026-09-09]  W — 플러그·contact, 산화제 화학
 │   │   └─ film-emerging                   [대기]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
 │   │
 │   ├─ 장비 (Equipment)
@@ -53,7 +53,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   └─ surface-contamination           [활성, G1 2026-09-05]  post-CMP 금속 오염(Cu·Fe·K·Ca)·이온·유기 잔류. TXRF/VPD-ICPMS. 세정 화학 연계
 │   │
 │   └─ 데이터 (Data) — ★ 제품 핵심층 (§7 참조)
-│       ├─ cmp-data-engineer               [대기]  공개·합성 데이터, 스키마, 파이프라인
+│       ├─ cmp-data-engineer               [활성, G2 2026-09-09]  공개·합성 데이터, 스키마, 파이프라인
 │       └─ cmp-calibrator                  [대기]  고객 실데이터 → 모델 보정 (Tier3). NPW/PTW 분리 학습
 │
 ├─ L3-ETCH    etch-integrator              [자리]  Phase 2
@@ -109,6 +109,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | disk-kinematics | 활성 (G4 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | film-oxide | 활성 (G1 개방 2026-09-08) | 4/6 (Lv2-2 완료, Lv2 완주) | 2026-09-09 |
 | film-cu | 활성 (G1 개방 2026-09-08) | 3/6 (Lv2-1 완료) | 2026-09-09 |
+| slurry-abrasive | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
+| slurry-chemistry | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
+| film-w | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
+| cmp-data-engineer | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

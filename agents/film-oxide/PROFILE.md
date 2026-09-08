@@ -79,3 +79,22 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - **[P3] 오버폴리시 창 유틸** — 무엇: 나이트라이드 손실 예산 E_max와 (K, s, ρ)에서 허용 오버폴리시 시간 ≈ (E_max − 과도항)/K_ss
   계산 + 다이 내 t_n 퍼짐(§2.12.2: 80→120 s)을 더해 최소 오버폴리시 시간을 산출. 검증값: 예산 300 Å·K 2000·ρ 0.5에서 s 10 →
   0.8 min, s 100 → 7.6 min(§8 [B]; 과도항 무시한 내 유도, 문헌 직접값 아님 — 미검증 표기 유지). 우선순위 중.
+
+## 정확도 루프 대응 (2026-09-09, 학습총괄 배차)
+- **VALIDATION 갭**: oxide_silica 팩의 n≥4 held-out 검증 데이터가 0건이었다(accuracy_gaps.py 랭킹 1위).
+  `validation/datasets/cn109609035b_oxide_anionic_silica_ph.yaml` 확보 시도 — CN109609035B(Fujifilm
+  Electronic Materials, 아니온성 콜로이달 실리카 1wt%, pH 2.0~6.0 7수준, TEOS blanket) 실시예1 표1.
+  li2021(캘리브레이션 출처, 염기성 pH10~12.5)과 겹치지 않는 산성 영역이라 독립 held-out 후보.
+- **⚠ 백테스트 결과 판정불가(분산 없음, ρ=nan)**: `simulate()`에 pH 2~6를 넣어도 예측 MRR이 전 조건
+  동일하게 나왔다(`⚠⚠ 예측값이 전 조건 동일` — overrides로 넣은 slurry_ph·abrasive_wt_pct가
+  실제로 안 먹힘). 원인 후보: oxide_silica χ(pH)항이 `ph_ref=11.0` 중심 정점형으로 캘리브레이션돼
+  있어 산성 영역(2~6)에서 항이 죽어있거나 클램프됐을 가능성 — `--sensitivity`로 이 팩의 pH 탄성도를
+  산성 구간에서 직접 재보는 것이 다음 확인 과제다. **이 데이터셋은 아직 유의한 held-out으로 못 쓴다**
+  (n=7이지만 판정불가) — 소프트웨어 부문 BACKLOG로 이관 필요.
+
+## 구현 요청 (추가)
+- **[P4] oxide_silica pH항 산성 구간(pH 2~6) 반응성 확인** — 무엇: `sim/factors.py`의 χ(pH) 항이
+  ph_peak=11.0 중심 정점형인데, CN109609035B 데이터(pH 2→10.9 nm/min 최대, pH 5까지 단조감소)는
+  반대쪽 극단이다. `--sensitivity --set slurry_ph=2..6` 스윕으로 실제로 값이 변하는지 확인하고,
+  안 변하면 클램프/범위 제한이 원인인지 진단. 근거노트: 위 정확도 루프 대응 항목,
+  데이터: `validation/datasets/cn109609035b_oxide_anionic_silica_ph.yaml`. 우선순위 높음(VALIDATION 갭 직결).
