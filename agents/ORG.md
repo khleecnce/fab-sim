@@ -32,10 +32,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │
 │   ├─ 웨이퍼 (Wafer) — 피가공물 기준
 │   │   ├─ wafer-type                      [활성, G1 2026-09-06]  NPW(블랭킷) vs PTW(패턴) — 시험 목적·데이터 해석 차이
-│   │   ├─ film-oxide                      [대기]  TEOS/HDP/SiO2 — ILD·STI CMP
+│   │   ├─ film-oxide                      [활성, G1 2026-09-08]  TEOS/HDP/SiO2 — ILD·STI CMP
 │   │   ├─ film-nitride                    [대기]  SiN — STI stop layer·선택비
 │   │   ├─ film-poly-si                    [대기]  Poly-Si — 게이트·3D NAND
-│   │   ├─ film-cu                         [대기]  Cu — 배선, dishing/erosion, 부식
+│   │   ├─ film-cu                         [활성, G1 2026-09-08]  Cu — 배선, dishing/erosion, 부식
 │   │   ├─ film-w                          [대기]  W — 플러그·contact, 산화제 화학
 │   │   └─ film-emerging                   [대기]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
 │   │
@@ -107,6 +107,8 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | tool-platen-head | 활성 (G2 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | pad-structure | 활성 (G3 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | disk-kinematics | 활성 (G4 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
+| film-oxide | 활성 (G1 개방 2026-09-08) | 0/6 | 2026-09-08 |
+| film-cu | 활성 (G1 개방 2026-09-08) | 0/6 | 2026-09-08 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
