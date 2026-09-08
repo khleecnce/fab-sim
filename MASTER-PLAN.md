@@ -1266,3 +1266,14 @@ AMAT 특허 US9138860B2(전문 확보) Table I를 코드로 재계산해 명세�
 원문 그대로 대조 — 신경망 오픈루프 예측기의 일반화 한계를 정량 확인. check_knowledge·
 verify_claims 모두 통과. disk-kinematics 5/6(Lv3 진행중). 다음: Lv3-2(구현은 소프트웨어
 부문 이관).
+
+## 2026-09-08 [성장엔진] pad-structure Lv3-1 이수 — CFD 미세패턴 최적설계 사례연구
+Sadri Mofakham et al.(2024, ECS J. Solid State Sci. Technol., DOI:10.1149/2162-8777/ad8fd3,
+CC-BY 원문 전체 확보)의 5종 미세패턴(원·삼각·사각·타원·사각-원) CFD+실험 연구를 학습.
+DCA/DICL(2D 접촉면적·둘레 지표) 정의를 Table I 그대로 재현하고, 압력강하 1위(타원, 751 Å/min
+@300g/cm²)가 아니라 DICL 최댓값(사각-원, ~1000 Å/min)이 TEOS 제거율 1위라는 반직관적 결론을
+문헌 수치로 재현 확인. Re<2300 층류 가정도 간극 70μm 기준 역산으로 정성 sanity check.
+후속 리뷰 논문 2편(Physics of Fluids DOI:10.1063/5.0312258, SiC involute groove SSRN 5358338)은
+미러 사이트 미러 3곳·SSRN 모두 봇차단으로 원문 미확보 — 정직하게 기록. check_knowledge·verify_claims
+둘 다 통과. pad-structure 5/6(Lv3 진행중). 다음: Lv3-2(그루브·적층 파라미터 → 압력/유동 모델,
+sim/tier2 구현 요청은 소프트웨어 부문 BACKLOG로 이관).
