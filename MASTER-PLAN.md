@@ -1288,3 +1288,17 @@ stepheight.md §1·§6 정량값 그대로 재현 테스트 9건(ITRS 2007 9개�
 Claude Code로 위임(max-turns 40, push 금지 브리핑) → 오케스트레이터(Max워커)가 재검증 후 커밋 20a9ba3 push.
 소프트웨어 부문 BACKLOG.md S35 완료 표기 이전. 다음 후보: S12 잔여 19개 모듈 이관, 또는 wafer-metrology 신규
 구현요청 대기(S36/S37).
+
+## 2026-09-08 [성장엔진] slurry-chemist Lv3-2 이수 — 커리큘럼 6/6 완주
+Li et al.(2021, ECS J. Solid State Sci. Technol. 10, 123008, DOI:10.1149/2162-8777/ac3e44,
+**CC BY-NC-ND 원문 전체 PDF 확보** — Unpaywall API로 publisher OA 위치 확인 후 직접 다운로드,
+미러 사이트 불필요) 학습. 콜로이달 실리카 슬러리의 pH(정점 11.0, 1551→1727→1407 Å/min)·K⁺농도
+(정점 0.4mol/L, 1713→2538→2377 Å/min)·입자크기(80nm 정점, 두 극한모델 방향성만 검증)·분산제
+(PAM만 30일 응집없이 안정+MRR 무손실, PVA/PVP는 각 −3.6%/−7.9% MRR 저해)를 정량 재현.
+원문 Eq.3-4(표면적/압입 모델) 지수는 PDF 텍스트 추출 손상으로 신뢰 불가 판단 → 지수값은
+assert하지 않고 농도 방향성만 검증(할루시네이션 방지 규칙 3 적용, 그럴듯한 지수로 채우지
+않음). knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md 신설,
+verify_claims·check_knowledge 둘 다 통과(verify 4블록, 출처 2건 실존, 미검증 6건/정량값
+다수로 게이트 통과). slurry-chemist CURRICULUM 6/6 완주, PROFILE·EXAMS·ORG §5 갱신.
+**M1 게이트(MILESTONES.md)는 slurry-chemist·tribologist 둘 다 6/6 필요 — tribologist는
+아직 5/6(Lv3-2 남음)이라 M1 미완**. 다음 회차: tribologist Lv3-2를 우선해 M1 완결 시도.

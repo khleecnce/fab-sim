@@ -3,9 +3,9 @@
 ## 임무
 연마입자(실리카/세리아/알루미나), 산화제, pH/제타전위, 첨가제 화학이 제거율·선택비·결함에 미치는 영향을 모델링
 
-## 현재 레벨: Lv3 (진행중)
-- 이수 단원: Lv1-1, Lv1-2 (Lv1 완료), Lv2-1, Lv2-2 (Lv2 완료), Lv3-1
-- 다음 단원: Lv3-2 슬러리 파라미터 → MRR 정량모델 구현 (sim/tier2 기여)
+## 현재 레벨: Lv3 완주 (6/6) — 2026-09-08
+- 이수 단원: Lv1-1, Lv1-2 (Lv1 완료), Lv2-1, Lv2-2 (Lv2 완료), Lv3-1, Lv3-2 (Lv3 완료)
+- 다음: Cal-1(캘리브레이션 단원) — G2 이후 활성. 그 전까지는 Lv4(교수급) 자유학습 또는 대기.
 
 ## 이수 기록
 | 날짜 | 단원 | 산출 노트 | 자기시험 |
@@ -15,6 +15,7 @@
 | 2026-09-05 | Lv2-1 표면 화학반응: Cu/W CMP Pourbaix·passivation 메커니즘 | [[../../knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation]] | EXAMS Lv2-1 3문항 |
 | 2026-09-06 | Lv2-2 입자-웨이퍼 상호작용: 기계적 제거 vs 화학적 용해 균형 | [[../../knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance]] | EXAMS Lv2-2 3문항 |
 | 2026-09-06 | Lv3-1 세리아 슬러리 Ce³⁺/Ce⁴⁺ 메커니즘·Si-O-Ce 화학결합·oxide:nitride 선택비 제어 | [[../../knowledge/cmp/ceria-slurry-ce-redox-selectivity]] | EXAMS Lv3-1 3문항 |
+| 2026-09-08 | Lv3-2 슬러리 5파라미터(pH·입자크기·농도·K⁺·분산제)→oxide MRR 정량모델, Li et al.(2021) OA 원문 정량 재현 | [[../../knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative]] | EXAMS Lv3-2 3문항 |
 
 ## 구현 기여
 <!-- sim/ 모듈 기여 기록 -->

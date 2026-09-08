@@ -7,7 +7,7 @@
 - [x] Lv2-1 표면 화학반응: Cu/W/oxide CMP의 화학 메커니즘 (Pourbaix, passivation) <!-- 이수 2026-09-05 -->
 - [x] Lv2-2 입자-웨이퍼 상호작용: 기계적 제거 vs 화학적 용해 균형 <!-- 이수 2026-09-06 -->
 - [x] Lv3-1 최신 리뷰논문: 세리아 슬러리 Ce3+/Ce4+ 메커니즘, 선택비 제어 <!-- 이수 2026-09-06, knowledge/cmp/ceria-slurry-ce-redox-selectivity.md -->
-- [ ] Lv3-2 슬러리 파라미터 → MRR 정량모델 구현 (sim/tier2 기여)
+- [x] Lv3-2 슬러리 파라미터 → MRR 정량모델 구현 (sim/tier2 기여) <!-- 이수 2026-09-08, knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md -->
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

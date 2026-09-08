@@ -854,5 +854,57 @@
  "doi:10.21203/rs.3.rs-2408757/v1": {
   "ok": true,
   "msg": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive"
+ },
+ "doi:10.1063/1.1721448": {
+  "ok": true,
+  "msg": "Contact and Rubbing of Flat Surfaces"
+ },
+ "doi:10.1007/s11431-013-5245-y": {
+  "ok": true,
+  "msg": "Contact stress non-uniformity of wafer surface for multi-zone chemical mechanical polishin"
+ },
+ "doi:10.1007/s40544-013-0035-x": {
+  "ok": true,
+  "msg": "Chemical mechanical polishing: Theory and experiment"
+ },
+ "doi:10.1007/s40684-021-00406-8": {
+  "ok": true,
+  "msg": "Approaches to Sustainability in Chemical Mechanical Polishing (CMP): A Review"
+ },
+ "doi:10.7567/jjap.56.07kh02": {
+  "ok": true,
+  "msg": "In situ measurement method for film thickness using transparency resin sheet with low refr"
+ },
+ "doi:10.1007/s40684-025-00819-9": {
+  "ok": true,
+  "msg": "Challenges and Innovations in Chemical Mechanical Polishing in the More-than-Moore Era"
+ },
+ "doi:10.1117/12.284688": {
+  "ok": true,
+  "msg": "Evaluation of pad life in chemical mechanical polishing process using statistical metrolog"
+ },
+ "doi:10.3390/app11156839": {
+  "ok": true,
+  "msg": "In Situ Metrology for Pad Surface Monitoring in CMP Using a Common-Path Phase-Shifting Int"
+ },
+ "doi:10.36227/techrxiv.174535571.17521841": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/j.precisioneng.2017.01.015": {
+  "ok": true,
+  "msg": "Investigation of pad wear in CMP with swing-arm conditioning and uniformity of material re"
+ },
+ "doi:10.1063/5.0312258": {
+  "ok": true,
+  "msg": "Multi-scale simulation and flow field characteristics of polishing pad groove structures"
+ },
+ "doi:10.1149/2162-8777/ad8fd3": {
+  "ok": true,
+  "msg": "Enhancing CMP Performance of Micro-Structured Pad Patterns: CFD Simulations and Experiment"
+ },
+ "doi:10.1149/2162-8777/ac3e44": {
+  "ok": true,
+  "msg": "Role of Slurry Additives on Chemical Mechanical Planarization of Silicon Dioxide Film in C"
  }
 }
