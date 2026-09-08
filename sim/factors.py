@@ -475,6 +475,95 @@ def _ph_peak_term(pack, notes: List[str]) -> Optional[float]:
     return cur / ref
 
 
+def _ph_ceria_electrostatic_term(pack, notes: List[str]) -> Optional[float]:
+    """세리아 슬러리의 pH → MRR — **정전 인력 창(window)** 거동.
+
+    실리카 슬러리의 pH 정점(11.0)과는 **메커니즘도, 방향도 다르다.**
+    실리카 팩의 `_ph_peak_term`을 세리아에 상속시켜 쓰면 pH 10에서 최대라고
+    예측하는데, 실측은 정반대다:
+
+      Dandu 2009 (doi:10.1149/1.3230624, Fig.2a, SiO₂ / 0.25 wt% 세리아 60 nm / 4 psi):
+          pH 2.0 →   4.3 nm/min
+          pH 3.0 →  95.3
+          pH 3.5 → 276.3
+          pH 4.0 → 347.4  ┐
+          pH 5.0 → 344.3  │ 플래토 (~350)
+          pH 5.5 → 350.4  ┘
+          pH 6.0 →  99.3  ← 급락
+          pH 8.0 →  69.4
+          pH 10  →  64.3
+
+    물리 (knowledge/cmp/ceria-slurry-ce-redox-selectivity.md §4, verify PASS):
+      표면전하 부호 = sign(IEP − pH). 세리아 IEP ≈ 6.8, 실리카 IEP ≈ 2.5.
+      **두 IEP 사이(2.5 < pH < 6.8)에서만** 세리아(+)·실리카(−)가 반대부호라
+      정전 인력이 입자를 웨이퍼로 끌어당겨 Si-O-Ce 결합을 촉진한다. 그 창 밖에서는
+      같은 부호로 반발한다 → MRR 급락. pH 6 부근은 세리아 IEP에 근접해 제타≈0,
+      응집까지 겹친다.
+
+    구현: 창 안에서 플래토, 양 끝에서 IEP까지 시그모이드 감쇠. 창 밖 잔류값은
+    실측(pH 8~10에서 정점의 ~19%)에서 뽑는다.
+      ⚠ 시그모이드 폭·잔류율은 Dandu 한 편의 실측 3구간에서 역산한 값이다.
+        형태 자체가 문헌 폐형식은 아니다 — 순위·창 위치는 물리(IEP)가 주고,
+        기울기는 캘리브레이션 대상이다.
+
+    ⚠⚠ 알려진 반례 — 숨기지 않는다 (2026-09-08 백테스트):
+      Netzband & Dunn 2020 (doi:10.1149/2162-8777/ab8393, 열산화막, 1 wt% 세리아,
+      2.25 cm² 벤치탑 쿠폰)은 pH 4→19.8, 6→11.3, 8→20.0, 10→21.3 nm/min으로
+      **pH 10이 최고**다. 이 모델은 pH 10을 잔류 18%로 예측하므로 그 데이터셋에서
+      ρ=−0.80이 나온다. 이 모델을 넣기 전 dandu2009는 ρ=−0.525였고 넣은 뒤
+      +0.933이 됐다 — 한쪽을 맞추면 다른 쪽이 깨지는 **진짜 상충**이다.
+
+      왜 다른가(가설, 미검증): Netzband의 전체 MRR 폭은 11~21(2배)인 반면 Dandu는
+      4~350(80배)이다. Netzband는 쿠폰 실험이라 접촉 압력·슬러리 교체가 양산
+      폴리셔와 다르고, 1 wt%는 0.25 wt%보다 입자가 4배 많아 정전 반발이 있어도
+      기계 접촉이 유지될 수 있다. 즉 정전 창은 **저농도·양산 스케일에서 지배적**이고
+      고농도·쿠폰에서는 부차적일 수 있다. 이걸 농도 의존 창 깊이로 넣으려면
+      두 논문 사이를 잇는 중간 농도 데이터가 필요하다 — 지금은 없다.
+
+      선택: 양산 스케일(사용자의 실제 사용 조건)을 맞추는 Dandu를 따른다.
+      Netzband 조건(고농도·쿠폰)에서는 이 모델이 틀릴 수 있음을 notes로 신고한다.
+    """
+    if str(pack.get_or("abrasive", "")) != "ceria":
+        return None
+    if not (pack.has("slurry_ph") and pack.has("abrasive_iep_ph")):
+        return None
+    ph = float(pack.get("slurry_ph"))
+    iep_ceria = float(pack.get("abrasive_iep_ph"))            # ~6.8
+    iep_wafer = float(pack.get_or("wafer_iep_ph", 2.5))       # 실리카 산화막
+    ph_ref = float(pack.get_or("ph_ref", ph))
+
+    # 실측 역산 파라미터 — 팩이 덮어쓸 수 있다.
+    # ⚠ 창 밖 잔류값은 **양쪽이 다르다** — 물리가 다르기 때문이다:
+    #   산성 쪽(pH<2.5): 둘 다 (+)이나 실리카는 IEP 직하라 거의 무전하 → 인력도
+    #     반발도 약하고 세리아 자체가 용출 → 거의 0 (실측 1%).
+    #   염기 쪽(pH>6.8): 둘 다 (−) 강반발이지만 Si-O-Ce chemical tooth는 살아 있어
+    #     기계적 접촉만으로도 일부 제거 → ~18% 잔류.
+    #   단일 잔류값으로는 이 둘을 동시에 못 맞춘다(격자탐색 log-err 5.3 vs 0.02).
+    res_lo = float(pack.get_or("ph_window_residual_acid", 0.01))
+    res_hi = float(pack.get_or("ph_window_residual_base", 0.18))
+    k_lo = float(pack.get_or("ph_window_k_low", 5.0))
+    k_hi = float(pack.get_or("ph_window_k_high", 10.0))
+    mid_lo = float(pack.get_or("ph_window_mid_low", iep_wafer + 0.7))     # 3.2
+    mid_hi = float(pack.get_or("ph_window_mid_high", iep_ceria - 1.0))    # 5.8
+
+    def _win(x: float) -> float:
+        lo = 1.0 / (1.0 + math.exp(-k_lo * (x - mid_lo)))
+        hi = 1.0 / (1.0 + math.exp(k_hi * (x - mid_hi)))
+        return res_lo * (1.0 - lo) + res_hi * (1.0 - hi) * lo + lo * hi
+
+    cur, ref = _win(ph), _win(ph_ref)
+    if ref <= 0:
+        return None
+    notes.append(
+        f"세리아 정전 창: pH {ph:g} (창 {iep_wafer:g}~{iep_ceria:g}, 기준 {ph_ref:g}) "
+        f"→ 상대 {cur/ref:.3f}. 창 안에서 세리아(+)·실리카(−) 인력, 밖에서 반발. "
+        "⚠ 창 위치는 IEP 물리, 기울기·잔류율은 Dandu 2009 실측 역산 — 미검증.")
+    if ph >= iep_ceria - 0.5:
+        notes.append(f"⚠ pH {ph:g}는 세리아 IEP({iep_ceria:g}) 근접 — 제타≈0, "
+                     "응집·스크래치 위험(Δ↑). 분산제 없이는 실무 부적합.")
+    return cur / ref
+
+
 def _f_chi(rr: "ResolvedRecipe") -> Factor:
     """χ 화학 반응성 — 표면 연화·산화가 만드는 MRR 배수.
 
@@ -489,9 +578,18 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     notes: List[str] = []
     terms: Dict[str, float] = {}
 
-    # pH: 정점형이 가능하면 그걸 쓰고, 아니면 단조 연화로 폴백한다.
-    ph_terms = [("ph_peak", _ph_peak_term)]
-    if not (pk.has("ph_peak") and pk.has("ph_ref")):
+    # pH 항 선택 — **재료계별로 다르다.** 메커니즘이 다른 재료에 같은 항을 쓰면
+    # 부호까지 틀린다(실리카 IEP 2.5 vs 세리아 6.8 → 정전 상호작용이 반대 방향).
+    #   세리아: IEP 창 모델 (Dandu 2009)
+    #   실리카: 정점형 (Li 2021), 없으면 단조 연화 폴백
+    # ⚠ sti_ceria 팩이 oxide_silica를 base로 상속하므로, 세리아를 먼저 확인하지
+    #   않으면 실리카의 pH 11 정점 항이 세리아에 잘못 적용된다 — 2026-09-08
+    #   dandu2009 백테스트에서 ρ=−0.525(음의 상관)로 드러난 결함이 바로 이것이다.
+    if str(pk.get_or("abrasive", "")) == "ceria" and pk.has("abrasive_iep_ph"):
+        ph_terms = [("ph_ceria_window", _ph_ceria_electrostatic_term)]
+    elif pk.has("ph_peak") and pk.has("ph_ref"):
+        ph_terms = [("ph_peak", _ph_peak_term)]
+    else:
         ph_terms = [("ph_softening", _ph_softening_term)]
 
     for name, fn in ([("oxidizer", _oxidizer_term),

@@ -26,7 +26,8 @@ PARSED = ROOT / "data" / "customer" / "parsed"
 
 # 컬럼 별칭 — 실무 파일이 제각각이라 넓게 받는다
 ALIASES = {
-    "radius_mm": ["radius", "r", "반경", "radius_mm", "r_mm", "위치", "position"],
+    "radius_mm": ["radius", "r", "반경", "radius_mm", "r_mm", "위치", "position",
+                  "반경mm", "radiusmm", "반경(mm)", "r(mm)"],
     "x_mm": ["x", "x_mm", "x축", "xpos"],
     "y_mm": ["y", "y_mm", "y축", "ypos"],
     "point": ["point", "pt", "site", "no", "번호", "포인트", "측정점", "index"],

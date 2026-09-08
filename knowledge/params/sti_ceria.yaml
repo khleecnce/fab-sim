@@ -30,6 +30,22 @@ params:
     unit: pH
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
     confidence: verified
+  # ⚠ base(oxide_silica)의 ph_ref=10.5·ph_peak=11.0을 **반드시 덮어쓴다.**
+  #   실리카의 pH 정점 모델은 세리아에 적용하면 부호까지 틀린다(IEP가 2.5 vs 6.8).
+  #   factors.py가 abrasive=='ceria'를 먼저 보고 IEP 창 모델로 분기하지만,
+  #   ph_ref는 그 모델의 기준점으로도 쓰이므로 세리아 작동 pH로 둔다.
+  ph_ref:
+    value: 5.5
+    unit: pH
+    note: 세리아 정전 창(2.5~6.8) 안의 기준점 — slurry_ph와 같은 값
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md §4
+    confidence: verified
+  wafer_iep_ph:
+    value: 2.5
+    unit: pH
+    note: 실리카 산화막 표면 IEP. 정전 창의 하단. 2차 인용 범위(2~3)
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md §4
+    confidence: literature
   abrasive_size_nm:
     value: 80.0
     unit: nm

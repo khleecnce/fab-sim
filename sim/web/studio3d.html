@@ -112,8 +112,10 @@ const PARTS = {
   slurry:{ name:"② 슬러리", icon:"💧",
     sub:"소재 개발자가 실제로 배합하는 단위. 함량을 바꾸면 막질별 R/R이 변해야 한다 — V1에서 완전히 죽어 있던 축이다.",
     fields:[
-      {k:"slurry_ph", l:"pH", u:"", min:8, max:13, step:0.1, pk:"slurry_ph"},
-      {k:"abrasive_wt_pct", l:"입자 함량", u:"wt%", min:1, max:35, step:0.5, pk:"abrasive_wt_pct"},
+      {k:"slurry_ph", l:"pH", u:"", min:0, max:14, step:0.1, pk:"slurry_ph",
+       hint:"실리카 팩: pH 11 정점(Li 2021). 세리아 팩: 2.5~6.8 정전 창, pH 6 넘으면 급락(Dandu 2009). 실측 범위 밖은 외삽이다."},
+      {k:"abrasive_wt_pct", l:"입자 함량", u:"wt%", min:0, max:50, step:0.5, pk:"abrasive_wt_pct",
+       hint:"7 wt% 이상은 Luo-Dornfeld 포화 — 더 넣어도 MRR이 안 오른다고 실측된 계가 있다. 그 구간은 과대평가."},
       {k:"abrasive_size_nm", l:"입자 크기 D50", u:"nm", min:20, max:150, step:5, pk:"abrasive_size_nm",
        dead:"입경 지수가 문헌 미확정(OCR 손상)이라 항을 만들지 않았다. 지어내는 대신 비워뒀다."},
       {k:"oxidizer_wt_pct", l:"산화제 함량", u:"wt%", min:0, max:8, step:0.1, pk:"oxidizer_wt_pct",
@@ -150,168 +152,409 @@ const PARTS = {
       {k:"initial_thickness_nm", l:"초기 두께", u:"nm", min:200, max:5000, step:50, special:"thick"},
       {k:"wafer", l:"웨이퍼 종류", special:"wafertype"},
     ]},
+  data:{ name:"⑥ 데이터", icon:"📊",
+    sub:"모든 실행은 자동으로 DB에 쌓인다. 실측 파일(엑셀/CSV)을 넣으면 그대로 저장되고, 3건 이상 쌓이면 Kp 보정계수가 계산된다.",
+    fields:[ {special:"data"} ]},
 };
 
 const state = { pack:"oxide_silica", wafer:"NPW", time_s:60,
                 initial_thickness_nm:1000, overrides:{}, base:{}, packs:[] };
 let current = "tool";
 
-/* ─────────────────────────────────────────── 3D 씬 */
+/* ─────────────────────────────────────────── 3D 씬
+   실제 회전식 CMP 폴리셔(AMAT Reflexion/Mirra, Ebara F-REX급) 구조를 재현한다.
+   스케일: 1 unit ≈ 253 mm  (플래튼 Ø760mm → R=1.5, 300mm 웨이퍼 → R=0.59,
+   r_cc 180mm → 0.71, 컨디셔너 디스크 Ø100mm → R=0.2)
+   외부 의존 이름: hot / buildGrooves / buildGrits / waferMat  (+ num, select 호출)
+   ────────────────────────────────────────────────────────────── */
 const view = document.getElementById("view");
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0b0f14);
-scene.fog = new THREE.Fog(0x0b0f14, 3.2, 8.5);
-const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-const rend = new THREE.WebGLRenderer({antialias:true});
+const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+const rend = new THREE.WebGLRenderer({antialias:true, powerPreference:"high-performance"});
 rend.shadowMap.enabled = true;
+rend.shadowMap.type = THREE.PCFSoftShadowMap;
+rend.toneMapping = THREE.ACESFilmicToneMapping;
+rend.toneMappingExposure = 1.05;
+rend.outputColorSpace = THREE.SRGBColorSpace;
 view.appendChild(rend.domElement);
+const ANISO = rend.capabilities.getMaxAnisotropy();
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-const key = new THREE.DirectionalLight(0xffffff, 1.15);
-key.position.set(4,7,4); key.castShadow = true;
-key.shadow.mapSize.set(1024,1024); scene.add(key);
-const rim = new THREE.DirectionalLight(0x4da3ff, 0.5);
-rim.position.set(-4,3,-4); scene.add(rim);
+/* ── 배경: 방사 그라데이션 (CDN 의존 없음) ── */
+(function(){
+  const c = document.createElement("canvas"); c.width = c.height = 512;
+  const g = c.getContext("2d");
+  const grd = g.createRadialGradient(256,230,40, 256,256,380);
+  grd.addColorStop(0, "#1c2330"); grd.addColorStop(0.55, "#0f141b"); grd.addColorStop(1, "#06080b");
+  g.fillStyle = grd; g.fillRect(0,0,512,512);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  scene.background = tex;
+})();
+scene.fog = new THREE.Fog(0x0a0d12, 7, 18);
 
-const hot = {};   // 클릭 가능한 파트
+/* ── 환경맵: 스튜디오 룸을 코드로 만들어 PMREM (RoomEnvironment 동등, CDN 불필요) ── */
+(function(){
+  try{
+    const room = new THREE.Scene();
+    const box = new THREE.Mesh(new THREE.BoxGeometry(12,12,12),
+      new THREE.MeshStandardMaterial({color:0x3a4048, side:THREE.BackSide, roughness:1, metalness:0}));
+    box.position.y = 4; room.add(box);
+    const lamp = (w,h,x,y,z,ry,rx,I,tint)=>{
+      const col = new THREE.Color(tint||0xffffff).multiplyScalar(I);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w,h), new THREE.MeshBasicMaterial({color:col, side:THREE.DoubleSide}));
+      m.position.set(x,y,z); m.rotation.set(rx||0, ry||0, 0); room.add(m);
+    };
+    lamp(6,2.2,  0, 9.5,  0,   0, -Math.PI/2, 14, 0xf4f7ff);   // 천장 소프트박스
+    lamp(2.5,6, -5.9, 5, 0,  Math.PI/2, 0, 9, 0xe9f0ff);          // 좌 스트립
+    lamp(2.5,6,  5.9, 5, 0, -Math.PI/2, 0, 6, 0xffffff);          // 우 스트립
+    lamp(8,1.2,  0, 6.5, -5.9, 0, 0, 5, 0xbfd6ff);                // 후면 림 (차가움)
+    lamp(3,3,    0, 3.5,  5.9, Math.PI, 0, 2.5, 0xffffff);        // 정면 필
+    const pm = new THREE.PMREMGenerator(rend); pm.compileEquirectangularShader();
+    scene.environment = pm.fromScene(room, 0.04).texture;
+    pm.dispose();
+  }catch(e){ console.warn("env map 실패, 라이트만 사용", e); }
+})();
 
-/* 베이스 프레임 */
-const baseFrame = new THREE.Mesh(
-  new THREE.CylinderGeometry(1.62,1.72,0.20,64),
-  new THREE.MeshStandardMaterial({color:0x1c2430, metalness:.85, roughness:.42}));
-baseFrame.position.y = -0.30; baseFrame.receiveShadow = true; scene.add(baseFrame);
+/* ── 조명: 클린룸 차가운 백색 키 + 필 + 림, 소프트 섀도 ── */
+scene.add(new THREE.HemisphereLight(0xdfe8f5, 0x151a20, 0.55));
+const key = new THREE.DirectionalLight(0xf3f7ff, 2.6);
+key.position.set(3.5,7.5,3); key.castShadow = true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.left = key.shadow.camera.bottom = -4.2;
+key.shadow.camera.right = key.shadow.camera.top = 4.2;
+key.shadow.camera.near = 1; key.shadow.camera.far = 20;
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0xdfe9ff, 0.7); fill.position.set(-5,3,4); scene.add(fill);
+const rim  = new THREE.DirectionalLight(0x8fbaff, 1.4); rim.position.set(-3,4,-6); scene.add(rim);
 
-/* ── 플래튼 + 패드(그루브) : 회전한다 ── */
+/* ── 재질 (PBR) ── */
+const M = {
+  steel:   new THREE.MeshStandardMaterial({color:0xd5dae0, metalness:1.0, roughness:0.28}),
+  steelD:  new THREE.MeshStandardMaterial({color:0x9aa3ad, metalness:1.0, roughness:0.36}),
+  alu:     new THREE.MeshStandardMaterial({color:0xb9bfc7, metalness:1.0, roughness:0.42}),
+  anod:    new THREE.MeshStandardMaterial({color:0x2b3037, metalness:0.9, roughness:0.5}),
+  frame:   new THREE.MeshStandardMaterial({color:0xe3e6ea, metalness:0.15, roughness:0.55}), // 분체도장 패널
+  black:   new THREE.MeshStandardMaterial({color:0x14171b, metalness:0.6, roughness:0.6}),
+  pps:     new THREE.MeshStandardMaterial({color:0xd8d0bc, metalness:0.0, roughness:0.62}),  // 리테이너 링 PPS
+  rubber:  new THREE.MeshStandardMaterial({color:0x1b1d20, metalness:0.0, roughness:0.9}),
+  bolt:    new THREE.MeshStandardMaterial({color:0x6d7680, metalness:1.0, roughness:0.45}),
+  tube:    new THREE.MeshStandardMaterial({color:0xcfd5db, metalness:1.0, roughness:0.22}),
+  hose:    new THREE.MeshStandardMaterial({color:0xf2f4f6, metalness:0.0, roughness:0.35, transparent:true, opacity:0.85}),
+};
+
+/* ── 기하 헬퍼 ── */
+/* 챔퍼 원통 (LatheGeometry) : 모든 금속 원통은 모서리를 깎는다 */
+function chamferCyl(r, h, c, seg){
+  seg = seg||96; c = Math.min(c, r*0.45, h*0.45);
+  const pts = [ new THREE.Vector2(0,-h/2), new THREE.Vector2(r-c,-h/2),
+    new THREE.Vector2(r,-h/2+c), new THREE.Vector2(r,h/2-c),
+    new THREE.Vector2(r-c,h/2), new THREE.Vector2(0,h/2) ];
+  const g = new THREE.LatheGeometry(pts, seg); g.computeVertexNormals(); return g;
+}
+/* 챔퍼 링(관) : 리테이너 링, 트레이 등 */
+function chamferRing(ri, ro, h, c, seg){
+  seg = seg||96; c = Math.min(c, (ro-ri)*0.45, h*0.45);
+  const pts = [ new THREE.Vector2(ri,-h/2), new THREE.Vector2(ro-c,-h/2), new THREE.Vector2(ro,-h/2+c),
+    new THREE.Vector2(ro,h/2-c), new THREE.Vector2(ro-c,h/2), new THREE.Vector2(ri+c,h/2),
+    new THREE.Vector2(ri,h/2-c), new THREE.Vector2(ri,-h/2) ];
+  const g = new THREE.LatheGeometry(pts, seg); g.computeVertexNormals(); return g;
+}
+function mesh(geo, mat, x,y,z, parent, shadow){
+  const m = new THREE.Mesh(geo, mat); m.position.set(x||0,y||0,z||0);
+  m.castShadow = shadow!==false; m.receiveShadow = true; (parent||scene).add(m); return m;
+}
+/* 볼트 원(六角 헤드) */
+function boltCircle(parent, R, y, n, s){
+  const g = new THREE.CylinderGeometry(s, s, s*0.9, 6);
+  const im = new THREE.InstancedMesh(g, M.bolt, n);
+  const o = new THREE.Object3D();
+  for(let i=0;i<n;i++){
+    const a = i/n*Math.PI*2;
+    o.position.set(Math.cos(a)*R, y, Math.sin(a)*R); o.rotation.y = a; o.updateMatrix();
+    im.setMatrixAt(i, o.matrix);
+  }
+  im.castShadow = true; parent.add(im); return im;
+}
+/* 두 점 사이 파이프 */
+function pipe(a, b, r, mat, parent){
+  const d = new THREE.Vector3().subVectors(b,a), L = d.length();
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,24), mat||M.tube);
+  m.position.copy(a).addScaledVector(d, .5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), d.normalize());
+  m.castShadow = true; (parent||scene).add(m); return m;
+}
+
+const hot = {};   // 클릭 가능한 파트 (메시)
+
+/* ── 클린룸 바닥 + 그리드 ── */
+(function(){
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const g = c.getContext("2d");
+  g.fillStyle = "#2a2e34"; g.fillRect(0,0,256,256);
+  g.strokeStyle = "rgba(255,255,255,0.10)"; g.lineWidth = 2; g.strokeRect(1,1,254,254);
+  g.strokeStyle = "rgba(255,255,255,0.035)"; g.lineWidth = 1;
+  for(let i=64;i<256;i+=64){ g.beginPath(); g.moveTo(i,0); g.lineTo(i,256); g.moveTo(0,i); g.lineTo(256,i); g.stroke(); }
+  const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(30,30); tex.anisotropy = ANISO; tex.colorSpace = THREE.SRGBColorSpace;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30,30),
+    new THREE.MeshStandardMaterial({map:tex, color:0xffffff, metalness:0.25, roughness:0.38}));
+  floor.rotation.x = -Math.PI/2; floor.position.y = -0.95; floor.receiveShadow = true; scene.add(floor);
+})();
+
+/* ── 베이스 프레임(스테인리스 캐비닛) + 슬러리 배수 트레이/스플래시가드 ── */
+const cabinet = mesh(new THREE.BoxGeometry(4.6,0.5,4.6), M.frame, 0.1,-0.70,0);
+mesh(new THREE.BoxGeometry(4.7,0.06,4.7), M.steelD, 0.1,-0.43,0);          // 상판 스테인리스
+mesh(new THREE.BoxGeometry(4.4,0.05,4.4), M.black, 0.1,-0.93,0, scene, false); // 레벨링 스커트
+const trayLathe = (function(){                                             // 트레이: 바닥+외벽(립)
+  const pts = [ new THREE.Vector2(1.56,-0.40), new THREE.Vector2(1.92,-0.40), new THREE.Vector2(1.96,-0.36),
+    new THREE.Vector2(1.96, 0.12), new THREE.Vector2(1.90, 0.16), new THREE.Vector2(1.86, 0.12),
+    new THREE.Vector2(1.86,-0.34), new THREE.Vector2(1.60,-0.34), new THREE.Vector2(1.56,-0.30) ];
+  const g = new THREE.LatheGeometry(pts, 128); g.computeVertexNormals(); return g;
+})();
+mesh(trayLathe, M.steelD, 0,0,0);
+mesh(new THREE.CylinderGeometry(0.06,0.06,0.5,16), M.black, 1.72,-0.60,0.55); // 배수구
+/* 플래튼 허브(회전하지 않는 베어링 하우징) */
+mesh(chamferCyl(0.95,0.14,0.02,96), M.anod, 0,-0.35,0);
+
+/* ══ 플래튼 + 패드 : 회전한다 ══ */
+const PAD_TOP = 0.0;
 const platenGrp = new THREE.Group(); scene.add(platenGrp);
-const platen = new THREE.Mesh(
-  new THREE.CylinderGeometry(1.5,1.5,0.14,72),
-  new THREE.MeshStandardMaterial({color:0x39485c, metalness:.9, roughness:.35}));
-platen.position.y = -0.12; platen.castShadow = platen.receiveShadow = true;
-platenGrp.add(platen);
+const platen = mesh(chamferCyl(1.5,0.22,0.02,128), M.alu, 0,-0.17,0, platenGrp);
+boltCircle(platenGrp, 1.42, -0.06, 24, 0.022);        // 플래튼 상면 볼트
+mesh(chamferRing(1.30,1.50,0.03,0.008,128), M.steelD, 0,-0.055,0, platenGrp); // 패드 클램프 링(외곽)
 
-const padMat = new THREE.MeshStandardMaterial({color:0x2f7d63, roughness:.95, metalness:.03});
-const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,0.10,72), padMat);
-pad.position.y = 0.0; pad.castShadow = pad.receiveShadow = true;
+/* 패드: IC1000 계열(탁한 카키/연두). 그루브는 CanvasTexture 동심원 → 진짜 홈처럼 보인다 */
+const PAD_PX = 2048, PAD_R_MM = 380;      // 패드 반지름 380 mm (Ø760)
+const padCanvas = document.createElement("canvas"); padCanvas.width = padCanvas.height = PAD_PX;
+const padBump = document.createElement("canvas"); padBump.width = padBump.height = PAD_PX;
+const padBase = (function(){               // 노이즈 베이스는 한 번만 만든다
+  const c = document.createElement("canvas"); c.width = c.height = PAD_PX;
+  const g = c.getContext("2d");
+  g.fillStyle = "#9a9a6d"; g.fillRect(0,0,PAD_PX,PAD_PX);
+  const img = g.getImageData(0,0,PAD_PX,PAD_PX), d = img.data;
+  for(let i=0;i<d.length;i+=4){
+    const n = (Math.random()-0.5)*26, p = Math.random()<0.06 ? -22 : 0;  // 기공
+    d[i]=Math.max(0,d[i]+n+p); d[i+1]=Math.max(0,d[i+1]+n+p); d[i+2]=Math.max(0,d[i+2]+n*0.8+p);
+  }
+  g.putImageData(img,0,0);
+  /* 사용 흔적: 방사형 미세 연마 자국 */
+  g.strokeStyle = "rgba(255,255,255,0.05)"; g.lineWidth = 1;
+  for(let i=0;i<220;i++){
+    const a = Math.random()*Math.PI*2, r0 = Math.random()*PAD_PX/2, r1 = r0+40+Math.random()*300;
+    g.beginPath(); g.arc(PAD_PX/2, PAD_PX/2, r0, a, a+0.02+Math.random()*0.15); g.stroke();
+    void r1;
+  }
+  return c;
+})();
+const padTex = new THREE.CanvasTexture(padCanvas); padTex.colorSpace = THREE.SRGBColorSpace; padTex.anisotropy = ANISO;
+const padBumpTex = new THREE.CanvasTexture(padBump); padBumpTex.anisotropy = ANISO;
+const padMat = new THREE.MeshStandardMaterial({map:padTex, bumpMap:padBumpTex, bumpScale:0.012,
+  color:0xffffff, roughness:0.92, metalness:0.0});
+const padSideMat = new THREE.MeshStandardMaterial({color:0x8c8c62, roughness:0.95, metalness:0});
+const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,0.06,128), [padSideMat, padMat, padSideMat]);
+pad.position.y = PAD_TOP-0.03; pad.castShadow = pad.receiveShadow = true;
 platenGrp.add(pad); hot.pad = pad;
 
-/* 동심원 그루브 — 간격/깊이가 실제로 반영된다 */
-let grooveGrp = new THREE.Group(); platenGrp.add(grooveGrp);
+/* 동심원 그루브 — 간격/깊이(/폭)가 텍스처에 실제로 반영된다 */
+let grooveGrp = new THREE.Group(); platenGrp.add(grooveGrp);   // (호환용, 비어 있음)
 function buildGrooves(pitchMM, depthMM){
-  grooveGrp.clear();
-  const pitch = Math.max(pitchMM,0.6)/60;          // 화면 스케일
-  const depth = Math.min(Math.max(depthMM,0.1)/12, 0.055);
-  const m = new THREE.MeshStandardMaterial({color:0x1d5745, roughness:1});
-  for(let r=0.18; r<1.47; r+=pitch){
-    const g = new THREE.Mesh(new THREE.TorusGeometry(r, depth*0.5, 6, 96), m);
-    g.rotation.x = Math.PI/2; g.position.y = 0.050;
-    grooveGrp.add(g);
+  const pitch = Math.max(pitchMM, 0.6), depth = Math.max(depthMM, 0.1);
+  const widthUM = (typeof num==="function") ? num("groove_width_um", 600) : 600;
+  const pxPerMM = (PAD_PX/2)/PAD_R_MM;
+  const g = padCanvas.getContext("2d"), b = padBump.getContext("2d");
+  g.drawImage(padBase,0,0);
+  b.fillStyle = "#808080"; b.fillRect(0,0,PAD_PX,PAD_PX);
+  const w = Math.max(1.3, widthUM/1000*pxPerMM);
+  const dark = THREE.MathUtils.clamp(0.30 + depth/1.5*0.45, 0.3, 0.8);
+  g.lineWidth = w; g.strokeStyle = `rgba(28,30,18,${dark})`;
+  b.lineWidth = w; b.strokeStyle = `rgb(${Math.round(128-100*THREE.MathUtils.clamp(depth/1.5,.2,1))},0,0)`;
+  b.strokeStyle = b.strokeStyle.replace(/rgb\((\d+),0,0\)/, (m,v)=>`rgb(${v},${v},${v})`);
+  const cx = PAD_PX/2;
+  for(let r = 25*pxPerMM; r < (PAD_R_MM-6)*pxPerMM; r += pitch*pxPerMM){
+    g.beginPath(); g.arc(cx,cx,r,0,Math.PI*2); g.stroke();
+    b.beginPath(); b.arc(cx,cx,r,0,Math.PI*2); b.stroke();
   }
+  /* 그루브 하이라이트 엣지(빛 받는 쪽) */
+  g.lineWidth = Math.max(0.6, w*0.4); g.strokeStyle = "rgba(255,255,240,0.10)";
+  for(let r = 25*pxPerMM + w*0.9; r < (PAD_R_MM-6)*pxPerMM; r += pitch*pxPerMM){
+    g.beginPath(); g.arc(cx,cx,r,0,Math.PI*2); g.stroke();
+  }
+  padTex.needsUpdate = true; padBumpTex.needsUpdate = true;
 }
 buildGrooves(3.05, 0.76);
 
-/* ── 캐리어 + 웨이퍼 : 반대로 회전 ── */
-const carrierGrp = new THREE.Group();
-carrierGrp.position.set(0.72, 0, 0); scene.add(carrierGrp);
-const carrier = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.56,0.56,0.22,48),
-  new THREE.MeshStandardMaterial({color:0x8d99a8, metalness:.92, roughness:.28}));
-carrier.position.y = 0.30; carrier.castShadow = true;
-carrierGrp.add(carrier); hot.tool = carrier;
+/* ══ 캐리어 헤드 + 리테이너 링 + 웨이퍼 : 플래튼과 **같은 방향**으로 자전 ══ */
+const R_CC = 0.72;                                   // r_cc 180 mm
+const carrierGrp = new THREE.Group(); carrierGrp.position.set(R_CC, 0, 0); scene.add(carrierGrp);
+/* 리테이너 링 (PPS, 웨이퍼를 둘러싸고 패드를 미리 누름) — 하단 슬러리 슬롯 */
+const ring = mesh(chamferRing(0.595,0.665,0.07,0.008,128), M.pps, 0,PAD_TOP+0.047,0, carrierGrp);
+(function(){ const g = new THREE.BoxGeometry(0.08,0.02,0.006);
+  const im = new THREE.InstancedMesh(g, M.rubber, 36); const o = new THREE.Object3D();
+  for(let i=0;i<36;i++){ const a=i/36*Math.PI*2; o.position.set(Math.cos(a)*0.63, PAD_TOP+0.018, Math.sin(a)*0.63);
+    o.rotation.y=-a; o.updateMatrix(); im.setMatrixAt(i,o.matrix); }
+  carrierGrp.add(im); })();
+/* 멤브레인 베이스(고무) → 하우징(스테인리스, 단차 2단) → 짐벌 캡 → 스핀들 */
+mesh(chamferCyl(0.64,0.05,0.006,128), M.rubber, 0,PAD_TOP+0.107,0, carrierGrp);
+const carrier = mesh(chamferCyl(0.70,0.30,0.025,128), M.steel, 0,PAD_TOP+0.282,0, carrierGrp);
+hot.tool = carrier;
+mesh(chamferRing(0.60,0.70,0.012,0.004,128), M.anod, 0,PAD_TOP+0.438,0, carrierGrp);   // 상면 씰 링
+boltCircle(carrierGrp, 0.645, PAD_TOP+0.445, 16, 0.02);
+mesh(chamferCyl(0.55,0.16,0.02,96), M.steelD, 0,PAD_TOP+0.52,0, carrierGrp);       // 상부 단차
+boltCircle(carrierGrp, 0.50, PAD_TOP+0.605, 12, 0.016);
+mesh(chamferCyl(0.30,0.12,0.03,64), M.anod, 0,PAD_TOP+0.66,0, carrierGrp);        // 짐벌 하우징
+/* 공압 포트 3개(멀티존 챔버 배관) */
+for(let i=0;i<3;i++){ const a=i/3*Math.PI*2+0.4;
+  const p = mesh(new THREE.CylinderGeometry(0.022,0.022,0.09,16), M.tube,
+    Math.cos(a)*0.42, PAD_TOP+0.64, Math.sin(a)*0.42, carrierGrp);
+  pipe(new THREE.Vector3(Math.cos(a)*0.42, PAD_TOP+0.68, Math.sin(a)*0.42),
+       new THREE.Vector3(Math.cos(a)*0.12, PAD_TOP+1.20, Math.sin(a)*0.12), 0.012, M.hose, carrierGrp);
+  void p; }
+const shaft = mesh(chamferCyl(0.09,1.0,0.01,48), M.steel, 0,PAD_TOP+1.20,0, carrierGrp);  // 스핀들 샤프트
+mesh(new THREE.CylinderGeometry(0.11,0.11,0.06,48), M.anod, 0,PAD_TOP+0.75,0, carrierGrp); // 샤프트 칼라
+void shaft;
 
-const shaft = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.10,0.10,1.0,24),
-  new THREE.MeshStandardMaterial({color:0x6c7887, metalness:.9, roughness:.3}));
-shaft.position.y = 0.90; carrierGrp.add(shaft);
-
-const ring = new THREE.Mesh(
-  new THREE.TorusGeometry(0.50, 0.045, 12, 56),
-  new THREE.MeshStandardMaterial({color:0xb9c4d1, metalness:.85, roughness:.35}));
-ring.rotation.x = Math.PI/2; ring.position.y = 0.13; carrierGrp.add(ring);
-
+/* 웨이퍼 (면을 아래로, 링 안에서 살짝 돌출) — 거울 같은 산화막 */
 const waferMat = new THREE.MeshStandardMaterial({
-  color:0x9fd8ff, metalness:.62, roughness:.14,
+  color:0xd6e3f0, metalness:0.95, roughness:0.06,
   emissive:0x0d2942, emissiveIntensity:.55});
-const wafer = new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,0.035,56), waferMat);
-wafer.position.y = 0.12; wafer.castShadow = true;
+const wafer = new THREE.Mesh(new THREE.CylinderGeometry(0.59,0.59,0.028,128), waferMat);
+wafer.position.y = PAD_TOP+0.018; wafer.castShadow = true;
 carrierGrp.add(wafer); hot.wafer = wafer;
 
-/* ── 컨디셔너 디스크 : 스윕한다 ── */
-const condGrp = new THREE.Group(); scene.add(condGrp);
-const condArm = new THREE.Mesh(
-  new THREE.BoxGeometry(0.80,0.075,0.16),
-  new THREE.MeshStandardMaterial({color:0x5a6674, metalness:.85, roughness:.35}));
-condArm.position.set(-0.40,0.52,0); condGrp.add(condArm);
-const disk = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.24,0.24,0.075,36),
-  new THREE.MeshStandardMaterial({color:0xd8dde4, metalness:.95, roughness:.16}));
-disk.position.set(-0.78,0.28,0); disk.castShadow = true;
-condGrp.add(disk); hot.disk = disk;
-/* 다이아 그릿 — 밀도가 실제로 반영된다 */
-let gritGrp = new THREE.Group(); condGrp.add(gritGrp);
+/* 헤드를 매단 구조(고정, 회전 안 함): 스핀들 모터 + 갠트리 암 + 기둥 */
+const headMount = new THREE.Group(); headMount.position.set(R_CC,0,0); scene.add(headMount);
+mesh(chamferCyl(0.23,0.42,0.03,64), M.steelD, 0,PAD_TOP+1.86,0, headMount);        // 스핀들 모터/드라이브
+mesh(chamferCyl(0.26,0.05,0.01,64), M.anod, 0,PAD_TOP+1.66,0, headMount);
+boltCircle(headMount, 0.20, PAD_TOP+2.075, 8, 0.016);
+mesh(new THREE.BoxGeometry(0.34,0.26,2.35), M.frame, 0,PAD_TOP+1.82,1.12, headMount); // 갠트리 암
+mesh(new THREE.BoxGeometry(0.30,0.05,2.3), M.steelD, 0,PAD_TOP+1.96,1.12, headMount);
+mesh(new THREE.BoxGeometry(0.40,2.85,0.40), M.frame, 0,0.47,2.30, headMount);         // 기둥
+mesh(new THREE.BoxGeometry(0.60,0.05,0.60), M.steelD, 0,-0.40,2.30, headMount);       // 기둥 베이스 플레이트
+/* 기둥 볼트 4개 */
+[[-0.24,-0.24],[0.24,-0.24],[-0.24,0.24],[0.24,0.24]].forEach(([dx,dz])=>
+  mesh(new THREE.CylinderGeometry(0.02,0.02,0.02,6), M.bolt, dx,-0.365,2.30+dz, headMount));
+/* 케이블 체인(하우징→기둥) */
+pipe(new THREE.Vector3(0.10,PAD_TOP+2.07,0.05), new THREE.Vector3(0.10,PAD_TOP+2.07,2.10), 0.025, M.rubber, headMount);
+
+/* ══ 컨디셔너 : 플래튼 밖 기둥에 고정된 스윙 암 → 끝에 다이아 디스크 (스윕 + 자전) ══ */
+const COND_PIVOT = new THREE.Vector3(-2.05, 0, 1.10);
+const COND_L = 2.0;                                   // 피벗→디스크 중심
+const COND_YAW0 = Math.atan2(-(0-COND_PIVOT.z), (0-COND_PIVOT.x)); // 암이 플래튼 중심을 향하는 yaw
+const condPost = new THREE.Group(); condPost.position.copy(COND_PIVOT); scene.add(condPost);
+mesh(chamferCyl(0.20,1.70,0.02,64), M.frame, 0,-0.10,0, condPost);                // 스윙 기둥
+mesh(chamferCyl(0.30,0.05,0.01,64), M.steelD, 0,-0.40,0, condPost);
+boltCircle(condPost, 0.255, -0.37, 6, 0.018);
+mesh(chamferCyl(0.16,0.22,0.02,64), M.anod, 0,0.86,0, condPost);                  // 스윙 모터
+const condGrp = new THREE.Group(); condGrp.position.copy(COND_PIVOT); condGrp.rotation.y = COND_YAW0; scene.add(condGrp);
+mesh(chamferCyl(0.14,0.16,0.015,48), M.steelD, 0,0.66,0, condGrp);                // 암 허브
+const condArm = mesh(new THREE.BoxGeometry(COND_L,0.09,0.16), M.frame, COND_L/2,0.66,0, condGrp);
+mesh(new THREE.BoxGeometry(COND_L-0.2,0.02,0.10), M.steelD, COND_L/2-0.05,0.715,0, condGrp);
+pipe(new THREE.Vector3(0.2,0.72,0.05), new THREE.Vector3(COND_L-0.2,0.72,0.05), 0.012, M.hose, condGrp); // 컨디셔너 린스 라인
+void condArm;
+/* 디스크 홀더 + 샤프트 + 디스크(자전) */
+const diskGrp = new THREE.Group(); diskGrp.position.set(COND_L,0,0); condGrp.add(diskGrp);
+mesh(chamferCyl(0.13,0.20,0.015,48), M.steelD, 0,0.52,0, diskGrp);                // 홀더(다운포스 실린더)
+mesh(chamferCyl(0.045,0.30,0.005,32), M.steel, 0,0.27,0, diskGrp);                // 디스크 샤프트
+const diskSpin = new THREE.Group(); diskGrp.add(diskSpin);
+mesh(chamferCyl(0.16,0.05,0.008,64), M.steel, 0,0.115,0, diskSpin);               // 짐벌 백플레이트
+const disk = mesh(chamferCyl(0.20,0.045,0.006,96), M.steel, 0,PAD_TOP+0.0425,0, diskSpin);
+hot.disk = disk;
+boltCircle(diskSpin, 0.135, PAD_TOP+0.07, 6, 0.012);
+/* 다이아 그릿 — 밀도가 실제로 반영된다 (디스크 하면에 박힘) */
+let gritGrp = new THREE.Group(); diskSpin.add(gritGrp);
+const gritMat = new THREE.MeshStandardMaterial({color:0xffffff, metalness:0.35, roughness:0.04});
 function buildGrits(density){
   gritGrp.clear();
   const n = Math.round(THREE.MathUtils.clamp(
-      36*Math.log10(density/2e10+1)/Math.log10(21), 8, 150));
-  const g = new THREE.OctahedronGeometry(0.017);
-  const m = new THREE.MeshStandardMaterial({color:0xffffff, metalness:.4, roughness:.05});
+      60*Math.log10(density/2e10+1)/Math.log10(21), 12, 260));
+  const g = new THREE.OctahedronGeometry(0.011);
+  const im = new THREE.InstancedMesh(g, gritMat, n);
+  const o = new THREE.Object3D();
   for(let i=0;i<n;i++){
-    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*0.21;
-    const s = new THREE.Mesh(g,m);
-    s.position.set(-0.78+Math.cos(a)*r, 0.243, Math.sin(a)*r);
-    gritGrp.add(s);
+    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*0.185;
+    o.position.set(Math.cos(a)*r, PAD_TOP+0.018, Math.sin(a)*r);
+    o.rotation.set(Math.random()*.6, Math.random()*Math.PI, Math.random()*.6); o.updateMatrix();
+    im.setMatrixAt(i, o.matrix);
   }
+  gritGrp.add(im);
 }
 buildGrits(1e11);
 
-/* ── 슬러리 암 + 흐르는 액체 (셰이더 아님, 인스턴스 파티클) ── */
+/* ══ 슬러리 암 : 플래튼 밖 기둥 → 튜브가 패드 중심 근처까지 뻗어 적하 ══ */
+const SL_POST = new THREE.Vector3(0.55, 0, -2.15);
+const SL_DROP = new THREE.Vector3(-0.15, 0, -0.32);   // 적하점(패드 중심 근처)
 const armPivot = new THREE.Group(); scene.add(armPivot);
-const slArm = new THREE.Mesh(
-  new THREE.BoxGeometry(1.15,0.055,0.085),
-  new THREE.MeshStandardMaterial({color:0x4f5b69, metalness:.8, roughness:.4}));
-slArm.position.set(0.30,0.80,-0.95); armPivot.add(slArm);
-const nozzle = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.05,0.035,0.14,16),
-  new THREE.MeshStandardMaterial({color:0x8f9bab, metalness:.85, roughness:.3}));
-nozzle.position.set(-0.22,0.72,-0.95); armPivot.add(nozzle);
+mesh(chamferCyl(0.13,1.45,0.015,48), M.frame, SL_POST.x,0.30,SL_POST.z, armPivot);
+mesh(chamferCyl(0.20,0.05,0.01,48), M.steelD, SL_POST.x,-0.40,SL_POST.z, armPivot);
+mesh(chamferCyl(0.10,0.10,0.01,48), M.anod, SL_POST.x,1.07,SL_POST.z, armPivot);
+const slArmA = new THREE.Vector3(SL_POST.x, 1.02, SL_POST.z);
+const slArmB = new THREE.Vector3(SL_DROP.x, 0.98, SL_DROP.z);
+const slArm = pipe(slArmA, slArmB, 0.035, M.tube, armPivot);
+pipe(new THREE.Vector3(SL_POST.x+0.05,1.02,SL_POST.z+0.05), new THREE.Vector3(SL_DROP.x+0.05,0.98,SL_DROP.z+0.05), 0.012, M.hose, armPivot); // 슬러리 라인
+pipe(new THREE.Vector3(SL_POST.x-0.05,1.02,SL_POST.z-0.05), new THREE.Vector3(SL_DROP.x-0.05,0.98,SL_DROP.z-0.05), 0.012, M.hose, armPivot); // DIW 라인
+void slArm;
+const nozzle = mesh(chamferCyl(0.05,0.44,0.01,32), M.tube, SL_DROP.x,0.76,SL_DROP.z, armPivot);
+mesh(new THREE.CylinderGeometry(0.022,0.030,0.06,24), M.anod, SL_DROP.x,0.52,SL_DROP.z, armPivot); // 노즐 팁
+mesh(new THREE.CylinderGeometry(0.065,0.065,0.03,32), M.anod, SL_DROP.x,0.96,SL_DROP.z, armPivot); // 피팅
 hot.slurry = nozzle;
+const DROP_Y = 0.49;
 
-/* 슬러리 입자 — SFR에 비례해 개수·속도가 변한다 */
-const NP = 900;
+/* 슬러리 필름 : 패드 위에 얇게 퍼진 반투명 유백 막 (SFR에 따라 넓이/농도) */
+const filmMat = new THREE.MeshStandardMaterial({color:0xcfefff, transparent:true, opacity:0.20,
+  roughness:0.08, metalness:0.0, depthWrite:false});
+const film = new THREE.Mesh(new THREE.CircleGeometry(1.46,128), filmMat);
+film.rotation.x = -Math.PI/2; film.position.y = PAD_TOP+0.004; film.renderOrder = 2; scene.add(film);
+const puddle = new THREE.Mesh(new THREE.CircleGeometry(0.16,48),
+  new THREE.MeshStandardMaterial({color:0xe6f7ff, transparent:true, opacity:0.45, roughness:0.05, depthWrite:false}));
+puddle.rotation.x = -Math.PI/2; puddle.position.set(SL_DROP.x, PAD_TOP+0.006, SL_DROP.z); puddle.renderOrder = 3; scene.add(puddle);
+
+/* 슬러리 입자 — SFR에 비례해 개수·속도가 변한다 (소프트 스프라이트 + additive) */
+const NP = 1400;
 const spos = new Float32Array(NP*3);
 const svel = new Float32Array(NP);
 const sph  = new Float32Array(NP);
 function seed(i, fresh){
-  if(fresh){ spos[i*3]= -0.22+(Math.random()-.5)*0.09;
-             spos[i*3+1]= 0.66;
-             spos[i*3+2]= -0.95+(Math.random()-.5)*0.09;
+  if(fresh){ spos[i*3]  = SL_DROP.x+(Math.random()-.5)*0.04;
+             spos[i*3+1]= DROP_Y - Math.random()*0.05;
+             spos[i*3+2]= SL_DROP.z+(Math.random()-.5)*0.04;
              sph[i]=0; }
   svel[i] = 0.010+Math.random()*0.011;
 }
-for(let i=0;i<NP;i++){ seed(i,true); sph[i]=Math.random(); }
+for(let i=0;i<NP;i++){ seed(i,true); sph[i]=Math.random()<0.85?1:0;
+  if(sph[i]===1){ const a=Math.random()*Math.PI*2, r=0.15+Math.random()*1.3;
+    spos[i*3]=Math.cos(a)*r; spos[i*3+1]=PAD_TOP+0.012; spos[i*3+2]=Math.sin(a)*r; } }
 const sgeo = new THREE.BufferGeometry();
 sgeo.setAttribute("position", new THREE.BufferAttribute(spos,3));
-const smat = new THREE.PointsMaterial({color:0xa8e8ff, size:0.032,
-  transparent:true, opacity:0.72, depthWrite:false});
-const slurryPts = new THREE.Points(sgeo, smat); scene.add(slurryPts);
+const spriteTex = (function(){
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const g = c.getContext("2d"); const grd = g.createRadialGradient(32,32,0,32,32,32);
+  grd.addColorStop(0,"rgba(255,255,255,1)"); grd.addColorStop(0.35,"rgba(220,245,255,0.7)"); grd.addColorStop(1,"rgba(200,240,255,0)");
+  g.fillStyle = grd; g.fillRect(0,0,64,64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const smat = new THREE.PointsMaterial({color:0x9fe3ff, size:0.05, map:spriteTex, alphaMap:spriteTex,
+  transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending, sizeAttenuation:true});
+const slurryPts = new THREE.Points(sgeo, smat); slurryPts.renderOrder = 4; scene.add(slurryPts);
 
 /* 카메라 궤도 */
-let yaw=0.62, pitch=0.60, dist=4.5, drag=false, lx=0, ly=0;
+let yaw=0.75, pitch=0.52, dist=5.4, drag=false, lx=0, ly=0;
+const TARGET = new THREE.Vector3(0.15, 0.30, 0);
 function place(){
-  cam.position.set(dist*Math.cos(pitch)*Math.sin(yaw), dist*Math.sin(pitch),
-                   dist*Math.cos(pitch)*Math.cos(yaw));
-  cam.lookAt(0,0.12,0);
+  cam.position.set(TARGET.x+dist*Math.cos(pitch)*Math.sin(yaw), TARGET.y+dist*Math.sin(pitch),
+                   TARGET.z+dist*Math.cos(pitch)*Math.cos(yaw));
+  cam.lookAt(TARGET);
 }
 rend.domElement.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY});
 addEventListener("mouseup",()=>drag=false);
 addEventListener("mousemove",e=>{
   if(!drag) return;
   yaw -= (e.clientX-lx)*0.007;
-  pitch = THREE.MathUtils.clamp(pitch+(e.clientY-ly)*0.007, 0.10, 1.45);
+  pitch = THREE.MathUtils.clamp(pitch+(e.clientY-ly)*0.007, 0.06, 1.45);
   lx=e.clientX; ly=e.clientY; place();
 });
 rend.domElement.addEventListener("wheel",e=>{
   e.preventDefault();
-  dist = THREE.MathUtils.clamp(dist+e.deltaY*0.0032, 2.3, 9); place();
+  dist = THREE.MathUtils.clamp(dist+e.deltaY*0.0035, 2.4, 11); place();
 },{passive:false});
 
 /* 클릭 → 파트 선택 */
@@ -337,29 +580,66 @@ rend.domElement.addEventListener("mousemove",e=>{
   else { labelEl.style.display="none"; rend.domElement.style.cursor="grab"; }
 });
 
+/* ── 실행 결과 → 3D 반영 (render(d)가 호출). null 값은 건드리지 않는다 ── */
+const PAD_COLD = new THREE.Color(0xffffff), PAD_HOT = new THREE.Color(0xff9a7a);
+let tauSpread = 1.0;
+function applyResult(d){
+  if(!d) return;
+  const eq = d.equipment_outputs||{}, fs = d.factors||{};
+  const T = eq.pad_temp_c && eq.pad_temp_c.value;
+  if(typeof T==="number" && isFinite(T)){                     // 22°C 기준 → 120°C 붉게
+    const k = THREE.MathUtils.clamp((T-22)/(120-22), 0, 1);
+    padMat.color.copy(PAD_COLD).lerp(PAD_HOT, k*0.85);
+    padSideMat.color.set(0x8c8c62).lerp(PAD_HOT, k*0.6);
+  }
+  const mr = d.mean_mrr_nm_min;
+  if(typeof mr==="number" && isFinite(mr))
+    waferMat.emissiveIntensity = THREE.MathUtils.clamp(mr/260, .12, 1.1);
+  const tau = fs.tau && fs.tau.value;
+  if(typeof tau==="number" && isFinite(tau) && tau>0)         // τ(슬러리 전달) → 퍼짐 속도 가중
+    tauSpread = THREE.MathUtils.clamp(Math.pow(tau, 0.6), 0.5, 1.8);
+}
+window.applyResult = applyResult;
+
 /* 애니메이션 — 실제 설정값에 반응한다 */
-let t=0;
+let t=0, condPhi=0.25, headSag=0, diskSag=0;
 function tick(){
   requestAnimationFrame(tick);
   const dt=0.016; t+=dt;
   const rpmP = num("rpm_platen", 55), rpmW = num("rpm_wafer", 60);
   const sfr  = num("sfr_ml_min", 150), duty = num("cond_duty_pct", 100);
-  platenGrp.rotation.y += rpmP/60*dt*2*Math.PI*0.10;
-  carrierGrp.rotation.y -= rpmW/60*dt*2*Math.PI*0.10;
-  /* 컨디셔너 스윕 — duty 0이면 멈춘다 */
-  if(duty>0) condGrp.rotation.y = Math.sin(t*0.55)*0.62;
-  /* 슬러리 흐름: 노즐 → 패드 낙하 → 회전하며 바깥으로 번짐 */
-  const active = Math.round(THREE.MathUtils.clamp(NP*sfr/400,40,NP));
+  const psi  = num("pressure_psi", 3), lbf = num("cond_downforce_lbf", 6);
+  const SLOW = 0.10;                                   // 화면용 감속 배율
+  platenGrp.rotation.y  += rpmP/60*dt*2*Math.PI*SLOW;  // 플래튼
+  carrierGrp.rotation.y += rpmW/60*dt*2*Math.PI*SLOW;  // 헤드: 플래튼과 **같은 방향** (문헌)
+  /* 하중 → 눌림 변위 (보간). pressure_psi: 헤드 전체가 내려가 링이 패드에 파묻힘. cond_downforce: 디스크 눌림 */
+  const sagT = THREE.MathUtils.clamp((psi-0.5)/7.5, 0, 1)*0.028;        // 0~0.028 unit (패드 압축)
+  const dskT = THREE.MathUtils.clamp(lbf/12, 0, 1)*0.016;
+  headSag += (sagT-headSag)*0.08; diskSag += (dskT-diskSag)*0.08;
+  carrierGrp.position.y = -headSag; headMount.position.y = -headSag;
+  diskSpin.position.y = -diskSag;
+  film.position.y = PAD_TOP+0.004 - headSag*0.2;
+  /* 컨디셔너: duty 0이면 스윕·자전 모두 멈춘다. 암은 플래튼 밖 피벗을 중심으로 중심↔가장자리 왕복 */
+  if(duty>0){
+    condPhi = 0.25 + 0.27*Math.sin(t*0.5);
+    diskSpin.rotation.y += 95/60*dt*2*Math.PI*SLOW;
+  }
+  condGrp.rotation.y = COND_YAW0 + condPhi;
+  /* 슬러리: 노즐 → 패드 낙하 → 회전하며 바깥으로 번짐 */
+  const active = Math.round(THREE.MathUtils.clamp(NP*sfr/400,60,NP));
   const spd = 0.55+sfr/260;
+  const fs = THREE.MathUtils.clamp(0.35+sfr/400*0.65, 0.3, 1.0);
+  film.scale.set(fs,fs,1); filmMat.opacity = 0.10+0.16*fs;
+  puddle.scale.setScalar(0.6+sfr/400*0.8);
   for(let i=0;i<NP;i++){
     if(i>=active){ spos[i*3+1] = -99; continue; }
     if(sph[i]===0){                       // 낙하
       spos[i*3+1] -= svel[i]*spd*2.6;
-      if(spos[i*3+1] <= 0.055){ sph[i]=1; spos[i*3+1]=0.055; }
-    } else {                              // 패드 위 확산
+      if(spos[i*3+1] <= PAD_TOP+0.012){ sph[i]=1; spos[i*3+1]=PAD_TOP+0.012; }
+    } else {                              // 패드 위 확산 (플래튼 회전 + 원심)
       const x=spos[i*3], z=spos[i*3+2];
-      const r=Math.hypot(x,z), a=Math.atan2(z,x)+rpmP/60*dt*2*Math.PI*0.10;
-      const nr = r + svel[i]*spd*0.85;
+      const r=Math.hypot(x,z), a=Math.atan2(z,x)+rpmP/60*dt*2*Math.PI*SLOW;
+      const nr = r + svel[i]*spd*0.85*tauSpread*(0.4+r/1.5);
       spos[i*3]=Math.cos(a)*nr; spos[i*3+2]=Math.sin(a)*nr;
       if(nr>1.5) seed(i,true);
     }
@@ -402,6 +682,28 @@ function drawPanel(){
   for(const f of P.fields){
     if(f.section){
       h += `<div class="sec" style="margin-top:14px">${f.section}</div>`;
+      continue;
+    }
+    if(f.special==="data"){
+      h += `
+        <div id="drop" style="border:2px dashed var(--line);border-radius:8px;padding:22px 12px;
+             text-align:center;color:var(--dim);cursor:pointer;margin-bottom:12px">
+          <div style="font-size:22px">📂</div>
+          <div><b>실측 파일을 여기 놓거나 클릭</b></div>
+          <div class="meta">xlsx · csv · json — 컬럼명은 한글/영문 아무거나 (압력/psi/다운포스, 초기두께/pre, 잔막/post…)</div>
+          <input type="file" id="fileIn" accept=".xlsx,.xls,.csv,.json,.tsv,.txt" style="display:none">
+        </div>
+        <div class="fld"><label><span>이 실측의 팩 (막질)</span></label>
+          <select id="imp-pack">${state.packs.map(p=>
+            `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.id}</option>`).join("")}</select>
+          <div class="meta">보정계수는 팩별로 따로 낸다 — 세리아 실측이 실리카 Kp를 흔들면 안 된다.</div></div>
+        <div id="impResult"></div>
+        <div class="sec" style="margin-top:14px">DB 현황</div>
+        <div id="dbStats" class="meta">불러오는 중…</div>
+        <div class="sec" style="margin-top:14px">실측 → Kp 보정 (현재 팩: ${state.pack})</div>
+        <div id="calib" class="meta">불러오는 중…</div>
+        <div class="sec" style="margin-top:14px">최근 실행</div>
+        <div id="runList" class="meta"></div>`;
       continue;
     }
     if(f.special==="rotation"){
@@ -488,7 +790,68 @@ function drawPanel(){
   if(sp) sp.onchange=()=>{ state.pack=sp.value; state.overrides={}; boot(); };
   const sw=document.getElementById("sel-wafer");
   if(sw) sw.onchange=()=>{ state.wafer=sw.value; run(); };
+  if(document.getElementById("drop")) wireDataTab();
   document.getElementById("reset").onclick=()=>{ state.overrides={}; drawPanel(); run(); };
+}
+
+/* ─────────────────────────────────────────── 데이터 탭 */
+function wireDataTab(){
+  const drop = document.getElementById("drop"), fin = document.getElementById("fileIn");
+  drop.onclick = ()=>fin.click();
+  drop.ondragover = e=>{ e.preventDefault(); drop.style.borderColor="var(--accent)"; };
+  drop.ondragleave = ()=>{ drop.style.borderColor="var(--line)"; };
+  drop.ondrop = e=>{ e.preventDefault(); drop.style.borderColor="var(--line)";
+                     if(e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]); };
+  fin.onchange = ()=>{ if(fin.files[0]) uploadFile(fin.files[0]); fin.value=""; };
+  refreshDataPanel();
+}
+
+async function uploadFile(file){
+  const out = document.getElementById("impResult");
+  out.innerHTML = `<div class="meta">업로드 중: ${file.name} …</div>`;
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("pack_hint", document.getElementById("imp-pack").value);
+  fd.append("label", file.name.replace(/\.[^.]+$/,""));
+  try{
+    const r = await fetch(API+"/api/import", {method:"POST", body:fd});
+    const d = await r.json();
+    if(!r.ok){ out.innerHTML = `<div class="banner">실패: ${d.detail||"unknown"}</div>`; return; }
+    const map = Object.entries(d.column_mapping||{}).map(([k,v])=>`${v}→${k}`).join(", ");
+    out.innerHTML = `
+      <div class="banner" style="background:#14261c;border-color:#1f4a30;color:var(--good)">
+        ✓ ${file.name} 저장됨 — ${d.n_points}포인트
+        ${d.mrr_mean!=null?`, 실측 평균 MRR <b>${d.mrr_mean.toFixed(1)} nm/min</b>`:""}
+      </div>
+      <div class="meta">조건: ${JSON.stringify(d.conditions)}</div>
+      <div class="meta">컬럼 매핑: ${map||"—"}</div>
+      ${d.unmapped_columns?.length?`<div class="meta dead">⚠ 미매핑 컬럼(버리지 않고 기록만): ${d.unmapped_columns.join(", ")}</div>`:""}
+      ${d.blockers?.length?`<div class="meta dead">⛔ ${d.blockers.join(" / ")}</div>`:""}
+      ${d.warnings?.length?`<div class="meta weak">${d.warnings.join(" / ")}</div>`:""}
+      ${!d.comparable?`<div class="meta dead">이 실측은 조건이 부족해 시뮬레이션과 <b>비교할 수 없다</b>. 저장은 됐다.</div>`:""}`;
+    refreshDataPanel();
+  }catch(e){ out.innerHTML = `<div class="banner">업로드 실패: ${e.message}</div>`; }
+}
+
+async function refreshDataPanel(){
+  try{
+    const rr = await (await fetch(API+"/api/runs?limit=8")).json();
+    const s = rr.stats||{};
+    document.getElementById("dbStats").innerHTML =
+      `실행 <b>${s.runs||0}</b>건 · 실측 <b>${s.measurements||0}</b>건 · 임포트 ${s.imports||0}회<br>
+       팩별 실측: ${JSON.stringify(s.measurements_by_pack||{})}<br>
+       <span style="opacity:.6">${s.db_path||""}</span>`;
+    document.getElementById("runList").innerHTML = (rr.runs||[]).map(r=>{
+      const t = new Date(r.ts*1000).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+      const ov = Object.entries(r.inputs?.pack_overrides||{}).map(([k,v])=>`${k}=${v}`).join(" ");
+      return `<div style="padding:2px 0;border-bottom:1px solid #1b2430">
+        ${t} · ${r.pack} · MRR <b>${(r.mrr_mean||0).toFixed(1)}</b>
+        ${ov?`<span style="opacity:.7"> · ${ov}</span>`:""}</div>`;
+    }).join("") || "—";
+    const c = await (await fetch(API+"/api/calibration/"+state.pack)).json();
+    const badge = c.factor===1.0 ? "" : `<b style="color:var(--accent)">Kp ×${c.factor.toFixed(3)}</b> · `;
+    document.getElementById("calib").innerHTML = `${badge}${c.note}`;
+  }catch(e){ /* 패널 갱신 실패는 조용히 */ }
 }
 
 /* ─────────────────────────────────────────── 결과 */
@@ -552,9 +915,11 @@ async function run(){
     if(!r.ok){ document.getElementById("out").innerHTML =
       `<div class="banner">엔진 오류: ${d.detail||"unknown"}</div>`; return; }
     render(d);
-    /* 웨이퍼 색: MRR에 반응 */
-    const mr = d.mean_mrr_nm_min||0;
-    waferMat.emissiveIntensity = THREE.MathUtils.clamp(mr/260, .12, 1.1);
+    /* 실행 결과 → 3D 반영 (패드 온도 틴트·웨이퍼 발광·슬러리 퍼짐) */
+    if(typeof applyResult==="function") applyResult(d);
+    else { const mr = d.mean_mrr_nm_min||0;
+           waferMat.emissiveIntensity = THREE.MathUtils.clamp(mr/260, .12, 1.1); }
+    state.lastRunId = d.run_id||null;
   }catch(e){
     document.getElementById("out").innerHTML =
       `<div class="banner">API 연결 실패: ${e.message}</div>`;

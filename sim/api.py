@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 try:
-    from fastapi import FastAPI, HTTPException
+    from fastapi import FastAPI, HTTPException, UploadFile, File, Form
     from fastapi.responses import HTMLResponse
     from pydantic import BaseModel, Field
 except ImportError:  # pragma: no cover
@@ -214,7 +214,113 @@ def api_simulate_v2(req: SimRequest):
     }
     s["component_warnings"] = comp_warn
     s["provenance"] = res.provenance
+    # ── 모든 실행을 DB에 저장 (사용자 지시: 다음 시뮬레이션에 반영) ──────
+    # 저장 실패가 시뮬레이션을 죽이면 안 된다 — 결과는 돌려주고 경고만 싣는다.
+    try:
+        from sim import store as _store
+        inputs = {"pack": req.pack, "wafer": req.wafer, "model": req.model,
+                  "pressure_psi": req.pressure_psi, "rpm_wafer": req.rpm_wafer,
+                  "rpm_platen": req.rpm_platen, "time_s": req.time_s,
+                  "initial_thickness_nm": req.initial_thickness_nm,
+                  "zone_pressures_psi": req.zone_pressures_psi,
+                  "pack_overrides": overrides}
+        s["run_id"] = _store.save_run(s, inputs)
+    except Exception as e:
+        s["run_id"] = None
+        s.setdefault("notes", []).append(f"⚠ 런 저장 실패: {type(e).__name__}: {e}")
     return s
+
+
+# ═══════════════════════════════════════ 런 저장소 · 실측 임포트
+
+@app.get("/api/runs")
+def api_runs(limit: int = 50, pack: Optional[str] = None):
+    from sim import store
+    return {"runs": store.recent_runs(limit=limit, pack=pack), "stats": store.stats()}
+
+
+@app.get("/api/runs/{rid}")
+def api_run(rid: str):
+    from sim import store
+    r = store.get_run(rid)
+    if not r:
+        raise HTTPException(404, "없는 run id")
+    return r
+
+
+@app.get("/api/measurements")
+def api_measurements(limit: int = 100):
+    from sim import store
+    return {"measurements": store.list_measurements(limit=limit)}
+
+
+@app.post("/api/import")
+async def api_import(file: UploadFile = File(...),
+                     pack_hint: Optional[str] = Form(None),
+                     label: Optional[str] = Form(None)):
+    """엑셀/CSV/JSON 실측 파일을 그대로 넣으면 DB에 쌓인다.
+
+    사용자 지시: "엑셀이나 다른 포맷 real data 파일을 넣으면 그냥 그대로
+    빅데이터가 프로그램에 입력되도록".
+
+    컬럼 매핑은 tools/ingest_measurement.py의 별칭 표를 쓴다(압력/psi/다운포스…).
+    ⚠ 매핑이 안 되는 컬럼은 버리지 않고 `unmapped_columns`로 돌려준다.
+      조건(압력·시간)이 없으면 저장은 하되 `comparable: false` — 시뮬레이션과
+      비교할 수 없다는 사실을 숨기지 않는다.
+    """
+    import tempfile
+    from sim import store
+    sys.path.insert(0, str(ROOT / "tools"))
+    import ingest_measurement as ing
+
+    suffix = Path(file.filename or "upload").suffix.lower() or ".csv"
+    if suffix not in (".csv", ".xlsx", ".xls", ".json", ".tsv", ".txt"):
+        raise HTTPException(400, f"지원하지 않는 형식: {suffix} (csv/xlsx/json)")
+    data = await file.read()
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        tmp.write(data)
+        tmp_path = Path(tmp.name)
+    try:
+        r = ing.ingest(tmp_path, run_id=label or "upload", peek=True)
+    except SystemExit as e:
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        raise HTTPException(400, f"파싱 실패: {type(e).__name__}: {e}")
+    finally:
+        tmp_path.unlink(missing_ok=True)
+
+    r["source_file"] = file.filename
+    quality = {"blockers": r["blockers"], "warnings": r["warnings"],
+               "unmapped_columns": r["unmapped_columns"],
+               "column_mapping": r["column_mapping"], "comparable": r["comparable"]}
+    mid = store.save_measurement(
+        source_file=file.filename or "upload", conditions=r["conditions"],
+        points=r["points"], quality=quality, run_label=label, pack_hint=pack_hint)
+    iid = store.save_import(file.filename or "upload", r["n_points"], 1,
+                            r["blockers"] + r["warnings"])
+    return {"measurement_id": mid, "import_id": iid,
+            "n_points": r["n_points"], "conditions": r["conditions"],
+            "column_mapping": r["column_mapping"],
+            "unmapped_columns": r["unmapped_columns"],
+            "blockers": r["blockers"], "warnings": r["warnings"],
+            "comparable": r["comparable"],
+            "mrr_mean": store.get_measurement(mid)["mrr_mean"],
+            "stats": store.stats()}
+
+
+@app.get("/api/calibration/{pack}")
+def api_calibration(pack: str):
+    """이 팩에 대해 DB의 실측이 만드는 Kp 보정계수 — 실측이 반영되는 유일한 통로."""
+    from sim import store
+    from sim.engine import simulate as _simulate
+
+    def _predict(cond):
+        kw = {k: cond[k] for k in ("pressure_psi", "rpm_wafer", "rpm_platen", "time_s")
+              if k in cond}
+        return float(np.mean(_simulate(Recipe(pack=pack, **kw)).mrr_nm_per_min))
+
+    cal = store.calibration_factor(pack, _predict)
+    return cal.to_dict()
 
 
 @app.get("/api/factors")
