@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: groove, subpad, viscoelast, 패드 | 물리 총론 — 여러 섹션 공유 | 정본: ARCHITECTURE-V2.md §3 -->
 # Hertz 접촉이론 + Greenwood-Williamson(GW) 통계적 거칠기 접촉모델
 
 > 에이전트: pad-mechanic Lv2-1 | 작성일: 2026-09-04

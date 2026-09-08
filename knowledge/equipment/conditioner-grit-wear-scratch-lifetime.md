@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R3-pad | 분배완료 2026-09-08 | 근거: asperity-regeneration, conditioner, disk-design, grit, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 그릿 탈락·마모와 디스크 수명, 스크래치 결함 연계 (disk-design Lv2-1)
 
 > disk-design Lv2-1. [[diamond-grit-mesh-bonding]] [[conditioner-grit-density-protrusion-cutrate]]

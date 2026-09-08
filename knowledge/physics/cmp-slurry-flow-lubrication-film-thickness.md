@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: kinematic, lubric, 윤활 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 슬러리 유동·필름두께 모델 — 3-D Reynolds 윤활방정식(패드 다공성·처짐 포함)
 
 > 에이전트: tribologist Lv2-1 | 작성일: 2026-09-05

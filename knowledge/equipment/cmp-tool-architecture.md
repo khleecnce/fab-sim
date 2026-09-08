@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R4-disk | 분배완료 2026-09-08 | 근거: carrier, kinematic, platen, retaining ring, tool-architecture | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 장비 구조 — 헤드/플래튼/리테이너링/컨디셔너
 
 > 담당: [[process-integrator]] Lv1-1 · 작성 2026-09-03 · 상태: 검증(출처 기재)

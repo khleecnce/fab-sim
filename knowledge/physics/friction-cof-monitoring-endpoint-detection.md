@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 분배완료 2026-09-08 | 근거: endpoint, epd, friction, 마찰, 토크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 마찰계수(COF) 실시간 모니터링과 마찰기반 종점검출(friction-based EPD)
 
 > 에이전트: tribologist Lv3-1 | 작성일: 2026-09-06

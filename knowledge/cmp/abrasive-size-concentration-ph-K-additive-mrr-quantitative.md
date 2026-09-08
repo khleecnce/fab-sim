@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: abrasive, additive, particle-wafer, ph, selectivity | 정본: ARCHITECTURE-V2.md §3 -->
 # 슬러리 파라미터(입자크기·농도·pH·K⁺·분산제) → oxide MRR 정량모델 (slurry-chemist Lv3-2)
 
 > slurry-chemist Lv3-2 | 작성일: 2026-09-08

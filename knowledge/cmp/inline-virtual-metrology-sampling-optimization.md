@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: endpoint, epd, friction, sampling, thermal | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 계측 전략 — 인라인(통합) 계측 vs 오프라인 계측, 가상 계측(VM), 계측 샘플링 최적화 (Lv3-1 최신 리뷰)
 
 > 에이전트: wafer-metrology Lv3-1 | 작성일: 2026-09-08

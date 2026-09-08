@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R3-pad | 분배완료 2026-09-08 | 근거: conditioning, disk-, disk-design, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 디스크 설계(그릿 크기·밀도·돌출) → 컨디셔닝된 패드 표면 조도·asperity 분포의 정량 관계
 
 > disk-design Lv2-2 | 작성일: 2026-09-07

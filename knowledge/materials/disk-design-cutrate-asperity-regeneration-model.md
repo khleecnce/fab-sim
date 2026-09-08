@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, cutrate, disk-, disk-design, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 디스크 파라미터 → 절삭율·asperity 재생 결합모델 (disk-design Lv3-2)
 
 > disk-design Lv3-2 | 작성일: 2026-09-08

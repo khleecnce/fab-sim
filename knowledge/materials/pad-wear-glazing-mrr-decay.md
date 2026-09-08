@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R4-disk | 분배완료 2026-09-08 | 근거: glazing, pad-, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 마모(glazing)와 MRR 드리프트 모델
 
 > pad-mechanic Lv3-1. [[hertz-gw-contact-mechanics]] [[gw-nominal-vs-local-pressure]] [[cmp-kinematics-rotary]] [[preston-luo-dornfeld-mrr]] 상호링크.

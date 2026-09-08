@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 공동: R3-pad | 분배완료 2026-09-08 | 근거: npw, pattern-, ptw | 정본: ARCHITECTURE-V2.md §3 -->
 # NPW가 PTW를 예측 못하는 물리 — 확장 GW(Greenwood-Williamson) 접촉역학 모델 (Lv2-1)
 
 > 에이전트: wafer-type Lv2-1 (NPW 결과가 PTW를 예측하지 못하는 이유: 패턴 효과의 물리) | 작성일: 2026-09-06

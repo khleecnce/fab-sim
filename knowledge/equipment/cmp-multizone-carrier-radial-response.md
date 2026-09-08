@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: carrier, kinematic, multizone, platen | 정본: ARCHITECTURE-V2.md §3 -->
 # 멀티존 헤드 압력 제어 — 존-반경 응답과 상호작용 구조
 
 > 담당: [[tool-platen-head]] Lv1-2 · 작성 2026-09-07 · 상태: 검증(출처 기재, 1건 원문 PDF 확보)

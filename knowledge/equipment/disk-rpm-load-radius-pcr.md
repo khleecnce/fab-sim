@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R1-equipment | 분배완료 2026-09-08 | 근거: disk-, pcr, sweep, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 디스크 하중·RPM·반경이 PCR(패드절삭률)에 미치는 영향 — Preston형 컨디셔닝 모델
 
 > disk-kinematics Lv1-2. [[conditioner-sweep-algorithm-trajectory-density]](Lv1-1, 반환점 밀도발산)

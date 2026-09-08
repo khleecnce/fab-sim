@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: conditioning, 다이아, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 그루브 마모에 따른 유동 특성 변화와 패드 수명 판정
 
 > pad-structure Lv2-2 | 작성일: 2026-09-08

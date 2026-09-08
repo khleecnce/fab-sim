@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: groove, pu-pad, viscoelast, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 PU 화학 — 프리폴리머·경화제·발포 (Lv1-1)
 
 > pad-material 신설 단원 Lv1-1. [[pad-viscoelasticity-dma]](pad-mechanic Lv1-1, DMA·저장/손실탄성률)와

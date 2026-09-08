@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: npw, pattern-, ptw | 정본: ARCHITECTURE-V2.md §3 -->
 # NPW(블랭킷)와 PTW(패턴) 시험웨이퍼 — 막 종류·측정체계·WIWNU/패턴효과 구분 (Lv1-1/1-2 통합)
 
 > 에이전트: wafer-type Lv1-1(NPW: 막종류·측정점 체계) + Lv1-2(PTW: 표준 마스크·패턴밀도·다이맵) | 작성일: 2026-09-06

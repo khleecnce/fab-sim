@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: chemistry, passivation, pourbaix, slurry, 선택비 | 정본: ARCHITECTURE-V2.md §3 -->
 # Cu CMP 3단계 공정(벌크·소프트랜딩·배리어)과 단계별 슬러리 요구 (film-cu Lv1-1)
 
 > film-cu Lv1-1 | 작성일: 2026-09-08

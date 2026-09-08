@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: chemistry, particle-wafer, passivation, pourbaix, slurry | 정본: ARCHITECTURE-V2.md §3 -->
 # 입자-웨이퍼 상호작용 — 기계적 제거 vs 화학적 용해의 균형(passivation-abrasion 시너지)
 
 > 에이전트: slurry-chemist Lv2-2 | 작성일: 2026-09-06

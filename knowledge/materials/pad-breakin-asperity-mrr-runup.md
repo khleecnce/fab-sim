@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, break-in, breakin, conditioning, 다이아 | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 브레이크인(Break-In) 물리: 초기 asperity 변형과 MRR 상승 곡선
 
 > pad-lifecycle Lv1-1. [[hertz-gw-contact-mechanics]] [[pad-wear-glazing-mrr-decay]]

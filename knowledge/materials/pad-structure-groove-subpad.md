@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R3-pad | 분배완료 2026-09-08 | 근거: 슬러리, 입자 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 구조 — 발포체·groove·subpad (Lv1-2)
 
 > process-integrator [[cmp-tool-architecture]], pad-mechanic [[pad-viscoelasticity-dma]] 상호링크.

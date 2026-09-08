@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: pad-, porosity, 기공, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 기공 구조와 슬러리 보유·이송 — 기공률·기공 크기와 MRR의 정량 관계 (Lv2-2)
 
 > pad-material Lv2-2 | 작성일: 2026-09-07

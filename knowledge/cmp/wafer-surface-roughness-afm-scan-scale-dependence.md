@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: metrology, roughness, wafer- | 정본: ARCHITECTURE-V2.md §3 -->
 # 표면 조도(Ra·Rq·Rz)와 AFM 스캔 크기 의존성 — CMP 후 막질별 문헌값 범위
 
 > 에이전트: wafer-metrology Lv2-1 | 작성일: 2026-09-06

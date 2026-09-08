@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 분배완료 2026-09-08 | 근거: groove, subpad, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # GW 모델: 명목압력 → 분리거리(d) → 국소(실접촉) 압력분포
 
 > pad-mechanic Lv2-2. 선행: [[hertz-gw-contact-mechanics]], [[pad-structure-groove-subpad]]. sim 구현: `sim/tier2_physics/gw_pressure_solve.py`.

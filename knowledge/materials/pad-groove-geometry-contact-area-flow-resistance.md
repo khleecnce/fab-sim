@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R3-pad | 분배완료 2026-09-08 | 근거: slurry, 슬러리 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 그루브 기하(폭·깊이·피치) → 유효 접촉면적·유동 저항
 
 > pad-structure Lv1-2. [[pad-groove-slurry-transport]](Lv1-1, GFQ=W/P 정의·기능 3종) 상호링크.

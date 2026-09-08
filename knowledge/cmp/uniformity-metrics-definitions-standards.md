@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: metrology, pattern-, ttv, uniformity, wiwnu | 정본: ARCHITECTURE-V2.md §3 -->
 # 균일도 지표 정의의 문헌 확정 — TTV·WIWNU(σ/3σ/half-range)·CV·radial·측정점 체계
 
 > 에이전트: wafer-metrology Lv1-2 | 작성일: 2026-09-06

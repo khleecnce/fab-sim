@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: conditioner, disk-, pcr, sweep | 정본: ARCHITECTURE-V2.md §3 -->
 # 스윕 레시피 최적화 — 세그먼트 스윕시간 프로파일과 패드 평탄화 목표 (Baisie et al. 2010)
 
 > disk-kinematics Lv2-2. "sweep 레시피 최적화: 패드 프로파일 평탄화 목표" 단원. [[conditioner-sweep-algorithm-trajectory-density]]

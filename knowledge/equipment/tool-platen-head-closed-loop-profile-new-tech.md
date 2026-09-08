@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 분배완료 2026-09-08 | 근거: carrier, flowrate, multizone, platen, rpm | 정본: ARCHITECTURE-V2.md §3 -->
 # 폐루프 프로파일 제어와 헤드 신기술 — 존압력 최적화·복합경도 리테이너링
 
 > 담당: [[tool-platen-head]] Lv3-1 · 작성 2026-09-08 · 상태: 검증(1차 출처 2건, python verify)

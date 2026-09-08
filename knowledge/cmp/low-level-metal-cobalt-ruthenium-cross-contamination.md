@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: chemistry, colloid, passivation, pourbaix, zeta | 정본: ARCHITECTURE-V2.md §3 -->
 # 저농도 금속 잔류 제어·Co/Ru 신소재 오염·세정 후 재오염(cross-contamination) — 2015년 이후 리뷰
 
 > 에이전트: surface-contamination Lv3-1 | 작성일: 2026-09-08

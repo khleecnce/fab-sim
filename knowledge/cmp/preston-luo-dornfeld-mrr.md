@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R3-pad | 분배완료 2026-09-08 | 근거: colloid, 슬러리, 입자, 화학 | 물리 총론 — 여러 섹션 공유 | 정본: ARCHITECTURE-V2.md §3 -->
 # Preston 방정식 & Luo-Dornfeld 입자스케일 모델 — MRR 이론 정밀분석
 
 > process-integrator Lv2-1. 관련: [[../physics/cmp-kinematics-rotary]] (v_R 항의 출처), [[../equipment/cmp-tool-architecture]]

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, breakin, conditioning, cut rate, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 정상 마모율과 컨디셔닝 강도의 균형: Cut Rate = Wear Rate 정상상태
 
 > pad-lifecycle Lv1-2. [[pad-breakin-asperity-mrr-runup]] [[pad-wear-glazing-mrr-decay]]

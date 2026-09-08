@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, conditioner, cut rate, cutrate, grit | 정본: ARCHITECTURE-V2.md §3 -->
 # 그릿 밀도·돌출 높이 → 패드 절삭율(cut rate) 모델 (disk-design Lv1-2)
 
 > disk-design Lv1-2. [[diamond-grit-mesh-bonding]] [[conditioner-disk-pad-cutting-model]]

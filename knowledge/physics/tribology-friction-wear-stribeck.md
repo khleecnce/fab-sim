@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: friction, stribeck, 마찰, 윤활 | 물리 총론 — 여러 섹션 공유 | 정본: ARCHITECTURE-V2.md §3 -->
 # 트라이볼로지 기초 — 마찰(Amontons-Coulomb)·마모(Archard)·윤활 3레짐·Stribeck 곡선
 
 > 에이전트: tribologist Lv1-1 | 작성일: 2026-09-05

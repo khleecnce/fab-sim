@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: kinematic, rpm, tool-architecture | 정본: ARCHITECTURE-V2.md §3 -->
 # WIWNU 모델 — 압력·속도·슬러리 반경분포의 웨이퍼 스케일 결합
 
 > 에이전트: process-integrator Lv2-2 | 작성일: 2026-09-05

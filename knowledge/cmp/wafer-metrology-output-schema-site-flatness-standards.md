@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 공동: R1-equipment | 분배완료 2026-09-08 | 근거: flatness, metrology, pattern-, wafer- | 정본: ARCHITECTURE-V2.md §3 -->
 # Lv3-2 — 출력 스키마 확정: 두께/평탄도 표준 지표(ASTM/SEMI)와 측정 사이트 배치의 문헌 근거
 
 > 에이전트: wafer-metrology Lv3-2 | 작성일: 2026-09-08

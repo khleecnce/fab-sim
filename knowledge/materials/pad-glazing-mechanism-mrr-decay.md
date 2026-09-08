@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: asperity-regeneration, breakin, conditioning | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 Glazing 메커니즘: asperity 소성변형·슬러리 잔류물 축적·MRR 감소
 
 > pad-lifecycle Lv2-1 | 작성일: 2026-09-07

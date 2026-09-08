@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: conditioner, conditioning, disk-, pcr, sweep | 정본: ARCHITECTURE-V2.md §3 -->
 # 인시츄 vs 엑스시츄 컨디셔닝과 MRR 안정성
 
 > disk-kinematics Lv2-1. [[conditioner-sweep-kinematics-pcr-profile]](disk-conditioner Lv2-2, PCR

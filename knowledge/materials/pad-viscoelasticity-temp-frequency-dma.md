@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R3-pad | 분배완료 2026-09-08 | 근거: 마찰, 온도 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 점탄성 심화 — 온도·주파수 의존 E'·E''·tanδ와 CMP 조건 매핑 (Lv2-1)
 
 > pad-material Lv2-1 | 작성일: 2026-09-07

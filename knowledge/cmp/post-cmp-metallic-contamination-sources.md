@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R4-disk | 분배완료 2026-09-08 | 근거: chemistry, colloid, passivation, pourbaix, 슬러리 | 정본: ARCHITECTURE-V2.md §3 -->
 # Post-CMP 표면 오염의 종류와 발생원 — 슬러리·배선금속 재흡착·패드/디스크·세정수
 
 > 에이전트: surface-contamination Lv1-1 | 작성일: 2026-09-06

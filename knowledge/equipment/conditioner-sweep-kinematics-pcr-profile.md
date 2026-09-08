@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: conditioner, pcr, sweep, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 컨디셔너 스윕 운동학 — PCR(r) 반경 프로파일 예측 모델
 
 > disk-conditioner Lv2-2. 컨디셔닝 압력·스윕·RPM 레시피가 패드 반경별 절삭률(PCR) 프로파일에

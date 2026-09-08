@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: conditioner, conditioning, disk-, sweep, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 적응형 스윕과 폐루프 패드 프로파일 제어 (disk-kinematics Lv3-1)
 
 > disk-kinematics Lv3-1. "최신 리뷰: 적응형 sweep, 폐루프 패드 프로파일 제어" 단원.

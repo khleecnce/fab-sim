@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: pad-, porosity, 기공, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 경도·탄성률·기공률 — 측정법과 문헌값 범위 (Lv1-2)
 
 > pad-material Lv1-2. [[pu-pad-chemistry-prepolymer-foam]](Lv1-1, 조성이 경도를 정하는 화학)와

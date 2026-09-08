@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R3-pad | 분배완료 2026-09-08 | 근거: breakin, conditioning, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 두께·그루브 깊이 모니터링과 교체 기준(경제성 포함)
 
 > pad-lifecycle Lv2-2 | 작성일: 2026-09-07

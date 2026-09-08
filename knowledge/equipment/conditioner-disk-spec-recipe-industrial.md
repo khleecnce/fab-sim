@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: break-in, conditioner, sweep, 디스크, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 컨디셔너 디스크 상용 규격·레시피 축 (산업 1차 자료 보강)
 
 > disk-conditioner 보강 노트 (2026-09-06). [[diamond-grit-mesh-bonding]]

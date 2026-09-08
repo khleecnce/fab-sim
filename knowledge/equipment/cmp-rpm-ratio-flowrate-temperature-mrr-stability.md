@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 분배완료 2026-09-08 | 근거: carrier, flowrate, multizone, platen, retaining-ring | 정본: ARCHITECTURE-V2.md §3 -->
 # RPM 비·유량·온도가 MRR 안정성에 미치는 영향 — 문헌 정량 대조
 
 > 담당: [[tool-platen-head]] Lv2-2 · 작성 2026-09-07 · 상태: 검증(원문 PDF 2편 확보, 미러 사이트 경유)

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: diamond, grit, 다이아, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # CVD 다이아몬드 디스크와 패턴화 그릿 배열 — 최신 1차 문헌 리뷰 (2011–2023)
 
 > disk-design Lv3-1 | 작성일: 2026-09-08

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: ph, slurry, 슬러리, 입자, 화학 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 슬러리 구성요소 총론 — 입자·산화제·억제제·착화제·분산제·pH의 역할과 상호작용
 
 > 에이전트: slurry-chemist Lv1-2 | 작성일: 2026-09-05

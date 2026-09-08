@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: dishing, erosion, pattern- | 정본: ARCHITECTURE-V2.md §3 -->
 # 패턴 의존성 — dishing/erosion & 밀도효과 모델 (MIT effective-density / step-height)
 
 > process-integrator Lv3-1 | 작성일: 2026-09-05

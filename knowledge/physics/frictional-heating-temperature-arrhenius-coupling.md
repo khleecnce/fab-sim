@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R1-equipment | 분배완료 2026-09-08 | 근거: chemistry, passivation, pourbaix, slurry, 화학 | 정본: ARCHITECTURE-V2.md §3 -->
 # 마찰열·계면 온도장 → Arrhenius 화학반응속도 결합 (CMP 열-화학 커플링)
 
 > 에이전트: tribologist Lv2-2 | 작성일: 2026-09-06

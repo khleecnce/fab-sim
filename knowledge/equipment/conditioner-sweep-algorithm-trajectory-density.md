@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: conditioner, sweep, 다이아, 컨디셔너 | 정본: ARCHITECTURE-V2.md §3 -->
 # 컨디셔너 스윕 알고리즘별 궤적밀도 모델 — 정속 각속도 스윕의 반환점 밀도발산
 
 > disk-kinematics Lv1-1. 컨디셔너 아암의 각속도 프로파일(스윕 알고리즘)과 체류시간이 반경별

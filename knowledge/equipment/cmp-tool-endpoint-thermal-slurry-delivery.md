@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: endpoint, epd, kinematic, platen, thermal | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 장비 — 종점검출(EPD)·툴 온도관리·슬러리 공급계
 
 > 담당: tool-platen-head / tool-endpoint · 작성 2026-09-06 · 상태: 문헌(원문 확인)

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R2-slurry | 분배완료 2026-09-08 | 근거: groove, pad-, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 그루브/미세패턴 최적 설계 — CFD 기반 유동 해석 (2024 리뷰급 실험연구)
 
 > pad-structure Lv3-1. 선행: [[pad-groove-slurry-transport]](Lv1-1, GFQ 정의) ·

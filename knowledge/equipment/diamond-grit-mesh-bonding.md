@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, diamond, disk-design, grit, 다이아 | 정본: ARCHITECTURE-V2.md §3 -->
 # 다이아몬드 그릿 규격(메시·형상·품질)과 본딩 기술(브레이징 vs 전착) 비교
 
 > disk-design Lv1-1. [[conditioner-grit-design-space]] [[conditioning-mechanism-asperity-regeneration]]

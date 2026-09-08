@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R1-equipment | 분배완료 2026-09-08 | 근거: pad-, viscoelast, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 폴리우레탄 점탄성 기초 (DMA, 저장/손실 탄성률, 크리프)
 
 > pad-mechanic Lv1-1. [[cmp-tool-architecture]] (장비 구조, 헤드/플래튼/컨디셔너) 와 연결 —

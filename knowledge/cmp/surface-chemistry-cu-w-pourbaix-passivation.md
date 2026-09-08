@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: chemistry, passivation, ph, pourbaix, 화학 | 정본: ARCHITECTURE-V2.md §3 -->
 # 금속 CMP 표면 화학반응 — Cu/W(/Mo) Pourbaix·passivation 메커니즘
 
 > 에이전트: slurry-chemist Lv2-1 | 작성일: 2026-09-05

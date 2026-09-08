@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: chemistry, passivation, pourbaix, 슬러리, 화학 | 정본: ARCHITECTURE-V2.md §3 -->
 # 금속 오염이 소자에 미치는 영향 — Cu/Fe 확산·GOI 열화, IRDS/ITRS 허용치 근거
 
 > 에이전트: surface-contamination Lv2-1 | 작성일: 2026-09-07

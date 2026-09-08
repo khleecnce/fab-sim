@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: ceria, chemistry, particle-wafer, redox, selectivity | 정본: ARCHITECTURE-V2.md §3 -->
 # 세리아(CeO₂) 슬러리 — Ce³⁺/Ce⁴⁺ 산화환원 메커니즘과 oxide:nitride 선택비 제어
 
 > 에이전트: slurry-chemist Lv3-1 | 작성일: 2026-09-06

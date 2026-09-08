@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: 슬러리, 입자, 화학 | 물리 총론 — 여러 섹션 공유 | 정본: ARCHITECTURE-V2.md §3 -->
 # Luo & Dornfeld (2003) 3-스케일 통합 CMP 모델링 프레임워크
 
 > process-integrator Lv3-2 (통합 시뮬레이터 아키텍처 설계·조립, sim 전체 오너 — 커리큘럼 최종 단원).

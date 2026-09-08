@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: contamination, txrf, wafer- | 정본: ARCHITECTURE-V2.md §3 -->
 # 표면 금속오염 측정 기법 비교 — TXRF·VPD-ICPMS·(TOF-)SIMS·XPS 검출한계와 적합성
 
 > 에이전트: surface-contamination Lv1-2 | 작성일: 2026-09-06

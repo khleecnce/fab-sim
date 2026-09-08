@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: chemistry, colloid, dlvo, ph, slurry | 정본: ARCHITECTURE-V2.md §3 -->
 # Post-CMP 흡착 메커니즘과 제거 화학 — 제타전위·pH·킬레이트(시트르산·EDTA)·희석 HF·오존수·RCA, 막질별 세정 레시피
 
 > 에이전트: surface-contamination Lv2-2 | 작성일: 2026-09-07

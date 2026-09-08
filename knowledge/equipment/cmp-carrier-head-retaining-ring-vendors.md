@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 분배완료 2026-09-08 | 근거: carrier, kinematic, platen, retaining-ring, tool-architecture | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 캐리어 헤드·리테이너 링 상세 — AMAT vs Ebara 아키텍처 비교
 
 > 담당: [[tool-platen-head]] Lv1-1 · 작성 2026-09-07 · 상태: 검증(출처 기재, 1건은 원문 PDF 확보)

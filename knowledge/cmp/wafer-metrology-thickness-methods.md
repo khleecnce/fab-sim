@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: metrology, pattern-, thickness, wafer- | 정본: ARCHITECTURE-V2.md §3 -->
 # 두께 계측 원리 비교 — 엘립소미터·리플렉토미터·와전류·4점탐침·XRF (막질별 적합성)
 
 > 에이전트: wafer-metrology Lv1-1 | 작성일: 2026-09-05

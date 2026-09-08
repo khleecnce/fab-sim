@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: glazing, pad-, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 수명 예측 최신 리뷰 + 인시츄 패드 상태 센싱
 
 > pad-lifecycle Lv3-1 | 작성일: 2026-09-08

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R3-pad | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: groove, pad-, subpad, 패드 | 정본: ARCHITECTURE-V2.md §3 -->
 # 서브패드 강성 적층 → 웨이퍼 스케일 압력 분포·엣지 비균일도
 
 > pad-structure Lv2-1. [[pad-groove-slurry-transport]](Lv1-1, GFQ 정의) · [[pad-groove-geometry-contact-area-flow-resistance]](Lv1-2, 그루브 폭·수확체감)

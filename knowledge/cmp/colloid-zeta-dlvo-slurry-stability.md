@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 분배완료 2026-09-08 | 근거: colloid, dlvo, ph, slurry, zeta | 정본: ARCHITECTURE-V2.md §3 -->
 # 콜로이드 화학 기초 — 제타전위·전기이중층·DLVO 이론·CMP 슬러리 안정성
 
 > 에이전트: slurry-chemist Lv1-1 | 작성일: 2026-09-05

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R3-pad | 분배완료 2026-09-08 | 근거: slurry, 슬러리 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 패드 그루브 — 종류와 기능(슬러리 분배·배출·유체압 완화)
 
 > pad-structure Lv1-1. [[pad-structure-groove-subpad]](부모 pad-mechanic의 선행 지식,

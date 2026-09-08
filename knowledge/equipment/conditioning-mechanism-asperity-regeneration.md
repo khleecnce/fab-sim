@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 공동: R3-pad | 분배완료 2026-09-08 | 근거: asperity-regeneration, conditioner, conditioning, grit | 정본: ARCHITECTURE-V2.md §3 -->
 # 컨디셔닝 목적과 메커니즘: glazing 제거, asperity 재생
 
 > disk-conditioner Lv1-1. [[hertz-gw-contact-mechanics]] [[pad-wear-glazing-mrr-decay]] [[cmp-tool-architecture]] [[pad-viscoelasticity-dma]] [[conditioner-grit-design-space]] 상호링크.

@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, conditioner, conditioning, sweep | 정본: ARCHITECTURE-V2.md §3 -->
 # 패드 수명 예측: Asperity Population Balance 모델 (Lv3-1)
 
 > disk-conditioner Lv3-1. [[conditioning-mechanism-asperity-regeneration]] [[conditioner-disk-pad-cutting-model]]

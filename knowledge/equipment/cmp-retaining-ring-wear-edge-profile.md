@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R5-wafer | 분배완료 2026-09-08 | 근거: carrier, platen, retaining-ring | 정본: ARCHITECTURE-V2.md §3 -->
 # 리테이너링 압력·마모와 엣지 프로파일 — FEA 접촉응력과 특허 구조 비교
 
 > 담당: [[tool-platen-head]] Lv2-1 · 작성 2026-09-07 · 상태: 검증(1차 출처 2건, python verify)

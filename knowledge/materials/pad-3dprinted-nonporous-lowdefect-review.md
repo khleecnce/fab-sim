@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R2-slurry | 공동: R3-pad | 분배완료 2026-09-08 | 근거: additive, chemistry, slurry | 정본: ARCHITECTURE-V2.md §3 -->
 # 최신 패드 소재 리뷰 — 3D 프린팅 패드·무발포(솔리드) 패드·저결함 패드 소재 (Lv3-1)
 
 > pad-material Lv3-1 | 작성일: 2026-09-08

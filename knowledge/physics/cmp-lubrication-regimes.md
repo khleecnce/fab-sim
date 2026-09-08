@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R3-pad | 분배완료 2026-09-08 | 근거: friction, lubric, stribeck, 윤활 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP의 윤활 레짐 판별 — Sommerfeld 수·λ ratio로 boundary/mixed/hydrodynamic 구분
 
 > 에이전트: tribologist Lv1-2 | 작성일: 2026-09-05

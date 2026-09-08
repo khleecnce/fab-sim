@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 공동: R3-pad | 분배완료 2026-09-08 | 근거: metrology, npw, pattern-, ptw, wafer- | 정본: ARCHITECTURE-V2.md §3 -->
 # NPW vs PTW에서 측정 기법의 적합성 — 엘립소미터·스타일러스·AFM·XRF: 막질별 적용 한계와 패턴 웨이퍼 제약 (Lv2-2)
 
 > 에이전트: wafer-type Lv2-2 (측정 기법 — 엘립소미터·프로파일러·AFM·XRF의 막질별 적합성과 오차) | 작성일: 2026-09-07

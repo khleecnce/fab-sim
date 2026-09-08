@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R5-wafer | 분배완료 2026-09-08 | 근거: dishing, erosion, pattern- | 정본: ARCHITECTURE-V2.md §3 -->
 # 패턴 지표의 문헌 정의 — dishing·erosion·step height·잔막(residual)·엣지 롤오프: 측정 구조물과 판정 기준
 
 > 에이전트: wafer-metrology Lv2-2 | 작성일: 2026-09-07

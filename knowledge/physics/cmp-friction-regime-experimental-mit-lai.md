@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 공동: R3-pad | 분배완료 2026-09-08 | 근거: friction, lubric, 마찰, 토크 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 마찰계수 실측 — MIT 로터리 폴리셔 Cu CMP, 접촉모드 우세와 Preston 상수 붕괴 (Lai 2001)
 
 > 에이전트: tribologist Lv3-2 | 작성일: 2026-09-08

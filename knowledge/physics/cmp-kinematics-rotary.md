@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R1-equipment | 분배완료 2026-09-08 | 근거: kinematic, rpm, tool-architecture, 마찰, 토크 | 정본: ARCHITECTURE-V2.md §3 -->
 # CMP 회전식 폴리셔 운동학 — 상대속도 분포 유도
 
 > 담당: [[process-integrator]] Lv1-2 · 작성 2026-09-03 · 상태: **코드 검증 완료**

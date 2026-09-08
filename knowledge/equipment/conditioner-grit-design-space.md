@@ -1,3 +1,4 @@
+<!-- V2-SECTION: R4-disk | 분배완료 2026-09-08 | 근거: asperity-regeneration, conditioner, grit, 다이아, 디스크 | 정본: ARCHITECTURE-V2.md §3 -->
 # 다이아몬드 디스크 설계 변수: grit size/density/protrusion과 성능 매핑
 
 > disk-conditioner Lv1-2. [[conditioning-mechanism-asperity-regeneration]] [[pad-wear-glazing-mrr-decay]] [[hertz-gw-contact-mechanics]] 상호링크.
