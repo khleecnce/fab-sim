@@ -1236,5 +1236,644 @@
   "has_absolute_values": false,
   "relative_only": false,
   "usable": false
+ },
+ "US20080242198A1": {
+  "patent": "US20080242198A1",
+  "title": "US20080242198A1 - Multi-step planarizing and polishing method \n        - Google Patents",
+  "assignees": [
+   "United Microelectronics Corp"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "UMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR101037526B1": {
+  "patent": "KR101037526B1",
+  "title": "KR101037526B1 - \n        Chemical mechanical polishing composition and method for manufact",
+  "assignees": [
+   "테크노세미켐 주식회사",
+   "주식회사 하이닉스반도체"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "테크노세미켐 주식회사",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 3,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN111378372B": {
+  "patent": "CN111378372B",
+  "title": "CN111378372B - Application of acetic acid in STI polishing \n        - Google Patents",
+  "assignees": [
+   "Anji Microelectronics Shanghai Co Ltd"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Anji Microelectronics (安集)",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "BTA",
+   "pH",
+   "concentration",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN107230635A": {
+  "patent": "CN107230635A",
+  "title": "CN107230635A - Method for forming semiconductor device \n        - Google Patents",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US20180033636A1": {
+  "patent": "US20180033636A1",
+  "title": "US20180033636A1 - Method of fabricating a semiconductor structure \n        - Google Patent",
+  "assignees": [
+   "United Microelectronics Corp"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "UMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "hydrogen peroxide",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US8975179B2": {
+  "patent": "US8975179B2",
+  "title": "US8975179B2 - Planarization process for semiconductor device fabrication \n        - Google",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN103184011B": {
+  "patent": "CN103184011B",
+  "title": "CN103184011B - CMP slurry composition and polishing method using the same \n        - Googl",
+  "assignees": [
+   "Cheil Industries Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Cheil Industries Inc",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "BTA",
+   "pH",
+   "concentration",
+   "wt %",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US8524606B2": {
+  "patent": "US8524606B2",
+  "title": "US8524606B2 - Chemical mechanical planarization with overburden mask \n        - Google Pat",
+  "assignees": [
+   "JSR Corp",
+   "International Business Machines Corp"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "JSR Corporation",
+  "data_tables": 0,
+  "examples": 2,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US20080314872A1": {
+  "patent": "US20080314872A1",
+  "title": "US20080314872A1 - Chemical-Mechanical Polishing Compositions Containing Aspartame And Meth",
+  "assignees": [
+   "Ferro Corp"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Ferro Corporation",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN103084972B": {
+  "patent": "CN103084972B",
+  "title": "CN103084972B - A kind of method of polishing substrate \n        - Google Patents",
+  "assignees": [
+   "ROHM AND HAAS ELECTRONIC MATER"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Rohm and Haas Electronic Materials",
+  "data_tables": 0,
+  "examples": 1,
+  "comparative": 0,
+  "rate_unit": "angstroms/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN116179086A": {
+  "patent": "CN116179086A",
+  "title": "CN116179086A - \n        A kind of polysilicon polishing liquid and preparation method ther",
+  "assignees": [
+   "Ningbo Pingheng Electronic Materials Co ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Ningbo Pingheng Electronic Materials Co ltd",
+  "data_tables": 0,
+  "examples": 9,
+  "comparative": 0,
+  "rate_unit": "μm/min",
+  "to_nm_per_min": 1000.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR101919750B1": {
+  "patent": "KR101919750B1",
+  "title": "KR101919750B1 - Aqueous polishing composition and process for chemically mechanically poli",
+  "assignees": [
+   "바스프 에스이"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "바스프 에스이",
+  "data_tables": 0,
+  "examples": 1,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN109531282B": {
+  "patent": "CN109531282B",
+  "title": "CN109531282B - \n        Chemical mechanical polishing method for cobalt\n       \n        - ",
+  "assignees": [
+   "Rohm and Haas Electronic Materials CMP Holdings Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Rohm and Haas Electronic Materials",
+  "data_tables": 0,
+  "examples": 2,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "hydrogen peroxide",
+   "BTA",
+   "pH",
+   "concentration",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "WO2011101755A1": {
+  "patent": "WO2011101755A1",
+  "title": "WO2011101755A1 - Chemical-mechanical planarization of substrates containing copper, ruthen",
+  "assignees": [
+   "BASF China Co Ltd",
+   "BASF SE"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "BASF",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "a/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN113881510A": {
+  "patent": "CN113881510A",
+  "title": "CN113881510A - Chemical mechanical polishing cleaning solution and use method thereof \n   ",
+  "assignees": [
+   "Wanhua Chemical Group Electronic Materials Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Wanhua Chemical Group Electronic Materials Co Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN109971354A": {
+  "patent": "CN109971354A",
+  "title": "CN109971354A - A kind of chemical mechanical polishing liquid \n        - Google Patents",
+  "assignees": [
+   "Anji Microelectronics Shanghai Co Ltd"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Anji Microelectronics (安集)",
+  "data_tables": 0,
+  "examples": 1,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "concentration",
+   "wt %"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP2018056500A": {
+  "patent": "JP2018056500A",
+  "title": "JP2018056500A - \n        Processing method of plate\n       \n        - Google Patents",
+  "assignees": [
+   "Disco Abrasive Systems Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Disco Abrasive Systems Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "ceria",
+   "alumina",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN110076682A": {
+  "patent": "CN110076682A",
+  "title": "CN110076682A - A kind of Sapphire Substrate cmp method \n        - Google Patents",
+  "assignees": [
+   "Dalian University of Technology"
+  ],
+  "trusted": true,
+  "category": "academic",
+  "matched_org": "Dalian University of Technology",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "μm/h",
+  "to_nm_per_min": 16.666666666666668,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR102144758B1": {
+  "patent": "KR102144758B1",
+  "title": "KR102144758B1 - Method for producing polished object and composition kit for polishing \n  ",
+  "assignees": [
+   "가부시키가이샤 후지미인코퍼레이티드"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "가부시키가이샤 후지미인코퍼레이티드",
+  "data_tables": 0,
+  "examples": 9,
+  "comparative": 6,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN110722457A": {
+  "patent": "CN110722457A",
+  "title": "CN110722457A - Polishing pad dressing method \n        - Google Patents",
+  "assignees": [
+   "Semiconductor Manufacturing International Shanghai Corp",
+   "Semiconductor Manufacturing International Beijing Corp"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "SMIC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP2015030058A": {
+  "patent": "JP2015030058A",
+  "title": "JP2015030058A - Dressing method and dressing apparatus \n        - Google Patents",
+  "assignees": [
+   "Shin Etsu Handotai Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Shin Etsu Handotai Co Ltd",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 3,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN205021392U": {
+  "patent": "CN205021392U",
+  "title": "CN205021392U - A device for base plate polishing \n        - Google Patents",
+  "assignees": [
+   "Applied Materials Inc"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "Applied Materials",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN110653717B": {
+  "patent": "CN110653717B",
+  "title": "CN110653717B - Chemical mechanical planarization system and method for grinding wafer \n   ",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP2017136662A": {
+  "patent": "JP2017136662A",
+  "title": "JP2017136662A - \n        Polishing pad\n       \n        - Google Patents",
+  "assignees": [
+   "KOKONOE DENKI KK",
+   "Ritsumeikan Trust",
+   "Crystal Optics Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "KOKONOE DENKI KK",
+  "data_tables": 0,
+  "examples": 2,
+  "comparative": 2,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "BTA",
+   "pH",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US10807213B2": {
+  "patent": "US10807213B2",
+  "title": "US10807213B2 - Chemical mechanical polishing apparatus and method \n        - Google Patent",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
  }
 }
