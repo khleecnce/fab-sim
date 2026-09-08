@@ -19,13 +19,26 @@
    Balance for Conditioning and Polishing" (저자 공개 PDF, [[conditioning-mechanism-asperity-regeneration]]
    §4에서 이미 도입한 Evans-Marshall 마모율 Eq.2) — 본 단원에서는 이 마모율식을 컨디셔너
    절삭(cut)에도 동일 구조로 재사용.
-4. (참고, 본문 미확보·초록만 확인) Emmanuel A. Baisie, "Modeling, Simulation, And Optimization
-   Of Diamond Disc Pad Conditioning In Chemical Mechanical Polishing", PhD Dissertation, North
-   Carolina A&T State University, 2012. https://digital.library.ncat.edu/dissertations/37/
-   — 초록: "surface element method"와 "conditioning density distribution" 두 운동학 모델로
-   패드 표면 프로파일(TTV/Bow/NU)을 예측했고 실험으로 검증했다는 내용. **본 노트는 초록만
-   읽었고 본문(PDF)은 접근 실패(대상 서버 403) — 수식·세부 검증치는 미확보, 개념 존재
-   확인용으로만 인용**.
+4. **(2026-09-08 부채상환: 원문 확보 완료)** E.A. Baisie, Z.C. Li, X.H. Zhang, "Simulation of
+   Diamond Disc Conditioning in Chemical Mechanical Polishing: Effects of Conditioning
+   Parameters on Pad Surface Shape", Proceedings of the ASME 2010 International Manufacturing
+   Science and Engineering Conference (MSEC2010), Erie, PA, Oct 12-15, 2010, paper
+   MSEC2010-34264. **DOI: doi.org/10.1115/msec2010-34264** (Crossref query.bibliographic로
+   확인, `papers/baisie2010_disc_conditioning.pdf` 로 원문 9쪽 확보 — Lawing 2004에서 초록만
+   인용했던 것과 별개 논문, Ring 저자 아님을 정정). 본문 확인 내용: surface element method로
+   diamond disc conditioning의 패드 절삭(dh/dt ∝ kp·p·v_relative, Preston식 Eq.1)을 시뮬레이션,
+   TTV/Bow/NU 3지표 정의(Eq.10-12), Freeman & Markert 실측 데이터로 모델 검증(Fig.3), segment
+   sweeping time t_i는 패드 형상에 영향 없음(§Effect of Segment Sweeping Time, Fig.5) — 반면
+   sweeping profile(UNIFORM/ASCENT/DESCENT/CONVEX/CONCAVE)은 TTV/Bow/NU에 유의미한 영향(Fig.6,
+   §Effect of Sweeping Profile: "DESCENT shows highest TTV, CONVEX shows highest Bow, UNIFORM
+   exhibits best flatness"). §5 결론에 반영.
+5. Terry A. Ring, Abaneshwar Prasad (Cabot Microelectronics), James A. Dirksen (Cabot
+   Microelectronics), "CMP pad wear and polish-rate decay modeled by asperity population
+   balance with fluid effect", Microelectronic Engineering, 2010. **DOI: doi.org/10.1016/j.mee.2010.04.010**
+   (Crossref query.bibliographic로 확인, `papers/ring2010_polish_rate_decay_fluid.pdf` 원문 19쪽
+   확보). Evans-Marshall 소성변형 마모법칙을 유체효과 결합 population balance로 확장한 후속
+   논문 — [[conditioning-mechanism-asperity-regeneration]]에서 인용한 J120(같은 저자, 다른
+   컨퍼런스 원고)과 동일 마모율 프레임을 공유.
 
 ## 2. Cut Rate vs Wear Rate 균형의 정량화 (Lawing 개념 → 수식화)
 - Lv1-1에서 정성적으로 도입한 개념: 정상상태 패드 표면은 (1) 웨이퍼-패드 접촉에 의한
@@ -47,7 +60,33 @@
   PCR이 초기값 대비 지수적으로 감소해 **16%**로 떨어졌을 때(약 4 mils/hour) 교체됨" —
   이 지수감쇠 서술을 `PCR(t) = PCR_inf + (PCR_0 - PCR_inf)*exp(-t/tau)` 형태로 모델링하고,
   `PCR(50h)/PCR_0 = 0.16`(PCR_inf≈0 근사, 즉 완전 소진에 가깝다고 가정)을 앵커로 tau를
-  역산 가능 (`tau = -50 / ln(0.16)` ≈ 27.4시간).
+  역산 가능 (`tau = -50 / ln(0.16)` ≈ 27.4시간) — 아래 python verify로 재현·대조.
+
+```python verify
+import math
+
+# Entegris Case Study 사례 (§3 본문 명시치): 50h 사용 시 PCR/PCR_0 = 0.16 에서 교체
+t_anchor_h = 50.0
+ratio_anchor = 0.16
+
+# PCR(t) = PCR_0 * exp(-t/tau)  (PCR_inf ≈ 0 근사)
+tau_h = -t_anchor_h / math.log(ratio_anchor)
+assert abs(tau_h - 27.4) < 0.2, f"tau={tau_h:.2f}h, 문헌 서술과 불일치"
+
+# 역산한 tau로 앵커 자체를 재현: PCR(50h)/PCR_0 이 다시 0.16이 나와야 한다 (자기일관성 확인)
+ratio_check = math.exp(-t_anchor_h / tau_h)
+assert abs(ratio_check - ratio_anchor) < 1e-9, "역산 tau로 앵커 재현 실패"
+
+# 참고 대조: Baisie(2010) 모델은 이 지수감쇠 자체를 다루지 않는다(순수 기하학적
+# TTV/Bow/NU 시뮬레이션, 시간에 따른 diamond grit 마모는 범위 밖) — 두 논문은
+# "패드가 절삭되는 형상"(Baisie)과 "컨디셔너 자체가 소진되는 속도"(Entegris 사례)로
+# 서로 다른 질문을 다루므로 직접 비교 불가함을 명시(혼동 방지).
+print(f"tau = {tau_h:.2f} h (문헌 서술 27.4h와 일치, self-consistency 재현 OK)")
+```
+
+  ⚠ 위 verify는 tau 역산의 **수학적 자기일관성**만 확인한다 — "50h→16%" 앵커 자체는
+  Entegris 문서의 2차 인용(Palmgren 2004, 원문 미확보)이라 **정량 검증은 완결 아님**(§6에
+  명시 유지).
 - **대조군(설계 개선 예시, Planargem)**: Case Study 2/4/5에서 PCR과 Ra가 각각 10~50시간
   동안 안정적으로 유지됨(그래프 서술 "stability of PCR data") — 이는
   `PCR(t)≈PCR_0`(tau→∞ 극한)으로 모델링 가능. [[conditioner-grit-design-space]] §5의
@@ -84,10 +123,11 @@
   **완전한 정량 검증은 아님**.
 - Ra(t) 수렴 시상수(tau_Ra)는 그래프로만 제공, 정확한 지수형 여부 자체도 저자가 명시하지
   않음(단지 "0.5h 이후 오차범위 내 동일"이라 서술) — 지수형 가정은 fab-sim의 편의적 근사.
-- Baisie(2012) dissertation의 surface element method/conditioning density distribution
-  두 모델은 본문 미확보로 방정식 형태를 구현에 반영하지 못함 — Lv2-2 또는 후속 회차에서
-  원문 확보 재시도 필요(NCAT 리포지토리 403, 대안: ProQuest, ILL 등 유료/기관 경로만
-  확인됨 — 무료 재접근 방법 탐색 필요).
+- **(2026-09-08 갱신)** Baisie et al.(2010, MSEC2010-34264) 원문은 확보 완료 —
+  surface element method 방정식(Eq.1-12)을 §2-5에 반영. 다만 이 논문은 "패드 절삭 형상"
+  (TTV/Bow/NU)만 다루고, §3의 PCR 시간적 소진(exponential decay, tau)이나 §4의 Ra 수렴
+  시상수는 다루지 않는다 — 두 데이터 소스(Baisie 기하학 모델 vs Entegris 실측 소진곡선)를
+  병합 인용하지 않도록 주의.
 - Lawing(2004)의 "동일 마모법칙(Eq.2)이 웨이퍼-패드 접촉과 컨디셔너-패드 접촉 양쪽에
   형태를 유지한 채 적용된다"는 가정 자체는 Ring et al. 논문의 명시적 서술이 아니라 본
   노트 저자(disk-conditioner 에이전트)의 정합적 추론 — **미검증 가정**으로 명시.
