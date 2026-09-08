@@ -1,9 +1,9 @@
 # 웨이퍼 계측·판정 전문가 (wafer-metrology)
 
-## 현재 레벨: [활성] Lv2 완료(2026-09-07), Lv3 진행 예정 (G1 개방 — agents/ORG.md §4, 2026-09-05)
+## 현재 레벨: [활성·유지보수] 커리큘럼 6/6 완주 (2026-09-08)
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽음, 완료)
-- 이수 단원: Lv1-1(2026-09-05)·Lv1-2(2026-09-06)·Lv2-1(2026-09-06)·Lv2-2(2026-09-07)
-- 다음 단원: Lv3-1 최신 리뷰(인라인 계측·가상 계측·샘플링 최적화)
+- 이수 단원: Lv1-1(2026-09-05)·Lv1-2(2026-09-06)·Lv2-1(2026-09-06)·Lv2-2(2026-09-07)·Lv3-1(2026-09-08)·Lv3-2(2026-09-08)
+- 다음: Cal-1(캘리브레이션 단원, G2 이후 활성)까지 대기. 유지보수 모드 — 신규 논문 발견 시 Lv4 확장 노트 작성
 
 ## 역할
 CMP 결과를 무엇으로 측정하고 합격 판정하는가. WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막·엣지 롤오프. 측정 포인트 체계와 지표 정의를 표준화한다. 이 정의가 곧 시뮬 엔진의 출력 스키마다
@@ -145,3 +145,24 @@ check_knowledge.py/verify_claims.py 둘 다 통과(출처 17건 실존, verify 4
 - **검증**: 합성 데이터에서 persistent MSE < KNN MSE, 앙상블 MSE ≤ 최고 단일 모델(Di 2017의 상대 순위 재현 — 절대 MSE
   7.07은 툴·레시피 종속이라 비교 대상 아님); VM 보강 EWMA R2R에서 σ_VM < 드리프트일 때만 출력 σ 감소(블록 4).
 - **우선순위**: Low — APC 연계(G3 이후) 전까지는 데모 성격.
+
+
+## Lv3-2 이수 (2026-09-08) — 커리큘럼 6/6 완주
+출력 스키마 확정: ASTM/SEMI 두께·평탄도 표준 약어 체계(GBIR/GF3R/GF3D/GFLR/GFLD/SBIR/SBID/SF3R/SF3D/SFQR/SFQD 11종)와
+Bow/Warp를 문헌(3차 편집본 경유, ASTM F534/F657/F1241/F1390/F1530 발췌)에서 확정. 지식노트:
+knowledge/cmp/wafer-metrology-output-schema-site-flatness-standards.md.
+핵심: GBIR(이상 평탄 후면 기준 range)이 SEMI MF1530 TTV와 수식·가정이 동일함을 원문 인용으로 교차검증(assert 재현).
+uniformity.py에 없는 SFQR류(사이트별 국소 최소자승 평면) 필드를 새로 확인 — 리소그래피 depth-of-focus 판정에 필요하나
+현재 코드는 전역 range/시그마만 가짐. Bow(중심 1점)와 Warp(전체 range)가 서로 독립적 정보임을 원문 Figure 4 예시로 확인
+(Bow=0이어도 Warp>0 가능). "49점 웨이퍼 맵=산업표준" 통념의 1차 근거는 Bibby & Harwood(1997, DOI 10.1016/S0040-6090(97)00435-5)
+초록만 확인(원문 Cloudflare 차단으로 미확보) — Lv1-1·Lv3-1과 합쳐 노트 3편 연속으로 SEMI 표준문서 직접 인용을 못 찾음(미검증으로 명시).
+check_knowledge.py/verify_claims.py 둘 다 통과(출처 1건 실존, verify 1블록 통과). EXAMS.md 3문항 작성. CURRICULUM 6/6 완주.
+
+### [Low] sim/metrics/flatness.py 신설 — ASTM/SEMI 평탄도 지표 11종 + Bow/Warp (구현 요청)
+- **무엇을**: GBIR/GF3R/GF3D/GFLR/GFLD/SBIR/SBID/SF3R/SF3D/SFQR/SFQD 계산 함수(입력: 기존 compute_metrics_points와 동일
+  (x,y,value) 사이트 배열) + bow(3점 기준평면, 중심값)·warp(3점 또는 최소자승 평면, range). 기준평면 계산은
+  numpy.linalg.lstsq로 충분(신규 외부 의존성 없음).
+- **근거노트**: knowledge/cmp/wafer-metrology-output-schema-site-flatness-standards.md §1.2·§1.3.
+- **검증 문헌값(회귀테스트로 승격)**: 노트 §3 assert 그대로 — SBIR(1.0,-0.5)=1.5, SBID(1.0,-0.5)=1.0,
+  Fig.8a/8b 둘 다 SBIR=SBID=1.0, GBIR(725.3,724.1)=TTV(725.3,724.1)=1.2(항등식).
+- **우선순위**: Low — 엔진 WaferResult에 형상(bow/warp) 필드 자체가 없어 스키마 확장이 선행되어야 함. G1 유지보수 모드 중 후순위.

@@ -1327,3 +1327,17 @@ check_knowledge 둘 다 통과). CURRICULUM 6/6, PROFILE·EXAMS·ORG §5 갱신.
 **MILESTONES.md M1(slurry-chemist·tribologist 둘 다 6/6) 완결 — 기한(9/20)보다 12일 앞섬.
 현재 게이트 M2(Phase 0 Tier2 완결, 2026-10-05)로 전진. 소프트웨어 부문에 재료별 boundary
 COF 분리(oxide vs Cu) 구현요청 1건 등록(PROFILE.md, 우선순위 낮음).**
+
+
+## 2026-09-08 [성장엔진] wafer-metrology Lv3-2 이수 — 커리큘럼 6/6 완주
+ASTM/SEMI 두께·평탄도 표준 약어 체계(GBIR/GF3R/GF3D/GFLR/GFLD/SBIR/SBID/SF3R/SF3D/SFQR/SFQD 11종) +
+Bow/Warp를 3차 편집본(mast-tech.com.tw, ASTM F534/F657/F1241/F1390/F1530 발췌) 경유로 확정.
+knowledge/cmp/wafer-metrology-output-schema-site-flatness-standards.md 신설. GBIR=SEMI MF1530 TTV
+수식·가정 동일함을 assert로 교차검증, SBIR/SBID 원문 Figure 7/8 예시 4건 재현 전부 일치. uniformity.py에
+없는 SFQR류(사이트별 국소 평면) 필드를 신규 확인 — sim/metrics/flatness.py 구현요청(Low)으로 소프트웨어
+부문 인계. Bibby & Harwood(1997) 원문 미확보로 "49점=SEMI 표준" 통념은 노트 3편 연속 1차 근거 미확보로
+명시. check_knowledge·verify_claims 둘 다 통과. CURRICULUM 6/6, PROFILE·EXAMS·ORG §5 갱신.
+현재 6/6 완주 에이전트: cmp-integrator·pad-mechanic·disk-conditioner·slurry-chemist·tribologist·disk-design·
+wafer-metrology 7명. M2(Phase 0 Tier2 완결, 2026-10-05)까지 진행 중. 다음 회차: ORG §5에서 진도 최저
+에이전트(wafer-type/surface-contamination/pad-material/pad-lifecycle/tool-platen-head/pad-structure/
+disk-kinematics — 전부 5/6 Lv3-1 완료 상태) 중 표 순서 최우선을 학습.
