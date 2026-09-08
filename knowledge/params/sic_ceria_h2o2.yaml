@@ -1,0 +1,68 @@
+# 4H-SiC CMP — 세리아/H2O2 알칼리 슬러리 (실측 DOE 기반)
+#
+# ⚠ 이 팩은 **Si 반도체용이 아니다.** 4H-SiC 웨이퍼 전용이다.
+#   Si 산화막/Cu/W 공정에 이 값을 쓰면 안 된다.
+#
+# 왜 만들었나 (2026-09-08):
+#   Wang et al. ACS SI Table S3의 50조건 완전 DOE가, 우리가 확보한 데이터 중
+#   조성(CeO2·H2O2·pH)과 압력·rpm이 모두 절대값으로 있는 **유일한** 것이다.
+#   기존 sti_ceria 팩에는 pH 파라미터가 없어 화학층의 pH 항이 통째로 꺼져
+#   있었는데(chemistry.py `_ph_softening_term`이 파라미터 부재 시 스킵),
+#   실측에서 pH가 **가장 강한 인자(rho=+0.520)**로 나왔다.
+#   그래서 이 데이터로 계수를 역산해 pH 항을 처음으로 켠다.
+#
+# 실측 역산 근거 (같은 조성·압력·rpm에서 pH만 다른 9개 조, n=12쌍):
+#   pH 1단위당 MRR 배수 중앙값 = 1.633
+#   MRR ∝ H^-1.5 이므로 경도비 = 1.633^(-1/1.5) = 0.7213
+#   → ph_softening_per_unit = 1 - 0.7213 = 0.2787
+#
+#   ⚠ 이 값은 SiC 표면 화학에서 나왔다. Si 산화막의 pH 의존성은 다르다
+#     (실리카 등전점 pH~2, 세리아 ~7 → 정전기 상호작용이 반대로 움직인다).
+#     다른 재료계로 옮기지 마라.
+#
+# 실측된 인자 순위 (이 팩의 검증 기준선):
+#   pH +0.520 > head rpm +0.341 > CeO2 +0.286 > 압력 +0.266 > H2O2 +0.221
+#   > platen +0.153 | 펌프유량 -0.317, 연마시간 -0.324 (둘 다 엔진에 없음)
+#
+#   ⚠ 펌프유량·시간이 조성보다 강하다. 논문 PCA도 같다(pump +0.563, time +0.535).
+#     엔진이 이 둘을 모델링하지 않으므로 이 데이터셋에서 순위 일치도의 상한이
+#     구조적으로 제한된다. rho가 낮아도 화학층만의 문제가 아니다.
+
+base: sti_ceria
+description: "4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산"
+
+params:
+  film:
+    value: sic_4h
+    source: "Wang et al. ACS SI Table S3 — 4H-SiC 웨이퍼"
+    confidence: measured
+
+  abrasive:
+    value: ceria
+    source: "Wang et al. ACS SI Table S3 — CeO2 연마입자"
+    confidence: measured
+
+  slurry_ph:
+    value: 10.0
+    source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (pH 9/10/11)"
+    confidence: measured
+
+  ph_softening_ref:
+    value: 10.0
+    source: "Wang et al. ACS SI Table S3 — DOE 중심값을 기준으로 잡는다"
+    confidence: measured
+
+  ph_softening_per_unit:
+    value: 0.2787
+    source: "Wang et al. ACS SI Table S3 50조건 역산 (pH만 다른 9조/12쌍, 배수 1.633, H^-1.5 환산). 2026-09-08"
+    confidence: measured
+
+  abrasive_ref_wt_pct:
+    value: 4.0
+    source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
+    confidence: measured
+
+  oxidizer_ref_wt_pct:
+    value: 4.0
+    source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%)"
+    confidence: measured
