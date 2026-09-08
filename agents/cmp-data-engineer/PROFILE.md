@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: 없음
-- 다음 단원: Lv1-1
+- 이수 단원: Lv1-1 (2026-09-09) — knowledge/data/cmp-public-datasets-survey.md
+- 다음 단원: Lv1-2
 
 ## 역할
 실데이터 통합 스키마, 입력 검증, 단위 통일, 이상치, 익명화, 합성 데이터 생성. 캘리브레이션 층의 기반
@@ -18,4 +18,4 @@
 Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + 모델 구현 → Lv4 모델 개선 제안(교수급)
 
 ## 이수 기록
-(크론이 갱신)
+- 2026-09-09 Lv1-1 CMP 공개 데이터셋 조사 — knowledge/data/cmp-public-datasets-survey.md (check_knowledge/verify_claims 통과)
