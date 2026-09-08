@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|
 | M0 | 2026-09-07 | **저장소 정비** | GitHub private repo, README, .gitignore, 첫 커밋 | 수동(완료) | ✅ 2026-09-05 |
 | M0.5 | 2026-09-07 | **통합 엔진 골격** | `sim/engine.py` Recipe→simulate→WaferResult 단일 API + `sim/metrics/` 지표 라이브러리(TTV·radial TTV·CV·WIWNU). 이후 모든 물리 모듈은 엔진의 `Model`로 등록 | 수동(완료) | ✅ 2026-09-05 (100 tests) |
-| M1 | 2026-09-20 | **지식 병목 해소** | slurry-chemist 6/6, tribologist 6/6 (전원 커리큘럼 이수) | 심야병렬·성장엔진 A | 🔧 6/6, 5/6 (slurry-chemist 완주 2026-09-08, tribologist Lv3-2 남음) |
+| M1 | 2026-09-20 | **지식 병목 해소** | slurry-chemist 6/6, tribologist 6/6 (전원 커리큘럼 이수) | 심야병렬·성장엔진 A | ✅ 2026-09-08 (slurry-chemist 6/6 + tribologist 6/6, 기한보다 12일 앞서 완결) |
 | M2 | 2026-10-05 | **Phase 0 Tier2 완결** | Phase 0 체크리스트 전부 [x], 전 모듈 pytest + 문헌재현 | 성장엔진 B·Max워커 | 🔧 7/14 |
 | M3 | 2026-10-25 | **결합 모델 v1 + 캘리브레이션 골격** | 슬러리×패드×디스크 결합 (Phase 1 첫 항목). `sim/calibration/{ingest,prior,fit_npw}.py`를 **합성 데이터**로 검증 (ORG §7.4) | Max워커·성장엔진 B·cmp-data-engineer | ⬜ |
 | M4 | 2026-11-15 | **결함 진단 에이전트 v0** | "왜 dishing이 났고 뭘 바꿔야 하나"에 근거 있는 답 — 지식노트 인용 + 시뮬 결과. defect-scientist 활성 | 성장엔진 | ⬜ |
@@ -26,7 +26,7 @@
 | M7 | 2026-12-31 | **사업계획서 초안** | PSST 구조, 시장(CMP 소모품·EDA), 경쟁(Coventor·학계), 기술 근거 = 이 저장소 | 창업엔진 | ⬜ |
 | M8 | 2027-01 | **접수** | 위 전부 | 사용자 | ⬜ |
 
-## 현재 게이트: **M1 — 지식 병목 해소 (2026-09-20)**
+## 현재 게이트: **M1 완료(2026-09-08) → M2 — Phase 0 Tier2 완결 (2026-10-05)**
 
 크론 판단 규칙:
 - M1 미달 상태에서는 트랙 A(학습) > 트랙 B(구현). tribologist·slurry-chemist를 우선 학습시킨다.

@@ -1302,3 +1302,28 @@ verify_claims·check_knowledge 둘 다 통과(verify 4블록, 출처 2건 실존
 다수로 게이트 통과). slurry-chemist CURRICULUM 6/6 완주, PROFILE·EXAMS·ORG §5 갱신.
 **M1 게이트(MILESTONES.md)는 slurry-chemist·tribologist 둘 다 6/6 필요 — tribologist는
 아직 5/6(Lv3-2 남음)이라 M1 미완**. 다음 회차: tribologist Lv3-2를 우선해 M1 완결 시도.
+
+## 2026-09-08 [소프트웨어] S25: pad-structure 구현요청 처리 — 그루브 마모→유동 상태
+`sim/tier2_physics/pad_groove_wear_flow.py` 신설(깊이 시간함수·잔존비·3단계 플래그(initial/mid/
+end_of_life, PROVISIONAL)·저류부피·체류시간·직사각채널 컨덕턴스·Micron/Cabot 수명식·종합함수
+`groove_wear_flow_state` 9종). 노트(pad-groove-wear-flow-change-end-of-life.md §2,§4,§5) verify
+블록 정량값(US8192257B2 산술한계1000→Micron600-800 잔존20-40%·Cabot80%기준800wafers 일치,
+Mu2016 Table2 V_land≤3%·V_total 6/6·V_groove/V_land≥6.9배, Irfan2025 컨덕턴스비 d=0.50 급감
+0.45-0.50/d=0.25 0.09-0.11) 그대로 재현 테스트 18건. engine 미등록(Recipe 스키마 부채, S24 이하와
+동일 지위). Claude Code 위임(커밋 금지) → software-lead가 pytest 328 passed(310+18) 직접 재검증,
+git status로 다른 크론 미커밋 파일 미접촉 확인 후 커밋 236e5b6 push. BACKLOG S25 완료, pad-structure
+PROFILE 구현요청 회신 기록.
+
+## 2026-09-08 [성장엔진] tribologist Lv3-2 이수 — 커리큘럼 6/6 완주, **M1 게이트 완결**
+MIT 학위논문(Jiun-Yu Lai, *Mechanics, Mechanisms, and Modeling of the CMP Process*, 2001,
+handle.net/1721.1/8860, 원문 PDF web.mit.edu/cmp에서 직접 확보) 로터리 폴리셔 Cu CMP 실측
+학습. 접촉모드 COF 0.40~0.49(압력·속도 무관, Coulomb 마찰) — 기존 oxide 기준 `cof_stribeck
+mu_bl=0.30`이 Cu 접촉모드를 과소평가함을 확인. v_R=3.91m/s까지도 hydroplaning 미도달(COF
+항상 ≫0.001) — 저자가 제시한 "필름두께>거칠기 3배" 조건이 Lv1-2의 λ≥3 hydrodynamic 경계와
+독립적으로 수렴함을 확인. Preston kp 지수가 압력별로 다름(14kPa: -1, 48kPa: -0.5) — Kp=상수
+가정의 정량적 반례, 원인은 미검증으로 명시. knowledge/physics/cmp-friction-regime-
+experimental-mit-lai.md 신설(1차 출처 학위논문+동료심사 CIRP논문 DOI 교차확인, verify_claims·
+check_knowledge 둘 다 통과). CURRICULUM 6/6, PROFILE·EXAMS·ORG §5 갱신.
+**MILESTONES.md M1(slurry-chemist·tribologist 둘 다 6/6) 완결 — 기한(9/20)보다 12일 앞섬.
+현재 게이트 M2(Phase 0 Tier2 완결, 2026-10-05)로 전진. 소프트웨어 부문에 재료별 boundary
+COF 분리(oxide vs Cu) 구현요청 1건 등록(PROFILE.md, 우선순위 낮음).**

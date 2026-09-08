@@ -97,7 +97,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | pad-mechanic | 활성·유지보수 | 6/6 | 2026-09-04 |
 | disk-conditioner | 활성·유지보수 | 6/6 | 2026-09-05 |
 | slurry-chemist | 활성·유지보수 | 6/6 ✓ 완주 | 2026-09-08 |
-| tribologist | 활성 | 5/6 (Lv3-1 완료) | 2026-09-06 |
+| tribologist | 활성·유지보수 | 6/6 ✓ 완주 | 2026-09-08 |
 | wafer-metrology | 활성 (G1 개방 2026-09-05) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | wafer-type | 활성 (G1 개방 2026-09-06) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | surface-contamination | 활성 (G1) | 5/6 (Lv3-1 완료) | 2026-09-08 |

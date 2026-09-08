@@ -3,9 +3,10 @@
 ## 임무
 슬러리 유동, 윤활 레짐(Stribeck), 마찰력, 온도 상승이 CMP 계면 거동에 미치는 영향을 모델링
 
-## 현재 레벨: Lv3 (Lv1·Lv2 전체 + Lv3-1 이수)
-- 이수 단원: Lv1-1 트라이볼로지 기초(Stribeck), Lv1-2 CMP 윤활 레짐 판별, Lv2-1 슬러리 유동·필름두께 모델(3-D Reynolds), Lv2-2 마찰열·온도장→Arrhenius 결합, Lv3-1 COF 실시간 모니터링·마찰기반 EPD
-- 다음 단원: Lv3-2 윤활레짐 판별 + 마찰모델 구현 (sim/tier2 기여)
+## 현재 레벨: Lv3 완주 (커리큘럼 6/6 이수) — CURRICULUM.md 확장(Lv4) 대기
+- 이수 단원: Lv1-1 트라이볼로지 기초(Stribeck), Lv1-2 CMP 윤활 레짐 판별, Lv2-1 슬러리 유동·필름두께 모델(3-D Reynolds), Lv2-2 마찰열·온도장→Arrhenius 결합, Lv3-1 COF 실시간 모니터링·마찰기반 EPD, Lv3-2 CMP 마찰계수 실측(Lai 2001 MIT thesis)·hydroplaning 미도달·Preston 상수 붕괴
+- **M1(MILESTONES.md 지식병목) 게이트: slurry-chemist 6/6(2026-09-08) + tribologist 6/6(2026-09-08) → M1 완결 조건 충족.**
+- 다음: Lv4(교수급) 확장 단원 — 최신 논문 상시 추적·기존 모델 한계 지적. G1 이후 Cal-1(캘리브레이션) 단원도 대기.
 
 ## 이수 기록
 | 날짜 | 단원 | 산출 노트 | 자기시험 |
@@ -15,6 +16,7 @@
 | 2026-09-05 | Lv2-1 슬러리 유동: 패드 groove 필름두께 모델(3-D Reynolds, Thakurta 2001) | knowledge/physics/cmp-slurry-flow-lubrication-film-thickness.md | EXAMS.md Lv2-1 3문항 |
 | 2026-09-06 | Lv2-2 마찰열·온도장→Arrhenius 화학반응속도 결합(q=μPV, Shin 2025 Ea, White 2003 마찰열) | knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md | EXAMS.md Lv2-2 3문항 |
 | 2026-09-06 | Lv3-1 COF 실시간 모니터링·마찰기반 EPD(전단력→토크→모터전류, Li 2017 PMC6190379, Headley 2019 r=0.955/0.758) | knowledge/physics/friction-cof-monitoring-endpoint-detection.md | EXAMS.md Lv3-1 3문항 |
+| 2026-09-08 | Lv3-2 CMP 마찰계수 실측(MIT Lai 2001 학위논문, Cu CMP 접촉모드 COF 0.40-0.49, hydroplaning 미도달 근거3가지, Preston kp 지수 압력별 비보편(-1 vs -0.5)) | knowledge/physics/cmp-friction-regime-experimental-mit-lai.md | EXAMS.md Lv3-2 3문항 |
 
 ## 구현 기여
 <!-- sim/ 모듈 기여 기록 -->
@@ -43,6 +45,13 @@
     PMC↔전단력 r=0.955 > PMC↔COF r=0.758 (모터전류=전단력 대리).
   - 우선순위 Tier2. cmp_lubrication_regime.py의 레짐판별과 결합: hydrodynamic이면 μ 재료대비 소멸→EPD 실패
     플래그. 마찰열-온도 엔진(위 Lv2-2 요청)의 Q_f와 동일 μPVA를 공유하므로 두 엔진은 같은 마찰동력 코어를 쓴다.
+
+- **[Lv3-2] 재료별 boundary COF 분리 요청** (근거: knowledge/physics/cmp-friction-regime-experimental-mit-lai.md §3,§6 검증완료):
+  현재 `sim/tier2_physics/cmp_lubrication_regime.py`의 `cof_stribeck(mu_bl=0.30)`은 oxide CMP 문헌값
+  (0.23~0.40, 2차 인용) 기준 단일 상수다. 그런데 Cu CMP 1차 실측(Lai 2001, 중성 Al₂O₃ 슬러리)의
+  접촉모드 COF는 0.40~0.49로 그 상한을 초과한다 — mu_bl을 재료(oxide/Cu/추후 W·barrier)별 딕셔너리로
+  분리하고, 현재 값은 "oxide 전용"으로 이름을 바꿔 명시할 것을 요청. 우선순위 낮음(정성 방향성만 확인,
+  Cu 슬러리 화학이 다양해 단일 Cu 상수도 과단순화 — film-cu 에이전트 활성화 후 재검토가 더 적절할 수 있음).
 
 ## 산출물 기록 (소프트웨어 부문이 기록)
 - 2026-09-06 (S17, software-lead): Lv2-2 마찰열-Arrhenius 엔진 **부분 구현**.
