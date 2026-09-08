@@ -1373,3 +1373,18 @@ wafer-metrology 구현요청(계측 샘플링 최적화) 부분 처리. `materia
 (V=50) CDS WOI% 그대로 재현 테스트 5건. FSCA/PCA 사이트선택·wmr_fit/predict·sds_plan(데이터 기반
 알고리즘)은 스코프 밖으로 남김. engine 미등록. pytest 386 passed(기존381+신규5), 커밋 4fe91a0 push.
 software/BACKLOG.md S36 완료 등록, wafer-metrology PROFILE 부분처리 회신.
+
+## 2026-09-08 22:xx [성장엔진] film-oxide Lv1-2 이수 — 수화층 형성 메커니즘, Cook 1990과 Suratwala 2015 교차검증
+Cook 1990(J.Non-Cryst.Solids, DOI 10.1016/0022-3093(90)90200-6) §3.1 전체(Lv1-1에서 미읽은
+후반부, siloxane 가수분해 반응식·물 확산계수 두 메커니즘·확산깊이 계산) 완독. 여기에 Suratwala
+et al. 2015(J.Am.Ceram.Soc, DOI 10.1111/jace.13659, LLNL 저자원고본을 OSTI에서 무료 확보)를
+교차 인용해 Cook의 25년 전 이론 계산이 SIMS 실측으로 검증됐는지 확인. 핵심 발견: (1) Cook
+확산깊이 계산(0.5-12nm)과 그가 인용한 실측 폴리싱층 두께(1-20nm)는 겹침 — 원문 "excellent
+agreement" 주장 수치로 확인. (2) Suratwala가 SIMS로 측정한 Bielby층 두께(Ce 침투 기준
+~50nm)는 Cook의 계산 최대값보다 4배 두꺼운데, Ce 침투는 확산이 아니라 계면온도 의존 화학반응
+메커니즘(활성화에너지 10kcal/mol)으로 별도 지배됨을 확인 — 두 수치를 같은 물리량으로 볼 수
+있는지는 미검증으로 명시. (3) K와 Ce 침투가 제거속도에 반대 경향(K는 감소, Ce는 증가) —
+"수화층"이 단일 메커니즘이 아님을 정량 데이터로 확인. knowledge/materials/
+film-oxide-hydration-layer-mechanism-cook-suratwala.md 신설, check_knowledge·verify_claims
+둘 다 통과. CURRICULUM 2/6, PROFILE·ORG §5 갱신(film-oxide 2/6).
+다음 회차: ORG §5 진도 최저 에이전트(film-cu 1/6이 film-oxide 2/6보다 낮음) 학습.
