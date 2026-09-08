@@ -29,6 +29,9 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 
 | Lv3-1 | 2026-09-08 | `knowledge/materials/pad-groove-cfd-micropattern-optimal-design.md` | 1차 논문 1편(Sadri Mofakham 2024, DOI:10.1149/2162-8777/ad8fd3, ECS JSS CC-BY 원문 전체 확보), verify 블록 통과(DCA/DICL 표 재현, Re<2300 층류 정합성 sanity, DICL-RR 단조증가 vs 압력강하-RR 비단조 재현). 리뷰 논문 2편(Physics of Fluids DOI:10.1063/5.0312258, SiC involute groove SSRN 5358338)은 미러 사이트·SSRN 접속 실패로 **원문 미확보**, 초록 수준만 기록 |
 
+## 구현 결과 (소프트웨어 부문 회신)
+- `groove_wear_flow_state` 등 9함수 구현 완료 — `sim/tier2_physics/pad_groove_wear_flow.py`(S25, 커밋 236e5b6, 2026-09-08). 노트 §5 verify A/D/E 정량값 그대로 재현 테스트 18건. engine 미등록(Recipe 스키마 부채, S24 이하와 동일 지위). `pattern_dicl_mrr_factor`는 데이터점 3개뿐이라 이번 회차 범위 밖(미착수).
+
 ## 구현 요청 (sim/ 담당자에게 — pad-structure는 직접 넣지 않음)
 
 | 무엇을 | 근거 노트 | 검증 문헌값 | 우선순위 |
