@@ -97,6 +97,10 @@
 
 ## 진행 로그
 <!-- 크론이 실행마다 추가 -->
+- **2026-09-08** [소프트웨어] wafer-type 구현요청 `effective_pressure_ratio` 처리 —
+  `sim/tier2_physics/npw_ptw_effective_pressure.py` 신설(Sorooshian 2005 밀도별 유효압력비 표 조회 +
+  1/ρ모델 대조). 테스트 16건 문헌값 재현, 301 passed, 커밋 7ac1f02 push 완료. BACKLOG 수신함에
+  pad-structure/disk-design/wafer-metrology 신규 구현요청 S25~S37 등록.
 - **2026-09-03** (트랙 A+B, 1회차): process-integrator Lv1-1(장비 구조)·Lv1-2(운동학) 이수 → **Lv0→Lv1 승급**. 지식노트 2건 작성(`knowledge/equipment/cmp-tool-architecture.md`, `knowledge/physics/cmp-kinematics-rotary.md`, 출처: Lai MIT thesis 2001 / AMAT US6183354B1·US6244942B1 / JJMIE 2026 / IJPEM-GT 리뷰 2021), 자기시험 6문항.
 - **2026-09-03** (트랙 B): `sim/tier1_empirical/kinematics.py` 구현·실행 검증 **7/7 PASS** — ω_w=ω_p일 때 웨이퍼 전면 상대속도 균일(std=0.00e+00, |v|=ω_p·r_cc=1.2566 m/s) 재현, 비균일도 해석해 NU=2|µ| 오차<1e-12 확인. 발견: 운동학 비균일은 자전평균으로 상쇄되어(50/60rpm에서 edge/center MRR 1.0039) **WIWNU 주범은 압력분포**임 → Lv2-2 설계 방향 확정.
 - **2026-09-04** (트랙 A+B): process-integrator Lv2-1(Preston/Luo-Dornfeld MRR 모델 정밀분석) 이수.

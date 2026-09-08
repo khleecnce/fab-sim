@@ -88,6 +88,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    α(ρ)=P_eff/P_applied. 기본값 표: 10% 2.2, 50% 1.7, 90% 1.3 (Sorooshian 2005 요약값; 표 평균 2.67/1.79/1.26 병기),
    온도 계수는 10→45 °C에서 +31%(문헌)~+46%(양끝 재현) 범위로 불확실 표기. 밀도모델 RR_up=K/ρ_eff와 비교 출력
    (1/ρ 대비 비율). 근거: 같은 노트 §4, verify (B). 우선순위: **높음** (Lv3-2 핵심 미지수, PTW 캘리브레이션 대상).
+   **→ 처리 완료 (2026-09-08, software-lead)**: `sim/tier2_physics/npw_ptw_effective_pressure.py` 신설
+   (`table_ratio`/`mean_ratio_at_density`/`summary_ratio`/`inverse_density_ratio`/`effective_pressure_ratio`).
+   테스트 16건 §6 verify (B)(B') 정량값 그대로 재현. engine 미등록(Recipe 스키마 확장 필요, S17 이하와
+   동일 지위). 301 tests passed. 커밋 7ac1f02, push 완료.
 3. **전기 두께 추출 함수** `cu_thickness_from_resistance(R_ohm, L_um, W_um, T_L_um, rho_Cu_uohm_cm=2.0)` =
    ρ_Cu·L/(R·(W−2T_L)) + T_L, 라이너 병렬 무시 오차 경고(R_L/R_Cu<100이면). 검증값: Park et al. 1999 W 0.35 µm·T_M 0.4 µm·
    T_L 0.025 µm·ρ_L 100 µΩ·cm → R_L/R_Cu≈200(ρ_Cu 2.0). dishing 보정은 Chang et al. 2004 segment 식(R_dish 40 µm, 5 µm 선
