@@ -6,10 +6,14 @@
 # 라이선스: CC BY-NC 4.0
 # PDF: https://ndownloader.figshare.com/files/60987447 (859,882 B, 22p, 2026-09-08 직접 확인)
 #
-# ⚠ 재료계가 4H-SiC라 우리 팩(Si 산화막/Cu/W)의 범위 밖 → in_scope: false.
-#   그러나 **조성(CeO2 wt%, H2O2 vol%, pH)과 압력·rpm이 전부 절대값으로 있는
-#   완전 DOE**다. 지금까지 모은 데이터 중 조성이 들어간 유일한 것이고,
-#   화학층의 경향(순위)을 검증할 수 있는 첫 데이터다.
+# ⚠ 정정(2026-09-09): 이전 주석은 "우리 팩(Si 산화막/Cu/W)의 범위 밖"이라 썼으나 이는
+#   sic_ceria_h2o2 팩이 신설되기 전의 낡은 서술이다. 이 팩은 애초에 **4H-SiC 전용**으로
+#   만들어졌으므로(위 knowledge/params/sic_ceria_h2o2.yaml 참고) 재료계는 정확히 일치한다
+#   → in_scope: true로 정정.
+#   단, 이 데이터의 pH 항 계수(ph_softening_per_unit)가 **이 DOE에서 역산**되었으므로
+#   (knowledge/params/sic_ceria_h2o2.yaml 참고) 이 데이터셋으로 다시 채점하면 자기 답안지로
+#   채점하는 꼴이다 → used_for_calibration: true로 명시하고 held-out 집계에서 제외한다.
+#   진짜 held-out은 별도 파일(entegris2022_us20220315802a1_sic_abrasive_conc.yaml)에 있다.
 #
 # 수준: CeO2 2/4/6 wt% · H2O2 2/4/6 vol% · pH 9/10/11
 #       압력 4.5/5.0/5.5 psi · head 60/80 rpm · platen 60/80 rpm
@@ -21,8 +25,9 @@ doi: "figshare:31056549 (ACS SI Table S3)"
 source: "Wang et al., ACS SI Table S3 — SiC CMP 50-run DOE"
 read_method: table
 pack: sic_ceria_h2o2
-in_scope: false
-scope_note: "4H-SiC. 절대값 대조 불가. 화학 경향(세리아·H2O2·pH) 순위만 본다."
+in_scope: true
+used_for_calibration: true
+scope_note: "4H-SiC ceria/H2O2 — sic_ceria_h2o2 팩과 재료계 일치(2026-09-09 정정). ph_softening_per_unit 계수를 이 데이터에서 역산했으므로 캘리브레이션 데이터다 — held-out 아님."
 
 conditions:
   - label: "S3-01: CeO2 2wt% H2O2 6vol% pH9 5.5psi head60"
