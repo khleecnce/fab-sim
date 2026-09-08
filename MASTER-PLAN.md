@@ -1418,3 +1418,27 @@ QA루프 #6 PASS(ρ=0.9044, 격리 0, F2 원문미확보 6건은 20회차부터 
 - **surface-contamination Lv3-2** 잔류금속 예측 골격: 경쟁 Langmuir+SCM(Loewenstein1998/99, Seo2001, Martin1999, Sun2007). Cr [M]지수 0.74 vs 문헌 0.73 일치, pH지수 −0.12 vs −0.39 불일치 assert명시. **정정발견: Seo2001 원문에 sim SEO2001 상수(Fe) 근거 없음→Lv1-1 노트에 미검증 추기, PROFILE에 sim 정정요청.** → post-cmp-residual-metal-prediction-langmuir-scm.md (출처 5 실존, verify 1블록). surface-contamination 6/6 완주(Cal-1 G2 대기).
 품질게이트(check_knowledge+verify_claims): 신규 3편+수정 1편(Lv1-1) 전부 ✓✓. equipment/ 13편 반려는 기존 부채(내 작업 무관). 커밋만, git add 선택적. G1 조건(slurry·tribo Lv2)은 이미 개방됨—신규 게이트 없음.
 다음 회차: film-cu 3/6이 활성 최저 → Lv2-2(배리어 CMP). 다음이 disk-kinematics/pad-* 5/6군.
+
+## 2026-09-09 07:xx [Max워커] S26 완료 — sim/tier2_physics/disk_gw_relative_scaling.py 신설 (software/BACKLOG.md에서 선정)
+
+disk-design 구현요청 §1(디스크 스펙→GW 파라미터 상대 스케일링) 처리. 그릿개수→Ra/Rpk 상대배율
+(`ra_relative`/`rpk_relative`: Kwon 2013 Ra∝N^-0.23, Rpk∝N^-0.62), 그릿크기→surface finish
+상대배율(`surface_finish_relative`: Pysher 2010 SF∝D^0.57, 125µm 이상 포화 국소지수 0.23,
+leveled ×0.57), 그릿크기→λ 상대배율(`lambda_relative`: Sun 2009 고하중 λ∝D^0.35/저하중
+λ_rel=1.0), 종합함수 4개 구현. 노트(disk-design-pad-roughness-asperity-relation.md §3.1-3.4)
+정량값 그대로 재현 테스트 8건.
+
+**구현 중 방향 버그 발견·수정**: Claude Code 초안이 lambda_relative에서 D_target/D_ref를
+그대로 써 배율 방향이 뒤집혀 있었음 — ANSI 그릿 메시번호는 지름과 역상관(메시번호 클수록
+입자 작음)인데, 325→100 grit 전환이 "더 거친(큰 입자) 방향"임을 반영하지 않고 단순
+비율로 계산해 λ_rel<1이 나옴(방향 반대). 원인 검증: Sun 2009 8lb 조건 100-grit λ=6.7µm vs
+325-grit λ=4.3µm(같은 하중), 실측비 1.558 — 공식은 (D_ref/D_target)^0.35=(325/100)^0.35=1.511로
+3% 이내 재현해야 정상인데 초안은 (D_target/D_ref)를 써 0.66이 나왔음. 테스트도 원래
+서로 다른 하중(3.3µm은 325-grit 3.6lb 값)을 섞어 비교하는 오류가 있어 같은 8lb 조건으로
+정정. engine 미등록(Recipe에 디스크 스펙 필드 없음, S17 이하와 동일 지위).
+
+Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → 오케스트레이터
+(Max워커)가 self-test 7/7 확인 중 방향 버그 직접 발견·수정, 전체 pytest 435 passed(기존427+
+신규8) 재검증, git status로 승인 경로 외 파일(다른 크론 미커밋분 .night_parallel*·papers/*·
+build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만 커밋(ac9d7a9)+push.
+software/BACKLOG.md S26 완료 표기·완료표 이관.

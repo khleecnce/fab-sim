@@ -106,7 +106,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 
 > 규칙: disk-design은 sim/에 직접 코드를 넣지 않는다. 아래는 software-lead/BACKLOG 인계용.
 
-1. **디스크 스펙 → GW 파라미터 상대 스케일링 함수** (우선순위: 중)
+1. ~~**디스크 스펙 → GW 파라미터 상대 스케일링 함수**~~ ✅ 9/9 완료(software/BACKLOG.md S26, `sim/tier2_physics/disk_gw_relative_scaling.py`, 커밋 ac9d7a9)
    - 무엇을: `(D_grit, N_grit, grade, leveled)` → `(λ_rel, Ra_rel, Rpk_rel)` 상대 배율 계산기.
      기준 디스크 대비 λ ∝ D^0.3~0.4(고하중)/D^0(저하중), Ra ∝ N^−0.23, Rpk ∝ N^−0.62,
      surface finish ∝ D^0.57(125 µm 이상 포화), leveled 시 ×0.57.
