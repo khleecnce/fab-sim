@@ -1442,3 +1442,26 @@ Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리�
 신규8) 재검증, git status로 승인 경로 외 파일(다른 크론 미커밋분 .night_parallel*·papers/*·
 build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만 커밋(ac9d7a9)+push.
 software/BACKLOG.md S26 완료 표기·완료표 이관.
+
+## 2026-09-09 08:xx [성장엔진] 정확도루프 — sic_ceria_h2o2 팩 VALIDATION 갭 해소
+
+갭 랭커 최우선(VALIDATION, sic_ceria_h2o2, score=100) 처리. 조사 결과 기존
+sic2026_ceria_h2o2_ph_DOE50(n=50) 데이터셋이 **이미 이 팩의 pH 계수(ph_softening_per_unit)
+역산 출처**였음을 확인 — held-out이 아니라 캘리브레이션 데이터였는데 in_scope: false로
+잘못 표시돼 있었다(팩 신설 전 낡은 주석). in_scope: true + used_for_calibration: true로
+정정해 재분류.
+
+진짜 held-out 신규 확보: US20220315802A1(Entegris/UF, 공개특허, Google Patents 무료
+전문) Table 1 — SiC CMP 알루미나 나노입자 농도 0.1~5wt% 대 제거율(n=5). 특허 검색
+20+건 스윕 후 조성-MRR이 절대값 표로 인쇄된 유일한 후보. 화학종 불일치(알루미나 vs
+팩의 세리아)로 chi(pH) 항은 미시험이나 kappa(기계적 농도항)는 시험 가능 → in_scope: true
++ scope_note 명시. 결과: ρ=-1.000(n=5, p=1.0, 유의하지 않음) — 실측은 농도↑→MRR↓
+(압입지배 방향)인데 팩의 abrasive_conc_exponent 기본값(+1/3, 표면적지배, MRR↑)이 반대
+방향임을 노출. 후속 갭(kappa 지수 재검토)으로 이어질 근거.
+
+pytest 435 passed. qa_loop run --strict PASS(유의 평균 ρ=0.9044, 데이터셋 4/19 그대로
+— 두 신규는 미유의/판정불가라 유의 평균 불변). audit clean(entegris 데이터셋 원문
+papers/US20220315802A1.txt 확보·대조 통과).
+커밋 71e2c67, push 완료.
+
+다음 갭(--next): UNMODELED delta(손상 유발도) — 5개 팩 공통 미모델링.
