@@ -12,7 +12,11 @@
 가장 값어치 있는 갭 하나를 받아 간다. 순서는 사람이 정하지 않고 실측이 정한다.
 
 갭의 종류 (우선순위 순)
+  0. RESPONSE_CONFLICT — 인자를 움직였을 때 모델이 문헌과 **반대 방향**을 가리킨다.
+                         부정확한 게 아니라 위험하다 → 최우선 (tools/response_map.py)
   1. VALIDATION  — 팩에 유의한 held-out 데이터가 없다 → 정확한지 알 수조차 없다
+  1b. RESPONSE_DEAD / RESPONSE_MISSING — 문헌은 그 인자로 결과가 변한다는데 모델은
+                         무반응이거나 팩에 칸조차 없다
   2. UNMODELED   — 사용자가 만지는 입력인데 팩터가 미모델링 (κ/χ/ψ/τ/Δ/S)
   3. UNWIRED     — UI에 있는 슬라이더(pk 있음)인데 --sensitivity 탄성도 0
   4. RECORDED    — UI에서 기록만 되는 필드(pk:null) — 문헌 모델 자체가 없음
@@ -167,6 +171,47 @@ def gaps_bias():
     return out
 
 
+def gaps_response():
+    """응답 갭 — 인자를 움직였을 때 결과가 문헌과 같은 방향으로 가는가.
+
+    사용자 지시(2026-09-08): "특정 슬러리 하나하나 구분하는것보단 어떤 요인이 결과를
+    어떻게 바꾸는지 파악하는데 중점을 둬". 개발 도구로서 가장 나쁜 고장은 "이 슬러리를
+    못 맞힘"이 아니라 **"인자를 올리라고 했는데 실제로는 내려야 함"**이다. 그래서
+    CONFLICT는 VALIDATION보다도 위에 둔다.
+    """
+    out = []
+    try:
+        from tools.response_map import build
+        from sim.params import available_packs
+        rep = build([p for p in available_packs() if p != "base"])
+    except Exception as e:
+        return [{"kind": "BROKEN", "score": 190,
+                 "what": f"response_map 실행 실패: {type(e).__name__}: {str(e)[:80]}",
+                 "action": "tools/response_map.py 수정", "why": "응답 방향 검사가 꺼져 있다"}]
+    for r in rep["rows"]:
+        v = r["verdict"]
+        if v == "CONFLICT":
+            out.append({"kind": "RESPONSE_CONFLICT", "pack": r["pack"], "score": 120,
+                        "what": f"{r['pack']}/{r['label']}: 모델 {r['model_shape']} vs 문헌 "
+                                f"{r['lit_shape']} (n={r['lit_n']}, {', '.join(r['lit_sets'])})",
+                        "action": "sim/factors.py의 해당 항을 그 구간에서 문헌 형상을 재현하도록 "
+                                  "고쳐라. 정점을 단조로 근사한 경우가 가장 흔하다.",
+                        "why": "모델이 개발자에게 틀린 방향을 가리킨다 — 부정확한 게 아니라 위험하다"})
+        elif v == "DEAD":
+            out.append({"kind": "RESPONSE_DEAD", "pack": r["pack"], "score": 95,
+                        "what": f"{r['pack']}/{r['label']}: 문헌은 {r['lit_shape']}("
+                                f"n={r['lit_n']})인데 모델 무반응",
+                        "action": r["note"] or "해당 항을 엔진에 구현하라",
+                        "why": "실측이 변한다고 말하는 축인데 도구가 답을 못 한다"})
+        elif v == "MISSING":
+            out.append({"kind": "RESPONSE_MISSING", "pack": r["pack"], "score": 85,
+                        "what": f"knowledge/params/{r['pack']}.yaml에 '{r['key']}' 칸 없음 "
+                                f"(문헌 {r['lit_shape']}, n={r['lit_n']})",
+                        "action": f"{', '.join(r['lit_sets'])}의 값을 source와 함께 팩에 추가",
+                        "why": "문헌이 지지하는 인자인데 사용자가 만질 칸조차 없다"})
+    return out
+
+
 def _dedupe_factors(g):
     """같은 팩터가 팩마다 미모델링이면 한 건으로 묶는다 — 고칠 곳은 factors.py 한 곳이다."""
     merged, out = {}, []
@@ -185,7 +230,8 @@ def _dedupe_factors(g):
 
 
 def collect():
-    g = gaps_validation() + gaps_unmodeled_and_confidence() + gaps_unwired_ui() + gaps_bias()
+    g = (gaps_validation() + gaps_response() + gaps_unmodeled_and_confidence()
+         + gaps_unwired_ui() + gaps_bias())
     g = _dedupe_factors(g)
     g.sort(key=lambda x: -x["score"])
     return g
