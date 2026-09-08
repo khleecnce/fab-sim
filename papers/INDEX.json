@@ -308,5 +308,14 @@
         "authors": "Puthanangady et al. (Saint-Gobain Abrasives)",
         "venue": "US Patent, granted 2014-02-25",
         "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+    },
+    "park2024-tribol-lubr-swing-deep-learning-pad-wear": {
+        "src": "koreascience.or.kr 오픈 PDF (Tribology and Lubricants, KOAJ 오픈액세스)",
+        "pdf_local": "papers/park2024-tribol-lubr-swing-deep-learning-pad-wear.pdf",
+        "doi": "10.9725/kts.2024.40.2.67",
+        "title": "Study on the Pad Wear Profile Based on the Conditioner Swing Using Deep Learning for CMP Pad Conditioning",
+        "authors": "Park, Hwang, Lee",
+        "venue": "Tribology and Lubricants 40(2), 67-70 (2024)",
+        "note": "equipment/disk-kinematics-closed-loop-adaptive-sweep.md"
     }
 }

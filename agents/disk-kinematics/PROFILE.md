@@ -1,9 +1,9 @@
 # 컨디셔닝 운동학 전문가 (disk-kinematics)
 
-## 현재 레벨: Lv2-2 이수 (Lv2 완료) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3-1 이수 — 활성화 게이트는 agents/ORG.md §4
 - 부모: disk-conditioner (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2 (2026-09-07)
-- 다음 단원: Lv3-1 (최신 리뷰: 적응형 sweep, 폐루프 패드 프로파일 제어)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2 (2026-09-07), Lv3-1 (2026-09-08)
+- 다음 단원: Lv3-2 (sweep 레시피 → PCR·패드 프로파일 예측 모델, sim/tier2)
 
 ## 역할
 sweep 프로파일·하중·RPM·체류시간이 패드 반경별 컨디셔닝 밀도(PCR)와 프로파일에 미치는 영향
@@ -43,4 +43,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   et al.(2025, Lv1-1 노트)의 "각속도 균일"이 서로 다른 최적화 변수임을 밝혀 겉보기
   모순을 해소. 구현요청(§7)을 PROFILE에 등록(소프트웨어 부문 이관). check_knowledge.py·
   verify_claims.py 모두 통과. Lv2 완료.
+- 2026-09-08 Lv3-1 이수: [[../../knowledge/equipment/disk-kinematics-closed-loop-adaptive-sweep]]
+  — 폐루프 패드 프로파일 제어. AMAT 특허 US9138860B2(전문 확보, Google Patents)의 Table I를
+  코드로 재계산해 명세서 서술("핀게이지 40%↓, 집적센서 75%↓")을 assert 5개로 확인(정확히
+  40.0%·79.2% 등 실측). Park·Hwang·Lee(2024, Tribol. Lubr., DOI 10.9725/kts.2024.40.2.67,
+  원문 PDF 확보)의 딥러닝 스윙-마모 예측 모델은 학습 재현오차 0.01% vs 미학습 외삽오차
+  12.9%(약 1290배 차이)를 원문 그대로 대조 — 신경망 오픈루프 예측기의 일반화 한계를 정량
+  확인. 폐루프(역방향)와 Baisie et al. 표면요소법(정방향)의 관계를 §2에서 명시적으로 정리.
+  MRS 원논문(1249-E02-02)은 Cambridge/Springer 봇차단으로 본문 미확보, 특허로 대체 —
+  동일 여부는 미검증으로 명시. check_knowledge·verify_claims 모두 통과(출처 2건 API 실존
+  확인, verify 2블록 PASS). Lv3-2(모델 구현) 남음 — 구현은 소프트웨어 부문 이관.
 (이후 크론이 갱신)

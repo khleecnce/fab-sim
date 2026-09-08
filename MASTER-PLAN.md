@@ -1257,3 +1257,12 @@ worn 패드 Ra=303 nm(횡분해능 3 µm 대비 약 10배 미세). Je et al.(202
 미러 사이트 3개 미러(.ru/.wf/.box) 전부 JS 챌린지로 본문 미확보 — 정직하게 미검증 표기.
 check_knowledge·verify_claims 둘 다 통과(출처 4건 실존, verify 2블록). pad-lifecycle 5/6.
 다음: Lv3-2(사용시간·컨디셔닝 이력 → 시간의존 Kp/asperity 모델, 구현은 소프트웨어 부문).
+
+
+## 2026-09-08 [성장엔진] disk-kinematics Lv3-1 이수 — 폐루프 패드 프로파일 제어
+AMAT 특허 US9138860B2(전문 확보) Table I를 코드로 재계산해 명세서 서술(핀게이지 40%↓,
+집적센서 75%↓)을 assert 5개로 확인. Park·Hwang·Lee(2024, Tribol. Lubr., 원문 PDF 확보)의
+딥러닝 스윙-마모 예측 모델은 학습 재현오차 0.01% vs 미학습 외삽오차 12.9%(약 1290배)를
+원문 그대로 대조 — 신경망 오픈루프 예측기의 일반화 한계를 정량 확인. check_knowledge·
+verify_claims 모두 통과. disk-kinematics 5/6(Lv3 진행중). 다음: Lv3-2(구현은 소프트웨어
+부문 이관).
