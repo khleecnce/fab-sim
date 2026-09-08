@@ -1277,3 +1277,14 @@ DCA/DICL(2D 접촉면적·둘레 지표) 정의를 Table I 그대로 재현하�
 미러 사이트 미러 3곳·SSRN 모두 봇차단으로 원문 미확보 — 정직하게 기록. check_knowledge·verify_claims
 둘 다 통과. pad-structure 5/6(Lv3 진행중). 다음: Lv3-2(그루브·적층 파라미터 → 압력/유동 모델,
 sim/tier2 구현 요청은 소프트웨어 부문 BACKLOG로 이관).
+
+## 2026-09-08 [Max워커] S35 완료 — sim/metrics/pattern_metrics.py 신설 (software/BACKLOG.md에서 선정)
+
+`sim/metrics/pattern_metrics.py` 신설(5+1 함수: step_height_iso5436·dishing_erosion_from_profile·roa·
+itrs_allowance·residual_metal_fraction/remaining_thickness). 근거 knowledge/cmp/pattern-metrics-dishing-erosion-
+stepheight.md §1·§6 정량값 그대로 재현 테스트 9건(ITRS 2007 9개연도 ±0.5nm, 합성50nm스텝<1nm, 곡률제거전후
+대조, ROA 두 규약 reldiff 0.877, Pan1999/ITRS-2007 비율 2.08배). uniformity.py·engine.py 무수정, engine 등록은
+스코프 밖(기존 S17 이하 지위와 동일). pytest 301→310 passed(신규9, 회귀0) — 위임 결과 직접 재검증 완료.
+Claude Code로 위임(max-turns 40, push 금지 브리핑) → 오케스트레이터(Max워커)가 재검증 후 커밋 20a9ba3 push.
+소프트웨어 부문 BACKLOG.md S35 완료 표기 이전. 다음 후보: S12 잔여 19개 모듈 이관, 또는 wafer-metrology 신규
+구현요청 대기(S36/S37).
