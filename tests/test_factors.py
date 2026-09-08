@@ -1,0 +1,241 @@
+"""병합 파라미터(sim/factors.py) 계약 테스트 — ARCHITECTURE-V2.md §2.
+
+여기서 고정하는 것은 **물리가 아니라 계약**이다:
+  ① 기준 조건에서 모든 팩터가 정확히 1.0 (이중 계상 방지)
+  ② 입력을 바꾸면 출력이 실제로 바뀐다 (V1의 핵심 결함 회귀 방지)
+  ③ 미모델링을 조용한 1.0으로 숨기지 않는다
+  ④ 장비축과 소모품축이 섞이지 않는다 (사용자 확정 규칙)
+  ⑤ 문헌 실측 재현 (pH 정점형)
+"""
+import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from sim.engine import Recipe, simulate                      # noqa: E402
+from sim.factors import (compute_factors, mrr_multiplier, coverage,   # noqa: E402
+                         FACTOR_SPEC, MRR_COUPLED,
+                         AXIS_EQUIPMENT, AXIS_CONSUMABLE)
+
+
+def _factors(pack="oxide_silica", **overrides):
+    return compute_factors(Recipe(pack=pack, pack_overrides=overrides).resolve())
+
+
+def _mean_mrr(pack="oxide_silica", **overrides):
+    r = simulate(Recipe(pack=pack, pack_overrides=overrides))
+    return float(np.mean(r.mrr_nm_per_min))
+
+
+# ═══════════════════════════════ ① 기준 조건 = 1.0 (이중 계상 방지)
+
+def test_all_factors_are_unity_at_reference_condition():
+    """기준 조건에서 모든 팩터는 정확히 1.0이어야 한다.
+
+    왜 이게 가장 중요한 테스트인가: Kp는 이미 특정 조성·조건에서 역산된 값이다.
+    팩터를 절대값으로 곱하면 같은 효과를 두 번 센다 — 2026-09-06에 Cu MRR이
+    20배 붕괴한 사고가 정확히 이것이었다.
+    """
+    for key, f in _factors().items():
+        if f.value is None:
+            continue
+        assert f.value == pytest.approx(1.0, abs=1e-9), (
+            f"{f.symbol} {f.name}이 기준 조건에서 {f.value}다 — 1.0이어야 한다. "
+            f"'_ref' 파라미터가 현재 조건과 다르면 이중 계상이 된다.")
+
+
+def test_mrr_multiplier_is_unity_at_reference():
+    mult, _ = mrr_multiplier(_factors())
+    assert mult == pytest.approx(1.0, abs=1e-9)
+
+
+def test_engine_does_not_double_count_chemistry():
+    """엔진은 chemistry_factor와 factors.χ를 **둘 다** 곱하면 안 된다.
+
+    χ는 chemistry.py의 산화제·세리아 항을 승계했다. 결합 지점이 두 곳이면
+    화학이 제곱으로 들어간다.
+    """
+    import inspect
+    from sim import engine
+    src = inspect.getsource(engine.simulate)
+    # 주석은 걷어내고 **실행되는 코드**만 본다 — 주석에 함수명을 언급했다고
+    # 실패하면 테스트가 문서를 못 쓰게 만든다.
+    code_only = "\n".join(
+        line for line in src.splitlines()
+        if not line.lstrip().startswith("#"))
+    assert "chemistry_factor(" not in code_only, (
+        "simulate()가 chemistry_factor를 직접 호출한다 — factors.χ가 이미 "
+        "그 항을 승계했으므로 화학을 두 번 세게 된다.")
+
+
+# ═══════════════════════════════ ② 입력이 실제로 출력을 바꾼다 (V1 결함 회귀)
+
+@pytest.mark.parametrize("key,ref,expect_sign", [
+    ("abrasive_wt_pct", 20.0, +1),        # 농도↑ → MRR↑ (문헌 직접 서술)
+    ("pad_hardness_shore_d", 60.0, -1),   # 경도↑ → MRR↓ (H^-1.5)
+    ("asperity_density_per_m2", 1e11, +1),
+])
+def test_consumable_inputs_actually_move_mrr(key, ref, expect_sign):
+    """소모품 인자를 바꾸면 MRR이 **실제로** 변해야 한다.
+
+    V1의 핵심 결함이 여기였다: --sensitivity에서 pH·입자크기·패드조도가 전부
+    탄성도 0.000이었다. 소재 개발자용 도구인데 조성을 바꿔도 결과가 같았다.
+    """
+    lo = _mean_mrr(**{key: ref * 0.9})
+    hi = _mean_mrr(**{key: ref * 1.1})
+    assert lo != pytest.approx(hi, rel=1e-6), (
+        f"{key}를 ±10% 바꿨는데 MRR이 안 변한다 — 엔진에 연결되지 않았다.")
+    assert np.sign(hi - lo) == expect_sign, (
+        f"{key} 증가 시 MRR 방향이 {np.sign(hi-lo)}인데 {expect_sign}이어야 한다.")
+
+
+def test_ph_moves_mrr():
+    """pH는 정점형이라 부호 테스트가 아니라 '변하는가'로 묻는다."""
+    assert _mean_mrr(slurry_ph=10.0) != pytest.approx(_mean_mrr(slurry_ph=11.0), rel=1e-6)
+
+
+# ═══════════════════════════════ ③ 미모델링을 숨기지 않는다
+
+def test_unmodeled_factors_report_none_not_silent_one():
+    """미모델링 축은 value=None + status='unmodeled'이어야 한다.
+
+    조용히 1.0을 쓰면 "반영했다"는 거짓말이 된다. 팩에서 필요 파라미터를 다
+    지우고, 그래도 1.0을 반환하지 않는지 본다.
+    """
+    f = _factors()["tau"]     # τ는 물리 통로가 아직 없다
+    assert f.status == "unmodeled"
+    assert f.value is None, "τ가 미연결인데 숫자를 내고 있다 — 거짓 정밀도다."
+    assert any("미모델링" in n or "연결되지 않" in n for n in f.notes), (
+        "미모델링 팩터가 그 사실을 notes로 신고하지 않는다.")
+
+
+def test_unmodeled_factors_are_excluded_from_mrr():
+    """미모델링 팩터는 MRR 배수에 1.0으로도 참여하지 않고 '제외'로 보고된다."""
+    fs = _factors()
+    _, notes = mrr_multiplier(fs)
+    for k in MRR_COUPLED:
+        if fs[k].status == "unmodeled":
+            assert any("미모델링" in n and fs[k].name in n for n in notes)
+
+
+def test_missing_size_exponent_does_not_invent_a_value():
+    """입경 지수가 팩에 없으면 항을 만들지 않고 경고한다.
+
+    Li et al. 2021은 입경을 정점형(~80nm 최대)이라고 정성 서술만 했고 원문
+    수식은 OCR 손상으로 노트조차 assert하지 않았다. 단조 멱함수를 지어내면
+    한쪽 구간만 맞고 정점을 놓친다.
+    """
+    f = _factors()["kappa"]
+    assert "size" not in f.terms, "팩에 지수가 없는데 입경 항을 만들어냈다."
+    assert any("입경" in n and "미적용" in n for n in f.notes)
+
+
+# ═══════════════════════════════ ④ 축 분리 (사용자 확정 규칙)
+
+def test_equipment_and_consumable_axes_do_not_mix():
+    """장비 팩터의 driver 파트에 소모품이 섞이면 안 되고, 그 역도 안 된다.
+
+    사용자 확정 규칙: "장비는 세가지 consumable과 묶이면 안된다."
+    섞이면 "슬러리를 바꿀까 RPM을 올릴까"에 답할 수 없다 — 그 비교가 이 도구의
+    존재 이유다.
+    """
+    consumable_parts = {"slurry", "pad", "disk"}
+    for key, (sym, name, axis, parts) in FACTOR_SPEC.items():
+        if axis == AXIS_EQUIPMENT:
+            assert not (set(parts) & consumable_parts), (
+                f"장비축 팩터 {sym} {name}의 파트에 소모품이 섞였다: {parts}")
+        else:
+            assert "tool" not in parts, (
+                f"소모품축 팩터 {sym} {name}에 장비가 섞였다: {parts}")
+
+
+def test_wafer_is_never_a_factor():
+    """웨이퍼는 대상막질이지 조절 파라미터가 아니다 (사용자 확정)."""
+    for key, (sym, name, axis, parts) in FACTOR_SPEC.items():
+        assert "wafer" not in parts, (
+            f"{sym} {name}이 웨이퍼를 driver로 삼는다 — 웨이퍼는 디폴트 대상값이라 "
+            "파라미터에 포함시키면 안 된다.")
+
+
+def test_equipment_factors_do_not_multiply_mrr_directly():
+    """장비 팩터는 MRR 배수에 들어가지 않는다 — Preston이 이미 P·V를 쓴다.
+
+    Λ을 또 곱하면 P·V가 제곱으로 들어간다.
+    """
+    for key in MRR_COUPLED:
+        assert FACTOR_SPEC[key][2] == AXIS_CONSUMABLE, (
+            f"{key}가 MRR에 곱해지는데 장비축이다 — Preston과 이중 계상된다.")
+
+
+# ═══════════════════════════════ ⑤ 문헌 실측 재현
+
+def test_ph_peak_reproduces_li2021_measurements():
+    """Li et al. 2021 (doi:10.1149/2162-8777/ac3e44) Fig.1 재현.
+
+        pH 10.0 → 1551 Å/min
+        pH 11.0 → 1727 Å/min  (정점, +11.3%)
+        pH 12.5 → 1407 Å/min  (−18.5% from peak)
+
+    ⚠ 절대값이 아니라 **비율**을 검증한다. Kp는 다른 조건에서 역산됐으므로
+    절대 MRR은 이 논문과 다르다 — 순위·비율만 비교 가능하다.
+    """
+    m10 = _mean_mrr(slurry_ph=10.0)
+    m11 = _mean_mrr(slurry_ph=11.0)
+    m125 = _mean_mrr(slurry_ph=12.5)
+
+    assert m11 > m10 and m11 > m125, "pH 11.0이 정점이 아니다 — 정점형 거동 실패"
+    assert m11 / m10 == pytest.approx(1727 / 1551, rel=0.02), (
+        f"pH 10→11 상승비 {m11/m10:.4f}, 문헌 {1727/1551:.4f}")
+    assert m125 / m10 == pytest.approx(1407 / 1551, rel=0.02), (
+        f"pH 10→12.5 비 {m125/m10:.4f}, 문헌 {1407/1551:.4f}")
+
+
+def test_ph_monotonic_model_would_have_failed():
+    """단조 모델이었다면 pH 12.5를 과대평가했을 것 — 그걸 명시적으로 고정한다.
+
+    이 테스트가 있는 이유: 누군가 '단순화'하려고 정점형을 단조로 되돌리면
+    pH 12.5 예측이 정점보다 높아진다. 소재 개발자에게 **틀린 방향**을 가리키는
+    것이라 부정확한 정도가 아니라 위험하다.
+    """
+    assert _mean_mrr(slurry_ph=12.5) < _mean_mrr(slurry_ph=11.0), (
+        "pH 12.5가 정점(11.0)보다 높다 — 단조 모델로 퇴행했다.")
+
+
+def test_pad_hardness_follows_h_minus_1_5():
+    """MRR ∝ H^-1.5 (knowledge/cmp/particle-wafer-interaction... §4, verify PASS)."""
+    h0, h1 = 60.0, 66.0
+    m0 = _mean_mrr(pad_hardness_shore_d=h0)
+    m1 = _mean_mrr(pad_hardness_shore_d=h1)
+    assert m1 / m0 == pytest.approx((h1 / h0) ** -1.5, rel=1e-6)
+
+
+# ═══════════════════════════════ 커버리지 정직성
+
+def test_coverage_counts_only_real_connections():
+    cov = coverage(_factors())
+    assert cov["total"] == len(FACTOR_SPEC)
+    assert set(cov["modeled"]) & set(cov["unmodeled"]) == set()
+    # 미모델링 축이 남아 있다는 사실 자체가 보고돼야 한다 — 100%를 가장하지 않는다
+    assert cov["score"] < 1.0, (
+        "커버리지가 100%로 나온다 — τ·S 등 미연결 축이 있는데 숨기고 있다.")
+
+
+def test_every_factor_declares_drivers_or_explains_absence():
+    """모든 팩터는 자기 driver를 신고하거나, 없는 이유를 notes에 남긴다.
+
+    이게 있어야 "κ를 올리려면 무엇을 만지나"에 기계가 답한다.
+    """
+    for key, f in _factors().items():
+        if not f.drivers:
+            assert f.notes, f"{f.symbol} {f.name}이 driver도 설명도 없다"
+
+
+def test_factor_result_is_json_serializable():
+    """UI(API)가 그대로 실어 보낼 수 있어야 한다."""
+    import json
+    res = simulate(Recipe(pack="oxide_silica"))
+    s = json.dumps(res.summary()["factors"], ensure_ascii=False)
+    assert "kappa" in s and "symbol" in s

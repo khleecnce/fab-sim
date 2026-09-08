@@ -39,6 +39,87 @@ params:
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
     confidence: verified
 
+  # ══════════════════════════════════════════════════════════
+  # 슬러리 조성 축 (κ·χ·Δ) — ARCHITECTURE-V2.md §1-②
+  #
+  # ⚠ V1의 핵심 결함이 여기였다: 슬러리 인자가 팩에 없어 --sensitivity에서
+  #   pH·입자크기 탄성도가 전부 0.000 '미모델링'으로 나왔다. 소재 개발자용
+  #   도구인데 조성을 바꿔도 결과가 안 변했다는 뜻이다.
+  # ══════════════════════════════════════════════════════════
+
+  abrasive_wt_pct:
+    value: 20.0
+    unit: wt%
+    note: >
+      Li et al. 2021 pH 실험 조건(20 wt% 콜로이달 실리카, K+ 0.25 mol/L).
+      통상 범위는 1~10 wt%(총론)이나 이 논문 계는 20~30 wt%로 높다.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md
+    confidence: literature
+  abrasive_ref_wt_pct:
+    value: 20.0
+    unit: wt%
+    note: κ 농도항 기준점 — 위와 같은 조건
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md
+    confidence: literature
+  abrasive_conc_exponent:
+    value: 0.3333
+    unit: "-"
+    note: >
+      R ∝ C0^(1/3) 표면적 지배 극한. 논문은 1/3(표면적)과 4/3(압입) 두 극한을
+      제시하고 어느 쪽인지 확정하지 않았다 — 보수적으로 낮은 쪽을 기본값으로 둔다.
+      ⚠ 순위(농도↑→MRR↑)만 문헌이 직접 서술·검증했다. 크기는 캘리브레이션 대상.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §4
+    confidence: unverified
+  abrasive_saturation_wt_pct:
+    value: 7.0
+    unit: wt%
+    note: >
+      Luo-Dornfeld 포화영역 — 퓸드 실리카 12 wt% 계에서 7 wt% 이상 RR 불변 확인.
+      이 위로는 농도항이 과대평가된다(factors.py가 경고를 띄운다).
+    source: knowledge/materials/pad-3dprinted-nonporous-lowdefect-review.md §96
+    confidence: literature
+  abrasive_ref_size_nm:
+    value: 50.0
+    unit: nm
+    note: κ 입경항 기준점 — abrasive_size_nm과 같은 값
+    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
+    confidence: literature
+  # ⚠ abrasive_size_exponent는 **일부러 비워둔다.**
+  #   Li et al. 2021은 40→80→130 nm에서 MRR이 80 nm 정점이라고 정성 서술만 했고,
+  #   원문 Eq.3-4의 지수·부호는 OCR 손상으로 노트조차 assert하지 않았다.
+  #   단조 멱함수를 넣으면 정점 거동을 놓치고 한쪽 구간만 맞는다.
+  #   → 지수를 지어내는 대신 factors.py가 '입경 항 미적용'을 경고로 보고한다.
+
+  # ── pH 정점형 거동 (Li et al. 2021 Fig.1, verify PASS) ──
+  # pH 10.0 → 1551, pH 11.0 → 1727(정점), pH 12.5 → 1407 Å/min
+  # ⚠ 기존 ph_softening_* 는 '단조 선형 연화'라 정점을 표현하지 못한다.
+  #   이 계는 pH 11에서 꺾이므로 단조 모델을 쓰면 pH 12.5를 과대평가한다.
+  ph_peak:
+    value: 11.0
+    unit: pH
+    note: MRR 최대 pH (20 wt% 실리카, K+ 0.25 M, SiO2 막). 정점형 거동
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §3
+    confidence: verified
+  ph_ref:
+    value: 10.5
+    unit: pH
+    note: χ pH항 기준점 — 이 팩의 slurry_ph와 같은 값
+    source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+    confidence: literature
+  ph_mrr_at_peak_rel:
+    value: 1.113
+    unit: "-"
+    note: >
+      pH 10.0 대비 pH 11.0의 MRR 비 (1727/1551 = 1.113, +11.3%).
+      노트 verify 블록이 이 값을 assert한다.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §3
+    confidence: verified
+
+  # ── Δ 손상 유발도 ───────────────────────────────────────
+  # ⚠ abrasive_d99_nm(대입자 tail)은 팩에 없다. 스크래치는 D50이 아니라 꼬리가
+  #   만드는데, 확보된 노트에 정량 D99 분포가 없다. factors.py의 Δ가 이 결측을
+  #   경고로 신고한다 — 임의값을 넣어 예측을 만들어내지 않는다.
+
   # ── 윤활 레짐 진단 (Sommerfeld/λ) ────────────────────────
   # 원래 위치: cmp_lubrication_regime.py self-test 전형 조건
   slurry_viscosity_pa_s:

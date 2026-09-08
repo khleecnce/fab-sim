@@ -139,3 +139,129 @@ params:
     unit: m
     source: knowledge/cmp/wafer-metrology-thickness-methods.md
     confidence: literature
+
+  # ══════════════════════════════════════════════════════════
+  # 병합 파라미터 기준점 (ARCHITECTURE-V2.md §2 · sim/factors.py)
+  #
+  # ⚠ 왜 '_ref' 값이 반드시 필요한가:
+  #   모든 팩터는 **기준 조건 대비 배수**여야 한다. Kp가 이미 특정 조성·조건에서
+  #   역산된 값이므로, 팩터를 절대값으로 곱하면 같은 효과를 두 번 센다
+  #   (2026-09-06 Cu MRR 20배 붕괴가 정확히 이 사고였다).
+  #   기준값이 없으면 factors.py는 '기준=현재값'으로 폴백하는데, 그러면 배수가
+  #   영원히 1.0이라 **인자를 바꿔도 결과가 안 변한다.** 그래서 여기 명시한다.
+  # ══════════════════════════════════════════════════════════
+
+  # ── Λ 기계 부하 강도 기준 ────────────────────────────────
+  lambda_ref_pressure_psi:
+    value: 3.0
+    unit: psi
+    note: 위 pressure_psi와 같은 기준 조건. Kp가 이 근방에서 역산됐다
+    source: knowledge/cmp/cmp-tool-architecture.md
+    confidence: literature
+  lambda_ref_rpm_platen:
+    value: 55.0
+    unit: rpm
+    source: knowledge/cmp/cmp-tool-architecture.md
+    confidence: literature
+  lambda_ref_center_offset_m:
+    value: 0.180
+    unit: m
+    source: knowledge/physics/cmp-kinematics-rotary.md
+    confidence: estimated
+
+  # ── Θ 열·유동 부하 (SFR) ────────────────────────────────
+  sfr_ml_min:
+    value: 150.0
+    unit: mL/min
+    note: >
+      ILD 레시피 실측 조건. Yim 2018은 200, Cu 3-step은 조건별 상이.
+      실제 툴에서 가장 자주 만지는 손잡이 중 하나다.
+    source: knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md
+    confidence: literature
+  sfr_ref_ml_min:
+    value: 150.0
+    unit: mL/min
+    note: Θ 기준점 — sfr_ml_min과 같은 조건
+    source: knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md
+    confidence: literature
+
+  # ── Γ 컨디셔닝 부하 ─────────────────────────────────────
+  cond_downforce_lbf:
+    value: 4.0
+    unit: lbf
+    note: ≈17.8 N. PCR 실험 표준 조건 (패드 100 RPM, 디스크 73 RPM)
+    source: knowledge/equipment/disk-rpm-load-radius-pcr.md
+    confidence: literature
+  cond_ref_downforce_lbf:
+    value: 4.0
+    unit: lbf
+    source: knowledge/equipment/disk-rpm-load-radius-pcr.md
+    confidence: literature
+  cond_sweep_cpm:
+    value: 10.0
+    unit: cpm
+    note: >
+      ⚠ 스윕 왕복수의 구체 수치가 확보된 노트에 없다. conditioner-sweep-kinematics
+      노트는 하중·RPM만 표로 제시한다. 10 cpm은 상용 툴 범위의 대표값 추정이다.
+    source: knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md
+    confidence: unverified
+  cond_ref_sweep_cpm:
+    value: 10.0
+    unit: cpm
+    source: knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md
+    confidence: unverified
+  cond_duty_pct:
+    value: 100.0
+    unit: "%"
+    note: in-situ 연속 컨디셔닝 = 100%. ex-situ면 낮아진다
+    source: knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md
+    confidence: literature
+  cond_ref_duty_pct:
+    value: 100.0
+    unit: "%"
+    source: knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md
+    confidence: literature
+
+  # ── κ 접촉 강도 (패드·디스크 몫) ─────────────────────────
+  pad_hardness_shore_d:
+    value: 60.0
+    unit: Shore D
+    note: >
+      IC1000/IC1010 실측. 둘은 같은 경도(Shore D 60)이고 두께만 다르다(50 vs 80 mils).
+      ⚠ Shore C 90과 직접 비교 금지 — 스케일이 다르다(노트 §1 명시).
+    source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+    confidence: verified
+  pad_ref_hardness_shore_d:
+    value: 60.0
+    unit: Shore D
+    note: κ 기준점 — IC1000 표준 경질 패드
+    source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
+    confidence: verified
+  asperity_density_per_m2:
+    value: 1.0e11
+    unit: 1/m^2
+    note: pad_asperity_density_m2와 같은 값 — κ가 읽는 별칭
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+  asperity_ref_density_per_m2:
+    value: 1.0e11
+    unit: 1/m^2
+    source: knowledge/materials/hertz-gw-contact-mechanics.md
+    confidence: estimated
+
+  # ── τ 슬러리 전달 (미연결 — 입력만 존재) ─────────────────
+  # ⚠ 이 값들은 팩에 있지만 엔진 물리에 연결돼 있지 않다.
+  #   factors.py의 τ가 '입력은 있으나 미연결'로 신고하는 근거다.
+  #   조용히 두면 "그루브를 반영했다"는 거짓말이 되므로 명시적으로 둔다.
+  groove_depth_mm:
+    value: 0.76
+    unit: mm
+    note: K-groove 계열 전형 깊이 (30 mil)
+    source: knowledge/materials/pad-structure-groove-subpad.md
+    confidence: literature
+  groove_pitch_mm:
+    value: 3.05
+    unit: mm
+    note: 120 mil 피치
+    source: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md
+    confidence: literature

@@ -37,7 +37,8 @@ if str(_ROOT.parent) not in sys.path:
 
 from sim.metrics.uniformity import compute_metrics, UniformityMetrics  # noqa: E402
 from sim.params import ParamPack, load_pack, available_packs  # noqa: E402
-from sim.chemistry import chemistry_factor, ChemistryEffect  # noqa: E402
+from sim.chemistry import chemistry_factor, ChemistryEffect  # noqa: E402,F401
+from sim.factors import compute_factors, mrr_multiplier, coverage, Factor  # noqa: E402
 
 PSI_TO_PA = 6894.757
 
@@ -187,6 +188,9 @@ class WaferResult:
     film_lubrication_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
+    # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
+    # UI가 "무엇을 만지면 무엇이 바뀌나"를 그리는 근거이자, 미모델링 축을 드러내는 통로.
+    factors: Dict[str, "Factor"] = field(default_factory=dict)
     # 이 결과가 어떤 물성에서 나왔나 — 숫자의 출처 추적
     pack: str = ""
     film: str = ""
@@ -208,6 +212,8 @@ class WaferResult:
             "cof_stribeck_estimate": self.cof_stribeck_estimate,
             "film_z0_scale_um": self.film_z0_scale_um,
             "film_lubrication_note": self.film_lubrication_note,
+            "factors": {k: f.to_dict() for k, f in self.factors.items()},
+            "factor_coverage": coverage(self.factors) if self.factors else None,
             "notes": self.notes,
         }
 
@@ -337,14 +343,19 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     radius = np.linspace(0.0, r_max, rr.n_points)
     impl = _MODELS[model]
     mrr_m_s = impl.mrr_radial(rr, radius)
-    # ── 화학-기계 결합 ──────────────────────────────────────
-    # 슬러리 화학은 표면 경도를 통해 기계적 제거에 곱해진다 (MRR ∝ H^-1.5).
-    # 기계 모델은 손대지 않고 배수 하나로 들어온다. sim/chemistry.py 참조.
-    chem = chemistry_factor(rr.pack)
-    if chem.active:
-        mrr_m_s = mrr_m_s * chem.factor
-    notes.append(chem.describe())
-    notes.extend(chem.notes)
+    # ── 병합 파라미터 결합 (ARCHITECTURE-V2.md §2 · sim/factors.py) ────────
+    # ⚠ 여기서 chemistry_factor()를 직접 곱하지 않는다. factors.χ가 그것을
+    #   승계했으므로 둘 다 곱하면 **화학을 두 번 센다** — 2026-09-06 Cu MRR
+    #   20배 붕괴가 정확히 그 사고였다. 결합 지점은 이 한 곳뿐이다.
+    #   MRR에 곱해지는 것은 factors.MRR_COUPLED(κ·χ·ψ)만이고, 나머지 팩터
+    #   (Λ Π Θ Γ τ Δ S)는 진단·설계 정보로만 실린다.
+    factors = compute_factors(rr)
+    fmult, fnotes = mrr_multiplier(factors)
+    mrr_m_s = mrr_m_s * fmult
+    notes.append(f"병합 파라미터 MRR 배수 ×{fmult:.4f}")
+    notes.extend(fnotes)
+    for _f in factors.values():
+        notes.extend(_f.notes)
     # 모델이 스스로 한계를 보고할 기회 — 지어내지 않고 모르는 것을 드러낸다
     if hasattr(impl, "notes"):
         notes.extend(impl.notes(rr))  # type: ignore[attr-defined]
@@ -391,7 +402,7 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        cof_stribeck_estimate=lube["cof_stribeck_estimate"],
                        film_z0_scale_um=film["film_z0_scale_um"],
                        film_lubrication_note=film["film_lubrication_note"],
-                       model=model, notes=notes,
+                       model=model, notes=notes, factors=factors,
                        pack=rr.pack.name, film=rr.film,
                        provenance=rr.pack.provenance(rr.used_keys))
 
