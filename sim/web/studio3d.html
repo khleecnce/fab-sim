@@ -94,14 +94,20 @@ const PARTS = {
   tool: { name:"① 장비", icon:"⚙",
     sub:"실제 폴리셔(AMAT Reflexion/Mirra급)에서 오퍼레이터가 설정하는 값. 아래 '장비 출력값'은 설정이 아니라 저절로 도출되는 진단 신호다.",
     fields:[
-      {k:"pressure_psi", l:"다운포스", u:"psi", min:0.5, max:8, step:0.1, pk:"pressure_psi"},
-      {k:"rpm_platen", l:"플래튼 RPM", u:"rpm", min:10, max:150, step:1, pk:"rpm_platen"},
-      {k:"rpm_wafer", l:"캐리어(헤드) RPM", u:"rpm", min:10, max:150, step:1, pk:"rpm_wafer"},
-      {k:"center_offset_m", l:"회전축 거리 r_cc", u:"m", min:0.10, max:0.30, step:0.005, pk:"center_offset_m"},
+      {section:"연마 조건 (Polish)"},
+      {k:"pressure_psi", l:"Pressure", u:"psi", min:0.5, max:8, step:0.1, pk:"pressure_psi"},
+      {k:"rotation", l:"Rotation (P/H)", special:"rotation", u:"rpm",
+       min:10, max:150, step:1,
+       hint:"P=플래튼, H=헤드(캐리어). 실제 레시피 표기와 같이 한 칸에 둔다."},
       {k:"sfr_ml_min", l:"SFR 슬러리 유량", u:"mL/min", min:20, max:400, step:5, pk:"sfr_ml_min"},
-      {k:"cond_downforce_lbf", l:"컨디셔너 하중", u:"lbf", min:0, max:12, step:0.5, pk:"cond_downforce_lbf"},
-      {k:"cond_duty_pct", l:"컨디셔닝 duty", u:"%", min:0, max:100, step:5, pk:"cond_duty_pct"},
       {k:"time_s", l:"연마 시간", u:"s", min:10, max:300, step:5, special:"time"},
+      {section:"컨디셔너 조건 (Conditioner)"},
+      {k:"cond_downforce_lbf", l:"Conditioner Force", u:"lbf", min:0, max:12, step:0.5, pk:"cond_downforce_lbf"},
+      {k:"cond_duty_pct", l:"Conditioning Duty", u:"%", min:0, max:100, step:5, pk:"cond_duty_pct",
+       hint:"100%=in-situ 연속. 0이면 3D 디스크 스윕이 멈춘다."},
+      {section:"장비 상수 (레시피가 아님)"},
+      {k:"center_offset_m", l:"헤드 오프셋 r_cc", u:"m", min:0.10, max:0.30, step:0.005, pk:"center_offset_m",
+       hint:"웨이퍼 중심↔플래튼 중심 거리. 헤드가 플래튼 어디에 놓이느냐로 정해지는 장비 고정값이라 매 레시피에서 만지는 값이 아니다. 상대속도 V=ω_p·r_cc 로 MRR에 들어간다. 300mm 툴 전형 0.18m."},
     ]},
   slurry:{ name:"② 슬러리", icon:"💧",
     sub:"소재 개발자가 실제로 배합하는 단위. 함량을 바꾸면 막질별 R/R이 변해야 한다 — V1에서 완전히 죽어 있던 축이다.",
@@ -387,13 +393,35 @@ function drawTabs(){
 function drawPanel(){
   const P = PARTS[current];
   let h = `<h3>${P.icon} ${P.name}</h3><div class="sub">${P.sub}</div>`;
-  const deadCount = P.fields.filter(f=>f.dead).length;
+  const deadCount = P.fields.filter(f=>f.dead && !f.section).length;
   if(deadCount){
     h += `<div class="banner">⚠ 이 파트의 입력 ${deadCount}개는 <b>엔진에 연결되지
       않았다</b>. 값을 바꿔도 결과가 변하지 않는다 — 연결된 척하지 않으려고
       그대로 표시한다. 아래 주황색 설명을 보라.</div>`;
   }
   for(const f of P.fields){
+    if(f.section){
+      h += `<div class="sec" style="margin-top:14px">${f.section}</div>`;
+      continue;
+    }
+    if(f.special==="rotation"){
+      /* P/H 한 칸 — 실제 레시피 표기(예: 55/60)와 같은 형태 */
+      const p = num("rpm_platen", 55), hh = num("rpm_wafer", 60);
+      h += `<div class="fld">
+        <label><span>${f.l}</span>
+          <span class="val"><span id="v-rpm_platen">${p}</span> / <span id="v-rpm_wafer">${hh}</span> rpm</span></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="width:14px;color:var(--dim);font-size:11px">P</span>
+          <input type="range" id="r-rpm_platen" min="${f.min}" max="${f.max}" step="${f.step}" value="${p}" style="flex:1">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:3px">
+          <span style="width:14px;color:var(--dim);font-size:11px">H</span>
+          <input type="range" id="r-rpm_wafer" min="${f.min}" max="${f.max}" step="${f.step}" value="${hh}" style="flex:1">
+        </div>
+        ${f.hint?`<div class="meta">${f.hint}</div>`:""}
+      </div>`;
+      continue;
+    }
     if(f.special==="pack"){
       h += `<div class="fld"><label><span>${f.l}</span></label>
         <select id="sel-pack">${state.packs.map(p=>
@@ -422,12 +450,25 @@ function drawPanel(){
       <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${cur}">
       ${f.dead?`<div class="meta dead">⚠ 미연결: ${f.dead}</div>`:""}
       ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
+      ${f.hint?`<div class="meta">${f.hint}</div>`:""}
     </div>`;
   }
   h += `<button class="btn" id="reset">기준 조건으로 되돌리기</button>`;
   document.getElementById("body").innerHTML = h;
 
+  /* P/H 회전 두 슬라이더 — 각각 팩 키로 바인딩 */
+  for(const key of ["rpm_platen","rpm_wafer"]){
+    const el = document.getElementById("r-"+key);
+    if(!el) continue;
+    el.oninput = ()=>{
+      const v = parseFloat(el.value);
+      document.getElementById("v-"+key).textContent = v.toFixed(0);
+      state.overrides[key] = v;
+      run();
+    };
+  }
   for(const f of P.fields){
+    if(f.section || f.special==="rotation") continue;
     const el = document.getElementById("r-"+f.k);
     if(!el) continue;
     const fmt = f.fmt || (v=>(+v).toFixed(String(f.step).includes(".")?2:0));
