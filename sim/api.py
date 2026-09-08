@@ -57,6 +57,10 @@ class SimRequest(BaseModel):
     # 구성요소 스키마 값 — "slurry.abrasive.primary_size_nm": 60 형식.
     # 연결된 것만 팩 오버라이드가 되고, 나머지는 경고로 돌아온다.
     components: Dict[str, Any] = Field(default_factory=dict)
+    # V2 3D UI가 직접 던지는 팩 키 오버라이드 (예: {"slurry_ph": 11.0}).
+    # 구성요소 경로를 거치지 않고 팩터를 즉시 흔들 수 있는 통로다.
+    pack_overrides: Dict[str, float] = Field(default_factory=dict)
+    model: str = "tier1.preston_radial"
 
 
 @app.get("/api/health")
@@ -171,6 +175,58 @@ def api_simulate(req: SimRequest):
     }
 
 
+@app.post("/api/simulate/v2")
+def api_simulate_v2(req: SimRequest):
+    """V2 엔드포인트 — 3D 인터페이스가 쓰는 통합 결과.
+
+    /api/simulate(슬롯 파이프라인)와 달리 engine.simulate()를 그대로 태워서
+    **병합 파라미터 + 장비 출력값**을 함께 돌려준다. 3D 화면의 각 파트를
+    클릭했을 때 보여줄 것이 전부 여기 들어 있다.
+    """
+    from sim.engine import simulate as _simulate
+
+    comp_over, comp_warn = to_overrides(req.components) if req.components else ({}, [])
+    # 3D UI는 팩 키를 직접 던진다(예: slurry_ph). 구성요소 경로와 합친다.
+    overrides = dict(comp_over)
+    overrides.update(req.pack_overrides or {})
+    try:
+        res = _simulate(Recipe(
+            pack=req.pack, wafer=req.wafer,  # type: ignore[arg-type]
+            pressure_psi=req.pressure_psi, rpm_wafer=req.rpm_wafer,
+            rpm_platen=req.rpm_platen, time_s=req.time_s,
+            initial_thickness_nm=req.initial_thickness_nm,
+            zone_pressures_psi=req.zone_pressures_psi,
+            zone_edges_norm=req.zone_edges_norm, meta=req.meta,
+            pack_overrides=overrides,
+        ), model=req.model)
+    except KeyError as e:
+        raise HTTPException(400, f"팩 해석 실패: {e}")
+    except Exception as e:
+        raise HTTPException(400, f"{type(e).__name__}: {e}")
+
+    s = res.summary()
+    s["profile"] = {
+        "radius_mm": (res.radius_m * 1000).round(2).tolist(),
+        "mrr_nm_min": res.mrr_nm_per_min.round(3).tolist(),
+        "removed_nm": res.removed_nm.round(3).tolist(),
+        "remaining_nm": (res.remaining_nm.round(3).tolist()
+                         if res.remaining_nm is not None else None),
+    }
+    s["component_warnings"] = comp_warn
+    s["provenance"] = res.provenance
+    return s
+
+
+@app.get("/api/factors")
+def api_factors():
+    """병합 파라미터 정의 — UI가 축·파트 매핑을 그리는 데 쓴다."""
+    from sim.factors import FACTOR_SPEC, MRR_COUPLED
+    return {"factors": [
+        {"key": k, "symbol": sym, "name": name, "axis": axis, "parts": parts,
+         "mrr_coupled": k in MRR_COUPLED}
+        for k, (sym, name, axis, parts) in FACTOR_SPEC.items()]}
+
+
 @app.get("/api/scope/{agent}")
 def api_scope(agent: str):
     sys.path.insert(0, str(ROOT / "tools"))
@@ -187,6 +243,18 @@ def api_scope(agent: str):
 
 
 _INDEX = Path(__file__).resolve().parent / "web" / "index.html"
+_STUDIO3D = Path(__file__).resolve().parent / "web" / "studio3d.html"
+
+
+@app.get("/3d", response_class=HTMLResponse)
+def studio3d():
+    """3D 스튜디오 — V2의 메인 화면 (ARCHITECTURE-V2.md §0).
+
+    실제 장비 모양을 그리고, 각 부위를 클릭하면 그 파트의 설정 패널이 열린다.
+    """
+    if _STUDIO3D.exists():
+        return _STUDIO3D.read_text()
+    raise HTTPException(404, "studio3d.html 없음")
 
 
 @app.get("/", response_class=HTMLResponse)

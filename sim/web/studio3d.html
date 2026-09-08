@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FabSim — CMP 시뮬레이터</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#131a23; --panel2:#1a2430; --line:#243141;
+    --fg:#e6edf3; --dim:#8b9cb0; --accent:#4da3ff; --warn:#ffb454;
+    --bad:#ff6b6b; --good:#5ddc9a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+       overflow:hidden}
+  #app{display:flex;height:100vh}
+  #view{flex:1;position:relative;min-width:0}
+  canvas{display:block}
+  #hint{position:absolute;left:14px;top:12px;color:var(--dim);font-size:12px;
+        background:rgba(11,15,20,.72);padding:7px 11px;border-radius:7px;
+        border:1px solid var(--line);pointer-events:none}
+  #label{position:absolute;padding:4px 9px;background:var(--accent);color:#04121f;
+         font-weight:600;font-size:12px;border-radius:5px;pointer-events:none;
+         display:none;transform:translate(-50%,-140%);white-space:nowrap}
+  #side{width:400px;background:var(--panel);border-left:1px solid var(--line);
+        display:flex;flex-direction:column}
+  #tabs{display:flex;border-bottom:1px solid var(--line);flex-shrink:0;flex-wrap:wrap}
+  .tab{flex:1;padding:9px 4px;text-align:center;cursor:pointer;color:var(--dim);
+       font-size:11px;border-bottom:2px solid transparent;user-select:none;min-width:60px}
+  .tab:hover{color:var(--fg);background:var(--panel2)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent);background:var(--panel2)}
+  #body{flex:1;overflow-y:auto;padding:14px}
+  h3{margin:0 0 4px;font-size:14px}
+  .sub{color:var(--dim);font-size:11px;margin-bottom:14px;line-height:1.5}
+  .fld{margin-bottom:13px}
+  .fld label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+  .fld .val{color:var(--accent);font-variant-numeric:tabular-nums;font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  select{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+         padding:6px;border-radius:5px;font-size:12px}
+  .meta{font-size:10px;color:var(--dim);margin-top:3px;line-height:1.45}
+  .dead{color:var(--warn)}
+  #out{border-top:1px solid var(--line);padding:11px 14px;background:var(--panel2);
+       max-height:44vh;overflow-y:auto;flex-shrink:0}
+  .row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+  .row b{font-variant-numeric:tabular-nums}
+  .sec{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;
+       margin:11px 0 5px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+  .fchip{display:flex;align-items:center;gap:7px;padding:3px 0;font-size:12px}
+  .fsym{width:19px;font-weight:700;text-align:center;font-size:14px}
+  .bar{flex:1;height:5px;background:#0a0f15;border-radius:3px;overflow:hidden;position:relative}
+  .bar i{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:3px}
+  .bar i.lo{background:var(--bad)} .bar i.hi{background:var(--good)}
+  .fval{width:52px;text-align:right;font-variant-numeric:tabular-nums;font-size:11px}
+  .tag{font-size:9px;padding:1px 5px;border-radius:3px;background:#2a3644;color:var(--dim)}
+  .tag.unmodeled{background:#4a2f1a;color:var(--warn)}
+  .tag.partial{background:#3a3a1a;color:#ffe08a}
+  .tag.modeled{background:#1a3a2a;color:var(--good)}
+  #notes{font-size:10.5px;color:var(--dim);line-height:1.55}
+  #notes div{padding:3px 0;border-bottom:1px solid #1b2430}
+  #notes div.w{color:var(--warn)}
+  .btn{width:100%;padding:9px;background:var(--accent);color:#04121f;border:0;
+       border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;margin-top:6px}
+  .banner{background:#2a1f14;border:1px solid #4a3a20;color:var(--warn);
+          padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:12px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view">
+    <div id="hint">드래그=회전 · 휠=줌 · <b>장비 부위를 클릭하면 설정 패널이 열립니다</b></div>
+    <div id="label"></div>
+  </div>
+  <div id="side">
+    <div id="tabs"></div>
+    <div id="body"></div>
+    <div id="out"></div>
+  </div>
+</div>
+<script>
+"use strict";
+const API = location.origin;
+
+/* ══════════════════════════════════════════════════════════════
+   파트 정의 — ARCHITECTURE-V2.md §1
+   각 필드의 `pk`는 팩 키다. 없으면 UI에만 있고 엔진에 안 붙은 것 →
+   'dead:true'로 표시해 **거짓 UI를 만들지 않는다**.
+   (V1 demo_app의 film 드롭다운이 골라도 Kp가 안 변하는 거짓 UI였다.)
+   ══════════════════════════════════════════════════════════════ */
+const PARTS = {
+  tool: { name:"① 장비", icon:"⚙",
+    sub:"실제 폴리셔(AMAT Reflexion/Mirra급)에서 오퍼레이터가 설정하는 값. 아래 '장비 출력값'은 설정이 아니라 저절로 도출되는 진단 신호다.",
+    fields:[
+      {k:"pressure_psi", l:"다운포스", u:"psi", min:0.5, max:8, step:0.1, pk:"pressure_psi"},
+      {k:"rpm_platen", l:"플래튼 RPM", u:"rpm", min:10, max:150, step:1, pk:"rpm_platen"},
+      {k:"rpm_wafer", l:"캐리어(헤드) RPM", u:"rpm", min:10, max:150, step:1, pk:"rpm_wafer"},
+      {k:"center_offset_m", l:"회전축 거리 r_cc", u:"m", min:0.10, max:0.30, step:0.005, pk:"center_offset_m"},
+      {k:"sfr_ml_min", l:"SFR 슬러리 유량", u:"mL/min", min:20, max:400, step:5, pk:"sfr_ml_min"},
+      {k:"cond_downforce_lbf", l:"컨디셔너 하중", u:"lbf", min:0, max:12, step:0.5, pk:"cond_downforce_lbf"},
+      {k:"cond_duty_pct", l:"컨디셔닝 duty", u:"%", min:0, max:100, step:5, pk:"cond_duty_pct"},
+      {k:"time_s", l:"연마 시간", u:"s", min:10, max:300, step:5, special:"time"},
+    ]},
+  slurry:{ name:"② 슬러리", icon:"💧",
+    sub:"소재 개발자가 실제로 배합하는 단위. 함량을 바꾸면 막질별 R/R이 변해야 한다 — V1에서 완전히 죽어 있던 축이다.",
+    fields:[
+      {k:"slurry_ph", l:"pH", u:"", min:8, max:13, step:0.1, pk:"slurry_ph"},
+      {k:"abrasive_wt_pct", l:"입자 함량", u:"wt%", min:1, max:35, step:0.5, pk:"abrasive_wt_pct"},
+      {k:"abrasive_size_nm", l:"입자 크기 D50", u:"nm", min:20, max:150, step:5, pk:"abrasive_size_nm",
+       dead:"입경 지수가 문헌 미확정(OCR 손상)이라 항을 만들지 않았다. 지어내는 대신 비워뒀다."},
+      {k:"oxidizer_wt_pct", l:"산화제 함량", u:"wt%", min:0, max:8, step:0.1, pk:"oxidizer_wt_pct",
+       dead:"이 팩(산화막/실리카)에는 산화제 파라미터가 없다. Cu/W 팩에서 활성화된다."},
+      {k:"inhibitor_mM", l:"억제제 BTA", u:"mM", min:0, max:10, step:0.1, pk:"inhibitor_mM",
+       dead:"산화막 팩에 억제제가 없다 — Cu 팩(cu_h2o2_bta)에서 살아난다."},
+    ]},
+  pad:{ name:"③ 패드", icon:"▤",
+    sub:"패드는 접촉 강도(κ)와 슬러리 전달(τ)을 동시에 결정한다.",
+    fields:[
+      {k:"pad_hardness_shore_d", l:"경도", u:"Shore D", min:35, max:80, step:1, pk:"pad_hardness_shore_d"},
+      {k:"groove_depth_mm", l:"그루브 깊이", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
+       dead:"τ(슬러리 전달)가 엔진에 미연결이다. 값을 바꿔도 MRR이 안 변한다 — 이 사실을 숨기지 않는다."},
+      {k:"groove_pitch_mm", l:"그루브 간격", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
+       dead:"τ 미연결. 위와 같다."},
+    ]},
+  disk:{ name:"④ 디스크", icon:"◈",
+    sub:"컨디셔너 디스크. 형상은 소모품(κ), 하중·스윕은 장비 설정(Γ)이다 — 축이 다르므로 섞지 않는다.",
+    fields:[
+      {k:"asperity_density_per_m2", l:"asperity 밀도", u:"1/m²", min:2e10, max:4e11, step:1e10,
+       pk:"asperity_density_per_m2", fmt:v=>v.toExponential(2)},
+      {k:"pad_asperity_radius_m", l:"asperity 곡률반경", u:"m", min:1e-6, max:2e-5, step:1e-6,
+       pk:"pad_asperity_radius_m", fmt:v=>v.toExponential(2),
+       dead:"GW 접촉 모델(tier2.gw_physical_kp)에서만 살아난다. Preston 모델에선 안 쓰인다."},
+    ]},
+  wafer:{ name:"⑤ 웨이퍼", icon:"◯",
+    sub:"⚠ 웨이퍼는 대상 막질이지 조절 파라미터가 아니다. 병합 파라미터에 포함되지 않으며, 연마 후 성능을 판정하는 기준선 역할만 한다.",
+    fields:[
+      {k:"pack", l:"막질 / 파라미터 팩", special:"pack"},
+      {k:"initial_thickness_nm", l:"초기 두께", u:"nm", min:200, max:5000, step:50, special:"thick"},
+      {k:"wafer", l:"웨이퍼 종류", special:"wafertype"},
+    ]},
+};
+
+const state = { pack:"oxide_silica", wafer:"NPW", time_s:60,
+                initial_thickness_nm:1000, overrides:{}, base:{}, packs:[] };
+let current = "tool";
+
+/* ─────────────────────────────────────────── 3D 씬 */
+const view = document.getElementById("view");
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b0f14);
+scene.fog = new THREE.Fog(0x0b0f14, 3.2, 8.5);
+const cam = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+const rend = new THREE.WebGLRenderer({antialias:true});
+rend.shadowMap.enabled = true;
+view.appendChild(rend.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const key = new THREE.DirectionalLight(0xffffff, 1.15);
+key.position.set(4,7,4); key.castShadow = true;
+key.shadow.mapSize.set(1024,1024); scene.add(key);
+const rim = new THREE.DirectionalLight(0x4da3ff, 0.5);
+rim.position.set(-4,3,-4); scene.add(rim);
+
+const hot = {};   // 클릭 가능한 파트
+
+/* 베이스 프레임 */
+const baseFrame = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.62,1.72,0.20,64),
+  new THREE.MeshStandardMaterial({color:0x1c2430, metalness:.85, roughness:.42}));
+baseFrame.position.y = -0.30; baseFrame.receiveShadow = true; scene.add(baseFrame);
+
+/* ── 플래튼 + 패드(그루브) : 회전한다 ── */
+const platenGrp = new THREE.Group(); scene.add(platenGrp);
+const platen = new THREE.Mesh(
+  new THREE.CylinderGeometry(1.5,1.5,0.14,72),
+  new THREE.MeshStandardMaterial({color:0x39485c, metalness:.9, roughness:.35}));
+platen.position.y = -0.12; platen.castShadow = platen.receiveShadow = true;
+platenGrp.add(platen);
+
+const padMat = new THREE.MeshStandardMaterial({color:0x2f7d63, roughness:.95, metalness:.03});
+const pad = new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,0.10,72), padMat);
+pad.position.y = 0.0; pad.castShadow = pad.receiveShadow = true;
+platenGrp.add(pad); hot.pad = pad;
+
+/* 동심원 그루브 — 간격/깊이가 실제로 반영된다 */
+let grooveGrp = new THREE.Group(); platenGrp.add(grooveGrp);
+function buildGrooves(pitchMM, depthMM){
+  grooveGrp.clear();
+  const pitch = Math.max(pitchMM,0.6)/60;          // 화면 스케일
+  const depth = Math.min(Math.max(depthMM,0.1)/12, 0.055);
+  const m = new THREE.MeshStandardMaterial({color:0x1d5745, roughness:1});
+  for(let r=0.18; r<1.47; r+=pitch){
+    const g = new THREE.Mesh(new THREE.TorusGeometry(r, depth*0.5, 6, 96), m);
+    g.rotation.x = Math.PI/2; g.position.y = 0.050;
+    grooveGrp.add(g);
+  }
+}
+buildGrooves(3.05, 0.76);
+
+/* ── 캐리어 + 웨이퍼 : 반대로 회전 ── */
+const carrierGrp = new THREE.Group();
+carrierGrp.position.set(0.72, 0, 0); scene.add(carrierGrp);
+const carrier = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.56,0.56,0.22,48),
+  new THREE.MeshStandardMaterial({color:0x8d99a8, metalness:.92, roughness:.28}));
+carrier.position.y = 0.30; carrier.castShadow = true;
+carrierGrp.add(carrier); hot.tool = carrier;
+
+const shaft = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.10,0.10,1.0,24),
+  new THREE.MeshStandardMaterial({color:0x6c7887, metalness:.9, roughness:.3}));
+shaft.position.y = 0.90; carrierGrp.add(shaft);
+
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(0.50, 0.045, 12, 56),
+  new THREE.MeshStandardMaterial({color:0xb9c4d1, metalness:.85, roughness:.35}));
+ring.rotation.x = Math.PI/2; ring.position.y = 0.13; carrierGrp.add(ring);
+
+const waferMat = new THREE.MeshStandardMaterial({
+  color:0x9fd8ff, metalness:.62, roughness:.14,
+  emissive:0x0d2942, emissiveIntensity:.55});
+const wafer = new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,0.035,56), waferMat);
+wafer.position.y = 0.12; wafer.castShadow = true;
+carrierGrp.add(wafer); hot.wafer = wafer;
+
+/* ── 컨디셔너 디스크 : 스윕한다 ── */
+const condGrp = new THREE.Group(); scene.add(condGrp);
+const condArm = new THREE.Mesh(
+  new THREE.BoxGeometry(0.80,0.075,0.16),
+  new THREE.MeshStandardMaterial({color:0x5a6674, metalness:.85, roughness:.35}));
+condArm.position.set(-0.40,0.52,0); condGrp.add(condArm);
+const disk = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.24,0.24,0.075,36),
+  new THREE.MeshStandardMaterial({color:0xd8dde4, metalness:.95, roughness:.16}));
+disk.position.set(-0.78,0.28,0); disk.castShadow = true;
+condGrp.add(disk); hot.disk = disk;
+/* 다이아 그릿 — 밀도가 실제로 반영된다 */
+let gritGrp = new THREE.Group(); condGrp.add(gritGrp);
+function buildGrits(density){
+  gritGrp.clear();
+  const n = Math.round(THREE.MathUtils.clamp(
+      36*Math.log10(density/2e10+1)/Math.log10(21), 8, 150));
+  const g = new THREE.OctahedronGeometry(0.017);
+  const m = new THREE.MeshStandardMaterial({color:0xffffff, metalness:.4, roughness:.05});
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, r = Math.sqrt(Math.random())*0.21;
+    const s = new THREE.Mesh(g,m);
+    s.position.set(-0.78+Math.cos(a)*r, 0.243, Math.sin(a)*r);
+    gritGrp.add(s);
+  }
+}
+buildGrits(1e11);
+
+/* ── 슬러리 암 + 흐르는 액체 (셰이더 아님, 인스턴스 파티클) ── */
+const armPivot = new THREE.Group(); scene.add(armPivot);
+const slArm = new THREE.Mesh(
+  new THREE.BoxGeometry(1.15,0.055,0.085),
+  new THREE.MeshStandardMaterial({color:0x4f5b69, metalness:.8, roughness:.4}));
+slArm.position.set(0.30,0.80,-0.95); armPivot.add(slArm);
+const nozzle = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.05,0.035,0.14,16),
+  new THREE.MeshStandardMaterial({color:0x8f9bab, metalness:.85, roughness:.3}));
+nozzle.position.set(-0.22,0.72,-0.95); armPivot.add(nozzle);
+hot.slurry = nozzle;
+
+/* 슬러리 입자 — SFR에 비례해 개수·속도가 변한다 */
+const NP = 900;
+const spos = new Float32Array(NP*3);
+const svel = new Float32Array(NP);
+const sph  = new Float32Array(NP);
+function seed(i, fresh){
+  if(fresh){ spos[i*3]= -0.22+(Math.random()-.5)*0.09;
+             spos[i*3+1]= 0.66;
+             spos[i*3+2]= -0.95+(Math.random()-.5)*0.09;
+             sph[i]=0; }
+  svel[i] = 0.010+Math.random()*0.011;
+}
+for(let i=0;i<NP;i++){ seed(i,true); sph[i]=Math.random(); }
+const sgeo = new THREE.BufferGeometry();
+sgeo.setAttribute("position", new THREE.BufferAttribute(spos,3));
+const smat = new THREE.PointsMaterial({color:0xa8e8ff, size:0.032,
+  transparent:true, opacity:0.72, depthWrite:false});
+const slurryPts = new THREE.Points(sgeo, smat); scene.add(slurryPts);
+
+/* 카메라 궤도 */
+let yaw=0.62, pitch=0.60, dist=4.5, drag=false, lx=0, ly=0;
+function place(){
+  cam.position.set(dist*Math.cos(pitch)*Math.sin(yaw), dist*Math.sin(pitch),
+                   dist*Math.cos(pitch)*Math.cos(yaw));
+  cam.lookAt(0,0.12,0);
+}
+rend.domElement.addEventListener("mousedown",e=>{drag=true;lx=e.clientX;ly=e.clientY});
+addEventListener("mouseup",()=>drag=false);
+addEventListener("mousemove",e=>{
+  if(!drag) return;
+  yaw -= (e.clientX-lx)*0.007;
+  pitch = THREE.MathUtils.clamp(pitch+(e.clientY-ly)*0.007, 0.10, 1.45);
+  lx=e.clientX; ly=e.clientY; place();
+});
+rend.domElement.addEventListener("wheel",e=>{
+  e.preventDefault();
+  dist = THREE.MathUtils.clamp(dist+e.deltaY*0.0032, 2.3, 9); place();
+},{passive:false});
+
+/* 클릭 → 파트 선택 */
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+const labelEl = document.getElementById("label");
+function pick(e){
+  const r = rend.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX-r.left)/r.width)*2-1;
+  mouse.y = -((e.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(mouse, cam);
+  const hits = ray.intersectObjects(Object.values(hot), false);
+  if(!hits.length) return null;
+  const o = hits[0].object;
+  return Object.keys(hot).find(k=>hot[k]===o) || null;
+}
+rend.domElement.addEventListener("click",e=>{ const p=pick(e); if(p) select(p); });
+rend.domElement.addEventListener("mousemove",e=>{
+  if(drag){ labelEl.style.display="none"; return; }
+  const p = pick(e);
+  if(p){ labelEl.style.display="block"; labelEl.textContent = PARTS[p].icon+" "+PARTS[p].name;
+         labelEl.style.left=e.clientX+"px"; labelEl.style.top=e.clientY+"px";
+         rend.domElement.style.cursor="pointer"; }
+  else { labelEl.style.display="none"; rend.domElement.style.cursor="grab"; }
+});
+
+/* 애니메이션 — 실제 설정값에 반응한다 */
+let t=0;
+function tick(){
+  requestAnimationFrame(tick);
+  const dt=0.016; t+=dt;
+  const rpmP = num("rpm_platen", 55), rpmW = num("rpm_wafer", 60);
+  const sfr  = num("sfr_ml_min", 150), duty = num("cond_duty_pct", 100);
+  platenGrp.rotation.y += rpmP/60*dt*2*Math.PI*0.10;
+  carrierGrp.rotation.y -= rpmW/60*dt*2*Math.PI*0.10;
+  /* 컨디셔너 스윕 — duty 0이면 멈춘다 */
+  if(duty>0) condGrp.rotation.y = Math.sin(t*0.55)*0.62;
+  /* 슬러리 흐름: 노즐 → 패드 낙하 → 회전하며 바깥으로 번짐 */
+  const active = Math.round(THREE.MathUtils.clamp(NP*sfr/400,40,NP));
+  const spd = 0.55+sfr/260;
+  for(let i=0;i<NP;i++){
+    if(i>=active){ spos[i*3+1] = -99; continue; }
+    if(sph[i]===0){                       // 낙하
+      spos[i*3+1] -= svel[i]*spd*2.6;
+      if(spos[i*3+1] <= 0.055){ sph[i]=1; spos[i*3+1]=0.055; }
+    } else {                              // 패드 위 확산
+      const x=spos[i*3], z=spos[i*3+2];
+      const r=Math.hypot(x,z), a=Math.atan2(z,x)+rpmP/60*dt*2*Math.PI*0.10;
+      const nr = r + svel[i]*spd*0.85;
+      spos[i*3]=Math.cos(a)*nr; spos[i*3+2]=Math.sin(a)*nr;
+      if(nr>1.5) seed(i,true);
+    }
+  }
+  sgeo.attributes.position.needsUpdate = true;
+  rend.render(scene,cam);
+}
+function resize(){
+  const w=view.clientWidth,h=view.clientHeight;
+  cam.aspect=w/h; cam.updateProjectionMatrix();
+  rend.setSize(w,h); rend.setPixelRatio(Math.min(devicePixelRatio,2));
+}
+addEventListener("resize",resize); resize(); place(); tick();
+
+/* ─────────────────────────────────────────── 패널 */
+function num(key, dflt){
+  if(state.overrides[key]!==undefined) return state.overrides[key];
+  if(state.base[key]!==undefined) return state.base[key];
+  return dflt;
+}
+function select(p){ current=p; drawTabs(); drawPanel(); }
+
+function drawTabs(){
+  document.getElementById("tabs").innerHTML =
+    Object.entries(PARTS).map(([k,v])=>
+      `<div class="tab ${k===current?'on':''}" data-k="${k}">${v.icon} ${v.name}</div>`).join("");
+  document.querySelectorAll(".tab").forEach(el=>
+    el.onclick=()=>select(el.dataset.k));
+}
+
+function drawPanel(){
+  const P = PARTS[current];
+  let h = `<h3>${P.icon} ${P.name}</h3><div class="sub">${P.sub}</div>`;
+  const deadCount = P.fields.filter(f=>f.dead).length;
+  if(deadCount){
+    h += `<div class="banner">⚠ 이 파트의 입력 ${deadCount}개는 <b>엔진에 연결되지
+      않았다</b>. 값을 바꿔도 결과가 변하지 않는다 — 연결된 척하지 않으려고
+      그대로 표시한다. 아래 주황색 설명을 보라.</div>`;
+  }
+  for(const f of P.fields){
+    if(f.special==="pack"){
+      h += `<div class="fld"><label><span>${f.l}</span></label>
+        <select id="sel-pack">${state.packs.map(p=>
+          `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.id} — ${p.description||""}</option>`
+        ).join("")}</select>
+        <div class="meta">막질을 바꾸는 것은 <b>파라미터 팩 한 장을 갈아끼우는 것</b>이다.
+        코드를 고치지 않는다.</div></div>`;
+      continue;
+    }
+    if(f.special==="wafertype"){
+      h += `<div class="fld"><label><span>${f.l}</span></label>
+        <select id="sel-wafer">
+          <option value="NPW" ${state.wafer==="NPW"?"selected":""}>NPW — 블랭킷(패턴 없음)</option>
+          <option value="PTW" ${state.wafer==="PTW"?"selected":""}>PTW — 패턴 웨이퍼</option>
+        </select><div class="meta">PTW는 pattern_density 모델이 필요하다 —
+        아니면 NPW 등가로 계산되고 경고가 뜬다.</div></div>`;
+      continue;
+    }
+    const isTime = f.special==="time", isThick = f.special==="thick";
+    const cur = isTime ? state.time_s
+              : isThick ? state.initial_thickness_nm
+              : num(f.k, f.min);
+    const fmt = f.fmt || (v=>(+v).toFixed(String(f.step).includes(".")?2:0));
+    h += `<div class="fld">
+      <label><span>${f.l}</span><span class="val" id="v-${f.k}">${fmt(cur)} ${f.u||""}</span></label>
+      <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${cur}">
+      ${f.dead?`<div class="meta dead">⚠ 미연결: ${f.dead}</div>`:""}
+    </div>`;
+  }
+  h += `<button class="btn" id="reset">기준 조건으로 되돌리기</button>`;
+  document.getElementById("body").innerHTML = h;
+
+  for(const f of P.fields){
+    const el = document.getElementById("r-"+f.k);
+    if(!el) continue;
+    const fmt = f.fmt || (v=>(+v).toFixed(String(f.step).includes(".")?2:0));
+    el.oninput = ()=>{
+      const v = parseFloat(el.value);
+      document.getElementById("v-"+f.k).textContent = fmt(v)+" "+(f.u||"");
+      if(f.special==="time") state.time_s = v;
+      else if(f.special==="thick") state.initial_thickness_nm = v;
+      else state.overrides[f.k] = v;
+      if(f.k==="groove_pitch_mm"||f.k==="groove_depth_mm")
+        buildGrooves(num("groove_pitch_mm",3.05), num("groove_depth_mm",0.76));
+      if(f.k==="asperity_density_per_m2") buildGrits(v);
+      run();
+    };
+  }
+  const sp=document.getElementById("sel-pack");
+  if(sp) sp.onchange=()=>{ state.pack=sp.value; state.overrides={}; boot(); };
+  const sw=document.getElementById("sel-wafer");
+  if(sw) sw.onchange=()=>{ state.wafer=sw.value; run(); };
+  document.getElementById("reset").onclick=()=>{ state.overrides={}; drawPanel(); run(); };
+}
+
+/* ─────────────────────────────────────────── 결과 */
+function bar(v){
+  if(v==null) return `<div class="bar"></div><div class="fval">—</div>`;
+  const pct = THREE.MathUtils.clamp((Math.log10(v)+1)/2*100, 2, 100);
+  const cls = v<0.97?"lo":(v>1.03?"hi":"");
+  return `<div class="bar"><i class="${cls}" style="width:${pct}%"></i></div>
+          <div class="fval">${v.toFixed(3)}</div>`;
+}
+function render(d){
+  const m = d.metrics||{}, eq = d.equipment_outputs||{}, fs = d.factors||{};
+  const cov = d.factor_coverage||{};
+  const F = k => fs[k]||{};
+  const eqRow = (k,dec=2)=>{
+    const o = eq[k]; if(!o) return "";
+    const v = o.value==null ? `<b style="color:var(--warn)">미모델링</b>`
+            : `<b>${(+o.value).toFixed(dec)} ${o.unit}</b>`;
+    return `<div class="row" title="${(o.note||"").replace(/"/g,"'")}">
+              <span>${o.label}</span>${v}</div>`;
+  };
+  const fRow = k=>{
+    const f=F(k); if(!f.symbol) return "";
+    return `<div class="fchip" title="${(f.notes||[]).join(' / ').replace(/"/g,"'")}">
+      <span class="fsym">${f.symbol}</span>
+      <span style="width:74px;font-size:11px">${f.name}</span>
+      ${bar(f.value)}
+      <span class="tag ${f.status}">${f.status}</span></div>`;
+  };
+  document.getElementById("out").innerHTML = `
+    <div class="sec">연마 결과</div>
+    <div class="row"><span>평균 MRR</span><b>${(d.mean_mrr_nm_min||0).toFixed(2)} nm/min</b></div>
+    <div class="row"><span>TTV (81pt)</span><b>${m.ttv_nm!=null?m.ttv_nm.toFixed(2)+" nm":"—"}</b></div>
+    <div class="row"><span>CV</span><b>${m.cv_pct!=null?m.cv_pct.toFixed(3)+" %":"—"}</b></div>
+    <div class="row"><span>WIWNU (½range)</span><b>${m.wiwnu_halfrange_pct!=null?m.wiwnu_halfrange_pct.toFixed(3)+" %":"—"}</b></div>
+
+    <div class="sec">장비 출력값 — 설정이 아니라 도출됨</div>
+    ${eqRow("pad_temp_c",1)}${eqRow("pad_temp_rise_k",2)}${eqRow("cof",4)}
+    ${eqRow("carrier_current_a",3)}${eqRow("platen_torque_nm",2)}${eqRow("friction_power_w",1)}
+
+    <div class="sec">병합 파라미터 — 장비축 (소모품과 섞지 않음)</div>
+    ${fRow("lambda")}${fRow("pi")}${fRow("theta")}${fRow("gamma")}
+    <div class="sec">병합 파라미터 — 소모품축 (슬러리·패드·디스크)</div>
+    ${fRow("kappa")}${fRow("chi")}${fRow("psi")}${fRow("tau")}${fRow("delta")}${fRow("stab")}
+    <div class="row" style="margin-top:7px;color:var(--dim);font-size:11px">
+      <span>모델 커버리지</span><b>${((cov.score||0)*100).toFixed(0)}% — 미연결 ${(cov.unmodeled||[]).length}축</b></div>
+
+    <div class="sec">엔진이 보고한 한계 (${(d.notes||[]).length})</div>
+    <div id="notes">${(d.notes||[]).slice(0,40).map(n=>
+      `<div class="${n.includes("⚠")?"w":""}">${n}</div>`).join("")}</div>`;
+}
+
+async function run(){
+  const body = { pack:state.pack, wafer:state.wafer, time_s:state.time_s,
+                 initial_thickness_nm:state.initial_thickness_nm,
+                 pack_overrides:state.overrides };
+  try{
+    const r = await fetch(API+"/api/simulate/v2",
+      {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const d = await r.json();
+    if(!r.ok){ document.getElementById("out").innerHTML =
+      `<div class="banner">엔진 오류: ${d.detail||"unknown"}</div>`; return; }
+    render(d);
+    /* 웨이퍼 색: MRR에 반응 */
+    const mr = d.mean_mrr_nm_min||0;
+    waferMat.emissiveIntensity = THREE.MathUtils.clamp(mr/260, .12, 1.1);
+  }catch(e){
+    document.getElementById("out").innerHTML =
+      `<div class="banner">API 연결 실패: ${e.message}</div>`;
+  }
+}
+
+async function boot(){
+  try{
+    const cat = await (await fetch(API+"/api/catalog")).json();
+    state.packs = (cat.packs||[]).filter(p=>!p.error);
+    const pk = state.packs.find(p=>p.id===state.pack);
+    state.base = {};
+    if(pk) for(const p of pk.params) if(typeof p.value==="number") state.base[p.key]=p.value;
+    buildGrooves(num("groove_pitch_mm",3.05), num("groove_depth_mm",0.76));
+    buildGrits(num("asperity_density_per_m2",1e11));
+  }catch(e){ /* 카탈로그 실패해도 시뮬은 돈다 */ }
+  drawTabs(); drawPanel(); run();
+}
+boot();
+</script>
+</body>
+</html>

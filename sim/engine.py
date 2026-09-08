@@ -39,6 +39,7 @@ from sim.metrics.uniformity import compute_metrics, UniformityMetrics  # noqa: E
 from sim.params import ParamPack, load_pack, available_packs  # noqa: E402
 from sim.chemistry import chemistry_factor, ChemistryEffect  # noqa: E402,F401
 from sim.factors import compute_factors, mrr_multiplier, coverage, Factor  # noqa: E402
+from sim.equipment_outputs import compute_outputs, Output  # noqa: E402
 
 PSI_TO_PA = 6894.757
 
@@ -191,6 +192,9 @@ class WaferResult:
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
     # UI가 "무엇을 만지면 무엇이 바뀌나"를 그리는 근거이자, 미모델링 축을 드러내는 통로.
     factors: Dict[str, "Factor"] = field(default_factory=dict)
+    # 장비 출력값 (설정값이 아니라 저절로 도출되는 것) — ARCHITECTURE-V2 §1-①.
+    # 패드 온도·모터 전류·마찰계수. 실제 툴에서 엔지니어가 읽는 진단 신호다.
+    equipment_outputs: Dict[str, "Output"] = field(default_factory=dict)
     # 이 결과가 어떤 물성에서 나왔나 — 숫자의 출처 추적
     pack: str = ""
     film: str = ""
@@ -214,6 +218,8 @@ class WaferResult:
             "film_lubrication_note": self.film_lubrication_note,
             "factors": {k: f.to_dict() for k, f in self.factors.items()},
             "factor_coverage": coverage(self.factors) if self.factors else None,
+            "equipment_outputs": {k: o.to_dict()
+                                  for k, o in self.equipment_outputs.items()},
             "notes": self.notes,
         }
 
@@ -356,6 +362,13 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     notes.extend(fnotes)
     for _f in factors.values():
         notes.extend(_f.notes)
+    # ── 장비 출력값 — 설정값에서 저절로 도출되는 진단 신호 ──────────────
+    # MRR 경로와 완전히 독립이다. 실패해도 시뮬레이션은 계속돼야 한다.
+    try:
+        eq_outputs = compute_outputs(rr)
+    except Exception as _e:
+        eq_outputs = {}
+        notes.append(f"⚠ 장비 출력값 계산 실패: {type(_e).__name__}: {_e}")
     # 모델이 스스로 한계를 보고할 기회 — 지어내지 않고 모르는 것을 드러낸다
     if hasattr(impl, "notes"):
         notes.extend(impl.notes(rr))  # type: ignore[attr-defined]
@@ -403,6 +416,7 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        film_z0_scale_um=film["film_z0_scale_um"],
                        film_lubrication_note=film["film_lubrication_note"],
                        model=model, notes=notes, factors=factors,
+                       equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
                        provenance=rr.pack.provenance(rr.used_keys))
 
