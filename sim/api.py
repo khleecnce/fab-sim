@@ -323,6 +323,44 @@ def api_calibration(pack: str):
     return cal.to_dict()
 
 
+@app.get("/api/additives")
+def api_additives():
+    """첨가제 카탈로그 — 카테고리·케미컬·대상 막질·전형 농도·엔진 키.
+
+    knowledge/additives/catalog.yaml 이 없으면 빈 카탈로그(UI는 '카탈로그 없음' 표시).
+    """
+    import yaml
+    p = ROOT / "knowledge" / "additives" / "catalog.yaml"
+    if not p.exists():
+        return {"categories": {}, "chemicals": [], "note": "catalog.yaml not found"}
+    d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    return {"categories": d.get("categories", {}), "chemicals": d.get("chemicals", [])}
+
+
+@app.get("/api/npw")
+def api_npw():
+    """NPW(블랭킷 웨이퍼) 카탈로그 — 스택·초기값 범위."""
+    import yaml
+    p = ROOT / "knowledge" / "wafers" / "npw_catalog.yaml"
+    if not p.exists():
+        return {"wafers": [], "note": "npw_catalog.yaml not found"}
+    d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    return {"wafers": d.get("wafers", [])}
+
+
+@app.get("/api/performance/{part}")
+def api_performance(part: str):
+    """패드/디스크 성능 결정 인자 — 범위·근거·영향 방향·엔진 연결."""
+    import yaml
+    if part not in ("pad", "disk"):
+        raise HTTPException(404, "pad | disk")
+    p = ROOT / "knowledge" / "performance" / f"{part}.yaml"
+    if not p.exists():
+        return {"factors": [], "note": f"{part}.yaml not found"}
+    d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    return {"factors": d.get("factors", []), "meta": {k: v for k, v in d.items() if k != "factors"}}
+
+
 @app.get("/api/factors/lineage/{pack}")
 def api_factor_lineage(pack: str):
     """팩터 계보 — 어떤 입력 항목에서 어떤 파라미터가 산출되는지.

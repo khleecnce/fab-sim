@@ -110,23 +110,35 @@ const PARTS = {
        hint:"웨이퍼 중심↔플래튼 중심 거리. 헤드가 플래튼 어디에 놓이느냐로 정해지는 장비 고정값이라 매 레시피에서 만지는 값이 아니다. 상대속도 V=ω_p·r_cc 로 MRR에 들어간다. 300mm 툴 전형 0.18m."},
     ]},
   slurry:{ name:"② Slurry", icon:"💧",
-    sub:"Units a slurry formulator actually mixes in. Changing loading must change per-film R/R.",
+    sub:"Units a slurry formulator actually mixes in. Abrasive and Additives are separate blocks; each additive shows its target film and loading.",
     fields:[
-      {k:"slurry_ph", l:"pH", u:"", min:0, max:14, step:0.1, pk:"slurry_ph",
-       hint:"실리카 팩: pH 11 정점(Li 2021). 세리아 팩: 2.5~6.8 정전 창, pH 6 넘으면 급락(Dandu 2009). 실측 범위 밖은 외삽이다."},
+      {section:"Abrasive"},
+      {k:"abrasive_type", l:"Abrasive Type", special:"select", pk:null,
+       options:[["colloidal_silica","Colloidal Silica"],["fumed_silica","Fumed Silica"],["ceria","Ceria (CeO₂)"],["alumina","Alumina (Al₂O₃)"],["zirconia","Zirconia"],["mixed","Mixed / Composite"]],
+       hint:"Which abrasive the pack models is fixed by the pack (silica → oxide_silica, ceria → sti_ceria). Changing this here re-selects the pack; it is not a free slider."},
       {k:"abrasive_wt_pct", l:"Abrasive Loading", u:"wt%", min:0, max:50, step:0.5, pk:"abrasive_wt_pct",
-       hint:"7 wt% 이상은 Luo-Dornfeld 포화 — 더 넣어도 MRR이 안 오른다고 실측된 계가 있다. 그 구간은 과대평가."},
-      {k:"abrasive_size_nm", l:"Abrasive Size D50", u:"nm", min:20, max:150, step:5, pk:"abrasive_size_nm",
-       dead:"입경 지수가 문헌 미확정(OCR 손상)이라 항을 만들지 않았다. 지어내는 대신 비워뒀다."},
-      {k:"oxidizer_wt_pct", l:"Oxidizer", u:"wt%", min:0, max:8, step:0.1, pk:"oxidizer_wt_pct",
-       dead:"이 팩(산화막/실리카)에는 산화제 파라미터가 없다. Cu/W 팩에서 활성화된다."},
-      {k:"inhibitor_mM", l:"Corrosion Inhibitor (BTA)", u:"mM", min:0, max:10, step:0.1, pk:"inhibitor_mM",
-       dead:"산화막 팩에 억제제가 없다 — Cu 팩(cu_h2o2_bta)에서 살아난다."},
+       hint:"Above ~7 wt% Luo–Dornfeld saturation: MRR stops rising in measured systems. That range is over-estimated."},
+      {k:"abrasive_d10_nm", l:"Particle Size D10", u:"nm", min:5, max:300, step:5, pk:null,
+       dead:"Recorded only. The engine consumes D50 (below) — no D10 term exists in the literature we hold."},
+      {k:"abrasive_size_nm", l:"Particle Size D50", u:"nm", min:5, max:300, step:5, pk:"abrasive_size_nm",
+       dead:"Size exponent unresolved in literature (OCR-damaged source) — no term built. Left blank rather than invented."},
+      {k:"abrasive_d90_nm", l:"Particle Size D90", u:"nm", min:5, max:600, step:5, pk:null,
+       weak:"Recorded. Δ (Damage) will use D90/D99 for large-particle scratch risk once that axis is wired."},
+      {k:"abrasive_mean_nm", l:"Particle Size Mean", u:"nm", min:5, max:300, step:5, pk:null,
+       dead:"Recorded only. Not consumed by the engine."},
+      {k:"abrasive_shape", l:"Particle Shape", special:"select", pk:null,
+       options:[["spherical","Spherical"],["cocoon","Cocoon (peanut, silica)"],["irregular","Irregular / Faceted (ceria, fumed)"],["aggregated","Aggregated"]],
+       dead:"Recorded only. Shape → contact-area term is not in the engine; literature we hold gives direction (non-spherical ↑ MRR & ↑ defects) but no calibrated exponent."},
+      {section:"Additives"},
+      {special:"additives"},
+      {k:"slurry_ph", l:"pH", u:"", min:0, max:14, step:0.1, pk:"slurry_ph",
+       hint:"Silica pack: peak at pH 11 (Li 2021). Ceria pack: electrostatic window 2.5–6.8, collapses past pH 6 (Dandu 2009). Outside measured range = extrapolation."},
     ]},
   pad:{ name:"③ Pad", icon:"▤",
     sub:"Pad sets both Contact (κ) and Slurry Transport (τ).",
     fields:[
-      {k:"pad_hardness_shore_d", l:"Hardness", u:"Shore D", min:35, max:80, step:1, pk:"pad_hardness_shore_d"},
+      {k:"pad_hardness_shore_d", l:"Hardness", u:"Shore D", min:0, max:100, step:1, pk:"pad_hardness_shore_d",
+       hint:"Full Shore D scale shown as requested. Real CMP pads occupy a narrower band — see Performance Factors below for the sourced product range; outside it the H^-1.5 law is extrapolation."},
       {k:"groove_width_um", l:"Groove Width", u:"µm", min:200, max:1200, step:25, pk:"groove_width_um",
        weak:"⚠ η는 600µm에서 정점이고 900µm에선 오히려 내려간다(Mu 2016 실측). 넓힐수록 좋지 않다. 실측범위 300~900µm 밖은 외삽하지 않고 끝값 고정."},
       {k:"pad_porosity_pct", l:"Porosity", u:"%", min:10, max:50, step:1, pk:"pad_porosity_pct",
@@ -134,7 +146,9 @@ const PARTS = {
       {k:"groove_depth_mm", l:"Groove Depth", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
        dead:"깊이는 아직 τ에 연결되지 않았다 — 확보된 문헌이 폭·기공률만 정량화했다. 값을 바꿔도 MRR이 안 변한다."},
       {k:"groove_pitch_mm", l:"Groove Pitch", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
-       dead:"간격도 미연결. 위와 같다."},
+       dead:"Pitch not wired to τ either — same as depth."},
+      {section:"Performance Factors (literature)"},
+      {special:"perf", part:"pad"},
     ]},
   disk:{ name:"④ Disk", icon:"◈",
     sub:"Conditioner disk. Geometry is a consumable (κ); downforce & sweep are tool set-points (Γ) — different axes, never mixed.",
@@ -144,20 +158,30 @@ const PARTS = {
       {k:"pad_asperity_radius_m", l:"Asperity Tip Radius", u:"m", min:1e-6, max:2e-5, step:1e-6,
        pk:"pad_asperity_radius_m", fmt:v=>v.toExponential(2),
        dead:"GW 접촉 모델(tier2.gw_physical_kp)에서만 살아난다. Preston 모델에선 안 쓰인다."},
+      {section:"Performance Factors (literature)"},
+      {special:"perf", part:"disk"},
     ]},
   wafer:{ name:"⑤ Wafer", icon:"◯",
     sub:"⚠ Wafer is the target film, not a tuning parameter. It is excluded from merged parameters and serves only as the baseline for post-polish performance.",
     fields:[
+      {section:"Wafer Selection"},
+      {k:"npw", l:"NPW (blanket test wafer)", special:"npw"},
       {k:"pack", l:"Film / Parameter Pack", special:"pack"},
-      {k:"initial_thickness_nm", l:"Initial Thickness", u:"nm", min:200, max:5000, step:50, special:"thick"},
-      {k:"wafer", l:"Wafer Type (NPW)", special:"wafertype"},
+      {section:"Initial State (pre-CMP)"},
+      {k:"initial_thickness_nm", l:"Initial Thickness (top film)", u:"nm", min:50, max:5000, step:10, special:"thick"},
+      {k:"initial_ttv_nm", l:"Initial TTV", u:"nm", min:0, max:2000, step:10, pk:null,
+       weak:"Recorded and used as the pre-CMP baseline for the post-polish comparison. The engine's TTV output is the polish-induced non-uniformity; final TTV = initial ⊕ polish-induced is not yet combined (needs an incoming-profile model)."},
+      {k:"initial_roughness_ra_nm", l:"Initial Roughness Ra", u:"nm", min:0, max:20, step:0.1, pk:null,
+       dead:"Recorded only. No literature model held that maps incoming Ra → MRR or final Ra."},
+      {k:"initial_bow_um", l:"Bow", u:"µm", min:-100, max:100, step:1, pk:null,
+       dead:"Recorded only. Bow → pressure-distribution coupling not modeled."},
     ]},
   data:{ name:"⑥ Data", icon:"📊",
     sub:"Every run is stored automatically. Drop measurement files (Excel/CSV) to store as-is; with ≥3 for a pack, a Kp calibration factor is computed.",
     fields:[ {special:"data"} ]},
 };
 
-const state = { pack:"oxide_silica", wafer:"NPW", time_s:60,
+const state = { pack:"oxide_silica", wafer:"NPW", time_s:60, recorded:{}, formulation:[],
                 initial_thickness_nm:1000, overrides:{}, base:{}, packs:[] };
 let current = "tool";
 
@@ -733,29 +757,46 @@ function drawPanel(){
         코드를 고치지 않는다.</div></div>`;
       continue;
     }
-    if(f.special==="wafertype"){
+    if(f.special==="npw"){
       h += `<div class="fld"><label><span>${f.l}</span></label>
-        <select id="sel-wafer">
-          <option value="NPW" ${state.wafer==="NPW"?"selected":""}>NPW — 블랭킷(패턴 없음)</option>
-          <option value="PTW" ${state.wafer==="PTW"?"selected":""}>PTW — 패턴 웨이퍼</option>
-        </select><div class="meta">PTW는 pattern_density 모델이 필요하다 —
-        아니면 NPW 등가로 계산되고 경고가 뜬다.</div></div>`;
+        <div id="npwBox"><div class="meta">Loading NPW catalog…</div></div></div>`;
+      continue;
+    }
+    if(f.special==="select"){
+      state.recorded = state.recorded||{};
+      const cur = state.recorded[f.k] ?? f.options[0][0];
+      h += `<div class="fld"><label><span>${f.l}</span></label>
+        <select id="s-${f.k}" data-k="${f.k}" class="recSel">${f.options.map(([v,l])=>
+          `<option value="${v}" ${v===cur?"selected":""}>${l}</option>`).join("")}</select>
+        ${f.dead?`<div class="meta dead">⚠ not wired: ${f.dead}</div>`:""}
+        ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
+        ${f.hint?`<div class="meta">${f.hint}</div>`:""}</div>`;
+      continue;
+    }
+    if(f.special==="perf"){
+      h += `<div id="perf-${f.part}"><div class="meta">Loading…</div></div>`;
+      continue;
+    }
+    if(f.special==="additives"){
+      h += `<div id="addBox"><div class="meta">Loading additive catalog…</div></div>`;
       continue;
     }
     const isTime = f.special==="time", isThick = f.special==="thick";
+    const recorded = f.pk===null;
     const cur = isTime ? state.time_s
               : isThick ? state.initial_thickness_nm
+              : recorded ? ((state.recorded||{})[f.k] ?? f.min)
               : num(f.k, f.min);
     const fmt = f.fmt || (v=>(+v).toFixed(String(f.step).includes(".")?2:0));
     h += `<div class="fld">
       <label><span>${f.l}</span><span class="val" id="v-${f.k}">${fmt(cur)} ${f.u||""}</span></label>
       <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${cur}">
-      ${f.dead?`<div class="meta dead">⚠ 미연결: ${f.dead}</div>`:""}
+      ${f.dead?`<div class="meta dead">⚠ not wired: ${f.dead}</div>`:""}
       ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
       ${f.hint?`<div class="meta">${f.hint}</div>`:""}
     </div>`;
   }
-  h += `<button class="btn" id="reset">기준 조건으로 되돌리기</button>`;
+  h += `<button class="btn" id="reset">Reset to baseline</button>`;
   document.getElementById("body").innerHTML = h;
 
   /* P/H 회전 두 슬라이더 — 각각 팩 키로 바인딩 */
@@ -779,6 +820,7 @@ function drawPanel(){
       document.getElementById("v-"+f.k).textContent = fmt(v)+" "+(f.u||"");
       if(f.special==="time") state.time_s = v;
       else if(f.special==="thick") state.initial_thickness_nm = v;
+      else if(f.pk===null){ state.recorded[f.k] = v; return; }   /* recorded only — never sent to engine */
       else state.overrides[f.k] = v;
       if(f.k==="groove_pitch_mm"||f.k==="groove_depth_mm")
         buildGrooves(num("groove_pitch_mm",3.05), num("groove_depth_mm",0.76));
@@ -786,12 +828,188 @@ function drawPanel(){
       run();
     };
   }
+  document.querySelectorAll(".recSel").forEach(sel=>{
+    sel.onchange = ()=>{
+      state.recorded[sel.dataset.k] = sel.value;
+      if(sel.dataset.k==="abrasive_type"){
+        /* 입자 종류는 팩을 정한다 — 자유 슬라이더가 아니다 */
+        const map = {ceria:"sti_ceria", colloidal_silica:"oxide_silica", fumed_silica:"oxide_silica"};
+        const target = map[sel.value];
+        if(target && state.packs.some(p=>p.id===target) && target!==state.pack){
+          state.pack = target; state.overrides = {}; boot();
+        }
+      }
+    };
+  });
+  if(document.getElementById("addBox")) drawAdditives();
+  if(document.getElementById("npwBox")) drawNPW();
+  for(const part of ["pad","disk"]) if(document.getElementById("perf-"+part)) drawPerf(part);
   const sp=document.getElementById("sel-pack");
   if(sp) sp.onchange=()=>{ state.pack=sp.value; state.overrides={}; boot(); };
   const sw=document.getElementById("sel-wafer");
   if(sw) sw.onchange=()=>{ state.wafer=sw.value; run(); };
   if(document.getElementById("drop")) wireDataTab();
   document.getElementById("reset").onclick=()=>{ state.overrides={}; drawPanel(); run(); };
+}
+
+/* ─────────────────────────────────────────── Performance factors (pad/disk) */
+async function drawPerf(part){
+  const box = document.getElementById("perf-"+part);
+  let d; try{ d = await (await fetch(API+"/api/performance/"+part)).json(); }catch(e){ box.innerHTML=`<div class="banner">${e.message}</div>`; return; }
+  if(!d.factors||!d.factors.length){ box.innerHTML=`<div class="meta dead">Performance factor study for ${part} not built yet (knowledge/performance/${part}.yaml). Research agent is populating it.</div>`; return; }
+  const arrow = dir => dir==="+"?"▲":dir==="-"?"▼":dir==="peak"?"⋀":"?";
+  const col = dir => dir==="+"?"var(--good)":dir==="-"?"#ff8a5c":"var(--dim)";
+  box.innerHTML = `<div class="meta" style="margin-bottom:4px">${d.factors.length} factors from literature/patents. <b>wired</b> = the engine responds to it; <b>not wired</b> = documented but no model term yet.</div>` +
+    d.factors.map(f=>`
+    <div style="border:1px solid #1b2430;border-radius:6px;padding:5px 8px;margin:4px 0;font-size:11px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <b>${f.label}</b>
+        <span class="tag ${f.status==="wired"?"modeled":"unmodeled"}" style="font-size:9px">${f.status||"?"}</span>
+        <span style="margin-left:auto;color:var(--dim)">${f.range?`${f.range.min}–${f.range.max} ${f.range.unit||""}`:""}${f.typical!=null?` · typ ${f.typical}`:""}</span></div>
+      <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:6px">
+        ${(f.affects||[]).map(a=>`<span title="${(a.source||"").replace(/"/g,"'")}" style="color:${col(a.direction)}">${arrow(a.direction)} ${a.metric}<span style="opacity:.6;font-size:9px"> ${a.strength||""}</span></span>`).join("")}</div>
+      ${f.range_source?`<div class="meta" style="opacity:.7">${f.range_source.slice(0,110)}</div>`:""}
+    </div>`).join("");
+}
+
+/* ─────────────────────────────────────────── NPW */
+async function drawNPW(){
+  const box = document.getElementById("npwBox");
+  if(!state.npwCat){
+    try{ state.npwCat = await (await fetch(API+"/api/npw")).json(); }
+    catch(e){ box.innerHTML=`<div class="banner">${e.message}</div>`; return; }
+  }
+  const W = state.npwCat.wafers||[];
+  if(!W.length){
+    box.innerHTML = `<div class="meta dead">NPW catalog not built yet (knowledge/wafers/npw_catalog.yaml). Research agent is populating it. Timeline uses a single film layer from the current pack.</div>`;
+    return;
+  }
+  const cur = state.npw || W[0].id;
+  const w = W.find(x=>x.id===cur)||W[0];
+  const stackRows = (w.stack||[]).map(L=>{
+    const packOk = L.pack && state.packs.some(p=>p.id===L.pack);
+    const tag = L.stop ? `<span class="tag" style="font-size:9px">stop</span>`
+              : packOk ? `<span class="tag modeled" style="font-size:9px">${L.pack}</span>`
+              : L.pack ? `<span class="tag unmodeled" style="font-size:9px" title="pack listed but not available">${L.pack}?</span>`
+              : `<span class="tag unmodeled" style="font-size:9px" title="No pack — polished only via previous layer's selectivity, or stops">no model</span>`;
+    return `<div style="display:flex;gap:6px;align-items:center;font-size:11px;padding:2px 0;border-bottom:1px dashed #1b2430">
+      <i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${L.color||'#7fb3ff'}"></i>
+      <b style="width:70px">${L.layer}</b><span style="width:70px;text-align:right">${L.thickness_nm>=100000?(L.thickness_nm/1000).toFixed(0)+" µm":L.thickness_nm+" nm"}</span>${tag}</div>`;
+  }).join("");
+  const init = w.initial||{};
+  const initRow = (k,label,unit)=>{ const v=init[k]; if(!v) return ""; 
+    return `<div class="meta">${label}: typical ${v.typical} ${unit}${v.range?` (${v.range[0]}–${v.range[1]})`:""} <span style="opacity:.6">[${(v.source||"").slice(0,50)}]</span></div>`; };
+  box.innerHTML = `
+    <select id="sel-npw">${W.map(x=>`<option value="${x.id}" ${x.id===w.id?"selected":""}>${x.label}</option>`).join("")}</select>
+    <div class="meta" style="margin:3px 0">${w.purpose||""}</div>
+    <div style="margin:4px 0">${stackRows}</div>
+    ${initRow("ttv_nm","TTV","nm")}${initRow("roughness_ra_nm","Ra","nm")}${initRow("bow_um","Bow","µm")}
+    <div class="meta" style="opacity:.7">[${(w.source||"").slice(0,80)}]</div>`;
+  document.getElementById("sel-npw").onchange = e=>{ state.npw = e.target.value; applyNPW(); };
+  if(!state.npw){ state.npw = w.id; applyNPW(false); }
+}
+
+function applyNPW(redraw=true){
+  /* NPW 선택 → 스택 + 첫 층 팩 + 초기 두께. CMP 퍼포먼스는 이 스택 기준으로 산출된다. */
+  const W = (state.npwCat||{}).wafers||[]; const w = W.find(x=>x.id===state.npw); if(!w) return;
+  const palette = ["#7fb3ff","#c9a86a","#e0906a","#9ad0a0","#b09ae0","#3a3f48"];
+  state.stack = (w.stack||[]).map((L,i)=>({name:L.layer, thickness_nm:L.thickness_nm, pack:L.pack||null, stop:!!L.stop, color:L.color||palette[i%palette.length]}));
+  const top = state.stack[0];
+  if(top){ state.initial_thickness_nm = top.thickness_nm; }
+  const init = w.initial||{};
+  if(init.ttv_nm) state.recorded.initial_ttv_nm = init.ttv_nm.typical;
+  if(init.roughness_ra_nm) state.recorded.initial_roughness_ra_nm = init.roughness_ra_nm.typical;
+  if(init.bow_um) state.recorded.initial_bow_um = init.bow_um.typical;
+  if(top && top.pack && state.packs.some(p=>p.id===top.pack) && top.pack!==state.pack){
+    state.pack = top.pack; state.overrides = {}; boot(); return;
+  }
+  if(redraw){ drawPanel(); run(); }
+}
+
+/* ─────────────────────────────────────────── Additives */
+async function drawAdditives(){
+  const box = document.getElementById("addBox");
+  if(!state.additives){
+    try{ state.additives = await (await fetch(API+"/api/additives")).json(); }
+    catch(e){ box.innerHTML=`<div class="banner">additive catalog: ${e.message}</div>`; return; }
+  }
+  const cat = state.additives;
+  if(!cat.chemicals || !cat.chemicals.length){
+    box.innerHTML = `<div class="meta dead">Additive catalog not built yet (knowledge/additives/catalog.yaml). Research agent is populating it.</div>`;
+    return;
+  }
+  state.formulation = state.formulation||[];   /* [{cat, chem_id, wt}] */
+  const packFilm = ((state.packs.find(p=>p.id===state.pack)||{}).film||"").toLowerCase();
+  const order = ["rr_booster","rr_inhibitor","oxidizer","corrosion_inhibitor","dispersant","defect_reducer","ph_adjuster","chelator","biocide"];
+  let h = "";
+  for(const ck of order){
+    const C = cat.categories[ck]; if(!C) continue;
+    const chems = cat.chemicals.filter(c=>(c.categories||[]).includes(ck));
+    const rows = state.formulation.filter(f=>f.cat===ck);
+    h += `<div style="border:1px solid #1b2430;border-radius:6px;padding:6px 8px;margin:5px 0">
+      <div style="display:flex;align-items:center;gap:6px">
+        <b style="font-size:12px">${C.label}</b>
+        ${C.needs_target_film?`<span class="tag" style="font-size:9px">target film shown</span>`:""}
+        <button class="btn addRow" data-cat="${ck}" style="margin-left:auto;padding:1px 7px;font-size:11px;margin-top:0">+ add</button></div>`;
+    rows.forEach((row,i)=>{
+      const chem = chems.find(c=>c.id===row.chem_id)||chems[0];
+      const rng = chem.typical_range||{};
+      const wired = chem.engine_key ? `<span class="tag modeled" title="engine key: ${chem.engine_key}">wired → ${chem.engine_key}</span>`
+                                    : `<span class="tag unmodeled" title="Recorded in the formulation but no engine term consumes it. Not a bug — no literature model held.">recorded only</span>`;
+      const films = (chem.target_films||[]).map(f=>{
+        const hit = packFilm && f.toLowerCase().includes(packFilm.split("_")[0]);
+        return `<span style="padding:0 4px;border-radius:3px;background:${hit?"#1f4a30":"#1b2430"};color:${hit?"var(--good)":"var(--dim)"}">${f}</span>`;
+      }).join(" ");
+      h += `<div style="margin:5px 0;padding:4px 0;border-top:1px dashed #1b2430;font-size:11px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <select class="chemSel" data-cat="${ck}" data-i="${i}" style="flex:1">${chems.map(c=>
+            `<option value="${c.id}" ${c.id===chem.id?"selected":""}>${c.name}${c.subtype?" ("+c.subtype+")":""}</option>`).join("")}</select>
+          <input type="number" class="chemWt" data-cat="${ck}" data-i="${i}" value="${row.wt ?? (rng.min ?? 0)}" step="${rng.unit==="mM"?0.5:0.05}" min="0"
+            style="width:64px;text-align:right;background:#0a0e14;border:1px solid #1b2430;border-radius:4px;color:var(--fg)">
+          <span style="color:var(--dim);width:32px">${rng.unit||"wt%"}</span>
+          <button class="btn delRow" data-cat="${ck}" data-i="${i}" style="padding:1px 6px;font-size:11px;margin-top:0">×</button></div>
+        <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+          ${C.needs_target_film?`<span style="color:var(--dim)">for:</span> ${films||"—"}`:""}
+          ${wired}
+          ${rng.min!=null?`<span style="color:var(--dim)">typical ${rng.min}–${rng.max} ${rng.unit||""}</span>`:""}</div>
+        <div class="meta" style="margin-top:2px">${chem.mechanism||""} <span style="opacity:.6">[${(chem.source||"").slice(0,60)}]</span></div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+  box.innerHTML = h;
+  box.querySelectorAll(".addRow").forEach(b=>b.onclick=()=>{
+    const chems = cat.chemicals.filter(c=>(c.categories||[]).includes(b.dataset.cat));
+    if(!chems.length) return;
+    state.formulation.push({cat:b.dataset.cat, chem_id:chems[0].id, wt:(chems[0].typical_range||{}).min ?? 0});
+    drawAdditives(); applyFormulation();
+  });
+  box.querySelectorAll(".delRow").forEach(b=>b.onclick=()=>{
+    const rows = state.formulation.filter(f=>f.cat===b.dataset.cat);
+    state.formulation.splice(state.formulation.indexOf(rows[+b.dataset.i]),1);
+    drawAdditives(); applyFormulation();
+  });
+  box.querySelectorAll(".chemSel").forEach(s=>s.onchange=()=>{
+    const rows = state.formulation.filter(f=>f.cat===s.dataset.cat);
+    rows[+s.dataset.i].chem_id = s.value; drawAdditives(); applyFormulation();
+  });
+  box.querySelectorAll(".chemWt").forEach(w=>w.onchange=()=>{
+    const rows = state.formulation.filter(f=>f.cat===w.dataset.cat);
+    rows[+w.dataset.i].wt = parseFloat(w.value)||0; applyFormulation();
+  });
+}
+
+function applyFormulation(){
+  /* 배합표 → 엔진 override. engine_key 있는 케미컬만 값이 넘어간다.
+     같은 키에 여러 케미컬이면 합산(같은 역할이므로). 나머지는 기록만. */
+  const cat = state.additives; if(!cat) return;
+  const keys = new Set(cat.chemicals.filter(c=>c.engine_key).map(c=>c.engine_key));
+  for(const k of keys) delete state.overrides[k];
+  for(const row of state.formulation){
+    const chem = cat.chemicals.find(c=>c.id===row.chem_id); if(!chem||!chem.engine_key) continue;
+    state.overrides[chem.engine_key] = (state.overrides[chem.engine_key]||0) + (row.wt||0);
+  }
+  run();
 }
 
 /* ─────────────────────────────────────────── 데이터 탭 */
