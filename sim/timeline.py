@@ -218,10 +218,16 @@ def run_timeline(layers: List[Layer], recipe_base: Recipe,
                         breakthrough[layers[li].name] = round(t, 3)
                     if li + 1 >= len(layers):
                         break
+                    # 정지층은 선택비 근사를 시도하지 않는다 — 시도하면 "기판에
+                    # selectivity 근사" 같은 거짓 노트가 남는다 (NPW 담당이 발견).
+                    if layers[li + 1].stop:
+                        li += 1
+                        exposed[i] = li
+                        break
                     nm = transitional_mrr(li, li + 1)
                     li += 1
                     exposed[i] = li
-                    if nm is None or layers[li].stop:
+                    if nm is None:
                         break
                     # 남은 budget은 다음 층 MRR 비율로 환산
                     ratio = float(nm[i]) / max(float(m[i]), 1e-12)

@@ -73,6 +73,15 @@ def test_empty_or_unmodeled_first_layer_raises():
         run_timeline([Layer("X", 100, None)], Recipe(pack="sti_ceria"), total_s=10)
 
 
+def test_no_false_selectivity_note_on_substrate():
+    """film → Si(stop) 직행 스택: 기판에 선택비 근사 노트가 찍히면 거짓이다."""
+    r = run_timeline([Layer("HDP", 300, "sti_ceria"), Layer("Si", 775000, None, stop=True)],
+                     Recipe(pack="sti_ceria"), total_s=120, dt_s=2)
+    assert r.endpoint_s is not None
+    assert not any("선택비" in n for n in r.notes)
+    assert all(f.remaining_nm[1][0] == 775000 for f in r.frames)
+
+
 def test_frame_cap():
     r = run_timeline(_sti(), Recipe(pack="sti_ceria"), total_s=10000, dt_s=0.5)
     assert len(r.frames) <= 401
