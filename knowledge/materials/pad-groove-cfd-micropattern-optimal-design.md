@@ -70,9 +70,9 @@ TEOS 2000nm SiO2/200mm 웨이퍼, POLI-500 폴리셔, platen/carrier 91/87 rpm, 
 범위인 한 층류 가정(Re≪2300)이 성립함을 아래에서 확인한다(정성적 sanity, 논문이 실제 유속을 표로
 주지 않아 정량 재현은 불가 — **미검증**: 정확한 CFD 입구 유속값).
 
-재현 요약(한 줄, Sadri Mofakham et al. 2024): DCA 5종 패턴 모두 문헌값 4.81–5.05% 근방으로 재현(Table I,
+재현 요약(한 줄): (Sadri Mofakham et al. 2024) DCA 5종 패턴 모두 문헌값 4.81–5.05% 근방으로 재현(Table I,
 설계 고정치 5%와 대조), DICL 순서 원 2.0 < 타원 3.38 < 사각-원 3.7 재현(Table I), 간극 70 µm 기준
-층류 상한유속 약 33 m/s로 sanity 확인(CMP 실제 유속 mm/s~수십 cm/s와 대조해 Re<2300 가정과 정합).
+층류 상한유속 약 33 m/s로 sanity 확인 (Sadri Mofakham et al. 2024, CMP 실제 유속 mm/s~수십 cm/s와 대조해 Re<2300 가정과 정합).
 
 ```python verify
 # Lv3-1 검증: (1) DCA/DICL 표 재현, (2) Re<2300 layer-flow 성립 range 확인, (3) MRR 방향성(DICL↑→RR↑)
