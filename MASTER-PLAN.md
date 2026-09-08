@@ -1396,3 +1396,17 @@ QA루프 #5 PASS(ρ=0.904, 격리 0, F2 미확보 6건은 20회차부터 집계)
 - **wafer-type Lv3-2** NPW→PTW 전이 규칙 정량화: Tugbawa Fig.3.19 21%차, Ouma D조건 PL 2.90mm(Park VMIC98 3–5mm 밖) 정직 기록. 구현요청 5건 PROFILE 등록. wafer-type 6/6 완주. → npw-ptw-transfer-rules-quantitative.md (출처 5건, verify 1블록)
 품질게이트(check_knowledge.py --all): 3편 전부 ✓. verify_claims: 3편 전부 통과.
 ORG §5 갱신: film-cu 2/6, film-oxide 3/6, wafer-type 6/6✓. 6/6완주 8명(신규 wafer-type).
+
+## 2026-09-09 01:xx [Max워커] S33 완료 — sim/tier2_physics/electrical_thickness_extraction.py 신설 (software/BACKLOG.md에서 선정)
+
+wafer-type 구현요청(전기 두께 추출) 처리. Park et al. 1999 라이너 보정식 T_M = ρ_Cu·L/(R·(W−2T_L)) + T_L
+`cu_thickness_from_resistance`, 라이너/Cu 저항비 `liner_parallel_resistance_ratio`, 병렬무시 오차
+`liner_neglect_error_fraction`/`is_liner_negligible`, Chang et al. 2004 dishing segment 모델
+`dishing_delta_R_fraction` 구현. 노트(product-wafer-proxy-metrics-virtual-metrology.md §3.1·§3.3, §6 verify
+(C)(D)) 정량값 그대로 재현 테스트 11건(R_L/R_Cu≈200 @ρ_Cu=2.0, ρ_Cu=1.7/2.0 오차<0.5%·ρ_Cu=2.2는 0.53%로
+경계초과 정직기록, Chang 표I w≥2µm 모델-측정 30%이내·w=0.4µm은 모델범위 밖 명시). engine 미등록(Recipe에
+전기측정 스키마 없음, S17 이하와 동일 지위).
+Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → 오케스트레이터(Max워커)가
+재검증(pytest 427 passed=기존416+신규11, git status로 승인 경로 외 파일 미접촉 확인) 후 커밋 41dffa9 +
+PROFILE.md 완료표기 1669c86, 둘 다 push.
+software/BACKLOG.md S33 완료 표기·완료표 이관.
