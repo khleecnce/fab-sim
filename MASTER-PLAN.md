@@ -1388,3 +1388,11 @@ agreement" 주장 수치로 확인. (2) Suratwala가 SIMS로 측정한 Bielby층
 film-oxide-hydration-layer-mechanism-cook-suratwala.md 신설, check_knowledge·verify_claims
 둘 다 통과. CURRICULUM 2/6, PROFILE·ORG §5 갱신(film-oxide 2/6).
 다음 회차: ORG §5 진도 최저 에이전트(film-cu 1/6이 film-oxide 2/6보다 낮음) 학습.
+
+## 2026-09-09 01:xx [심야병렬] 서브에이전트 3명 동시 학습 — film-cu Lv1-2 · film-oxide Lv2-1 · wafer-type Lv3-2
+QA루프 #5 PASS(ρ=0.904, 격리 0, F2 미확보 6건은 20회차부터 집계). Claude Code -p 3개 병렬(fable-5-1, max-turns 120).
+- **film-cu Lv1-2** Cu 전기화학: Cu-H2O Pourbaix(CRC E°→Nernst 정량 경계, Tamilmani 2005 그림 대조), H2O2 혼합전위, Cu(I)-BTA 막 XPS/QCM, 산화제-억제제 균형(MRR/SER 11.5). H2O2계 일반화는 미검증 표기. → cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md (출처 6건 실존, verify 3블록 통과)
+- **film-oxide Lv2-1** ILD CMP 평탄화: 글로벌/로컬, planarization length, Stine/Ouma 밀도기반 모델. → ild-cmp-planarization-global-local-density.md (출처 2건, verify 1블록)
+- **wafer-type Lv3-2** NPW→PTW 전이 규칙 정량화: Tugbawa Fig.3.19 21%차, Ouma D조건 PL 2.90mm(Park VMIC98 3–5mm 밖) 정직 기록. 구현요청 5건 PROFILE 등록. wafer-type 6/6 완주. → npw-ptw-transfer-rules-quantitative.md (출처 5건, verify 1블록)
+품질게이트(check_knowledge.py --all): 3편 전부 ✓. verify_claims: 3편 전부 통과.
+ORG §5 갱신: film-cu 2/6, film-oxide 3/6, wafer-type 6/6✓. 6/6완주 8명(신규 wafer-type).
