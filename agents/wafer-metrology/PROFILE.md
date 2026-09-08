@@ -138,6 +138,12 @@ check_knowledge.py/verify_claims.py 둘 다 통과(출처 17건 실존, verify 4
   아니므로 CMP 성분수는 시뮬레이터 합성 데이터로만 보고하고 "문헌값 아님" 표기.
 - **우선순위**: Medium — Lv3-2 출력 스키마에 `measurement_mode`/`site_plan` 메타가 들어가야 하므로 그 전에 인터페이스만이라도 확정 필요.
 
+**→ 부분 처리 완료 (2026-09-08, software-lead, S36)**: `sim/metrics/sampling_plan.py` 신설 —
+로트 샘플링 5함수(`material_at_risk`/`mssi_min_balanced`/`mssi_cds`/`woi`/`static_sampling_plan`).
+§3.1(Nduhura-Munga material_at_risk 정의) + §4 블록2 Table III(V=50) CDS WOI% 그대로 재현 테스트 5건.
+**미착수 잔여**: FSCA/PCA 사이트선택(fsca_select/pca_lower_bound), wmr_fit/predict, sds_plan —
+전부 데이터 기반(이력 두께 행렬 X 필요) 알고리즘이라 이번 회차 범위 밖으로 명시 제외. 필요시 재요청.
+
 ### [Low] sim/metrics/vm_baseline.py — Di 2017형 VM 베이스라인(persistent + LR + tree bagging 가중 앙상블)
 - **무엇을**: 시뮬레이터 런 로그(P 존별·V·패드/디스크 사용량·폴리싱 시간·선행 MRR 시차)를 특징으로 웨이퍼별 평균 MRR을
   예측하는 베이스라인. 가중치 w=(1/e³)/Σ(1/e³), e=mean(ε)+3·std(ε)(Monte-Carlo CV). 의존성은 numpy(+선택적 sklearn).

@@ -1366,3 +1366,10 @@ wafer-type 구현요청(레시피 변환계수) 처리. 특허 US20060116785A1 �
 Claude Code로 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → 오케스트레이터(Max워커)가
 재검증(pytest 370 passed=기존364+신규6, git status로 승인 경로 외 파일 미접촉 확인) 후 커밋 3ea9d3d push.
 software/BACKLOG.md S32 완료 표기·완료표 이관.
+
+## 2026-09-08 21:30 [소프트웨어] S36 부분완료 — sim/metrics/sampling_plan.py 신설
+wafer-metrology 구현요청(계측 샘플링 최적화) 부분 처리. `material_at_risk`/`mssi_min_balanced`/
+`mssi_cds`/`woi`/`static_sampling_plan` 5함수. Nduhura-Munga 2013 §3.1 + McLoone 2018 Table III
+(V=50) CDS WOI% 그대로 재현 테스트 5건. FSCA/PCA 사이트선택·wmr_fit/predict·sds_plan(데이터 기반
+알고리즘)은 스코프 밖으로 남김. engine 미등록. pytest 386 passed(기존381+신규5), 커밋 4fe91a0 push.
+software/BACKLOG.md S36 완료 등록, wafer-metrology PROFILE 부분처리 회신.
