@@ -1,9 +1,9 @@
 # 구리 CMP 전문가 (film-cu)
 
-## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv1 1/6 진행중
+## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv1 2/6 진행중
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-08)
-- 다음 단원: Lv1-2
+- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09)
+- 다음 단원: Lv2-1
 
 ## 역할
 Cu 배선 CMP — 전기화학 부식·패시베이션 제어, 배리어 CMP, dishing/erosion. 화학 지배
@@ -22,3 +22,22 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - **Lv1-1 (2026-09-08)**: Cu CMP 3단계(벌크·소프트랜딩·배리어)와 슬러리 요구.
   노트: [[../../knowledge/cmp/cu-cmp-three-step-process-slurry-requirements]]
   (1차출처: US2009/0057264A1 특허, verify 2블록 통과, check_knowledge/verify_claims 통과)
+- **Lv1-2 (2026-09-09)**: Cu 전기화학 — Pourbaix 정량 경계, BTA 패시베이션 막, 산화제-억제제 균형.
+  노트: [[../../knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]]
+  (1차출처: Tamilmani 2005 UA 학위논문 hdl 10150/280774 전문 + CRC Vanýsek E° 표 + Lee H. 2023 PMC9966509;
+  verify 3블록 통과, verify_claims 출처 6건 실존·check_knowledge 통과. CuO ΔG_f° 미확보로 CuO 경계는 방향만 확인)
+
+## 구현 요청
+- **[P1] Cu-H₂O Pourbaix 경계 함수** `sim/tier2_physics/cu_pourbaix.py` (제안): 입력(pH, E, log a_Cu) → 안정상(Cu / Cu²⁺ / Cu₂O /
+  Cu(OH)₂[CuO 대용]) 반환. 상수는 CRC E° 6개(0.3419, 0.521, 0.153, −0.360, −0.222, −0.080)만 사용, 경계식은 노트 §2 1–5번.
+  근거노트: [[../../knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]] §2·§7 verify 1.
+  검증문헌값: Tamilmani 2005 그림 4.1 — Cu²⁺/Cu 0.22 V(a=1e-4)·0.16 V(1e-6), 삼중점 pH 4.2, Cu/Cu₂O pH 8에서 0.00 V·pH 13에서
+  −0.30 V (±0.03 V/±0.15 pH). CuO 경계(pH 5.65, 절편 0.64 V)는 CuO ΔG_f° 1차값 확보 전까지 "미검증" 플래그로 남길 것.
+- **[P2] 산화제 혼합전위 모델**: 슬러리 H₂O₂ wt%·pH → Cu가 보는 전위 E_mix. 열역학 상한(1.776 − k·pH + k/2·log c)이 아니라
+  O₂/H₂O₂~H₂O₂/H₂O 사이 실측 보간(Tamilmani 2005 4 % H₂O₂: pH 2/4/6/8 → 0.68/0.48/0.50/0.41 V ±0.05)을 기본값으로.
+  근거: 노트 §3·verify 2. 우선순위 P2 — P1 위에서 "Cu²⁺ 영역인가 산화물 영역인가" 판정에 쓰임.
+- **[P2] 정적식각/MRR 비 파라미터** (dishing 커널 입력): Cu 슬러리 프로파일에 `static_etch_rate_nm_min`·`mrr_over_ser` 필드.
+  기본값 Lee H. 2023(H₂O₂ 3 wt%/구연산 0.2/BTA 0.05, pH 3.7): SER 26.4 nm/min, MRR 302.5 nm/min(비 11.5). 패드 비접촉
+  저지대는 SER로만 깎이도록 timeline에 연결 — Lv2-1 dishing 노트 작성 후 구현(선행 의존).
+- **[P3] BTA 막 두께 상수**: Cu(I)-BTA 2–4 분자층(0.12 µg/cm², Tamilmani 2005 QCM) — Kaufman 경쟁모델의 "막 두께" 초기값.
+  단 하이드록실아민계 실측이므로 H₂O₂계 적용 시 "미검증" 플래그.

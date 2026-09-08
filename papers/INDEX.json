@@ -335,5 +335,41 @@
   "doi": "10.1016/j.mser.2004.06.002",
   "src": "미러 사이트(미러 사이트)",
   "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
+ },
+ "kim2002-mee-pattern-nonpattern-correlation-sti-cmp": {
+  "src": "미러 사이트 storage (via 미러 사이트 lookup, 2026-09-09)",
+  "pdf": "papers/kim2002-mee-pattern-nonpattern-correlation-sti-cmp.pdf",
+  "doi": "10.1016/S0167-9317(01)00694-3",
+  "title": "Correlation analysis between pattern and non-pattern wafer for characterization of shallow trench isolation-chemical-mechanical polishing (STI-CMP) process",
+  "authors": "Sang-Yong Kim, Yong-Jin Seo",
+  "venue": "Microelectronic Engineering 60 (2002) 357-364",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+ },
+ "tugbawa2002-thesis-mit-chip-scale-cu-cmp": {
+  "src": "MIT DSpace REST API (server/api/core/bitstreams/.../content)",
+  "pdf": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf",
+  "handle": "1721.1/8083",
+  "title": "Chip-scale modeling of pattern dependencies in copper chemical mechanical polishing processes",
+  "authors": "Tamba E. Tugbawa",
+  "venue": "MIT PhD thesis, EECS, 2002",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+ },
+ "ouma1998-thesis-mit-cmp-dielectric-planarization": {
+  "src": "MIT DSpace REST API (scanned PDF, no text layer - pages rendered with fitz and read visually)",
+  "pdf": "papers/ouma1998-thesis-mit-cmp-dielectric-planarization.pdf",
+  "handle": "1721.1/9704",
+  "title": "Modeling of chemical mechanical polishing for dielectric planarization",
+  "authors": "Dennis Okumu Ouma",
+  "venue": "MIT PhD thesis, EECS, submitted Nov. 1998 (degree 1999)",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+ },
+ "tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion": {
+  "src": "Univ. of Arizona DSpace 7 REST API (item 7c7b4d98-e530-4336-bd04-1f533ea79f77, ORIGINAL bundle bitstream)",
+  "pdf": "papers/tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion.pdf",
+  "handle": "10150/280774",
+  "title": "Dissolution, corrosion and environmental issues in chemical mechanical planarization of copper",
+  "authors": "Subramanian Tamilmani (advisor: Srini Raghavan)",
+  "venue": "The University of Arizona PhD dissertation, 2005 (journal version of ch.4.1: Tamilmani et al. 2002 JES 149 G638, doi 10.1149/1.1516224 — not obtained)",
+  "note": "cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md — Cu-H2O/Cu-BTA potential-pH diagrams (fig 4.1, 4.4 read visually), XPS Cu(I)-BTA, QCM BTA multilayer kinetics"
  }
 }
