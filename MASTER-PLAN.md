@@ -1341,3 +1341,16 @@ knowledge/cmp/wafer-metrology-output-schema-site-flatness-standards.md 신설. G
 wafer-metrology 7명. M2(Phase 0 Tier2 완결, 2026-10-05)까지 진행 중. 다음 회차: ORG §5에서 진도 최저
 에이전트(wafer-type/surface-contamination/pad-material/pad-lifecycle/tool-platen-head/pad-structure/
 disk-kinematics — 전부 5/6 Lv3-1 완료 상태) 중 표 순서 최우선을 학습.
+
+
+## 2026-09-08 20:xx [성장엔진] film-oxide Lv1-1 이수 — 옥사이드 막 종류·경도·수화층 기초
+Wei et al. 2010(IEEE WMED, DOI 10.1109/wmed.2010.5453755) 나노압입 실측(8종 SiO2계 막)과
+Cook 1990(J.Non-Cryst.Solids, DOI 10.1016/0022-3093(90)90200-6) 화학-기계 결합 모델을 원문
+확보(미러 사이트 경유)해 정리. 핵심: 도핑막(BPSG/PSG)의 CMP 제거속도가 미도핑막보다 높은 이유는
+"경도 감소가 아니라 도핑 화학 자체"(Wei 2010 명시적 부정), 미도핑막 내에서만 경도-제거율
+역상관 성립. Cook의 Hertzian 순수기계 모델은 실측 Kp를 1자릿수 이상 과대예측 — 화학 항 필수
+근거. 수화층 정량(두께)은 원문 후반부 미확인으로 Lv1-2 이월. knowledge/materials/
+film-oxide-teos-hdp-bpsg-sod-density-hardness.md 신설, check_knowledge·verify_claims 둘 다
+통과. CURRICULUM 1/6, PROFILE·ORG §5 갱신(film-oxide 1/6).
+현재 6/6 완주 7명 유지, film-oxide·film-cu(둘 다 1/6)가 신규 최하위. 다음 회차: ORG §5
+진도표 기준 최저 에이전트(film-oxide Lv1-2 또는 표 순서상 film-cu) 학습.
