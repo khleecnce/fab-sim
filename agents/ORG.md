@@ -34,14 +34,14 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   ├─ wafer-type                      [활성, G1 2026-09-06]  NPW(블랭킷) vs PTW(패턴) — 시험 목적·데이터 해석 차이
 │   │   ├─ film-oxide                      [활성, G1 2026-09-08]  TEOS/HDP/SiO2 — ILD·STI CMP
 │   │   ├─ film-nitride                    [활성, G3 2026-09-09]  SiN — STI stop layer·선택비
-│   │   ├─ film-poly-si                    [대기]  Poly-Si — 게이트·3D NAND
+│   │   ├─ film-poly-si                    [활성, G3 2026-09-10]  Poly-Si — 게이트·3D NAND
 │   │   ├─ film-cu                         [활성, G1 2026-09-08]  Cu — 배선, dishing/erosion, 부식
 │   │   ├─ film-w                          [활성, G2 2026-09-09]  W — 플러그·contact, 산화제 화학
 │   │   └─ film-emerging                   [대기]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
 │   │
 │   ├─ 장비 (Equipment)
 │   │   ├─ tool-platen-head                [활성, G2 2026-09-07]  플래튼·헤드·존압력·리테이너링
-│   │   ├─ tool-endpoint                   [대기]  EPD: 광학·모터전류·와전류
+│   │   ├─ tool-endpoint                   [활성, G3 2026-09-10]  EPD: 광학·모터전류·와전류
 │   │   └─ tool-post-clean                 [대기]  Post-CMP 세정·브러시·결함
 │   │
 │   ├─ 물리 (Physics) — 횡단
