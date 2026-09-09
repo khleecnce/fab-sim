@@ -6,7 +6,7 @@ source: >
   원 단위 Å/min → ÷10으로 nm/min 환산.
   https://patents.google.com/patent/US20110186542A1/en
 in_scope: true
-used_for_calibration: false
+used_for_calibration: true   # 2026-09-09: w_fe_oxidizer 팩의 oxidizer_* 5개를 이 표에서 역산 — 자기 채점 금지
 pack: w_fe_oxidizer
 
 # 공정조건(특허 EXAMPLES 도입부에 인쇄된 값):

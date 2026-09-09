@@ -20,9 +20,6 @@ conditions:
     read_method: table
     overrides:
       oxidizer_wt_pct: 0.0
-      oxidizer_ref_wt_pct: 4.06
-      oxidizer_peak_wt_pct: 3.0
-      oxidizer_curve_n: 2.0
   - label: "H2O2 2.03 wt% (Example 3, Fe 60 ppm)"
     pressure_psi: 4.0
     rpm_wafer: 101
@@ -31,9 +28,6 @@ conditions:
     read_method: table
     overrides:
       oxidizer_wt_pct: 2.03
-      oxidizer_ref_wt_pct: 4.06
-      oxidizer_peak_wt_pct: 3.0
-      oxidizer_curve_n: 2.0
   - label: "H2O2 4.06 wt% (Example 2, Fe 5 ppm)"
     pressure_psi: 4.0
     rpm_wafer: 101
@@ -42,9 +36,6 @@ conditions:
     read_method: table
     overrides:
       oxidizer_wt_pct: 4.06
-      oxidizer_ref_wt_pct: 4.06
-      oxidizer_peak_wt_pct: 3.0
-      oxidizer_curve_n: 2.0
   - label: "H2O2 4.07 wt% (Example 1, Fe 1180 ppm)"
     pressure_psi: 4.0
     rpm_wafer: 101
@@ -53,9 +44,6 @@ conditions:
     read_method: table
     overrides:
       oxidizer_wt_pct: 4.07
-      oxidizer_ref_wt_pct: 4.06
-      oxidizer_peak_wt_pct: 3.0
-      oxidizer_curve_n: 2.0
   - label: "H2O2 6.10 wt% (Example 4, Fe 60 ppm)"
     pressure_psi: 4.0
     rpm_wafer: 101
@@ -64,9 +52,6 @@ conditions:
     read_method: table
     overrides:
       oxidizer_wt_pct: 6.10
-      oxidizer_ref_wt_pct: 4.06
-      oxidizer_peak_wt_pct: 3.0
-      oxidizer_curve_n: 2.0
 notes: >
   변수 = H2O2 농도(0 → 2.03 → 4.06 → 4.07 → 6.10 wt%). 압력·회전수·패드·시간은 전부 동일.
   단위 환산: 원문 Å/min → nm/min (÷10). 96 / 1,508 / 2,396 / 2,410 / 2,965 Å/min.

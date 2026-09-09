@@ -125,6 +125,14 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
     ref = float(SC.mrr_oxidizer(C_ref, C_peak, mrr_peak=1.0, n=n))
     if ref <= 0:
         return None
+    # 기계적 바닥(mechanical floor): 산화제 0에서도 순수 연마로 MRR이 남는 계가 있다.
+    # W/Fe·H2O2 특허 실시예(US20110186542A1, 15조건)에서 H2O2 0 wt%의 MRR이 3 wt% 대비
+    # 12~19%로 일정하게 관측됐다 — Kaufman 단봉은 C=0에서 0이라 이를 못 담는다.
+    # floor가 팩에 없으면 0(기존 거동 그대로) — 있는 팩만 바뀐다.
+    floor = float(pack.get_or("oxidizer_mech_floor", 0.0))
+    if floor > 0:
+        cur = floor + (1.0 - floor) * cur
+        ref = floor + (1.0 - floor) * ref
     return cur / ref
 
 
