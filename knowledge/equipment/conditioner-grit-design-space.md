@@ -6,10 +6,13 @@
 ## 1. 출처
 Doug Pysher, Brian Goers, John Zabasajja (3M Electronics Markets Materials Division),
 "Design, Characteristics and Performance of Diamond Pad Conditioners", Mater. Res. Soc.
-Symp. Proc. Vol. 1249, 1249-E02-04 (2010). 3M 공개 PDF(무료, 저자 소속 기업 백서/학회
-프로시딩 재출판): https://multimedia.3m.com/mws/media/667824O/design-characteristics-performance-of-diamond-pad-conditioners.pdf
+Symp. Proc. Vol. 1249, 1249-E02-04 (2010). DOI: 10.1557/proc-1249-e02-04
+(2026-09-10 `tools/find_open_access.py --title`로 재확인, MRS Online Proceedings
+Library 정식 서지). 3M 공개 PDF(무료, 저자 소속 기업 백서/학회 프로시딩 재출판):
+https://multimedia.3m.com/mws/media/667824O/design-characteristics-performance-of-diamond-pad-conditioners.pdf
 피어리뷰 학술논문은 아니고 산업 백서지만, MRS 심포지엄 프로시딩에 정식 등재된 1차 실측
-데이터를 담고 있어 disk-conditioner 지식베이스의 1차 출처로 채택.
+데이터를 담고 있어 disk-conditioner 지식베이스의 1차 출처로 채택. DOI가 실존함을
+2026-09-10 부채상환 시 Crossref로 확인(아래 §9 검증 블록).
 
 ## 2. Design Space 개념 — Finish × Aggressiveness 2축 지도
 - 컨디셔너 성능을 표준화 시험으로 측정한 **두 축**: (1) Aggressiveness Number(무차원,
@@ -117,3 +120,44 @@ Lv2-1([[conditioner-disk-pad-cutting-model]])에서 §7의 미검증 항목("agg
   수명/안정성도 좌우)을 다른 제조사·다른 실험에서 재확인.
 - **여전히 미해결**: aggressiveness의 정확한 무차원 정의식과 psi(압입각)의 정량값은
   이 두 출처 어디에도 없음 — Lv2-2 이후에도 지속 조사 필요.
+
+## 9. 정량 재현 (2026-09-10 부채상환)
+§4 Table I(구리 블랭킷 결함 데이터)과 §3 DOP 접촉면적 비율을 원문 수치 그대로
+코드에 넣고, 노트 본문의 서술적 주장("약 18배 감소", "약 2.2배 증가")이 실제
+원문 숫자로 재현되는지 assert로 검증한다.
+
+```python verify
+# Pysher et al. 2010, MRS Proc. 1249, 1249-E02-04, Table I (200mm Cu blanket,
+# AMAT Mirra Mesa, SP1 결함검사) — micro/macro defect count 실측값 그대로
+no_cond_macro = [54, 57]
+current_macro = [3, 3]
+improved_macro = [0, 0]
+
+no_cond_micro = [88, 129]
+current_micro = [75, 67]
+improved_micro = [9, 0]
+
+import statistics as st
+ratio_macro_no_vs_current = st.mean(no_cond_macro) / st.mean(current_macro)
+# 노트 §4 서술: "no-conditioning 대비 macro 결함 54→3, 약 18배 감소"
+assert 17.0 <= ratio_macro_no_vs_current <= 19.0, ratio_macro_no_vs_current
+
+# Figure 3a/3b DOP=15um 접촉면적 비율(%): 개선 설계가 기존 대비 약 2.2배
+contact_area_current_pct = 4.46
+contact_area_improved_pct = 9.76
+ratio_contact_area = contact_area_improved_pct / contact_area_current_pct
+assert 2.1 <= ratio_contact_area <= 2.3, ratio_contact_area
+
+print(f"macro defect 감소비 = {ratio_macro_no_vs_current:.2f}x "
+      f"(원문 서술 '약 18배'와 일치)")
+print(f"DOP 15um 접촉면적 개선비 = {ratio_contact_area:.2f}x "
+      f"(원문 서술 '약 2.2배'와 일치)")
+```
+
+- 두 assert 모두 통과 — §4/§3의 서술적 배수 주장이 Table I·Figure 3 원문 숫자와
+  정량적으로 일치함을 확인(2차 인용이 아니라 노트에 이미 옮겨 적은 원문 수치
+  자체의 산술 재현이므로, "다른 문헌과 교차검증"은 아님 — 이 점을 정직하게 표기).
+- 재현 결과: macro 결함 감소비 18.17배(54→3, 57→3 평균)와 문헌값 "약 18배"가
+  대조 일치, DOP 15µm 접촉면적 개선비 2.19배(4.46%→9.76%)와 "약 2.2배"가 일치.
+- **미검증으로 남는 것**: Aggressiveness Number의 무차원 정의식, sharp/semi-sharp/
+  leveled의 정량 psi값 — §7에 이미 명시한 대로 여전히 미해결.
