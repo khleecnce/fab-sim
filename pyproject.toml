@@ -27,6 +27,10 @@ web = [
     "fastapi>=0.110,<1",
     "uvicorn[standard]>=0.27,<1",
 ]
+# 모바일 접속 런처 (tools/mobile.py) — QR 코드 출력용. 없으면 URL만 보여준다.
+mobile = [
+    "segno>=1.6,<2",
+]
 # 개발·검증
 dev = [
     "pytest>=7.4,<9",

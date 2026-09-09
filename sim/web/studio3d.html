@@ -2,7 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0f14">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>FabSim — CMP Simulator</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
@@ -17,7 +22,7 @@
        overflow:hidden}
   #app{display:flex;height:100vh}
   #view{flex:1;position:relative;min-width:0}
-  canvas{display:block}
+  canvas{display:block;touch-action:none}   /* 터치 제스처를 브라우저가 스크롤로 가로채지 않게 */
   #crumb{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;
          background:rgba(11,15,20,.78);padding:6px 11px;border-radius:7px;border:1px solid var(--line);z-index:3}
   #crumb .lv{color:var(--accent);cursor:pointer} #crumb .lv:hover{text-decoration:underline}
@@ -78,6 +83,51 @@
        border-radius:6px;font-weight:700;cursor:pointer;font-size:12px;margin-top:6px}
   .banner{background:#2a1f14;border:1px solid #4a3a20;color:var(--warn);
           padding:8px 10px;border-radius:6px;font-size:11px;margin-bottom:12px;line-height:1.5}
+
+  /* ══ 모바일 (≤820px 또는 세로 태블릿) ═════════════════════════════
+     데스크톱은 좌 3D / 우 패널 2단인데, 폰에서 그대로 두면 패널 400px가
+     화면의 대부분을 먹고 3D가 손톱만해진다. 세로로 쌓고 3D를 상단에 고정한다.
+     터치 조작은 아래 script의 pointer/touch 핸들러가 담당한다.
+     ⚠ 슬라이더·탭은 손가락 타겟이라 44px 가까이 키운다 — 데스크톱 값(9px 패딩)
+     그대로 두면 실기에서 옆 탭이 눌린다. */
+  /* 3D를 크게 보고 싶을 때 패널을 접는다 (모바일 전용 버튼)
+     ⚠ 이 기본 규칙은 반드시 @media보다 **앞에** 와야 한다. 뒤에 두면 같은
+     명시도에서 나중 규칙이 이겨 미디어쿼리의 display:flex를 덮어버린다
+     (실제로 모바일 스모크에서 버튼이 안 보였다). */
+  #mtoggle{display:none;position:absolute;right:14px;bottom:14px;z-index:5;
+           align-items:center;gap:6px;padding:9px 13px;border-radius:20px;
+           background:rgba(19,26,35,.92);border:1px solid var(--line);
+           color:var(--fg);font-size:12px;font-weight:600;cursor:pointer}
+  body.panel-collapsed #view{height:calc(100vh - 46px)}
+  body.panel-collapsed #side{flex:0 0 46px;overflow:hidden}
+
+  @media (max-width: 820px), (max-height: 520px) and (orientation: landscape){
+    #app{flex-direction:column}
+    #view{height:44vh;min-height:220px;flex:none;border-bottom:1px solid var(--line)}
+    /* 폰에서는 패널을 **하나의 스크롤 기둥**으로 만든다.
+       데스크톱처럼 body와 out을 각각 스크롤시키면 out이 자기 자연 높이(결과 20여 줄)를
+       차지해 슬라이더가 든 body가 0px로 눌린다 — 실제로 첫 렌더에서 컨트롤이
+       통째로 사라졌다. flex:none + 바깥 스크롤이 정답이다. */
+    #side{width:100%;flex:1;min-height:0;border-left:0;overflow-y:auto;
+          -webkit-overflow-scrolling:touch}
+    #body{flex:none;overflow:visible;padding:12px 12px 4px}
+    #out{flex:none;max-height:none;overflow:visible}
+    #tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;
+          position:sticky;top:0;background:var(--panel);z-index:4}
+    .tab{flex:0 0 auto;padding:12px 14px;font-size:12px;min-width:0}
+    input[type=range]{height:30px}
+    select,input[type=number],input[type=text]{font-size:16px;padding:9px}  /* iOS 자동 확대 방지: 16px 미만이면 확대된다 */
+    .btn{padding:14px;font-size:14px}
+    /* 설명 카드가 3D의 절반을 덮으면 장비가 안 보인다 — 접어두고 탭하면 편다.
+       ⚠ Controls 버튼과 같은 우하단을 쓰면 겹친다 — 카드 오른쪽을 비워 둔다. */
+    #card{max-width:none;right:150px;font-size:11px;max-height:2.9em;overflow:hidden;
+          pointer-events:auto;cursor:pointer}
+    #card.open{max-height:60%;overflow-y:auto;right:14px;bottom:56px}
+    #hint{display:none}
+    #label{display:none !important}   /* 호버 라벨은 터치에서 의미 없다 */
+    #crumb{font-size:12px;padding:5px 9px}
+    #mtoggle{display:flex}
+  }
 </style>
 </head>
 <body>
@@ -89,6 +139,7 @@
     <div id="card"></div>
     <div id="cleanBadge">Cleaning: visualization only — no defect/particle model wired</div>
     <div id="label"></div>
+    <div id="mtoggle">▤ <span id="mtoggleTxt">Controls</span></div>
   </div>
   <div id="side">
     <div id="tabs"></div>
@@ -1123,6 +1174,22 @@ crumbEl.querySelector("[data-lv='0']").onclick = ()=>goLevel(0);
 cutBtn.onclick = ()=>{ cutaway = !cutaway; updateUI(); };
 addEventListener("keydown", e=>{ if(e.key==="Escape"){ if(level!==0||focusId) goLevel(0); } });
 
+/* 모바일: 패널 접기 — 폰에서 3D가 44vh밖에 안 되니 크게 볼 통로가 필요하다.
+   Esc 키가 없는 기기를 위해 뒤로가기는 crumb의 "Whole Tool"이 담당한다. */
+{
+  const mt = document.getElementById("mtoggle"), mtx = document.getElementById("mtoggleTxt");
+  mt.onclick = ()=>{
+    const on = document.body.classList.toggle("panel-collapsed");
+    mtx.textContent = on ? "Show controls" : "Controls";
+    setTimeout(resize, 260);        // CSS 전환이 끝난 뒤 캔버스 크기를 다시 잡는다
+  };
+  // 설명 카드는 모바일에서 2줄로 접혀 있다 — 탭하면 펼친다
+  cardEl.addEventListener("click", ()=>cardEl.classList.toggle("open"));
+}
+/* 주소창 접힘/회전으로 뷰포트가 바뀌면 캔버스가 늘어난 채 남는다 — 다시 잰다 */
+addEventListener("orientationchange", ()=>setTimeout(resize, 350));
+if(window.visualViewport) visualViewport.addEventListener("resize", ()=>setTimeout(resize, 60));
+
 /* 셸 페이드: 레벨/hover/컷어웨이에 따른 블록별 목표 불투명도 */
 function shellGoals(){
   const g = {fi:1, cl:1, pm:1, cab:1};
@@ -1187,6 +1254,52 @@ rend.domElement.addEventListener("click",e=>{
   else if(p.proxy && level===0) goFocus(p.proxy.userData.id);
   else if(p.proxy && level===2) setCard(p.proxy.userData.id);
 });
+
+/* ── 터치 조작 ────────────────────────────────────────────────
+   모바일에서 mousedown/wheel은 발생하지 않는다(합성 클릭만 온다). 그래서
+   1손가락 = 궤도 회전, 2손가락 핀치 = 줌, 짧은 탭 = 선택을 따로 붙인다.
+   ⚠ canvas에 touch-action:none이 걸려 있어야 브라우저가 스와이프를 페이지
+   스크롤로 가로채지 않는다(CSS 참조). preventDefault만으로는 부족하다.
+   ⚠ 탭 판정은 이동거리 + 시간을 함께 본다 — 거리만 보면 길게 눌러 회전을
+   시도하다 손이 안 움직인 경우가 선택으로 오인된다. */
+let tDrag=false, tx=0, ty=0, tStartX=0, tStartY=0, tStartT=0, pinchD=0;
+function _td(e){ const a=e.touches[0], b=e.touches[1];
+  return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY); }
+rend.domElement.addEventListener("touchstart",e=>{
+  if(e.touches.length===1){
+    tDrag=true; const t=e.touches[0];
+    tx=tStartX=t.clientX; ty=tStartY=t.clientY; tStartT=performance.now();
+  } else if(e.touches.length===2){
+    tDrag=false; pinchD=_td(e);
+  }
+  lastInteract = performance.now(); flying=false;
+},{passive:true});
+rend.domElement.addEventListener("touchmove",e=>{
+  if(e.touches.length===2 && pinchD>0){
+    e.preventDefault();
+    const d=_td(e), z=ZOOM[level];
+    camGoal.dist = THREE.MathUtils.clamp(camGoal.dist*(pinchD/d), z[0], z[1]);
+    pinchD=d; lastInteract=performance.now(); flying=false; return;
+  }
+  if(!tDrag || e.touches.length!==1) return;
+  e.preventDefault();
+  const t=e.touches[0];
+  camGoal.yaw -= (t.clientX-tx)*0.007;
+  camGoal.pitch = THREE.MathUtils.clamp(camGoal.pitch+(t.clientY-ty)*0.007, 0.06, 1.45);
+  tx=t.clientX; ty=t.clientY; lastInteract=performance.now(); flying=false;
+},{passive:false});
+rend.domElement.addEventListener("touchend",e=>{
+  const wasDrag=tDrag; tDrag=false; pinchD=0;
+  if(!wasDrag || e.changedTouches.length!==1) return;
+  const t=e.changedTouches[0];
+  const moved=Math.hypot(t.clientX-tStartX, t.clientY-tStartY);
+  const held=performance.now()-tStartT;
+  if(moved>12 || held>600) return;                       // 회전 제스처였다
+  const p = pickAny({clientX:t.clientX, clientY:t.clientY}); if(!p) return;
+  if(p.part) select(p.part);
+  else if(p.proxy && level===0) goFocus(p.proxy.userData.id);
+  else if(p.proxy) setCard(p.proxy.userData.id);
+},{passive:true});
 rend.domElement.addEventListener("mousemove",e=>{
   if(drag){ labelEl.style.display="none"; return; }
   const p = pickAny(e);

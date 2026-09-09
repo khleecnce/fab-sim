@@ -16,6 +16,7 @@
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -40,6 +41,38 @@ import sim.slots as S  # noqa: E402
 from sim.recipe_builder import load_schemas, to_overrides, coverage  # noqa: E402
 
 app = FastAPI(title="FabSim API", version="0.3.0")
+
+
+# ── 접근 토큰 (터널로 외부에 노출할 때만 켜진다) ─────────────────────────
+# FABSIM_TOKEN이 없으면 미들웨어 자체를 붙이지 않는다 — 사내 LAN에서 쓰는
+# 기본 경로에 로그인 벽을 세우지 않기 위해서다. 반대로 cloudflare 터널로
+# 공개 URL이 생기는 순간 인증이 없으면 **누구나 시뮬레이터와 런 DB를 연다.**
+# 그래서 mobile 런처는 터널 모드에서 토큰을 강제한다.
+_TOKEN = os.environ.get("FABSIM_TOKEN", "").strip()
+if _TOKEN:
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.responses import PlainTextResponse, RedirectResponse
+
+    class _TokenGate(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            if request.url.path in ("/api/health", "/icon.svg",
+                                    "/manifest.webmanifest"):
+                return await call_next(request)
+            if request.cookies.get("fabsim_token") == _TOKEN:
+                return await call_next(request)
+            q = request.query_params.get("t")
+            if q == _TOKEN:
+                # 쿼리로 한 번 들어오면 쿠키를 심어 이후 요청(API 호출 포함)을 통과시킨다.
+                # 이게 없으면 첫 화면만 뜨고 /api/simulate가 전부 401이 된다.
+                url = str(request.url.remove_query_params("t"))
+                r = RedirectResponse(url, status_code=302)
+                r.set_cookie("fabsim_token", _TOKEN, max_age=60 * 60 * 24 * 30,
+                             httponly=True, samesite="lax")
+                return r
+            return PlainTextResponse("FabSim: 접근 토큰이 필요합니다 (?t=...)",
+                                     status_code=401)
+
+    app.add_middleware(_TokenGate)
 
 
 class SimRequest(BaseModel):
@@ -510,6 +543,42 @@ def studio3d():
     if _STUDIO3D.exists():
         return _STUDIO3D.read_text()
     raise HTTPException(404, "studio3d.html 없음")
+
+
+@app.get("/manifest.webmanifest")
+def manifest():
+    """PWA 매니페스트 — 폰에서 '홈 화면에 추가'하면 주소창 없는 전체화면 앱이 된다.
+
+    3D 뷰가 44vh밖에 안 되는 폰에서 사파리 주소창·툴바가 차지하는 ~150px는 크다.
+    standalone 표시 모드가 그걸 없앤다. 아이콘은 의존성 없이 인라인 SVG로 낸다.
+    """
+    from fastapi.responses import JSONResponse
+    return JSONResponse({
+        "name": "FabSim — CMP Simulator",
+        "short_name": "FabSim",
+        "start_url": "/3d",
+        "scope": "/",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#0b0f14",
+        "theme_color": "#0b0f14",
+        "icons": [{"src": "/icon.svg", "sizes": "any", "type": "image/svg+xml",
+                   "purpose": "any maskable"}],
+    }, media_type="application/manifest+json")
+
+
+@app.get("/icon.svg")
+def icon():
+    from fastapi.responses import Response
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">'
+        '<rect width="512" height="512" rx="96" fill="#0b0f14"/>'
+        '<circle cx="256" cy="272" r="150" fill="none" stroke="#243141" stroke-width="26"/>'
+        '<circle cx="256" cy="272" r="96" fill="none" stroke="#4da3ff" stroke-width="26"/>'
+        '<circle cx="256" cy="272" r="30" fill="#4da3ff"/>'
+        '<rect x="176" y="86" width="160" height="34" rx="17" fill="#5ddc9a"/>'
+        '</svg>')
+    return Response(svg, media_type="image/svg+xml")
 
 
 @app.get("/", response_class=HTMLResponse)
