@@ -820,7 +820,14 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     f.status = "partial"
     f.confidence = "unverified"
     f.notes.append(f"⚠ 손상 지수 n={n:g}는 문헌 폐형식이 없어 팩에서 받는 가정값이다. "
-                   "순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라.")
+                   "순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. "
+                   "⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) "
+                   "회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/"
+                   "abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: "
+                   "lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 "
+                   "선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 "
+                   "1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 "
+                   "PROFILE.md에 기록).")
     return f
 
 

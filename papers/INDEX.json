@@ -538,5 +538,12 @@
     "journal": "Applied Surface Science 253 (2007) 8489-8494",
     "confidence": "doi",
     "note": "knowledge/cmp/particle-size-mrr-molecular-scale-bai2007.md"
+  },
+  "us8439995-hitachi-ceria-d99-scratch": {
+    "src": "Google Patents (free public patent PDF)",
+    "pdf": "https://patentimages.storage.googleapis.com/53/4b/0a/39916f60c1d021/US8439995.pdf",
+    "landing": "https://patents.google.com/patent/US8439995B2/en",
+    "local": "papers/US8439995-hitachi-ceria-d99-scratch.pdf",
+    "note": "Hitachi Chemical 세리아 CMP 슬러리 특허 — Example 1/2, Comparative 1/2에서 D50/D99/scratch count 4점 실측"
   }
 }

@@ -35,6 +35,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   경도·형상·Hertz 압입은 미착수 — Lv2-1 잔여.
   다음 단원: Lv1-1(입자 종류별 제조법) 또는 Lv2-1 나머지(경도·Hertz).
 
+- Lv2-1 계속 (2026-09-09): D99-스크래치 정량 함수형 확보 —
+  knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md
+  (US8439995B2, Hitachi Chemical — 세리아 D50/D99/스크래치 4점 실측, 원문 PDF 확보).
+  거듭제곱 회귀 n≈1.44(R²=0.997) — 현재 sim/factors.py `_f_delta` 기본값 n=3.0보다
+  약 2배 가파름. lpc-scratch-density-tail-correlation(선형)과 방향 일치(교차확증).
+  factors.py docstring에 근거 기록(코드 로직·기본값은 표본 부족으로 유지, 지수 교체는
+  구현 요청으로 남김).
+
 ## 구현 요청
 1. **Δ 팩터 형태 재검토** (우선순위: 중, 선행조건: 팩에 abrasive_d99_nm 확보 필요)
    - 무엇을: `sim/factors.py::_f_delta`를 거듭제곱 `(d99/d99_ref)^n` 대신 임계 초과 선형
@@ -58,3 +66,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      D50 50-80nm/D99<200nm(비율 2.5~4.0). 일반 슬러리 세대별 D99/D50 비율 통합 관측범위
      1.82~5.00배로 확장(Levitronix/Silco 2008 컨퍼런스자료 추가, 근거:
      knowledge/cmp/abrasive-d99-alumina-search-and-generic-ratio.md).
+
+3. **Δ damage_exponent 하향 조정 검토** (우선순위: 중, 신규 2026-09-09)
+   - 무엇을: `sim/factors.py::_f_delta`의 `damage_exponent` 기본값 3.0 → 1.4~1.5 범위 검토.
+   - 근거 노트: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3
+     (US8439995B2 4점 회귀, n=1.444, R²=0.997) + lpc-scratch-density-tail-correlation.md
+     (Remsen 2006, fumed silica, 선형=n≈1 근방) — 두 독립 문헌·화학종이 n=3.0보다
+     훨씬 완만한 지수를 지지.
+   - 검증에 쓸 문헌값: US8439995B2 Example1(D99=700nm,scratch=20), Example2(500nm,10),
+     Comparative1/2(2500nm,100).
+   - 선행 필요: 여전히 abrasive_d99_nm이 5개 팩 어디에도 없어 no-op — 지수를 먼저
+     바꿔도 예측 변화 없음. D99 팩 스펙 확보(특히 알루미나 계열)가 여전히 최우선.

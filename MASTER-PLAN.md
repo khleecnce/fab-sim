@@ -1609,3 +1609,7 @@ bagging/딥러닝 신규구현 없음(브리핑 명시 금지). Claude Code 위�
 .night_parallel*·papers/*·build/·dist/·tools/check_npw_catalog.py) 미접촉 확인 후 신규 2파일만
 커밋(214154d)+push. wafer-metrology PROFILE 완료 표기(c243e52), software/BACKLOG.md S37 완료표 갱신.
 wafer-metrology 수신함 완전 소진(S35/S36/S37 전부 처리). 남은 수신함: wafer-type S34(스키마 확장 필요).
+
+## 2026-09-09 22:15 [성장엔진] slurry-abrasive Δ 팩터 n값 문헌 재검토
+
+정확도루프 UNMODELED delta 갭(score=100) 처리. Hitachi 특허 US8439995B2(세리아 D50/D99/스크래치 4점 실측)에서 D99-스크래치 거듭제곱 회귀 n≈1.44(R²=0.997) 확보 — 현재 sim/factors.py `_f_delta` 기본값 n=3.0보다 약 2배 가파름을 확인, lpc-scratch-density-tail-correlation.md(선형)과 방향 일치(교차확증). factors.py docstring에 근거 기록(기본값은 표본 부족으로 유지, 지수 교체는 구현요청). knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md 신규(check_knowledge/verify_claims 통과), pytest 483 passed, qa_loop --strict PASS(유의 평균 ρ=0.9235). abrasive_d99_nm 부재로 팩터는 여전히 no-op — 다음 과제는 D99 팩 스펙 확보(특히 알루미나계, 3회 연속 미확보).
