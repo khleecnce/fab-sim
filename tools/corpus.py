@@ -359,8 +359,17 @@ def extract_one(c, doc_id: str) -> Dict[str, Any]:
 
 # ───────────────────────────────────────────── 큐 / 상태
 def next_item(c, stage: str, skip_attempts: int = 3) -> Optional[Dict]:
+    """fetch 단계는 **전문 확보 가능성**이 우선이다 — PMC id·특허번호가 있는 문서는 무료 전문이
+    보장되고, DOI만 있는 것은 대부분 유료 랜딩이라 실패한다(첫 실행 8/150 성공 → 이 순서로 수정).
+    learn 단계는 추출 점수(priority) 순."""
+    if stage == "fetch":
+        order = ("CASE WHEN d.pmcid IS NOT NULL THEN 0 WHEN d.patent IS NOT NULL THEN 1 "
+                 "WHEN d.oa_url LIKE '%europepmc%' THEN 2 WHEN d.oa_url IS NOT NULL THEN 3 ELSE 4 END, "
+                 "d.relevance DESC, q.ts ASC")
+    else:
+        order = "q.priority DESC, d.relevance DESC, q.ts ASC"
     r = c.execute("SELECT q.*, d.title, d.kind, d.relevance FROM queue q JOIN documents d ON d.id=q.doc_id "
-                  "WHERE q.stage=? AND q.attempts<? ORDER BY q.priority DESC, d.relevance DESC, q.ts ASC LIMIT 1",
+                  f"WHERE q.stage=? AND q.attempts<? ORDER BY {order} LIMIT 1",
                   (stage, skip_attempts)).fetchone()
     return dict(r) if r else None
 
