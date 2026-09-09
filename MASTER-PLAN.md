@@ -1465,3 +1465,7 @@ papers/US20220315802A1.txt 확보·대조 통과).
 커밋 71e2c67, push 완료.
 
 다음 갭(--next): UNMODELED delta(손상 유발도) — 5개 팩 공통 미모델링.
+
+[소프트웨어] 2026-09-09 09:30: surface-contamination PROFILE의 SEO2001 출처 정정 요청 처리(BACKLOG S38) —
+metal_contamination_surface.py의 Fe 수치를 Seo 2001 원문 근거로 오귀속했던 것을 "출처 불명"으로 정직 재표기.
+pytest 443 passed, 커밋 ee4aff5.

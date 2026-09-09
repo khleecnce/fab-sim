@@ -55,4 +55,6 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   → competitive_langmuir_surface 또는 SCM(Sun 2007 Table 4.1: 2 OH/nm², pKa1 5.9, pK1 4.35, pK2 8.22) × boltzmann_surface_enrichment(Lv1-1, S15) → residual_after_clean.
   검증: 노트 §6(B) — 비정전 SCM은 pH 6 흡착 8.4 %로 실측 50 %에 미달, Boltzmann 11배(|ψ|≈31 mV, ζ −17 mV와 방향 정합)를 곱해야 함을 테스트로 고정.
   Recipe에 pH·킬레이트·금속농도 필드가 없으므로(ARCHITECTURE §4 스키마 부채) engine 등록은 하지 말고 순수함수 라이브러리로.
-- **[Lv3-2 정정 요청 · 우선순위 상] `metal_contamination_surface.py` SEO2001 상수 출처 정정** — Seo 2001(doi:10.1023/A:1011242900843) 원문 확인 결과 W-CMP Fe 1.5e12/1e11 수치가 본문에 없음(논문은 KOH 슬러리 산화막 CMP의 K·Ca: PE-TEOS K≈1e12, O3-BPSG K≈3e13, dHF 3 nm 후 ≈2e10). 코드 주석·docstring의 출처를 '출처 불명·미검증(2차 요약 오귀속)'으로 바꾸고, 필요하면 K 값(1e12, Seo 2001 Fig.1b·2 판독)으로 교체할 것. 근거: knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm.md §5.1, Lv1-1 노트 §2 추기.
+- **[Lv3-2 정정 요청 · 우선순위 상] `metal_contamination_surface.py` SEO2001 상수 출처 정정** ✅ 2026-09-09 완료
+  (software/BACKLOG.md S38, `SEO2001`→`FE_ORDER_OF_MAGNITUDE_UNVERIFIED` 개명 + "출처 불명" 정직 표기,
+  하위호환 별칭 유지, 커밋 ee4aff5) — Seo 2001(doi:10.1023/A:1011242900843) 원문 확인 결과 W-CMP Fe 1.5e12/1e11 수치가 본문에 없음(논문은 KOH 슬러리 산화막 CMP의 K·Ca: PE-TEOS K≈1e12, O3-BPSG K≈3e13, dHF 3 nm 후 ≈2e10). 코드 주석·docstring의 출처를 '출처 불명·미검증(2차 요약 오귀속)'으로 바꾸고, 필요하면 K 값(1e12, Seo 2001 Fig.1b·2 판독)으로 교체할 것. 근거: knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm.md §5.1, Lv1-1 노트 §2 추기.
