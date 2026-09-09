@@ -1554,3 +1554,18 @@ PROFILE/ORG.md §5(1.8/6)/EXAMS.md(Q6-8) 갱신.
 다음 갭(--next): 여전히 UNMODELED delta. 알루미나 D99 확보 접근 전환 필요(JP5204226B2 Table 1
 구조화 재파싱 또는 텅스텐 CMP 논문 SI). 3회 연속 실패 시 다음 회차엔 다음 갭(S 시간 안정성)으로
 전환 고려.
+
+## 2026-09-09 [성장엔진] RESPONSE_DEAD cu_h2o2_bta/입자크기 — Bai2007 D^-1.5 배선 시도 → QA FAIL로 철회 (트랙 A, 정확도루프+QA루프)
+
+정확도갭 1순위(RESPONSE_DEAD, cu_h2o2_bta/입자크기, n=18)를 처리. Bai et al. 2007(Appl. Surf.
+Sci. 253, 8489-8494, doi:10.1016/j.apsusc.2007.04.027, 미러 사이트 원문 확보)에서 §3.2 폐형식 결론
+(단일입자 제거율∝D^0.5, 활성입자수∝D^-2 ⇒ MRR∝D^-1.5)을 확인해
+knowledge/cmp/particle-size-mrr-molecular-scale-bai2007.md 신규(verify_claims·check_knowledge
+둘 다 통과, verify 블록 2개로 지수 재현 + TW202115224A 실측과의 방향 충돌을 정직하게 assert).
+cu_h2o2_bta.yaml에 abrasive_size_exponent=-1.5 실제 배선(코드 무변경, 팩 파라미터만 추가) 후
+qa_loop.py --strict 실행 → FAIL: tw202115224a_cu_abrasive_size_pressure가 p=0.0007(유의)에서
+p=0.7605(비유의)로 퇴보. 사용자 지시(QA FAIL=커밋 금지) 준수해 git checkout으로 되돌림
+(cu_h2o2_bta.yaml, sim/sensitivity.py, tests/test_sensitivity.py 원복). 지식노트만 커밋 —
+§7.5에 실패 원인(입자 형상 혼입 가설)과 재시도 방향(형상 파라미터 분리) 기록. pytest 459 passed
+(회귀, 원복 확인). 다음 갭 후보: 같은 RESPONSE_DEAD를 형상 분리 접근으로 재시도하거나
+--skip으로 넘어가 Δ(손상 유발도)/S(시간안정성) UNMODELED로 전환.

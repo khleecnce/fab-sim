@@ -528,5 +528,15 @@
     "authors": "Evonik Operations GmbH",
     "venue": "제조사 기술문서, 2025-08",
     "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — KE50/70/90/125 Z-average 입경만 공개, D99 미공개(참고자료)"
+  },
+  "bai2007-apsusc-cu-mrr-molecular-scale-particle-size-conc": {
+    "src": "미러 사이트(미러 사이트 via 미러 사이트)",
+    "pdf_local": "papers/apsusc-2007-04-027-zhao-chang-mrr-molecular-scale.pdf",
+    "doi": "10.1016/j.apsusc.2007.04.027",
+    "title": "A mathematical model for material removal and chemical-mechanical synergy in chemical-mechanical polishing at molecular scale",
+    "authors": "J. Bai, et al.",
+    "journal": "Applied Surface Science 253 (2007) 8489-8494",
+    "confidence": "doi",
+    "note": "knowledge/cmp/particle-size-mrr-molecular-scale-bai2007.md"
   }
 }
