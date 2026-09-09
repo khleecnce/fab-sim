@@ -145,6 +145,14 @@ check_knowledge.py/verify_claims.py 둘 다 통과(출처 17건 실존, verify 4
 전부 데이터 기반(이력 두께 행렬 X 필요) 알고리즘이라 이번 회차 범위 밖으로 명시 제외. 필요시 재요청.
 
 ### [Low] sim/metrics/vm_baseline.py — Di 2017형 VM 베이스라인(persistent + LR + tree bagging 가중 앙상블)
+
+**→ 완료 (2026-09-09, software-lead, S37)**: `sim/metrics/vm_baseline.py` 신설 — Di 2017형 가중 앙상블
+유틸(`mc_cv_weight`/`weighted_ensemble_predict`), 베이스라인 예측기(`PersistentPredictor`,
+`linear_regression_baseline`), US9240360 VM신뢰도 가중(`vm_confidence_weight`, PROVISIONAL).
+§2.2 블록1/§2.4 블록4 그대로 재현 테스트 8건. engine 미등록(FDC 시계열 스키마 없음). SVR/tree
+bagging/딥러닝은 노트 §2.2에 있지만 실제 모델 구현 없이 상대순위(persistent<knn)만 재현 —
+필요 시 재요청.
+
 - **무엇을**: 시뮬레이터 런 로그(P 존별·V·패드/디스크 사용량·폴리싱 시간·선행 MRR 시차)를 특징으로 웨이퍼별 평균 MRR을
   예측하는 베이스라인. 가중치 w=(1/e³)/Σ(1/e³), e=mean(ε)+3·std(ε)(Monte-Carlo CV). 의존성은 numpy(+선택적 sklearn).
 - **근거노트**: 같은 노트 §2.2·§4 블록 1·4.
