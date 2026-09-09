@@ -1648,3 +1648,19 @@ QA루프 #16 PASS(격리 0, 유의 평균 ρ=0.9349). 대상: 0/6 유일 병목 
 
 품질게이트(오케스트레이터 직접 재검증): 신규 3편 verify_claims·check_knowledge 각 1/1 통과. 전체 check_knowledge --all = 90/100(✗10편 전부 기존 반려분, 신규 무관). ORG §5 3행·CURRICULUM [x]·PROFILE(구현요청 P2/P3)·EXAMS·papers/INDEX.json 갱신. agents/.source_cache.json·disk-design/PROFILE.md는 다른 크론 미커밋분이라 커밋 제외.
 누적: cmp-data-engineer 2/6, slurry-chemistry 2/6, film-w 2/6.
+
+## 2026-09-10 [Max워커] software-lead: wafer-type S34 PTW VM 입력 스키마 완료
+
+software/BACKLOG.md 수신함 S34(우선순위 중) 처리. `sim/calibration/` 디렉토리 신설(신규), `ptw_vm_schema.py`에
+`PTWVMInput` dataclass(product_id/layer/die_density_mean/local_density/prev_layer_topography/e_test_R_ohm/
+forced_measurement_flag/mrr_lag(1~11개 리스트로 통합 — 11개 개별 필드 대신 스키마 폭발 방지)/
+consumable_usage_neighbors), `validate_ptw_vm_input`(경고 리스트: 밀도범위·"레이아웃 정보 전무→NPW와 구분 안 됨"·
+lag 길이·저항 음수), `is_npw_equivalent`(노트 §5.3 결론 문장 그대로 판정 함수화). 근거:
+knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md §5.3, agents/wafer-type/PROFILE.md 구현요청 항목4.
+테스트 13건 신규(tests/test_ptw_vm_schema.py). Claude Code 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지
+브리핑) → Max워커가 pytest 502 passed(기존489+신규13) 직접 재검증, git diff로 sim/engine.py(Recipe/WaferResult)
+무수정 확인, git status로 다른 크론 미커밋 파일(agents/.source_cache.json·agents/disk-design/PROFILE.md·
+validation/ledger.jsonl·.night_parallel*·papers/*·build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후
+신규 3파일+PROFILE.md만 커밋(7056281)+push. software/BACKLOG.md S34 완료표 갱신(커밋 해시 반영).
+engine 미등록(VM 입력 스키마이지 물리 시뮬레이션 입력 아님, S17 이하와 동일 지위). wafer-type 수신함 완전 소진
+(S30~S34 전부 처리).
