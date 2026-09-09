@@ -19,8 +19,13 @@
   계산하는 함수만 제공하고, 레시피→오염량 예측 모델은 미완이다.
 
 미검증 사항 (두 노트 §7 그대로, 지어내지 않음):
-  - Fe·K·Ca atoms/cm² 수치(세정 전 1~2e12, 세정 후 <1e11)는 Seo et al. 2001
-    (doi:10.1023/A:1011242900843) 2차 요약/초록 기반 — 원문 표값·측정조건 미검증.
+  - Fe atoms/cm² 수치(세정 전 1~2e12, 세정 후 <1e11)는 **출처 불명·미검증(2차 요약 오귀속)**.
+    post-cmp-metallic-contamination-sources.md §7 2026-09-09 추기: Seo et al. 2001
+    (doi:10.1023/A:1011242900843) 원문 PDF를 실제 확보해 확인한 결과, 그 논문은 KOH 슬러리
+    산화막 CMP의 K·Ca 잔류(PE-TEOS K≈1e12, O₃-BPSG K≈3e13 등, §3.1)를 다루며 Fe 수치는
+    본문에 아예 없다 — 아래 SEO2001 딕셔너리 이름과 값을 그 논문 것으로 표기한 것은 오귀속.
+    수치 자체(오더값)는 삭제하지 않고 정직하게 "출처 불명"으로 남긴다(precmp_to_spec_ratio()의
+    입력 예시로서 오더 감각은 유효하나, Seo 2001을 근거로 인용하지 말 것).
   - 허용치 1e10 atoms/cm²는 ITRS 2.0 각주[14] "FEP 스펙 1E10"으로 1차 확정됐으나
     노드·금속종별 정확 표값(IRDS FEP 표)은 미확보.
   - boltzmann_surface_enrichment()는 균일 확산이중층 Boltzmann 근사 — pH 의존 **방향**만
@@ -51,11 +56,14 @@ ITRS_FEP_SPEC_ATOMS_CM2 = 1e10  # ITRS 2.0 각주[14] FEP 표면금속 스펙 (i
 # sources.md §6(C) — SiO₂ IEP≈2, pH↑ → ζ 더 음성. 정성 대표값(절대 흡착량 미검증)
 ZETA_MV_BY_PH = {"IEP(pH~2)": 0.0, "약산성": -20.0, "중성": -40.0, "약알칼리": -60.0}
 
-# sources.md §6(B) — Seo et al. 2001, doi:10.1023/A:1011242900843 (2차 요약, 원문 표값 미검증)
-SEO2001 = {
-    "fe_asdep_atoms_cm2": 1.5e12,   # 세정 전 (100~200)e10 의 중앙값
-    "fe_clean_atoms_cm2": 1e11,     # 세정 후 <10e10
+# sources.md §6(B) — 출처 불명·미검증(2차 요약 오귀속, 2026-09-09 정정).
+# 이름은 관례상 유지하지만 Seo et al. 2001(doi:10.1023/A:1011242900843)의 본문 수치가 아니다 —
+# 원문 확보 결과 그 논문은 KOH 슬러리 산화막 CMP의 K·Ca(PE-TEOS/O3-BPSG)를 다루며 Fe 값이 없다.
+FE_ORDER_OF_MAGNITUDE_UNVERIFIED = {
+    "fe_asdep_atoms_cm2": 1.5e12,   # 세정 전 (100~200)e10 의 중앙값 — 출처 불명
+    "fe_clean_atoms_cm2": 1e11,     # 세정 후 <10e10 — 출처 불명
 }
+SEO2001 = FE_ORDER_OF_MAGNITUDE_UNVERIFIED  # 하위호환 별칭(기존 호출부·테스트 유지용, 출처 아님)
 # irds-limits.md §7(B) — 세정 전 W-CMP Fe 잔류 범위 (Lv1-1 §2, 2차 인용)
 W_CMP_FE_PRECMP_LOW_ATOMS_CM2 = 1e12
 W_CMP_FE_PRECMP_HIGH_ATOMS_CM2 = 2e12
