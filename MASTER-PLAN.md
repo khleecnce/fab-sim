@@ -1502,3 +1502,19 @@ PROFILE/CURRICULUM/EXAMS/ORG.md §5 갱신(slurry-abrasive 1.5/6).
 
 다음 갭(--next): 여전히 UNMODELED delta — 각 팩(cu_h2o2_bta 등) 실제 화학종의 제조사 스펙시트
 D99 확보가 남은 선행 조건. 그 다음 순위 UNMODELED S(시간 안정성, 5팩).
+
+## 2026-09-09 13:xx [Max워커] 소프트웨어 부문 S29 — disk-design 활성 그릿 비율 모델
+
+software/BACKLOG.md 수신함에서 disk-design 구현요청 항목4(S29, 활성 그릿 비율 `f_active`) 처리.
+`sim/tier2_physics/disk_active_grit_fraction.py` 신설(균일분포 f_a=engage_depth/(h_hi-h_lo),
+CVD단일높이 f_a=1.0, N_eff=f_a·N_total, RCADD/CDD 유효비 2.8배 원자료 산술 재현, 종합함수).
+근거: knowledge/equipment/cvd-diamond-disk-patterned-grit-array.md §2 verify·§3.2·§7·§8.
+Kim&Kang2011(DOI 10.1016/j.ijmachtools.2011.02.008) 균일분포 40-90µm→5/10/15µm침투=10/20/30%,
+Tsai2014(DOI 10.1155/2014/913812) RCADD 유효비 484/10000÷432/25000≈2.8배 그대로 재현 테스트 9건.
+engine 미등록(Recipe에 디스크 스펙 필드 없음, S17/S26과 동일 지위).
+
+Claude Code 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → Max워커가 pytest
+452 passed(기존443+신규9) 직접 재검증, verify_claims.py --trace 상수 근거 미달 발견(정규식이
+인라인 주석 못 찾음) 직접 수정해 통과, git status로 다른 크론 미커밋 파일(.night_parallel*·
+papers/*·build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만 커밋(cb2db15)+push.
+software/BACKLOG.md S29 완료 표기·완료표 이관, agents/disk-design/PROFILE.md 구현요청§4 완료 취소선.

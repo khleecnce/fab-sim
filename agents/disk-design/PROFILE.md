@@ -124,7 +124,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    - 무엇을: conditioner_asperity_population_balance 계열 코드가 이 규칙을 기본값으로
      쓰고 있다면 "문헌 수치와 10⁴배 불일치, 미검증" 주석과 함께 캘리브레이션 입력으로 강등.
    - 근거 노트: 같은 노트 §2.7, §3.4(c).
-4. **활성 그릿 비율 모델 `f_active(protrusion_pdf, engage_depth)`** (우선순위: 중, Lv3-2 절삭 모델 입력)
+4. ~~**활성 그릿 비율 모델 `f_active(protrusion_pdf, engage_depth)`**~~ ✅ 9/9 완료(software/BACKLOG.md S29, `sim/tier2_physics/disk_active_grit_fraction.py`, 커밋 cb2db15)
    - 무엇을: 디스크 돌출 높이 PDF(균일 40–90 µm / 단일 높이 / 측정 히스토그램)와 최고 그릿 기준 침투
      깊이 δ → f_a = P(h > h_max − δ), N_eff = f_a·N_total을 conditioner-disk-pad-cutting-model의 그릿 밀도
      항에 곱하는 훅. δ는 캘리브레이션 파라미터.
