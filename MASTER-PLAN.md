@@ -1613,3 +1613,14 @@ wafer-metrology 수신함 완전 소진(S35/S36/S37 전부 처리). 남은 수�
 ## 2026-09-09 22:15 [성장엔진] slurry-abrasive Δ 팩터 n값 문헌 재검토
 
 정확도루프 UNMODELED delta 갭(score=100) 처리. Hitachi 특허 US8439995B2(세리아 D50/D99/스크래치 4점 실측)에서 D99-스크래치 거듭제곱 회귀 n≈1.44(R²=0.997) 확보 — 현재 sim/factors.py `_f_delta` 기본값 n=3.0보다 약 2배 가파름을 확인, lpc-scratch-density-tail-correlation.md(선형)과 방향 일치(교차확증). factors.py docstring에 근거 기록(기본값은 표본 부족으로 유지, 지수 교체는 구현요청). knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md 신규(check_knowledge/verify_claims 통과), pytest 483 passed, qa_loop --strict PASS(유의 평균 ρ=0.9235). abrasive_d99_nm 부재로 팩터는 여전히 no-op — 다음 과제는 D99 팩 스펙 확보(특히 알루미나계, 3회 연속 미확보).
+
+## 2026-09-10 01:xx [심야병렬] 서브에이전트 3명 동시 학습 — slurry-chemistry Lv1-1 · film-w Lv1-1 · film-nitride Lv1-1
+
+0/6 병목 3명(전원 활성·G2/G3 신규 개방, 성장엔진이 건드린 slurry-abrasive·film-cu와 비중복)을 claude -p opus 3병렬 위임. 각자 다음 미이수 1단원만 깊게.
+- **slurry-chemistry Lv1-1** 산화제 화학(H2O2·KIO3·Fe(NO3)3 E°·분해·금속적합성) → knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md (출처 1건 실존, verify 3블록). 구현요청 2건(P2/P3) PROFILE 등록.
+- **film-w Lv1-1** W CMP WO3 형성-제거 순환·산화제별 차이 → knowledge/cmp/w-cmp-wo3-passivation-oxidizer-kaufman.md (출처 3건 실존, verify 3블록). Tamboli1999 초록만/WO3밀도 핸드북값 미검증 정직표기.
+- **film-nitride Lv1-1** LPCVD/PECVD SiN 물성·CMP 제거난이도 → knowledge/materials/film-nitride-lpcvd-pecvd-properties-cmp.md (출처 7건 실존, verify 3블록). Zheng2013 경도 2차인용 표기.
+
+품질게이트(오케스트레이터 직접 재검증): 신규 3편 verify_claims·check_knowledge 각 1/1 통과. 전체 check_knowledge --all = 87/97(✗10편은 전부 기존 반려분, 신규 3편 무관). ORG §5 3행·CURRICULUM [x]·PROFILE·EXAMS·INDEX 갱신. disk-design/PROFILE.md는 소프트웨어 크론 미커밋분이라 커밋 제외.
+QA루프 #15 PASS(격리 0, 유의 평균 ρ 0.9349). 코퍼스: fetch 5/60 성공(나머지 유료/403 봉쇄), extract 완료, 큐 fetch 2106·learn 177.
+누적: slurry-chemistry 1/6, film-w 1/6, film-nitride 1/6.

@@ -3,7 +3,7 @@
 > 규칙: 순서대로 학습. 단원마다 ①출처 있는 지식노트(knowledge/) ②자기시험 3문항+답(EXAMS.md) ③가능하면 수식의 코드 재현.
 > 유료 논문은 미러 사이트 활용(사용자 지시 9/5). 출처 없는 수치는 '미검증' 표기.
 
-- [ ] Lv1-1 SiN 막 종류(LPCVD/PECVD)와 물성, CMP 제거 난이도
+- [x] Lv1-1 SiN 막 종류(LPCVD/PECVD)와 물성, CMP 제거 난이도 (2026-09-10, knowledge/materials/film-nitride-lpcvd-pecvd-properties-cmp.md)
 - [ ] Lv1-2 나이트라이드 정지층 메커니즘: 세리아 슬러리 선택비 화학
 - [ ] Lv2-1 STI 나이트라이드 손실·디싱과 공정 윈도우
 - [ ] Lv2-2 나이트라이드 직접 CMP: 하드마스크·게이트 응용
