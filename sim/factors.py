@@ -825,10 +825,22 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
 
 
 def _f_stab(rr: "ResolvedRecipe") -> Factor:
-    """S 시간 안정성 — 연속 연마 중 MRR 드리프트.
+    """S 시간 안정성 — 컨디셔닝 없는 연속 연마 중 MRR 드리프트(로그감쇠).
 
-    패드 마모·glazing, 디스크 그릿 탈락, 슬러리 응집이 함께 만든다.
-    ⚠ 현재 엔진은 단발 런만 계산한다 — 시간축이 없다.
+    출처: Jeong, Shin, Jeong, Jeong, Jeong (2024), "Novel Probability Density
+    Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
+    1817, doi:10.3390/ma17081817 (PMC11051262, 전문 확보). Fig.9 정규화 MRR
+    (IC1000 패드·콜로이달 실리카·SiO2 블랭킷·컨디셔닝 없이 1~10분 연속연마,
+    2/5 psi 두 조건 pooled)를 rate=a+b·ln(t[min]) 로그감쇠 회귀(R²=0.74,
+    지식노트 knowledge/materials/pad-glazing-mechanism-mrr-decay.md §4(D)가
+    로그형이 선형보다 우수함을 별도로 확인)로 피팅해 시간축 인자로 편입.
+    기준 조건(Recipe 기본 time_s=60s=1 min)에서 정확히 1.0 — ln(1)=0.
+
+    ⚠ 도메인 한계: (1) 원 데이터는 실리카/IC1000 단일계이며 세리아·알루미나
+    슬러리·다른 패드로의 외삽은 미검증(confidence=estimated로 강등).
+    (2) 1~10분 범위 밖은 clamp(외삽 금지, 값 고정). (3) 이 회귀는 무-컨디셔닝
+    단발 연마의 초기 드리프트만 담는다 — 컨디셔닝 사이클·패드 수명(수십 시간)
+    누적 마모는 여전히 미모델링(담당 R3-pad×R4-disk, 실데이터 없음).
     """
     f = _new("stab")
     pk = rr.pack
@@ -838,11 +850,42 @@ def _f_stab(rr: "ResolvedRecipe") -> Factor:
                 f.drivers[k] = float(pk.get(k))
             except (TypeError, ValueError):
                 pass
+
+    t_min = rr.time_s / 60.0
+    f.drivers["time_s"] = rr.time_s
+
+    # Jeong et al. 2024 Fig.9, pooled(2psi+5psi) 로그감쇠 회귀 계수
+    # (knowledge/materials/pad-glazing-mechanism-mrr-decay.md §4(D) verify 블록에서
+    #  개별 압력별 R²>0.65 확인, pooled 계수는 이 파일 docstring 재현으로 별도 산출)
+    a_fit, b_fit = 1.1478, -0.1109
+    t_clamped = min(max(t_min, 1.0), 10.0)
+    val = (a_fit + b_fit * math.log(t_clamped)) / a_fit
+
+    f.value = val
+    f.terms = {"time_min_log_decay": val}
+    f.status = "partial"
+    abrasive = str(pk.get_or("abrasive", "")).lower()
+    f.confidence = "literature" if abrasive == "silica" else "estimated"
+    f.sources.append(
+        "Jeong et al. 2024, Materials 17(8) 1817, doi:10.3390/ma17081817 (PMC11051262) Fig.9")
+    if t_min > 10.0:
+        f.notes.append(
+            f"⚠ time_s={rr.time_s:.0f}s({t_min:.1f} min)가 문헌 관측범위(1~10 min)를 "
+            "초과해 t=10 min 값으로 clamp했다 — 장시간 외삽 아님, 과소추정 가능.")
+    if t_min < 1.0:
+        f.notes.append(
+            f"⚠ time_s={rr.time_s:.0f}s({t_min:.2f} min)가 관측 최솟값(1 min) 미만이라 "
+            "t=1 min(=1.0) 값으로 clamp했다.")
+    if abrasive != "silica":
+        f.notes.append(
+            f"⚠ 원 데이터는 콜로이달 실리카/IC1000 단일계다 — 이 팩의 연마입자"
+            f"({abrasive or '미상'})로의 외삽은 미검증(confidence=estimated). "
+            "fumed vs colloidal 실리카만도 감쇠율이 5배 차이 난다"
+            "(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §3, Lawing 2004) — "
+            "다른 화학종은 그 이상 벗어날 수 있다.")
     f.notes.append(
-        "⚠ S 미모델링: 엔진에 시간축(연속 웨이퍼 진행)이 없다. 패드 수명 곡선·"
-        "glazing·그릿 탈락은 노트로는 연구됐으나 sim/에 들어오지 않았다. "
-        "담당 R3-pad × R4-disk 공동. 마모 모델은 GW와 ad-hoc이 정반대 결과를 내는 "
-        "미해결 모순이 있어(corr≈-1) 임의로 한쪽을 고르지 않는다.")
+        "⚠ 컨디셔닝 사이클·수십 시간 규모 패드 수명 누적 마모는 여전히 미모델링 "
+        "(무-컨디셔닝 단발 1~10분 데이터만 반영). 담당 R3-pad × R4-disk.")
     return f
 
 

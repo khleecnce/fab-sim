@@ -99,16 +99,42 @@ def test_ph_moves_mrr():
 
 # ═══════════════════════════════ ③ 미모델링을 숨기지 않는다
 
-def test_unmodeled_factors_report_none_not_silent_one():
-    """미모델링 축은 value=None + status='unmodeled'이어야 한다.
+def test_stab_reference_at_default_time_is_unity():
+    """S(시간 안정성)는 기본 time_s=60s(=1 min, Jeong 2024 관측 하한)에서 1.0.
 
-    조용히 1.0을 쓰면 "반영했다"는 거짓말이 된다.
+    2026-09-09 정확도루프: Jeong et al. 2024(doi:10.3390/ma17081817) Fig.9
+    로그감쇠 회귀로 partial 모델을 부여했다. ln(1)=0이라 t=1 min에서
+    정확히 1.0이 되어 기준 1.0 계약을 유지한다.
     """
-    f = _factors()["stab"]     # S는 엔진에 시간축이 없어 아직 미모델링
-    assert f.status == "unmodeled"
-    assert f.value is None, "S가 미연결인데 숫자를 내고 있다 — 거짓 정밀도다."
-    assert any("미모델링" in n or "시간축" in n for n in f.notes), (
-        "미모델링 팩터가 그 사실을 notes로 신고하지 않는다.")
+    f = _factors()["stab"]
+    assert f.status == "partial"
+    assert f.value == pytest.approx(1.0, abs=1e-9)
+
+
+def test_stab_decreases_with_longer_polish_time():
+    """time_s를 늘리면 S가 로그감쇠로 줄어든다 (Jeong 2024 Fig.9, 접촉수 반토막에도
+
+    MRR은 −17%만 줄어드는 완만한 로그형 드리프트 — 방향만 신뢰, 절대값은 literature).
+    """
+    short = compute_factors(Recipe(pack="oxide_silica", time_s=60).resolve())["stab"].value
+    long_ = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"].value
+    assert long_ < short, "10분 연속연마가 1분보다 S가 낮아야 한다(glazing 드리프트)"
+    assert 0.7 < long_ < 1.0, f"10 min S={long_}가 문헌 관측범위(−17%~−30%)를 벗어남"
+
+
+def test_stab_clamped_outside_observed_range():
+    """관측범위(1~10 min) 밖은 clamp — 외삽으로 거짓 정밀도를 내지 않는다."""
+    at_10 = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"].value
+    at_60min = compute_factors(Recipe(pack="oxide_silica", time_s=3600).resolve())["stab"].value
+    assert at_60min == pytest.approx(at_10), "10 min 초과는 t=10 min 값으로 clamp되어야 한다"
+
+
+def test_stab_confidence_downgraded_for_non_silica_packs():
+    """원 데이터가 콜로이달 실리카/IC1000 단일계라 다른 연마입자는 estimated로 강등."""
+    silica = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"]
+    alumina = compute_factors(Recipe(pack="cu_h2o2_bta", time_s=600).resolve())["stab"]
+    assert silica.confidence == "literature"
+    assert alumina.confidence == "estimated"
 
 
 # ═══════════════════════════════ τ 슬러리 전달 — 실측이 직관을 기각한 축
