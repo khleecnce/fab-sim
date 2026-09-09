@@ -1624,3 +1624,17 @@ wafer-metrology 수신함 완전 소진(S35/S36/S37 전부 처리). 남은 수�
 품질게이트(오케스트레이터 직접 재검증): 신규 3편 verify_claims·check_knowledge 각 1/1 통과. 전체 check_knowledge --all = 87/97(✗10편은 전부 기존 반려분, 신규 3편 무관). ORG §5 3행·CURRICULUM [x]·PROFILE·EXAMS·INDEX 갱신. disk-design/PROFILE.md는 소프트웨어 크론 미커밋분이라 커밋 제외.
 QA루프 #15 PASS(격리 0, 유의 평균 ρ 0.9349). 코퍼스: fetch 5/60 성공(나머지 유료/403 봉쇄), extract 완료, 큐 fetch 2106·learn 177.
 누적: slurry-chemistry 1/6, film-w 1/6, film-nitride 1/6.
+
+## 2026-09-10 01:35 [Max워커] software-lead: wafer-type S(blanket_rate_transfer) 완료
+
+software/BACKLOG.md 수신함 wafer-type Lv3-2 구현요청 항목1(우선순위 높음, blanket 순간속도 전이) 처리.
+`sim/tier2_physics/blanket_rate_transfer.py` 신설(`cumulative_removal`/`blanket_rate_average`/
+`blanket_rate_instantaneous`/`fit_blanket_rate`, eq.3.51-3.53). 근거: knowledge/cmp/
+npw-ptw-transfer-rules-quantitative.md §3, §6 verify (B) (Tugbawa 2002 MIT 학위논문 표 3.3).
+테스트 6건 그대로 재현(60s 평균이 포화 a1보다 8~30% 낮음, Fig.3.19 후반 5점 6% 이내, 초기점(7,65)은
+21% 불일치를 실패 처리 않고 정직 기록, t=0 ValueError 계약, 합성데이터 파라미터 5% 이내 복원).
+engine 미등록(Recipe에 시계열 폴리시 진행 스키마 없음, S17 이하와 동일 지위). Claude Code 위임
+(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → Max워커가 pytest 489 passed(기존483+신규6)
+직접 재검증, verify_claims.py --trace 통과, git status로 다른 크론 미커밋 파일(agents/.source_cache.json·
+.night_parallel*·papers/*·build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만
+커밋(4d8f9b2)+push. agents/wafer-type/PROFILE.md 항목1 완료 표기.

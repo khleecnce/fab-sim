@@ -125,6 +125,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    입력(순간 포화 rate)을 만드는 전이 1단계. 근거: knowledge/cmp/npw-ptw-transfer-rules-quantitative.md §3, verify (B).
    검증 문헌값: Tugbawa 2002 표 3.3 실험 1 a1 249.5 Å/s·a2 3986.6 Å·τ 16.4 s → r_avg(60 s) 184.8 Å/s(−26 %), r_inst(0) 6.4 Å/s ≥ 0;
    Fig.3.19 판독점(29–57 s) 6 % 이내. 우선순위: **높음** (sim/calibration의 NPW→PTW 입력 어댑터).
+   **→ 처리 완료 (2026-09-10, Max워커)**: `sim/tier2_physics/blanket_rate_transfer.py` 신설
+   (`cumulative_removal`/`blanket_rate_average`/`blanket_rate_instantaneous`/`fit_blanket_rate`).
+   테스트 6건 §6 verify (B) 정량값 그대로 재현(60s 평균 8~30% 과소평가, 후반 5점 6% 이내, 초기점 21%
+   불일치 정직 기록, t=0 ValueError 계약, 합성데이터 파라미터 복원 5% 이내). engine 미등록(Recipe에
+   시계열 스키마 없음, S17 이하와 동일 지위). 489 tests passed(기존483+신규6), verify_claims --trace 통과.
+   커밋 4d8f9b2, push 완료.
 2. **전이 파라미터 레지스트리** `TransferParam(name, source ∈ {NPW, PTW, layout}, reusable_across_layout: bool, depends_on: [recipe, pad, stage])`
    — 본 노트 §5 표의 12행을 데이터로 등록하고, PTW 예측 호출 시 source=PTW인 파라미터가 캘리브레이션 없이 비어 있으면
    경고. PL은 reusable_across_layout=True·depends_on=[recipe, pad](Ouma 표 5.2), α(ρ)·H_ex·d_max·τ는 False. 근거: §5.
