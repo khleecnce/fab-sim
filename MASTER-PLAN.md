@@ -1596,3 +1596,16 @@ Fig.7.14/7.15 판독값(D100-1/D100-2/IC1000 3패드조합) 그대로 재현 테
 docstring 명시(캘리브레이션 전 정량예측 금지). engine 미등록(S26/S29/S39와 동일 지위). Claude Code 위임 →
 pytest 475 passed(기존462+신규13) 직접재검증, git status로 다른 크론 미커밋분(agents/.source_cache.json 등)
 미접촉 확인 후 신규 2파일만 커밋(077b60d)+push. software/BACKLOG.md S27 완료표 갱신.
+
+## 2026-09-09 21:30 [소프트웨어] software-lead: wafer-metrology S37 vm_baseline.py 완료
+
+소프트웨어 부문 BACKLOG.md S37(Di 2017형 VM 베이스라인, Low 우선순위) 처리. `sim/metrics/vm_baseline.py`
+신설(Di2017 가중앙상블 `mc_cv_weight`/`weighted_ensemble_predict`, `PersistentPredictor`/
+`linear_regression_baseline` 베이스라인, US9240360 VM신뢰도가중 `vm_confidence_weight` PROVISIONAL).
+근거: knowledge/cmp/inline-virtual-metrology-sampling-optimization.md §2.2 블록1/§2.4 블록4 그대로
+재현 테스트 8건. engine 미등록(Recipe에 FDC 시계열 스키마 없음, S17 이하와 동일 지위). SVR/tree
+bagging/딥러닝 신규구현 없음(브리핑 명시 금지). Claude Code 위임 → pytest 483 passed(기존475+신규8)
+직접 재검증, git status로 다른 크론 미커밋분(agents/.source_cache.json·disk-design PROFILE.md·
+.night_parallel*·papers/*·build/·dist/·tools/check_npw_catalog.py) 미접촉 확인 후 신규 2파일만
+커밋(214154d)+push. wafer-metrology PROFILE 완료 표기(c243e52), software/BACKLOG.md S37 완료표 갱신.
+wafer-metrology 수신함 완전 소진(S35/S36/S37 전부 처리). 남은 수신함: wafer-type S34(스키마 확장 필요).
