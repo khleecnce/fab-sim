@@ -1638,3 +1638,13 @@ engine 미등록(Recipe에 시계열 폴리시 진행 스키마 없음, S17 이�
 직접 재검증, verify_claims.py --trace 통과, git status로 다른 크론 미커밋 파일(agents/.source_cache.json·
 .night_parallel*·papers/*·build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만
 커밋(4d8f9b2)+push. agents/wafer-type/PROFILE.md 항목1 완료 표기.
+
+## 2026-09-10 04:xx [심야병렬] 서브에이전트 3명 동시 학습 — cmp-data-engineer Lv1-2 · slurry-chemistry Lv1-2 · film-w Lv1-2
+
+QA루프 #16 PASS(격리 0, 유의 평균 ρ=0.9349). 대상: 0/6 유일 병목 cmp-data-engineer + 직전 01:xx런이 Lv1-1 끝낸 slurry-chemistry·film-w의 Lv1-2(성장엔진이 만진 slurry-abrasive·film-cu와 비중복). claude -p opus 3병렬.
+- **cmp-data-engineer Lv1-2** 통합 스키마 키 체계(SEMI GEM300 SVID/ECID/CEID 계보 사상·소모품 유도조인·SOURCE 강제) → knowledge/data/cmp-integration-schema-keys-semi-standards.md (출처 2 실존, verify 1블록). SEMI 표준 원문 유료 미열람→스트림/펑션 번호 미검증 표기. 스키마 JSON 구현은 PROFILE 구현요청.
+- **slurry-chemistry Lv1-2** 억제제(BTA Langmuir/Frumkin)·킬레이트(글리신·시트르산 log K) 흡착·패시베이션 → knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md (출처 4 실존, verify 3블록: MINTEQ pKa 교차검증·Cu 용해 1.4e6배·Frumkin 협동성). Aksu/Field 원문 미독·Frumkin f 시연값 정직표기.
+- **film-w Lv1-2** Fe촉매 Fenton •OH 속도론·알루미나 vs 실리카 경도·IEP·스크래치 트레이드오프 → knowledge/cmp/w-cmp-fenton-catalyst-abrasive-alumina-silica.md (출처 4 실존, verify 3블록). Springer/SSRN 403 미확보→인용 제외, 개시 속도상수·IEP 2차인용 표기.
+
+품질게이트(오케스트레이터 직접 재검증): 신규 3편 verify_claims·check_knowledge 각 1/1 통과. 전체 check_knowledge --all = 90/100(✗10편 전부 기존 반려분, 신규 무관). ORG §5 3행·CURRICULUM [x]·PROFILE(구현요청 P2/P3)·EXAMS·papers/INDEX.json 갱신. agents/.source_cache.json·disk-design/PROFILE.md는 다른 크론 미커밋분이라 커밋 제외.
+누적: cmp-data-engineer 2/6, slurry-chemistry 2/6, film-w 2/6.

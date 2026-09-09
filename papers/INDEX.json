@@ -1,549 +1,617 @@
 {
-  "prediction-of-polishing-pressure-distribution-in-cmp-process": {
-    "src": "Unpaywall",
-    "pdf": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
-    "landing": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
-    "ver": "submittedVersion",
-    "host": "repository",
-    "license": "cc-by-nc-nd",
-    "doi": "10.1016/j.cirp.2017.04.088",
-    "matched_title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
-    "confidence": "doi",
-    "title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
-    "note": "equipment/cmp-tool-architecture.md"
-  },
-  "thakurta2001-3d-cmp-slurry-flow-lubrication-theory": {
-    "src": "미러 사이트 (미러 사이트/.red mirror, DOI resolved)",
-    "pdf_local": "papers/thakurta2001_slurry_flow_lubrication.pdf",
-    "doi": "10.1149/1.1355691",
-    "title": "Three-Dimensional Chemical Mechanical Planarization Slurry Flow Model Based on Lubrication Theory",
-    "authors": "Thakurta, Borst, Schwendeman, Gutmann, Gill",
-    "venue": "J. Electrochem. Soc. 148(4) G207-G214 (2001)",
-    "note": "physics/cmp-slurry-flow-lubrication-film-thickness.md"
-  },
-  "luo-dornfeld-2001-material-removal-mechanism-cmp-theory-modeling": {
-    "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
-    "pdf": null,
-    "doi": "10.1109/66.920723",
-    "title": "Material removal mechanism in chemical mechanical polishing: theory and modeling",
-    "authors": "J. Luo, D. A. Dornfeld",
-    "venue": "IEEE Trans. Semicond. Manuf. 14(2), 112-133 (2001)",
-    "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
-  },
-  "kaufman-1991-cmp-patterned-w-metal-features-chip-interconnects": {
-    "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(J. Electrochem. Soc.)",
-    "pdf": null,
-    "doi": "10.1149/1.2085434",
-    "title": "Chemical-Mechanical Polishing for Fabricating Patterned W Metal Features as Chip Interconnects",
-    "authors": "F. B. Kaufman, D. B. Thompson, R. E. Broadie, M. A. Jaso, W. L. Guthrie, D. J. Pearson, M. B. Small",
-    "venue": "J. Electrochem. Soc. 138(11), 3460-3465 (1991)",
-    "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
-  },
-  "luo-dornfeld-2003-effects-of-abrasive-size-distribution-cmp": {
-    "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
-    "pdf": null,
-    "doi": "10.1109/tsm.2003.815199",
-    "title": "Effects of abrasive size distribution in chemical mechanical planarization: Modeling and verification",
-    "authors": "J. Luo, D. A. Dornfeld",
-    "venue": "IEEE Trans. Semicond. Manuf. 16(3), 469-476 (2003)",
-    "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
-  },
-  "chemically-enhanced-synergistic-wear-copper-cmp-case-study": {
-    "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(Wear/Elsevier)",
-    "pdf": null,
-    "doi": "10.1016/j.wear.2013.08.001",
-    "title": "Chemically enhanced synergistic wear: A copper chemical mechanical polishing case study",
-    "venue": "Wear 307(1-2), 206-212 (2013)",
-    "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
-  },
-  "feng2007-pad-conditioning-density-tsm": {
-    "src": "미러 사이트 (mirror 미러 사이트 storage)",
-    "pdf": "papers/feng2007-pad-conditioning-density-tsm.pdf",
-    "doi": "10.1109/TSM.2007.907618",
-    "title": "Pad Conditioning Density Distribution in CMP Process With Diamond Dresser",
-    "author": "Tyan Feng",
-    "year": 2007,
-    "journal": "IEEE Trans. Semicond. Manuf. 20(4), 464-475",
-    "note": "유료(IEEE), 미러 사이트 확보. 사용자 지시 2026-09-05 반영."
-  },
-  "shi-ring-2010-cmp-pad-wear-polish-rate-decay-fluid": {
-    "src": "author open-access (my.che.utah.edu)",
-    "pdf_local": "papers/ring2010_polish_rate_decay_fluid.pdf",
-    "doi": "10.1016/j.mee.2010.04.010",
-    "title": "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect",
-    "authors": "Hong Shi, Terry A. Ring",
-    "venue": "Microelectronic Engineering 87, 2368-2375 (2010)",
-    "note": "materials/pad-conditioning-wear-regeneration-balance.md"
-  },
-  "pysher-goers-zabasajja-2010-diamond-pad-conditioner-design": {
-    "src": "3M open-access PDF",
-    "pdf_local": "papers/3m_diamond_conditioner_design.pdf",
-    "doi": "10.1557/proc-1249-e02-04",
-    "title": "Design, Characteristics and Performance of Diamond Pad Conditioners",
-    "authors": "Doug Pysher, Brian Goers, John Zabasajja",
-    "venue": "MRS Proceedings 1249 (2010)",
-    "note": "materials/pad-conditioning-wear-regeneration-balance.md (참고, 미인용 상세)"
-  },
-  "vasilev2011-gw-pattern-density-size-cmp": {
-    "src": "미러 사이트 mirror (via 미러 사이트 lookup)",
-    "pdf": "papers/vasilev2011-gw-pattern-density-size-cmp.pdf",
-    "doi": "10.1109/TSM.2011.2107756",
-    "title": "Greenwood-Williamson Model Combining Pattern-Density and Pattern-Size Effects in CMP",
-    "authors": "Boris Vasilev, Roland Rzehak, Sascha Bott, Peter Kucher, Johann W. Bartha",
-    "venue": "IEEE Trans. Semicond. Manuf. 24(2), 338-347 (2011)",
-    "note": "cmp/npw-ptw-pattern-effect-gw-physics.md"
-  },
-  "jeong2024-pad-asperity-pdf-wear-materials": {
-    "src": "Europe PMC render (MDPI CC-BY open access)",
-    "pdf_local": "papers/jeong2024-pad-asperity-pdf-wear-materials.pdf",
-    "doi": "10.3390/ma17081817",
-    "pmc": "PMC11051262",
-    "title": "Novel Probability Density Function of Pad Asperity by Wear Effect over Time in Chemical Mechanical Planarization",
-    "authors": "Seonho Jeong, Yeongil Shin, Jongmin Jeong, Seunghun Jeong, Haedo Jeong",
-    "venue": "Materials 17(8), 1817 (2024)",
-    "note": "materials/pad-glazing-mechanism-mrr-decay.md (기존 노트 2편이 'Yang et al.'로 오기 — 실제 저자 Jeong et al.)"
-  },
-  "mcallister2019-conditioner-type-microtexture-sio2-micromachines": {
-    "src": "Europe PMC render (MDPI CC-BY OA)",
-    "pdf_local": "papers/mcallister2019-conditioner-type-microtexture-sio2-micromachines.pdf",
-    "xml_local": "papers/mcallister2019-mi10040258.xml",
-    "doi": "10.3390/mi10040258",
-    "pmc": "PMC6523751",
-    "title": "Effect of Conditioner Type and Downforce, and Pad Surface Micro-Texture on SiO2 Chemical Mechanical Planarization Performance",
-    "authors": "J. McAllister, C. Stuffle, Y. Sampurno, D. Hetherington, J. Sierra Suarez, L. Borucki, A. Philipossian",
-    "venue": "Micromachines 10(4), 258 (2019)",
-    "note": "materials/disk-design-pad-roughness-asperity-relation.md — ABT(173µm 다이아, 돌출 52µm) vs EHWA CVD 1.3K(45µm 팁) 상대 마이크로텍스처 Table 1"
-  },
-  "mcallister2018-jss-downforce-breakin-microtexture": {
-    "src": "Univ. of Arizona repository (accepted manuscript) http://hdl.handle.net/10150/628667 — IOP 원본은 봇차단",
-    "pdf_local": "papers/mcallister2018-jss-downforce-breakin-microtexture.pdf",
-    "doi": "10.1149/2.0271805jss",
-    "title": "Effect of Conditioning Downforce and Pad Break-In Time on Pad Surface Micro-Texture",
-    "venue": "ECS J. Solid State Sci. Technol. 7(5), P274-P280 (2018)",
-    "note": "Table I: EHWA CVD 디스크 60분 브레이크인 후 summit height 21/20.5µm, 접촉밀도 82/143 /mm², 접촉면적 0.022/0.052% (6/10 lbf)"
-  },
-  "mcallister2019-dissertation-ua": {
-    "src": "Univ. of Arizona repository http://hdl.handle.net/10150/636531 (공개 학위논문)",
-    "pdf_local": "papers/mcallister2019-dissertation-ua.pdf",
-    "title": "Novel Studies in Silicon Dioxide, Copper and Tungsten Chemical Mechanical Planarization Processes",
-    "authors": "Jeffrey Connor McAllister",
-    "venue": "PhD dissertation, Univ. of Arizona (2019)"
-  },
-  "sun2009-dissertation-ua-pad-wafer-contact": {
-    "src": "Univ. of Arizona repository http://hdl.handle.net/10150/194898 (공개 학위논문)",
-    "pdf_local": "papers/sun2009-dissertation-ua-pad-wafer-contact.pdf",
-    "title": "Pad-Wafer and Brush-Wafer Contact Characterization in Planarization and Post-Planarization Processes",
-    "authors": "Ting Sun",
-    "venue": "PhD dissertation, Univ. of Arizona (2009)",
-    "note": "Ch.7.1 = Sun et al. 2010 Microelectron. Eng. 87, 553 (DOI 10.1016/j.mee.2009.08.007, 유료·미확보)의 학위논문판 — MMC TRD 100-grit/325-grit × 3.6/8.0 lb → λ(Fig.7.4); Ch.7.2 Type A/B 디스크 접촉면적·summit 밀도(Fig.7.14/7.15)"
-  },
-  "liao2014-dissertation-ua-consumables": {
-    "src": "Univ. of Arizona repository http://hdl.handle.net/10150/323377 (공개 학위논문)",
-    "pdf_local": "papers/liao2014-dissertation-ua-consumables.pdf",
-    "title": "Process Optimization and Fundamental Consumables Characterization of Advanced Dielectric and Metal CMP",
-    "authors": "Xiaoyan Liao",
-    "venue": "PhD dissertation, Univ. of Arizona (2014)",
-    "note": "Ch.4(=ESSL 14, H201, 2011) 3M A2810 vs MMC TRD λ 3.84/3.64µm; Ch.7 λ 3.18/2.92µm, summit curvature 0.51/0.89 µm⁻¹"
-  },
-  "lawing2004-cmpug-pad-conditioning-effects": {
-    "src": "NCCAVS CMPUG 공개 PDF https://nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2004/CMPUG_05_2004_Lawing.pdf",
-    "pdf_local": "papers/lawing2004-cmpug-pad-conditioning-effects.pdf",
-    "title": "Pad Conditioning Effects in Chemical Mechanical Polishing",
-    "authors": "A. Scott Lawing",
-    "venue": "NCCAVS CMPUG 2004-05-05",
-    "note": "컨디셔너 공격성 low/medium/high → 접촉면적 11.3/7.7/2.2%, 솔리드 패드 높이분포 ≈ Gaussian"
-  },
-  "ring-prasad-dirksen-asperity-population-balance-J120": {
-    "src": "저자 공개 PDF https://my.che.utah.edu/~ring/Publications-PDFs/J-120.pdf",
-    "pdf_local": "papers/ring-prasad-dirksen-asperity-population-balance-J120.pdf",
-    "title": "Dynamic CMP Pad Asperity Population Balance for Conditioning and Polishing",
-    "authors": "T.A. Ring, A. Prasad, J.A. Dirksen",
-    "venue": "(연도 미기재) 저자 웹공개",
-    "note": "Table 1: η=(1/Dgrit)², σ=Dgrit/2 매핑 규칙 — 표기 수치(2.938e11 /m², 8.112µm)와 Dgrit=190µm가 상호 불일치"
-  },
-  "zheng-zhao-lu-2023-pad-wear-profile-mi14091683": {
-    "src": "EuropePMC fullTextXML",
-    "pdf": null,
-    "landing": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10536193/",
-    "ver": "publishedVersion",
-    "host": "PMC (Europe PMC fullTextXML mirror)",
-    "license": "cc-by",
-    "doi": "10.3390/mi14091683",
-    "matched_title": "Prediction of Pad Wear Profile and Simulation of Its Influence on Wafer Polishing",
-    "note": "tool-platen-head Lv2-1. MDPI 직접다운로드 403(Access Denied/edgesuite), PMC PDF는 PoW 챌린지로 curl 차단. Europe PMC REST fullTextXML(papers/mi14091683-fulltext.xml)로 본문 확보."
-  },
-  "jmr-2013-pad-porosity-hardness": {
-    "doi": "10.1557/jmr.2013.173",
-    "title": "The effect of polymer hardness, pore size, and porosity on the performance of thermoplastic polyurethane-based chemical mechanical polishing pads",
-    "authors": "Prasad, Fotou, Li",
-    "year": 2013,
-    "journal": "J. Mater. Res. 28(17), 2380-2393",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "materials/pad-porosity-slurry-transport-mrr.md"
-  },
-  "mee-2018-pad-microstructure-yim": {
-    "doi": "10.1016/j.mee.2017.12.002",
-    "title": "Chemical/mechanical balance management through pad microstructure in CMP",
-    "authors": "Yim, Perrot, Balan, Friot, Qian, Chiou, Jacob, Gourvest, Salvatore, Valette",
-    "year": 2018,
-    "journal": "Microelectronic Engineering 195, 36-40",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "materials/pad-porosity-slurry-transport-mrr.md"
-  },
-  "lo-lin-2005-fem-anfis-jmatprotec": {
-    "doi": "10.1016/j.jmatprotec.2005.01.010",
-    "title": "The prediction of wafer surface non-uniformity using FEM and ANFIS in the chemical mechanical polishing process",
-    "authors": "Lo, Lin",
-    "year": 2005,
-    "journal": "Journal of Materials Processing Technology 168, 250-257",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "pad-structure Lv2-1. FEM material properties table (pad/wafer/carrier E, thickness) + 35 sets simulated non-uniformity R=sigma_max/sigma_c vs pad E0,T0,L0."
-  },
-  "kim2004-kinematic-jemat": {
-    "doi": "10.1007/s11664-004-0294-4",
-    "title": "Effect of Process Conditions on Uniformity of Velocity and Wear Distance of Pad and Wafer during Chemical Mechanical Planarization",
-    "authors": "Kim, Jeong",
-    "year": 2004,
-    "journal": "Journal of Electronic Materials 33(1), 53-60",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "tool-platen-head Lv2-2. kinematic number zeta 원전 확정. NU_vel=2|zeta|, NU_s(sliding dist)~25*zeta^2."
-  },
-  "yuh2015-green-cmp-coolant": {
-    "doi": "10.1007/s40684-015-0041-8",
-    "title": "Development of Green CMP by Slurry Reduction through Controlling Platen Coolant Temperature",
-    "authors": "Yuh, Jang, Kim, Lee, Jeong",
-    "year": 2015,
-    "journal": "Int. J. Precis. Eng. Manuf.-Green Technol. 2(4), 339-344",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "tool-platen-head Lv2-2. slurry flow rate / platen coolant temperature vs MRR_avg, NU (Oscar-type Cu CMP, PCB scale)."
-  },
-  "kenchappa2021-soft-pad-oxide-cmp-jss": {
-    "src": "OA(CC BY-NC-ND) — Semantic Scholar PDF 미러(pdfs.semanticscholar.org/fe08/3e2cde6e6e283da4a4ecaf82d9dd348900e4.pdf); IOP 직접은 봇차단",
-    "pdf_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.pdf",
-    "txt_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.txt",
-    "doi": "10.1149/2162-8777/abdc40",
-    "title": "Soft Chemical Mechanical Polishing Pad for Oxide CMP Applications",
-    "authors": "N.B. Kenchappa, R. Popuri, A. Chockkalingam, P. Jawali, S. Jayanath, D. Redfield, R. Bajaj",
-    "venue": "ECS J. Solid State Sci. Technol. 10, 014008 (2021)",
-    "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — AMAT 적층제조(참고문헌 34–36·39) 소프트 패드 40D: 세리아 산화막 RR 3250 vs 상용 1700 Å/min, asperity 높이폭 8 vs 30 µm; 결함 카운트 없음"
-  },
-  "yang2010-ijmt-solid-pad-microholes-conditioner": {
-    "src": "미러 사이트 (미러 사이트 → 미러 사이트, DOI resolved) — Elsevier 유료, 합법 OA 없음",
-    "pdf_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.pdf",
-    "txt_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.txt",
-    "doi": "10.1016/j.ijmachtools.2010.06.007",
-    "title": "Effects of diamond size of CMP conditioner on wafer removal rates and defects for solid (non-porous) CMP pad with micro-holes",
-    "authors": "J.C. Yang, J.H. Choi, T. Hwang, C.-G. Lee, T. Kim",
-    "venue": "Int. J. Mach. Tools Manuf. 50, 860–868 (2010)",
-    "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 무발포 SURE2000 vs IC-1010: 접촉면적 7.5 vs 0.7%, RR ∝ A^0.5 (1.201 vs 1.207); 초록 '2587'은 오타(본문 3587); fitz 추출 시 ± 기호 깨짐 주의"
-  },
-  "morsada2025-jss-pu-pad-innovations-perspective": {
-    "src": "초록만 — Unpaywall closed, IOP 봇차단, 미러 사이트 .box/.ru/.ren 미보유(2026-09-08)",
-    "doi": "10.1149/2162-8777/add808",
-    "title": "Innovations in Polyurethane Pads Used in Chemical-Mechanical Planarization: A Perspective and Future Directions",
-    "authors": "Z. Morsada, H.B. Gunasekaran, N.R. Visaveliya, D.A. Shipp",
-    "venue": "ECS J. Solid State Sci. Technol. 14, 054009 (2025)",
-    "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 리뷰, 본문 수치 미사용"
-  },
-  "irfan2025-jmmp-cfd-groove-depth-lifetime": {
-    "src": "MDPI CC-BY (mdpi-res.com CDN 직링크; mdpi.com은 403)",
-    "pdf_local": "papers/irfan2025-jmmp-cfd-groove-depth-lifetime.pdf",
-    "doi": "10.3390/jmmp9030095",
-    "title": "Improvement of Material Removal Rate and Within Wafer Non-Uniformity in Chemical Mechanical Polishing Using Computational Fluid Dynamic Modeling",
-    "authors": "Irfan, Lee, Muzumdar, Aryanfar, Wu",
-    "venue": "J. Manuf. Mater. Process. 9(3), 95 (2025)",
-    "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
-  },
-  "liu2024-ecsjss-pad-groove-depth-reduction-oxide-cmp": {
-    "src": "초록만 — bronze OA이나 IOP Radware 캡차로 PDF/HTML 차단, 미러 사이트 미러 5종 캡차, Wayback/fatcat/CORE 사본 없음",
-    "pdf_local": null,
-    "doi": "10.1149/2162-8777/ad83ef",
-    "title": "Investigating the Impact of Pad Groove Depth Reduction on Process Variation in Oxide Chemical Mechanical Polishing",
-    "authors": "Liu, Kang, Oh, Jeon, Lee, Wang, Jeong, Lee, Kim",
-    "venue": "ECS J. Solid State Sci. Technol. (2024)",
-    "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
-  },
-  "kim-kang2011-ijmtm-cvd-diamond-coated-conditioner": {
-    "src": "미러 사이트 (DOI resolved)",
-    "pdf_local": "papers/kim-kang2011-ijmtm-cvd-diamond-coated-conditioner.pdf",
-    "doi": "10.1016/j.ijmachtools.2011.02.008",
-    "title": "Novel CVD diamond-coated conditioner for improved performance in CMP processes",
-    "authors": "Kim, Kang",
-    "venue": "Int. J. Machine Tools & Manufacture 51 (2011) 565-568",
-    "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
-  },
-  "tsai2014-mpe-radial-cluster-arranged-diamond-disk": {
-    "src": "Hindawi OA (CC-BY) — Cloudflare 차단, Wayback 20231120 보존본",
-    "pdf_local": "papers/tsai2014-mpe-radial-cluster-arranged-diamond-disk.pdf",
-    "doi": "10.1155/2014/913812",
-    "title": "Development and Analysis of Double-Faced Radial and Cluster-Arranged CMP Diamond Disk",
-    "authors": "Tsai, Chen, Chiang, Yeh",
-    "venue": "Mathematical Problems in Engineering 2014, 913812",
-    "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
-  },
-  "shin2018-ijamt-diamond-orientation-conditioner": {
-    "src": "미러 사이트 (DOI resolved)",
-    "pdf_local": "papers/shin2018-ijamt-diamond-orientation-conditioner.pdf",
-    "doi": "10.1007/s00170-018-1956-3",
-    "title": "Diamond structure-dependent pad and wafer polishing performance during chemical mechanical polishing",
-    "authors": "Shin, Kulkarni, Kim, Kim, Jeon, Kim, Jin, Kim",
-    "venue": "Int. J. Adv. Manuf. Technol. 97 (2018) 563-571",
-    "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
-  },
-  "guo2023-ijamt-ordered-abrasive-conditioner-preprint": {
-    "src": "Research Square 프리프린트 v1 (CC-BY, Green OA) — Wayback 보존본; 저널판(Springer) 미확보",
-    "pdf_local": "papers/guo2023-ijamt-ordered-abrasive-conditioner-preprint.pdf",
-    "doi": "10.1007/s00170-023-11965-2",
-    "preprint_doi": "10.21203/rs.3.rs-2408757/v1",
-    "title": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive distribution",
-    "authors": "Guo, Yang, Wen, Li, Cheng",
-    "venue": "Int. J. Adv. Manuf. Technol. 128 (2023) 1029-1048",
-    "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
-  },
-  "US8657652-saint-gobain-sard-cmp-conditioner": {
-    "src": "freepatentsonline (특허 전문 텍스트)",
-    "pdf_local": "papers/US8657652.txt",
-    "patent": "US8657652B2",
-    "title": "Optimized CMP conditioner design for next generation oxide/metal CMP",
-    "authors": "Puthanangady et al. (Saint-Gobain Abrasives)",
-    "venue": "US Patent, granted 2014-02-25",
-    "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
-  },
-  "park2024-tribol-lubr-swing-deep-learning-pad-wear": {
-    "src": "koreascience.or.kr 오픈 PDF (Tribology and Lubricants, KOAJ 오픈액세스)",
-    "pdf_local": "papers/park2024-tribol-lubr-swing-deep-learning-pad-wear.pdf",
-    "doi": "10.9725/kts.2024.40.2.67",
-    "title": "Study on the Pad Wear Profile Based on the Conditioner Swing Using Deep Learning for CMP Pad Conditioning",
-    "authors": "Park, Hwang, Lee",
-    "venue": "Tribology and Lubricants 40(2), 67-70 (2024)",
-    "note": "equipment/disk-kinematics-closed-loop-adaptive-sweep.md"
-  },
-  "wei2010-sio2-nanomechanical": {
-    "title": "A Comprehensive Study on Nanomechanical Properties of Various SiO2-based Dielectric Films",
-    "doi": "10.1109/wmed.2010.5453755",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
-  },
-  "cook1990-chemical-processes-glass-polishing": {
-    "title": "Chemical Processes in Glass Polishing",
-    "doi": "10.1016/0022-3093(90)90200-6",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
-  },
-  "zantye2004-cmp-review": {
-    "title": "Chemical mechanical planarization for microelectronics applications",
-    "doi": "10.1016/j.mser.2004.06.002",
-    "src": "미러 사이트(미러 사이트)",
-    "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
-  },
-  "kim2002-mee-pattern-nonpattern-correlation-sti-cmp": {
-    "src": "미러 사이트 storage (via 미러 사이트 lookup, 2026-09-09)",
-    "pdf": "papers/kim2002-mee-pattern-nonpattern-correlation-sti-cmp.pdf",
-    "doi": "10.1016/S0167-9317(01)00694-3",
-    "title": "Correlation analysis between pattern and non-pattern wafer for characterization of shallow trench isolation-chemical-mechanical polishing (STI-CMP) process",
-    "authors": "Sang-Yong Kim, Yong-Jin Seo",
-    "venue": "Microelectronic Engineering 60 (2002) 357-364",
-    "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
-  },
-  "tugbawa2002-thesis-mit-chip-scale-cu-cmp": {
-    "src": "MIT DSpace REST API (server/api/core/bitstreams/.../content)",
-    "pdf": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf",
-    "handle": "https://dspace.mit.edu/handle/1721.1/8083",
-    "title": "Chip-scale modeling of pattern dependencies in copper chemical mechanical polishing processes",
-    "authors": "Tugbawa, Tamba E.",
-    "venue": "MIT EECS PhD thesis (2002)",
-    "note": "cmp/npw-ptw-transfer-rules-quantitative.md; cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md",
-    "pdf_local": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf"
-  },
-  "ouma1998-thesis-mit-cmp-dielectric-planarization": {
-    "src": "MIT DSpace REST API (scanned PDF, no text layer - pages rendered with fitz and read visually)",
-    "pdf": "papers/ouma1998-thesis-mit-cmp-dielectric-planarization.pdf",
-    "handle": "1721.1/9704",
-    "title": "Modeling of chemical mechanical polishing for dielectric planarization",
-    "authors": "Dennis Okumu Ouma",
-    "venue": "MIT PhD thesis, EECS, submitted Nov. 1998 (degree 1999)",
-    "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
-  },
-  "tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion": {
-    "src": "Univ. of Arizona DSpace 7 REST API (item 7c7b4d98-e530-4336-bd04-1f533ea79f77, ORIGINAL bundle bitstream)",
-    "pdf": "papers/tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion.pdf",
-    "handle": "10150/280774",
-    "title": "Dissolution, corrosion and environmental issues in chemical mechanical planarization of copper",
-    "authors": "Subramanian Tamilmani (advisor: Srini Raghavan)",
-    "venue": "The University of Arizona PhD dissertation, 2005 (journal version of ch.4.1: Tamilmani et al. 2002 JES 149 G638, doi 10.1149/1.1516224 — not obtained)",
-    "note": "cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md — Cu-H2O/Cu-BTA potential-pH diagrams (fig 4.1, 4.4 read visually), XPS Cu(I)-BTA, QCM BTA multilayer kinetics"
-  },
-  "lee2002-mit-thesis-sti-cmp-modeling": {
-    "src": "MIT DSpace REST API (item b43f42de-07fd-4df2-8088-eb3d5c2a1343, ORIGINAL bundle 51550156-MIT.pdf; text layer present, equations garbled -> pages rendered with fitz and read visually)",
-    "pdf": "papers/lee2002-mit-thesis-sti-cmp-modeling.pdf",
-    "handle": "1721.1/29907",
-    "title": "Modeling of chemical mechanical polishing for shallow trench isolation",
-    "authors": "Brian Lee (advisor: Duane S. Boning)",
-    "venue": "MIT PhD thesis, EECS, May 2002 (201 pp.)",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ch.2 two-phase STI model (eq.2.32-2.49, Tables 2.1/2.3/2.4), §3.7 ceria HSS case study (Table 3.9/3.10, PL 1.6/4.7 mm, 28 s activation offset)"
-  },
-  "srinivasan2015-ecsjss-sti-cmp-review": {
-    "src": "iopscience.iop.org/article/10.1149/2.0071511jss/pdf (CC-BY open access; direct curl worked 2026-09-09)",
-    "pdf": "papers/srinivasan2015-ecsjss-sti-cmp-review.pdf",
-    "doi": "10.1149/2.0071511jss",
-    "title": "Shallow Trench Isolation Chemical Mechanical Planarization: A Review",
-    "authors": "Ramanathan Srinivasan, Pradeep VR Dandu, S. V. Babu",
-    "venue": "ECS J. Solid State Sci. Technol. 4(11) P5029-P5039 (2015)",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Table I (24 high-selectivity slurries), nitride oxidation/suppression mechanism, patterned-STI section (Seo PAA+PEG dishing 800->600 A, Lim particle size, Merricks overpolish)"
-  },
-  "urban2016-cmpug-ferro-high-selectivity-ceria-sti": {
-    "src": "nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2016/CMP2016_4Urban.pdf (vendor conference slides, weight 0.5)",
-    "pdf": "papers/urban2016-cmpug-ferro-high-selectivity-ceria-sti.pdf",
-    "title": "High Selectivity Ceria Slurry for Next Generation STI CMP Processes",
-    "authors": "Nate D. Urban (Ferro Corp.)",
-    "venue": "AVS CMP Users Group Meeting, 2016-04-07",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Ferro STI slurry generations table (HDP RR 2000-3500 A/min, nitride <20 A/min, 4->0.5 wt% ceria), amine SiN passivation, >500:1 customer report"
-  },
-  "hwang2026-polymers-paa-ceria-sti-slurry": {
-    "src": "mdpi-res.com/d_attachment/polymers/polymers-18-01899/article_deploy/polymers-18-01899.pdf (CC-BY)",
-    "pdf": "papers/hwang2026-polymers-paa-ceria-sti-slurry.pdf",
-    "doi": "10.3390/polym18151899",
-    "title": "Poly(acrylic acid)-Containing Ceria Slurries for Shallow Trench Isolation Chemical Mechanical Polishing: Colloidal Stability, Planarization Efficiency, and Selectivity",
-    "authors": "Sohee Hwang, Tao Lyu, Woonjung Kim",
-    "venue": "Polymers 18, 1899 (2026)",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — PAA-only ceria slurry: HDP 114.4 / SiN 14.3 A/min (selectivity 8.0), HC10 57.5/12.3; Ce3+ fraction 22.1 vs 17.7 %"
-  },
-  "johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry": {
-    "src": "MIT DSpace REST API (item 6782e9b8-a60f-41ef-a13c-7dd8a01e8b4c)",
-    "pdf": "papers/johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry.pdf",
-    "handle": "1721.1/52807",
-    "title": "Modeling of advanced integrated circuit planarization processes: eCMP, STI CMP using non-conventional slurries",
-    "authors": "Joy Marie Johnson (advisor: Duane S. Boning)",
-    "venue": "MIT SM thesis, EECS, 2009 (99 pp.)",
-    "note": "obtained for film-oxide Lv2-2 but only skimmed (silica-slurry STI evolving-pattern-density model); not cited in note"
-  },
-  "tugbawa2001-cmpmic-multistep-cu-pattern-model": {
-    "src": "boning.mit.edu reprint",
-    "pdf_local": "papers/tugbawa2001-cmpmic-cu-model.pdf",
-    "doi": null,
-    "title": "Modeling of Pattern Dependencies in Multi-Step Copper Chemical Mechanical Polishing Processes",
-    "authors": "Tugbawa, Park, Boning, Camilletti, Brongo, Lefevre",
-    "venue": "CMP-MIC 2001, Santa Clara",
-    "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md"
-  },
-  "ruan2009-jos-pattern-effects-cu-cmp": {
-    "src": "Wayback (web.archive.org/web/2015id_/ jos.ac.cn PDF; jos.ac.cn DNS 불해석, IOP pdf 차단)",
-    "pdf_local": "papers/ruan2009-jos-pattern-effects-cu-cmp.pdf",
-    "doi": "10.1088/1674-4926/30/4/046001",
-    "title": "Effects of pattern characteristics on copper CMP",
-    "authors": "Ruan Wenbiao, Chen Lan, Li Zhigang, Ye Tianchun",
-    "venue": "J. Semicond. 30(4) 046001 (2009)",
-    "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md (시뮬레이터 출력 주의)"
-  },
-  "loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph": {
-    "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09; IOP bronze OA는 봇차단)",
-    "pdf": "papers/loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph.pdf",
-    "doi": "10.1149/1.1838723",
-    "title": "Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution: Effect of pH",
-    "authors": "L. M. Loewenstein, P. W. Mertens",
-    "venue": "J. Electrochem. Soc. 145(8) 2841-2847 (1998)",
-    "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — pH 3-5.6, 5e-8 M 10종 금속 TXRF; pH 5.6→3 최대 78배 감소; 전하/반경 비례(Fig.5-7); Table A-I Q_r"
-  },
-  "loewenstein1999-jes-competitive-adsorption-metal-ions-si": {
-    "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09)",
-    "pdf": "papers/loewenstein1999-jes-competitive-adsorption-metal-ions-si.pdf",
-    "doi": "10.1149/1.1391670",
-    "title": "Competitive Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution",
-    "authors": "L. M. Loewenstein, F. Charpin, P. W. Mertens",
-    "venue": "J. Electrochem. Soc. 146(2) 719-727 (1999)",
-    "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — 경쟁 Langmuir Eq.22; Table I(TXRF, pH 3-5.5, pM 5-8), Table V/VI 지수, Fig.8 σ0=3e12, K_H~1e3, K_Cr~1e6 (Table I은 페이지 렌더 판독)"
-  },
-  "seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination": {
-    "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09); 텍스트 레이어 깨져 fitz 렌더 후 판독",
-    "pdf": "papers/seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination.pdf",
-    "doi": "10.1023/A:1011242900843",
-    "title": "Optimization of post-CMP cleaning process for elimination of CMP slurry-induced metallic contaminations",
-    "authors": "Y.-J. Seo, W.-S. Lee, S.-Y. Kim, J.-S. Park, E.-G. Chang",
-    "venue": "J. Mater. Sci.: Mater. Electron. 12, 411-415 (2001)",
-    "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — KOH 슬러리(Cabot SS-12) PE-TEOS K~1e12/Ca~1e11, O3-BPSG K~3e13/Ca~2e12, dHF 3 nm 제거로 as-dep 복귀(Fig.2); Lv1-1 노트의 '2차 요약' 표기를 1차로 승격"
-  },
-  "martin1999-mee-alkaline-cleaning-additives-metal-contamination": {
-    "src": "미러 사이트→미러 사이트 → 미러 사이트 storage (2026-09-09)",
-    "pdf": "papers/martin1999-mee-alkaline-cleaning-additives-metal-contamination.pdf",
-    "doi": "10.1016/S0167-9317(99)00150-1",
-    "title": "Alkaline cleaning of silicon wafers: additives for the prevention of metal contamination",
-    "authors": "A. R. Martin, M. Baeyens, W. Hub, P. W. Mertens, B. O. Kolbesen",
-    "venue": "Microelectron. Eng. 45, 197-208 (1999)",
-    "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — SC-1 1 w-ppb 스파이크 + 1 ppm cTRAMP/Dequest/EDTA, VPD-DSE-TXRF Fig.4/5(막대 판독), SPV Fe 1e10-1e11 /cm3"
-  },
-  "sun2007-ua-thesis-colloidal-electrochemical-cu-cmp": {
-    "src": "Univ. of Arizona DSpace 7 REST API (item e13f89ff-6de7-43c1-b3e4-0a394edd3c1b, ORIGINAL bundle azu_etd_2457_sip1_m.pdf)",
-    "pdf": "papers/sun2007-ua-thesis-colloidal-electrochemical-cu-cmp.pdf",
-    "handle": "10150/194903",
-    "title": "Colloidal and Electrochemical Aspects of Copper-CMP",
-    "authors": "Yuxia Sun (advisor: Srini Raghavan)",
-    "venue": "The University of Arizona PhD dissertation, 2007",
-    "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — Cu/SiO2(TEOS·Cabosil) 등온선 pH 4/6 (Fig.4.3, 4.12), pH edge Fig.4.13, SCM Table 4.1 (2 OH/nm2, pKa1 5.9, pK1 4.35, pK2 8.22), CA 100 ppm·H2O2·BTA 효과, ζ(pH) Fig.4.11"
-  },
-  "dandu2009-jes-selective-sio2-sin-ceria-sti": {
-    "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
-    "pdf": "papers/dandu2009-jes-selective-sio2-sin-ceria-sti.pdf",
-    "doi": "10.1149/1.3230624",
-    "title": "Selective Chemical Mechanical Polishing of Silicon Dioxide over Silicon Nitride for Shallow Trench Isolation Using Ceria Slurries",
-    "authors": "P. R. Dandu Veera, Shivaji Peddeti, S. V. Babu",
-    "venue": "J. Electrochem. Soc. 156(12) H936-H943 (2009)",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ceria 0.25 % oxide 350 / nitride 80 nm/min; +0.05 % pyridine HCl nitride 2 nm/min; Fig.14 nitride stops after 3 nm"
-  },
-  "mariscal2020-jss-sio2-si3n4-sti-kinetic": {
-    "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
-    "pdf": "papers/mariscal2020-jss-sio2-si3n4-sti-kinetic.pdf",
-    "doi": "10.1149/2162-8777/ab89bc",
-    "title": "Tribological, Thermal and Kinetic Characterization of SiO2 and Si3N4 Polishing for STI CMP on Blanket and Patterned Wafers",
-    "authors": "J. C. Mariscal, J. McAllister, Y. Sampurno, J. Sierra Suarez, M. O'Neill, H. Zhou, M. Grief, D. Slutz, A. Philipossian",
-    "venue": "ECS J. Solid State Sci. Technol. 9, 044008 (2020)",
-    "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — selectivity 32-101 vs P·V, L-H k1/k2, MIT 864 patterned clear at 6 min, COF endpoint"
-  },
-  "us20190127607a1-versum-ceria-coated-silica-d99": {
-    "src": "USPTO 특허출원 공개공보(무료 공개) — patents.google.com PDF 직접 다운로드",
-    "pdf": "papers/us20190127607a1-versum-ceria-coated-silica-d99.pdf",
-    "doi": null,
-    "patent_no": "US 2019/0127607 A1",
-    "title": "Composite Particles, Method of Fabrication, and Applications Thereof",
-    "authors": "Versum Materials US, LLC (assignee)",
-    "venue": "USPTO patent application, published 2019-05-02",
-    "note": "cmp/abrasive-d99-composite-particle-versum2019.md — D50/D99/D99-D50 particle size distribution (Table I, 4 ceria-coated silica composite particles) + oxide film removal rate vs distribution width (Table II)"
-  },
-  "us10669449b2-composite-abrasive-ceria-silica-d99": {
-    "src": "patents.google.com — 무료 공개 특허 전문(HTML 텍스트 추출)",
-    "pdf": null,
-    "txt": "papers/us10669449b2-composite-abrasive-ceria-silica-d99.txt",
-    "doi": null,
-    "patent_no": "US 10,669,449 B2",
-    "title": "Composite abrasive particles for chemical mechanical planarization composition and method of use thereof",
-    "authors": "assignee-side patent (ceria-coated silica composite particles, Table 1/3)",
-    "venue": "USPTO issued patent, US10669449B2",
-    "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — Table1 LPC calcined/colloidal/coated ceria 비교(13배), Table3 D50/D75/D99 CPOP-20 vs CP2"
-  },
-  "evonik-idisil-colloidal-silica-cmp-datasheet": {
-    "src": "products.evonik.com — 제조사 기술문서 무료 PDF 다운로드",
-    "pdf": "papers/evonik-idisil-cmp-colloidal-silica-datasheet.pdf",
-    "doi": null,
-    "patent_no": null,
-    "title": "IDISIL® – Ultra-High Purity Colloidal Silica for Chemical Mechanical Planarization",
-    "authors": "Evonik Operations GmbH",
-    "venue": "제조사 기술문서, 2025-08",
-    "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — KE50/70/90/125 Z-average 입경만 공개, D99 미공개(참고자료)"
-  },
-  "bai2007-apsusc-cu-mrr-molecular-scale-particle-size-conc": {
-    "src": "미러 사이트(미러 사이트 via 미러 사이트)",
-    "pdf_local": "papers/apsusc-2007-04-027-zhao-chang-mrr-molecular-scale.pdf",
-    "doi": "10.1016/j.apsusc.2007.04.027",
-    "title": "A mathematical model for material removal and chemical-mechanical synergy in chemical-mechanical polishing at molecular scale",
-    "authors": "J. Bai, et al.",
-    "journal": "Applied Surface Science 253 (2007) 8489-8494",
-    "confidence": "doi",
-    "note": "knowledge/cmp/particle-size-mrr-molecular-scale-bai2007.md"
-  },
-  "us8439995-hitachi-ceria-d99-scratch": {
-    "src": "Google Patents (free public patent PDF)",
-    "pdf": "https://patentimages.storage.googleapis.com/53/4b/0a/39916f60c1d021/US8439995.pdf",
-    "landing": "https://patents.google.com/patent/US8439995B2/en",
-    "local": "papers/US8439995-hitachi-ceria-d99-scratch.pdf",
-    "note": "Hitachi Chemical 세리아 CMP 슬러리 특허 — Example 1/2, Comparative 1/2에서 D50/D99/scratch count 4점 실측"
-  }
+ "prediction-of-polishing-pressure-distribution-in-cmp-process": {
+  "src": "Unpaywall",
+  "pdf": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
+  "landing": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
+  "ver": "submittedVersion",
+  "host": "repository",
+  "license": "cc-by-nc-nd",
+  "doi": "10.1016/j.cirp.2017.04.088",
+  "matched_title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
+  "confidence": "doi",
+  "title": "Prediction of polishing pressure distribution in CMP process with airbag type wafer carrier",
+  "note": "equipment/cmp-tool-architecture.md"
+ },
+ "thakurta2001-3d-cmp-slurry-flow-lubrication-theory": {
+  "src": "미러 사이트 (미러 사이트/.red mirror, DOI resolved)",
+  "pdf_local": "papers/thakurta2001_slurry_flow_lubrication.pdf",
+  "doi": "10.1149/1.1355691",
+  "title": "Three-Dimensional Chemical Mechanical Planarization Slurry Flow Model Based on Lubrication Theory",
+  "authors": "Thakurta, Borst, Schwendeman, Gutmann, Gill",
+  "venue": "J. Electrochem. Soc. 148(4) G207-G214 (2001)",
+  "note": "physics/cmp-slurry-flow-lubrication-film-thickness.md"
+ },
+ "luo-dornfeld-2001-material-removal-mechanism-cmp-theory-modeling": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
+  "pdf": null,
+  "doi": "10.1109/66.920723",
+  "title": "Material removal mechanism in chemical mechanical polishing: theory and modeling",
+  "authors": "J. Luo, D. A. Dornfeld",
+  "venue": "IEEE Trans. Semicond. Manuf. 14(2), 112-133 (2001)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "kaufman-1991-cmp-patterned-w-metal-features-chip-interconnects": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(J. Electrochem. Soc.)",
+  "pdf": null,
+  "doi": "10.1149/1.2085434",
+  "title": "Chemical-Mechanical Polishing for Fabricating Patterned W Metal Features as Chip Interconnects",
+  "authors": "F. B. Kaufman, D. B. Thompson, R. E. Broadie, M. A. Jaso, W. L. Guthrie, D. J. Pearson, M. B. Small",
+  "venue": "J. Electrochem. Soc. 138(11), 3460-3465 (1991)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "luo-dornfeld-2003-effects-of-abrasive-size-distribution-cmp": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(IEEE)",
+  "pdf": null,
+  "doi": "10.1109/tsm.2003.815199",
+  "title": "Effects of abrasive size distribution in chemical mechanical planarization: Modeling and verification",
+  "authors": "J. Luo, D. A. Dornfeld",
+  "venue": "IEEE Trans. Semicond. Manuf. 16(3), 469-476 (2003)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "chemically-enhanced-synergistic-wear-copper-cmp-case-study": {
+  "src": "DOI 실존확인(Crossref) — OA 전문 없음, 유료(Wear/Elsevier)",
+  "pdf": null,
+  "doi": "10.1016/j.wear.2013.08.001",
+  "title": "Chemically enhanced synergistic wear: A copper chemical mechanical polishing case study",
+  "venue": "Wear 307(1-2), 206-212 (2013)",
+  "note": "cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+ },
+ "feng2007-pad-conditioning-density-tsm": {
+  "src": "미러 사이트 (mirror 미러 사이트 storage)",
+  "pdf": "papers/feng2007-pad-conditioning-density-tsm.pdf",
+  "doi": "10.1109/TSM.2007.907618",
+  "title": "Pad Conditioning Density Distribution in CMP Process With Diamond Dresser",
+  "author": "Tyan Feng",
+  "year": 2007,
+  "journal": "IEEE Trans. Semicond. Manuf. 20(4), 464-475",
+  "note": "유료(IEEE), 미러 사이트 확보. 사용자 지시 2026-09-05 반영."
+ },
+ "shi-ring-2010-cmp-pad-wear-polish-rate-decay-fluid": {
+  "src": "author open-access (my.che.utah.edu)",
+  "pdf_local": "papers/ring2010_polish_rate_decay_fluid.pdf",
+  "doi": "10.1016/j.mee.2010.04.010",
+  "title": "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect",
+  "authors": "Hong Shi, Terry A. Ring",
+  "venue": "Microelectronic Engineering 87, 2368-2375 (2010)",
+  "note": "materials/pad-conditioning-wear-regeneration-balance.md"
+ },
+ "pysher-goers-zabasajja-2010-diamond-pad-conditioner-design": {
+  "src": "3M open-access PDF",
+  "pdf_local": "papers/3m_diamond_conditioner_design.pdf",
+  "doi": "10.1557/proc-1249-e02-04",
+  "title": "Design, Characteristics and Performance of Diamond Pad Conditioners",
+  "authors": "Doug Pysher, Brian Goers, John Zabasajja",
+  "venue": "MRS Proceedings 1249 (2010)",
+  "note": "materials/pad-conditioning-wear-regeneration-balance.md (참고, 미인용 상세)"
+ },
+ "vasilev2011-gw-pattern-density-size-cmp": {
+  "src": "미러 사이트 mirror (via 미러 사이트 lookup)",
+  "pdf": "papers/vasilev2011-gw-pattern-density-size-cmp.pdf",
+  "doi": "10.1109/TSM.2011.2107756",
+  "title": "Greenwood-Williamson Model Combining Pattern-Density and Pattern-Size Effects in CMP",
+  "authors": "Boris Vasilev, Roland Rzehak, Sascha Bott, Peter Kucher, Johann W. Bartha",
+  "venue": "IEEE Trans. Semicond. Manuf. 24(2), 338-347 (2011)",
+  "note": "cmp/npw-ptw-pattern-effect-gw-physics.md"
+ },
+ "jeong2024-pad-asperity-pdf-wear-materials": {
+  "src": "Europe PMC render (MDPI CC-BY open access)",
+  "pdf_local": "papers/jeong2024-pad-asperity-pdf-wear-materials.pdf",
+  "doi": "10.3390/ma17081817",
+  "pmc": "PMC11051262",
+  "title": "Novel Probability Density Function of Pad Asperity by Wear Effect over Time in Chemical Mechanical Planarization",
+  "authors": "Seonho Jeong, Yeongil Shin, Jongmin Jeong, Seunghun Jeong, Haedo Jeong",
+  "venue": "Materials 17(8), 1817 (2024)",
+  "note": "materials/pad-glazing-mechanism-mrr-decay.md (기존 노트 2편이 'Yang et al.'로 오기 — 실제 저자 Jeong et al.)"
+ },
+ "mcallister2019-conditioner-type-microtexture-sio2-micromachines": {
+  "src": "Europe PMC render (MDPI CC-BY OA)",
+  "pdf_local": "papers/mcallister2019-conditioner-type-microtexture-sio2-micromachines.pdf",
+  "xml_local": "papers/mcallister2019-mi10040258.xml",
+  "doi": "10.3390/mi10040258",
+  "pmc": "PMC6523751",
+  "title": "Effect of Conditioner Type and Downforce, and Pad Surface Micro-Texture on SiO2 Chemical Mechanical Planarization Performance",
+  "authors": "J. McAllister, C. Stuffle, Y. Sampurno, D. Hetherington, J. Sierra Suarez, L. Borucki, A. Philipossian",
+  "venue": "Micromachines 10(4), 258 (2019)",
+  "note": "materials/disk-design-pad-roughness-asperity-relation.md — ABT(173µm 다이아, 돌출 52µm) vs EHWA CVD 1.3K(45µm 팁) 상대 마이크로텍스처 Table 1"
+ },
+ "mcallister2018-jss-downforce-breakin-microtexture": {
+  "src": "Univ. of Arizona repository (accepted manuscript) http://hdl.handle.net/10150/628667 — IOP 원본은 봇차단",
+  "pdf_local": "papers/mcallister2018-jss-downforce-breakin-microtexture.pdf",
+  "doi": "10.1149/2.0271805jss",
+  "title": "Effect of Conditioning Downforce and Pad Break-In Time on Pad Surface Micro-Texture",
+  "venue": "ECS J. Solid State Sci. Technol. 7(5), P274-P280 (2018)",
+  "note": "Table I: EHWA CVD 디스크 60분 브레이크인 후 summit height 21/20.5µm, 접촉밀도 82/143 /mm², 접촉면적 0.022/0.052% (6/10 lbf)"
+ },
+ "mcallister2019-dissertation-ua": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/636531 (공개 학위논문)",
+  "pdf_local": "papers/mcallister2019-dissertation-ua.pdf",
+  "title": "Novel Studies in Silicon Dioxide, Copper and Tungsten Chemical Mechanical Planarization Processes",
+  "authors": "Jeffrey Connor McAllister",
+  "venue": "PhD dissertation, Univ. of Arizona (2019)"
+ },
+ "sun2009-dissertation-ua-pad-wafer-contact": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/194898 (공개 학위논문)",
+  "pdf_local": "papers/sun2009-dissertation-ua-pad-wafer-contact.pdf",
+  "title": "Pad-Wafer and Brush-Wafer Contact Characterization in Planarization and Post-Planarization Processes",
+  "authors": "Ting Sun",
+  "venue": "PhD dissertation, Univ. of Arizona (2009)",
+  "note": "Ch.7.1 = Sun et al. 2010 Microelectron. Eng. 87, 553 (DOI 10.1016/j.mee.2009.08.007, 유료·미확보)의 학위논문판 — MMC TRD 100-grit/325-grit × 3.6/8.0 lb → λ(Fig.7.4); Ch.7.2 Type A/B 디스크 접촉면적·summit 밀도(Fig.7.14/7.15)"
+ },
+ "liao2014-dissertation-ua-consumables": {
+  "src": "Univ. of Arizona repository http://hdl.handle.net/10150/323377 (공개 학위논문)",
+  "pdf_local": "papers/liao2014-dissertation-ua-consumables.pdf",
+  "title": "Process Optimization and Fundamental Consumables Characterization of Advanced Dielectric and Metal CMP",
+  "authors": "Xiaoyan Liao",
+  "venue": "PhD dissertation, Univ. of Arizona (2014)",
+  "note": "Ch.4(=ESSL 14, H201, 2011) 3M A2810 vs MMC TRD λ 3.84/3.64µm; Ch.7 λ 3.18/2.92µm, summit curvature 0.51/0.89 µm⁻¹"
+ },
+ "lawing2004-cmpug-pad-conditioning-effects": {
+  "src": "NCCAVS CMPUG 공개 PDF https://nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2004/CMPUG_05_2004_Lawing.pdf",
+  "pdf_local": "papers/lawing2004-cmpug-pad-conditioning-effects.pdf",
+  "title": "Pad Conditioning Effects in Chemical Mechanical Polishing",
+  "authors": "A. Scott Lawing",
+  "venue": "NCCAVS CMPUG 2004-05-05",
+  "note": "컨디셔너 공격성 low/medium/high → 접촉면적 11.3/7.7/2.2%, 솔리드 패드 높이분포 ≈ Gaussian"
+ },
+ "ring-prasad-dirksen-asperity-population-balance-J120": {
+  "src": "저자 공개 PDF https://my.che.utah.edu/~ring/Publications-PDFs/J-120.pdf",
+  "pdf_local": "papers/ring-prasad-dirksen-asperity-population-balance-J120.pdf",
+  "title": "Dynamic CMP Pad Asperity Population Balance for Conditioning and Polishing",
+  "authors": "T.A. Ring, A. Prasad, J.A. Dirksen",
+  "venue": "(연도 미기재) 저자 웹공개",
+  "note": "Table 1: η=(1/Dgrit)², σ=Dgrit/2 매핑 규칙 — 표기 수치(2.938e11 /m², 8.112µm)와 Dgrit=190µm가 상호 불일치"
+ },
+ "zheng-zhao-lu-2023-pad-wear-profile-mi14091683": {
+  "src": "EuropePMC fullTextXML",
+  "pdf": null,
+  "landing": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10536193/",
+  "ver": "publishedVersion",
+  "host": "PMC (Europe PMC fullTextXML mirror)",
+  "license": "cc-by",
+  "doi": "10.3390/mi14091683",
+  "matched_title": "Prediction of Pad Wear Profile and Simulation of Its Influence on Wafer Polishing",
+  "note": "tool-platen-head Lv2-1. MDPI 직접다운로드 403(Access Denied/edgesuite), PMC PDF는 PoW 챌린지로 curl 차단. Europe PMC REST fullTextXML(papers/mi14091683-fulltext.xml)로 본문 확보."
+ },
+ "jmr-2013-pad-porosity-hardness": {
+  "doi": "10.1557/jmr.2013.173",
+  "title": "The effect of polymer hardness, pore size, and porosity on the performance of thermoplastic polyurethane-based chemical mechanical polishing pads",
+  "authors": "Prasad, Fotou, Li",
+  "year": 2013,
+  "journal": "J. Mater. Res. 28(17), 2380-2393",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/pad-porosity-slurry-transport-mrr.md"
+ },
+ "mee-2018-pad-microstructure-yim": {
+  "doi": "10.1016/j.mee.2017.12.002",
+  "title": "Chemical/mechanical balance management through pad microstructure in CMP",
+  "authors": "Yim, Perrot, Balan, Friot, Qian, Chiou, Jacob, Gourvest, Salvatore, Valette",
+  "year": 2018,
+  "journal": "Microelectronic Engineering 195, 36-40",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/pad-porosity-slurry-transport-mrr.md"
+ },
+ "lo-lin-2005-fem-anfis-jmatprotec": {
+  "doi": "10.1016/j.jmatprotec.2005.01.010",
+  "title": "The prediction of wafer surface non-uniformity using FEM and ANFIS in the chemical mechanical polishing process",
+  "authors": "Lo, Lin",
+  "year": 2005,
+  "journal": "Journal of Materials Processing Technology 168, 250-257",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "pad-structure Lv2-1. FEM material properties table (pad/wafer/carrier E, thickness) + 35 sets simulated non-uniformity R=sigma_max/sigma_c vs pad E0,T0,L0."
+ },
+ "kim2004-kinematic-jemat": {
+  "doi": "10.1007/s11664-004-0294-4",
+  "title": "Effect of Process Conditions on Uniformity of Velocity and Wear Distance of Pad and Wafer during Chemical Mechanical Planarization",
+  "authors": "Kim, Jeong",
+  "year": 2004,
+  "journal": "Journal of Electronic Materials 33(1), 53-60",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "tool-platen-head Lv2-2. kinematic number zeta 원전 확정. NU_vel=2|zeta|, NU_s(sliding dist)~25*zeta^2."
+ },
+ "yuh2015-green-cmp-coolant": {
+  "doi": "10.1007/s40684-015-0041-8",
+  "title": "Development of Green CMP by Slurry Reduction through Controlling Platen Coolant Temperature",
+  "authors": "Yuh, Jang, Kim, Lee, Jeong",
+  "year": 2015,
+  "journal": "Int. J. Precis. Eng. Manuf.-Green Technol. 2(4), 339-344",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "tool-platen-head Lv2-2. slurry flow rate / platen coolant temperature vs MRR_avg, NU (Oscar-type Cu CMP, PCB scale)."
+ },
+ "kenchappa2021-soft-pad-oxide-cmp-jss": {
+  "src": "OA(CC BY-NC-ND) — Semantic Scholar PDF 미러(pdfs.semanticscholar.org/fe08/3e2cde6e6e283da4a4ecaf82d9dd348900e4.pdf); IOP 직접은 봇차단",
+  "pdf_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.pdf",
+  "txt_local": "papers/kenchappa2021-soft-pad-oxide-cmp-jss.txt",
+  "doi": "10.1149/2162-8777/abdc40",
+  "title": "Soft Chemical Mechanical Polishing Pad for Oxide CMP Applications",
+  "authors": "N.B. Kenchappa, R. Popuri, A. Chockkalingam, P. Jawali, S. Jayanath, D. Redfield, R. Bajaj",
+  "venue": "ECS J. Solid State Sci. Technol. 10, 014008 (2021)",
+  "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — AMAT 적층제조(참고문헌 34–36·39) 소프트 패드 40D: 세리아 산화막 RR 3250 vs 상용 1700 Å/min, asperity 높이폭 8 vs 30 µm; 결함 카운트 없음"
+ },
+ "yang2010-ijmt-solid-pad-microholes-conditioner": {
+  "src": "미러 사이트 (미러 사이트 → 미러 사이트, DOI resolved) — Elsevier 유료, 합법 OA 없음",
+  "pdf_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.pdf",
+  "txt_local": "papers/yang2010-ijmt-solid-pad-microholes-conditioner.txt",
+  "doi": "10.1016/j.ijmachtools.2010.06.007",
+  "title": "Effects of diamond size of CMP conditioner on wafer removal rates and defects for solid (non-porous) CMP pad with micro-holes",
+  "authors": "J.C. Yang, J.H. Choi, T. Hwang, C.-G. Lee, T. Kim",
+  "venue": "Int. J. Mach. Tools Manuf. 50, 860–868 (2010)",
+  "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 무발포 SURE2000 vs IC-1010: 접촉면적 7.5 vs 0.7%, RR ∝ A^0.5 (1.201 vs 1.207); 초록 '2587'은 오타(본문 3587); fitz 추출 시 ± 기호 깨짐 주의"
+ },
+ "morsada2025-jss-pu-pad-innovations-perspective": {
+  "src": "초록만 — Unpaywall closed, IOP 봇차단, 미러 사이트 .box/.ru/.ren 미보유(2026-09-08)",
+  "doi": "10.1149/2162-8777/add808",
+  "title": "Innovations in Polyurethane Pads Used in Chemical-Mechanical Planarization: A Perspective and Future Directions",
+  "authors": "Z. Morsada, H.B. Gunasekaran, N.R. Visaveliya, D.A. Shipp",
+  "venue": "ECS J. Solid State Sci. Technol. 14, 054009 (2025)",
+  "note": "materials/pad-3dprinted-nonporous-lowdefect-review.md — 리뷰, 본문 수치 미사용"
+ },
+ "irfan2025-jmmp-cfd-groove-depth-lifetime": {
+  "src": "MDPI CC-BY (mdpi-res.com CDN 직링크; mdpi.com은 403)",
+  "pdf_local": "papers/irfan2025-jmmp-cfd-groove-depth-lifetime.pdf",
+  "doi": "10.3390/jmmp9030095",
+  "title": "Improvement of Material Removal Rate and Within Wafer Non-Uniformity in Chemical Mechanical Polishing Using Computational Fluid Dynamic Modeling",
+  "authors": "Irfan, Lee, Muzumdar, Aryanfar, Wu",
+  "venue": "J. Manuf. Mater. Process. 9(3), 95 (2025)",
+  "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
+ },
+ "liu2024-ecsjss-pad-groove-depth-reduction-oxide-cmp": {
+  "src": "초록만 — bronze OA이나 IOP Radware 캡차로 PDF/HTML 차단, 미러 사이트 미러 5종 캡차, Wayback/fatcat/CORE 사본 없음",
+  "pdf_local": null,
+  "doi": "10.1149/2162-8777/ad83ef",
+  "title": "Investigating the Impact of Pad Groove Depth Reduction on Process Variation in Oxide Chemical Mechanical Polishing",
+  "authors": "Liu, Kang, Oh, Jeon, Lee, Wang, Jeong, Lee, Kim",
+  "venue": "ECS J. Solid State Sci. Technol. (2024)",
+  "note": "materials/pad-groove-wear-flow-change-end-of-life.md (pad-structure Lv2-2)"
+ },
+ "kim-kang2011-ijmtm-cvd-diamond-coated-conditioner": {
+  "src": "미러 사이트 (DOI resolved)",
+  "pdf_local": "papers/kim-kang2011-ijmtm-cvd-diamond-coated-conditioner.pdf",
+  "doi": "10.1016/j.ijmachtools.2011.02.008",
+  "title": "Novel CVD diamond-coated conditioner for improved performance in CMP processes",
+  "authors": "Kim, Kang",
+  "venue": "Int. J. Machine Tools & Manufacture 51 (2011) 565-568",
+  "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+ },
+ "tsai2014-mpe-radial-cluster-arranged-diamond-disk": {
+  "src": "Hindawi OA (CC-BY) — Cloudflare 차단, Wayback 20231120 보존본",
+  "pdf_local": "papers/tsai2014-mpe-radial-cluster-arranged-diamond-disk.pdf",
+  "doi": "10.1155/2014/913812",
+  "title": "Development and Analysis of Double-Faced Radial and Cluster-Arranged CMP Diamond Disk",
+  "authors": "Tsai, Chen, Chiang, Yeh",
+  "venue": "Mathematical Problems in Engineering 2014, 913812",
+  "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+ },
+ "shin2018-ijamt-diamond-orientation-conditioner": {
+  "src": "미러 사이트 (DOI resolved)",
+  "pdf_local": "papers/shin2018-ijamt-diamond-orientation-conditioner.pdf",
+  "doi": "10.1007/s00170-018-1956-3",
+  "title": "Diamond structure-dependent pad and wafer polishing performance during chemical mechanical polishing",
+  "authors": "Shin, Kulkarni, Kim, Kim, Jeon, Kim, Jin, Kim",
+  "venue": "Int. J. Adv. Manuf. Technol. 97 (2018) 563-571",
+  "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+ },
+ "guo2023-ijamt-ordered-abrasive-conditioner-preprint": {
+  "src": "Research Square 프리프린트 v1 (CC-BY, Green OA) — Wayback 보존본; 저널판(Springer) 미확보",
+  "pdf_local": "papers/guo2023-ijamt-ordered-abrasive-conditioner-preprint.pdf",
+  "doi": "10.1007/s00170-023-11965-2",
+  "preprint_doi": "10.21203/rs.3.rs-2408757/v1",
+  "title": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive distribution",
+  "authors": "Guo, Yang, Wen, Li, Cheng",
+  "venue": "Int. J. Adv. Manuf. Technol. 128 (2023) 1029-1048",
+  "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+ },
+ "US8657652-saint-gobain-sard-cmp-conditioner": {
+  "src": "freepatentsonline (특허 전문 텍스트)",
+  "pdf_local": "papers/US8657652.txt",
+  "patent": "US8657652B2",
+  "title": "Optimized CMP conditioner design for next generation oxide/metal CMP",
+  "authors": "Puthanangady et al. (Saint-Gobain Abrasives)",
+  "venue": "US Patent, granted 2014-02-25",
+  "note": "equipment/cvd-diamond-disk-patterned-grit-array.md"
+ },
+ "park2024-tribol-lubr-swing-deep-learning-pad-wear": {
+  "src": "koreascience.or.kr 오픈 PDF (Tribology and Lubricants, KOAJ 오픈액세스)",
+  "pdf_local": "papers/park2024-tribol-lubr-swing-deep-learning-pad-wear.pdf",
+  "doi": "10.9725/kts.2024.40.2.67",
+  "title": "Study on the Pad Wear Profile Based on the Conditioner Swing Using Deep Learning for CMP Pad Conditioning",
+  "authors": "Park, Hwang, Lee",
+  "venue": "Tribology and Lubricants 40(2), 67-70 (2024)",
+  "note": "equipment/disk-kinematics-closed-loop-adaptive-sweep.md"
+ },
+ "wei2010-sio2-nanomechanical": {
+  "title": "A Comprehensive Study on Nanomechanical Properties of Various SiO2-based Dielectric Films",
+  "doi": "10.1109/wmed.2010.5453755",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
+ },
+ "cook1990-chemical-processes-glass-polishing": {
+  "title": "Chemical Processes in Glass Polishing",
+  "doi": "10.1016/0022-3093(90)90200-6",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
+ },
+ "zantye2004-cmp-review": {
+  "title": "Chemical mechanical planarization for microelectronics applications",
+  "doi": "10.1016/j.mser.2004.06.002",
+  "src": "미러 사이트(미러 사이트)",
+  "note": "materials/film-oxide-teos-hdp-bpsg-sod-density-hardness"
+ },
+ "kim2002-mee-pattern-nonpattern-correlation-sti-cmp": {
+  "src": "미러 사이트 storage (via 미러 사이트 lookup, 2026-09-09)",
+  "pdf": "papers/kim2002-mee-pattern-nonpattern-correlation-sti-cmp.pdf",
+  "doi": "10.1016/S0167-9317(01)00694-3",
+  "title": "Correlation analysis between pattern and non-pattern wafer for characterization of shallow trench isolation-chemical-mechanical polishing (STI-CMP) process",
+  "authors": "Sang-Yong Kim, Yong-Jin Seo",
+  "venue": "Microelectronic Engineering 60 (2002) 357-364",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+ },
+ "tugbawa2002-thesis-mit-chip-scale-cu-cmp": {
+  "src": "MIT DSpace REST API (server/api/core/bitstreams/.../content)",
+  "pdf": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf",
+  "handle": "https://dspace.mit.edu/handle/1721.1/8083",
+  "title": "Chip-scale modeling of pattern dependencies in copper chemical mechanical polishing processes",
+  "authors": "Tugbawa, Tamba E.",
+  "venue": "MIT EECS PhD thesis (2002)",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md; cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md",
+  "pdf_local": "papers/tugbawa2002-thesis-mit-chip-scale-cu-cmp.pdf"
+ },
+ "ouma1998-thesis-mit-cmp-dielectric-planarization": {
+  "src": "MIT DSpace REST API (scanned PDF, no text layer - pages rendered with fitz and read visually)",
+  "pdf": "papers/ouma1998-thesis-mit-cmp-dielectric-planarization.pdf",
+  "handle": "1721.1/9704",
+  "title": "Modeling of chemical mechanical polishing for dielectric planarization",
+  "authors": "Dennis Okumu Ouma",
+  "venue": "MIT PhD thesis, EECS, submitted Nov. 1998 (degree 1999)",
+  "note": "cmp/npw-ptw-transfer-rules-quantitative.md"
+ },
+ "tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion": {
+  "src": "Univ. of Arizona DSpace 7 REST API (item 7c7b4d98-e530-4336-bd04-1f533ea79f77, ORIGINAL bundle bitstream)",
+  "pdf": "papers/tamilmani2005-ua-thesis-cu-cmp-dissolution-corrosion.pdf",
+  "handle": "10150/280774",
+  "title": "Dissolution, corrosion and environmental issues in chemical mechanical planarization of copper",
+  "authors": "Subramanian Tamilmani (advisor: Srini Raghavan)",
+  "venue": "The University of Arizona PhD dissertation, 2005 (journal version of ch.4.1: Tamilmani et al. 2002 JES 149 G638, doi 10.1149/1.1516224 — not obtained)",
+  "note": "cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md — Cu-H2O/Cu-BTA potential-pH diagrams (fig 4.1, 4.4 read visually), XPS Cu(I)-BTA, QCM BTA multilayer kinetics"
+ },
+ "lee2002-mit-thesis-sti-cmp-modeling": {
+  "src": "MIT DSpace REST API (item b43f42de-07fd-4df2-8088-eb3d5c2a1343, ORIGINAL bundle 51550156-MIT.pdf; text layer present, equations garbled -> pages rendered with fitz and read visually)",
+  "pdf": "papers/lee2002-mit-thesis-sti-cmp-modeling.pdf",
+  "handle": "1721.1/29907",
+  "title": "Modeling of chemical mechanical polishing for shallow trench isolation",
+  "authors": "Brian Lee (advisor: Duane S. Boning)",
+  "venue": "MIT PhD thesis, EECS, May 2002 (201 pp.)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ch.2 two-phase STI model (eq.2.32-2.49, Tables 2.1/2.3/2.4), §3.7 ceria HSS case study (Table 3.9/3.10, PL 1.6/4.7 mm, 28 s activation offset)"
+ },
+ "srinivasan2015-ecsjss-sti-cmp-review": {
+  "src": "iopscience.iop.org/article/10.1149/2.0071511jss/pdf (CC-BY open access; direct curl worked 2026-09-09)",
+  "pdf": "papers/srinivasan2015-ecsjss-sti-cmp-review.pdf",
+  "doi": "10.1149/2.0071511jss",
+  "title": "Shallow Trench Isolation Chemical Mechanical Planarization: A Review",
+  "authors": "Ramanathan Srinivasan, Pradeep VR Dandu, S. V. Babu",
+  "venue": "ECS J. Solid State Sci. Technol. 4(11) P5029-P5039 (2015)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Table I (24 high-selectivity slurries), nitride oxidation/suppression mechanism, patterned-STI section (Seo PAA+PEG dishing 800->600 A, Lim particle size, Merricks overpolish)"
+ },
+ "urban2016-cmpug-ferro-high-selectivity-ceria-sti": {
+  "src": "nccavs-usergroups.avs.org/wp-content/uploads/CMPUG2016/CMP2016_4Urban.pdf (vendor conference slides, weight 0.5)",
+  "pdf": "papers/urban2016-cmpug-ferro-high-selectivity-ceria-sti.pdf",
+  "title": "High Selectivity Ceria Slurry for Next Generation STI CMP Processes",
+  "authors": "Nate D. Urban (Ferro Corp.)",
+  "venue": "AVS CMP Users Group Meeting, 2016-04-07",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Ferro STI slurry generations table (HDP RR 2000-3500 A/min, nitride <20 A/min, 4->0.5 wt% ceria), amine SiN passivation, >500:1 customer report"
+ },
+ "hwang2026-polymers-paa-ceria-sti-slurry": {
+  "src": "mdpi-res.com/d_attachment/polymers/polymers-18-01899/article_deploy/polymers-18-01899.pdf (CC-BY)",
+  "pdf": "papers/hwang2026-polymers-paa-ceria-sti-slurry.pdf",
+  "doi": "10.3390/polym18151899",
+  "title": "Poly(acrylic acid)-Containing Ceria Slurries for Shallow Trench Isolation Chemical Mechanical Polishing: Colloidal Stability, Planarization Efficiency, and Selectivity",
+  "authors": "Sohee Hwang, Tao Lyu, Woonjung Kim",
+  "venue": "Polymers 18, 1899 (2026)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — PAA-only ceria slurry: HDP 114.4 / SiN 14.3 A/min (selectivity 8.0), HC10 57.5/12.3; Ce3+ fraction 22.1 vs 17.7 %"
+ },
+ "johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry": {
+  "src": "MIT DSpace REST API (item 6782e9b8-a60f-41ef-a13c-7dd8a01e8b4c)",
+  "pdf": "papers/johnson2009-mit-thesis-ecmp-sti-nonconventional-slurry.pdf",
+  "handle": "1721.1/52807",
+  "title": "Modeling of advanced integrated circuit planarization processes: eCMP, STI CMP using non-conventional slurries",
+  "authors": "Joy Marie Johnson (advisor: Duane S. Boning)",
+  "venue": "MIT SM thesis, EECS, 2009 (99 pp.)",
+  "note": "obtained for film-oxide Lv2-2 but only skimmed (silica-slurry STI evolving-pattern-density model); not cited in note"
+ },
+ "tugbawa2001-cmpmic-multistep-cu-pattern-model": {
+  "src": "boning.mit.edu reprint",
+  "pdf_local": "papers/tugbawa2001-cmpmic-cu-model.pdf",
+  "doi": null,
+  "title": "Modeling of Pattern Dependencies in Multi-Step Copper Chemical Mechanical Polishing Processes",
+  "authors": "Tugbawa, Park, Boning, Camilletti, Brongo, Lefevre",
+  "venue": "CMP-MIC 2001, Santa Clara",
+  "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md"
+ },
+ "ruan2009-jos-pattern-effects-cu-cmp": {
+  "src": "Wayback (web.archive.org/web/2015id_/ jos.ac.cn PDF; jos.ac.cn DNS 불해석, IOP pdf 차단)",
+  "pdf_local": "papers/ruan2009-jos-pattern-effects-cu-cmp.pdf",
+  "doi": "10.1088/1674-4926/30/4/046001",
+  "title": "Effects of pattern characteristics on copper CMP",
+  "authors": "Ruan Wenbiao, Chen Lan, Li Zhigang, Ye Tianchun",
+  "venue": "J. Semicond. 30(4) 046001 (2009)",
+  "note": "cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md (시뮬레이터 출력 주의)"
+ },
+ "loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09; IOP bronze OA는 봇차단)",
+  "pdf": "papers/loewenstein1998-jes-metal-ion-adsorption-hydrophilic-si-ph.pdf",
+  "doi": "10.1149/1.1838723",
+  "title": "Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution: Effect of pH",
+  "authors": "L. M. Loewenstein, P. W. Mertens",
+  "venue": "J. Electrochem. Soc. 145(8) 2841-2847 (1998)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — pH 3-5.6, 5e-8 M 10종 금속 TXRF; pH 5.6→3 최대 78배 감소; 전하/반경 비례(Fig.5-7); Table A-I Q_r"
+ },
+ "loewenstein1999-jes-competitive-adsorption-metal-ions-si": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09)",
+  "pdf": "papers/loewenstein1999-jes-competitive-adsorption-metal-ions-si.pdf",
+  "doi": "10.1149/1.1391670",
+  "title": "Competitive Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution",
+  "authors": "L. M. Loewenstein, F. Charpin, P. W. Mertens",
+  "venue": "J. Electrochem. Soc. 146(2) 719-727 (1999)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — 경쟁 Langmuir Eq.22; Table I(TXRF, pH 3-5.5, pM 5-8), Table V/VI 지수, Fig.8 σ0=3e12, K_H~1e3, K_Cr~1e6 (Table I은 페이지 렌더 판독)"
+ },
+ "seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination": {
+  "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09); 텍스트 레이어 깨져 fitz 렌더 후 판독",
+  "pdf": "papers/seo2001-jmsme-post-cmp-cleaning-slurry-metallic-contamination.pdf",
+  "doi": "10.1023/A:1011242900843",
+  "title": "Optimization of post-CMP cleaning process for elimination of CMP slurry-induced metallic contaminations",
+  "authors": "Y.-J. Seo, W.-S. Lee, S.-Y. Kim, J.-S. Park, E.-G. Chang",
+  "venue": "J. Mater. Sci.: Mater. Electron. 12, 411-415 (2001)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — KOH 슬러리(Cabot SS-12) PE-TEOS K~1e12/Ca~1e11, O3-BPSG K~3e13/Ca~2e12, dHF 3 nm 제거로 as-dep 복귀(Fig.2); Lv1-1 노트의 '2차 요약' 표기를 1차로 승격"
+ },
+ "martin1999-mee-alkaline-cleaning-additives-metal-contamination": {
+  "src": "미러 사이트→미러 사이트 → 미러 사이트 storage (2026-09-09)",
+  "pdf": "papers/martin1999-mee-alkaline-cleaning-additives-metal-contamination.pdf",
+  "doi": "10.1016/S0167-9317(99)00150-1",
+  "title": "Alkaline cleaning of silicon wafers: additives for the prevention of metal contamination",
+  "authors": "A. R. Martin, M. Baeyens, W. Hub, P. W. Mertens, B. O. Kolbesen",
+  "venue": "Microelectron. Eng. 45, 197-208 (1999)",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — SC-1 1 w-ppb 스파이크 + 1 ppm cTRAMP/Dequest/EDTA, VPD-DSE-TXRF Fig.4/5(막대 판독), SPV Fe 1e10-1e11 /cm3"
+ },
+ "sun2007-ua-thesis-colloidal-electrochemical-cu-cmp": {
+  "src": "Univ. of Arizona DSpace 7 REST API (item e13f89ff-6de7-43c1-b3e4-0a394edd3c1b, ORIGINAL bundle azu_etd_2457_sip1_m.pdf)",
+  "pdf": "papers/sun2007-ua-thesis-colloidal-electrochemical-cu-cmp.pdf",
+  "handle": "10150/194903",
+  "title": "Colloidal and Electrochemical Aspects of Copper-CMP",
+  "authors": "Yuxia Sun (advisor: Srini Raghavan)",
+  "venue": "The University of Arizona PhD dissertation, 2007",
+  "note": "cmp/post-cmp-residual-metal-prediction-langmuir-scm.md — Cu/SiO2(TEOS·Cabosil) 등온선 pH 4/6 (Fig.4.3, 4.12), pH edge Fig.4.13, SCM Table 4.1 (2 OH/nm2, pKa1 5.9, pK1 4.35, pK2 8.22), CA 100 ppm·H2O2·BTA 효과, ζ(pH) Fig.4.11"
+ },
+ "dandu2009-jes-selective-sio2-sin-ceria-sti": {
+  "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
+  "pdf": "papers/dandu2009-jes-selective-sio2-sin-ceria-sti.pdf",
+  "doi": "10.1149/1.3230624",
+  "title": "Selective Chemical Mechanical Polishing of Silicon Dioxide over Silicon Nitride for Shallow Trench Isolation Using Ceria Slurries",
+  "authors": "P. R. Dandu Veera, Shivaji Peddeti, S. V. Babu",
+  "venue": "J. Electrochem. Soc. 156(12) H936-H943 (2009)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — ceria 0.25 % oxide 350 / nitride 80 nm/min; +0.05 % pyridine HCl nitride 2 nm/min; Fig.14 nitride stops after 3 nm"
+ },
+ "mariscal2020-jss-sio2-si3n4-sti-kinetic": {
+  "src": "pre-existing in papers/ (obtained by another agent; registered by film-oxide 2026-09-09)",
+  "pdf": "papers/mariscal2020-jss-sio2-si3n4-sti-kinetic.pdf",
+  "doi": "10.1149/2162-8777/ab89bc",
+  "title": "Tribological, Thermal and Kinetic Characterization of SiO2 and Si3N4 Polishing for STI CMP on Blanket and Patterned Wafers",
+  "authors": "J. C. Mariscal, J. McAllister, Y. Sampurno, J. Sierra Suarez, M. O'Neill, H. Zhou, M. Grief, D. Slutz, A. Philipossian",
+  "venue": "ECS J. Solid State Sci. Technol. 9, 044008 (2020)",
+  "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — selectivity 32-101 vs P·V, L-H k1/k2, MIT 864 patterned clear at 6 min, COF endpoint"
+ },
+ "us20190127607a1-versum-ceria-coated-silica-d99": {
+  "src": "USPTO 특허출원 공개공보(무료 공개) — patents.google.com PDF 직접 다운로드",
+  "pdf": "papers/us20190127607a1-versum-ceria-coated-silica-d99.pdf",
+  "doi": null,
+  "patent_no": "US 2019/0127607 A1",
+  "title": "Composite Particles, Method of Fabrication, and Applications Thereof",
+  "authors": "Versum Materials US, LLC (assignee)",
+  "venue": "USPTO patent application, published 2019-05-02",
+  "note": "cmp/abrasive-d99-composite-particle-versum2019.md — D50/D99/D99-D50 particle size distribution (Table I, 4 ceria-coated silica composite particles) + oxide film removal rate vs distribution width (Table II)"
+ },
+ "us10669449b2-composite-abrasive-ceria-silica-d99": {
+  "src": "patents.google.com — 무료 공개 특허 전문(HTML 텍스트 추출)",
+  "pdf": null,
+  "txt": "papers/us10669449b2-composite-abrasive-ceria-silica-d99.txt",
+  "doi": null,
+  "patent_no": "US 10,669,449 B2",
+  "title": "Composite abrasive particles for chemical mechanical planarization composition and method of use thereof",
+  "authors": "assignee-side patent (ceria-coated silica composite particles, Table 1/3)",
+  "venue": "USPTO issued patent, US10669449B2",
+  "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — Table1 LPC calcined/colloidal/coated ceria 비교(13배), Table3 D50/D75/D99 CPOP-20 vs CP2"
+ },
+ "evonik-idisil-colloidal-silica-cmp-datasheet": {
+  "src": "products.evonik.com — 제조사 기술문서 무료 PDF 다운로드",
+  "pdf": "papers/evonik-idisil-cmp-colloidal-silica-datasheet.pdf",
+  "doi": null,
+  "patent_no": null,
+  "title": "IDISIL® – Ultra-High Purity Colloidal Silica for Chemical Mechanical Planarization",
+  "authors": "Evonik Operations GmbH",
+  "venue": "제조사 기술문서, 2025-08",
+  "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — KE50/70/90/125 Z-average 입경만 공개, D99 미공개(참고자료)"
+ },
+ "bai2007-apsusc-cu-mrr-molecular-scale-particle-size-conc": {
+  "src": "미러 사이트(미러 사이트 via 미러 사이트)",
+  "pdf_local": "papers/apsusc-2007-04-027-zhao-chang-mrr-molecular-scale.pdf",
+  "doi": "10.1016/j.apsusc.2007.04.027",
+  "title": "A mathematical model for material removal and chemical-mechanical synergy in chemical-mechanical polishing at molecular scale",
+  "authors": "J. Bai, et al.",
+  "journal": "Applied Surface Science 253 (2007) 8489-8494",
+  "confidence": "doi",
+  "note": "knowledge/cmp/particle-size-mrr-molecular-scale-bai2007.md"
+ },
+ "us8439995-hitachi-ceria-d99-scratch": {
+  "src": "Google Patents (free public patent PDF)",
+  "pdf": "https://patentimages.storage.googleapis.com/53/4b/0a/39916f60c1d021/US8439995.pdf",
+  "landing": "https://patents.google.com/patent/US8439995B2/en",
+  "local": "papers/US8439995-hitachi-ceria-d99-scratch.pdf",
+  "note": "Hitachi Chemical 세리아 CMP 슬러리 특허 — Example 1/2, Comparative 1/2에서 D50/D99/scratch count 4점 실측"
+ },
+ "gan2018-surfaces-pecvd-sinx-mechanical": {
+  "src": "MDPI-OA",
+  "pdf": "papers/gan2018-surfaces-pecvd-sinx-mechanical.pdf",
+  "host": "repository",
+  "license": "cc-by",
+  "doi": "10.3390/surfaces1010006",
+  "title": "Material Structure and Mechanical Properties of Silicon Nitride and Silicon Oxynitride Thin Films Deposited by PECVD",
+  "note": "materials/film-nitride-lpcvd-pecvd-properties-cmp.md"
+ },
+ "nejadriahi2020-oe-srn-thermooptic": {
+  "src": "arXiv/OpticsExpress",
+  "pdf": "papers/nejadriahi2020-arxiv-srn-thermooptic.pdf",
+  "host": "repository",
+  "license": "oa",
+  "doi": "10.1364/oe.396969",
+  "title": "Thermo-optic properties of silicon-rich silicon nitride for on-chip applications",
+  "note": "materials/film-nitride-lpcvd-pecvd-properties-cmp.md"
+ },
+ "egan-kim-2019-abrasive-size-tungsten-contact-cmp": {
+  "src": "IOP-OA",
+  "pdf": "https://iopscience.iop.org/article/10.1149/2.0311905jss/pdf",
+  "landing": "https://iopscience.iop.org/article/10.1149/2.0311905jss",
+  "ver": "publishedVersion",
+  "host": "publisher",
+  "license": "cc-by-nc-nd",
+  "doi": "10.1149/2.0311905jss",
+  "file": "papers/egan2019-jss-w-contact-cmp-abrasive-size.pdf",
+  "title": "Effect of Controlling Abrasive Size in Slurry for Tungsten Contact CMP Process",
+  "authors": "B. Egan, H. J. Kim",
+  "year": 2019,
+  "venue": "ECS J. Solid State Sci. Technol. 8(5) P3206"
+ },
+ "buxton-1988-hydroxyl-radical-rate-constants": {
+  "src": "local",
+  "pdf": null,
+  "landing": "https://doi.org/10.1063/1.555805",
+  "ver": "publishedVersion",
+  "host": "publisher",
+  "license": null,
+  "doi": "10.1063/1.555805",
+  "file": "papers/buxton1988-hydroxyl-radical-rate-constants.pdf",
+  "title": "Critical Review of rate constants for reactions of hydrated electrons, hydrogen atoms and hydroxyl radicals in Aqueous Solution",
+  "authors": "G. V. Buxton, C. L. Greenstock, W. P. Helman, A. B. Ross",
+  "year": 1988,
+  "venue": "J. Phys. Chem. Ref. Data 17, 513"
+ },
+ "wei-2026-4hsic-fenton-reaction-cmp": {
+  "src": "local",
+  "pdf": null,
+  "landing": "https://doi.org/10.3390/cryst16030179",
+  "ver": "publishedVersion",
+  "host": "publisher",
+  "license": "cc-by",
+  "doi": "10.3390/cryst16030179",
+  "file": "papers/wei2026-cryst16030179-4hsic-fenton-cmp.pdf",
+  "title": "Influences of Polishing Slurry Components on Material Removal and Surface Morphology of 4H-SiC C-Face Based on Fenton Reaction CMP",
+  "authors": "Y. Wei et al.",
+  "year": 2026,
+  "venue": "Crystals 16(3) 179"
+ },
+ "antonijevic2008-ijes-copper-corrosion-inhibitors-review": {
+  "src": "OA — Int. J. Electrochem. Sci. 무료 PDF(electrochemsci.org/papers/vol3/3010001.pdf)",
+  "pdf_local": "papers/antonijevic2008-ijes-copper-corrosion-inhibitors-review.pdf",
+  "title": "Copper Corrosion Inhibitors. A Review",
+  "authors": "M. M. Antonijevic, M. B. Petrovic",
+  "venue": "Int. J. Electrochem. Sci. 3, 1-28 (2008)",
+  "note": "cmp/inhibitor-chelator-adsorption-isotherm-passivation.md §3 — BTA/톨릴트리아졸(TTA) 흡착 등온식(Langmuir/Frumkin) 귀속, Cu(I)BTA 중합막, TTA>BTA 억제효율(소수성 메틸기). 2차 인용 집합(리뷰)."
+ }
 }

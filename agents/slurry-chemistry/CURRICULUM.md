@@ -4,7 +4,7 @@
 > 유료 논문은 미러 사이트 활용(사용자 지시 9/5). 출처 없는 수치는 '미검증' 표기.
 
 - [x] Lv1-1 산화제 화학: H2O2·KIO3·Fe(NO3)3 — 산화 전위, 분해 속도, 금속별 적합성 (2026-09-10, knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md)
-- [ ] Lv1-2 억제제(BTA·TAZ)·킬레이트(글리신·시트르산) 흡착과 패시베이션 막
+- [x] Lv1-2 억제제(BTA·TAZ)·킬레이트(글리신·시트르산) 흡착과 패시베이션 막 (2026-09-10, knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md)
 - [ ] Lv2-1 pH·이온강도가 제타전위·용해율·선택비에 미치는 영향 (Pourbaix 재해석)
 - [ ] Lv2-2 선택비 설계: oxide:nitride, Cu:barrier, W:oxide — 정지층 화학
 - [ ] Lv3-1 최신 리뷰: 코발트·루테늄 배선용 신규 화학, 무산화제 슬러리

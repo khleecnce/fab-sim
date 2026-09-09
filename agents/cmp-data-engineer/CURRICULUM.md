@@ -5,7 +5,8 @@
 
 - [x] Lv1-1 CMP 공개 데이터셋 조사: 논문 부록·SEMATECH·대학 공개 데이터 — 무엇이 있고 무엇이 없는가
       → knowledge/data/cmp-public-datasets-survey.md (2026-09-09)
-- [ ] Lv1-2 통합 스키마 설계: 소모품·툴·웨이퍼·측정을 잇는 키 체계 (data/schema/*.json)
+- [x] Lv1-2 통합 스키마 설계: 소모품·툴·웨이퍼·측정을 잇는 키 체계 (data/schema/*.json)
+      → knowledge/data/cmp-integration-schema-keys-semi-standards.md (2026-09-10)
 - [ ] Lv2-1 단위·좌표계 통일(반경/다이 맵), 결측·이상치 처리 규칙
 - [ ] Lv2-2 합성 데이터 생성기: Tier1/2 모델 + 노이즈로 파이프라인 검증용 데이터 생성
 - [ ] Lv3-1 데이터 품질 게이트와 익명화(고객 식별 정보 제거) 규칙
