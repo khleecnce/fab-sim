@@ -1469,3 +1469,23 @@ papers/US20220315802A1.txt 확보·대조 통과).
 [소프트웨어] 2026-09-09 09:30: surface-contamination PROFILE의 SEO2001 출처 정정 요청 처리(BACKLOG S38) —
 metal_contamination_surface.py의 Fe 수치를 Seo 2001 원문 근거로 오귀속했던 것을 "출처 불명"으로 정직 재표기.
 pytest 443 passed, 커밋 ee4aff5.
+
+## 2026-09-09 10:xx [성장엔진] 정확도루프 UNMODELED delta(손상 유발도) — 지식 확보 (트랙 A)
+
+갭 랭커 최우선(UNMODELED, delta, score=100, 5팩 공통) 처리. slurry-abrasive Lv1-2(입도 분포·LPC)
+학습으로 근거 확보: Remsen et al. 2006(JES 153(5) G453-G461, doi:10.1149/1.2184036, Cabot
+Microelectronics, 미러 사이트 전문 확보·61,555자 텍스트 대조)에서 대입자 개수(LPC)-스크래치
+카운트 정량 상관(Table V, r²=0.987~0.991, 선형) 및 스크래치 임계 직경(0.68 µm 실리카 등가,
+Fig.10 비선형회귀 외삽) 확보. knowledge/cmp/lpc-scratch-density-tail-correlation.md 신규
+(verify_claims.py·check_knowledge.py 둘 다 통과).
+
+핵심 발견: 문헌은 **선형** 관계를 보고하는데 현재 sim/factors.py `_f_delta`는 `(d99/d99_ref)^n`
+**거듭제곱**(n=3.0 가정)을 쓴다 — 형태 불일치를 노트에 명시. 단, 5개 팩 전부 abrasive_d99_nm이
+없어 팩터가 여전히 no-op이므로 이번 회차는 UNWIRED를 해소하지 못했다(선행 필요: D99 스펙 확보,
+다음 회차 과제). 형태 재검토는 소프트웨어 부문에 구현요청으로 전달(PROFILE.md).
+
+sim/factors.py 코드 변경 없음(선행 데이터 미확보) → qa_loop 미실행(변경 없는 회차는 대상 아님).
+pytest 443 passed(회귀 확인만, 신규 없음). agents/ORG.md §5 slurry-abrasive 1/6 갱신,
+CURRICULUM.md Lv1-2 체크, EXAMS.md 3문항 추가.
+
+다음 갭(--next): UNMODELED S(시간 안정성, 5팩) 또는 D99 스펙 확보 후 delta 재도전.
