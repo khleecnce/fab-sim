@@ -22,6 +22,15 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 (크론이 갱신)
 
 ## 이수 기록
+- Lv1-1 (2026-09-10): 입자 종류별 제조법과 물성(콜로이달/퓸드 실리카, 세리아 소성/습식) —
+  knowledge/cmp/abrasive-manufacturing-colloidal-fumed-silica-ceria.md
+  (Son et al. 2021 Sci. Rep. 11:17736, doi:10.1038/s41598-021-97122-9 — 전문 PDF 확보·fitz
+  대조; US 8,211,193 B2 Fujifilm Planar Solutions; US 2015/0104939 A1 Cabot Microelectronics;
+  Kim 2018 IntechOpen 리뷰 doi:10.5772/intechopen.75408). 콜로이달=액상 이온교환(구형),
+  퓸드=기상 화염가수분해(응집), 세리아 소성=분쇄(facet)/습식=침전(구형)의 제조공정-형상 인과를
+  확립. Son 2021 정량 재현: 슬러리 pH 5.0→6.0에서 2차입자 223→130nm 감소·연마율
+  263→524 nm/min 증가(역상관), 초미세 습식세리아 대 facet 습식세리아 연마율 비 ~52배(문헌
+  ~50배와 일치). 절대 경도(GPa)는 1차 문헌에서 확보 못 함 — Lv2-1 잔여(Hertz 압입) 과제로 이월.
 - Lv1-2 (2026-09-09): 입도 분포·LPC와 스크래치 상관 — knowledge/cmp/lpc-scratch-density-tail-correlation.md
   (Remsen et al. 2006, JES 153(5) G453-G461, doi:10.1149/1.2184036 — 미러 사이트 확보·전문 대조).
   임계 직경 0.68 µm(실리카 등가) 확정, 스크래치-LPC는 선형(r²=0.987~0.991) — 현재
