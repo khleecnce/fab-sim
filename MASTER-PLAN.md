@@ -1533,3 +1533,24 @@ ORG.md §5 slurry-abrasive 1.7/6, PROFILE.md 구현요청 진행상황 갱신, E
 다음 갭(--next): 여전히 UNMODELED delta — 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer) D99 미확보가
 남은 선행 조건(Baikowski/Fujimi 제조사 문서, 텅스텐 CMP 특허 실시예 탐색 예정). 순위 밀리면
 다음 UNMODELED S(시간 안정성, 5팩)로 전환.
+
+- 2026-09-09 09:30 [소프트웨어] software-lead: disk-design 구현요청 S39(절삭율 결합계수
+  CR(N,N_eff,Rpk)) 완료 — `sim/tier2_physics/disk_cutrate_coupling.py`, Kwon2013·Tsai2014
+  문헌값 재현 테스트 7건, g(활성비율지수) 미확정은 캘리브레이션 대기로 명시 처리. engine
+  미등록. pytest 459 passed. 커밋 1b1cc51.
+
+## 2026-09-09 [성장엔진] 정확도루프 UNMODELED delta — 알루미나 D99 재탐색 실패 + 일반 슬러리 비율 확보 (트랙 A)
+
+같은 갭(UNMODELED delta, score=100) 계속. 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer) D99를
+US11117239B2/US9566686B2/JP5204226B2 특허 원문에서 재탐색했으나 3회차 연속 실패(percentile
+데이터 자체 없음 또는 표 파싱 실패). 대안으로 Levitronix/Silco(2008) 컨퍼런스자료에서 일반
+슬러리 세대별 D99/D50 비율(4.29~5.00배)을 확보해 이전 노트(세리아 코팅실리카 1.82~3.82배)와
+합쳐 통합 관측범위 1.82~5.00배로 확장. AluminaWorld 상업블로그 스펙(D99<200nm)은 1차 출처
+아니라 참고치로만 기록, 팩 미이식. knowledge/cmp/abrasive-d99-alumina-search-and-generic-ratio.md
+신규(verify_claims·check_knowledge 둘 다 통과). sim/factors.py 코드 변경 없음 → qa_loop 대상
+아님. pytest 459 passed(회귀만, 이전 회차와 동일 카운트 — 코드 무변경 확인).
+PROFILE/ORG.md §5(1.8/6)/EXAMS.md(Q6-8) 갱신.
+
+다음 갭(--next): 여전히 UNMODELED delta. 알루미나 D99 확보 접근 전환 필요(JP5204226B2 Table 1
+구조화 재파싱 또는 텅스텐 CMP 논문 SI). 3회 연속 실패 시 다음 회차엔 다음 갭(S 시간 안정성)으로
+전환 고려.

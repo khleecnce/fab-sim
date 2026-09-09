@@ -64,3 +64,25 @@ A3. US10669449B2의 D99값은 이 특허가 만든 특정 세리아코팅실리�
 팩이 실제로 참조하는 화학종(sti_ceria: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md, sic_ceria_h2o2:
 Wang et al. ACS SI)과 동일 제품이라는 근거가 없다. 오귀속 방지 원칙에 따라 값 자체는 이식하지 않고
 방향성/범위(1.82~3.82배)만 설계 참고치로 남겼다.
+
+---
+
+**Q6. Levitronix/Silco(2008) 발표자료에서 CMP 슬러리 필터링 세대별 D50/D99 비율은 어떻게 변화했는가?**
+A. D50 자체는 필터링 기술 발전에 따라 0.20µm(earlier) → 0.07µm(new) → 0.04µm(next target)로
+5배 축소됐지만, D99/D50 비율은 5.00 → 4.29 → 5.00으로 **거의 일정하게 유지**됐다(n=3,
+통계적으로 약한 신호). 즉 필터링이 좋아져도 상대적 꼬리 두께는 쉽게 줄지 않는다는 시사점.
+출처: Silco Electronic Materials (2008), Levitronix CMP Users Conf. 발표자료 p.11.
+
+**Q7. 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer) D99 확보 시도가 3회차 연속 실패한 이유는
+구체적으로 무엇인가?**
+A. (1) US11117239B2/US9566686B2는 평균 입경만 명시하고 percentile(D90/D99) 데이터 자체가
+없음. (2) JP5204226B2는 D90/D10≤3 조건은 명시하지만 실시예 표(Table 1)가 Google Patents
+HTML 렌더링에서 셀 구조가 깨져 텍스트 추출로 절대 nm 값을 못 얻음(구조화 재파싱 필요).
+(3) 제조사(Baikowski) 웹페이지는 상업 소개만 있고 상세 스펙 비공개.
+출처: 본 노트 §2.1, §2.2.
+
+**Q8. AluminaWorld 상업 블로그의 D99<200nm 스펙을 왜 Δ 팩터 파라미터로 쓰면 안 되는가?**
+A. check_knowledge.py 품질게이트 규칙1(1차 출처 필수: DOI/PMC/arXiv/특허번호)을 만족하지
+못하기 때문이다. 저자·소속 불명의 상업 콘텐츠는 2차 인용보다도 신뢰도가 낮다 — 참고 상한/하한
+용도로만 노트에 기록하고 팩 YAML에는 대입하지 않는다.
+출처: tools/check_knowledge.py PRIMARY 정규식; 본 노트 §2.2.

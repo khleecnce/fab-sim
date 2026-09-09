@@ -51,5 +51,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      1.82~3.82배 (근거: knowledge/cmp/abrasive-d99-spec-cross-pack-comparison.md §2.2 Table3).
    - 콜로이달실리카(oxide_silica): Evonik IDISIL 기술문서 확인 — Z-average 평균 입경(50~125nm)만
      공개, D99 비공개. 상업 스펙시트는 D50만 노출하는 경향(정성, 미검증 일반화).
-   - 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer): 이번 회차도 D99 미확보. 다음 조사 대상:
-     Baikowski/Fujimi 제조사 문서, 텅스텐 CMP 특허 실시예.
+   - 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer): 3회차 연속 D99 미확보(2026-09-09 재탐색 —
+     US11117239B2/US9566686B2/JP5204226B2 특허 원문 확인, 알루미나 percentile 데이터 없음
+     또는 표 파싱 실패). 접근 전환 필요: JP5204226B2 Table 1 구조화 재파싱 또는 텅스텐 CMP
+     논문 SI 탐색으로 전환 권고. 참고치(1차 출처 아님, 대입 금지): AluminaWorld 상업블로그
+     D50 50-80nm/D99<200nm(비율 2.5~4.0). 일반 슬러리 세대별 D99/D50 비율 통합 관측범위
+     1.82~5.00배로 확장(Levitronix/Silco 2008 컨퍼런스자료 추가, 근거:
+     knowledge/cmp/abrasive-d99-alumina-search-and-generic-ratio.md).
