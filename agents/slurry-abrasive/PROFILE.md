@@ -86,3 +86,15 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      Comparative1/2(2500nm,100).
    - 선행 필요: 여전히 abrasive_d99_nm이 5개 팩 어디에도 없어 no-op — 지수를 먼저
      바꿔도 예측 변화 없음. D99 팩 스펙 확보(특히 알루미나 계열)가 여전히 최우선.
+
+## 이수 기록 (계속)
+- Lv2-1 계속 (2026-09-10): 텅스텐 벌크 CMP 실양산 데이터 확보 —
+  knowledge/cmp/w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019.md
+  (Egan and Kim 2019, ECS J. Solid State Sci. Technol. 8(5) P3206, doi:10.1149/2.0311905jss --
+  GLOBALFOUNDRIES 300mm 양산 데이터, Unpaywall OA PDF 확보 fitz 대조). 핵심: 입자크기 3배
+  응집(온도유도) -> 스크래치 60배(n_temp약3.73 역산), 입자크기 3배(교반유도) -> 스크래치
+  6.67배(n_agit약1.73 역산) -- 텅스텐계 damage_exponent가 세리아(Hitachi n=1.44)보다 가파를
+  가능성. 결정적 발견: **텅스텐 벌크 CMP는 입자크기가 MRR에 통계적으로 무관**(원문 직접
+  실측) -- 카파 팩터 화학종별 예외 처리 필요성 시사(구현요청 참조). D99 절대 nm 값은 여전히
+  미확보(PSD 그래프가 정규화 축) -- 델타 갭은 이번 회차도 no-op 유지, damage_exponent
+  화학종별 분화 근거만 축적(n=1.44 세리아 vs n=1.73~3.73 텅스텐, 3번째 독립 문헌).
