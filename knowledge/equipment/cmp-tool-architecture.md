@@ -65,6 +65,37 @@ Lai(MIT, 2001)의 Cu blanket CMP 실험 조건[1]:
 낮은 PCR·깊은 그루브가 수명을 늘리지만, 실제 수명을 결정하는 건 부적절한 컨디셔닝에 의한
 **프로파일 조기 열화**다[2]. → [[disk-conditioner]] 에이전트 Lv1 소재.
 
+## 6. 정량 재현 — §4 압력값 (Lai 2001 Ch.2)
+Lai 논문[1]은 하중(N)과 압력(kPa)을 함께 보고한다. 100mm 웨이퍼 전면적을
+접촉면적으로 가정하고 P=F/A로 역산하면 문헌 표의 압력값과 일치하는지 확인할 수 있다.
+
+```python verify
+import math
+
+# 문헌값 (papers/mit_lai_ch2.pdf, Ch.2 실험조건 표 — 하중 N, 압력 kPa 두 열)
+wafer_diameter_mm = 100.0
+loads_N = [108.0, 379.0]
+lit_pressures_kPa = [14.0, 48.0]
+
+radius_m = (wafer_diameter_mm / 1000.0) / 2.0
+area_m2 = math.pi * radius_m ** 2  # 100mm 웨이퍼 전면적 가정
+
+for F, P_lit in zip(loads_N, lit_pressures_kPa):
+    P_calc_kPa = (F / area_m2) / 1000.0
+    err_pct = abs(P_calc_kPa - P_lit) / P_lit * 100
+    print(f"F={F}N -> P_calc={P_calc_kPa:.2f}kPa vs 문헌 {P_lit}kPa (오차 {err_pct:.1f}%)")
+    # 웨이퍼 전면적 가정 하 5% 이내 재현 — 문헌이 유효접촉면적을 그대로 썼다는 뜻
+    assert err_pct < 5.0, f"압력 재현 실패: {err_pct:.1f}% 오차"
+
+print("PASS: 100mm 웨이퍼 전면적 가정으로 하중->압력 환산이 문헌값과 5% 이내 일치")
+```
+
+두 지점 모두 재현되므로, Lai가 압력을 "웨이퍼 전체 투영면적 기준 공칭압력"으로
+정의했음을 역산으로 확인했다(원문에 면적 계산식이 명시되지 않아 이 역산이
+유일한 검증 경로였다). §5의 `T_life = C·G/PCR²` 식은 원문에 대입 예시 수치가
+없어 **미검증**으로 남긴다 — 구성 요소(C, G, PCR)의 개별 문헌값을 아직 확보하지
+못했다.
+
 ## 출처
 1. J.-Y. Lai, *Mechanics, Mechanisms, and Modeling of the CMP Process*, PhD thesis, MIT, Ch.2, 2001. https://web.mit.edu/cmp/publications/thesis/jiunyulai/ch2.pdf (papers/mit_lai_ch2.pdf)
 2. H. Lee et al., "Approaches to Sustainability in Chemical Mechanical Polishing (CMP): A Review", *Int. J. Precis. Eng. Manuf.-Green Tech.*, 2021. https://pmc.ncbi.nlm.nih.gov/articles/PMC8617369/
