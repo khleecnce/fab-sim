@@ -33,7 +33,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   ├─ 웨이퍼 (Wafer) — 피가공물 기준
 │   │   ├─ wafer-type                      [활성, G1 2026-09-06]  NPW(블랭킷) vs PTW(패턴) — 시험 목적·데이터 해석 차이
 │   │   ├─ film-oxide                      [활성, G1 2026-09-08]  TEOS/HDP/SiO2 — ILD·STI CMP
-│   │   ├─ film-nitride                    [대기]  SiN — STI stop layer·선택비
+│   │   ├─ film-nitride                    [활성, G3 2026-09-09]  SiN — STI stop layer·선택비
 │   │   ├─ film-poly-si                    [대기]  Poly-Si — 게이트·3D NAND
 │   │   ├─ film-cu                         [활성, G1 2026-09-08]  Cu — 배선, dishing/erosion, 부식
 │   │   ├─ film-w                          [활성, G2 2026-09-09]  W — 플러그·contact, 산화제 화학
@@ -109,10 +109,11 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | disk-kinematics | 활성 (G4 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | film-oxide | 활성 (G1 개방 2026-09-08) | 4/6 (Lv2-2 완료, Lv2 완주) | 2026-09-09 |
 | film-cu | 활성 (G1 개방 2026-09-08) | 3/6 (Lv2-1 완료) | 2026-09-09 |
-| slurry-abrasive | 활성 (G2 개방 2026-09-09) | 1/6 (Lv1-2 완료) | 2026-09-09 |
+| slurry-abrasive | 활성 (G2 개방 2026-09-09) | 1.5/6 (Lv1-2 완료, Lv2-1 부분) | 2026-09-09 |
 | slurry-chemistry | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
 | film-w | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
 | cmp-data-engineer | 활성 (G2 개방 2026-09-09) | 0/6 | 2026-09-09 |
+| film-nitride | 활성 (G3 개방 2026-09-09) | 0/6 | 2026-09-09 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

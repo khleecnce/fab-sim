@@ -1489,3 +1489,16 @@ pytest 443 passed(회귀 확인만, 신규 없음). agents/ORG.md §5 slurry-abr
 CURRICULUM.md Lv1-2 체크, EXAMS.md 3문항 추가.
 
 다음 갭(--next): UNMODELED S(시간 안정성, 5팩) 또는 D99 스펙 확보 후 delta 재도전.
+
+## 2026-09-09 11:xx [성장엔진] 정확도루프 UNMODELED delta — D99 실측값 확보 (트랙 A)
+
+같은 갭(UNMODELED delta, score=100) 계속 이어감. Versum Materials US2019/0127607A1(무료 공개
+특허출원공보, Table I·II)에서 세리아코팅 실리카 복합입자 D99 실측 158.5~316.7 nm 확보,
+D99-HDP oxide RR 완전 단조 증가(n=4, 방향성 확인) but 구간별 기울기 13.7배 불균일(선형 아님)을
+정량 확인. knowledge/cmp/abrasive-d99-composite-particle-versum2019.md 신규(verify_claims·
+check_knowledge 둘 다 통과). 팩(5개)에 값 이식 안 함 — 이 특허 실시예 입자값이지 팩 조성과
+무관해 오귀속 방지. sim/factors.py 코드 변경 없음 → qa_loop 대상 아님. pytest 443 passed(회귀만).
+PROFILE/CURRICULUM/EXAMS/ORG.md §5 갱신(slurry-abrasive 1.5/6).
+
+다음 갭(--next): 여전히 UNMODELED delta — 각 팩(cu_h2o2_bta 등) 실제 화학종의 제조사 스펙시트
+D99 확보가 남은 선행 조건. 그 다음 순위 UNMODELED S(시간 안정성, 5팩).
