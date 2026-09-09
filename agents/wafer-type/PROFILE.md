@@ -104,6 +104,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 4. **PTW VM 입력 스키마 필드**(Cal-1 연계): `product_id`, `layer`, `die_density_mean`, `local_density`, `prev_layer_topography`,
    `e_test_R_ohm`, `forced_measurement_flag`, `mrr_lag_1..11`, `consumable_usage_neighbors`. 근거: 같은 노트 §5.3 표
    (Jebri et al. 2017 제품별 국소모델·k_est^max 강제 실측, Di et al. 2017 시간지연·사용량 이웃 특징). 우선순위: 중.
+   **→ 처리 완료 (2026-09-10, Max워커)**: `sim/calibration/ptw_vm_schema.py` 신설(`PTWVMInput` dataclass —
+   product_id/layer/die_density_mean/local_density/prev_layer_topography/e_test_R_ohm/forced_measurement_flag/
+   `mrr_lag`(길이 1~11 리스트로 통합, 11개 개별필드 대신 — 스키마 폭발 방지)/consumable_usage_neighbors,
+   `validate_ptw_vm_input`(경고 리스트: 밀도 범위·NPW동등 경고·lag 길이·저항 음수), `is_npw_equivalent`(노트 §5.3
+   결론 문장 "레이아웃 정보 없이는 NPW와 동등" 그대로 판정 함수화)). 테스트 13건(구성·경고 4종·NPW동등 판정 3건·
+   소모품 딕셔너리). sim/engine.py Recipe/WaferResult 무수정 확인(git diff 0). engine 미등록(VM 입력 스키마이지
+   물리 시뮬레이션 입력이 아님, S17 이하와 동일 지위). Claude Code 위임(Read/Write/Edit/Bash, max-turns 40) →
+   Max워커가 pytest 502 passed(기존489+신규13) 직접 재검증.
 
 
 ## 이수 기록 (크론 갱신, 2026-09-09)
