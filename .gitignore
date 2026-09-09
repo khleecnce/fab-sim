@@ -22,3 +22,5 @@ validation/raw/phm2016/timeseries/
 validation/raw/phm2016/joined.json
 data/store/
 .run/
+data/corpus/corpus.sqlite
+data/corpus/fulltext/
