@@ -80,13 +80,13 @@ def sbir(vmax, vmin):
 def sbid(vmax, vmin):
     return max(abs(vmax), abs(vmin))
 
-# 원문 Figure 7: Vmax=+1 uM, Vmin=-0.5 uM
+# 원문 Figure 7: Vmax=+1 µm, Vmin=-0.5 µm
 sbir_v = sbir(1.0, -0.5)
 sbid_v = sbid(1.0, -0.5)
 assert abs(sbir_v - 1.5) < 1e-9, f"SBIR mismatch: {sbir_v}"
 assert abs(sbid_v - 1.0) < 1e-9, f"SBID mismatch: {sbid_v}"
 
-# 원문 Figure 8a: Vmax=0, Vmin=-1 uM -> SBIR=SBID=1 (극값이 중심에서 나면 둘이 같아짐)
+# 원문 Figure 8a: Vmax=0, Vmin=-1 µm -> SBIR=SBID=1 (극값이 중심에서 나면 둘이 같아짐)
 assert abs(sbir(0.0, -1.0) - 1.0) < 1e-9
 assert abs(sbid(0.0, -1.0) - 1.0) < 1e-9
 # 원문 Figure 8b: Vmax=1, Vmin=0 -> 동일
@@ -107,10 +107,10 @@ print("PASS: SBIR/SBID 원문 예시(Fig.7,8a,8b) 재현, GBIR=TTV 항등식 확
 ```
 
 전부 통과(assert 4건):
-- SBIR = 1.5 uM (Fig.7 문헌값과 일치)
-- SBID = 1.0 uM (Fig.7 문헌값과 일치)
-- Fig.8a: SBIR=SBID=1.0 uM (문헌값과 일치)
-- Fig.8b: SBIR=SBID=1.0 uM (문헌값과 일치)
+- SBIR = 1.5 µm (Fig.7 문헌값과 일치)
+- SBID = 1.0 µm (Fig.7 문헌값과 일치)
+- Fig.8a: SBIR=SBID=1.0 µm (문헌값과 일치)
+- Fig.8b: SBIR=SBID=1.0 µm (문헌값과 일치)
 - GBIR(725.3 um, 724.1 um) = TTV(725.3 um, 724.1 um) = 1.2 um (항등식 확인)
 모두 원문 예시값(측정 실데이터 아님, 정의 검증용).
 
