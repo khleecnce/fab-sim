@@ -1518,3 +1518,18 @@ Claude Code 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) 
 인라인 주석 못 찾음) 직접 수정해 통과, git status로 다른 크론 미커밋 파일(.night_parallel*·
 papers/*·build/·dist/·tools/check_npw_catalog.py 등) 미접촉 확인 후 신규 2파일만 커밋(cb2db15)+push.
 software/BACKLOG.md S29 완료 표기·완료표 이관, agents/disk-design/PROFILE.md 구현요청§4 완료 취소선.
+
+## 2026-09-09 14:xx [성장엔진] 정확도루프 UNMODELED delta — 세리아/실리카 D99 크로스팩 조사 (트랙 A)
+
+같은 갭(UNMODELED delta, score=100) 계속. 무료 특허 US10669449B2(Versum, 전문 확보) Table1/3에서
+콜로이달세리아 LPC가 D50 같은 소성세리아보다 13.28배 높음(계산 재현), 세리아코팅실리카 두 시료의
+D99/D50 비율 1.82~3.82배(계산 재현) 확보. Evonik IDISIL 콜로이달실리카 기술문서 확인 — D99 비공개,
+Z-average만 노출(제조사 상업문서 통념 재확인). 5팩(cu_h2o2_bta 등) 어디에도 값 이식 안 함 —
+특허 실시예 입자가 팩 화학종과 동일하다는 근거 없어 오귀속 방지. knowledge/cmp/
+abrasive-d99-spec-cross-pack-comparison.md 신규(verify_claims·check_knowledge 둘 다 통과).
+sim/factors.py 코드 변경 없음(선행 데이터 여전히 미확보) → qa_loop 대상 아님. pytest 452 passed(회귀만).
+ORG.md §5 slurry-abrasive 1.7/6, PROFILE.md 구현요청 진행상황 갱신, EXAMS.md Lv2-1 3문항 추가.
+
+다음 갭(--next): 여전히 UNMODELED delta — 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer) D99 미확보가
+남은 선행 조건(Baikowski/Fujimi 제조사 문서, 텅스텐 CMP 특허 실시예 탐색 예정). 순위 밀리면
+다음 UNMODELED S(시간 안정성, 5팩)로 전환.
