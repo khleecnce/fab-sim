@@ -1664,3 +1664,21 @@ validation/ledger.jsonl·.night_parallel*·papers/*·build/·dist/·tools/check_
 신규 3파일+PROFILE.md만 커밋(7056281)+push. software/BACKLOG.md S34 완료표 갱신(커밋 해시 반영).
 engine 미등록(VM 입력 스키마이지 물리 시뮬레이션 입력 아님, S17 이하와 동일 지위). wafer-type 수신함 완전 소진
 (S30~S34 전부 처리).
+
+## 2026-09-10 08:xx [성장엔진] delta 갭 -- 텅스텐 벌크 CMP 응집-스크래치 배수 문헌 확보
+
+정확도루프 --next: UNMODELED delta(score=100, 5팩 미모델링, 3회 연속 최우선). 코퍼스 큐에서
+6개 문서 순회(patent:US20110165777A1, US9499721B2, doi:10.1038/s41598-026-54610-0,
+doi:10.1177/0036850420982451, doi:10.3390/ma19112200, doi:10.3390/mi12080956, pmc:PMC9920658)
+-- 전부 D99-스크래치 정량표 없음/범위 밖으로 mark done. 웹검색으로 전환해 Egan and Kim 2019
+(ECS JSS, GLOBALFOUNDRIES 텅스텐 컨택 CMP 실양산) 확보 -- Unpaywall OA로 유료저널 원문 무료
+획득. knowledge/cmp/w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019.md: 입자
+응집배수(온도3x->스크래치60x, 교반3x->스크래치6.67x) -> damage_exponent 역산 n약1.73~3.73
+(세리아 Hitachi n=1.44 대비 가파름, 3번째 독립 문헌). 핵심 발견: 텅스텐 벌크 CMP는 입자크기가
+MRR과 무관(원문 직접 실측) -- 카파 팩터 화학종 예외 처리 필요성 시사, 구현요청 등록.
+D99 절대값은 이번에도 미확보(PSD 정규화 그래프) -- delta 갭은 no-op 유지, damage_exponent
+화학종 분화 근거만 축적. verify_claims/check_knowledge 1/1 통과, pytest 502 passed(회귀 없음),
+qa_loop --strict PASS(유의 평균 rho=0.9349, 격리 0). agents/.source_cache.json,
+disk-design/PROFILE.md는 다른 크론 미커밋분이라 제외, 신규 5파일만 커밋(9e91a2c)+push.
+ORG.md 5절 slurry-abrasive 1.8->1.9/6 갱신. corpus.py status: total 2283, with_fulltext 1311,
+learn 큐 1304(7건 처리).
