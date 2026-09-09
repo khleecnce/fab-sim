@@ -44,3 +44,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      (절대 slope은 이 슬러리 시스템 특유 — 방향성만 이식 가능, 값 자체는 이식 금지)
    - 선행 필요: 5개 팩(cu_h2o2_bta, oxide_silica, sic_ceria_h2o2, sti_ceria, w_fe_oxidizer)
      모두 abrasive_d99_nm 부재 — 제조사 스펙시트/특허 조성표에서 D99 확보가 먼저다.
+
+2. **팩별 D99 확보 진행 상황** (2026-09-09 갱신)
+   - 세리아 계열(sic_ceria_h2o2, sti_ceria): US10669449B2 특허 실시예에서 D99 실측 확보했으나,
+     팩 화학종과 동일 제품이라는 근거가 없어 이식 보류(오귀속 방지). 참고치: D99/D50 비율
+     1.82~3.82배 (근거: knowledge/cmp/abrasive-d99-spec-cross-pack-comparison.md §2.2 Table3).
+   - 콜로이달실리카(oxide_silica): Evonik IDISIL 기술문서 확인 — Z-average 평균 입경(50~125nm)만
+     공개, D99 비공개. 상업 스펙시트는 D50만 노출하는 경향(정성, 미검증 일반화).
+   - 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer): 이번 회차도 D99 미확보. 다음 조사 대상:
+     Baikowski/Fujimi 제조사 문서, 텅스텐 CMP 특허 실시예.

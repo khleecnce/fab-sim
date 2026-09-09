@@ -507,5 +507,26 @@
     "authors": "Versum Materials US, LLC (assignee)",
     "venue": "USPTO patent application, published 2019-05-02",
     "note": "cmp/abrasive-d99-composite-particle-versum2019.md — D50/D99/D99-D50 particle size distribution (Table I, 4 ceria-coated silica composite particles) + oxide film removal rate vs distribution width (Table II)"
+  },
+  "us10669449b2-composite-abrasive-ceria-silica-d99": {
+    "src": "patents.google.com — 무료 공개 특허 전문(HTML 텍스트 추출)",
+    "pdf": null,
+    "txt": "papers/us10669449b2-composite-abrasive-ceria-silica-d99.txt",
+    "doi": null,
+    "patent_no": "US 10,669,449 B2",
+    "title": "Composite abrasive particles for chemical mechanical planarization composition and method of use thereof",
+    "authors": "assignee-side patent (ceria-coated silica composite particles, Table 1/3)",
+    "venue": "USPTO issued patent, US10669449B2",
+    "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — Table1 LPC calcined/colloidal/coated ceria 비교(13배), Table3 D50/D75/D99 CPOP-20 vs CP2"
+  },
+  "evonik-idisil-colloidal-silica-cmp-datasheet": {
+    "src": "products.evonik.com — 제조사 기술문서 무료 PDF 다운로드",
+    "pdf": "papers/evonik-idisil-cmp-colloidal-silica-datasheet.pdf",
+    "doi": null,
+    "patent_no": null,
+    "title": "IDISIL® – Ultra-High Purity Colloidal Silica for Chemical Mechanical Planarization",
+    "authors": "Evonik Operations GmbH",
+    "venue": "제조사 기술문서, 2025-08",
+    "note": "cmp/abrasive-d99-spec-cross-pack-comparison.md — KE50/70/90/125 Z-average 입경만 공개, D99 미공개(참고자료)"
   }
 }
