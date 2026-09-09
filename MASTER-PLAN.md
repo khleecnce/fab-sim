@@ -1569,3 +1569,20 @@ p=0.7605(비유의)로 퇴보. 사용자 지시(QA FAIL=커밋 금지) 준수해
 §7.5에 실패 원인(입자 형상 혼입 가설)과 재시도 방향(형상 파라미터 분리) 기록. pytest 459 passed
 (회귀, 원복 확인). 다음 갭 후보: 같은 RESPONSE_DEAD를 형상 분리 접근으로 재시도하거나
 --skip으로 넘어가 Δ(손상 유발도)/S(시간안정성) UNMODELED로 전환.
+
+## 2026-09-09 20:xx [성장엔진] 정확도루프 UNMODELED stab(S) — Jeong2024 로그감쇠 partial 편입 (트랙 A)
+
+--skip "손상 유발도"로 델타 갭을 넘기고 다음 순위 갭 S(시간 안정성, 5팩 unmodeled) 처리.
+기존 지식노트(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §2.3 Jeong et al. 2024
+Fig.9)에 이미 정량 재현된 무-컨디셔닝 1~10분 연속연마 MRR 드리프트 데이터를 활용 —
+새 조사 없이 로그감쇠 회귀(pooled 2/5psi, R²=0.74)를 sim/factors.py _f_stab에 배선.
+time_s=60s(기본값=1min) 기준 정확 1.0, 10min 관측상한에서 0.89. 실리카 외 연마입자는
+confidence estimated로 강등(원 데이터 실리카/IC1000 단일계, fumed vs colloidal만도 감쇠율
+5배 차이나는 게 이미 알려짐). MRR_COUPLED 미편입(held-out 지지 확인 전까지 보류) — partial
+로 유지해 이중계상 위험 회피. qa_loop --strict PASS(유의 평균 ρ 0.9235 불변, 퇴보 없음).
+pytest 462 passed. test_unmodeled_factors_report_none_not_silent_one를 4개 테스트로 교체.
+커밋 2b9c64e, push 완료.
+
+다음 갭 후보: --next가 다시 Δ(손상 유발도, cu_h2o2_bta/w_fe_oxidizer D99 미확보)를 반환할
+가능성 높음 — 알루미나 D99가 3회 연속 실패했으니 다른 특허 소스(텅스텐 CMP 실시예) 재탐색
+또는 --skip 후 CONFIDENCE/BIAS 종류 갭으로 전환 고려.
