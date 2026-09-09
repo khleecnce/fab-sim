@@ -1586,3 +1586,13 @@ pytest 462 passed. test_unmodeled_factors_report_none_not_silent_one를 4개 테
 다음 갭 후보: --next가 다시 Δ(손상 유발도, cu_h2o2_bta/w_fe_oxidizer D99 미확보)를 반환할
 가능성 높음 — 알루미나 D99가 3회 연속 실패했으니 다른 특허 소스(텅스텐 CMP 실시예) 재탐색
 또는 --skip 후 CONFIDENCE/BIAS 종류 갭으로 전환 고려.
+
+## 2026-09-09 20:xx [Max워커] software-lead: disk-design S27 접촉통계 기반 Preston 계수 분해 훅 완료
+
+소프트웨어 부문 BACKLOG.md S27을 처리. `sim/tier2_physics/disk_preston_contact_decomposition.py` 신설
+(eta_over_af/preston_coefficient_contact_scaling/fragment_contact_separation/disk_preston_contact_scaling).
+근거: knowledge/materials/disk-design-pad-roughness-asperity-relation.md §2.3,§3.4(b), Sun 2009 학위논문
+Fig.7.14/7.15 판독값(D100-1/D100-2/IC1000 3패드조합) 그대로 재현 테스트 13건. K_p 단순비례 가정은 PROVISIONAL로
+docstring 명시(캘리브레이션 전 정량예측 금지). engine 미등록(S26/S29/S39와 동일 지위). Claude Code 위임 →
+pytest 475 passed(기존462+신규13) 직접재검증, git status로 다른 크론 미커밋분(agents/.source_cache.json 등)
+미접촉 확인 후 신규 2파일만 커밋(077b60d)+push. software/BACKLOG.md S27 완료표 갱신.
