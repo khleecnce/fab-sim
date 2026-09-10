@@ -1809,3 +1809,12 @@ git status로 다른 크론 미커밋 파일(agents/.source_cache.json·agents/d
 .night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/check_npw_catalog.py·
 validation/two_stage/·data/corpus/) 미접촉 확인 후 신규 3파일+sim/engine.py만 커밋(31bd312)+push.
 software/BACKLOG.md film-cu 구현요청 수신함 항목 완료 표시는 다음 항목에서 기록.
+
+## [소프트웨어] 2026-09-10 21:30
+surface-contamination Lv3-1 요청1(`galvanic_pair_direction`+`hydroxide_transition_pH`, S43) 처리 완료 —
+`sim/tier2_physics/galvanic_hydroxide_ph.py` 신설(CRC 표준환원전위표 6종, minteq.v4.dat log K 기반). 근거
+knowledge/cmp/low-level-metal-cobalt-ruthenium-cross-contamination.md §3.1·§3.3·§6(A)(B) 정량값 그대로
+재현 테스트 8건(Cu/Co ΔE°=0.62V, Ru/Cu ΔE°=0.113V, Cu/Co 100ppm 수산화물 전이 pH 5.74/7.93). engine
+미등록(Recipe 스키마 부재). pytest 561 passed(기존553+신규8). 커밋 d8a4c90(코드)+후속 1건(PROFILE 표시).
+BACKLOG S43 완료 등록, surface-contamination PROFILE Lv3-1 요청1 완료 표시. 남은 수신함: Lv3-2 요청2
+(residual_after_clean, 중), Lv3-2 요청3(체인조립 predict_residual_metal, 요청2 선행 필요).
