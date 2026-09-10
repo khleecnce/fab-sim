@@ -68,13 +68,15 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      1.82~3.82배 (근거: knowledge/cmp/abrasive-d99-spec-cross-pack-comparison.md §2.2 Table3).
    - 콜로이달실리카(oxide_silica): Evonik IDISIL 기술문서 확인 — Z-average 평균 입경(50~125nm)만
      공개, D99 비공개. 상업 스펙시트는 D50만 노출하는 경향(정성, 미검증 일반화).
-   - 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer): 3회차 연속 D99 미확보(2026-09-09 재탐색 —
-     US11117239B2/US9566686B2/JP5204226B2 특허 원문 확인, 알루미나 percentile 데이터 없음
-     또는 표 파싱 실패). 접근 전환 필요: JP5204226B2 Table 1 구조화 재파싱 또는 텅스텐 CMP
-     논문 SI 탐색으로 전환 권고. 참고치(1차 출처 아님, 대입 금지): AluminaWorld 상업블로그
-     D50 50-80nm/D99<200nm(비율 2.5~4.0). 일반 슬러리 세대별 D99/D50 비율 통합 관측범위
-     1.82~5.00배로 확장(Levitronix/Silco 2008 컨퍼런스자료 추가, 근거:
-     knowledge/cmp/abrasive-d99-alumina-search-and-generic-ratio.md).
+   - 알루미나 계열(cu_h2o2_bta, w_fe_oxidizer): **4회차 연속 D99 미확보(2026-09-10 종결 판단)**.
+     추가 시도: Guo&Subramanian(2004, doi:10.1149/1.1640632, Cu+알루미나 화학종 정확 일치)은
+     평균 응집입경 220nm만 보고, 분포 데이터 전무. US6258137B1(나노알루미나 CMP 특허)은
+     "D90≤50nm, 상위10%<100nm 초과" 경계조건만 있어 D99 유일값 역산 불가(논리적으로 증명,
+     knowledge/cmp/abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md §5 verify 블록).
+     **알루미나 D99 절대값 탐색은 이 경로로는 종결 — accuracy_gaps.py --skip 처리(2026-09-10)**.
+     대안 경로 권고: (a) 세리아 팩에 이미 확보된 D99(Versum/Hitachi)를 이식 재검토,
+     (b) LPC 임계 직경(0.68µm, lpc-scratch-density-tail-correlation.md §2.2)을
+     scratch_threshold_nm 축으로 전환.
 
 3. **Δ damage_exponent 하향 조정 검토** (우선순위: 중, 신규 2026-09-09)
    - 무엇을: `sim/factors.py::_f_delta`의 `damage_exponent` 기본값 3.0 → 1.4~1.5 범위 검토.

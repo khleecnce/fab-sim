@@ -626,5 +626,31 @@
     "confidence": "doi",
     "title": "Effect of Controlling Abrasive Size in Slurry for Tungsten Contact CMP Process",
     "note": "cmp/w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019.md — 입자 응집 배수(온도/교반/에이징) vs 스크래치 카운트 배수, damage_exponent 역산(n=1.73~3.73), 텅스텐 벌크 CMP는 입자크기-MRR 무관 확인"
+  },
+  "guo2004-mechanical-removal-copper-alumina": {
+    "src": "미러 사이트",
+    "pdf": "https://미러 사이트/storage/dace/4001/1911ab65a2c320b7f8aeecc273363667/guo2004.pdf",
+    "landing": "https://미러 사이트/10.1149/1.1640632",
+    "ver": "publishedVersion",
+    "host": "미러 사이트",
+    "license": null,
+    "doi": "10.1149/1.1640632",
+    "matched_title": "Mechanical Removal in CMP of Copper Using Alumina Abrasives",
+    "confidence": "doi",
+    "title": "Mechanical Removal in CMP of Copper Using Alumina Abrasives",
+    "note": "cmp/abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md"
+  },
+  "US6258137-nano-alumina-cmp": {
+    "src": "patentimages",
+    "pdf": "https://patentimages.storage.googleapis.com/pdfs/US6258137.pdf",
+    "landing": "https://patents.google.com/patent/US6258137B1/en",
+    "ver": "publishedVersion",
+    "host": "publisher",
+    "license": null,
+    "doi": null,
+    "matched_title": "CMP products (nano-alumina)",
+    "confidence": "patent",
+    "title": "CMP products",
+    "note": "cmp/abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md"
   }
 }

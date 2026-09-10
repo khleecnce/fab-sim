@@ -1688,3 +1688,14 @@ film-cu PROFILE.md 구현요청(P1, Cu-H₂O Pourbaix 경계 함수)을 S40으�
 `sim/tier2_physics/cu_pourbaix.py` 신설(경계식 6종 + stable_phase 판정함수),
 Tamilmani 2005 그림4.1 재현 테스트 12건. CuO는 ΔG_f° 미확보로 미구현(Cu(OH)₂ 대체값,
 미검증 명시). engine 미등록. pytest 514 passed(기존502+신규12). 커밋 495ed90.
+
+## 2026-09-10 10:xx [성장엔진]
+정확도루프 UNMODELED delta 갭 계속 — 알루미나 D99 4차 탐색: Guo&Subramanian(2004,
+doi:10.1149/1.1640632, 미러 사이트 경유, Cu+알루미나 화학종 일치)은 평균 응집입경 220nm만
+보고(분포 데이터 없음), US6258137B1(나노알루미나 CMP 특허, patentimages 직접 확보)은
+"D90≤50nm/상위10%>100nm" 경계조건만 있어 D99 유일값 역산 불가함을 논리적으로 증명(verify
+블록). knowledge/cmp/abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md 신설,
+verify_claims/check_knowledge 1/1 통과. **판단: 알루미나 D99 탐색 4연속 실패로 이 경로
+종결** — accuracy_gaps.py --skip 처리, agents/slurry-abrasive/PROFILE.md에 대안 경로(세리아
+D99 이식 재검토, LPC 임계 0.68µm scratch_threshold_nm 전환) 기록. qa_loop 실행 전 커밋
+보류(코드/팩 변경 없이 노트만 추가라 qa_loop 대상 아님).
