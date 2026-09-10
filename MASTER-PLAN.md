@@ -1747,3 +1747,14 @@ surface-contamination Lv3-2 요청1(우선순위 상) `competitive_langmuir_surf
 Eq.22 경쟁 Langmuir 흡착 모델, 근거노트(post-cmp-residual-metal-prediction-langmuir-scm.md
 §2·§6(A)) 정량값 그대로 재현 테스트 5건. engine 미등록(Recipe 스키마 부재). pytest 527
 passed(기존522+신규5). 커밋 986d8cb. BACKLOG S41 완료 등록.
+
+## 2026-09-10 16:xx [성장엔진]
+정확도루프: oxide_silica/pH RESPONSE_DEAD(cn109609035b held-out, n=7 valley 무반응) 해결 —
+Choi 2004(doi:10.1149/1.1738472, 미러 사이트 경유) 정전반발 메커니즘 근거로 knowledge/cmp/
+silica-cmp-ph-acidic-repulsion-choi-power-law.md 신설, cn109609035b 특허 표1 산성 5점에
+멱함수 피팅(MRR∝pH^-3.09) → sim/factors.py `_ph_peak_term`에 pH≤6.5 산성 가지 배선(기존
+Li2021 정점형 pH≳9.7 계약 불변). check_knowledge/verify_claims 1/1 통과, pytest 527 passed,
+qa_loop --strict PASS(cn109609035b 비유의→유의 ρ=+0.893, 유의평균 0.935→0.929 경미 하락
+허용범위). response_map 판정 DEAD→CONFLICT로 전환(방향은 아직 안 맞음, down vs valley) —
+다음 최우선 갭은 이 CONFLICT(score 120, 6.5~9 전환구간 데이터 없어 골 형태 재현 미완).
+커밋 c50b96f, push 완료.
