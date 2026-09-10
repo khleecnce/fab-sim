@@ -78,6 +78,36 @@ def V_total_profile(a, zeta, A, I_molar, T=298.15,
                        sec_min_kT=sec_min, sec_min_h_nm=sec_min_h * 1e9)
 
 
+def stability_qualitative(ph, abrasive_iep_ph, wafer_iep_ph=None):
+    """pH와 IEP 거리로부터 정성적 응집 위험도를 판정 (정량 zeta 없이).
+
+    근거: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md §5
+      "표면전하가 0이 되는 pH가 등전점(IEP)이며, 이 근처에서 zeta->0이라
+      장벽이 무너져 가장 불안정하다."
+    |pH - IEP| < 1.0  -> "IEP 근접, 응집 위험 높음" (zeta 작음 추정)
+    |pH - IEP| >= 2.0 -> "IEP에서 충분히 이격, 분산 안정 추정"
+    그 사이는 "중간" — 정량 zeta 없이는 더 세분화하지 않는다(지어내지 않음).
+    이 함수는 zeta 절대값을 계산하지 않는다 — 팩에 실측 zeta가 없기 때문이다.
+    임계값 1.0/2.0은 미검증(arbitrary) — 노트 §2의 "|zeta|>=30mV 안정, <15mV 응집"
+    서술을 pH 거리로 대략 치환한 것뿐, 정량 매핑 문헌은 없다.
+    wafer_iep_ph를 주면 그 거리도 참고 정보로만 note에 덧붙인다(위험도 분류에는
+    반영하지 않는다 — 입자-웨이퍼 결합효과를 정량화한 문헌이 없다).
+    """
+    distance = abs(ph - abrasive_iep_ph)
+    if distance < 1.0:
+        risk = "high"
+    elif distance >= 2.0:
+        risk = "low"
+    else:
+        risk = "medium"
+    note = (f"|pH-IEP|={distance:.2f} (미검증 임계 1.0/2.0 — 정량 zeta 매핑 문헌 없음, "
+            "knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md §5 정성 서술의 대략적 치환)")
+    if wafer_iep_ph is not None:
+        wafer_distance = abs(ph - wafer_iep_ph)
+        note += f"; 웨이퍼 IEP 거리(참고, 위험도 미반영)={wafer_distance:.2f}"
+    return {"distance_from_iep_ph": distance, "risk": risk, "note": note}
+
+
 def run_selftest():
     passed = 0
     total = 0
@@ -141,6 +171,17 @@ def run_selftest():
     check("|zeta| 감소 -> 장벽 단조 붕괴",
           barriers[-0.040] > barriers[-0.020] > barriers[-0.010])
     check("IEP 근접(-10mV) 장벽 사실상 소멸(<5 kT)", barriers[-0.010] < 5)
+
+    print("== 6) 정성 안정성 판정(stability_qualitative): pH-IEP 거리 -> risk ==")
+    r_oxide = stability_qualitative(10.5, 2.5)   # oxide_silica 팩: pH10.5, IEP2.5, 거리=8.0
+    print(f"    oxide_silica(pH10.5,IEP2.5): 거리={r_oxide['distance_from_iep_ph']:.2f} risk={r_oxide['risk']}")
+    check("oxide_silica 조건 risk=low(거리 8.0>=2.0)", r_oxide["risk"] == "low")
+    r_near = stability_qualitative(3.0, 2.5)     # IEP 근접: 거리=0.5
+    print(f"    IEP근접(pH3.0,IEP2.5): 거리={r_near['distance_from_iep_ph']:.2f} risk={r_near['risk']}")
+    check("IEP 근접(거리0.5<1.0) risk=high", r_near["risk"] == "high")
+    r_mid = stability_qualitative(4.0, 2.5)      # 중간: 거리=1.5
+    print(f"    중간거리(pH4.0,IEP2.5): 거리={r_mid['distance_from_iep_ph']:.2f} risk={r_mid['risk']}")
+    check("중간거리(1.0<=거리<2.0) risk=medium", r_mid["risk"] == "medium")
 
     print(f"\n{passed}/{total} PASS")
     return passed == total

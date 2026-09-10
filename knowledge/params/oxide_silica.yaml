@@ -38,6 +38,17 @@ params:
     note: 실리카 등전점 — pH 10.5에서 강한 음전하 → 정전 안정
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
     confidence: verified
+  hamaker_j:
+    value: 0.85e-20
+    unit: J
+    note: >
+      실리카-물-실리카 Hamaker 상수. 노트 §5: "실리카-물-실리카는 통상 ~0.85×10^-20 J
+      오더로 채택(본 재현값)" — sim/tier2_physics/dlvo_colloid.py self-test가 이 값으로
+      DLVO V_T(h) 정성 형태(장벽 존재/소멸)를 재현한다. 이온세기·zeta potential 실측값은
+      노트에 정량 수치가 없어 팩에 추가하지 않았다(지어내지 않음) — DLVO 정량 곡선을
+      이 팩만으로 그릴 수는 없고, 정성 판정(IEP 거리 기반)만 가능하다.
+    source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md §5
+    confidence: literature
 
   # ══════════════════════════════════════════════════════════
   # 슬러리 조성 축 (κ·χ·Δ) — ARCHITECTURE-V2.md §1-②

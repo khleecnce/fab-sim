@@ -197,6 +197,11 @@ class WaferResult:
     cu_dishing_tugbawa_nm: Optional[float] = None
     cu_erosion_tugbawa_nm: Optional[float] = None
     cu_dishing_tugbawa_note: Optional[str] = None
+    # DLVO 콜로이드 응집 위험 정성 진단 — MRR과 무관. IEP 거리 기반(정량 zeta 없음).
+    # slurry_ph·abrasive_iep_ph가 팩에 둘 다 있을 때만 채워진다 — 하나라도 없으면 조용히 None.
+    colloid_distance_from_iep_ph: Optional[float] = None
+    colloid_stability_risk: Optional[str] = None       # "high"/"medium"/"low"
+    colloid_stability_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -231,6 +236,9 @@ class WaferResult:
             "cu_dishing_tugbawa_nm": self.cu_dishing_tugbawa_nm,
             "cu_erosion_tugbawa_nm": self.cu_erosion_tugbawa_nm,
             "cu_dishing_tugbawa_note": self.cu_dishing_tugbawa_note,
+            "colloid_distance_from_iep_ph": self.colloid_distance_from_iep_ph,
+            "colloid_stability_risk": self.colloid_stability_risk,
+            "colloid_stability_note": self.colloid_stability_note,
             "factors": {k: f.to_dict() for k, f in self.factors.items()},
             "factor_coverage": coverage(self.factors) if self.factors else None,
             "equipment_outputs": {k: o.to_dict()
@@ -417,6 +425,34 @@ def _cu_dishing_erosion_tugbawa_diagnostic(rr: "ResolvedRecipe") -> Dict[str, ob
     return out
 
 
+def _colloid_stability_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """DLVO 콜로이드 응집 위험 정성 진단(IEP 거리) — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/dlvo_colloid.py stability_qualitative()
+    (knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md §5). 팩에 정량 zeta potential·
+    이온세기 실측값이 없어(지어내지 않음) |pH-IEP| 거리만으로 판정하는 경량 정성 함수다.
+    slurry_ph·abrasive_iep_ph가 둘 다 팩에 있을 때만 계산 — cu_h2o2_bta·w_fe_oxidizer처럼
+    abrasive_iep_ph가 없는 팩은 roughness_ra_nm과 같은 지위로 조용히 None.
+    """
+    out: Dict[str, object] = {"colloid_distance_from_iep_ph": None,
+                              "colloid_stability_risk": None,
+                              "colloid_stability_note": None}
+    if not (rr.pack.has("slurry_ph") and rr.pack.has("abrasive_iep_ph")):
+        return out
+    try:
+        import dlvo_colloid as DLVO   # sim/tier2_physics (기존 함수 무수정, 신규 함수만 사용)
+        ph = rr.p("slurry_ph")
+        iep = rr.p("abrasive_iep_ph")
+        result = DLVO.stability_qualitative(ph, iep)
+    except Exception as e:
+        out["colloid_stability_note"] = f"콜로이드 안정성 진단 실패({e}) — None으로 둠"
+        return out
+    out["colloid_distance_from_iep_ph"] = result["distance_from_iep_ph"]
+    out["colloid_stability_risk"] = result["risk"]
+    out["colloid_stability_note"] = result["note"]
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -489,6 +525,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     cu_de = _cu_dishing_erosion_tugbawa_diagnostic(rr)
     if cu_de["cu_dishing_tugbawa_note"]:
         notes.append(cu_de["cu_dishing_tugbawa_note"])
+    # DLVO 콜로이드 응집 위험 진단 — MRR 경로와 완전히 독립. slurry_ph·abrasive_iep_ph 없으면 조용히 None.
+    colloid = _colloid_stability_diagnostic(rr)
+    if colloid["colloid_stability_note"]:
+        notes.append(colloid["colloid_stability_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -513,6 +553,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        cu_dishing_tugbawa_nm=cu_de["cu_dishing_tugbawa_nm"],
                        cu_erosion_tugbawa_nm=cu_de["cu_erosion_tugbawa_nm"],
                        cu_dishing_tugbawa_note=cu_de["cu_dishing_tugbawa_note"],
+                       colloid_distance_from_iep_ph=colloid["colloid_distance_from_iep_ph"],
+                       colloid_stability_risk=colloid["colloid_stability_risk"],
+                       colloid_stability_note=colloid["colloid_stability_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
