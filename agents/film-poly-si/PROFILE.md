@@ -19,3 +19,4 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 
 ## 이수 기록
 (크론이 갱신)
+- 2026-09-10 Lv1-1 Poly-Si 물성(도핑·결정립)과 CMP 거동 — knowledge/materials/film-poly-si-doping-grain-cmp.md
