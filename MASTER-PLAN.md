@@ -1712,3 +1712,19 @@ damage_exponent=1.44(동 특허 4점 회귀, R²=0.997, confidence=literature)�
 pytest 517 passed, qa_loop --strict PASS. 잔여 4팩(cu_h2o2_bta, oxide_silica, w_fe_oxidizer는
 알루미나/실리카 계열, D99 미확보 지속)은 여전히 no-op — 다음은 알루미나 특허 조성표 재탐색 또는
 Δ 스크래치 축을 LPC 임계(0.68µm)로 전환하는 대안 검토.
+
+## 2026-09-10 13:xx [소프트웨어/Max워커]
+
+software/BACKLOG.md S12(모듈 엔진 이관) 진행 — `sim/tier2_physics/npw_ptw_effective_pressure.py`를
+`sim/engine.py`에 진단 필드로 등록. `_effective_pressure_diagnostic()` 신설(기존 `_lubrication_diagnostics`/
+`_film_thickness_diagnostic`과 동일 패턴 — MRR 경로와 완전 독립). `WaferResult`에
+`ptw_effective_pressure_ratio`/`ptw_effective_pressure_note` 필드 2종 추가. PTW이고
+`rr.meta['pattern_density']`가 Sorooshian(2005) §3.3 표값(0.10/0.50/0.90) 중 하나일 때만 값이
+채워지고, 그 외(NPW/미지정/표에 없는 밀도)는 조용히 None + 정직한 스킵 사유 note(조용한 보간/외삽
+없음 원칙 유지). 계약테스트 5건 신설(`tests/test_ptw_effective_pressure_diagnostic.py`), pytest 522
+passed(기존517+신규5, 회귀 없음). Claude Code 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지
+브리핑) → Max워커가 pytest 직접 재검증, git diff로 sim/engine.py 진단 추가 외 로직 변경 없음 확인,
+git status로 다른 크론 미커밋 파일(agents/.source_cache.json·agents/disk-design/PROFILE.md·
+.night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/check_npw_catalog.py·validation/two_stage/)
+미접촉 확인 후 신규 2파일만 커밋(42d7cb4)+push. `npw_ptw_effective_pressure.py` 파일 자체는 무수정.
+S12는 여전히 미완료(19→18개 모듈 남음, ⬜ 유지).
