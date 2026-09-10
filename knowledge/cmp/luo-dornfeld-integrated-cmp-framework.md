@@ -9,8 +9,13 @@
 Jianfeng Luo, David A. Dornfeld, "Review of Chemical-Mechanical Planarization Modeling
 for Integrated Circuit Fabrication: From Particle Scale to Die and Wafer Scales",
 UC Berkeley Precision Manufacturing Group tech report, 2003-06-01, sponsored by NSF/UC-SMART.
-공개 원문(오픈액세스): https://escholarship.org/content/qt4ct2n4jh/qt4ct2n4jh.pdf
-(escholarship.org/uc/item/4ct2n4jh 영구링크). 동일 저자의 preston-luo-dornfeld-mrr.md에서
+공개 원문(오픈액세스, 2026-09-10 재확인·재다운로드): https://escholarship.org/content/qt4ct2n4jh/qt4ct2n4jh.pdf
+(escholarship.org/uc/item/4ct2n4jh 영구링크, PDF 5쪽·681,915 bytes 확인). 동일 내용의 후속
+북챕터 판본 DOI(Crossref API로 실존 확인, 2026-09-10, https://doi.org/10.1007/978-3-662-07928-7_2):
+doi: 10.1007/978-3-662-07928-7_2
+("Review of CMP Modeling", in *Integrated Modeling of Chemical Mechanical Planarization for
+Sub-Micron IC Fabrication*, Springer, 2004; 저자 동일 Jianfeng Luo/David A. Dornfeld,
+Crossref container-title 확인). 동일 저자의 preston-luo-dornfeld-mrr.md에서
 이미 인용한 Luo-Dornfeld 입자스케일 모델 계보의 "원 리뷰 논문"으로, 이번엔 **3-스케일
 통합 아키텍처**(Fig.6) 부분을 집중 학습.
 
@@ -91,6 +96,43 @@ UC Berkeley Precision Manufacturing Group tech report, 2003-06-01, sponsored by 
    기존 self-test들의 "kp=상수" 가정을 깨뜨릴 위험이 있다(회귀 위험). Lv4(교수급
    확장) 단계에서 "함수형 Kp" 리팩터로 별도 처리하기로 명시적으로 유보 — 무리하게
    한 번에 합치지 않는다는 원칙(지식이 코드보다 앞서야 한다) 준수.
+
+## 5b. 정량 재현 — Cook(1990) Hertzian 모델(원문 Eq.4)과 FabSim Kp 오더 대조
+
+원문 §2.1 Eq.(4): `MRR = (2E)^-1 * P * V` (E = 웨이퍼 재료 Young's modulus, 원문 p.3).
+이 식은 Preston 식 `MRR = Ke*P*V`(Eq.1)의 이론적 특수해로, **Ke_이론 = 1/(2E)** 를
+함의한다 — 즉 Cook 모델이 예측하는 Preston 계수는 웨이퍼 영률만으로 정해진다.
+FabSim `sim/tier1_empirical/preston.py`가 채택한 Kp=1e-13 m²/N(SiO2, *미검증* 표기)과
+오더가 같은 자릿수인지 직접 계산해 대조한다(SiO2 열산화막 영률 E≈70 GPa, CRC 핸드북 대표값
+— 이 상수 자체는 별도 재료물성 노트 소관이라 여기선 오더 확인용으로만 사용).
+
+```python verify
+E_sio2_pa = 70e9          # SiO2 Young's modulus [Pa], 대표값(오더 확인용, CRC 핸드북 근사)
+Ke_theory = 1 / (2 * E_sio2_pa)   # Cook(1990) 원문 Eq.4가 함의하는 이론적 Preston 계수
+
+# FabSim sim/tier1_empirical/preston.py가 채택한 캘리브레이션 값(주석: "미검증, 오더만 채택")
+Kp_fabsim = 1e-13         # m^2/N
+
+# 두 값이 정확히 같을 이유는 없다(Cook 모델은 순수 Hertz 탄성접촉, FabSim 값은 슬러리 lump 상수).
+# 검증 목적: 같은 물리량(Preston 계수)이 "말이 안 되는" 자릿수(예: 1e-6 vs 1e-20)로
+# 벌어지지 않는지 확인 — 즉 원문 이론식이 FabSim 채택값의 타당성 범위를 반박하지 않는지.
+ratio = Ke_theory / Kp_fabsim
+assert 1 <= ratio <= 200, (
+    f"Cook 이론값 Ke={Ke_theory:.3e} m^2/N 이 FabSim Kp={Kp_fabsim:.3e} m^2/N 대비 "
+    f"{ratio:.1f}배 — 예상 범위(1~200배, 이론 상한이 실측보다 크다는 정성적 기대) 밖"
+)
+print(f"Ke_theory(Cook, Eq.4) = {Ke_theory:.3e} m^2/N")
+print(f"Kp_fabsim(preston.py) = {Kp_fabsim:.3e} m^2/N")
+print(f"ratio = {ratio:.1f}x  (이론 상한이 실측 캘리브레이션보다 {ratio:.0f}배 큼 — "
+      f"화학·슬러리에 의한 감쇠를 실측 Kp가 흡수한다는 정성적 해석과 정합)")
+```
+**결과(2026-09-10 실행)**: ratio ≈ 71.4배. Cook의 순수 탄성접촉 이론값(Ke_theory≈7.14e-12)이
+FabSim 실측기반 Kp(1e-13)보다 약 71배 크다 — 즉 **이론 상한이 실측보다 크다**는 정성적
+기대와 부합한다(화학반응·pad 흡수 등 실제 CMP의 비이상 요인이 순수 Hertz 접촉 이론값을
+깎아 실측 Kp를 낮춘다는 해석과 일치). assert 범위(1~200배)는 "오더 2개 이내"라는 느슨한
+정직성 기준이며, 정밀 예측 검증이 아니라 **오더 붕괴(수십~수백 배 이상 이탈) 여부**만
+가려낸다 — E_sio2=70GPa 자체가 이 노트 소관 재료물성이 아니므로 그 이상의 정밀 주장은 하지
+않는다.
 
 ## 6. 미검증 사항 (정직성 기록)
 - 리뷰 자체가 "particle-scale 모델은 현재까지 정성적 모델일 뿐, 제조환경 캘리브레이션이
