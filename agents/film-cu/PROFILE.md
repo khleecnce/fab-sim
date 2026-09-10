@@ -47,7 +47,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - **[P3] BTA 막 두께 상수**: Cu(I)-BTA 2–4 분자층(0.12 µg/cm², Tamilmani 2005 QCM) — Kaufman 경쟁모델의 "막 두께" 초기값.
   단 하이드록실아민계 실측이므로 H₂O₂계 적용 시 "미검증" 플래그.
 
-- **[P1] Tugbawa 밀도-스텝하이트 오버폴리시 커널** `sim/tier2_physics/cu_dishing_erosion_tugbawa.py` (제안): 입력(r_cu, r_ox, Φ_cu, d_max, d₂, t−t₃)
+- **[P1] Tugbawa 밀도-스텝하이트 오버폴리시 커널** ✅ 9/10 완료 — `sim/tier2_physics/cu_dishing_erosion_tugbawa.py`(S42, 커밋 31bd312). 입력(r_cu, r_ox, Φ_cu, d_max, d₂, t−t₃)
   → D_cu(t), E_ox(t) 닫힌 해(eq 3.37–3.42). 유전체 기울기는 Φ/((1−Φ)·d_max)로 고정 — 현행 `pattern_density.steady_state_dishing`의 자유
   파라미터 b 제거. d_max(w, s) = B·w^α₂·min(s, s_l)^β₂ (eq 3.46) 기본값 Table 3.9 ψ 포함 행(B 333 Å, α₂ 0.303, β₂ 0.259, s_l 100 µm);
   엣지 라운딩 r'_ox = (C·e^{−s/s_c} + 1)·r_ox (C 3.04, s_c 22.5 µm). 근거노트: [[../../knowledge/cmp/cu-dishing-erosion-density-step-height-model-tugbawa]] §1–3·verify 1–3.
