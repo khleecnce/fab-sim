@@ -1682,3 +1682,9 @@ qa_loop --strict PASS(유의 평균 rho=0.9349, 격리 0). agents/.source_cache.
 disk-design/PROFILE.md는 다른 크론 미커밋분이라 제외, 신규 5파일만 커밋(9e91a2c)+push.
 ORG.md 5절 slurry-abrasive 1.8->1.9/6 갱신. corpus.py status: total 2283, with_fulltext 1311,
 learn 큐 1304(7건 처리).
+
+## 2026-09-10 09:30 [소프트웨어]
+film-cu PROFILE.md 구현요청(P1, Cu-H₂O Pourbaix 경계 함수)을 S40으로 처리 —
+`sim/tier2_physics/cu_pourbaix.py` 신설(경계식 6종 + stable_phase 판정함수),
+Tamilmani 2005 그림4.1 재현 테스트 12건. CuO는 ΔG_f° 미확보로 미구현(Cu(OH)₂ 대체값,
+미검증 명시). engine 미등록. pytest 514 passed(기존502+신규12). 커밋 495ed90.
