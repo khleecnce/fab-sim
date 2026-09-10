@@ -229,8 +229,18 @@ def _dedupe_factors(g):
     return out
 
 
+def gaps_completion():
+    """COMPLETION.md 기준 미충족 — 완성 목표가 선언된 뒤엔 이것이 최상위다 (2026-09-10)."""
+    try:
+        sys.path.insert(0, str(ROOT / "tools"))
+        import completion
+        return completion.gaps()
+    except Exception as e:
+        return [{"kind": "COMPLETION-ERR", "score": 1, "what": f"completion.py 실패: {e}", "action": "", "why": ""}]
+
+
 def collect():
-    g = (gaps_validation() + gaps_response() + gaps_unmodeled_and_confidence()
+    g = (gaps_completion() + gaps_validation() + gaps_response() + gaps_unmodeled_and_confidence()
          + gaps_unwired_ui() + gaps_bias())
     g = _dedupe_factors(g)
     g.sort(key=lambda x: -x["score"])
