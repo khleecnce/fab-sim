@@ -1781,3 +1781,31 @@ push 완료. 오늘 두 번의 문헌 접근 시도(nitride 억제 IOP 논문, S
 재실행으로 이어감(oxide_silica/sti_ceria/sic_ceria_h2o2의 psi는 여전히 UNMODELED로 남음).
 corpus.py status: total=2283, with_fulltext=1311, queue fetch=972 learn=1301(이번 회차 fetch 0/10
 신규 확보, learn 큐에서 nano-abrasive 리뷰 1건 확인했으나 psi 관련성 낮아 별도 처리 안 함).
+
+## 2026-09-10 20:xx [소프트웨어/Max워커]
+
+film-cu 구현요청 P1(Tugbawa 밀도-스텝하이트 오버폴리시 커널) 신규 구현 —
+`sim/tier2_physics/cu_dishing_erosion_tugbawa.py` 신설. knowledge/cmp/cu-dishing-erosion-density-
+step-height-model-tugbawa.md §2·§3.2·§3.3의 닫힌 시간해(eq 3.37-3.42, d_max 경험식 eq3.46,
+엣지라운딩 ψ eq3.49)를 그대로 구현(steady_state_dishing_tugbawa/tau3/erosion_rate_Y1/
+d_max_from_linewidth_space/edge_rounding_psi/dishing_time_evolution/erosion_time_evolution +
+종합 cu_overpolish_dishing_erosion). 기본 파라미터는 노트 Table 3.9 "#1 Stacked pad ψ포함"
+캘리브레이션값(특정 장비 Mirra·특정 슬러리 EPC-5001 한정)임을 docstring·notes 양쪽에 경고 표기.
+§4.2 과도 오버폴리시 플래그(erosion>3000Å 또는 Φ>0.95) 포함. SER(정적식각)은 노트 §6이 후속
+과제로 명시한 대로 이번 범위에서 제외. 노트 §7 verify 1-3 정량값(Fig3.14 90%/50% 어레이 오차
+5%/41%, Fig3.12 고립선 비율, Table3.9 압력보존 등) 전체를 pytest로 이전(18 케이스) +
+엔진 게이팅 회귀(6 케이스). engine.py에 `cu_dishing_tugbawa_nm`/`cu_erosion_tugbawa_nm`/
+`cu_dishing_tugbawa_note` 진단 필드 3종 추가(기존 미사용 dishing_nm/erosion_nm과 이름 분리,
+값 경로는 완전 독립). 계산 게이트: cu_h2o2_bta 팩 + PTW + meta에 패턴레이아웃(pattern_density·
+linewidth_um·space_um)과 실측 r_cu_angstrom_s/r_ox_angstrom_s가 전부 있을 때만 — 문헌 캘리브레이션
+상수(a1=159Å/s 등)를 몰래 기본값으로 쓰지 않음(조용한 외삽 금지 원칙 준수), 하나라도 없으면
+None+스킵사유 note. 기존 `sim/tier1_empirical/pattern_density.py::steady_state_dishing`(자유파라미터
+b 방식)은 무수정, 공존.
+
+Claude Code 위임(Read/Write/Edit/Bash, max-turns 40, 커밋 금지 브리핑) → Max워커가
+check_knowledge.py 1/1 통과 확인, pytest 553 passed(기존527+신규24, 회귀 없음) 직접 재검증,
+git diff sim/engine.py로 필드추가·진단함수·simulate() 배선 외 로직 변경 없음(전부 `+`) 확인,
+git status로 다른 크론 미커밋 파일(agents/.source_cache.json·agents/disk-design/PROFILE.md·
+.night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/check_npw_catalog.py·
+validation/two_stage/·data/corpus/) 미접촉 확인 후 신규 3파일+sim/engine.py만 커밋(31bd312)+push.
+software/BACKLOG.md film-cu 구현요청 수신함 항목 완료 표시는 다음 항목에서 기록.
