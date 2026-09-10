@@ -458,18 +458,42 @@ def _ph_peak_term(pack, notes: List[str]) -> Optional[float]:
     a_lo = float(pack.get_or("ph_curvature_low", 0.102))
     a_hi = float(pack.get_or("ph_curvature_high", 0.0823))
 
-    def _rel(x: float) -> float:
+    # ── 산성 영역(pH ≲ 6.5) 멱함수 가지 ──────────────────────────────────
+    # 2026-09-10 RESPONSE_DEAD 대응: 위 2차 정점식은 하한 클램프(0.05)로 pH<~9.7에서
+    # 전부 평평해진다(cn109609035b held-out에서 문헌은 골, 모델은 무반응으로 잡힘).
+    # knowledge/cmp/silica-cmp-ph-acidic-repulsion-choi-power-law.md(Choi 2004 doi:10.1149/
+    # 1.1738472 메커니즘 근거 + cn109609035b 특허 표1 5점 멱함수 피팅)에 따라 산성 구간은
+    # 정전 반발이 지배하는 별도 멱함수로 대체한다. 전환 경계(6.5)는 캘리브레이션이 아니라
+    # 피팅에 쓴 데이터의 최대 pH — 그 위 6.5~9(전환구간)는 데이터가 없어 여전히 위 2차식
+    # (대개 하한 클램프)을 쓴다. 이는 미검증 전이 구간이라 notes로 신고한다.
+    ph_acid_max = float(pack.get_or("ph_acid_transition", 6.5))
+    ph_acid_exp = float(pack.get_or("ph_acid_exponent", -3.09))  # 멱함수 지수, 문헌노트 §3
+
+    def _quad(x: float) -> float:
         d = x - ph_pk
         a = a_lo if d < 0 else a_hi
         return max(1.0 - a * d * d, 0.05)   # 물리적으로 0 이하가 될 수 없다
+
+    def _rel(x: float) -> float:
+        if x <= ph_acid_max:
+            anchor = _quad(ph_acid_max)               # 경계에서 연속
+            x_eff = max(x, 1.5)                        # 조사범위(pH≥2) 밖 발산 방지
+            ratio = (x_eff / ph_acid_max) ** ph_acid_exp
+            return min(anchor * ratio, anchor * 50.0)   # 비물리적 폭주 방지 상한
+        return _quad(x)
 
     cur, ref = _rel(ph), _rel(ph_ref)
     if ref <= 0:
         return None
     notes.append(
         f"pH {ph:g} (정점 {ph_pk:g}, 기준 {ph_ref:g}) → 상대 {cur/ref:.3f}. "
-        "실측 3점(Li 2021 Fig.1) 기반 정점형. "
-        "⚠ 2차 감쇠 형태는 3점을 지나는 최소 가정이지 문헌 폐형식이 아니다.")
+        "실측 3점(Li 2021 Fig.1) 기반 정점형(pH≳6.5), "
+        f"산성(pH≤{ph_acid_max:g})은 정전반발 멱함수(Choi 2004 메커니즘+cn109609035b 피팅). "
+        "⚠ 2차 감쇠 형태는 3점을 지나는 최소 가정, 멱함수는 n=5 피팅 — 둘 다 문헌 폐형식은 아니다. "
+        "⚠ 6.5~9 전환구간은 데이터 없어 2차식을 그대로 씀(미검증 외삽).")
+    if ph < ph_acid_max:
+        notes.append(f"⚠ pH {ph:g}는 산성 멱함수 외삽 구간 — n=5(pH 2.0~5.0) 피팅, "
+                     "저pH일수록 문헌과 최대 27% 편차 확인됨(원인 미상).")
     if ph > 12.5 or ph < 10.0:
         notes.append(f"⚠ pH {ph:g}는 실측 범위(10.0~12.5) 밖이다 — 외삽이다.")
     return cur / ref
