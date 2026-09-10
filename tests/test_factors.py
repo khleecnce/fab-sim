@@ -222,6 +222,50 @@ def test_missing_size_exponent_does_not_invent_a_value():
 
 # ═══════════════════════════════ ④ 축 분리 (사용자 확정 규칙)
 
+def test_delta_is_unity_when_d99_equals_reference():
+    """Δ 손상 유발도 — 기준 조건(D99==ref D99)에서 1.0 계약.
+
+    sti_ceria(및 상속하는 sic_ceria_h2o2)에 Hitachi US8439995B2 Example 1
+    (D99=700nm)을 baseline으로 이식했다 — 팩의 실제 조성값이 아니라 화학종
+    (세리아, oxide/STI CMP) 일치를 근거로 한 what-if 기준점이다.
+    """
+    f = _factors(pack="sti_ceria")["delta"]
+    assert f.value == pytest.approx(1.0, abs=1e-9)
+    assert f.status == "partial"
+
+
+def test_delta_increases_with_larger_d99_per_hitachi_exponent():
+    """D99가 커지면 Δ가 실측 지수(n=1.44, US8439995B2)로 늘어난다.
+
+    문헌 4점: D99 500->2500nm(5배)일 때 스크래치 10->100(10배).
+    n=log(10)/log(5)=1.4306 — sti_ceria 팩의 damage_exponent=1.44와 근접
+    (팩은 500nm가 아니라 700nm를 기준점으로 잡았으므로 완전히 같은 배수는
+    아니다. 방향·오더만 검증한다).
+    """
+    f_ref = _factors(pack="sti_ceria")["delta"]
+    f_big = _factors(pack="sti_ceria", abrasive_d99_nm=2500.0)["delta"]
+    assert f_big.value > f_ref.value
+    # US8439995B2: D99 700->2500nm(3.571배)에서 스크래치 20->100(5배 근방)
+    # 이 팩의 n=1.44 기준으로는 3.571^1.44 = 6.25배 예측 -- 문헌 원값(5배,
+    # 20->100)보다 다소 크다(기준점을 500이 아니라 700으로 잡았기 때문).
+    # 순위(단조 증가)와 오더(같은 자릿수)만 검증 -- 절대 일치는 주장하지 않는다.
+    ratio = f_big.value / f_ref.value
+    assert 3.0 < ratio < 10.0, f"오더 이탈: {ratio:.2f}배 (문헌 5배 근방 기대)"
+
+
+def test_delta_excluded_from_mrr_multiplier():
+    """Δ는 MRR_COUPLED가 아니다 — 손상 지표이지 제거율 배수가 아니다.
+
+    실측(백테스트)이 지지하기 전까지는 MRR에 곱해 넣지 않는다(사용자 원칙:
+    "MRR_COUPLED 편입은 held-out이 지지할 때만").
+    """
+    assert "delta" not in MRR_COUPLED
+    mult_ref, _ = mrr_multiplier(_factors(pack="sti_ceria"))
+    mult_big, _ = mrr_multiplier(_factors(pack="sti_ceria", abrasive_d99_nm=2500.0))
+    assert mult_ref == pytest.approx(mult_big), (
+        "Δ 변화가 MRR에 새어 들어갔다 -- delta는 MRR_COUPLED 밖에 있어야 한다.")
+
+
 def test_equipment_and_consumable_axes_do_not_mix():
     """장비 팩터의 driver 파트에 소모품이 섞이면 안 되고, 그 역도 안 된다.
 

@@ -52,6 +52,42 @@ params:
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
     confidence: estimated
 
+  # ── Δ 손상 유발도(D99-스크래치) ─────────────────────────
+  # ⚠ 이 세 값은 sti_ceria 팩(및 이를 상속하는 sic_ceria_h2o2)의 실제 슬러리
+  # 조성에서 측정된 D99가 아니다 — Hitachi Chemical 세리아 STI/ILD CMP 특허
+  # (US8439995B2)의 Example 1(D99=700nm, 스크래치 20개, 200mm 전면)을
+  # "화학종 일치(세리아, oxide/STI CMP) + 동일 패드계(IC-1000)"라는 근거로
+  # 참조 기준점(baseline)에만 쓴다. 이 팩이 실제로 700nm D99 세리아를
+  # 쓴다는 뜻이 아니다 — confidence=estimated로 명시한다.
+  # abrasive_d99_nm == abrasive_ref_d99_nm(둘 다 700)이므로 기준 조건에서
+  # Δ=1.0 계약은 그대로 유지된다. 이 값을 바꾸는 것은 recipe pack_overrides로
+  # "D99가 이만큼 커지면/작아지면"을 묻는 what-if 축으로 쓰기 위함이다.
+  abrasive_d99_nm:
+    value: 700.0
+    unit: nm
+    note: >
+      Hitachi US8439995B2 Example 1 D99(문헌 실측) — 화학종(세리아,
+      STI/ILD 산화막 CMP) 일치를 근거로 기준점(baseline)에 이식. 팩의
+      실제 조성값 아님, what-if 스캔용 기준.
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2
+    confidence: estimated
+  abrasive_ref_d99_nm:
+    value: 700.0
+    unit: nm
+    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중계상 방지
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2
+    confidence: estimated
+  damage_exponent:
+    value: 1.44
+    unit: "-"
+    note: >
+      US8439995B2 4점 실측 로그-로그 회귀값(n=1.44, R²=0.997) — sim/factors.py
+      기본값(3.0, 문헌 근거 없는 가정값)보다 약 2배 완만. 세리아 화학종
+      한정(텅스텐/알루미나는 별도 검토 필요, egan-kim2019 n_temp=3.73·
+      n_agit=1.73 참조).
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3
+    confidence: literature
+
   oxide_nitride_selectivity:
     value: 60.0
     unit: "-"
