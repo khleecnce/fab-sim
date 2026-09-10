@@ -35,11 +35,9 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   verify 3블록 통과, verify_claims 출처 3건 실존·check_knowledge 통과. 미해결: 50 % 어레이 Y₁ 41 % 과대, Fig 3.12 지수 0.51 vs α₂ 0.17–0.30)
 
 ## 구현 요청
-- **[P1] Cu-H₂O Pourbaix 경계 함수** `sim/tier2_physics/cu_pourbaix.py` (제안): 입력(pH, E, log a_Cu) → 안정상(Cu / Cu²⁺ / Cu₂O /
-  Cu(OH)₂[CuO 대용]) 반환. 상수는 CRC E° 6개(0.3419, 0.521, 0.153, −0.360, −0.222, −0.080)만 사용, 경계식은 노트 §2 1–5번.
-  근거노트: [[../../knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]] §2·§7 verify 1.
-  검증문헌값: Tamilmani 2005 그림 4.1 — Cu²⁺/Cu 0.22 V(a=1e-4)·0.16 V(1e-6), 삼중점 pH 4.2, Cu/Cu₂O pH 8에서 0.00 V·pH 13에서
-  −0.30 V (±0.03 V/±0.15 pH). CuO 경계(pH 5.65, 절편 0.64 V)는 CuO ΔG_f° 1차값 확보 전까지 "미검증" 플래그로 남길 것.
+- **[P1] Cu-H₂O Pourbaix 경계 함수** ✅ 9/10 완료 — `sim/tier2_physics/cu_pourbaix.py`(S40, 커밋 495ed90).
+  경계식 6종 + `stable_phase()` 종합 판정, Tamilmani 2005 그림4.1 재현 테스트 12건. CuO는 ΔG_f° 미확보로
+  미구현, Cu(OH)₂ 대체값으로 명시적 미검증 표기. engine 미등록(Recipe 스키마 부재).
 - **[P2] 산화제 혼합전위 모델**: 슬러리 H₂O₂ wt%·pH → Cu가 보는 전위 E_mix. 열역학 상한(1.776 − k·pH + k/2·log c)이 아니라
   O₂/H₂O₂~H₂O₂/H₂O 사이 실측 보간(Tamilmani 2005 4 % H₂O₂: pH 2/4/6/8 → 0.68/0.48/0.50/0.41 V ±0.05)을 기본값으로.
   근거: 노트 §3·verify 2. 우선순위 P2 — P1 위에서 "Cu²⁺ 영역인가 산화물 영역인가" 판정에 쓰임.
