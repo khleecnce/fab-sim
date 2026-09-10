@@ -52,6 +52,25 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   factors.py docstring에 근거 기록(코드 로직·기본값은 표본 부족으로 유지, 지수 교체는
   구현 요청으로 남김).
 
+- Lv2-1 완성 (2026-09-11): 입자 경도·Hertz(소성)압입·입자당 제거체적 —
+  knowledge/cmp/abrasive-hardness-hertz-indentation-removal-volume.md
+  (Luo & Dornfeld, "Material Removal Regions in CMP...Part 1", UC Berkeley/escholarship 2002,
+  전문 확보·통독, 도서챕터 DOI 10.1007/978-3-662-07928-7_5 — 원 논문 Luo&Dornfeld 2001 IEEE TSM
+  doi:10.1109/66.920723은 유료·OA 없음, 재인용만 확인). [[../../knowledge/materials/hertz-gw-contact-mechanics]]
+  (탄성 Hertz·GW)를 계승해 소성압입 단일입자 모델로 확장: 제거체적(율) ∝ x²·(P/H_w)^(3/2)·V
+  (원문 Eq.11), 경도 지수 -3/2를 코드로 재현(대수적 검증). 입자경도 비교표 확보: 알루미나
+  Mohs9·E≈500GPa(doi:10.3390/ma17030679 PMC10856169; 500GPa는 Luo2002 원문이 직접 인용),
+  세리아(벌크) H=6.44±0.72GPa/E=167.6±12.5GPa(doi:10.3390/ma19102134 PMC13208460, 원자로
+  대체연료 펠릿 측정 — CMP 슬러리 나노입자 아님, 오더 참고만), 실리카(용융) Vickers
+  H=7.3±0.3GPa(doi:10.1016/j.jnoncrysol.2006.02.113, 초록 수준만 확인·원문 미접근).
+  **핵심 발견**: (1) 실리카 경도(7.3GPa)가 SiO2 웨이퍼 벌크 경도(≈10GPa, 문헌 재인용)보다
+  낮거나 비슷 — "입자가 웨이퍼보다 훨씬 단단하다"는 리지드 인덴터 가정이 실리카/SiO2에서
+  깨짐, Cook(1990) 수화층 모델이 왜 필요한지 정량적으로 뒷받침. (2) 벌크경도 3/2제곱 법칙
+  단독으로 예측한 W/산화막 상대제거율(≈31.6배)이 실측 대표값비(≈0.51배)와 62배 오더
+  불일치 — 화학(WO3 passivation 순환 등)이 지배적임을 재확인(재현 실패를 숨기지 않고 그대로
+  기록). Lv1-1이 이월한 "절대 경도 미확보" 과제를 이걸로 해소. verify_claims/check_knowledge
+  둘 다 통과. abrasive-manufacturing-colloidal-fumed-silica-ceria.md Lv1-1 잔여과제 해소.
+
 ## 구현 요청
 1. **Δ 팩터 형태 재검토** (우선순위: 중, 선행조건: 팩에 abrasive_d99_nm 확보 필요)
    - 무엇을: `sim/factors.py::_f_delta`를 거듭제곱 `(d99/d99_ref)^n` 대신 임계 초과 선형

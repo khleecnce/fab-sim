@@ -114,3 +114,38 @@ A. 실리카·세리아·알루미나의 **절대 경도(GPa/HV)와 압입 파�
 Lv2-1 잔여 과제(Hertz 압입)에서 별도 문헌이 필요하다는 뜻으로, 억지로 값을 채우지 않고
 "미검증"으로 남겼다.
 출처: 본 노트 §6, §8.
+
+## Lv2-1 완성 — 입자 경도·Hertz(소성) 압입·입자당 제거체적 — 2026-09-11
+
+**Q1. Luo-Dornfeld 단일입자 모델(원문 Eq.11)에서 단일 입자당 제거체적이 웨이퍼 경도 H_w2에
+대해 갖는 지수는 얼마이며, 이 지수는 왜 3/2인가?**
+A. -3/2 (즉 제거율 ∝ H_w2^(-3/2)). 이는 두 단계가 곱해져 나온다: (1) 소성압입 가정에서
+접촉면적이 힘/경도(A∝F/H)로 정해지고, (2) 여기에 다시 Hertz형 압력-면적 관계(A'∝힘의 2/3승
+꼴)가 결합되면서 경도 항이 3/2승으로 누적된다. 원 논문(Luo 2002, escholarship, 부분적으로
+Luo&Dornfeld 2001 IEEE TSM 재인용, doi:10.1109/66.920723 원문은 유료라 미접근)은 이를
+"The exponent 3/2 of the hardness term...accelerates this change"라고 직접 명시한다.
+출처: knowledge/cmp/abrasive-hardness-hertz-indentation-removal-volume.md §2.
+
+**Q2. 실리카(SiO2) 연마입자의 실측 Vickers 경도(≈7.3 GPa)를 SiO2 웨이퍼막 자체의 유효 경도
+(≈10 GPa, 문헌 재인용)와 비교했을 때 어떤 문제가 드러나며, 이것이 왜 Cook(1990)의 수화층
+모델을 지지하는 정량적 근거가 되는가?**
+A. 실리카 입자의 경도(≈7.3 GPa)가 SiO2 웨이퍼 벌크 경도(≈10 GPa)보다 오히려 낮거나 비슷한
+오더다 — 즉 §2 모델이 전제하는 "입자가 웨이퍼보다 훨씬 단단한 리지드 인덴터"라는 가정이
+실리카/SiO2 페어링에서는 성립하기 어렵다. 이는 Luo-Dornfeld 이중층 모델이 애초에 "벌크
+웨이퍼가 아니라 화학반응으로 만들어진 훨씬 무른 표면 수화층(H_w1≪H_w2, Cook 1990의
+≡SiOH 층)을 제거한다"고 가정해야 하는 이유를 경도 수치로 뒷받침한다 — 순수 기계적 압입만으로는
+실리카가 SiO2를 깎는다는 사실 자체가 설명되지 않기 때문이다.
+출처: knowledge/cmp/abrasive-hardness-hertz-indentation-removal-volume.md §4(표), §3(H_w 수치),
+Michel et al. 2006 doi:10.1016/j.jnoncrysol.2006.02.113(초록 수준 확인, 원문 미접근).
+
+**Q3. §5 검증코드에서 "벌크 경도 3/2제곱 법칙만으로 예측한 텅스텐/산화막 상대 제거율"과
+"실측 대표 제거율비"는 몇 배나 어긋나며, 이 불일치는 모델이 틀렸다는 뜻인가 아니면 다른 것을
+보여주는가?**
+A. 예측치는 (H_SiO2/H_W)^1.5 = 10^1.5 ≈ 31.6배(텅스텐이 훨씬 빨리 깎여야 함)인 반면, 실측
+대표값(W 130 nm/min, 산화막 254.05 nm/min, 둘 다 기존 노트에서 문헌 대조된 값)의 비는 약
+0.51배 — 둘 사이에 약 62배의 오더 불일치가 있다. 이것은 모델이 "틀렸다"는 뜻이 아니라, 실제
+CMP 제거율이 **벌크 웨이퍼 경도가 아니라 화학반응(텅스텐의 WO₃ passivation-제거 순환 등)이
+지배적 변수**라는 것을 정량적으로 재확인해 준다 — Luo-Dornfeld 모델 자체가 이중층(H_w1 vs H_w2)
+가정을 통해 이미 이 점을 인정하고 있다.
+출처: knowledge/cmp/abrasive-hardness-hertz-indentation-removal-volume.md §5(B) verify 블록,
+knowledge/cmp/w-cmp-wo3-passivation-oxidizer-kaufman.md, knowledge/cmp/preston-luo-dornfeld-mrr.md.
