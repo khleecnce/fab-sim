@@ -43,7 +43,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   100 ppm Cu pH*=5.74(Bisht 2022 관찰 ≈6, ±0.5), Co 7.93(Cu보다 2.0~2.5 높음). docstring에 "ΔE_corr 크기는 표준전위로 예측 불가(Lee 2021 4배, Seo 2019 1/15)"를 명기.
   용도: Lv3-2 잔류 예측 모델에서 "이온 상태(정전흡착·브러시 흡수) vs 입자 상태(brush loading)" 분기와 갈바닉 용해 방향 입력.
 - (주의) 두 함수 모두 금속 가수분해·수산화물 침전·박막 실제 IEP는 미반영 — 노트 §7 한계 그대로 docstring에 명기할 것.
-- **[Lv3-2 요청 1 · 우선순위 상] `competitive_langmuir_surface(metals, pH, sigma0=3e12, K_H=1e3)`** — 순수함수. 입력: {금속: (K_i [L/mol], C_i,free [mol/L])}, pH.
+- ~~**[Lv3-2 요청 1 · 우선순위 상] `competitive_langmuir_surface(metals, pH, sigma0=3e12, K_H=1e3)`**~~ ✅ 2026-09-10 완료
+  (software/BACKLOG.md S41, `sim/tier2_physics/competitive_metal_langmuir.py`, 커밋 986d8cb) — Loewenstein 1999
+  Eq.22 재현, 테스트 5건(Cr [M]지수 0.73±0.05·자리분율 0.4%·pH3·10nM Cu 오더·단일금속 항등성·다중금속 Θ 일관성).
+  engine 미등록(Recipe 스키마 부재, 기존 tier2_physics 순수함수들과 동일 지위). 순수함수. 입력: {금속: (K_i [L/mol], C_i,free [mol/L])}, pH.
   식: σ_i = σ0·K_i·C_i/(1 + K_H·10^-pH + Σ_j K_j·C_j) (Loewenstein·Charpin·Mertens 1999 Eq.22, doi:10.1149/1.1391670). 반환: {금속: atoms/cm²}와 총 점유율 Θ.
   근거노트: knowledge/cmp/post-cmp-residual-metal-prediction-langmuir-scm.md §2·§6(A). 검증문헌값: σ0 = 1/(3.00e-13 cm²/atom) = 3e12(자리분율 0.4 %),
   K_Cr≈1e6·K_H≈1e3에서 pH 3·pM 8→5의 [M] 지수 0.74(문헌 Table VI 0.73±0.07), pH 3·10 nM → ≈1.5e10 atoms/cm²(Table I Cu 0.9~1.7e10 오더).

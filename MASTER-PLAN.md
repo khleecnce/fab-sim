@@ -1740,3 +1740,10 @@ knowledge/cmp/abrasive-shape-effect-purespherical-subset-nonmonotonic.md 신설,
 verify_claims·check_knowledge 1/1 통과. 코드/팩 변경 없음(qa_loop 대상 아님). 갭 skip 처리
 → 다음 최우선 RESPONSE_DEAD는 oxide_silica/pH(n=7 valley, ph_softening_per_unit 미배선).
 corpus.py fetch 이번 회차 0/15(특허 소스 일시 불가), extract 미실행.
+
+## 2026-09-10 15:30 [소프트웨어]
+surface-contamination Lv3-2 요청1(우선순위 상) `competitive_langmuir_surface` 구현 완료 —
+`sim/tier2_physics/competitive_metal_langmuir.py` 신설. Loewenstein·Charpin·Mertens 1999
+Eq.22 경쟁 Langmuir 흡착 모델, 근거노트(post-cmp-residual-metal-prediction-langmuir-scm.md
+§2·§6(A)) 정량값 그대로 재현 테스트 5건. engine 미등록(Recipe 스키마 부재). pytest 527
+passed(기존522+신규5). 커밋 986d8cb. BACKLOG S41 완료 등록.
