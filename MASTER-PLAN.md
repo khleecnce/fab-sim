@@ -1818,3 +1818,5 @@ knowledge/cmp/low-level-metal-cobalt-ruthenium-cross-contamination.md §3.1·§3
 미등록(Recipe 스키마 부재). pytest 561 passed(기존553+신규8). 커밋 d8a4c90(코드)+후속 1건(PROFILE 표시).
 BACKLOG S43 완료 등록, surface-contamination PROFILE Lv3-1 요청1 완료 표시. 남은 수신함: Lv3-2 요청2
 (residual_after_clean, 중), Lv3-2 요청3(체인조립 predict_residual_metal, 요청2 선행 필요).
+
+- 2026-09-10 22:xx (성장엔진): RESPONSE_DEAD 갭(cu_h2o2_bta/입경) — Chen thesis(Iowa State, 무료) 단층입자면밀도+소성압입 결합 1차유도를 코드로 재현해 MRR이 이론상 정확히 d^0(무반응)임을 확인, TW202115224A(Cu,valley)와 Li2021(oxide,peak) 부호반대 대조 — knowledge/cmp/abrasive-size-null-result-force-partition-theory.md. verify_claims/check_knowledge 통과, pytest 561 green. sim/factors.py 코드변경 없음(가드 유지가 근거로 뒷받침됨). 완성 격자 6/50 변화없음.
