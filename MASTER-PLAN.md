@@ -1699,3 +1699,16 @@ verify_claims/check_knowledge 1/1 통과. **판단: 알루미나 D99 탐색 4연
 종결** — accuracy_gaps.py --skip 처리, agents/slurry-abrasive/PROFILE.md에 대안 경로(세리아
 D99 이식 재검토, LPC 임계 0.68µm scratch_threshold_nm 전환) 기록. qa_loop 실행 전 커밋
 보류(코드/팩 변경 없이 노트만 추가라 qa_loop 대상 아님).
+
+## 2026-09-10 12:xx [성장엔진]
+정확도루프 UNMODELED delta 갭 no-op 해소(1/5팩) — 알루미나 경로 종결 후 권고했던 "세리아 D99
+이식 재검토"를 실행: sti_ceria(및 상속 sic_ceria_h2o2)에 abrasive_d99_nm/abrasive_ref_d99_nm=
+700nm(Hitachi US8439995B2 Example1, 화학종 일치 근거 baseline, confidence=estimated)와
+damage_exponent=1.44(동 특허 4점 회귀, R²=0.997, confidence=literature)를 배선.
+`_f_delta`가 처음으로 발동(기존엔 5팩 전부 abrasive_d99_nm 부재로 no-op). 기준조건 Δ=1.0 계약
+확인 + D99 700→2500nm 스캔 시 Δ=6.25배(문헌 원 대응쌍 5배와 오더 일치, 절대 일치는 주장 안 함)
+— tests/test_factors.py 신규 3건(기준1.0/단조증가/MRR 비결합) 추가. delta는 MRR_COUPLED 밖
+유지(실측 지지 전까지 미편입, 사용자 원칙 준수) — 백테스트 ρ 불변 확인(0.9349, 회귀 없음).
+pytest 517 passed, qa_loop --strict PASS. 잔여 4팩(cu_h2o2_bta, oxide_silica, w_fe_oxidizer는
+알루미나/실리카 계열, D99 미확보 지속)은 여전히 no-op — 다음은 알루미나 특허 조성표 재탐색 또는
+Δ 스크래치 축을 LPC 임계(0.68µm)로 전환하는 대안 검토.
