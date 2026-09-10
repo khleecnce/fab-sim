@@ -76,3 +76,48 @@ params:
     unit: nm
     source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
     confidence: estimated
+
+  # ── psi 표면 보호도 (억제제) — Lee & Seo 2022(DOI:10.3390/app12031227) 재현 (2026-09-10) ──
+  # ⚠ 정확도 루프 UNMODELED 갭 해결: w_fe_oxidizer는 이제껏 억제제 파라미터가 없어
+  #   부식억제제를 넣어도 ψ(psi)가 계산 안 됐다. sim/chemistry.py::_inhibitor_term은
+  #   BTA(cu_h2o2_bta)와 동일 함수를 그대로 재사용한다(함수는 범용, 화학종만 다름).
+  inhibitor:
+    value: picolinic_acid
+    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+    confidence: literature
+  inhibitor_mM:
+    value: 121.8
+    unit: mM
+    note: >
+      1.5 wt% 피콜린산(포화 농도, 밀도 1 g/mL 근사)에 해당하는 몰농도. 원문 Lee & Seo(2022)
+      3.3절에서 정지식각 90->11 A/min(8.2배 감소), CMP 제거율 120->85 A/min(1.41배 감소)의
+      실측 포인트. wt%->mol/L 환산은 밀도 근사라 미검증.
+    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+    confidence: estimated
+  inhibitor_K_L_per_mol:
+    value: 1108.0
+    unit: L/mol
+    note: >
+      원문 Table 1 Langmuir 상수 b=0.009 L/mg를 MW=123.11 g/mol로 몰단위 환산. 노트 verify
+      블록 PASS(K=1108 L/mol).
+    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+    confidence: literature
+  inhibitor_ref_mM:
+    value: 121.8
+    unit: mM
+    note: >
+      기준 농도 = inhibitor_mM과 동일(1.5 wt% 포화점). 여기서 화학 배수 1.0, 이 팩의
+      kp_m_per_pa는 이 농도 근처(원 특허 실시예)에서 역산된 값이라 이중계상 방지를 위해
+      일치시켰다.
+    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+    confidence: estimated
+  inhibitor_strength_k:
+    value: 2.117
+    unit: "-"
+    note: >
+      정지식각 90->11 A/min(8.2배 감소) 역산값. Cu/BTA의 k=3.0(cu_h2o2_bta.yaml)과 다른
+      화학종 전용 값 — 물질계별로 별도 파라미터가 필요함을 보여준다. 노트 verify PASS.
+      0.5wt%에서 모델은 이미 강한 억제를 예측하나 원문은 "억제 실패" 정성 서술 —
+      저농도 문턱 거동 불일치(RESPONSE_CONFLICT 후보, 노트 6절 한계 참조).
+    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+    confidence: unverified

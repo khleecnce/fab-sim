@@ -370,3 +370,33 @@ def test_factor_result_is_json_serializable():
     res = simulate(Recipe(pack="oxide_silica"))
     s = json.dumps(res.summary()["factors"], ensure_ascii=False)
     assert "kappa" in s and "symbol" in s
+
+
+
+# ═══════════════════════════════ psi(표면 보호도) — w_fe_oxidizer 억제제 배선 (2026-09-10)
+# 정확도 루프 UNMODELED 갭 해결: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-
+# dissolution-suppression.md (Lee & Seo 2022, DOI:10.3390/app12031227) 근거.
+
+def test_psi_is_modeled_for_w_fe_oxidizer():
+    """w_fe_oxidizer는 이제 억제제 파라미터가 있어 psi가 partial/dead가 아니라 modeled여야 한다."""
+    f = _factors(pack="w_fe_oxidizer")["psi"]
+    assert f.status == "modeled", (
+        f"w_fe_oxidizer의 psi가 {f.status}다 — inhibitor_mM/K/strength_k 배선이 깨졌다.")
+
+
+def test_psi_is_unity_at_reference_for_w_fe_oxidizer():
+    """기준 농도(inhibitor_mM == inhibitor_ref_mM)에서 psi=1.0 (이중 계상 방지 계약)."""
+    f = _factors(pack="w_fe_oxidizer")["psi"]
+    assert f.value == pytest.approx(1.0, abs=1e-9)
+
+
+def test_lower_inhibitor_raises_w_mrr():
+    """억제제(피콜린산) 농도를 낮추면 W CMP 제거율이 올라가야 한다.
+
+    문헌(Lee & Seo 2022, Fig.4): 0->1.5 wt%로 억제제를 늘리면 제거율이 120->85 A/min로
+    떨어진다(1.41배 감소) — 역방향인 억제제 감소는 제거율 증가를 뜻해야 한다.
+    """
+    high_inhib = _mean_mrr(pack="w_fe_oxidizer")          # 기준(포화 농도 121.8 mM)
+    low_inhib = _mean_mrr(pack="w_fe_oxidizer", inhibitor_mM=10.0)
+    assert low_inhib > high_inhib, (
+        f"억제제를 낮췄는데 MRR이 안 올랐다: 기준 {high_inhib:.1f} vs 저농도 {low_inhib:.1f} nm/min")
