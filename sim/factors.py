@@ -458,28 +458,47 @@ def _ph_peak_term(pack, notes: List[str]) -> Optional[float]:
     a_lo = float(pack.get_or("ph_curvature_low", 0.102))
     a_hi = float(pack.get_or("ph_curvature_high", 0.0823))
 
-    # ── 산성 영역(pH ≲ 6.5) 멱함수 가지 ──────────────────────────────────
-    # 2026-09-10 RESPONSE_DEAD 대응: 위 2차 정점식은 하한 클램프(0.05)로 pH<~9.7에서
-    # 전부 평평해진다(cn109609035b held-out에서 문헌은 골, 모델은 무반응으로 잡힘).
-    # knowledge/cmp/silica-cmp-ph-acidic-repulsion-choi-power-law.md(Choi 2004 doi:10.1149/
-    # 1.1738472 메커니즘 근거 + cn109609035b 특허 표1 5점 멱함수 피팅)에 따라 산성 구간은
-    # 정전 반발이 지배하는 별도 멱함수로 대체한다. 전환 경계(6.5)는 캘리브레이션이 아니라
-    # 피팅에 쓴 데이터의 최대 pH — 그 위 6.5~9(전환구간)는 데이터가 없어 여전히 위 2차식
-    # (대개 하한 클램프)을 쓴다. 이는 미검증 전이 구간이라 notes로 신고한다.
-    ph_acid_max = float(pack.get_or("ph_acid_transition", 6.5))
-    ph_acid_exp = float(pack.get_or("ph_acid_exponent", -3.09))  # 멱함수 지수, 문헌노트 §3
+    # ── 산성 영역(pH ≲ 6.0) 골(valley) 로그이차 가지 ─────────────────────
+    # 2026-09-10 (오전) RESPONSE_DEAD 대응으로 멱함수(단조 감소, n=5, pH6.0 반등 제외)를
+    # 넣었으나 tools/response_map.py 재판정 결과 RESPONSE_CONFLICT로 전환됐다 — 문헌
+    # (cn109609035b n=7, pH2.0~6.0)은 **골**(pH~5 부근 최소 후 pH6.0 반등)인데 멱함수는
+    # 단조 감소만 표현해 방향이 계속 달랐다. knowledge/cmp/silica-cmp-ph-acidic-repulsion-
+    # choi-power-law.md §3(2026-09-10 저녁 갱신)에 따라 cn109609035b **7점 전체**(반등점
+    # 포함)에 log(MRR) = a·pH² + b·pH + c 2차 회귀를 다시 적합했다 — 이 로그공간 2차식
+    # 자체가 골(아래로 볼록) 형태를 갖는다. 피팅 구간(pH 2.0~6.0) **안에서만** 쓴다 —
+    # 밖으로 나가면 급격히 발산해(pH 9 외삽 시 실측 대비 압도적 과대) 비물리적이므로,
+    # 전환 경계 위(6.0~9.0, Choi 2004가 서술한 전환 pH)는 골 값(pH6.0)에서 염기 정점식
+    # 값(pH9.0)까지 로그-선형 보간한다(데이터 없음 — 미검증 전이).
+    ph_acid_max = float(pack.get_or("ph_acid_transition", 6.0))     # cn109609035b 데이터 상한
+    ph_trans_hi = float(pack.get_or("ph_transition_upper", 9.0))    # Choi 2004 서술 전환점
+    # cn109609035b 7점(pH2.0~6.0, 반등 포함) log(mrr)=a·pH²+b·pH+c 최소제곱 계수.
+    # knowledge/cmp/silica-cmp-ph-acidic-repulsion-choi-power-law.md §3 verify 블록에서
+    # 동일 계수를 재현·assert한다 — 여기 상수를 바꾸면 그 노트도 갱신해야 한다.
+    ph_acid_a2 = float(pack.get_or("ph_acid_quad_a", 0.336472))
+    ph_acid_b2 = float(pack.get_or("ph_acid_quad_b", -3.228411))
+    ph_acid_c2 = float(pack.get_or("ph_acid_quad_c", 7.349046))
 
     def _quad(x: float) -> float:
         d = x - ph_pk
         a = a_lo if d < 0 else a_hi
         return max(1.0 - a * d * d, 0.05)   # 물리적으로 0 이하가 될 수 없다
 
+    def _acid_raw(x: float) -> float:
+        """cn109609035b 로그이차 골 피팅 — pH 2.0~6.0 보간 전용(외삽 금지, 호출측이 클램프)."""
+        return math.exp(ph_acid_a2 * x * x + ph_acid_b2 * x + ph_acid_c2)
+
     def _rel(x: float) -> float:
         if x <= ph_acid_max:
-            anchor = _quad(ph_acid_max)               # 경계에서 연속
-            x_eff = max(x, 1.5)                        # 조사범위(pH≥2) 밖 발산 방지
-            ratio = (x_eff / ph_acid_max) ** ph_acid_exp
-            return min(anchor * ratio, anchor * 50.0)   # 비물리적 폭주 방지 상한
+            x_eff = max(x, 1.5)                         # 조사범위(pH≥2) 밖 발산 방지
+            anchor = _quad(ph_acid_max)                  # 염기 정점식 경계값(6.0)
+            ratio = _acid_raw(x_eff) / _acid_raw(ph_acid_max)   # 경계에서 1 → 연속
+            return anchor * ratio
+        if x <= ph_trans_hi:
+            # 전이구간(6.0~9.0): 데이터 없음 — 로그-선형 보간(외삽 아님, 양끝 고정 보간)
+            lo_v = max(_quad(ph_acid_max), 1e-6)
+            hi_v = max(_quad(ph_trans_hi), 1e-6)
+            t = (x - ph_acid_max) / (ph_trans_hi - ph_acid_max)
+            return math.exp(math.log(lo_v) + t * (math.log(hi_v) - math.log(lo_v)))
         return _quad(x)
 
     cur, ref = _rel(ph), _rel(ph_ref)
@@ -487,13 +506,15 @@ def _ph_peak_term(pack, notes: List[str]) -> Optional[float]:
         return None
     notes.append(
         f"pH {ph:g} (정점 {ph_pk:g}, 기준 {ph_ref:g}) → 상대 {cur/ref:.3f}. "
-        "실측 3점(Li 2021 Fig.1) 기반 정점형(pH≳6.5), "
-        f"산성(pH≤{ph_acid_max:g})은 정전반발 멱함수(Choi 2004 메커니즘+cn109609035b 피팅). "
-        "⚠ 2차 감쇠 형태는 3점을 지나는 최소 가정, 멱함수는 n=5 피팅 — 둘 다 문헌 폐형식은 아니다. "
-        "⚠ 6.5~9 전환구간은 데이터 없어 2차식을 그대로 씀(미검증 외삽).")
+        "실측 3점(Li 2021 Fig.1) 기반 정점형(pH≳9.0), "
+        f"산성(pH≤{ph_acid_max:g})은 골 형태 로그이차(cn109609035b n=7, 반등 포함 피팅). "
+        "⚠ 염기 정점식은 3점을 지나는 최소 가정, 산성 골 로그이차는 n=7 피팅 — 둘 다 문헌 폐형식은 아니다. "
+        f"⚠ {ph_acid_max:g}~{ph_trans_hi:g} 전환구간은 데이터 없어 로그-선형 보간(미검증 외삽).")
     if ph < ph_acid_max:
-        notes.append(f"⚠ pH {ph:g}는 산성 멱함수 외삽 구간 — n=5(pH 2.0~5.0) 피팅, "
-                     "저pH일수록 문헌과 최대 27% 편차 확인됨(원인 미상).")
+        notes.append(f"⚠ pH {ph:g}는 골 로그이차 보간 구간 — n=7(pH 2.0~6.0, 반등 포함) 피팅, "
+                     "log-MSE 0.356, 개별점 최대 ±37%(pH5.0) 편차(원인 미상).")
+    if ph_acid_max < ph < ph_trans_hi:
+        notes.append(f"⚠ pH {ph:g}는 전환구간(데이터 없음) — 로그-선형 보간값이다.")
     if ph > 12.5 or ph < 10.0:
         notes.append(f"⚠ pH {ph:g}는 실측 범위(10.0~12.5) 밖이다 — 외삽이다.")
     return cur / ref

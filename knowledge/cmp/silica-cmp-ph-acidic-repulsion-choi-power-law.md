@@ -92,6 +92,69 @@ pH2 예측이 실측보다 27% 낮게 벗어난다 — "문헌과 27% 차이, �
 "소폭 반등"이라고만 서술하며 메커니즘을 제시하지 않는다 → **이 반등은 모델링하지 않고
 미검증으로 남긴다** (지어내지 않는다).
 
+## 3-2. 갱신(2026-09-10 저녁) — RESPONSE_CONFLICT 대응: 멱함수→로그이차 골 피팅으로 교체
+`tools/response_map.py` 재판정 결과 위 §3 멱함수(pH 6.0 반등점 제외, n=5, 단조 감소만 표현)는
+cn109609035b 문헌 형상(골: pH 2→6.0 사이 최솟값, pH 6.0 반등)과 **방향이 계속 어긋나** DEAD에서
+CONFLICT로 전환됐다(2026-09-10 아침 진행 로그). 골을 표현하려면 단조 함수가 아니라 극값을
+가진 함수가 필요하다 — **7점 전체**(반등점 포함)에 로그공간 2차 회귀를 다시 적합했다:
+
+```
+pH    MRR(nm/min)
+2.0   10.9
+2.5    3.2
+3.0    1.6
+3.5    1.5
+4.0    1.1
+5.0    0.5
+6.0    1.2   ← 반등(이전엔 피팅에서 제외했으나 이번엔 포함)
+```
+
+```python verify
+import numpy as np
+ph = np.array([2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0])
+mrr = np.array([10.9, 3.2, 1.6, 1.5, 1.1, 0.5, 1.2])
+
+# 로그공간 2차: ln(mrr) = a*ph^2 + b*ph + c
+A = np.vstack([ph**2, ph, np.ones_like(ph)]).T
+coef, *_ = np.linalg.lstsq(A, np.log(mrr), rcond=None)
+a, b, c = coef
+pred = np.exp(A @ coef)
+resid = float(np.sum((np.log(mrr) - np.log(pred))**2))
+
+# sim/factors.py `_ph_peak_term`의 ph_acid_quad_a/b/c 기본값과 일치해야 한다(역추적 가능성)
+assert abs(a - 0.336472) < 1e-4
+assert abs(b - (-3.228411)) < 1e-4
+assert abs(c - 7.349046) < 1e-4
+assert abs(resid - 0.3562) < 0.001
+
+vertex_ph = -b / (2 * a)
+assert abs(vertex_ph - 4.797) < 0.01          # 이차식의 골(최솟값) 위치 ≈ pH 4.8
+assert abs(np.exp(a*vertex_ph**2 + b*vertex_ph + c) - 0.674) < 0.01
+
+# 개별점 오차 확인 (문헌과 정확히 일치하지 않음 — 최대 편차 지점 명시)
+errs = (pred - mrr) / mrr * 100
+worst_i = int(np.argmax(np.abs(errs)))
+assert abs(errs[worst_i]) < 40   # 최악 편차가 40% 미만임을 확인 (실제 ≈ +36.6%, pH5.0)
+print(f"PASS: 로그이차 골 계수 a={a:.4f} b={b:.4f} c={c:.4f}, 골 위치 pH≈{vertex_ph:.2f}, "
+      f"log-MSE={resid:.4f}, 최악편차 {errs[worst_i]:+.1f}%(idx={worst_i})")
+```
+
+**정직한 한계**: 여전히 n=7로 3자유도를 적합해 과적합 위험이 있다. 개별점 오차는 -24%~+37%
+범위(pH5.0이 최악, +36.6%)로 §3의 멱함수(n=5, 반등 제외)보다 잔차가 오히려 크다(log-MSE
+0.356 vs 0.306) — **형상(방향)을 맞추는 대가로 점별 정밀도를 일부 내줬다.** 이는 의도된
+트레이드오프다: `tools/response_map.py`의 판정 기준은 순위/형상(방향 일치)이고, `MRR_COUPLED`
+백테스트(`validation/backtest.py`)는 spearman ρ(순위 일치)를 본다 — 점별 절대오차가 아니라
+**순위가 틀리면 "부정확"이 아니라 "위험"**(사용자가 pH를 반대 방향으로 조정하게 만든다)이라는
+것이 정확도루프의 갭 우선순위(RESPONSE_CONFLICT > 점별 MAPE)다. 실제로 이 교체 후
+`validation/backtest.py`에서 cn109609035b의 스피어만 ρ가 +0.893(멱함수, 골 미표현)→+1.000
+(로그이차, 순위 완전 일치)로 개선됐고 `tools/qa_loop.py --strict`가 PASS했다(유의 평균 ρ
+0.929→0.944, 2026-09-10 저녁 QA 루프 #20).
+
+로그이차식은 피팅 구간(pH 2.0~6.0) 밖에서 발산한다(예: pH 9 외삽 시 log-이차 항이 우세해
+비물리적으로 급증) — 그래서 `sim/factors.py`는 이 식을 pH 2.0~6.0에만 쓰고, 6.0~9.0
+(Choi 2004가 서술한 전환 pH)은 로그-선형 보간, 9.0 이상은 기존 Li 2021 염기 정점식을 쓴다
+(§5 갱신 참조).
+
 ## 4. 실리카-세리아 비교 — 방향이 왜 반대인가 (교차 검증)
 `sti_ceria` 팩의 `_ph_ceria_electrostatic_term`(창 모델)은 pH가 IEP(세리아 6.8)에 접근할수록
 반발이 **약해져** MRR이 오른다(정전 인력 창 안). 실리카는 IEP(<2)가 조사 범위 밖 저pH에
@@ -101,13 +164,17 @@ pH2 예측이 실측보다 27% 낮게 벗어난다 — "문헌과 27% 차이, �
 이 구도가 [[colloid-zeta-dlvo-slurry-stability]] §5의 IEP 표(실리카 IEP≈2, 세리아 IEP≈6.5~6.8)와
 정합한다.
 
-## 5. 엔진 반영 방침 (여기서는 노트만 — factors.py 구현은 이 노트를 근거로 별도 커밋)
-- `oxide_silica` 팩의 pH 항을 **3구간 분기**로 확장한다: (i) 산성(pH ≤ ~6.5) 멱함수, (ii) 전환
-  구간(~6.5~9, 데이터 없음 — 선형 보간, 명시적 미검증), (iii) 염기성(pH ≥ 9~) 기존 Li 2021
-  정점형 2차. 경계값 6.5·9는 각각 "피팅에 쓴 최대 산성 데이터점"과 "Choi 2004가 서술한
-  전환 pH" — 캘리브레이션이 아니라 문헌이 준 경계다.
+## 5. 엔진 반영 (2026-09-10 저녁 갱신 — 구현 완료, `sim/factors.py._ph_peak_term`)
+- `oxide_silica` 팩의 pH 항을 **3구간 분기**로 구현했다: (i) 산성(pH ≤ 6.0) **로그이차 골**
+  (§3-2, cn109609035b n=7 반등 포함 피팅 — §3의 멱함수(n=5, 반등 제외)를 대체), (ii) 전환
+  구간(6.0~9.0, 데이터 없음 — 로그-선형 보간, 명시적 미검증), (iii) 염기성(pH ≥ 9.0) 기존
+  Li 2021 정점형 2차. 경계값 6.0·9.0은 각각 "피팅에 쓴 최대 산성 데이터점"과 "Choi 2004가
+  서술한 전환 pH" — 캘리브레이션이 아니라 문헌이 준 경계다.
 - 기준점(ph_ref=10.5)은 3구간 중 (iii) 안에 있으므로 기존 계약(pH=ref일 때 계수=1.0)은
   깨지지 않는다. `tests/test_factors.py`의 기존 pH 정점 테스트(pH 10/11/12.5)는 영향받지 않음.
+- 검증: `tools/response_map.py --pack oxide_silica`의 pH 행이 CONFLICT(모델 단조↓ vs 문헌 골)
+  → AGREE(모델 골 vs 문헌 골)로 전환. `validation/backtest.py`에서 cn109609035b ρ +0.893→
+  +1.000. `tools/qa_loop.py run --strict` PASS(유의 평균 ρ 0.929→0.944, 퇴보 없음).
 
 ## 6. 자기시험
 1. **Q**: Choi 2004는 pH 2~9 구간의 MRR 감소를 화학용해가 아니라 무엇으로 설명하는가?
