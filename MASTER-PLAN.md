@@ -1758,3 +1758,12 @@ qa_loop --strict PASS(cn109609035b 비유의→유의 ρ=+0.893, 유의평균 0.
 허용범위). response_map 판정 DEAD→CONFLICT로 전환(방향은 아직 안 맞음, down vs valley) —
 다음 최우선 갭은 이 CONFLICT(score 120, 6.5~9 전환구간 데이터 없어 골 형태 재현 미완).
 커밋 c50b96f, push 완료.
+
+## 2026-09-10 18:xx [성장엔진]
+정확도루프: 위 CONFLICT(score 120) 해결 — cn109609035b 7점 전체(반등 포함)에 로그이차
+(ln MRR=a·pH²+b·pH+c) 재피팅, `_ph_peak_term`을 산성(≤6.0 로그이차 골)/전환(6.0~9.0 로그-선형
+보간)/염기(≥9.0 Li2021 정점) 3구간으로 재구성. knowledge/cmp/silica-cmp-ph-acidic-repulsion-
+choi-power-law.md §3-2 신설(verify 2블록), verify_claims/check_knowledge 1/1 통과, pytest 527
+passed. response_map CONFLICT→AGREE, backtest cn109609035b ρ +0.893→+1.000, qa_loop --strict
+PASS(유의평균ρ 0.929→0.944). 커밋 de151c9, push 완료. 다음: accuracy_gaps.py --next 재실행해
+다음 최우선 갭 확인 필요(다음 회차).
