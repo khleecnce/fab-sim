@@ -36,7 +36,9 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   때 판정 임계값 상수로 참조할 근거가 된다 — 구현 시점에 이 노트를 인용할 것.
 - ~~**[Lv2-2 요청 1 · 우선순위 중] `chelation_conditional_logK(ligand, metal, pH, I)`** — 순수함수. 입력: 리간드(EDTA/시트르산)·금속(Fe³⁺/Cu²⁺/Ca²⁺)·pH·이온세기. 내부: (1) MINTEQ `minteq.v4.dat`(NIST46.2 태그) I=0 logK와 양성자화 logβₙ 테이블, (2) Davies 식(A=0.509)으로 I 보정, (3) Ringbom α_H로 조건부 K′(pH). 근거노트: knowledge/cmp/post-cmp-adsorption-cleaning-chemistry.md §4·§6(A)(B). 검증문헌값: Fe–EDTA logK(I=0.1)=25.1, Cu–EDTA 18.7~18.8 (Kontoghiorghes 2020 PMC7349684, Palden 2020 PMC9057912) — Davies 예측 25.13/18.79로 0.05 이내. K′(pH) 단조증가·Fe>Cu>Ca 순서·pH3 시트르산–Ca logK′<0 을 테스트로. 용도: Lv3-2 잔류금속 예측 모델의 "유리 이온 분율" 입력.~~ ✅ 2026-09-07 완료 — `sim/tier2_physics/chelation_surface_charge.py` (커밋해시는 나중에 채움, S23)
 - ~~**[Lv2-2 요청 2 · 우선순위 중] `oxide_surface_charge_sign(oxide, pH)` + IEP 테이블** — SiO₂ 2.0(Brugnoli 2023 PMC10116594), CeO₂ 6.8(동, 실측범위 5.21–9.40 Ederer 2025 PMC12519946), α-Al₂O₃ 9.5(Zhang 2024 PMC11462379). 반환: 부호(+/0/−)와 pH−IEP. Lv1-1 Boltzmann 정전흡착(§6(C))의 ζ 부호 입력으로 연결하고, 슬러리(colloid-zeta 노트)와 세정 pH에서 입자–웨이퍼 정전 인력/반발 판정에 공용. 근거노트 §3·§6(C). 검증: DHF 0.5 wt% pH≈1.90(HF pKa 3.17)에서 세 산화물 +, pH 11에서 모두 −, pH 5에서 CeO₂+/SiO₂−.~~ ✅ 2026-09-07 완료 — `sim/tier2_physics/chelation_surface_charge.py` (커밋해시는 나중에 채움, S23)
-- **[Lv3-1 요청 1 · 우선순위 중] `galvanic_pair_direction(metalA, metalB, E0_table=None)` + `hydroxide_transition_pH(metal, C_mol_L)`** — 순수함수 2개.
+- ~~**[Lv3-1 요청 1 · 우선순위 중] `galvanic_pair_direction(metalA, metalB, E0_table=None)` + `hydroxide_transition_pH(metal, C_mol_L)`** — 순수함수 2개.~~ ✅ 2026-09-10 완료
+  (software/BACKLOG.md S43, `sim/tier2_physics/galvanic_hydroxide_ph.py`, 커밋 d8a4c90) — 검증값 그대로 재현
+  테스트 8건(Cu/Co ΔE°=0.62V·Co anode, Ru/Cu ΔE°=0.113V·Cu anode, Cu 100ppm pH*=5.74, Co pH*=7.93).
   (1) 표준환원전위 표(CRC Vanýsek: Co −0.28, Cu 0.3419, Ru 0.455, Ti −1.630, Ta₂O₅/Ta −0.750, WO₃/W −0.090 V)로 어느 금속이 양극(용해)인지와 ΔE°를 반환.
   (2) minteq.v4.dat PHASES의 M(OH)₂ + 2H⁺ = M²⁺ + 2H₂O log K(Cu 8.674, Co 13.094)로 농도 C에서 수산화물 석출 시작 pH* = (logK − log C)/2 반환.
   근거노트: knowledge/cmp/low-level-metal-cobalt-ruthenium-cross-contamination.md §3.1·§3.3·§6(A)(B). 검증문헌값: Cu/Co ΔE°=0.62 V(Co 양극), Ru/Cu 0.113 V(Cu 양극);
