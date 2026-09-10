@@ -1847,3 +1847,18 @@ git status로 다른 크론 미커밋 파일(agents/.source_cache.json·disk-des
 validation/ledger.jsonl·.night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/*·
 validation/two_stage/·data/corpus/) 미접촉 확인, 신규 2파일만 커밋(da2dc9a)+push.
 cmp-data-engineer 구현요청 "normalize.py" 항목 완료.
+
+## 2026-09-11 08:xx [성장엔진] 정확도루프 — RESPONSE_DEAD cu_h2o2_bta/입자크기 시도·revert
+accuracy_gaps.py --next → cu_h2o2_bta/abrasive_size_nm(RESPONSE_DEAD, score 95, TW202115224A n=18 무반응).
+Luo-Dornfeld(2003) Part1 원문(UC eScholarship OA, papers/luo-dornfeld-material-removal-regions-part1.pdf 직접
+판독) Eq.1-2에서 "(x+3σ)²/x³, σ=CV·x 일정 가정 시 f∝1/x_avg" 폐형식 확보 → knowledge/cmp/
+luo-dornfeld-active-abrasive-size-mrr.md(verify 2블록 PASS, check_knowledge✓) → sim/factors.py `_f_kappa`에
+abrasive_size_cv + 적용범위(≤50nm) 게이트로 배선, tests/test_factors.py 2건 추가, pytest 584 passed(회귀 없음).
+그러나 qa_loop.py run --strict = FAIL: tw202115224a 데이터셋이 유의(p=0.0007,ρ=0.717)→비유의(p=0.764,ρ=-0.176)로
+퇴보(방향이 오히려 뒤집힘 — 게이트가 d_ref=100nm은 범위밖이라 기준항상 꺼짐, override된 d만 15-50nm 켜지는데
+이 좁은 구간의 실측이 특허 9배합 중 15/27/50nm 3점뿐이라 노이즈에 취약했던 것으로 추정, 미검증).
+지침대로 sim/factors.py·tests/test_factors.py·팩 yaml 3파일 git checkout으로 revert, 지식노트만 커밋(d238fab).
+같은 갭 2회 연속 FAIL이 아니므로 다음 회차에 다른 접근(예: 형상 파라미터 분리 또는 좁은 구간 배선 대신
+3점만 별도 서브데이터셋으로 분리)으로 재시도, 아니면 --skip.
+completion 6/50(변화없음, C1 미충족 유지 — 이번 시도가 unmodeled를 modeled로 못 바꿈). corpus fetch/extract 미실행
+(이번 회차는 기존 노트 재활용 우선, 코퍼스 사이클 다음 회차).
