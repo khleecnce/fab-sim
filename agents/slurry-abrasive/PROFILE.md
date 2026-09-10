@@ -78,6 +78,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      (b) LPC 임계 직경(0.68µm, lpc-scratch-density-tail-correlation.md §2.2)을
      scratch_threshold_nm 축으로 전환.
 
+   - **2026-09-10 실행됨**: 대안 (a) 이식 완료 — sti_ceria(및 상속 sic_ceria_h2o2)에
+     `abrasive_d99_nm`=700nm(Hitachi US8439995B2 Ex.1 baseline, confidence=estimated)와
+     `damage_exponent`=1.44(동 특허 4점 회귀, confidence=literature)를 배선.
+     `_f_delta`가 처음으로 발동(knowledge/params/sti_ceria.yaml, tests/test_factors.py
+     신규 3건, qa_loop --strict PASS, ρ=0.9349 불변). 잔여: cu_h2o2_bta·w_fe_oxidizer
+     (알루미나)·oxide_silica(콜로이달실리카)는 여전히 D99 미확보 — 대안 (b) LPC 임계
+     전환이 다음 시도 대상.
+
 3. **Δ damage_exponent 하향 조정 검토** (우선순위: 중, 신규 2026-09-09)
    - 무엇을: `sim/factors.py::_f_delta`의 `damage_exponent` 기본값 3.0 → 1.4~1.5 범위 검토.
    - 근거 노트: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3
