@@ -1728,3 +1728,15 @@ git status로 다른 크론 미커밋 파일(agents/.source_cache.json·agents/d
 .night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/check_npw_catalog.py·validation/two_stage/)
 미접촉 확인 후 신규 2파일만 커밋(42d7cb4)+push. `npw_ptw_effective_pressure.py` 파일 자체는 무수정.
 S12는 여전히 미완료(19→18개 모듈 남음, ⬜ 유지).
+
+## 2026-09-10 14:xx [성장엔진]
+cu_h2o2_bta RESPONSE_DEAD(입자크기, n=18 valley) 5차 재시도 — TW202115224A 순수구형
+부분집합(형상 라벨 "구형"만, n=6/압력)으로 재정량해도 Spearman |ρ|<0.2·p>0.7로 유의상관
+없음(Bai2007 §7.5의 "형상혼입" 가설도 불충분함을 확인). 형상 효과 자체는 문헌상 실존
+가능성 있으나(Kim et al. 2021, doi:10.1016/j.powtec.2020.11.058) 원문 미확보(Unpaywall
+closed, 미러 사이트 5개 미러 전부 캡차) + 2차 인용 2건이 방향 모순(RSC리뷰: bumpy가 MRR
+59%↓ / ScienceDirect초록: bumpy가 MRR↑)이라 미반영. 지식노트
+knowledge/cmp/abrasive-shape-effect-purespherical-subset-nonmonotonic.md 신설,
+verify_claims·check_knowledge 1/1 통과. 코드/팩 변경 없음(qa_loop 대상 아님). 갭 skip 처리
+→ 다음 최우선 RESPONSE_DEAD는 oxide_silica/pH(n=7 valley, ph_softening_per_unit 미배선).
+corpus.py fetch 이번 회차 0/15(특허 소스 일시 불가), extract 미실행.
