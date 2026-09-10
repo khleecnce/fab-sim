@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 EPD 원리별 비교: 광학(반사율/간섭)·모터전류(마찰)·와전류(금속 두께)
 - [x] Lv1-2 신호 처리: 노이즈·필터·알고리즘·오버폴리시 제어
-- [ ] Lv2-1 막질별 EPD 적합성과 한계(투명막·다층)
+- [x] Lv2-1 막질별 EPD 적합성과 한계(투명막·다층) — 2026-09-11. 지식노트 [[../../knowledge/equipment/epd-film-type-suitability-transparent-multilayer-limits]]
 - [ ] Lv2-2 EPD 트레이스 → 제거량·잔막 역산 방법
 - [ ] Lv3-1 최신 리뷰: ML 기반 EPD, 인시츄 계측 통합
 - [ ] Lv3-2 EPD 신호 → 제거량 모델 (sim/tier2, 기존 wear_aware_endpoint 확장)

@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: 없음
-- 다음 단원: Lv1-1
+- 이수 단원: Lv1-1, Lv1-2
+- 다음 단원: Lv2-1
 
 ## 역할
 Poly-Si 막의 CMP — 게이트·3D NAND 채널홀·캐패시터. 알칼리 화학 용해+기계 제거
@@ -20,3 +20,4 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 ## 이수 기록
 (크론이 갱신)
 - 2026-09-10 Lv1-1 Poly-Si 물성(도핑·결정립)과 CMP 거동 — knowledge/materials/film-poly-si-doping-grain-cmp.md
+- 2026-09-11 Lv1-2 알칼리(KOH/TMAH/아민) 화학 용해 메커니즘과 pH 의존성 — knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics.md

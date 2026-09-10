@@ -1820,3 +1820,10 @@ BACKLOG S43 완료 등록, surface-contamination PROFILE Lv3-1 요청1 완료 �
 (residual_after_clean, 중), Lv3-2 요청3(체인조립 predict_residual_metal, 요청2 선행 필요).
 
 - 2026-09-10 22:xx (성장엔진): RESPONSE_DEAD 갭(cu_h2o2_bta/입경) — Chen thesis(Iowa State, 무료) 단층입자면밀도+소성압입 결합 1차유도를 코드로 재현해 MRR이 이론상 정확히 d^0(무반응)임을 확인, TW202115224A(Cu,valley)와 Li2021(oxide,peak) 부호반대 대조 — knowledge/cmp/abrasive-size-null-result-force-partition-theory.md. verify_claims/check_knowledge 통과, pytest 561 green. sim/factors.py 코드변경 없음(가드 유지가 근거로 뒷받침됨). 완성 격자 6/50 변화없음.
+
+## 2026-09-11 01:xx [심야병렬] 서브에이전트 3명 동시 학습 — film-poly-si Lv1-2 · film-nitride Lv2-1 · tool-endpoint Lv2-1
+QA루프 #22 PASS(격리 0, 유의 평균 ρ=0.9442). completion 6/50. 대상: 진도 최저 3명(film-poly-si 1/6 최저, film-nitride/tool-endpoint 2/6), 성장엔진 최근 대상(slurry-abrasive·cu_h2o2_bta delta)과 비중복. claude -p opus 3병렬 위임.
+- [[knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics]] — Poly-Si 알칼리 용해 pH 속도론. Seidel1990(DOI 10.1149/1.2086277, 미러 사이트 원문): OH⁻ 4개/Si·4e 주입, R∝[H₂O]⁴[OH⁻]^¼, Eₐ(100/110/111)=0.59/0.61/0.70eV. Bae2022(nano12213893, CC-BY): 아민(EDA/DETA/TETA) vs NaOH/KOH, 화학-기계 시너지. verify 1블록(5하위 assert): 배향 이방성비 Arrhenius 100°C 30.6 vs 관측30, 상온 25% 차이 정직기록, peak 16.8wt% vs 문헌~20. 출처 4건 실존. film-poly-si 2/6.
+- [[knowledge/cmp/sti-nitride-loss-erosion-overpolish-window]] — STI 나이트라이드 손실·디싱 공정윈도우. Lee2002·Johnson2009(MIT 학위 원문판독)·Dandu2009·Mariscal2020. 정상상태 손실률 K_ss=K/(1+ρ(s−1))(블랭킷율 1.8배), 선택비 값어치=디싱감소 아니라 오버폴리시창 확대(s=10→100서 37.8→304s, 8배), 블랭킷선택비≠패턴손실(세리아 HSS 100+여도 s_eff≈3). verify 4블록 전부 PASS(침식식 수치적분, 창 8배, K_ss(ρ) 표3.9 ±9%, 자기정지 30Å 대조). 출처 6건(1차 4). film-nitride 3/6. 구현요청 2건.
+- [[knowledge/equipment/epd-film-type-suitability-transparent-multilayer-limits]] — 막질별 EPD 적합성·투명막/다층 한계. 금속(Cu/W)=모터전류·와전류, 유전체=광학간섭. verify 1블록(4하위): λ/2n=0.333µm(특허 ~0.3), 200nm 잔막<1주기 카운트불가, 면적분율 선형희석 f=0.1은 1/5, 와전류 최소55nm≈광학투명화 30–40nm. 출처 3건. tool-endpoint 3/6.
+품질게이트: 3/3 통과(check_knowledge ✓ + verify_claims ✓ 오케스트레이터 직접 확인). 전체 107/114(반려 7편은 기존 노트·성장엔진 상환 대상, 이번 3편 무관).

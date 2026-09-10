@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 SiN 막 종류(LPCVD/PECVD)와 물성, CMP 제거 난이도 (2026-09-10, knowledge/materials/film-nitride-lpcvd-pecvd-properties-cmp.md)
 - [x] Lv1-2 나이트라이드 정지층 메커니즘: 세리아 슬러리 선택비 화학 (2026-09-10, knowledge/materials/film-nitride-selectivity-ceria-chemistry.md)
-- [ ] Lv2-1 STI 나이트라이드 손실·디싱과 공정 윈도우
+- [x] Lv2-1 STI 나이트라이드 손실·디싱과 공정 윈도우 (2026-09-11, knowledge/cmp/sti-nitride-loss-erosion-overpolish-window.md)
 - [ ] Lv2-2 나이트라이드 직접 CMP: 하드마스크·게이트 응용
 - [ ] Lv3-1 최신 리뷰: 나이트라이드 선택비 첨가제, 3D NAND 응용
 - [ ] Lv3-2 나이트라이드 Kp·선택비 파라미터 + 문헌값 재현 (sim/tier2)

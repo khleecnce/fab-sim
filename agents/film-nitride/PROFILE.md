@@ -1,9 +1,9 @@
 # 나이트라이드 CMP 전문가 (film-nitride)
 
-## 현재 레벨: Lv1 진행 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv2 진행 — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-2
-- 다음 단원: Lv2-1
+- 이수 단원: Lv2-1
+- 다음 단원: Lv2-2
 
 ## 역할
 SiN 막의 CMP 및 정지층 역할 — STI 선택비, 하드마스크 제거
@@ -35,7 +35,33 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   가능해 선택비가 급등. Ce³⁺/Ce⁴⁺ 산화상태 튜닝(Netzband 2020)은 산화막·나이트라이드 둘 다 빨라지는 "배율 조절"이라
   선택비 개선이 ~2–3배에 그쳐 사이트차단(스위치, ~100배 이상)과 자릿수가 다름.
 
+- **Lv2-1** STI 나이트라이드 손실·디싱과 공정 윈도우 — 2026-09-11
+  노트: [[../../knowledge/cmp/sti-nitride-loss-erosion-overpolish-window]]
+  출처 6건(1차 4건: Lee 2002·Johnson 2009 MIT 학위논문 원문, Dandu 2009·Mariscal 2020; +Srinivasan 2015 리뷰·Urban 2016 벤더).
+  verify_claims ✓(DOI 3건 실존·코드 4블록 PASS)·check_knowledge ✓.
+  핵심: 형제 film-oxide 노트가 디싱(D_ss)으로 푼 Lee 2002를 **나이트라이드 침식 E(t)** 각도로 상보. 정지의 실체 = 나이트라이드
+  손실 예산(200 Å, Lee p.185). 정상상태 손실률 K_ss = K/(1+ρ(s−1))는 블랭킷율 K/s보다 큼(압력집중). 선택비의 값어치는 디싱
+  감소가 아니라(D_ss↑) 예산 대비 오버폴리시 창 확대 — s=10→100에서 창 37.8→304 s(8배). 블랭킷 선택비 100+여도 패턴 유효선택비
+  s_eff≈3(Lee p.121 "세리아 HSS도 통상공정 수준 침식"). 저밀도서 K_ss→K_nit/ρ("좁은 나이트라이드가 손실 급소"). 자기정지
+  슬러리(Dandu Fig.14: 30 Å 포화)는 선형 K_ss 누적을 깨 창 무한 — 선택비보다 근본적 보호.
+
 ## 구현 요청
+- **[Tier2] STI Phase 2 나이트라이드 침식식 E(t) + 손실 예산 판정**
+  - 무엇을: Lee 2002 Phase 2 폐형해에 **침식 E(t) = K_ss(t−t_n) + 과도항**(식 2.56)과 밀도의존 손실률 K_ss(ρ)=K/(1+ρ(s−1))·
+    K_n1(ρ)를 출력하고, 소자 판정을 **E(t) < E_max(예: 200 Å)** 로 하는 판정기. 형제 film-oxide 구현요청(D_ss·touch-down)의
+    나이트라이드측 짝. 오버폴리시 창 Δt_op = argmax{ E(t)<E_max } 도 함께.
+  - 근거노트: [[../../knowledge/cmp/sti-nitride-loss-erosion-overpolish-window]] §4·§6
+  - 검증 문헌값(Lee 2002, hdl 1721.1/29907): 표 3.10 세리아 HSS 지수적합 K_ss=4784·exp(−ρ/0.40)·K_n1=11573·exp(−ρ/0.28) Å/min,
+    표 3.9 실측(ρ=0.5/0.7/0.9 → K_ss 1367/903/465, K_n1 1902/903/465 Å/min); 예산 200 Å에서 s=10 창 37.8 s·s=100 창 304 s.
+  - 우선순위: 중 (형제 STI Phase 2 모듈과 동시 구현. 노트 §7 [A][B][C] verify가 계산식 원본).
+- **[Tier2] 자기정지(포화형) 침식항**
+  - 무엇을: Lee의 선형 K_ss 누적은 자기정지 슬러리를 못 담는다. 침식을 E(t)=E_sat·(1−exp(−(t−t_n)/τ_stop)) 형태의 포화항으로
+    두면 "노출 후 30 Å만 잃고 멈춤"(Dandu Fig.14)·임계압력형(Nojo)을 재현할 수 있다. 선택비 손잡이와 별개 모드로.
+  - 근거노트: [[../../knowledge/cmp/sti-nitride-loss-erosion-overpolish-window]] §6 자기정지, §7 [D]
+  - 검증 문헌값(Dandu 2009, DOI 10.1149/1.3230624): 나이트라이드 30 s에 ~3 nm(≈30 Å) 후 200 s까지 0 → E_sat≈30 Å·τ_stop~10 s.
+    임계압력 P_th≈70 kPa(Nojo, Lee 2002 Fig.3.15, 2차).
+  - 우선순위: 낮음 (E_sat·τ_stop·P_th 문헌값이 정성 서술 근사라 추가 조사 필요. 위 [Tier2] 판정기 완성 후 착수).
+
 - **[Tier2] SiN 화학-제한 제거율 모델(수정 Langmuir-Hinshelwood)**
   - 무엇을: 나이트라이드 RR을 단순 Preston $K_p PV$가 아니라 화학항(가수분해 사이트 커버리지)·기계항 결합형으로.
     Mariscal 2020 형태 $RR = f(A, E_a, T_p)_{chem} \times g(P,V,\mu)_{mech}$.

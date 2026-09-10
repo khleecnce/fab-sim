@@ -94,3 +94,49 @@ STI 리뷰(Srinivasan et al. 2015)는 "디싱의 정도는 예상대로 오버�
 출처: H.K. Li et al. 위 A1과 동일; R. Srinivasan et al., *ECS J. Solid State Sci. Technol.*
 4(11):P5029–P5039 (2015), doi:10.1149/2.0071511jss. 상세는
 [[../../knowledge/equipment/epd-signal-processing-filtering-overpolish]] §3–4.
+
+## Lv2-1 막질별 EPD 적합성과 한계(투명막·다층)
+
+**Q1. 광학 EPD에서 "간섭(interferometry)"과 "반사(reflectance)"는 각각 어느 막질에 쓰며,
+투명 유전막을 간섭으로 잴 때 절대두께가 유일하게 결정되지 않는 이유는? 그 모호성의
+크기를 수식으로 답하라.**
+
+A1. 간섭은 표면·하층 계면 반사광의 위상차로 두께를 읽으므로 **투명 유전막(SiO₂/TEOS
+등)** 전용이고, 불투명 금속에는 하층 간섭광이 없어 쓸 수 없다 — 금속은 계면 반사강도
+급락을 읽는 **반사** 모드로 잡는다. 간섭 신호는 두께의 주기 함수라, 두께 변화 $\lambda/2n$
+마다 사인 신호가 정확히 1주기 반복된다. 따라서 단일 파장 신호는 초기 두께 불확정을
+**$\lambda/2n$ 이내로만** 해소한다(현재 두께가 $d$인지 $d\pm\lambda/2n$인지 구분 불가 =
+반사차수 order 모호성). 특허 예시로 $n\approx1.5,\lambda\le1\,\mu$m이면 약 0.3 µm 이내로
+초기두께를 이미 알아야 하고, SiO₂($n=1.46$)·$\lambda=600$nm에서는 1 fringe가 약 205 nm에
+해당한다. 해결책은 다파장(예 $\lambda/2n$=0.15·0.25 µm 두 파장 → 결합 비모호범위 0.75 µm
+=긴쪽의 3배)이나 초기두께 사전지식이다.
+출처: Jiun-Yu Lai, MIT PhD thesis (2001) Ch.6 §6.2.1; US 4,293,224 (IBM, 1981),
+patents.google.com/patent/US4293224.
+
+**Q2. 패턴 웨이퍼에서 저밀도(작은 금속 면적분율) 영역의 종점 신호가 "희석"되는 것을
+Lai(2001)의 반사율 식으로 설명하고, 면적분율 0.1과 0.5의 신호 크기 비를 구하라.**
+
+A2. 스캔 스팟 반사율은 재질 면적분율의 가중평균이다 — Lai 식(6.10):
+$R = A_f R_{Cu} + (1-A_f)R_{Oxide}$. 어떤 국소 피처(면적분율 $f$)가 Cu→oxide로 전이할 때
+스팟 평균 반사율 변화는 $\Delta R = f(R_{Cu}-R_{Oxide})$로 $f$에 **선형**이다. 따라서
+$f=0.1$ 저밀도 영역의 클리어링 신호는 $f=0.5$의 $0.1/0.5=$ **1/5**에 불과해 노이즈에
+묻히기 쉽다(= 패턴밀도 희석). 게다가 Cu MRR이 패턴기하에 의존해 고밀도 서브다이가
+먼저 뚫리므로(Lai 실측: $A_f=0.5$가 약 2분에 Ta 노출, 반사율 0.8→0.5), clearing 시점이
+웨이퍼 안에서 어긋나 종점이 "구간"으로 번진다.
+출처: Jiun-Yu Lai, MIT PhD thesis (2001) Ch.6 eq(6.10)·§6.4,
+`papers/lai2001-mit-thesis-ch6-cu-cmp-endpoint.pdf`.
+상세: [[../../knowledge/equipment/epd-film-type-suitability-transparent-multilayer-limits]] §3·§5.
+
+**Q3. 금속 EPD 세 방식(광학 반사·와전류·모터전류)이 얇은 잔막에서 각각 어떤 한계에
+부딪히는가? 와전류의 최소 검출두께를 문헌 수치로 답하라.**
+
+A3. (a) 광학 반사: 금속막이 30–40 nm 이하로 얇아지면 관통깊이 한계로 반투명해져 반사
+신호가 무너진다(Tian et al. 2023). (b) 와전류: 얇을수록 유도 와전류가 약해 "신호가 정확히
+형성되지 않는다" — An et al.(NCCAVS)의 기본 시스템은 측정범위 하한이 약 3000 Å(300 nm)
+였고, 신호처리(이동평균+칼만)·전압증폭 최적화 후에도 **최소 550 Å(55 nm)**(범위 550–
+7000 Å)까지가 한계였다. (c) 모터전류: 두께 자체를 못 재고 상·하층 마찰 대비가 작으면
+전이 계단이 노이즈에 묻혀 실패. 결국 개선된 와전류 최소(55 nm)조차 광학 투명화(30–40 nm)와
+같은 "수십 nm" 영역이라, 금속 EPD 전반이 극박막에서 공통으로 한계를 갖는다.
+출처: F. Tian et al., *Micromachines* 14(11):2053 (2023), doi:10.3390/mi14112053, PMC10673209;
+H. An, E. Kim, S. Oh, T. Kim, NCCAVS 확장초록(Sungkyunkwan Univ.),
+`papers/an-nccavs-eddy-current-epd-submicron-cu.pdf`.

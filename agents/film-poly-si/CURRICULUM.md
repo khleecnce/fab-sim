@@ -4,7 +4,7 @@
 > 유료 논문은 미러 사이트 활용(사용자 지시 9/5). 출처 없는 수치는 '미검증' 표기.
 
 - [x] Lv1-1 Poly-Si 물성(도핑·결정립)과 CMP 거동
-- [ ] Lv1-2 알칼리(KOH/TMAH/아민) 화학 용해 메커니즘과 pH 의존성
+- [x] Lv1-2 알칼리(KOH/TMAH/아민) 화학 용해 메커니즘과 pH 의존성 — 2026-09-11, knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics.md
 - [ ] Lv2-1 Poly:oxide 선택비 설계와 게이트 CMP 공정 윈도우
 - [ ] Lv2-2 3D NAND 응용: 고종횡비 구조 위 Poly CMP, 디싱
 - [ ] Lv3-1 최신 리뷰: 고선택비 Poly 슬러리, 무결함 Poly CMP
