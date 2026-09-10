@@ -1837,3 +1837,13 @@ QA루프 #23 PASS(격리 0, 유의 평균 ρ=0.9442). corpus fetch60/extract120 
 - [[knowledge/cmp/w-cmp-plug-recess-coring-keyhole-overpolish-window]] — W플러그 리세스·코어링·키홀·심 결함→CVD갭필→버프 공정윈도우. 1차원문 3편 PDF통독·DOI실존: Yu2009(10.1149/1.3009224), Kim2005(10.1016/j.microrel.2005.07.048 EM수명1.9배), Xu2020(10.1016/j.mee.2020.111285). verify 3블록 PASS. 심-코어링폭주·디싱200-300Å은 추정/미검증 명시. EOE(Vacassy2006) 원문미확보→정성만. film-w 3/6. 구현요청 2건.
 - [[knowledge/cmp/ph-ionic-strength-zeta-dissolution-selectivity-pourbaix]] — pH·이온강도→ζ·용해율·선택비 Pourbaix재해석. 1차 Sun2007 UA학위(직접판독, 실리카 비-DLVO 반례)·Dandu2009(10.1149/1.3230624 ζ-pH실측→oxide:nitride~175). Debye원자가확장·Schulze-Hardy z⁻⁶·ζ부호정합→STI선택비. verify 3블록 PASS. 상호링크 10개. slurry-chemistry 3/6.
 품질게이트(오케스트레이터 직접): 3/3 통과(각 check_knowledge ✓ + verify_claims ✓). 전체 110/117(실패 7편은 기존 노트, 이번 3편 무관). 3명 전원 2/6→3/6.
+
+## 2026-09-11 07:xx [소프트웨어/Max워커]
+
+cmp-data-engineer 구현요청(sim/calibration/normalize.py) Claude Code 위임 → 착수 시점에 이미
+다른 병렬 크론(학습총괄/심야병렬)이 완성해 둔 상태였음(4함수 전부 스펙 충족, 17 tests). Max워커가
+직접 pytest tests/test_normalize.py(17 passed) + 전체 스위트(583 passed, 회귀 없음) 재검증 후
+git status로 다른 크론 미커밋 파일(agents/.source_cache.json·disk-design/PROFILE.md·
+validation/ledger.jsonl·.night_parallel*·papers/*·build/·dist/·fabsim.egg-info·tools/*·
+validation/two_stage/·data/corpus/) 미접촉 확인, 신규 2파일만 커밋(da2dc9a)+push.
+cmp-data-engineer 구현요청 "normalize.py" 항목 완료.
