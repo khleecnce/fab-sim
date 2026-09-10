@@ -190,6 +190,13 @@ class WaferResult:
     # PTW 유효압력/인가압력 비 진단 — MRR과 무관. Sorooshian(2005) §3.3 실측표 조회.
     ptw_effective_pressure_ratio: Optional[float] = None
     ptw_effective_pressure_note: Optional[str] = None
+    # Cu 오버폴리시 dishing/erosion 닫힌 시간해 — MRR과 무관한 별도 계산 경로(Tugbawa 2002).
+    # dishing_nm/erosion_nm(위, 아직 어떤 모델도 채운 적 없음)과 이름을 분리해 충돌을 피한다.
+    # cu_h2o2_bta 팩 + PTW + meta에 패턴 레이아웃(선폭/스페이스/밀도)·r_cu/r_ox 실측이
+    # 전부 있을 때만 채워진다 — 하나라도 없으면 조용히 None.
+    cu_dishing_tugbawa_nm: Optional[float] = None
+    cu_erosion_tugbawa_nm: Optional[float] = None
+    cu_dishing_tugbawa_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -221,6 +228,9 @@ class WaferResult:
             "film_lubrication_note": self.film_lubrication_note,
             "ptw_effective_pressure_ratio": self.ptw_effective_pressure_ratio,
             "ptw_effective_pressure_note": self.ptw_effective_pressure_note,
+            "cu_dishing_tugbawa_nm": self.cu_dishing_tugbawa_nm,
+            "cu_erosion_tugbawa_nm": self.cu_erosion_tugbawa_nm,
+            "cu_dishing_tugbawa_note": self.cu_dishing_tugbawa_note,
             "factors": {k: f.to_dict() for k, f in self.factors.items()},
             "factor_coverage": coverage(self.factors) if self.factors else None,
             "equipment_outputs": {k: o.to_dict()
@@ -368,6 +378,45 @@ def _effective_pressure_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _cu_dishing_erosion_tugbawa_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """Cu 오버폴리시 dishing/erosion 닫힌 시간해 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/cu_dishing_erosion_tugbawa.py (Tugbawa 2002 eq 3.37-3.42, 3.46, 3.49).
+    cu_h2o2_bta 팩 + PTW + meta에 pattern_density·linewidth_um·space_um(패턴 레이아웃)이 전부
+    있어야 d_max·Φ_cu를 계산할 수 있다. r_cu_angstrom_s·r_ox_angstrom_s(블랭킷 유효 제거율)는
+    레시피 kp_m_per_pa에서 유도하지 않는다(압력×속도 스케일이 다름) — meta에 실측으로 명시된
+    값만 쓰고, 문헌 캘리브레이션 상수(a1=159 Å/s 등)를 몰래 기본값으로 쓰지 않는다. 하나라도
+    없으면 조용한 보간·외삽 없이 None + 스킵 사유 note.
+    """
+    out: Dict[str, object] = {"cu_dishing_tugbawa_nm": None, "cu_erosion_tugbawa_nm": None,
+                              "cu_dishing_tugbawa_note": None}
+    if rr.base.pack != "cu_h2o2_bta" or rr.wafer != "PTW":
+        return out
+    meta = rr.meta
+    missing_layout = [k for k in ("pattern_density", "linewidth_um", "space_um") if k not in meta]
+    if missing_layout:
+        out["cu_dishing_tugbawa_note"] = "PTW 패턴 레이아웃 정보(선폭/스페이스/밀도) 없음 — 계산 스킵"
+        return out
+    if "r_cu_angstrom_s" not in meta or "r_ox_angstrom_s" not in meta:
+        out["cu_dishing_tugbawa_note"] = (
+            "PTW r_cu_angstrom_s/r_ox_angstrom_s(블랭킷 실측 제거율) meta 미지정 — 문헌 캘리브레이션 "
+            "상수를 대신 쓰지 않고 계산 스킵")
+        return out
+    try:
+        import cu_dishing_erosion_tugbawa as CDE   # sim/tier2_physics (1바이트도 수정 안 함)
+        result = CDE.cu_overpolish_dishing_erosion(
+            r_cu=float(meta["r_cu_angstrom_s"]), r_ox_measured=float(meta["r_ox_angstrom_s"]),
+            phi_cu=float(meta["pattern_density"]), w=float(meta["linewidth_um"]),
+            s=float(meta["space_um"]), t_overpolish=rr.time_s)
+    except Exception as e:
+        out["cu_dishing_tugbawa_note"] = f"Tugbawa dishing/erosion 계산 실패({e}) — None으로 둠"
+        return out
+    out["cu_dishing_tugbawa_nm"] = result["dishing_nm"]
+    out["cu_erosion_tugbawa_nm"] = result["erosion_nm"]
+    out["cu_dishing_tugbawa_note"] = "; ".join(result["notes"]) if result["notes"] else None
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -436,6 +485,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         notes.append(eff_p["_note"])
     elif eff_p["ptw_effective_pressure_ratio"] is not None:
         notes.append(eff_p["ptw_effective_pressure_note"])
+    # Cu dishing/erosion(Tugbawa) 진단 — MRR 경로와 완전히 독립. 필요 meta 없으면 조용히 None.
+    cu_de = _cu_dishing_erosion_tugbawa_diagnostic(rr)
+    if cu_de["cu_dishing_tugbawa_note"]:
+        notes.append(cu_de["cu_dishing_tugbawa_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -457,6 +510,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        film_lubrication_note=film["film_lubrication_note"],
                        ptw_effective_pressure_ratio=eff_p["ptw_effective_pressure_ratio"],
                        ptw_effective_pressure_note=eff_p["ptw_effective_pressure_note"],
+                       cu_dishing_tugbawa_nm=cu_de["cu_dishing_tugbawa_nm"],
+                       cu_erosion_tugbawa_nm=cu_de["cu_erosion_tugbawa_nm"],
+                       cu_dishing_tugbawa_note=cu_de["cu_dishing_tugbawa_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
