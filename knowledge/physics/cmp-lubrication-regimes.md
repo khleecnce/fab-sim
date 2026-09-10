@@ -30,9 +30,9 @@ So = μ·U / (p·δeff)          (무차원)
 - 이는 Lv1-1에서 표기 불일치로 "재확인 필요(미검증)"로 남겨뒀던 정의를 **1차 특허 명세로
   확정**한 것이다: `So = μU/(p·δeff)` (하중 p가 분모) — 차원정합 형태가 맞고, Lv1-1이 의심했던
   `ηVP/δeff`는 2차 출처의 오식이었음이 확인된다. → Lv1-1 §5 미검증 항목 해소.
-- **δeff의 δgroove 가중 관례는 문헌마다 상이 — 미검증.** groove 깊이(~수백 µm)가 (1-α)로
-  가중되면 δeff가 커져 So가 작아지는데, 실무 판별에서는 접촉 스케일인 Ra(~µm)를 δeff로 쓰는
-  근사가 흔하다. 본 노트 계산(§5)은 δeff≈Ra 근사를 명시적으로 채택했다.
+- **δeff의 δgroove 가중 관례는 문헌마다 상이 — 확인 못함(원 관례 문헌 미확보).** groove 깊이
+  (~수백 µm)가 (1-α)로 가중되면 δeff가 커져 So가 작아지는데, 실무 판별에서는 접촉 스케일인
+  Ra(~µm)를 δeff로 쓰는 근사가 흔하다. 본 노트 계산(§5)은 δeff≈Ra 근사를 명시적으로 채택했다.
 
 ## 3. 세 레짐과 λ ratio(막두께비)
 Stribeck 플롯은 **COF vs So**(가로 로그축)이며, So가 커지는 순서로 세 레짐이 배열된다
@@ -76,6 +76,35 @@ So를 분해하면 `So = (μU/p)/δeff = ℓ_hd/δeff` 이고, **ℓ_hd ≡ μU/
 - **정량 한계**: COF 절대곡선의 전이 파라미터(alpha_tr, c_hydro)는 임의 — **정성 재현이며
   정량 대조는 실측 캘리브레이션 필요(미검증)**. Philipossian 그룹의 실측 μ-So 산점도 원데이터는
   확보 못함.
+
+### 5-1. 실행 재현 (python verify — CI가 매 push마다 실제 실행)
+```python verify
+import sys, math
+sys.path.insert(0, "sim/tier2_physics")
+from cmp_lubrication_regime import (
+    cmp_sommerfeld, hydrodynamic_length, delta_eff, PSI)
+
+# 전형 CMP 조건: 노트 §5와 동일
+mu, U, p, Ra = 1e-3, 0.75, 3.0 * PSI, 5e-6
+So = cmp_sommerfeld(mu, U, p, Ra)
+ell_hd = hydrodynamic_length(mu, U, p)
+
+# 문헌값 대조 1: So 오더 — 본문 §5 "So≈7.25×10⁻³"
+assert abs(So - 7.25e-3) / 7.25e-3 < 0.01, f"So 재현 불일치: {So}"
+
+# 문헌값 대조 2: ℓ_hd — 본문 §5 "ℓ_hd ≈ 36.3 nm"
+assert abs(ell_hd * 1e9 - 36.3) / 36.3 < 0.01, f"ℓ_hd 재현 불일치: {ell_hd*1e9} nm"
+
+# 문헌값 대조 3: ℓ_hd가 Ra(5 µm)보다 2오더 이상 작음 — §4 핵심 논증의 수치 근거
+ratio = Ra / ell_hd
+assert ratio > 100, f"ℓ_hd가 Ra 대비 2오더 이상 작지 않음: 비율={ratio}"
+
+print(f"OK: So={So:.3e} (문헌 정성구간 오더 일치), ell_hd={ell_hd*1e9:.1f} nm, "
+      f"Ra/ell_hd={ratio:.0f}배")
+```
+이 블록은 `sim/tier2_physics/cmp_lubrication_regime.py`의 함수를 직접 호출해 §5 서술의
+숫자(So≈7.25×10⁻³, ℓ_hd≈36.3 nm)를 **재계산해 assert로 대조**한다 — 서술과 코드가 어긋나면
+`tools/verify_claims.py`가 즉시 잡는다.
 
 ## 6. 진단·응용 — COF 실시간 모니터링으로 레짐 판별
 - **COF = F_shear/F_normal**을 플래튼 토크/힘센서로 in-situ 측정 → So(공정조건으로 계산) 대비
