@@ -112,6 +112,48 @@
 - 스키마 함의: `method` 필드에 `diamond_disk` 외 `hpmj`(고압수제트) 옵션을 둘 근거.
   **단 이 실험은 SiC 웨이퍼·비-IC 패드 대상이라 IC용 CMP로의 일반화는 미검증.**
 
+## 6b. 정량 재현 — 출처 간 교차대조 (2026-09-11 학습총괄 부채상환)
+
+출처 1(3M E187 TDS)의 단일 제품값과 출처 2(SEMICON West 2000 DOE)의 실측 범위가
+**서로 독립으로 확보된 1차 자료**이므로, E187이 DOE가 실제로 시험한 범위 안에
+드는지를 교차대조한다. 또한 출처 2가 명시한 패드 마모율(mil/hr)과 총 마모(mils)가
+같은 자릿수 오더로 정합하는지 단위환산으로 확인한다.
+
+```python verify
+# 대조 1: 3M E187 다이아몬드 공칭크기(181 µm, 출처1)가
+#         AMAT/3M DOE 실측 그릿크기 범위(100–425 µm, 출처2 SEMICON West 2000)에 포함되는가
+e187_diamond_um = 181
+doe_range_um = (100, 425)
+assert doe_range_um[0] <= e187_diamond_um <= doe_range_um[1], (
+    f"E187 {e187_diamond_um}µm이 DOE 실측범위 {doe_range_um} 밖 — 두 1차 출처 불일치")
+
+# 대조 2: Aggressiveness Value(AV)가 캐리어 직경이 클수록 낮다는 서술(§2)을
+#         TDS 표의 두 구간값으로 정량 확인 — 문헌값 그대로 대조
+av_260mm = (70, 90)
+av_360mm = (55, 75)
+assert av_260mm[0] > av_360mm[0] and av_260mm[1] > av_360mm[1], (
+    "AV가 직경에 반비례한다는 서술과 표값이 불일치")
+
+# 대조 3: 패드 마모율(mil/hr, 출처2 실측) → µm/hr 환산(1 mil = 25.4 µm, 정의값) —
+#         스키마 필드 단위(µm)로 쓸 값의 자릿수 검산
+plate1_mil_hr, plate2_mil_hr = 0.87, 0.88
+plate1_um_hr = plate1_mil_hr * 25.4
+plate2_um_hr = plate2_mil_hr * 25.4
+# 문헌값(mil/hr)과 환산값(µm/hr)이 정의상 정확히 25.4배여야 함 — 계산기 오류 배제용 항등검산
+assert abs(plate1_um_hr - 22.098) < 0.01 and abs(plate2_um_hr - 22.352) < 0.01, (
+    f"단위환산 불일치: {plate1_um_hr:.3f}, {plate2_um_hr:.3f} µm/hr")
+# 두 플래튼 마모율이 문헌 서술("거의 동일") 그대로 2% 이내 근접하는지 대조
+rel_diff = abs(plate1_mil_hr - plate2_mil_hr) / plate1_mil_hr
+assert rel_diff < 0.02, f"두 플래튼 마모율 차이 {rel_diff*100:.2f}% — 문헌 서술(거의 동일)과 불일치"
+
+print(f"OK: E187 {e187_diamond_um}µm ⊂ DOE {doe_range_um}µm, "
+      f"AV 직경반비례 확인, 마모율 {plate1_um_hr:.2f}/{plate2_um_hr:.2f} µm/hr (차이 {rel_diff*100:.2f}%)")
+```
+→ 재현 결과: 3건 모두 PASS(2026-09-11 실행). E187(181µm)은 DOE 범위 내, AV는 직경
+반비례 서술과 정합, 두 플래튼 마모율 차이는 1.1%로 문헌의 "거의 동일" 서술과 대조 일치.
+**단, 이 대조는 두 문헌이 서로를 인용하지 않은 독립 출처 간 정합성 확인이지, 제3의
+검증기관 데이터와의 대조는 아니다 — 그 의미에서는 여전히 약한 검증이다(미검증 표기 유지).**
+
 ## 7. 미검증/한계 정리
 
 - 3M E187 값은 **특정 제품 1점**의 카탈로그 값이다. 스키마의 `typical` 범위로 쓸 때는
