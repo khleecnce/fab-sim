@@ -187,6 +187,9 @@ class WaferResult:
     # (cmp-slurry-flow-lubrication-film-thickness.md). z0는 h_min의 스케일이지 정확한 값이 아니다.
     film_z0_scale_um: Optional[float] = None
     film_lubrication_note: Optional[str] = None
+    # PTW 유효압력/인가압력 비 진단 — MRR과 무관. Sorooshian(2005) §3.3 실측표 조회.
+    ptw_effective_pressure_ratio: Optional[float] = None
+    ptw_effective_pressure_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -216,6 +219,8 @@ class WaferResult:
             "cof_stribeck_estimate": self.cof_stribeck_estimate,
             "film_z0_scale_um": self.film_z0_scale_um,
             "film_lubrication_note": self.film_lubrication_note,
+            "ptw_effective_pressure_ratio": self.ptw_effective_pressure_ratio,
+            "ptw_effective_pressure_note": self.ptw_effective_pressure_note,
             "factors": {k: f.to_dict() for k, f in self.factors.items()},
             "factor_coverage": coverage(self.factors) if self.factors else None,
             "equipment_outputs": {k: o.to_dict()
@@ -334,6 +339,35 @@ def _film_thickness_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _effective_pressure_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """PTW 유효압력/인가압력 비 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/npw_ptw_effective_pressure.py (Sorooshian(2005) §3.3 실측표).
+    PTW이고 rr.meta에 pattern_density가 있을 때만 계산한다. 표에 정확히 없는 density면
+    (지원: 0.10/0.50/0.90) 조용한 보간·외삽 없이 None + 스킵 사유를 note로 남긴다
+    — 이 모듈이 스스로 ValueError를 내는 설계이므로 그걸 그대로 정직하게 옮긴다.
+    """
+    out: Dict[str, object] = {"ptw_effective_pressure_ratio": None,
+                              "ptw_effective_pressure_note": None}
+    if rr.wafer != "PTW":
+        return out
+    density = rr.meta.get("pattern_density")
+    if density is None:
+        return out
+    try:
+        import npw_ptw_effective_pressure as EPR   # sim/tier2_physics (1바이트도 수정 안 함)
+        ratio = EPR.effective_pressure_ratio(density)
+    except ValueError as e:
+        out["_note"] = (f"pattern_density={density}는 표에 없는 값(지원: 0.10/0.50/0.90) — "
+                        f"유효압력 진단 스킵 ({e})")
+        return out
+    out["ptw_effective_pressure_ratio"] = ratio
+    out["ptw_effective_pressure_note"] = (
+        "Sorooshian(2005) §3.3 실측표 조회값. 1/density 모델(Boning) 대비 훨씬 작음 — "
+        "1/ρ 모델은 저밀도에서 실측을 과대예측(§4)")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -396,6 +430,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         notes.append(film["_note"])
     elif film["film_lubrication_note"] is not None:
         notes.append(film["film_lubrication_note"])
+    # PTW 유효압력비 진단 — MRR 경로와 완전히 독립. PTW+pattern_density 없으면 조용히 None.
+    eff_p = _effective_pressure_diagnostic(rr)
+    if eff_p.get("_note"):
+        notes.append(eff_p["_note"])
+    elif eff_p["ptw_effective_pressure_ratio"] is not None:
+        notes.append(eff_p["ptw_effective_pressure_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -415,6 +455,8 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        cof_stribeck_estimate=lube["cof_stribeck_estimate"],
                        film_z0_scale_um=film["film_z0_scale_um"],
                        film_lubrication_note=film["film_lubrication_note"],
+                       ptw_effective_pressure_ratio=eff_p["ptw_effective_pressure_ratio"],
+                       ptw_effective_pressure_note=eff_p["ptw_effective_pressure_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
