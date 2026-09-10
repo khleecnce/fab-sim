@@ -1767,3 +1767,17 @@ choi-power-law.md §3-2 신설(verify 2블록), verify_claims/check_knowledge 1/
 passed. response_map CONFLICT→AGREE, backtest cn109609035b ρ +0.893→+1.000, qa_loop --strict
 PASS(유의평균ρ 0.929→0.944). 커밋 de151c9, push 완료. 다음: accuracy_gaps.py --next 재실행해
 다음 최우선 갭 확인 필요(다음 회차).
+
+## 2026-09-10 20:xx [성장엔진]
+정확도루프: psi UNMODELED(oxide_silica/sti_ceria/sic_ceria_h2o2/w_fe_oxidizer 4팩, score 95) 중
+w_fe_oxidizer 해결 — Lee와 Seo 2022(DOI:10.3390/app12031227, CC-BY, MDPI CDN 경유 원문 확보 통독)
+피콜린산 억제제 Langmuir 흡착과 정지식각 억제 정량 재현. knowledge/cmp/w-cmp-picolinic-acid-inhibitor-
+langmuir-dissolution-suppression.md 신설(verify_claims/check_knowledge 1/1 통과). K=1108 L/mol,
+k_inhib=2.117(정지식각 90에서 11 A/min, 8.2배 감소 역산) 도출, knowledge/params/w_fe_oxidizer.yaml에
+배선(코드 변경 없음, 기존 _inhibitor_term 재사용). tests/test_factors.py 3건 추가(psi modeled, 기준1.0,
+방향성). pytest 530 passed, qa_loop --strict PASS(유의평균 rho 0.944 유지, 회귀 없음). 커밋 ecca1f9,
+push 완료. 오늘 두 번의 문헌 접근 시도(nitride 억제 IOP 논문, STI 세리아 특허)는 paywall과 캡차로
+실패했으나 세 번째(MDPI CC-BY)는 성공 — 회차 내 시간 상당 소요, 다음 회차는 accuracy_gaps.py --next
+재실행으로 이어감(oxide_silica/sti_ceria/sic_ceria_h2o2의 psi는 여전히 UNMODELED로 남음).
+corpus.py status: total=2283, with_fulltext=1311, queue fetch=972 learn=1301(이번 회차 fetch 0/10
+신규 확보, learn 큐에서 nano-abrasive 리뷰 1건 확인했으나 psi 관련성 낮아 별도 처리 안 함).
