@@ -1875,5 +1875,518 @@
   "has_absolute_values": false,
   "relative_only": false,
   "usable": false
+ },
+ "CN110524413A": {
+  "patent": "CN110524413A",
+  "title": "CN110524413A - Chemical mechanical planarization systems and pad freeing wheel \n        - ",
+  "assignees": [
+   "Taiwan Semiconductor Manufacturing Co TSMC Ltd"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "TSMC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US7708621B2": {
+  "patent": "US7708621B2",
+  "title": "US7708621B2 - Polishing apparatus and method of reconditioning polishing pad \n        - Go",
+  "assignees": [
+   "Elpida Memory Inc"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Elpida Memory Inc",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP5210952B2": {
+  "patent": "JP5210952B2",
+  "title": "JP5210952B2 - \n        Polishing pad\n       \n      - Google Patents",
+  "assignees": [
+   "Nitta Haas Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Nitta Haas (CMP 패드·슬러리)",
+  "data_tables": 0,
+  "examples": 2,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "TWI596175B": {
+  "patent": "TWI596175B",
+  "title": "TWI596175B - \n        Stopping the additive containing the ruthenium layer\n       \n       ",
+  "assignees": [
+   "慧盛材料美國責任有限公司"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "慧盛材料美國責任有限公司",
+  "data_tables": 0,
+  "examples": 5,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP3263667B1": {
+  "patent": "EP3263667B1",
+  "title": "EP3263667B1 - Additives for barrier chemical mechanical planarization \n        - Google Pa",
+  "assignees": [
+   "Versum Materials US LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Versum Materials (현 Merck)",
+  "data_tables": 4,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": "angstroms/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": true
+ },
+ "JP6928040B2": {
+  "patent": "JP6928040B2",
+  "title": "JP6928040B2 - \n        Chemical mechanical polishing composition of copper barrier\n       ",
+  "assignees": [
+   "シーエムシー マテリアルズ，インコーポレイティド",
+   "シーエムシー  マテリアルズ，インコーポレイティド"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "シーエムシー マテリアルズ，インコーポレイティド",
+  "data_tables": 0,
+  "examples": 12,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "JP5964795B2": {
+  "patent": "JP5964795B2",
+  "title": "JP5964795B2 - \n        CMP method using amphiphilic nonionic surfactant\n       \n      - Go",
+  "assignees": [
+   "Cabot Microelectronics Corp"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Cabot Microelectronics (현 Entegris)",
+  "data_tables": 0,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "TWI899846B": {
+  "patent": "TWI899846B",
+  "title": "TWI899846B - Methods for chemical mechanical polishing for hybrid bonding and microelectro",
+  "assignees": [
+   "美商艾德亞半導體接合科技有限公司"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "美商艾德亞半導體接合科技有限公司",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "hydrogen peroxide",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR102355690B1": {
+  "patent": "KR102355690B1",
+  "title": "KR102355690B1 - \n        Formulations and methods of use after chemical mechanical polishi",
+  "assignees": [
+   "엔테그리스, 아이엔씨."
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "엔테그리스, 아이엔씨.",
+  "data_tables": 0,
+  "examples": 3,
+  "comparative": 0,
+  "rate_unit": "a/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US10071461B2": {
+  "patent": "US10071461B2",
+  "title": "US10071461B2 - Polishing pads and systems and methods of making and using the same \n      ",
+  "assignees": [
+   "3M Innovative Properties Co"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "3M (CMP 소모재)",
+  "data_tables": 3,
+  "examples": 5,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "ceria",
+   "hydrogen peroxide",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US10220487B2": {
+  "patent": "US10220487B2",
+  "title": "US10220487B2 - Customized polishing pads for CMP and methods of fabrication and use thereo",
+  "assignees": [
+   "Cabot Microelectronics Corp"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Cabot Microelectronics (현 Entegris)",
+  "data_tables": 2,
+  "examples": 4,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP2995662B1": {
+  "patent": "EP2995662B1",
+  "title": "EP2995662B1 - Polishing compositions and methods for polishing cobalt films \n        - Goo",
+  "assignees": [
+   "Fujifilm Planar Solutions LLC"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "FUJIFILM",
+  "data_tables": 2,
+  "examples": 6,
+  "comparative": 0,
+  "rate_unit": "a/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "oxidizer",
+   "hydrogen peroxide",
+   "BTA",
+   "benzotriazole"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "KR102101377B1": {
+  "patent": "KR102101377B1",
+  "title": "KR102101377B1 - Interconnect structure comprising fine pitch backside metal redistribution",
+  "assignees": [
+   "인텔 코포레이션"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "인텔 코포레이션",
+  "data_tables": 0,
+  "examples": 19,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "hydrogen peroxide",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "EP3265526B1": {
+  "patent": "EP3265526B1",
+  "title": "EP3265526B1 - Polishing composition containing ceria particles and method of use \n        ",
+  "assignees": [
+   "Cabot Microelectronics Corp"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Cabot Microelectronics (현 Entegris)",
+  "data_tables": 2,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": false
+ },
+ "US10822524B2": {
+  "patent": "US10822524B2",
+  "title": "US10822524B2 - Aqueous compositions of low dishing silica particles for polysilicon polish",
+  "assignees": [
+   "Rohm and Haas Electronic Materials CMP Holdings Inc"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Rohm and Haas Electronic Materials",
+  "data_tables": 5,
+  "examples": 1,
+  "comparative": 1,
+  "rate_unit": "å/min",
+  "to_nm_per_min": 0.1,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": false
+ },
+ "US8303373B2": {
+  "patent": "US8303373B2",
+  "title": "US8303373B2 - Slurry supplying apparatus and method of polishing semiconductor wafer utili",
+  "assignees": [
+   "Sumco Techxiv Corp"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Sumco Techxiv Corp",
+  "data_tables": 1,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": "μm/min",
+  "to_nm_per_min": 1000.0,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": true,
+  "relative_only": false,
+  "usable": false
+ },
+ "US6062952A": {
+  "patent": "US6062952A",
+  "title": "US6062952A - Planarization process with abrasive polishing slurry that is selective to a p",
+  "assignees": [
+   "Individual"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Individual",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "alumina",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN112992666A": {
+  "patent": "CN112992666A",
+  "title": "CN112992666A - CMP (chemical mechanical polishing) process method for trench gate IGBT (in",
+  "assignees": [
+   "Zhuzhou CRRC Times Semiconductor Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Zhuzhou CRRC Times Semiconductor Co Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN101071786A": {
+  "patent": "CN101071786A",
+  "title": "CN101071786A - Method for achieving uniform chemical mechanical polishing in integrated ci",
+  "assignees": [
+   "Promos Technologies Pte Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "Promos Technologies Pte Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "BTA",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN114664650B": {
+  "patent": "CN114664650B",
+  "title": "CN114664650B - Method for manufacturing semiconductor device \n        - Google Patents",
+  "assignees": [
+   "CSMC Technologies Fab2 Co Ltd"
+  ],
+  "trusted": false,
+  "category": "untrusted",
+  "matched_org": "CSMC Technologies Fab2 Co Ltd",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "BTA",
+   "pH",
+   "concentration"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
  }
 }
