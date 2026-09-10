@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 W CMP 메커니즘: 산화막(WO3) 형성-제거 순환, 산화제 종류별 차이 (2026-09-10, knowledge/cmp/w-cmp-wo3-passivation-oxidizer-kaufman.md)
 - [x] Lv1-2 Fe 촉매 H2O2 슬러리 화학과 알루미나/실리카 입자 선택 (2026-09-10, knowledge/cmp/w-cmp-fenton-catalyst-abrasive-alumina-silica.md)
-- [ ] Lv2-1 W 플러그 리세스·코어링·키홀 결함과 공정 윈도우
+- [x] Lv2-1 W 플러그 리세스·코어링·키홀 결함과 공정 윈도우 (2026-09-11, knowledge/cmp/w-cmp-plug-recess-coring-keyhole-overpolish-window.md)
 - [ ] Lv2-2 Ti/TiN 배리어 CMP와 W:배리어:옥사이드 선택비
 - [ ] Lv3-1 최신 리뷰: 3D NAND 워드라인 W CMP, 저결함 W 슬러리
 - [ ] Lv3-2 W Kp·산화 속도 파라미터 + 문헌값 재현 (sim/tier2)

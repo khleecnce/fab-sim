@@ -709,5 +709,29 @@
   "venue": "Wear 270 312-316 (2011)",
   "year": 2011,
   "note": "materials/film-poly-si-alkaline-dissolution-ph-kinetics.md (배경 참고, 노트 본문 미인용 — pH-MRR가 H2O2/입자에 confound)"
+ },
+ "yu2009-jes-local-topography-w-cmp-defects": {
+  "src": "미러 사이트",
+  "pdf": "https://미러 사이트/pdf/10.1149/1.3009224.pdf",
+  "host": "미러 사이트",
+  "doi": "10.1149/1.3009224",
+  "file": "papers/yu2009-jes-local-topography-w-cmp-defects.pdf",
+  "matched_title": "Local-Topography-Induced Defects during Tungsten Chemical Mechanical Polishing and Their Impact on Back End of Line"
+ },
+ "kim2005-microrel-keyhole-w-plug-vias": {
+  "src": "미러 사이트",
+  "pdf": "https://미러 사이트/pdf/10.1016/j.microrel.2005.07.048.pdf",
+  "host": "미러 사이트",
+  "doi": "10.1016/j.microrel.2005.07.048",
+  "file": "papers/kim2005-microrel-keyhole-w-plug-vias.pdf",
+  "matched_title": "Reliability improvement by the suppression of keyhole generation in W-plug vias"
+ },
+ "xu2020-mee-tungsten-filling-seam": {
+  "src": "미러 사이트",
+  "pdf": "https://미러 사이트/pdf/10.1016/j.mee.2020.111285.pdf",
+  "host": "미러 사이트",
+  "doi": "10.1016/j.mee.2020.111285",
+  "file": "papers/xu2020-mee-tungsten-filling-seam.pdf",
+  "matched_title": "The filling seams improvement and properties analyses of tungsten films"
  }
 }
