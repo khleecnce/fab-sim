@@ -906,5 +906,61 @@
  "doi:10.1149/2162-8777/ac3e44": {
   "ok": true,
   "msg": "Role of Slurry Additives on Chemical Mechanical Planarization of Silicon Dioxide Film in C"
+ },
+ "doi:10.1016/j.jcis.2010.03.071": {
+  "ok": true,
+  "msg": "Reverse selectivity – High silicon nitride and low silicon dioxide removal rates using cer"
+ },
+ "doi:10.1149/2.0351712jss": {
+  "ok": true,
+  "msg": "Role of Ce<sup>3+</sup>Ions in Achieving High Silicon Nitride Polish Rates"
+ },
+ "doi:10.1007/s12541-012-0004-8": {
+  "ok": true,
+  "msg": "Temperature distribution in polishing pad during CMP process: Effect of retaining ring"
+ },
+ "doi:10.1016/j.ijthermalsci.2012.11.009": {
+  "ok": true,
+  "msg": "Review of fluid flow and convective heat transfer within rotating disk cavities with impin"
+ },
+ "doi:10.3390/electronics10212632": {
+  "ok": true,
+  "msg": "Impact of Residual Stress on a Polysilicon Channel in Scaled 3D NAND Flash Memory"
+ },
+ "doi:10.3390/mi14091779": {
+  "ok": true,
+  "msg": "Investigation of the Connection Schemes between Decks in 3D NAND Flash"
+ },
+ "doi:10.1016/j.corsci.2018.03.045": {
+  "ok": true,
+  "msg": "Micro-galvanic corrosion of Cu/Ru couple in potassium periodate (KIO 4 ) solution"
+ },
+ "doi:10.1016/j.mee.2008.11.047": {
+  "ok": true,
+  "msg": "Achievement of high planarization efficiency in CMP of copper at a reduced down pressure"
+ },
+ "doi:10.1149/1.1372222": {
+  "ok": true,
+  "msg": "A Model of Chemical Mechanical Polishing"
+ },
+ "doi:10.1149/1.3589308": {
+  "ok": true,
+  "msg": "Controlling the Galvanic Corrosion of Copper during Chemical Mechanical Planarization of R"
+ },
+ "doi:10.1186/1556-276X-7-603": {
+  "ok": true,
+  "msg": "A flexible nanobrush pad for the chemical mechanical planarization of Cu/ultra-low-к mater"
+ },
+ "doi:10.3390/ma17194905": {
+  "ok": true,
+  "msg": "Mechanisms of Chemically Promoted Material Removal Examined for Molybdenum and Copper CMP "
+ },
+ "pmc:3499454": {
+  "ok": true,
+  "msg": "A flexible nanobrush pad for the chemical mechanical planarization of Cu/ultra-low-к mater"
+ },
+ "doi:10.1016/j.apsusc.2007.04.027": {
+  "ok": true,
+  "msg": "A mathematical model for material removal and chemical–mechanical synergy in chemical–mech"
  }
 }

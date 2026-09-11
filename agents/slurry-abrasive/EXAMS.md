@@ -149,3 +149,41 @@ CMP 제거율이 **벌크 웨이퍼 경도가 아니라 화학반응(텅스텐�
 가정을 통해 이미 이 점을 인정하고 있다.
 출처: knowledge/cmp/abrasive-hardness-hertz-indentation-removal-volume.md §5(B) verify 블록,
 knowledge/cmp/w-cmp-wo3-passivation-oxidizer-kaufman.md, knowledge/cmp/preston-luo-dornfeld-mrr.md.
+
+## Lv2-2 입자 농도-MRR 포화 곡선과 접촉 확률 모델 — 2026-09-12 (자가검사 미실행 회차, 총괄 재검 필요)
+
+**Q1. US9499721B2 TABLE 18(콜로이달 실리카 54 nm, TEOS, 3 psi)에서 농도 0.5→1.0 wt% 구간과
+2.5→3.0 wt% 구간의 한계 기울기는 각각 얼마이며, 이 두 값의 비가 왜 "포화"의 증거가 되는가?
+같은 표에서 포화를 지지하는 특허 저자 자신의 서술은 무엇인가?**
+A. 0.5→1.0 wt%: (2070−1400)/0.5 = 1340 Å/min/wt%. 2.5→3.0 wt%: (2480−2430)/0.5 = 100 Å/min/wt%.
+비는 13.4배 — 멱함수 k·C^n은 "농도 2배당 이득이 2^n으로 항상 일정"이라 한계 기울기가 이렇게
+무너질 수 없으므로, 기울기 붕괴 자체가 포화형 함수(자리 점유 한계)를 요구한다. 저자 서술:
+"at 1.5, 2, 2.5, and 3 weight percent colloidal silica the TEOS removal rates were similar to
+the control(퓸드 실리카 약 12.5 wt%)" — 1.5 wt% 이상은 더 넣어도 12.5 wt% 대조군 수준.
+출처: US9499721B2 Example 18/TABLE 18; knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md §3.
+
+**Q2. 접촉(점유) 확률 모델 N = n_s·(1−e^(−λ)), λ ∝ C/A_r 에서 (a) 저농도 극한이 Luo-Dornfeld
+2003 Region 1 폐형식과 어떻게 정합하고, (b) 반포화 농도 C_h가 압력에 따라 어느 방향으로
+움직여야 하며, (c) 그 예측을 TABLE 18의 어느 축으로 검증했고 결과는 무엇이었는가?**
+A. (a) λ≪1이면 N ≈ n_s·λ ∝ C — 압력(A_r)과 무관한 C 선형항으로, Luo-Dornfeld Eq.2
+`MRR = k1·C/Hw1^(3/2)·[(x_avg+3σ)²/x_avg³]·P^(1/2)`의 C 선형 구조와 같다. (b) C_h = ln2·A_r/a이고
+GW 지수분포 특수해에서 A_r ∝ W ∝ P이므로 **압력이 오르면 C_h가 커진다**(자리가 늘어 포화가
+늦어짐). (c) 세 압력이 공통으로 갖는 1.0~3.0 wt% 5점에 쌍곡선을 압력별로 적합한 결과 C_h는
+1.5/3/5 psi에서 약 0.2/0.3/0.9 wt%로 단조 증가(지수 ≈1.25, 3점 추정이라 지수는 미검증·방향만
+확정), 포화 MRR M∞는 약 130/270/530 nm/min으로 P^≈1.17(Preston 오더). 함의: 포화 농도는
+슬러리 상수가 아니라 압력의 함수라 `abrasive_saturation_wt_pct` 상수 설계는 부적절.
+출처: 위 노트 §4·§6 verify 블록; knowledge/materials/hertz-gw-contact-mechanics.md §4;
+knowledge/cmp/luo-dornfeld-active-abrasive-size-mrr.md §3.
+
+**Q3. 같은 3 psi 6점을 멱함수·쌍곡선·포아송 세 2-파라미터 모델로 적합했을 때 전역 멱지수는
+얼마였고, 그 값이 sim 기본값 1/3과 거의 같다는 사실은 "현재 팩이 맞다"는 뜻인가? Li 2021의
+"농도에 선형 증가" 관측과 Cabot의 포화는 EVIDENCE-RULES로 어떻게 판정했는가?**
+A. 전역 멱지수 n≈0.30(sim 기본 1/3과 근접). 그러나 이는 "곡선 전체를 한 직선으로 눌러 편 평균
+기울기"일 뿐이다 — 국소 지수는 0.56(0.5→1 wt%)에서 0.11(2.5→3 wt%)로 5배 떨어지고, 포화형
+두 모델의 SSE(≈255·≈135)가 멱함수(≈926)보다 3.6~6.9배 작으며, 12.5 wt%로 외삽하면 멱함수가
+쌍곡선 대비 약 40% 과대예측한다. 즉 순위(단조성)는 맞지만 크기·외삽은 틀린다.
+Li 2021(E3, 음전하 실리카·pH 11·K⁺ 0.25 M, 수치는 그래프만) vs Cabot(E1, 양전하 아미노실란
+실리카·pH 4.7·0.5~3 wt%)은 등급이 다르지만 계도 달라 정면충돌로 보지 않고 **레짐 분리**(절차 3)로
+판정했다: 정전 반발로 입자-표면 친화도 K가 낮으면 C_h=1/K가 커져 선형 구간이 수십 wt%까지
+늘어날 수 있다(가설·미검증). 채택: 함수형은 포화형, C_h는 팩 계별 캘리브레이션. 평균내지 않음.
+출처: 위 노트 §5 verify·§7 판정표; EVIDENCE-RULES.md 절차 3.

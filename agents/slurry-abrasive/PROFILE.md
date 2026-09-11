@@ -116,7 +116,39 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    - 선행 필요: 여전히 abrasive_d99_nm이 5개 팩 어디에도 없어 no-op — 지수를 먼저
      바꿔도 예측 변화 없음. D99 팩 스펙 확보(특히 알루미나 계열)가 여전히 최우선.
 
+4. **농도 항을 멱함수 → 포화형(점유확률) 함수로 교체** (우선순위: 중, 신규 2026-09-12)
+   - 무엇을: `sim/factors.py` 농도 항 `(C/C_ref)^n`을 `[C/(C_h(P)+C)] / [C_ref/(C_h(P)+C_ref)]`
+     (또는 포아송형 `1−e^(−C/C0(P))`)로 교체. 신규 팩 파라미터 `abrasive_conc_half_wt_pct`
+     (기준압력에서의 반포화 농도), `abrasive_conc_half_pressure_exponent`(기본 1.0, GW A_r∝P 근거,
+     미검증). `abrasive_conc_exponent<0`인 팩(sic_ceria_h2o2 −0.406)은 감소 레짐이라 기존
+     멱함수 유지(게이트).
+   - 근거 노트: knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md
+     §4(점유확률 유도·극한), §5(포화형 SSE ≈255/≈135 vs 멱함수 ≈926), §6(C_h 압력 단조증가).
+   - 검증에 쓸 문헌값: US9499721B2 TABLE 18(validation/datasets/us9499721b2_teos_colloidal_silica_pressure_conc.yaml,
+     22점) — 3 psi 행 140/207/226/229/243/248 nm/min(0.5~3.0 wt%), 압력별 C_h ≈0.2/0.3/0.9 wt%
+     (1.5/3/5 psi). 농도 순위 유지 + 고농도 평탄부 재현이 합격 기준.
+   - 주의: oxide_silica 팩의 캘리브레이션 출처(Li 2021, 20~30 wt%·음전하·pH 11)와 계가 달라
+     C_h 값을 그대로 이식하지 말 것(confidence=estimated로만). 현재 `abrasive_saturation_wt_pct`
+     상수 경고는 압력 의존을 못 담으므로 이 항으로 대체.
+
 ## 이수 기록 (계속)
+- Lv2-2 (2026-09-12, **자가검사 미실행 — 조건부 이수**): 입자 농도-MRR 포화 곡선과 접촉 확률 모델 —
+  knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md.
+  이 회차는 실행 환경에서 파이썬·curl·웹검색·웹페치가 승인 대기로 전부 차단되어
+  `tools/verify_claims.py`·`tools/check_knowledge.py`를 실행하지 못했고 신규 문헌 확보·PDF 재판독
+  (pdftoppm 부재)도 불가했다. 저장소 내 기확보 1차 자료만 사용: US9499721B2(Cabot, 특허 실시예
+  TABLE 18 — 콜로이달 실리카 54 nm 0.5~3 wt% × 1.5/3/4/5 psi TEOS, 22점, E1),
+  Luo & Dornfeld 2003 doi:10.1109/tsm.2003.815199(캐시 실존확인, Region 1 C 선형식 형제노트 재인용),
+  Li 2021 doi:10.1149/2162-8777/ac3e44(캐시 전문), Bai 2007 doi:10.1016/j.apsusc.2007.04.027(형제노트 재인용),
+  US20220315802A1(감소 레짐 교차참조). 핵심: (1) 3 psi 한계기울기 1340→100 Å/min/wt%(13.4배 붕괴)
+  = 포화 실측, 저자도 "1.5 wt% 이상은 12.5 wt% 대조군과 동등" 서술. (2) 활성입자를 접촉 자리
+  점유확률 N=n_s(1−e^(−λ)), λ∝C/A_r로 정식화 — 저농도 선형(Luo-Dornfeld Region 1)·고농도 포화
+  (n_s∝A_r∝P)·반포화 농도 C_h∝P가 한 식에서 나옴. (3) 전역 멱지수 n≈0.30은 sim 기본 1/3과
+  일치하나 국소 지수 0.56→0.11로 붕괴, 포화형 SSE가 멱함수의 1/3.6~1/6.9. (4) C_h가 1.5/3/5 psi
+  에서 ≈0.2/0.3/0.9 wt%로 단조증가 — 모델 예측(C_h∝P) 방향 확인, 지수(≈1.25)는 미검증.
+  EVIDENCE-RULES: Li 2021 "선형"(E3) vs Cabot 포화(E1)는 레짐 분리로 판정(계·전하·pH 다름).
+  verify 블록 4개(순수 파이썬)는 손계산으로 밴드를 잡았으며 **총괄이 verify_claims/check_knowledge
+  실행 후 통과 시 CURRICULUM [x] 확정** — 그 전까지 체크박스는 비워 둠.
 - Lv2-1 계속 (2026-09-10): 텅스텐 벌크 CMP 실양산 데이터 확보 —
   knowledge/cmp/w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019.md
   (Egan and Kim 2019, ECS J. Solid State Sci. Technol. 8(5) P3206, doi:10.1149/2.0311905jss --

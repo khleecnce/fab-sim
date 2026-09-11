@@ -2021,3 +2021,22 @@ driver.md 신설(check_knowledge/verify_claims 둘 다 통과, python verify로 
 다음 과제: Lee/Guo/Jeong 2012 CMP 패드 온도분포(DOI:10.1007/s12541-012-0004-8) 미러 사이트 3회 시도
 실패(캡차) — 대체 경로(ResearchGate·기관리포지토리) 필요, 확보되면 대상계 직접실측으로 E4→E1/E2 승격.
 corpus.py status: total 2301, with_fulltext 1334, queue fetch 967/learn 1324.
+
+
+## 2026-09-12 01:xx [심야병렬] 서브에이전트 3명 동시 학습 — film-poly-si·film-cu·slurry-abrasive 각 1단원 이수
+
+**배차**(claude -p 백그라운드, --max-turns 60, 상시 크론과 비겹침: 성장엔진=Θ/factors, 학습총괄=cmp-data-engineer/film-nitride):
+- **film-poly-si Lv2-2** (2/6→3/6): 3D NAND HAR Poly CMP 디싱. knowledge/materials/film-poly-si-3dnand-har-poly-cmp-dishing.md.
+  US10822524B2(Rohm&Haas 특허 전문)에서 디싱 재성장 727/631/313Å이 PD 30/50/70%로 단조감소, Lee 2002 d_max∝1/ρ 변형이 30/70% 비율 1.5%내 재현(30/50%는 30% 불일치 기록). 선택비 1832:1도 초기단차 74~101% 되파임(STI 역설 poly 재현). 단차소멸 지수형 τ≈18~20s(선형 아님). EVIDENCE-RULES 판정 #5(E4 vs E3 잠정채택).
+- **film-cu Lv3-1** (3/6→4/6): 저압 Cu CMP·갈바닉 부식·고종횡비 배선 리뷰. knowledge/cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md.
+  Lee2021(PMC8551296) Cu/Ru 니코틴산 억제 ΔE_corr 0.49→0.09V, Gamagedara2024 0.014MPa Cu/Mo, Tamilmani2005 갈바닉전류 직접실측. Tamilmani "slightly"를 Faraday환산하면 하이드록실아민계 폴리시율 45%(H2O2계는 3~11%) → 레짐분리 종결(평균 안 냄).
+- **slurry-abrasive Lv2-2** (3/6→4/6): 농도-MRR 포화곡선·접촉확률모델. knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md.
+  Cabot US9499721B2 TABLE18(콜로이달실리카 54nm 0.5~3wt%×1.5~5psi TEOS 22점, E1): 3psi 한계기울기 1340→100 Å/min/wt% 13.4배붕괴. 접촉확률 N=n_s(1-e^-λ), 반포화농도 C_h∝P(1.5/3/5psi에서 0.2/0.3/0.9wt% 단조증가). 포화형 SSE(~255/~135)가 멱함수(~926)보다 우수. Li2021 선형(E3) vs Cabot 포화(E1) 레짐분리.
+
+**품질게이트(총괄 직접 실행이 정본)**: 서브에이전트 3명 모두 세션 권한으로 도구 미실행 보고 → 총괄이 직접 실행:
+- verify_claims: 3/3 통과 (출처 실존 6/12/5건, 검증코드 각 4블록 통과, 출처없는 수치주장 0)
+- check_knowledge: 3/3 통과
+- check_knowledge --all: 134/139 (반려 5편은 이번 작업 무관 기존 부채)
+CURRICULUM 체크박스 3건 [x] 확정(총괄 게이트 PASS 근거), ORG.md §5 3행 갱신.
+
+**한도**: 429/rate-limit 흔적 없음. 코퍼스 fetch는 특허 소스 다수 봉쇄(patent fetcher 403)로 백그라운드 계속 진행.

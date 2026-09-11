@@ -1,4 +1,51 @@
 {
+ "lee2021-scirep-cu-ru-galvanic-corrosion-nicotinic-acid": {
+  "src": "PMC OA (CC-BY), 로컬 코퍼스 papers/PMC8551296.xml — 2026-09-12 세션 네트워크 미승인으로 기존 확보본 사용",
+  "pdf_local": "papers/PMC8551296.xml",
+  "doi": "10.1038/s41598-021-00689-6",
+  "pmcid": "PMC8551296",
+  "title": "Galvanic corrosion inhibition from aspect of bonding orbital theory in Cu/Ru barrier CMP",
+  "authors": "Lee K, Sun S, Lee G, Yoon G, Kim D, Hwang J, Jeong H, Song T, Paik U",
+  "venue": "Sci. Rep. 11, 21214 (2021)",
+  "note": "cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md"
+ },
+ "gamagedara2024-materials-mo-cu-citrate-low-pressure-cmp": {
+  "src": "PMC OA (MDPI), 로컬 코퍼스 data/corpus/fulltext/doi_10.3390_ma17194905.xml 복사",
+  "pdf_local": "papers/gamagedara2024-materials-mo-cu-citrate-low-pressure-cmp.xml",
+  "doi": "10.3390/ma17194905",
+  "title": "Mechanisms of Chemically Promoted Material Removal Examined for Molybdenum and Copper CMP in Weakly Alkaline Citrate-Based Slurries",
+  "authors": "Gamagedara KU, Roy D",
+  "venue": "Materials 17(19), 4905 (2024)",
+  "note": "cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md"
+ },
+ "moon2023-advsci-materials-quest-interconnect-metallization": {
+  "src": "PMC OA, 로컬 코퍼스 papers/PMC10427378.xml",
+  "pdf_local": "papers/PMC10427378.xml",
+  "doi": "10.1002/advs.202207321",
+  "pmcid": "PMC10427378",
+  "title": "Materials Quest for Advanced Interconnect Metallization in Integrated Circuits",
+  "authors": "Moon S, Jeong S, Kim D, Kim J, Oh J, Lee H, Han S, Kim H et al.",
+  "venue": "Adv. Sci. 10, 2207321 (2023) — 리뷰",
+  "note": "cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md"
+ },
+ "han2012-nrl-nanobrush-pad-cu-ulk-low-pressure": {
+  "src": "PMC OA (CC-BY 2.0), 로컬 코퍼스 data/corpus/fulltext/doi_10.1186_1556-276x-7-603.xml 복사",
+  "pdf_local": "papers/han2012-nrl-nanobrush-pad-cu-ulk-low-pressure.xml",
+  "doi": "10.1186/1556-276X-7-603",
+  "pmcid": "PMC3499454",
+  "title": "A flexible nanobrush pad for the chemical mechanical planarization of Cu/ultra-low-k materials",
+  "authors": "Han G, Liu Y, Lu X, Luo J",
+  "venue": "Nanoscale Res. Lett. 7, 603 (2012) — 가설 논문(MRR 실측 없음)",
+  "note": "cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md"
+ },
+ "KR101557514B1-cabot-ru-ta-barrier-cmp": {
+  "src": "Google Patents 텍스트(한/영 병기), 로컬 코퍼스 data/corpus/fulltext/patent_KR101557514B1.txt 복사 — 표 2·3 수치는 추출 누락",
+  "pdf_local": "papers/KR101557514B1-cabot-ru-ta-barrier-cmp.txt",
+  "patent": "KR101557514B1",
+  "title": "Compositions and methods for ruthenium and tantalum barrier CMP",
+  "assignee": "Cabot Microelectronics",
+  "note": "cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md"
+ },
  "prediction-of-polishing-pressure-distribution-in-cmp-process": {
   "src": "Unpaywall",
   "pdf": "https://nagoya.repo.nii.ac.jp/record/24948/files/annals2017_suzuki20170401revised.pdf",
@@ -762,5 +809,29 @@
   "authors": "Guomei Chen, Zifeng Ni, Yawen Bai, Qingzhong Li, Yongwu Zhao",
   "venue": "RSC Adv. 7, 16938-16952 (2017)",
   "note": "cmp/sic-ceria-abrasive-particle-size-chen2017-rsc.md"
+ },
+ "us10822524b2-low-dishing-silica-polysilicon-3dnand": {
+  "src": "Google Patents HTML (papers/patents, 사전 수확본)",
+  "pdf": "https://patentimages.storage.googleapis.com/2a/4a/f9/882a2e10649a3a/US10822524.pdf",
+  "landing": "https://patents.google.com/patent/US10822524B2/en",
+  "local": "papers/patents/US10822524B2.html",
+  "doi": null,
+  "patent": "US10822524B2",
+  "title": "Aqueous compositions of low dishing silica particles for polysilicon polishing",
+  "authors": "Penta, Van Hanehem, Tettey, Yoshida, Yoshida (Rohm and Haas Electronic Materials CMP Holdings)",
+  "year": 2020,
+  "note": "materials/film-poly-si-3dnand-har-poly-cmp-dishing.md — 3D NAND poly CMP 패턴 웨이퍼 단차 시계열(표 B-D), 선택비 표 A/E/G"
+ },
+ "jia2023-micromachines-3dnand-deck-connection-poly-plug": {
+  "src": "Europe PMC JATS XML (data/corpus 수확본)",
+  "local": "data/corpus/fulltext/doi_10.3390_mi14091779.xml",
+  "landing": "https://doi.org/10.3390/mi14091779",
+  "doi": "10.3390/mi14091779",
+  "license": "cc-by",
+  "title": "Investigation of the Connection Schemes between Decks in 3D NAND Flash",
+  "authors": "Jia, Jianquan et al.",
+  "venue": "Micromachines 14, 1779 (2023)",
+  "year": 2023,
+  "note": "materials/film-poly-si-3dnand-har-poly-cmp-dishing.md — HAR 채널홀 → 다중 덱 → 덱 간 poly-plug CMP 변동, Ion 17 % 감소·산포 2배"
  }
 }

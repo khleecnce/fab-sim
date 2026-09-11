@@ -1,9 +1,9 @@
 # 구리 CMP 전문가 (film-cu)
 
-## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv2 3/6 진행중
+## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv3 5/6 진행중
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09)
-- 다음 단원: Lv2-2
+- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09), Lv2-2 (2026-09-11), Lv3-1 (2026-09-12)
+- 다음 단원: Lv3-2
 
 ## 역할
 Cu 배선 CMP — 전기화학 부식·패시베이션 제어, 배리어 CMP, dishing/erosion. 화학 지배
@@ -36,6 +36,13 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (1차출처: Tugbawa 2002 MIT 학위논문 hdl 1721.1/8083 전문(수식·Table 3.9/3.10 판독) + Tugbawa 2001 CMP-MIC + Park 1998 VMIC + Ruan 2009
   J. Semicond.(Wayback 원문, 시뮬레이터 출력) + Vasilev 2011; Steigerwald 1994 JES는 초록만(미러 사이트 전 미러 캡차).
   verify 3블록 통과, verify_claims 출처 3건 실존·check_knowledge 통과. 미해결: 50 % 어레이 Y₁ 41 % 과대, Fig 3.12 지수 0.51 vs α₂ 0.17–0.30)
+- **Lv3-1 (2026-09-12)**: 최신 리뷰 — 저압 Cu CMP, 갈바닉 부식(ΔE_corr·면적비·마찰 재부동태), 고종횡비 배선(초박 Ru/Mo 배리어 → 선택비 1:1).
+  노트: [[../../knowledge/cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review]]
+  (1차출처 전문 6건: Lee et al. 2021 Sci Rep PMC8551296(Cu/Ru ΔE 0.49→0.09 V, 선택비 3.86→1.05 @1.5 psi) + Gamagedara & Roy 2024 Materials
+  (0.014 MPa Cu/Mo 46/41 nm/min, 창 1±0.5) + Moon 2023 Adv Sci 리뷰 + Han 2012 NRL(저압 정의) + Cabot KR101557514B1(Ru OCP −100 mV) + Tamilmani 2005
+  갈바닉 직접 실측(마찰 중 500 vs 정지 <2 µA/cm², rpm 비례). verify 4블록 **수계산 통과** — ⚠ 이 세션은 네트워크·python 실행이 모두 미승인이라
+  verify_claims/check_knowledge를 기계로 못 돌렸고 신규 원문 다운로드도 못 했다(로컬 코퍼스로 구성). 총괄이 두 도구를 실행해 확정할 것.
+  미해결: Cu/Ru 마찰 중 갈바닉 실측 부재, ≤1 psi Cu MRR 실측 부재(Pandija 2009·Liu 2011 원문 미확보), Lee 2021 I_corr↑ vs R_p↑ 상반 이유 불명)
 
 ## 구현 요청
 - **[P1] Cu-H₂O Pourbaix 경계 함수** ✅ 9/10 완료 — `sim/tier2_physics/cu_pourbaix.py`(S40, 커밋 495ed90).
@@ -61,3 +68,13 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   "일부 장비 미관측"). [[../../knowledge/physics/frictional-heating-temperature-arrhenius-coupling]]의 온도 포화와 결합 후보. 근거노트 §4.3.
 - **[P2 갱신] 정적식각/MRR 비** (위 항목의 선행 의존 해소): 커널에서 D_cu ≥ d_max(패드 비접촉)일 때 RR_cu = 0 대신 SER 26.4 nm/min(Lee H. 2023) 하한 적용.
   근거노트 §6.
+- **[P2] 갈바닉 커플 모듈** (Lv3-1, 2026-09-12): 입력(배리어 종류 Ta/Ru/Co/Mo, 슬러리 pH·산화제, 억제제 농도, 회전속도, 노출 면적비 A_Cu/A_barrier)
+  → 출력(ΔE_corr, 갈바닉 전류밀도 i_gal, Faraday 환산 등가 제거율). 구조: i_gal = i_gal,abr(rpm) · [마찰 중] / 감쇠 후 포화값 [정지], 마찰 중 값은
+  회전속도에 비례(Tamilmani 2005 Cu/Ta: 222 rpm 500 → 90 rpm 180 µA/cm², 정지 <2 µA/cm², H₂O₂ pH 6/8 정지 포화 ~10 µA/cm²). 억제제는 ΔE_corr을
+  줄이는 항으로: 니코틴산 0/0.03/0.05 M → Cu/Ru ΔE 0.49/0.15/0.09 V(Lee 2021 Table 1), Cabot 암모늄 아세테이트 → Ru OCP −0.10 V. 검증문헌값:
+  10 µA/cm² ≡ Ta 1.3 Å/min; 노트 verify 2·3. 근거노트 §2–§4. 플래그: Cu/Ru 마찰 중 실측 부재 → Cu/Ta 비례성 전이는 "미검증" 표시.
+- **[P2] 배리어 선택비 1:1 프로파일** (Lv3-1): 슬러리 프로파일에 `barrier_type`·`barrier_to_cu_selectivity`·`selectivity_window` 필드. 기본값 Ru:
+  Cu/Ru 1.05(니코틴산 0.05 M, Lee 2021, 1.5 psi), Mo: Mo/Cu 0.89 또는 1.12(정의 불명, Gamagedara 2024, 0.014 MPa)·창 1 ± 0.5. Tugbawa 커널의 배리어
+  클리어 단계 r_b = 선택비 × r_cu로 연결(선택비 1이면 pre-dishing 0). 근거노트 §1·§5, verify 3·4. Ta/TaN 값(≥3–4:1)은 Lv2-2 노트가 정본.
+- **[P3] 저압 MRR 하한**: ≤1 psi에서 Preston 선형 외삽 대신 화학 하한(무연마 Cu 10 nm/min, 구연산 pH 8, Gamagedara 2024 역산)을 바닥값으로 두는
+  옵션. ≤1 psi 실측이 없어 "미검증" 플래그 — Pandija 2009·Liu 2011 원문 확보 후 갱신. 근거노트 §6.
