@@ -412,3 +412,34 @@ def test_lower_inhibitor_raises_w_mrr():
     low_inhib = _mean_mrr(pack="w_fe_oxidizer", inhibitor_mM=10.0)
     assert low_inhib > high_inhib, (
         f"억제제를 낮췄는데 MRR이 안 올랐다: 기준 {high_inhib:.1f} vs 저농도 {low_inhib:.1f} nm/min")
+
+
+def test_theta_reference_is_unity_with_coolant_temp_driver():
+    """냉각수온도 항 추가 후에도 기준 조건(platen_coolant_temp_c==platen_coolant_ref_c)에서 Θ=1.0.
+
+    knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md — Θ=heat/cool 이중계상
+    방지 계약. sfr, coolant_temp 모두 기준값일 때 곱 1.0이어야 한다.
+    """
+    f = _factors(pack="oxide_silica")["theta"]
+    assert f.value == pytest.approx(1.0, abs=1e-6), f"기준 Θ={f.value} != 1.0"
+    assert "cool(coolant_temp)" in f.terms
+
+
+def test_theta_colder_coolant_lowers_load():
+    """냉각수를 더 차게(값을 낮게) 하면 냉각여유가 커져 Θ(부하비)가 낮아져야 한다.
+
+    Yuh 2015(doi:10.1007/s40684-015-0041-8) 방향: 냉각수온도 10->30C에서 MRR_avg 단조증가
+    == 냉각을 강화(온도를 낮춤)하면 열부하가 준다는 것과 같은 방향.
+    """
+    f_ref = _factors(pack="oxide_silica")["theta"]
+    f_cold = _factors(pack="oxide_silica", platen_coolant_temp_c=26.5)["theta"]
+    assert f_cold.value < f_ref.value, (
+        f"냉각수 26.5C가 기준 30C보다 Θ가 낮아야 한다: {f_cold.value} vs {f_ref.value}")
+
+
+def test_theta_hotter_coolant_raises_load():
+    """냉각수를 덥게 하면(열원에 근접) 냉각여유가 줄어 Θ가 높아져야 한다."""
+    f_ref = _factors(pack="oxide_silica")["theta"]
+    f_hot = _factors(pack="oxide_silica", platen_coolant_temp_c=35.0)["theta"]
+    assert f_hot.value > f_ref.value, (
+        f"냉각수 35C가 기준 30C보다 Θ가 높아야 한다: {f_hot.value} vs {f_ref.value}")

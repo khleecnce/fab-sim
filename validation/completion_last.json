@@ -1,5 +1,5 @@
 {
-  "ts": 1789118460.306404,
+  "ts": 1789125419.831498,
   "complete": false,
   "cells_done": 12,
   "cells_total": 50,
@@ -41,8 +41,7 @@
     "C2 S stab/cu_h2o2_bta: confidence=estimated",
     "C2 S stab/sic_ceria_h2o2: confidence=estimated",
     "C2 S stab/sti_ceria: confidence=estimated",
-    "C2 S stab/w_fe_oxidizer: confidence=estimated",
-    "C4 sic_ceria_h2o2: 유의 held-out 0건"
+    "C2 S stab/w_fe_oxidizer: confidence=estimated"
   ],
   "sensitivity": {
     "chi": true,
@@ -70,10 +69,12 @@
       "mean_rho": 0.95
     },
     "sic_ceria_h2o2": {
-      "n_sig": 0,
-      "rhos": [],
+      "n_sig": 1,
+      "rhos": [
+        1.0
+      ],
       "n_total": 2,
-      "mean_rho": null
+      "mean_rho": 1.0
     },
     "cu_h2o2_bta": {
       "n_sig": 2,

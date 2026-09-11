@@ -207,6 +207,32 @@ params:
     source: knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md
     confidence: literature
 
+  # ── Θ 열·유동 부하 (플래튼 냉각수 온도, SFR과 독립 냉각채널) ──────
+  # Shin et al. 2025(Materials 18(19):4461, doi:10.3390/ma18194461) 실측:
+  # 미제어 정상상태 계면온도 36C, 보텍스튜브 1단 냉각 시 30C가 균형점.
+  # Yuh et al. 2015(doi:10.1007/s40684-015-0041-8) 실측: 냉각수온도 10-30C
+  # 스윕에서 MRR_avg 단조증가(방향만, 함수형 미제시).
+  platen_coolant_temp_c:
+    value: 30.0
+    unit: "°C"
+    note: 이번 런의 플래튼 냉각수 설정온도. Shin 2025 균형점(30C)을 기본값으로 둔다.
+    source: knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md
+    confidence: literature
+  platen_coolant_ref_c:
+    value: 30.0
+    unit: "°C"
+    note: Θ 기준점 — platen_coolant_temp_c와 같은 조건(Shin 2025 균형점)
+    source: knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md
+    confidence: literature
+  platen_hot_side_ref_c:
+    value: 36.0
+    unit: "°C"
+    note: >
+      ⚠ Shin 2025의 특정 장비(POLI-500, 배리어 슬러리) 미제어 정상상태 계면온도.
+      전 팩 공통 근사로 쓴다 — 막질별 실제 발열온도는 다를 수 있음(미검증, §4 참조).
+    source: knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md
+    confidence: estimated
+
   # ── Γ 컨디셔닝 부하 ─────────────────────────────────────
   cond_downforce_lbf:
     value: 4.0

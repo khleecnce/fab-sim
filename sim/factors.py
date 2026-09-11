@@ -219,7 +219,10 @@ def _f_pi(rr: "ResolvedRecipe") -> Factor:
 def _f_theta(rr: "ResolvedRecipe") -> Factor:
     """Θ 열·유동 부하 — 마찰 발열과 슬러리 냉각/공급의 균형.
 
-    발열은 Λ에 비례하고(마찰일률), 냉각·공급은 SFR에 비례한다.
+    발열은 Λ에 비례하고(마찰일률), 냉각은 두 독립 채널로 이루어진다:
+    ①슬러리 유량(SFR, 대류 물질교환) ②플래튼 냉각수 온도(열전달 구동력 ΔT).
+    Yuh 2015(doi:10.1007/s40684-015-0041-8)가 이 둘을 독립 실험축으로 스윕했다
+    (knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md §1).
     온도는 Arrhenius로 화학속도를, 유량은 신선 슬러리 공급을 지배한다.
 
     ⚠ 절대 온도가 아니라 **기준 대비 부하비**다. 실제 ΔT 예측은
@@ -242,17 +245,35 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     if sfr_ref <= 0 or lam.value is None:
         f.notes.append("⚠ 기준 SFR 또는 Λ 결측 — Θ 계산 불가")
         return f
-    # 부하비 = 발열(Λ) / 냉각(SFR). 기준 조건에서 1.0.
-    f.value = lam.value / (sfr / sfr_ref)
-    f.terms = {"heat(Λ)": lam.value, "cool(SFR)": sfr / sfr_ref}
+    cool_sfr = sfr / sfr_ref
+    cool_temp = 1.0   # 냉각수 온도 항 없으면 기준으로 폴백 (조용히 1.0 = 기존 partial 계약 유지)
+    if pk.has("platen_coolant_temp_c") and pk.has("platen_hot_side_ref_c"):
+        T_coolant = float(pk.get("platen_coolant_temp_c"))
+        T_ref = float(pk.get_or("platen_coolant_ref_c", T_coolant))
+        T_hot = float(pk.get("platen_hot_side_ref_c"))
+        # 발산 가드: 냉각수온도가 열원온도에 근접하면 clip
+        # (knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md §4)
+        T_coolant_clip = min(T_coolant, T_hot - 0.5)
+        driving_ref = T_hot - T_ref          # 기준 냉각 구동력(항상 >0, Recipe 검증 불필요)
+        driving_now = T_hot - T_coolant_clip  # 이번 런 냉각 구동력 — 냉각수 찰수록 커짐(냉각효과↑)
+        if driving_ref > 0:
+            cool_temp = driving_now / driving_ref
+        f.drivers["platen_coolant_temp_c"] = T_coolant
+    # 부하비 = 발열(Λ) / [냉각(SFR) × 냉각(온도)]. 기준 조건에서 1.0.
+    f.value = lam.value / (cool_sfr * cool_temp)
+    f.terms = {"heat(Λ)": lam.value, "cool(SFR)": cool_sfr, "cool(coolant_temp)": cool_temp}
     f.status = "partial"
     f.confidence = _worst_conf(_pack_conf(pk, "sfr_ml_min"), "estimated")
     f.sources = ["knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md",
-                 "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md"]
+                 "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
+                 "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md"]
     f.notes.append("⚠ 발열/냉각을 1차 비례로 압축했다 — 실제 열저항·체류시간은 "
                    "미반영. 절대 ΔT는 별도 열모델이 담당한다.")
     if not pk.has("sfr_ref_ml_min"):
         f.notes.append("⚠ sfr_ref_ml_min 없어 기준=현재값 폴백 — SFR 변화가 Θ에 안 잡힌다.")
+    if "platen_coolant_temp_c" not in f.drivers:
+        f.notes.append("⚠ platen_coolant_temp_c 없어 냉각수온도 항 1.0 폴백 — "
+                       "cmp-theta-platen-coolant-temperature-driver.md §2 참조, 담당 tool-platen-head.")
     return f
 
 
