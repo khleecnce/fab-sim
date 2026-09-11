@@ -1,9 +1,11 @@
 # 옥사이드 CMP 전문가 (film-oxide)
 
-## 현재 레벨: Lv2 완료 (4/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 진행 중 (5/6) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2 (2026-09-08), Lv2-1, Lv2-2 (2026-09-09)
-- 다음 단원: Lv3-1 최신 리뷰: 세리아 첨가제 선택비 제어, 저결함 옥사이드 CMP
+- 이수 단원: Lv1-1, Lv1-2 (2026-09-08), Lv2-1, Lv2-2 (2026-09-09),
+  Lv3-1 세리아 첨가제 선택비 제어·저결함 옥사이드 CMP (2026-09-12,
+  knowledge/materials/oxide-ceria-additive-selectivity-review-2024.md, check_knowledge/verify_claims 통과: 출처 7건 실존·verify 1블록 통과)
+- 다음 단원: Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현
 
 ## 역할
 TEOS·HDP·SOD 등 SiO2 막의 CMP — ILD 평탄화·STI. 기계 제거 지배, 실리카/세리아 슬러리
