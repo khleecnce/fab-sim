@@ -1,1 +1,10 @@
-{}
+{
+  "dandu2009_sio2_ceria_ph_sweep": {
+    "flags": [
+      "F2:출처 원문 미확보(papers/) — 자동 확보 실패(유료/봉쇄), 사람이 넣어야 함",
+      "F4:팩 sti_ceria의 source에 같은 문헌(10.1149/1.3230624) — used_for_calibration 누락"
+    ],
+    "since": 1789110435.040475,
+    "how_to_clear": "원문에서 값 확인 후 데이터셋 파일에 audit_verified: true 추가"
+  }
+}

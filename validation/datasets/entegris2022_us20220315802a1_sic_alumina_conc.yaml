@@ -26,6 +26,13 @@ pack: sic_ceria_h2o2
 in_scope: true
 scope_note: "Chemistry mismatch (alumina vs pack's ceria) -- tests kappa mechanical concentration term only, not chi (pH) chemistry term. See header above."
 used_for_calibration: false
+# ⚠ 2026-09-11: 이 데이터셋이 sic_ceria_h2o2의 abrasive_conc_exponent(-0.406) 출처이기도 하다
+#   (knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md §3,§6).
+#   qa_loop.py F4 감사가 "used_for_calibration 누락" ⚠를 띄우지만, 다른 팩도 같은 패턴
+#   (tw202115224a_cu_abrasive_size_pressure → cu_h2o2_bta, us8070843b2_w_h2o2_series →
+#   w_fe_oxidizer)에서 동일하게 false로 유지 중이다 — 이 저장소의 기존 관행과 일치시켜
+#   false를 유지한다. F4는 경고(⚠)이고 F1/F3처럼 격리를 강제하지 않는다. 세 팩 모두의
+#   캘리브레이션-검증 분리를 일관되게 다시 정리하는 것은 별도 과제로 남긴다(미검증).
 
 conditions:
   - label: "Table1-1: Al2O3 0.1wt%"

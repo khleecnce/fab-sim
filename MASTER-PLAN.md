@@ -97,6 +97,7 @@
 
 ## 진행 로그
 <!-- 크론이 실행마다 추가 -->
+- **2026-09-11 18시** [성장엔진] COMPLETION-C4 sic_ceria_h2o2: Entegris US20220315802A1 알루미나 농도시리즈(n=5)에서 로그-로그 회귀로 abrasive_conc_exponent=-0.406 도출(압입지배 레짐, 기존 base oxide_silica +1/3과 부호반대 — EVIDENCE-RULES 계근접도 판정으로 팩별 분기). `sim/factors.py` κ 농도항 1.0 계약 유지 확인, 백테스트 ρ +0.946→+0.954(PASS), pytest 595 passed. 지식노트 `knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md`. 단 이 데이터셋이 지수 출처 자체라 held-out 개선은 제한적(F4 기존관행 준수) — 독립 SiC DOE 확보가 C4 완전해소의 다음 과제.
 - **2026-09-08** [소프트웨어] wafer-type 구현요청 `effective_pressure_ratio` 처리 —
   `sim/tier2_physics/npw_ptw_effective_pressure.py` 신설(Sorooshian 2005 밀도별 유효압력비 표 조회 +
   1/ρ모델 대조). 테스트 16건 문헌값 재현, 301 passed, 커밋 7ac1f02 push 완료. BACKLOG 수신함에

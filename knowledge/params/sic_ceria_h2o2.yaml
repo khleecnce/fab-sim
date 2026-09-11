@@ -62,6 +62,19 @@ params:
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
     confidence: measured
 
+  abrasive_conc_exponent:
+    value: -0.406
+    unit: "-"
+    note: >
+      base(oxide_silica)의 +1/3(표면적지배, Li2021 콜로이달실리카 1~30wt%)을 오버라이드.
+      SiC+알루미나 직접 실측(US20220315802A1 Table 1, n=5, 0.1~5wt%)에서 로그-로그
+      회귀로 지수 -0.406(음수, 압입지배 레짐) 확인 — EVIDENCE-RULES.md §판정: 두 E3급
+      문헌 중 계 근접도(SiC vs oxide)로 이 값을 채택. 화학(알루미나 vs 세리아)이
+      다르므로 기계적 κ 농도항에만 적용, χ(pH 화학항)는 무관.
+      ⚠ n=5 회귀라 지수 정밀도는 미검증 — 방향(음수)·자릿수(-0.5 근방)만 신뢰.
+    source: knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md §3, §5
+    confidence: literature
+
   oxidizer_ref_wt_pct:
     value: 4.0
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%)"
