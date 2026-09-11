@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -539,9 +540,27 @@ def studio3d():
     """3D 스튜디오 — V2의 메인 화면 (ARCHITECTURE-V2.md §0).
 
     실제 장비 모양을 그리고, 각 부위를 클릭하면 그 파트의 설정 패널이 열린다.
+
+    ⚠ 캐시 금지: 이 파일은 개발 중 수시로 바뀐다. 캐시 헤더가 없으면 폰 브라우저가
+    구버전을 계속 보여주고, 사용자에겐 "고친 게 반영이 안 됐다"로 보인다
+    (2026-09-11 실제 발생 — 새 탭이 안 보인다는 보고). 매번 새로 받게 한다.
     """
     if _STUDIO3D.exists():
-        return _STUDIO3D.read_text()
+        html = _STUDIO3D.read_text()
+        # 화면에 파일 수정 시각을 박아 "지금 보는 게 최신인가"를 눈으로 확인하게 한다.
+        stamp = datetime.fromtimestamp(_STUDIO3D.stat().st_mtime).strftime("%m-%d %H:%M")
+        html = html.replace(
+            '<span id="buildTag"',
+            f'<span id="buildTag" data-build="{stamp}"',
+        )
+        return HTMLResponse(
+            html,
+            headers={
+                "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+                "Pragma": "no-cache",
+                "Expires": "0",
+            },
+        )
     raise HTTPException(404, "studio3d.html 없음")
 
 
