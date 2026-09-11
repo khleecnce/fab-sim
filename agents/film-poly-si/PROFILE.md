@@ -21,3 +21,4 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 (크론이 갱신)
 - 2026-09-10 Lv1-1 Poly-Si 물성(도핑·결정립)과 CMP 거동 — knowledge/materials/film-poly-si-doping-grain-cmp.md
 - 2026-09-11 Lv1-2 알칼리(KOH/TMAH/아민) 화학 용해 메커니즘과 pH 의존성 — knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics.md
+- 2026-09-11 Lv2-1 Poly:oxide 선택비 설계와 게이트 CMP 공정 윈도우 — knowledge/materials/film-poly-si-oxide-selectivity-gate-cmp-window.md

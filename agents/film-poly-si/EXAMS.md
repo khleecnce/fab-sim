@@ -74,3 +74,37 @@ A3. 모델의 산화 단계는 "OH⁻ 4개가 표면 Si 1개와 반응해 전도
 무도핑 대비 ~5배 낮다"는 실측의 전기화학적 근거다. 출처: Seidel, H. et al. (1990), DOI:
 10.1149/1.2086277 — [[../../knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics]]
 §2; Lv1-1 [[../../knowledge/materials/film-poly-si-doping-grain-cmp]] §2.
+
+## Lv2-1 Poly:oxide 선택비 설계와 게이트 CMP 공정 윈도우 (2026-09-11)
+
+**Q1. Park et al.(2007, DOI 10.3938/jkps.51.214)에서 TMAH 농도를 올렸을 때 poly:oxide 선택비는
+왜 비단조(피크형)로 움직이는데 oxide 제거율은 40–60 Å/min 구간에 거의 고정되는가?**
+
+A1. 선택비 변화는 거의 전부 poly 제거율의 비단조 변화에서 온다 — oxide는 TMAH 화학에 거의
+반응하지 않고 순수 기계적 마모율에 가깝게 유지되기 때문이다(원문: "the oxide removal rate was
+maintained at 40 to 60 Å/min"). poly 쪽은 OH⁻가 실라놀기를 만들어 Si–Si 백본드를 약화시키는
+화학 용해(Seidel 반응식과 정합)와, poly-oxide 제타전위 비대칭(poly는 pH10+에서도 약한 음전하,
+oxide/실리카는 강한 음전하)이 만드는 abrasive–poly 정전 인력/abrasive–oxide 정전 반발이 겹쳐
+농도에 따라 피크-후-하락하는 접촉각(친수성) 곡선을 그대로 따라간다. 출처: [[../../knowledge/materials/film-poly-si-oxide-selectivity-gate-cmp-window]] §2.
+
+**Q2. 같은 poly-Si/SiO₂ 재료쌍인데 US10119048B1(2018)의 아민 알콕실레이트 첨가 슬러리에서는
+선택비 방향이 §2와 왜 반대로 뒤집히는가? 무첨가 대비 수치로 답하라.**
+
+A2. 목표 공정 자체가 반대다 — §2(Park 2007)는 NAND 플로팅게이트/STI형으로 poly를 빨리 깎아야
+하지만, US10119048B1은 replacement metal gate 공정으로 더미 poly-Si 게이트를 etch stop으로
+보존하며 위의 TEOS(ILD) 산화막만 깎아야 한다. 그 결과 명세서는 oxide:poly 선택비를 최소 3:1,
+바람직하게는 8:1–20:1로 설계 목표를 못박는다. 무첨가(Ex.16)는 TEOS 3867 / poly 1721 =
+2.25:1에 그치지만, 아민 알콕실레이트 0.0050 pbw 첨가(Ex.19)는 TEOS 2065 / poly 115 = 17.96:1로
+명세서 우선범위 안에 들어온다 — 같은 재료쌍이라도 첨가제 설계로 선택비의 부호와 크기가 모두
+뒤집힌다. 출처: [[../../knowledge/materials/film-poly-si-oxide-selectivity-gate-cmp-window]] §4.
+
+**Q3. Seidel(1990) 활성화에너지 차이(Ea_SiO2=0.85 eV, Ea_Si=0.59 eV)로 예측한 상온 습식식각
+Si:SiO2 선택비는 얼마이며, 이것이 §2·§4의 CMP 실측 선택비(25–114:1)와 왜 자릿수가 다른가?**
+
+A3. Arrhenius 비 exp((0.85−0.59)/(kB·295K))로 계산하면 상온 습식식각 선택비는 오더
+~2.8×10⁴:1로 예측되는데, 이는 CMP 실측 최대치(114:1)보다 200배 이상 크다. 이 괴리는 Seidel
+모델이 정적 습식식각만 기술하는 반면 CMP는 여기에 기계적 마모가 곱해지는 동적 과정이기
+때문이다 — oxide는 화학적으로는 거의 안 깎이지만 연마입자의 기계적 마모가 화학적 식각보다
+훨씬 빠르게 벗겨내므로, 화학이 부여하는 거대한 잠재 선택비가 CMP 실측에서 크게 압축된다.
+단 이 압축의 정량 메커니즘(마모 모델 계수)은 확인하지 못했다 — 정성적 방향만 확인
+(미검증). 출처: [[../../knowledge/materials/film-poly-si-oxide-selectivity-gate-cmp-window]] §6.

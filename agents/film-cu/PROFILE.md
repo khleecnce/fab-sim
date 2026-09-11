@@ -26,6 +26,9 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   노트: [[../../knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]]
   (1차출처: Tamilmani 2005 UA 학위논문 hdl 10150/280774 전문 + CRC Vanýsek E° 표 + Lee H. 2023 PMC9966509;
   verify 3블록 통과, verify_claims 출처 6건 실존·check_knowledge 통과. CuO ΔG_f° 미확보로 CuO 경계는 방향만 확인)
+- **Lv2-2 (2026-09-11)**: 배리어(Ta/TaN/Co) CMP와 Cu:배리어:옥사이드 선택비.
+  노트: [[../../knowledge/cmp/film-cu-barrier-ta-tan-co-selectivity]]
+  (check_knowledge/verify_claims 통과, 출처 4건 실존·검증코드 1블록 통과)
 
 - **Lv2-1 (2026-09-09)**: Cu dishing·erosion 물리 — Hooke 압력분배·removal-rate diagram·닫힌 시간해(D_ss, τ₃, Y₁)·d_max(w, s) 경험식·
   엣지 라운딩 ψ(s)·모델 한계(ear·과도 오버폴리시·블랭킷 속도 시간의존).

@@ -6,7 +6,7 @@
 - [x] Lv1-1 Cu CMP 3단계(벌크·소프트랜딩·배리어)와 각 단계 슬러리 요구
 - [x] Lv1-2 Cu 전기화학: Pourbaix, BTA 패시베이션, 산화제-억제제 균형 (2026-09-09, knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md)
 - [x] Lv2-1 Cu dishing·erosion 물리와 패턴밀도·선폭 의존성 (2026-09-09, knowledge/cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md)
-- [ ] Lv2-2 배리어(Ta/TaN/Co) CMP와 Cu:배리어:옥사이드 선택비
+- [x] Lv2-2 배리어(Ta/TaN/Co) CMP와 Cu:배리어:옥사이드 선택비 (2026-09-11, knowledge/cmp/film-cu-barrier-ta-tan-co-selectivity.md)
 - [ ] Lv3-1 최신 리뷰: 저압 Cu CMP, 갈바닉 부식, 고종횡비 배선
 - [ ] Lv3-2 Cu 막질 Kp·화학 상수·dishing 커널 파라미터 + 문헌값 재현 (sim/tier2)
 
