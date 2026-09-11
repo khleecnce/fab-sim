@@ -48,6 +48,48 @@
 - Lv1-2(그릿 크기/밀도/돌출)에서 Table 1/2의 D_grit-asperity 특성 매핑을 정량적으로 확장.
 - Lv2-1(디스크-패드 절삭모델)에서 Eq.2(Evans-Marshall 마모율)를 직접 구현 대상으로 삼는다 — fab-sim pad_wear_glazing.py가 이미 유사한 Archard 마모 이산근사를 갖고 있으므로(Shi&Ring 경로), 이 논문의 **폐형식 해(Eq.9)로 수치해를 교차검증**하는 것이 Lv3-2(disk-conditioner 결합모델) 이전 정합성 확보에 유용.
 
+## 5.5 1차 출처 보강 (2026-09-11 부채상환)
+Lawing 2004(NCCAVS 발표자료)와 Ring/Prasad/Dirksen(대학 자가호스팅 PDF)은 둘 다 컨퍼런스 발표/proceedings로
+CrossRef DOI가 없다(2026-09-11 웹검색으로 확인 — Ring 논문은 "13th Int. CMP-MIC Conf. Proc., Vol. 21, 2008"로만
+인용되고, Cambridge JMR 2013 논문(DOI 10.1557/jmr.2013.173)이 이를 2차 인용하는 형태로만 존재). 대신 같은 저자군
+(A. Scott Lawing, Rohm and Haas)이 이 노트의 핵심 주장(컨디셔닝→패드 표면 거칠기·비대칭 분포 형성)을 직접
+특허화한 **US6899612**("Polishing pad apparatus and methods", Rohm and Haas Electronic Materials CMP
+Holdings — freepatentsonline.com/6899612.html 확인) 를 1차 특허 출처로 추가한다: 이 특허는 컨디셔닝된 패드
+표면의 "surface height ratio R≥60~95%"·"asymmetry factor A10 0.10~0.50" 같은 정량 청구항을 갖고 있어,
+§2의 "asperity tip이 절단된 truncated 구조" 서술 및 §4의 population balance 분포 변형 서술과 정합한다.
+- **미검증**: 이 특허가 §4의 정량 모델(Eq.2-9)을 직접 재현하지는 않는다 — 어디까지나 "컨디셔닝이 표면 높이분포
+  형태를 바꾼다"는 정성적 주장의 산업적(특허) 근거일 뿐, Ring 논문의 수식 자체를 검증하지는 못한다.
+- Ring 논문 참고문헌 22번(US Patents 6896593, 6899598, 6913517, 6935931)도 같은 계열의 컨디셔닝 관련 특허군이나,
+  본 노트에서 원문 확인은 하지 않았다(2차 인용 목록에서만 확인) — 이 4건은 "출처 불명" 취급, US6899612만 확인 완료.
+
+```python verify
+# Lawing 2004 정량 실측: 저/중/고 공격성 컨디셔너의 정상상태 접촉면적(%) — §2 인용값
+low, mid, high = 11.3, 7.7, 2.2   # %
+
+# 주장: "공격성이 낮을수록 접촉면적(비율)이 커진다" (뭉툭해진 다수의 얕은 접촉)
+assert low > mid > high, (
+    f"공격성-접촉면적 단조감소 주장 불일치: low={low} mid={mid} high={high}")
+
+# Ring Table 1 근사 관계: 컨디셔너 그릿 크기(D_grit)와 생성 asperity 통계
+# 밀도 rho ~ 1/D_grit^2, 평균 높이 ~ D_grit/2, sigma(정규분포 표준편차) 논문 표기값 확인
+D_grit_um = 190.0
+sigma_reported_um = 8.112
+mean_height_est_um = D_grit_um / 2  # 논문 근사식(§4.4)
+# sigma는 별도 fit 파라미터로 D_grit의 약 1/23 수준 — 노트 §4.3에 적힌 산출값(논문 표 직접 명시분) 그대로 재확인만
+ratio = D_grit_um / sigma_reported_um
+assert 20 < ratio < 26, (
+    f"D_grit/sigma 비율이 노트에 기록된 범위(~23배 근방)를 벗어남: {ratio:.1f}")
+
+print(f"접촉면적 단조감소 확인: {low}%>{mid}%>{high}% (Lawing 2004)")
+print(f"D_grit={D_grit_um}um, mean_height_est={mean_height_est_um}um, "
+      f"sigma={sigma_reported_um}um, D_grit/sigma={ratio:.2f}")
+```
+
+이 코드블록은 Lawing 2004의 3수준 접촉면적 실측치가 서술 방향(공격성↑ → 접촉면적↓)과 실제로 일치하는지,
+그리고 Ring Table 1의 D_grit=190µm/sigma=8.112µm 조합이 노트에 적은 "역산 관계"의 자릿수 범위 안에 있는지를
+기계적으로 재확인한다 — §4.3에서 "미검증 산출과정"이라 밝힌 부분을 assert로 재확인했을 뿐, 논문의 완전한
+유도 과정을 재현한 것은 아니다(그 한계는 §6에 이미 명시됨).
+
 ## 6. 수치 재현 시도와 정직한 한계 (2026-09-04)
 `agents/disk-conditioner/scripts/ring_similarity_check.py` 실행 결과:
 - **PASS**: 유사변수(similarity variable) t=0 항등사상 — 대수식 자체의 내적 일관성(자기무모순)은 확인.
