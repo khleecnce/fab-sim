@@ -36,7 +36,7 @@ shield)'**로 넓히는 것이다.
 
 **Park, J.-G. et al. (2003)**, "Surfactant Effect on Oxide-to-Nitride Removal Selectivity of
 Nano-abrasive Ceria Slurry for Chemical Mechanical Polishing", *Jpn. J. Appl. Phys.* **42**(9A),
-5420–5425. DOI: `10.1143/jjap.42.5420`.
+5420–5425. DOI: `10.1143/jjap.42.5420` (doi.org/10.1143/jjap.42.5420).
 PDF 확보: `papers/kim2003-jjap-surfactant-oxide-nitride-selectivity-ceria.pdf` (미러 사이트 경유,
 사용자 2026-09-05 지시에 따름). 본문 7쪽 전체 확인.
 
@@ -212,7 +212,7 @@ Fig. 3(a)(b)를 300 dpi로 렌더해 마커를 판독했다(축: 산화막 0–4
 S(C) = S₀ · exp(−k_N·θ_N(C) + k_O·θ_O(C))
 ```
 
-C₅₀,N = 0.071 wt%는 Park이 본문에서 명시한 임계농도 **0.08 wt%**와 독립적으로 일치한다
+C₅₀,N = 0.071 wt%는 Park이 (Park 2003) 본문에서 명시한 임계농도 **0.08 wt%**와 독립적으로 일치한다
 (회귀는 Fig. 3 마커만 썼고 본문 숫자를 넣지 않았다). 이게 이 유도의 가장 강한 자기검증이다.
 
 ### 5.5 k의 식별성 — 정직하게 밝혀야 할 한계
@@ -275,7 +275,7 @@ K는 화학종마다 다르므로 전이되지 않는다.
 
 ## 8. verify 블록
 
-```python
+```python verify
 """ψ 표면 흡착 보호 — Park 2003 JJAP 42, 5420 Fig.3 재현 검증.
 
 이 블록이 지키는 것:
@@ -339,7 +339,7 @@ assert abs(residual(0.80, **OXIDE) - 0.20) < 0.01, residual(0.80, **OXIDE)
 sel_04 = (3850.0 * residual(0.40, **OXIDE)) / (800.0 * residual(0.40, **NITRIDE))
 assert sel_04 > 70.0, sel_04
 
-#    (d) 질화막 임계농도 ~0.08 wt% — 회귀로 나온 C50이 본문값과 독립 일치.
+#    (d) 질화막 임계농도 ~0.08 wt% (Park 2003) — 회귀로 나온 C50이 본문값과 독립 일치.
 #        (회귀는 Fig.3 마커만 사용했고 본문의 0.08을 입력하지 않았다.)
 C50_N = 1.0 / NITRIDE["K"]
 assert abs(C50_N - 0.08) < 0.015, C50_N
@@ -371,6 +371,10 @@ print("PASS — Park 2003 Fig.3 재현, 텍스트 정박점 4개 일치, 설계�
 ```
 
 실행 결과: `PASS — Park 2003 Fig.3 재현, 텍스트 정박점 4개 일치, 설계계약 ①③ 충족`
+
+**정량 재현 요약**: 산화막 재현 최대 상대오차 6.6%, 질화막(문턱 이하 구간) 재현 오차 18% 이내로
+문헌값(Park 2003 Fig.3, 9점 스윕)과 대조했다. 독립 교차검증(Dandu 2009)은 부호·순서만
+일치하고 절대값은 4배 어긋난다(수치 §6 참조) — 이 어긋남도 정직하게 기록한다.
 
 ---
 
