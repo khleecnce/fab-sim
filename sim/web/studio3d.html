@@ -903,8 +903,105 @@ function simplePlaten(id, P, s){
   [[0.4,0x8fa3b5],[0.6,0xd9dde2],[0.8,0xe8e8e8]].forEach(([x,c])=>
     mesh(new THREE.CylinderGeometry(0.025,0.025,0.30,24), new THREE.MeshStandardMaterial({color:c, metalness:0.9, roughness:0.3}), x, 2.30, -5.75, tool));
   mesh(new THREE.CylinderGeometry(0.08,0.08,0.40,32), M.steelD, 1.6, 2.36, -5.75, tool);   // 배기 덕트
-  /* 슬러리 POU 밸브박스 (측면, §1.3 SDS) */
+  /* 슬러리 POU 밸브박스 (측면, §1.3 SDS) — SDS 캐비닛에서 온 배관이 여기로 들어온다 */
   boxT(2.2,2.6, 4.2,4.5, 0.6,1.2, M.pp, tool);
+})();
+
+/* ══ (e) 슬러리 공급장치 (SDS) — 폴리셔 옆 독립 캐비닛 ══
+   사용자 지시(2026-09-11): "3D모델로 공급장치가 없다고".
+   이전까지 3D에는 암 노즐과 POU 밸브박스만 있었다. 실제 팹에서 슬러리는
+   폴리셔 안이 아니라 **옆에 선 별도 캐비닛**에서 온다:
+     드럼/IBC → 블렌드 탱크(교반) → 펌프 → 필터 → 유량계 → POU → 암 노즐
+   ② Slurry 탭의 P&ID와 같은 순서로 왼쪽에서 오른쪽으로 세운다.
+   치수는 상용 SDS(반도체 CDS/블렌딩 유닛) 통상값 기준의 **추정**이다 —
+   1차 출처를 못 찾았으므로 STATION.SDS 설명에 estimated 로 명시한다. */
+(function buildSDS(){
+  const X0 = -1.55, X1 = -0.15;          // 툴 왼쪽(음의 x)에 나란히
+  const Y0 = 3.05, Y1 = 4.95;            // 폴리싱 모듈과 같은 깊이대
+  const ZT = 2.05;                       // 캐비닛 높이
+
+  /* 베이스 프레임 + 바닥 팬(누액 받이) */
+  boxT(X0, X1, Y0, Y1, 0.00, 0.12, M.steelD, tool, true);
+  boxT(X0+0.03, X1-0.03, Y0+0.03, Y1-0.03, 0.12, 0.16, M.pp, tool);   // 화학 누액 팬
+
+  /* 뒤판 + 양 측판. ⚠ 불투명 패널로 두면 어느 각도에서 봐도 내부가 안 보인다
+     (실제로 첫 렌더에서 캐비닛이 빈 흰 상자로만 나왔다). 안이 보여야 의미가 있으므로
+     측판은 반투명 모듈월로, 앞면은 아예 비운다. */
+  boxT(X0, X1, Y1-0.06, Y1, 0.16, ZT, M.frame, tool, true);           // 뒤판(불투명, 배경)
+  boxT(X0, X0+0.05, Y0, Y1, 0.16, ZT, M.modWall, tool, false);        // 좌 측판(반투명)
+  boxT(X1-0.05, X1, Y0, Y1, 0.16, ZT, M.modWall, tool, false);        // 우 측판(반투명)
+  boxT(X0, X1, Y0, Y1, ZT-0.05, ZT, M.modWall, tool, false);          // 천판(반투명 — 위에서도 보이게)
+  /* 프레임 기둥 — 반투명 벽만 있으면 형태가 흐려지니 모서리를 세운다 */
+  [[X0+0.03,Y0+0.03],[X1-0.03,Y0+0.03],[X0+0.03,Y1-0.03],[X1-0.03,Y1-0.03]].forEach(([px,py])=>
+    mesh(new THREE.BoxGeometry(0.06,ZT-0.16,0.06), M.steelD, px, (0.16+ZT)/2, -py, tool));
+
+  const mid = (Y0+Y1)/2;
+  /* 툴 좌표(x=가로, y=깊이, z=높이) → 월드(x, 높이, -깊이).
+     ⚠ mesh()는 (x, y=높이, z)를 받는다. W3와 같은 규약으로 변환해야 한다 —
+     처음에 인자 순서를 틀려 부품이 전부 캐비닛 밖 바닥에 깔렸다(2026-09-11). */
+  const put = (g,m,x,z,y,sh)=> mesh(g, m, x, z, -(y===undefined?mid:y), tool, sh);
+
+  /* ① 드럼 / IBC — 원료 통 2개 (왼쪽 끝) */
+  [[X0+0.30, mid-0.42],[X0+0.30, mid+0.42]].forEach(([dx,dy])=>{
+    put(chamferCyl(0.24, 0.86, 0.03, 40), M.pp, dx, 0.16+0.43, dy, true);
+    put(new THREE.CylinderGeometry(0.25,0.25,0.03,40), M.steelD, dx, 0.16+0.88, dy);  // 뚜껑 링
+    put(new THREE.CylinderGeometry(0.05,0.05,0.10,20), M.tube,   dx, 0.16+0.95, dy);  // 인출 포트
+  });
+
+  /* ② 블렌드 탱크 — 투명 동체 + 액면 + 교반 모터 */
+  const TX = X0+0.72;
+  put(new THREE.CylinderGeometry(0.30,0.30,0.92,48), M.acrylic, TX, 0.16+0.52, mid);
+  put(new THREE.CylinderGeometry(0.285,0.285,0.55,40), M.liquid, TX, 0.16+0.34, mid);   // 액면
+  put(new THREE.CylinderGeometry(0.31,0.31,0.03,48), M.steelD, TX, 0.16+0.99, mid);     // 상판
+  put(new THREE.BoxGeometry(0.20,0.16,0.20), M.anod,          TX, 0.16+1.10, mid);      // 교반 모터
+  put(new THREE.CylinderGeometry(0.018,0.018,0.70,16), M.steel, TX, 0.16+0.62, mid);    // 교반축
+  [0,1].forEach(i=> put(new THREE.BoxGeometry(0.22,0.012,0.05), M.steel, TX, 0.16+0.34+i*0.16, mid)); // 임펠러
+
+  /* ③ 펌프 — 다이어프램 헤드 + 모터 */
+  const PX = X0+1.06;
+  put(new THREE.BoxGeometry(0.20,0.22,0.24), M.frame, PX, 0.16+0.30, mid, true);
+  put(chamferCyl(0.09, 0.20, 0.02, 28), M.steel, PX, 0.16+0.52, mid);
+  put(new THREE.CylinderGeometry(0.055,0.055,0.16,24), M.anod, PX+0.14, 0.16+0.52, mid);
+
+  /* ④ 필터 하우징 — D99 꼬리를 자르는 자리. 2단으로 세운다 */
+  [mid-0.26, mid+0.26].forEach(fy=>{
+    put(chamferCyl(0.075, 0.62, 0.02, 32), M.steel, X0+1.26, 0.16+0.55, fy, true);
+    put(new THREE.CylinderGeometry(0.085,0.085,0.04,32), M.steelD, X0+1.26, 0.16+0.88, fy);
+    put(new THREE.CylinderGeometry(0.02,0.02,0.06,16), M.tube,   X0+1.26, 0.16+0.93, fy); // 벤트
+  });
+
+  /* ⑤ 배관 — 드럼 → 탱크 → 펌프 → 필터 → 토출. 같은 높이로 가로질러 인과를 보여준다 */
+  const pipeY = 0.16+0.98, r = 0.022;
+  function runX(xa, xb, yy, zz){
+    const L = Math.abs(xb-xa);
+    const m = mesh(new THREE.CylinderGeometry(r,r,L,16), M.tube, (xa+xb)/2, zz, -yy, tool);
+    m.rotation.z = Math.PI/2; return m;
+  }
+  function runY(ya, yb, xx, zz){
+    const L = Math.abs(yb-ya);
+    const m = mesh(new THREE.CylinderGeometry(r,r,L,16), M.tube, xx, zz, -(ya+yb)/2, tool);
+    m.rotation.x = Math.PI/2; return m;
+  }
+  runY(mid-0.42, mid+0.42, X0+0.30, pipeY);          // 드럼 2통 합류
+  runX(X0+0.30, TX,       mid,      pipeY);          // → 탱크
+  runX(TX,      PX,       mid,      0.16+0.52);      // 탱크 → 펌프(하단 인출)
+  runX(PX+0.14, X0+1.26,  mid,      0.16+0.52);      // 펌프 → 필터
+  runY(mid-0.26, mid+0.26, X0+1.26, 0.16+0.52);      // 필터 2기 합류
+
+  /* ⑥ 유량계 — 여기까지가 SDS, 이후는 툴 배관 */
+  const FX = X1-0.22;
+  put(new THREE.BoxGeometry(0.12,0.20,0.14), M.anod, FX, 0.16+0.62, mid);
+  put(new THREE.BoxGeometry(0.10,0.12,0.02), M.teal, FX, 0.16+0.62, mid-0.075);   // 표시창
+  runX(X0+1.26, FX, mid, 0.16+0.52);
+  runX(FX, X1+0.10, mid, 0.16+0.62);
+
+  /* ⑦ 툴로 건너가는 배관 — POU 밸브박스(2.2~2.6, 4.2~4.5)까지 눈으로 잇는다.
+     이게 있어야 "옆 캐비닛에서 와서 암 노즐로 나간다"가 읽힌다. */
+  runY(mid, 4.35, X1+0.10, 0.16+0.62);
+  runX(X1+0.10, 2.4, 4.35, 0.16+0.62);
+
+  /* 라벨 판 */
+  put(new THREE.BoxGeometry(0.42,0.14,0.02), M.teal, X0+0.55, ZT+0.09, Y1-0.04);
 })();
 
 /* ══════════════════════════════════════════════════════════════
@@ -1172,6 +1269,8 @@ const STATION = {
       desc:"Load cup (basin + lift plate + rinse nozzles) where the carousel head picks up and releases the wafer, two 3-pin buffer stations (input / output) and a 2-gripper transfer robot whose axis sits at the centre of the circle through both buffers and the cup."},
   CAR:{label:"Carousel — 4 heads, 90° indexing (CCW)", crumb:"Carousel",
       desc:"Cross-shaped support plate (Ø1.85 m, R = 0.72 m) on a central post. Each arm carries one head system: rotation motor, radial slide (±0.10 m sweep in the slot) and the carrier head. Indexes TS → P1 → P2 → P3 → TS counter-clockwise."},
+  SDS:{label:"Slurry Delivery System — blending cabinet (click for slurry settings)", crumb:"Slurry Delivery",
+      desc:"The cabinet that feeds the polisher, standing beside the tool: two drums/IBC → stirred blend tank → diaphragm pump → two filter housings → flow meter → piping across to the POU valve box and on to the arm nozzle. Same order as the P&ID in the ② Slurry panel. Only SFR (flow meter) reaches the engine; the rest is recorded for provenance. Cabinet dimensions are estimated — no primary source held."},
 };
 const proxies = [];
 function proxy(id, geo, pos){
@@ -1185,6 +1284,8 @@ proxy("CL", new THREE.BoxGeometry(2.24,1.60,1.22), W3(1.1, 2.0, 1.40));
 ["P1","P2","P3"].forEach(id=>proxy(id, new THREE.CylinderGeometry(0.44,0.44,0.32,48), W3(LAY[id].x, LAY[id].y, 1.06)));
 proxy("TS", new THREE.CylinderGeometry(0.36,0.36,0.30,48), W3(LAY.TS.x, LAY.TS.y-0.10, 1.08));
 proxy("CAR", new THREE.CylinderGeometry(0.34,0.34,0.30,48), W3(LAY.CAR.x, LAY.CAR.y, 1.80));
+/* SDS 캐비닛 — 툴 왼쪽. 클릭하면 ② Slurry 패널이 열린다 */
+proxy("SDS", new THREE.BoxGeometry(1.40,2.05,1.90), W3(-0.85, 4.00, 1.03));
 
 /* ══════════════════════════════════════════════════════════════
    뷰 레벨 / 카메라 / UI
@@ -1253,7 +1354,7 @@ function goLevel(lv, id){
 window.goLevel = goLevel;
 /* 스테이션 → 담당 파트 탭. 장비 위치와 입력 위치를 일치시킨다
    (2026-09-11 사용자 지시: "wafer는 loading unit쪽에서 입력할수있도록"). */
-const STATION_PART = { FI:"wafer" };   // Factory Interface = 웨이퍼가 들어오는 곳 = ⑥ Loading Unit
+const STATION_PART = { FI:"wafer", SDS:"sds" };   // FI=웨이퍼 투입구=⑤ Loading Unit · SDS 캐비닛=② Slurry
 function goFocus(id){
   if(STATION_PART[id]) select(STATION_PART[id]);
   if(id==="P1"||id==="P2"||id==="P3") goLevel(1, id);
