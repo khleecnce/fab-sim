@@ -37,6 +37,7 @@ except ImportError:  # pragma: no cover
 from sim.engine import Recipe, available_models  # noqa: E402
 from sim.metrics.uniformity import compute_metrics  # noqa: E402
 from sim.params import available_packs, load_pack, ParamMissing  # noqa: E402
+from sim.pack_meta import pack_meta, grouped  # noqa: E402
 import sim.models  # noqa: F401,E402
 import sim.slots as S  # noqa: E402
 from sim.recipe_builder import load_schemas, to_overrides, coverage  # noqa: E402
@@ -124,12 +125,16 @@ def catalog():
             for prm in pk.params.values():
                 conf[prm.confidence] = conf.get(prm.confidence, 0) + 1
             packs.append({"id": name, "description": pk.description,
+                          # 사람이 읽는 이름·막질군 (2026-09-11 사용자 지시:
+                          # 내부 ID를 UI에 그대로 노출하지 않는다)
+                          **{k: v for k, v in pack_meta(name).items() if k != "id"},
                           "confidence_counts": conf,
                           "params": [{"key": p.key, "value": p.value, "unit": p.unit,
                                       "confidence": p.confidence,
                                       "source": p.source} for p in pk.params.values()]})
         except Exception as e:
-            packs.append({"id": name, "error": str(e)})
+            packs.append({"id": name, "error": str(e), **{k: v for k, v in pack_meta(name).items() if k != "id"}})
+    pack_groups = grouped([p["id"] for p in packs])
     comps = []
     for cname, spec in load_schemas().items():
         comps.append({
@@ -151,6 +156,7 @@ def catalog():
             } for g in spec.get("groups", [])],
         })
     return {"slots": slots, "default_config": S.default_config(), "packs": packs,
+            "pack_groups": pack_groups,
             "components": comps, "coverage": coverage()}
 
 

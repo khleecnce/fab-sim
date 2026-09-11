@@ -70,6 +70,16 @@
          border:1px solid var(--line);border-radius:5px;cursor:pointer} #crumb .mini:hover{color:var(--fg)}
   /* 빌드 시각 — 폰에서 "고친 게 반영됐나"를 확인하는 유일한 단서 */
   #buildTag{margin-left:8px;color:var(--dim);opacity:.75;font-size:11px}
+  /* 슬러리 팩 카드 — 고른 슬러리가 무엇인지 한눈에 (2026-09-11) */
+  .packcard{margin-top:7px;padding:8px 10px;background:#0d1319;border:1px solid var(--line);
+            border-radius:7px;font-size:11px;line-height:1.5}
+  .packcard .row{display:flex;gap:8px;margin-bottom:3px;align-items:baseline}
+  .packcard .k{flex:0 0 84px;color:var(--dim)}
+  .packcard .v{flex:1;text-align:left}   /* 값은 왼쪽 정렬 — 부모의 오른쪽 정렬을 끊는다 */
+  .packcard .note{margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);color:var(--warn)}
+  .packcard .idline{margin-top:5px;color:var(--dim);opacity:.6;font-size:10px}
+  .packcard code{background:#0a0e14;padding:1px 5px;border-radius:3px;color:var(--dim)}
+  @media (max-width: 560px){ .packcard .row{display:block} .packcard .k{margin-bottom:1px} }
   #card{position:absolute;left:14px;bottom:14px;max-width:420px;font-size:12px;line-height:1.5;color:var(--dim);
         background:rgba(11,15,20,.80);padding:9px 12px;border-radius:8px;border:1px solid var(--line);display:none;pointer-events:none}
   #card b{color:var(--fg);display:block;margin-bottom:3px;font-size:12.5px}
@@ -1727,13 +1737,18 @@ function drawPanel(){
           <input type="file" id="fileIn" accept=".xlsx,.xls,.csv,.json,.tsv,.txt" style="display:none">
         </div>
         <div class="fld"><label><span>Pack (film) for this measurement</span></label>
-          <select id="imp-pack">${state.packs.map(p=>
-            `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.id}</option>`).join("")}</select>
+          <select id="imp-pack">${(state.packGroups&&state.packGroups.length
+            ? state.packGroups
+            : [{family:"", packs:state.packs}]).map(g=>{
+              const inner = g.packs.map(p=>
+                `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.short||p.label||p.id}</option>`).join("");
+              return g.family ? `<optgroup label="${g.family}">${inner}</optgroup>` : inner;
+            }).join("")}</select>
           <div class="meta">Calibration is per pack — ceria measurements must not move the silica Kp.</div></div>
         <div id="impResult"></div>
         <div class="sec" style="margin-top:14px">Database</div>
         <div id="dbStats" class="meta">Loading…</div>
-        <div class="sec" style="margin-top:14px">Measurement → Kp calibration (pack: ${state.pack})</div>
+        <div class="sec" style="margin-top:14px">Measurement → Kp calibration (${(state.packs.find(p=>p.id===state.pack)||{}).short||state.pack})</div>
         <div id="calib" class="meta">Loading…</div>
         <div class="sec" style="margin-top:14px">Recent runs</div>
         <div id="runList" class="meta"></div>`;
@@ -1758,10 +1773,28 @@ function drawPanel(){
       continue;
     }
     if(f.special==="pack"){
+      /* 슬러리 선택 — 막질군(optgroup)으로 묶고 사람이 읽는 이름을 쓴다.
+         사용자 지시(2026-09-11): "sic_ceria_h2o2 이러면 보기도안좋고 너무 국부적이야".
+         내부 ID는 파일명·검증데이터에 묶여 있어 그대로 두고 표시만 바꾼다. */
+      const groups = state.packGroups && state.packGroups.length
+        ? state.packGroups
+        : [{family:"", packs:state.packs}];
+      const opts = groups.map(g=>{
+        const inner = g.packs.map(p=>
+          `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.label||p.id}</option>`
+        ).join("");
+        return g.family ? `<optgroup label="${g.family}">${inner}</optgroup>` : inner;
+      }).join("");
+      const cur = state.packs.find(p=>p.id===state.pack) || {};
       h += `<div class="fld"><label><span>${f.l}</span></label>
-        <select id="sel-pack">${state.packs.map(p=>
-          `<option value="${p.id}" ${p.id===state.pack?"selected":""}>${p.id} — ${p.description||""}</option>`
-        ).join("")}</select>
+        <select id="sel-pack">${opts}</select>
+        <div class="packcard" id="packCard">
+          ${cur.film_label?`<div class="row"><span class="k">막질</span><span class="v">${cur.film_label}</span></div>`:""}
+          ${cur.mechanism?`<div class="row"><span class="k">제거 기구</span><span class="v">${cur.mechanism}</span></div>`:""}
+          ${cur.chem?`<div class="row"><span class="k">연마입자·케미컬</span><span class="v">${cur.chem}</span></div>`:""}
+          ${cur.note?`<div class="note">${cur.note}</div>`:""}
+          <div class="idline">pack id <code>${cur.id||state.pack}</code></div>
+        </div>
         <div class="meta">Changing the film swaps <b>one parameter pack</b>. No code changes.</div></div>`;
       continue;
     }
@@ -2912,6 +2945,11 @@ async function boot(){
   try{
     const cat = await (await fetch(API+"/api/catalog")).json();
     state.packs = (cat.packs||[]).filter(p=>!p.error);
+    /* 막질군 묶음 — 서버가 준 그룹에서 에러 팩을 걸러낸다 (2026-09-11) */
+    state.packGroups = (cat.pack_groups||[])
+      .map(g=>({family:g.family, packs:(g.packs||[]).filter(p=>state.packs.some(q=>q.id===p.id))
+        .map(p=>Object.assign({}, p, state.packs.find(q=>q.id===p.id)))}))
+      .filter(g=>g.packs.length);
     try{ const fs = await (await fetch(API+"/api/factors")).json();
          state.symbols = Object.fromEntries(fs.factors.map(f=>[f.key,f.symbol])); }catch(e){}
     const pk = state.packs.find(p=>p.id===state.pack);
