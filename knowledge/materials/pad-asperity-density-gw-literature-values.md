@@ -168,7 +168,7 @@ asperity 간격은 70.7 µm 로 문헌 정점반경 50 µm 보다 크고, fab-si
 주류 η에서 계산한 4 psi 접촉밀도 7.4 #/mm²는 Sun (2009) 공초점 실측 40–240 #/mm²와 같은
 자릿수대는 아니지만(§6 참조) 물리적으로 불합리한 범위는 아니다.
 
-## 5. fab-sim `asperity_density_per_m2` 제안
+## 5. fab-sim `asperity_density_per_m2` 제안 — **적용됨 (2026-09-11, Max워커)**
 
 - **값: 1.0 × 10¹¹ → 2.0 × 10⁸ /m²** (500배 하향), **confidence: `estimated` → `literature`**.
 - 근거: §2 표 #1~#5, 독립 5출처(Northeastern·Arizona·Utah·Nagoya/Ebara)가 표기만 다를 뿐 모두
@@ -177,9 +177,16 @@ asperity 간격은 70.7 µm 로 문헌 정점반경 50 µm 보다 크고, fab-si
 - 동반 파라미터 정합성: 이 η를 채택하면 R=50 µm, σ=5~5.24 µm와 한 세트로 써야 한다
   (#1·#2·#5가 모두 같은 세트를 제시). **η만 바꾸고 R·σ를 다른 출처 값으로 두면 §4 (b)의
   기하 일관성이 다시 깨질 수 있다** — 파라미터 교체 시 세트로 다뤄야 한다.
-- ⚠ **이 제안은 sim/ 결과를 바꾼다.** 별칭 `pad_asperity_density_m2`(κ가 읽는 값)도 같이 봐야
-  하며, sim/·knowledge/params/는 본 작업의 수정 금지 대상이므로 **제안만 남기고 적용은 하지
-  않았다.** 적용 전 접촉점밀도 의존 항(η_c/A_f 기반 K_p 분해 등)의 회귀 확인이 필요하다.
+- ✅ **적용 완료**: `knowledge/params/base.yaml`의 `pad_asperity_density_m2`,
+  `asperity_density_per_m2`, `asperity_ref_density_per_m2` 세 값을 모두 2.0e8로,
+  confidence를 `literature`로 바꿨다. `sim/factors.py`·`sim/engine.py`는 수정하지
+  않았다 — `_pack_conf`가 팩 YAML의 confidence 필드를 그대로 읽으므로 코드 변경은
+  불필요했다. 다만 `_f_kappa`의 `f.confidence = _worst_conf(_pack_conf(...), "estimated")`가
+  모델 자체의 미검증 함수형(§4의 지수 0.5 등)을 이유로 "estimated" 하한을 항상 강제한다 —
+  이는 asperity_density 값의 confidence를 하드코딩한 것이 아니라 κ 팩터 전체에 걸친
+  기존 설계이므로 이번 스코프에서 건드리지 않았다(그 결과 base.yaml 변경만으로는 κ의
+  최종 confidence 문자열이 `literature`로 안 올라갈 수 있다 — 완료 보고 시 확인 필요).
+  커밋은 하지 않았다(Max워커가 git status 확인 후 별도 수행 예정).
 
 ## 6. 한계·미검증·문헌 공백 (정직 기록)
 
@@ -209,6 +216,13 @@ asperity 간격은 70.7 µm 로 문헌 정점반경 50 µm 보다 크고, fab-si
 - §3의 "Ring 표의 2.938×10¹¹은 히스토그램 정규화 상수일 것"은 **본 노트의 추정**이며 논문이
   구분해 주지 않는다. 다만 §4 (b)의 기하 반증(간격 1.84 µm vs R 50 µm)은 추정과 무관하게
   성립하므로, **"GW의 η로 쓰면 안 된다"는 결론 자체는 이 추정에 의존하지 않는다.**
+- **η는 적용했으나 R·σ는 아직 미적용 상태(후속 과제)**: `knowledge/params/base.yaml`의
+  `pad_asperity_radius_m`(R 역할)은 5.0e-6 m(5 µm), `pad_height_beta_inv_m`(σ 역할)은
+  0.3e-6 m(0.3 µm)로, §2 #1·#2·#5가 제시하는 세트(R=50 µm, σ=5~5.24 µm)와 둘 다 맞지
+  않는다(R은 10배, σ는 ~17~20배 어긋남). §5가 경고한 대로 η만 2.0e8로 바꾸고 R·σ를
+  그대로 두면 §4 (b)의 기하 일관성(간격 70.7 µm > R)이 fab-sim 내부에서는 R=5 µm 기준으로
+  재검토돼야 한다(간격 70.7 µm > R=5 µm는 여전히 성립하지만, Bozkaya&Muftu 세트와는
+  다른 조합이 됐다는 뜻). R·σ를 문헌 세트로 맞출지는 별도 조사·별도 작업으로 남긴다.
 
 ## 관련 노트
 [[hertz-gw-contact-mechanics]] · [[disk-design-pad-roughness-asperity-relation]] ·

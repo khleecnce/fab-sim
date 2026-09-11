@@ -60,11 +60,15 @@ params:
     source: knowledge/materials/hertz-gw-contact-mechanics.md
     confidence: estimated
   pad_asperity_density_m2:
-    value: 1.0e11
+    value: 2.0e8
     unit: 1/m^2
-    note: 단위면적당 asperity 수 eta
-    source: knowledge/materials/hertz-gw-contact-mechanics.md
-    confidence: estimated
+    note: >
+      단위면적당 asperity 수 eta. pad-asperity-density-gw-literature-values.md
+      §2·§5, 독립 5문헌(Bozkaya&Muftu 2009 JES 156(12) H890, Bozkaya&Muftu 2010
+      JES 157(3) H287, Sorooshian 2005 학위논문, Shi&Ring 2010, Suzuki et al. 2017
+      CIRP Annals DOI 10.1016/j.cirp.2017.04.088) 수렴값 2.0e8 /m^2로 500배 하향.
+    source: knowledge/materials/pad-asperity-density-gw-literature-values.md
+    confidence: literature
   pad_nominal_area_m2:
     value: 1.0e-4
     unit: m^2
@@ -271,16 +275,25 @@ params:
     source: knowledge/materials/pad-hardness-porosity-measurement-methods.md
     confidence: verified
   asperity_density_per_m2:
-    value: 1.0e11
+    value: 2.0e8
     unit: 1/m^2
-    note: pad_asperity_density_m2와 같은 값 — κ가 읽는 별칭
-    source: knowledge/materials/hertz-gw-contact-mechanics.md
-    confidence: estimated
+    note: >
+      pad_asperity_density_m2와 같은 값 — κ가 읽는 별칭. pad-asperity-density-gw-
+      literature-values.md §2·§5, 독립 5문헌(Bozkaya&Muftu 2009 JES 156(12) H890,
+      Bozkaya&Muftu 2010 JES 157(3) H287, Sorooshian 2005 학위논문, Shi&Ring 2010,
+      Suzuki et al. 2017 CIRP Annals DOI 10.1016/j.cirp.2017.04.088) 수렴값
+      2.0e8 /m^2로 500배 하향.
+    source: knowledge/materials/pad-asperity-density-gw-literature-values.md
+    confidence: literature
   asperity_ref_density_per_m2:
-    value: 1.0e11
+    value: 2.0e8
     unit: 1/m^2
-    source: knowledge/materials/hertz-gw-contact-mechanics.md
-    confidence: estimated
+    note: >
+      κ 기준점 — asperity_density_per_m2와 self-consistent해야 하는 기준값.
+      pad-asperity-density-gw-literature-values.md §2·§5 수렴값 2.0e8 /m^2로
+      500배 하향(asperity_density_per_m2와 세트로 변경).
+    source: knowledge/materials/pad-asperity-density-gw-literature-values.md
+    confidence: literature
 
   # ── τ 슬러리 전달 (미연결 — 입력만 존재) ─────────────────
   # ⚠ 이 값들은 팩에 있지만 엔진 물리에 연결돼 있지 않다.
