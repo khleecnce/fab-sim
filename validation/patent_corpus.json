@@ -2388,5 +2388,83 @@
   "has_absolute_values": false,
   "relative_only": false,
   "usable": false
+ },
+ "CN102559059A": {
+  "patent": "CN102559059A",
+  "title": "CN102559059A - Chemical-mechanical polishing liquid \n      - Google Patents",
+  "assignees": [
+   "Anji Microelectronics Shanghai Co Ltd"
+  ],
+  "trusted": true,
+  "category": "consumable",
+  "matched_org": "Anji Microelectronics (安集)",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "BTA",
+   "benzotriazole",
+   "pH",
+   "concentration",
+   "wt%"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "US7972962B2": {
+  "patent": "US7972962B2",
+  "title": "US7972962B2 - Planarization method using hybrid oxide and polysilicon CMP \n        - Googl",
+  "assignees": [
+   "GlobalFoundries Inc",
+   "Spansion LLC"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "GlobalFoundries",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "alumina",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
+ },
+ "CN111599677B": {
+  "patent": "CN111599677B",
+  "title": "CN111599677B - Semiconductor structure and forming method thereof \n        - Google Patent",
+  "assignees": [
+   "Semiconductor Manufacturing International Shanghai Corp",
+   "Semiconductor Manufacturing International Beijing Corp"
+  ],
+  "trusted": true,
+  "category": "device_equipment",
+  "matched_org": "SMIC",
+  "data_tables": 0,
+  "examples": 0,
+  "comparative": 0,
+  "rate_unit": null,
+  "to_nm_per_min": null,
+  "composition_terms": [
+   "abrasive",
+   "silica",
+   "ceria",
+   "pH"
+  ],
+  "has_absolute_values": false,
+  "relative_only": false,
+  "usable": false
  }
 }
