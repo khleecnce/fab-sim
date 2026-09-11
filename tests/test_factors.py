@@ -253,6 +253,18 @@ def test_delta_increases_with_larger_d99_per_hitachi_exponent():
     assert 3.0 < ratio < 10.0, f"오더 이탈: {ratio:.2f}배 (문헌 5배 근방 기대)"
 
 
+def test_delta_activated_for_three_more_packs_at_unity():
+    """2026-09-11 COMPLETION-C1: cu_h2o2_bta/oxide_silica/w_fe_oxidizer 3팩에 D99를
+    이식해 Δ가 unmodeled -> partial로 전환됐다. 3팩 모두 기준 조건(D99==ref)에서
+    정확히 1.0이어야 한다 — 유도값(D99/D50 일반비)의 불확실성이 기준점 계약을
+    깨면 안 된다(knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §6-D).
+    """
+    for pack in ("cu_h2o2_bta", "oxide_silica", "w_fe_oxidizer"):
+        f = _factors(pack=pack)["delta"]
+        assert f.status == "partial", f"{pack}: Δ가 여전히 unmodeled — D99 이식이 반영 안 됨"
+        assert f.value == pytest.approx(1.0, abs=1e-9), f"{pack}: 기준 조건 Δ != 1.0"
+
+
 def test_delta_excluded_from_mrr_multiplier():
     """Δ는 MRR_COUPLED가 아니다 — 손상 지표이지 제거율 배수가 아니다.
 

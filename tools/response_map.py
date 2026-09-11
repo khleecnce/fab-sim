@@ -132,7 +132,18 @@ def verdict_of(model_shape: str, lit_shape: str) -> str:
     return "AGREE" if (model_shape, lit_shape) in SAME_DIR else "CONFLICT"
 
 
-VERDICT_MARK = {"AGREE": "✅", "CONFLICT": "❌", "NO-DATA": "⚠", "DEAD": "🕳",
+# EVIDENCE-RULES.md 판정으로 "무반응(DEAD)"이 아니라 "검증된 영(null) 결과"로 종결된 (팩, 인자) 쌍.
+# 이 표에 있으면 DEAD 갭으로 다시 배차하지 않는다 — 무한 재시도를 막기 위한 장치
+# (EVIDENCE-RULES.md §금지: "판정을 미루고 미반영으로 남기는 것은 3회차까지만 허용").
+NULL_CONFIRMED = {
+    ("cu_h2o2_bta", "abrasive_size_nm"):
+        "EVIDENCE-RULES.md 판정 #1 (2026-09-11): 교란(형상) 분리 후 순수구형 부분집합 "
+        "비유의(ρ≈0.03~0.15) + Chen thesis 단층모델 d⁻²×d⁺² 상쇄 이론이 합의 — "
+        "cu_h2o2_bta 계에서 입경은 MRR 지배인자가 아님. 지수 0.0은 검증된 결론.",
+}
+
+
+VERDICT_MARK = {"AGREE": "✅", "CONFLICT": "❌", "NO-DATA": "⚠", "DEAD": "🕳", "NULL_CONFIRMED": "∅",
                 "MISSING": "🔲", "BLANK": "·", "N/A": "·"}
 
 
@@ -316,6 +327,12 @@ def build(packs: List[str]) -> Dict:
             else:
                 cmp_sw, cmp_range = full, None
             v = verdict_of(cmp_sw["shape"], lit["shape"] if lit else "unknown")
+            note = why_flat(f) if cmp_sw["shape"] == "flat" else ""
+            # DEAD여도 EVIDENCE-RULES.md가 이미 "검증된 영 결과"로 종결한 축이면
+            # 무한 재배차를 막는다 — 갭이 사라지는 게 아니라 종류가 바뀐다.
+            if v == "DEAD" and (p, f.key) in NULL_CONFIRMED:
+                v = "NULL_CONFIRMED"
+                note = NULL_CONFIRMED[(p, f.key)]
             rows.append({
                 "pack": p, "key": f.key, "label": f.label, "domain": f.domain,
                 "model_shape": cmp_sw["shape"], "span": cmp_sw["span"],
@@ -326,7 +343,7 @@ def build(packs: List[str]) -> Dict:
                 "lit_sets": lit["datasets"] if lit else [],
                 "lit_digitized": bool(lit and lit["digitized"]),
                 "verdict": v,
-                "note": why_flat(f) if cmp_sw["shape"] == "flat" else "",
+                "note": note,
                 "cmp_range": cmp_range,
                 "xs": full["xs"], "mrr": full["mrr"], "ttv": full["ttv"],
                 "lit_pts": list(zip(lit["xs"], lit["ys"])) if lit else [],
@@ -335,7 +352,7 @@ def build(packs: List[str]) -> Dict:
 
 
 ORDER = {"CONFLICT": 0, "DEAD": 1, "MISSING": 2, "AGREE": 3, "NO-DATA": 4,
-         "BLANK": 5, "N/A": 6}
+         "BLANK": 5, "N/A": 6, "NULL_CONFIRMED": 7}
 
 
 def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
