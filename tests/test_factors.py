@@ -471,3 +471,34 @@ def test_theta_faster_rotation_moderates_but_not_cancels_load():
     naive_double = f_ref.value * 2.0
     assert f_fast.value < naive_double, (
         f"회전 대류냉각이 반영 안 됨 — Θ가 순수 2배({naive_double})만큼 올랐다: {f_fast.value}")
+
+
+def test_theta_retaining_ring_present_at_reference():
+    """리테이닝 링 압력 채널 추가 후에도 기준(5 psi)에서 Θ=1.0 유지.
+
+    knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md — Lee/Guo/Jeong 2012
+    Table 1(총마찰력 선형회귀 R²>0.99)을 근거로 한 새 발열 채널이 기준점 계약을 깨지 않아야 한다.
+    """
+    f = _factors(pack="oxide_silica")["theta"]
+    assert f.value == pytest.approx(1.0, abs=1e-6), f"기준 Θ={f.value} != 1.0"
+    assert "heat(ring)" in f.terms
+
+
+def test_theta_higher_retaining_ring_pressure_raises_load():
+    """리테이닝 링 압력을 올리면 링-패드 마찰열이 늘어 Θ가 높아져야 한다.
+
+    Lee/Guo/Jeong 2012 Table 1: RR압력 2->6psi에서 총 마찰력(F_wafer+F_ring) 단조증가
+    (308.6N -> 432.4N, 1.40배).
+    """
+    f_ref = _factors(pack="oxide_silica")["theta"]
+    f_high = _factors(pack="oxide_silica", retaining_ring_pressure_psi=6.0)["theta"]
+    assert f_high.value > f_ref.value, (
+        f"RR압력 6psi가 기준 5psi보다 Θ가 높아야 한다: {f_high.value} vs {f_ref.value}")
+
+
+def test_theta_lower_retaining_ring_pressure_lowers_load():
+    """리테이닝 링 압력을 내리면 Θ가 낮아져야 한다(Table 1 2psi 조건)."""
+    f_ref = _factors(pack="oxide_silica")["theta"]
+    f_low = _factors(pack="oxide_silica", retaining_ring_pressure_psi=2.0)["theta"]
+    assert f_low.value < f_ref.value, (
+        f"RR압력 2psi가 기준 5psi보다 Θ가 낮아야 한다: {f_low.value} vs {f_ref.value}")

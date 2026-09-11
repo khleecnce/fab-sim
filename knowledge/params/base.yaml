@@ -252,6 +252,23 @@ params:
     source: knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md
     confidence: estimated
 
+  # ── Θ 열·유동 부하 (리테이닝 링 압력, 웨이퍼-패드와 독립인 마찰 발열원) ──
+  # Lee, Guo, Jeong (2012), Int. J. Precis. Eng. Manuf. 13(1) 25-31, doi:10.1007/s12541-012-0004-8.
+  # Table 1: RR압력 2-6psi 스윕, 총 마찰력(F_wafer+F_ring) 선형회귀 R²>0.99 (E1 대상계 직접실측).
+  retaining_ring_pressure_psi:
+    value: 5.0
+    unit: psi
+    note: >
+      이번 런의 리테이닝 링 공압. 문헌 실험(80rpm, 웨이퍼 4psi 고정) 다수 조건(5psi)을 기본값으로 둔다.
+    source: knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md
+    confidence: literature
+  retaining_ring_ref_psi:
+    value: 5.0
+    unit: psi
+    note: Θ 기준점 — retaining_ring_pressure_psi와 같은 조건(Lee/Guo/Jeong 2012 Table 1 다수조건)
+    source: knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md
+    confidence: literature
+
   # ── Γ 컨디셔닝 부하 ─────────────────────────────────────
   cond_downforce_lbf:
     value: 4.0

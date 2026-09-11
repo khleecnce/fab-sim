@@ -219,8 +219,10 @@ def _f_pi(rr: "ResolvedRecipe") -> Factor:
 def _f_theta(rr: "ResolvedRecipe") -> Factor:
     """Θ 열·유동 부하 — 마찰 발열과 슬러리 냉각/공급의 균형.
 
-    발열은 Λ에 비례하고(마찰일률), 냉각은 세 독립 채널로 이루어진다:
-    ①슬러리 유량(SFR, 대류 물질교환) ②플래튼 냉각수 온도(열전달 구동력 ΔT)
+    발열은 두 독립 채널의 곱이다: Λ(웨이퍼-패드 마찰, 기존)과 리테이닝 링 압력(링-패드 마찰,
+    Lee/Guo/Jeong 2012, doi:10.1007/s12541-012-0004-8, knowledge/physics/cmp-theta-retaining-
+    ring-pressure-heat-channel.md — Table 1 총마찰력 선형회귀 R²>0.99). 냉각은 세 독립 채널로
+    이루어진다: ①슬러리 유량(SFR, 대류 물질교환) ②플래튼 냉각수 온도(열전달 구동력 ΔT)
     ③플래튼 회전속도(회전 대류냉각, von Karman 회전원판 Nu∝Re^0.5 — Harmand et al. 2013,
     doi:10.1016/j.ijthermalsci.2012.11.009, knowledge/physics/cmp-theta-rotation-convective-
     cooling-driver.md). rpm_platen은 Λ의 발열(V=ω·r_cc, 선형)에도 쓰이지만 냉각 쪽에서는
@@ -269,16 +271,31 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     rpm_platen = float(rr.rpm_platen)
     rpm_ref = float(pk.get_or("lambda_ref_rpm_platen", rpm_platen or 1.0))
     cool_rotation = math.sqrt(rpm_platen / rpm_ref) if rpm_ref > 0 else 1.0
-    # 부하비 = 발열(Λ) / [냉각(SFR) × 냉각(온도) × 냉각(회전대류)]. 기준 조건에서 1.0.
-    f.value = lam.value / (cool_sfr * cool_temp * cool_rotation)
-    f.terms = {"heat(Λ)": lam.value, "cool(SFR)": cool_sfr, "cool(coolant_temp)": cool_temp,
-               "cool(rotation)": cool_rotation}
+    # 리테이닝 링 압력 — 웨이퍼-패드 마찰(Λ)과 독립인 추가 발열원(Lee/Guo/Jeong 2012 Table 1,
+    # knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md). 총 마찰력 F_wafer+F_ring이
+    # RR압력에 선형(R²>0.99)이라는 실측을 기준 대비 배수로 압축한다. 없으면 1.0 폴백(기존 partial 계약 유지).
+    heat_ring = 1.0
+    if pk.has("retaining_ring_pressure_psi"):
+        rr_psi = float(pk.get("retaining_ring_pressure_psi"))
+        rr_ref = float(pk.get_or("retaining_ring_ref_psi", rr_psi))
+        # Lee/Guo/Jeong 2012 Table 1 정규화 회귀계수 (기준 5psi=1.0):
+        # a_norm=0.6145/(0.6145+0.07692*5)=0.6145/0.9991, b_norm=0.07692/0.9991
+        A_COEF, B_COEF = 0.6145, 0.07692
+        denom_ref = A_COEF + B_COEF * rr_ref
+        if denom_ref > 0:
+            heat_ring = (A_COEF + B_COEF * rr_psi) / denom_ref
+        f.drivers["retaining_ring_pressure_psi"] = rr_psi
+    # 부하비 = 발열(Λ×ring) / [냉각(SFR) × 냉각(온도) × 냉각(회전대류)]. 기준 조건에서 1.0.
+    f.value = (lam.value * heat_ring) / (cool_sfr * cool_temp * cool_rotation)
+    f.terms = {"heat(Λ)": lam.value, "heat(ring)": heat_ring, "cool(SFR)": cool_sfr,
+               "cool(coolant_temp)": cool_temp, "cool(rotation)": cool_rotation}
     f.status = "partial"
     f.confidence = _worst_conf(_pack_conf(pk, "sfr_ml_min"), "estimated")
     f.sources = ["knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md",
                  "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
                  "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md",
-                 "knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md"]
+                 "knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md",
+                 "knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md"]
     f.notes.append("⚠ 발열/냉각을 1차 비례로 압축했다 — 실제 열저항·체류시간은 "
                    "미반영. 절대 ΔT는 별도 열모델이 담당한다.")
     if not pk.has("sfr_ref_ml_min"):
@@ -286,6 +303,9 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     if "platen_coolant_temp_c" not in f.drivers:
         f.notes.append("⚠ platen_coolant_temp_c 없어 냉각수온도 항 1.0 폴백 — "
                        "cmp-theta-platen-coolant-temperature-driver.md §2 참조, 담당 tool-platen-head.")
+    if "retaining_ring_pressure_psi" not in f.drivers:
+        f.notes.append("⚠ retaining_ring_pressure_psi 없어 링 발열 항 1.0 폴백 — "
+                       "cmp-theta-retaining-ring-pressure-heat-channel.md §3 참조, 담당 tool-platen-head.")
     return f
 
 
@@ -400,16 +420,25 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
             # Li et al. 2021(doi:10.1149/2162-8777/ac3e44)이 인용한 두 극한 모델:
             #   표면적 지배  R ∝ C0^(1/3)
             #   압입 지배    R ∝ C0^(4/3)
-            # 논문이 직접 서술·검증한 것은 **방향(농도↑→MRR↑)뿐**이고 어느 지수가
-            # 맞는지는 미확정이다. 기본값은 보수적으로 표면적 극한(1/3)을 쓰고,
-            # 팩이 명시하면 그걸 따른다.
+            # 이 두 값 자체는 2차 인용(E5)이라 어느 쪽인지 미확정이었으나, US9499721B2
+            # (Cabot, 콜로이달 실리카 TEOS, E1 직접 실측 24점, TABLE 18)의 전역
+            # 로그-로그 회귀가 n≈0.30을 줘 표면적 극한(1/3) 쪽으로 판정됐다
+            # (EVIDENCE-RULES.md — E1이 E5를 이긴다;
+            # knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md §5).
+            # 기본값 1/3을 유지하고, 팩이 명시하면 그걸 따른다.
+            # ⚠ 같은 데이터가 국소 지수 붕괴(0.5→1.0wt%에서 0.56, 2.5→3.0wt%에서 0.11)를
+            # 보여 순수 거듭제곱 자체는 고농도 포화를 구조적으로 표현 못 한다 — 지수값
+            # 판정과는 별개 문제이며 함수형 교체는 이 결함 해소 범위 밖(같은 노트 §8 참조).
             n = float(pk.get_or("abrasive_conc_exponent", 1.0 / 3.0))
             terms["conc"] = (c / c_ref) ** n
             srcs.append("knowledge/cmp/abrasive-size-concentration-"
                         "ph-K-additive-mrr-quantitative.md")
-            f.notes.append(f"⚠ 농도 지수 n={n:.3f} — 문헌은 1/3(표면적)~4/3(압입) 두 극한만 "
-                           "제시하고 어느 쪽인지 정하지 않았다. 순위는 신뢰, 크기는 "
-                           "캘리브레이션 대상.")
+            srcs.append("knowledge/cmp/abrasive-concentration-mrr-saturation-"
+                        "contact-probability.md")
+            f.notes.append(f"⚠ 농도 지수 n={n:.3f} — 표면적 극한(1/3)은 US9499721B2 E1 실측 "
+                           "전역회귀(n≈0.30)로 압입 극한(4/3)보다 우세하다고 판정됐다(같은 "
+                           "데이터가 국소 지수는 0.56→0.11로 붕괴 — 순수 거듭제곱은 고농도 "
+                           "포화를 못 담는다는 별개의 구조적 한계는 남아있음).")
             # Luo-Dornfeld 포화: 7 wt% 이상에서 RR 불변이 관측된 계가 있다.
             sat = pk.get_or("abrasive_saturation_wt_pct", None)
             if sat is not None and c > float(sat):

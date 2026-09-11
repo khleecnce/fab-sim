@@ -879,5 +879,15 @@
   "authors": "White D, Melvin J, Boning D",
   "venue": "J. Electrochem. Soc. 150(4) G271-G278 (2003)",
   "note": "physics/frictional-heating-temperature-arrhenius-coupling.md §8 (1차 에너지균형 Eq.1-10, 집중정수 열회로 R1/Rs/Ct, 실측 ΔT 9.1 °C)"
+ },
+ "lee-guo-jeong-2012-retaining-ring-temperature-distribution": {
+  "src": "미러 사이트 -> 미러 사이트/pdf/<DOI>.pdf?download=true (curl+Referer, urllib 403 우회)",
+  "pdf_local": "papers/lee-guo-jeong-2012-retaining-ring-temperature-distribution.pdf",
+  "txt_local": "papers/lee-guo-jeong-2012-retaining-ring-temperature-distribution.pdf.txt",
+  "doi": "10.1007/s12541-012-0004-8",
+  "title": "Temperature Distribution in Polishing Pad during CMP Process: Effect of Retaining Ring",
+  "authors": "Lee H, Guo Y, Jeong H",
+  "venue": "Int. J. Precis. Eng. Manuf. 13(1) 25-31 (2012)",
+  "note": "physics/cmp-theta-retaining-ring-pressure-heat-channel.md — Table 1 RR압력 2-6psi 마찰력 실측, Theta 3차 PARTIAL 해소"
  }
 }
