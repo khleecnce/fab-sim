@@ -25,7 +25,9 @@
   canvas{display:block;touch-action:none}   /* 터치 제스처를 브라우저가 스크롤로 가로채지 않게 */
   /* ── 파트 전용 시각화 (2026-09-11: 슬러리공급/패드/디스크/로딩부) ── */
   .viz{background:#0d1319;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:10px}
-  .viz canvas{width:100%;height:auto;border-radius:4px}
+  /* ⚠ 캔버스 크기는 JS(cv())가 CSS px + DPR 로 직접 잡는다. 여기서 width:100% 를 주면
+     640px 논리 캔버스가 폰에서 축소돼 글자가 5px이 된다(2026-09-11 모바일 대응). */
+  .viz canvas{display:block;border-radius:4px;max-width:100%}
   .viz .cap{color:var(--dim);font-size:11px;margin-top:6px;line-height:1.45}
   .viz .cap b{color:var(--fg)}
   /* P&ID 플로우 */
@@ -52,6 +54,14 @@
   .foupbar button{flex:1 1 auto;background:var(--panel2);color:var(--fg);border:1px solid var(--line);
                   border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
   .foupbar button:hover{border-color:var(--accent)}
+  /* 폰: FOUP 슬롯은 터치 표적이 최소 40px 은 돼야 누를 수 있다 */
+  @media (max-width: 560px){
+    .foup{grid-template-columns:repeat(4,1fr);gap:5px}
+    .foup .sl{padding:8px 3px}
+    .foup .sl .w{font-size:11px}
+    .pid .nd{min-width:56px;font-size:10px}
+    .pid .ar{flex:0 0 12px;font-size:11px}
+  }
   #crumb{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;
          background:rgba(11,15,20,.78);padding:6px 11px;border-radius:7px;border:1px solid var(--line);z-index:3}
   #crumb .lv{color:var(--accent);cursor:pointer} #crumb .lv:hover{text-decoration:underline}
@@ -1559,6 +1569,10 @@ function resize(){
   const w=view.clientWidth,h=view.clientHeight;
   cam.aspect=w/h; cam.updateProjectionMatrix();
   rend.setSize(w,h); rend.setPixelRatio(Math.min(devicePixelRatio,2));
+  /* 파트 캔버스는 컨테이너 폭에 맞춰 잡히므로 화면이 바뀌면 반드시 다시 그려야 한다
+     — 안 그리면 회전 후 폭이 어긋나 잘린 그림이 남는다(2026-09-11 모바일 대응).
+     drawViz 는 함수 선언이 아래에 있어 호이스팅되므로 여기서 호출해도 안전하다. */
+  if(typeof drawViz === "function") drawViz();
 }
 addEventListener("resize",resize); resize(); goLevel(0); camCur.target.copy(camGoal.target); camCur.dist = camGoal.dist; place(); tick();
 
@@ -1671,27 +1685,27 @@ function drawPanel(){
       continue;
     }
     if(f.special==="padsection"){
-      h += `<div class="viz"><canvas id="cv-padsec" width="640" height="230"></canvas>
+      h += `<div class="viz"><canvas id="cv-padsec" data-h="230"></canvas>
         <div class="cap" id="cap-padsec"></div></div>`;
       continue;
     }
     if(f.special==="padasperity"){
-      h += `<div class="viz"><canvas id="cv-padasp" width="640" height="250"></canvas>
+      h += `<div class="viz"><canvas id="cv-padasp" data-h="250"></canvas>
         <div class="cap" id="cap-padasp"></div></div>`;
       continue;
     }
     if(f.special==="padlife"){
-      h += `<div class="viz"><canvas id="cv-padlife" width="640" height="210"></canvas>
+      h += `<div class="viz"><canvas id="cv-padlife" data-h="210"></canvas>
         <div class="cap" id="cap-padlife"></div></div>`;
       continue;
     }
     if(f.special==="diskgrit"){
-      h += `<div class="viz"><canvas id="cv-diskgrit" width="640" height="300"></canvas>
+      h += `<div class="viz"><canvas id="cv-diskgrit" data-h="300"></canvas>
         <div class="cap" id="cap-diskgrit"></div></div>`;
       continue;
     }
     if(f.special==="diskpcr"){
-      h += `<div class="viz"><canvas id="cv-diskpcr" width="640" height="230"></canvas>
+      h += `<div class="viz"><canvas id="cv-diskpcr" data-h="230"></canvas>
         <div class="cap" id="cap-diskpcr"></div></div>`;
       continue;
     }
@@ -1791,12 +1805,26 @@ function drawPanel(){
 const VC = {fg:"#e6edf3", dim:"#8b9cb0", line:"#243141", accent:"#4da3ff",
             warn:"#ffb454", bad:"#ff6b6b", good:"#5ddc9a", panel:"#131a23"};
 
-function cv(id){
+/* 캔버스를 컨테이너 폭에 맞추고 DPR 로 선명하게 잡는다.
+   ⚠ 왜 필요한가: width=640 고정 캔버스를 CSS width:100% 로 늘리면 폰(360px)에서
+   0.56배로 축소된다 → 9px 글자가 5px이 되어 못 읽는다. 논리 좌표를 CSS px 와
+   일치시켜야 글자 크기가 의도대로 유지된다(2026-09-11 모바일 대응).
+   반환 W/H 는 **CSS px 기준 논리 크기**다. */
+function cv(id, hCss){
   const c = document.getElementById(id);
   if(!c) return null;
+  const host = c.parentElement;
+  const cssW = Math.max(Math.floor((host && host.clientWidth ? host.clientWidth : 0) - 18), 280) || 620;
+  const cssH = hCss || Math.round(+c.dataset.h || 230);
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  if(c.width !== Math.round(cssW*dpr) || c.height !== Math.round(cssH*dpr)){
+    c.width = Math.round(cssW*dpr); c.height = Math.round(cssH*dpr);
+  }
+  c.style.width = cssW+"px"; c.style.height = cssH+"px";
   const g = c.getContext("2d");
-  g.clearRect(0,0,c.width,c.height);
-  return {c, g, W:c.width, H:c.height};
+  g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,cssW,cssH);
+  return {c, g, W:cssW, H:cssH, narrow: cssW < 470};
 }
 function axes(g, x0, y0, x1, y1, xlab, ylab){
   g.strokeStyle = VC.line; g.lineWidth = 1;
@@ -1806,6 +1834,18 @@ function axes(g, x0, y0, x1, y1, xlab, ylab){
   if(ylab){ g.save(); g.translate(x0-30,(y0+y1)/2); g.rotate(-Math.PI/2);
             g.textAlign="center"; g.fillText(ylab,0,0); g.restore(); }
   g.textAlign="start";
+}
+/* 폭에 맞춰 줄바꿈해 그린다 — 폰에서 한 줄 텍스트는 그냥 잘려 나간다 */
+function wrapText(g, text, x, y, maxW, lh){
+  const words = String(text).split(" ");
+  let line = "", yy = y;
+  for(const w of words){
+    const test = line ? line+" "+w : w;
+    if(g.measureText(test).width > maxW && line){ g.fillText(line, x, yy); line = w; yy += lh; }
+    else line = test;
+  }
+  if(line) g.fillText(line, x, yy);
+  return yy + lh;
 }
 
 /* ── ② Slurry Delivery — P&ID 흐름도 ───────────────────────────────── */
@@ -1849,18 +1889,21 @@ function drawSDS(){
 
 /* ── ④ Pad ① 그루브 단면도 ────────────────────────────────────────── */
 function drawPadSection(){
-  const o = cv("cv-padsec"); if(!o) return;
-  const {g,W,H} = o;
+  const o = cv("cv-padsec", 230); if(!o) return;
+  const {g,W,H,narrow} = o;
   const pitch = num("groove_pitch_mm", 3.05);      // mm
   const depth = num("groove_depth_mm", 0.76);      // mm
   const wid   = num("groove_width_um", 600)/1000;  // mm
   const por   = num("pad_porosity_pct", 30);
   const padT  = 1.27;                              // mm, IC1000 전형 두께
   const spanMM = Math.max(pitch*3.2, 8);
-  /* η 인셋이 오른쪽을 차지하므로 단면은 그 왼쪽까지만 그린다 — 겹치면 둘 다 못 읽는다 */
-  const INSET_W = 200, secW = W - 70 - INSET_W - 16;
-  const sx = secW/spanMM, x0 = 50;
-  const sy = 46, yTop = 118, yBot = yTop + padT*sy;
+  /* 좁은 화면에서는 η 인셋을 오른쪽에 둘 자리가 없다 → 단면을 전폭으로 쓰고
+     인셋은 아래쪽 절반에 깐다. 겹치면 둘 다 못 읽는다. */
+  const INSET_W = narrow ? 0 : 200;
+  const secW = W - 60 - INSET_W - (narrow?10:16);
+  const sx = secW/spanMM, x0 = narrow ? 34 : 50;
+  const sy = narrow ? 34 : 46;
+  const yTop = narrow ? 56 : 118, yBot = yTop + padT*sy;
 
   /* 패드 본체 */
   g.fillStyle = "#2b3a4d"; g.fillRect(x0, yTop, secW, padT*sy);
@@ -1900,11 +1943,15 @@ function drawPadSection(){
   g.fillText(`pitch ${pitch.toFixed(2)} mm`, (a+b)/2, yBot+25);
   g.textAlign="start";
   g.fillStyle = VC.dim; g.font = "10px sans-serif";
-  g.fillText(`depth ${depth.toFixed(2)} mm / pad ${padT} mm · porosity ${por.toFixed(0)}% (pores ~30 µm, Sikder 2001)`,
-             x0, yBot+42);
+  wrapText(g, `depth ${depth.toFixed(2)} mm / pad ${padT} mm · porosity ${por.toFixed(0)}% (pores ~30 µm, Sikder 2001)`,
+           x0, yBot+42, W-x0-8, 12);
 
-  /* η(그루브 폭) 곡선 — Mu 2016 실측 3점. 단면과 겹치지 않는 오른쪽 영역 */
-  const ex0 = W-INSET_W-10, ey0 = 34, ew = INSET_W-24, eh = 92;
+  /* η(그루브 폭) 곡선 — Mu 2016 실측 3점. 넓으면 오른쪽, 좁으면 단면 아래 */
+  const capLines = Math.ceil(g.measureText(`depth ${depth.toFixed(2)} mm / pad ${padT} mm · porosity ${por.toFixed(0)}% (pores ~30 µm, Sikder 2001)`).width / (W-x0-8));
+  const ex0 = narrow ? x0 : W-INSET_W-10;
+  const ey0 = narrow ? yBot+42+capLines*12+14 : 34;
+  const ew  = narrow ? secW : INSET_W-24;
+  const eh  = narrow ? Math.max(H-ey0-8, 40) : 92;
   const EW = [300,600,900], EV = [0.099,0.134,0.128];
   g.fillStyle = "#0f1620"; g.fillRect(ex0, ey0, ew, eh);
   g.strokeStyle = VC.line; g.strokeRect(ex0, ey0, ew, eh);
@@ -1936,8 +1983,11 @@ function drawPadSection(){
 
 /* ── ④ Pad ② asperity 통계 (GW) — η 500배 오류가 눈에 보이는 자리 ──── */
 function drawPadAsperity(){
-  const o = cv("cv-padasp"); if(!o) return;
-  const {g,W,H} = o;
+  /* 폰에서는 η 후보 3개를 바 아래 범례로 쌓으므로 그만큼 높인다 */
+  const el0 = document.getElementById("cv-padasp"); if(!el0) return;
+  const nw = ((el0.parentElement && el0.parentElement.clientWidth || 620) - 18) < 470;
+  const o = cv("cv-padasp", nw ? 300 : 250); if(!o) return;
+  const {g,W,H,narrow} = o;
   const eta = num("asperity_density_per_m2", 1e11);   // 1/m²
   const R   = num("pad_asperity_radius_m", 5e-6);     // m
   const spacing = 1/Math.sqrt(eta);                   // m — 평균 asperity 간격
@@ -1945,7 +1995,8 @@ function drawPadAsperity(){
   const bad = ratio < 1;
 
   /* 위: 단면 프로파일 — 실제 비율로 반구를 그린다 */
-  const y0 = 96, xs = 40, xw = W-80;
+  const xs = narrow ? 10 : 40, xw = W - xs*2;
+  const y0 = narrow ? 104 : 96;
   const viewMM = 0.25;                                 // 250 µm 시야
   const pxPerM = xw/(viewMM/1000);
   g.strokeStyle = VC.line; g.beginPath(); g.moveTo(xs,y0); g.lineTo(xs+xw,y0); g.stroke();
@@ -1960,14 +2011,16 @@ function drawPadAsperity(){
     g.lineWidth = 0.7; g.stroke();
   }
   g.fillStyle = VC.dim; g.font="10px sans-serif";
-  g.fillText(`cross-section over ${(viewMM*1000).toFixed(0)} µm · ${n} asperities drawn`, xs, 18);
-  g.fillText(`spacing 1/√η = ${(spacing*1e6).toFixed(2)} µm · tip radius R = ${(R*1e6).toFixed(1)} µm`, xs, 32);
+  let ty = 14;
+  ty = wrapText(g, `cross-section over ${(viewMM*1000).toFixed(0)} µm · ${n} asperities · spacing 1/√η = ${(spacing*1e6).toFixed(2)} µm · R = ${(R*1e6).toFixed(1)} µm`,
+                xs, ty, xw, 12);
   g.fillStyle = bad?VC.bad:VC.good;
-  g.fillText(bad ? `⚠ spacing / 2R = ${ratio.toFixed(3)} < 1 → hemispheres interpenetrate. Geometrically impossible.`
-                 : `spacing / 2R = ${ratio.toFixed(2)} ≥ 1 → asperities fit side by side.`, xs, 46);
+  wrapText(g, bad ? `⚠ spacing / 2R = ${ratio.toFixed(3)} < 1 → hemispheres interpenetrate. Geometrically impossible.`
+                  : `spacing / 2R = ${ratio.toFixed(2)} ≥ 1 → asperities fit side by side.`,
+           xs, ty, xw, 12);
 
   /* 아래: η 후보 비교 바 */
-  const by = 150, bh = 58;
+  const by = narrow ? 160 : 150, bh = narrow ? 46 : 58;
   const CANDS = [
     {v:2.0e8,  l:"2.0e8 — 5 independent sources\n(Bozkaya&Müftü, Sorooshian, Shi&Ring, Suzuki/Ebara)", ok:true},
     {v:2.938e11, l:"2.938e11 — Ring et al.\n(self-inconsistent per our note §2.7)", ok:false},
@@ -1982,29 +2035,37 @@ function drawPadAsperity(){
     g.fillStyle=VC.dim; g.font="9px sans-serif"; g.textAlign="center"; g.fillText(`1e${e}`, x, by+bh+12);
   }
   g.textAlign="start";
-  /* 라벨 겹침 방지: 마커를 x순으로 정렬해 차례로 놓고, 앞 라벨과 겹치면 한 줄 내린다.
-     Ring(2.9e11)과 current(1e11)는 로그축에서 가까워 반드시 충돌한다 — 이 처리가 없으면
-     두 글자가 포개져 둘 다 못 읽는다. */
+  /* 라벨 배치. 폰에서는 1e11과 2.9e11이 로그축에서 거의 붙어 어떤 배치로도 겹친다
+     → 좁으면 x를 버리고 바 아래에 범례로 쌓는다(색으로 선과 연결). */
   const placed = [];
-  CANDS.map(c=>({...c, x:bx(c.v)})).sort((a,b)=>a.x-b.x).forEach(c=>{
+  const sorted = CANDS.map(c=>({...c, x:bx(c.v)})).sort((a,b)=>a.x-b.x);
+  sorted.forEach((c,i)=>{
     const x = c.x;
     const col = c.cur ? VC.accent : c.ok ? VC.good : VC.bad;
     g.strokeStyle = col; g.lineWidth = c.cur?2.5:1.5;
     g.setLineDash(c.cur?[]:[4,3]);
     g.beginPath(); g.moveTo(x,by); g.lineTo(x,by+bh); g.stroke(); g.setLineDash([]);
-    const txt = c.cur ? `current ${c.v.toExponential(1)}`
-                      : c.ok ? "2.0e8 — 5 sources agree" : "2.9e11 — Ring (self-inconsistent)";
-    g.font = c.cur?"bold 9px sans-serif":"9px sans-serif";
-    const wTxt = g.measureText(txt).width;
-    const right = x + wTxt + 8 < xs + xw;
-    const lx = right ? x+5 : x-5;
-    const x0t = right ? lx : lx-wTxt, x1t = right ? lx+wTxt : lx;
-    let row = 0;
-    while(placed.some(p => p.row===row && !(x1t < p.x0-6 || x0t > p.x1+6))) row++;
-    placed.push({row, x0:x0t, x1:x1t});
+    const txt = c.cur ? `current η = ${c.v.toExponential(1)} /m²`
+                      : c.ok ? "2.0e8 — 5 independent sources agree"
+                             : "2.9e11 — Ring 2007 (self-inconsistent)";
+    g.font = c.cur?"bold 10px sans-serif":"10px sans-serif";
     g.fillStyle = col;
-    g.textAlign = right ? "start" : "end";
-    g.fillText(txt, lx, by+11+row*13);
+    if(narrow){
+      /* 범례: 축 아래 고정 위치. 왼쪽에 색 점을 찍어 위 세로선과 연결한다 */
+      const ly = by+bh+30+i*14;
+      g.beginPath(); g.arc(xs+4, ly-3, 3, 0, 7); g.fill();
+      g.textAlign="start"; g.fillText(txt, xs+12, ly);
+    }else{
+      const wTxt = g.measureText(txt).width;
+      const right = x + wTxt + 8 < xs + xw;
+      const lx = right ? x+5 : x-5;
+      const x0t = right ? lx : lx-wTxt, x1t = right ? lx+wTxt : lx;
+      let row = 0;
+      while(placed.some(p => p.row===row && !(x1t < p.x0-6 || x0t > p.x1+6))) row++;
+      placed.push({row, x0:x0t, x1:x1t});
+      g.textAlign = right ? "start" : "end";
+      g.fillText(txt, lx, by+11+row*13);
+    }
   });
   g.textAlign="start";
   g.fillStyle=VC.dim; g.font="10px sans-serif";
@@ -2020,12 +2081,12 @@ function drawPadAsperity(){
 
 /* ── ④ Pad ③ 수명 / 글레이징 곡선 ─────────────────────────────────── */
 function drawPadLife(){
-  const o = cv("cv-padlife"); if(!o) return;
-  const {g,W,H} = o;
+  const o = cv("cv-padlife", 210); if(!o) return;
+  const {g,W,H,narrow} = o;
   const t = state.time_s||60;
   /* Jeong 2024 Fig.9 pooled 로그감쇠 — sim/factors.py _f_stab 와 동일 계수 */
   const a=1.1478, b=-0.1109;
-  const x0=50, y0=24, x1=W-24, y1=H-40;
+  const x0 = narrow?40:50, y0=24, x1=W-(narrow?12:24), y1=H-40;
   axes(g,x0,y0,x1,y1,"polish time [min]","normalised MRR");
   const TMIN=0.2, TMAX=30;
   const px = m => x0 + (Math.log10(m)-Math.log10(TMIN))/(Math.log10(TMAX)-Math.log10(TMIN))*(x1-x0);
@@ -2036,7 +2097,7 @@ function drawPadLife(){
   g.fillRect(px(10),y0, px(TMAX)-px(10), y1-y0);
   g.fillStyle=VC.dim; g.font="9px sans-serif"; g.textAlign="center";
   g.fillText("clamped", (px(TMIN)+px(1))/2, y0+12);
-  g.fillText("clamped (no extrapolation)", (px(10)+px(TMAX))/2, y0+12);
+  g.fillText(narrow?"clamped":"clamped (no extrapolation)", (px(10)+px(TMAX))/2, y0+12);
   g.textAlign="start";
   /* 곡선 */
   g.strokeStyle=VC.accent; g.lineWidth=2; g.beginPath();
@@ -2076,12 +2137,15 @@ function drawPadLife(){
 
 /* ── ⑤ Disk ① 그릿 맵 ─────────────────────────────────────────────── */
 function drawDiskGrit(){
-  const o = cv("cv-diskgrit"); if(!o) return;
-  const {g,W,H} = o;
+  const o = cv("cv-diskgrit", 300); if(!o) return;
+  const {g,W,H,narrow} = o;
   const rec = state.recorded||{};
   const eta = num("asperity_density_per_m2", 1e11);
   const diskD = 0.10;                                  // m — Ø100 mm 디스크
-  const cx = 150, cy = H/2, rad = 110;
+  /* 좁으면 디스크를 위에 작게, 설명을 아래로. 넓으면 좌우로 나란히. */
+  const rad = narrow ? 78 : 110;
+  const cx  = narrow ? W/2 : 150;
+  const cy  = narrow ? rad+14 : H/2;
   /* 디스크 본체 */
   g.fillStyle="#1d2735"; g.beginPath(); g.arc(cx,cy,rad,0,7); g.fill();
   g.strokeStyle=VC.line; g.lineWidth=1.5; g.stroke();
@@ -2105,26 +2169,28 @@ function drawDiskGrit(){
   g.fillStyle=VC.dim; g.font="10px sans-serif"; g.textAlign="center";
   g.fillText(`Ø${(diskD*1000).toFixed(0)} mm disk face · ${pattern} grit layout`, cx, cy+rad+20);
   g.textAlign="start";
-  /* 오른쪽: 어떤 축인지 설명 박스 */
-  const tx = 290;
+  /* 설명 — 좁으면 디스크 아래, 넓으면 오른쪽 */
+  const tx = narrow ? 10 : 290;
+  let ty0 = narrow ? cy+rad+34 : 34;
+  const tw = narrow ? W-20 : W-tx-8;
   g.fillStyle=VC.fg; g.font="bold 11px sans-serif";
-  g.fillText("Two axes never mixed", tx, 34);
+  g.fillText("Two axes never mixed", tx, ty0);
   g.font="10px sans-serif";
   const rows = [
     ["Consumable (κ)", "grit size, density, layout, tip radius", VC.good],
     ["Tool set-point (Γ)", "downforce, sweep rate, duty — in ① Tool", VC.accent],
   ];
-  let yy=54;
+  let yy = ty0+20;
   rows.forEach(([a,b,c])=>{
-    g.fillStyle=c; g.fillText("● "+a, tx, yy);
-    g.fillStyle=VC.dim; g.fillText(b, tx+10, yy+14); yy+=38;
+    g.fillStyle=c; g.font="10px sans-serif"; g.fillText("● "+a, tx, yy);
+    g.fillStyle=VC.dim; yy = wrapText(g, b, tx+10, yy+13, tw-12, 12) + 4;
   });
-  g.fillStyle=VC.warn; g.font="10px sans-serif";
-  g.fillText("⚠ Grit count/size are recorded only —", tx, yy+4);
-  g.fillText("no literature term maps them to cut rate.", tx, yy+17);
+  g.fillStyle=VC.warn;
+  yy = wrapText(g, "⚠ Grit count/size are recorded only — no literature term maps them to cut rate.",
+                tx, yy+2, tw, 12);
   g.fillStyle=VC.dim;
-  g.fillText(`The engine's disk axis today is η = ${eta.toExponential(1)} /m²`, tx, yy+35);
-  g.fillText("(the asperity field the disk leaves on the pad).", tx, yy+48);
+  wrapText(g, `The engine's disk axis today is η = ${eta.toExponential(1)} /m² (the asperity field the disk leaves on the pad).`,
+           tx, yy+2, tw, 12);
 
   const cap = document.getElementById("cap-diskgrit");
   if(cap) cap.innerHTML =
@@ -2135,15 +2201,18 @@ function drawDiskGrit(){
 
 /* ── ⑤ Disk ② PCR 반경 프로파일 — 스윕이 패드를 어떻게 깎는가 ──────── */
 function drawDiskPCR(){
-  const o = cv("cv-diskpcr"); if(!o) return;
-  const {g,W,H} = o;
+  /* 폰에서는 축 아래에 sweep 설정 한 줄을 더 적으므로 캔버스를 그만큼 높인다 */
+  const el0 = document.getElementById("cv-diskpcr"); if(!el0) return;
+  const narrowFirst = ((el0.parentElement && el0.parentElement.clientWidth || 620) - 18) < 470;
+  const o = cv("cv-diskpcr", narrowFirst ? 250 : 230); if(!o) return;
+  const {g,W,H,narrow} = o;
   const sweep = num("cond_sweep_cpm", 10);        // cycles/min — 오늘 literature 승격
   const duty  = num("cond_duty_pct", 100);
   const force = num("cond_downforce_lbf", 6);
   const padR  = 0.3875;                            // m — Ø775 mm 패드
   const diskR = 0.05;                              // m
   const sweepIn = 0.09, sweepOut = padR-diskR;     // 스윕 반경 구간
-  const x0=52, y0=22, x1=W-20, y1=H-42;
+  const x0 = narrow?42:52, y0=22, x1=W-(narrow?10:20), y1=H-42;
   axes(g,x0,y0,x1,y1,"pad radius [mm]","relative dwell / cut rate");
   const px = r => x0 + (r/padR)*(x1-x0);
   /* 스윕 체류시간 — 사인 왕복이면 양 끝(전환점)에서 체류가 길다 = 더 깎인다.
@@ -2183,14 +2252,17 @@ function drawDiskPCR(){
   [wIn, wOut].forEach(r=>{ if(r>0&&r<padR){ g.beginPath(); g.moveTo(px(r),y0); g.lineTo(px(r),y1); g.stroke(); }});
   g.setLineDash([]);
   g.fillStyle=VC.good; g.font="10px sans-serif"; g.textAlign="center";
-  g.fillText(`wafer track (r_cc ${(rcc*1000).toFixed(0)} ± ${(wr*1000).toFixed(0)} mm)`,
+  g.fillText(narrow ? "wafer track" : `wafer track (r_cc ${(rcc*1000).toFixed(0)} ± ${(wr*1000).toFixed(0)} mm)`,
              (px(wIn)+px(wOut))/2, y0+13);
   g.textAlign="start";
   g.fillStyle=VC.dim; g.font="9px sans-serif";
-  [0,100,200,300,387].forEach(mm=>{ g.textAlign="center"; g.fillText(String(mm), px(mm/1000), y1+14); });
+  (narrow?[0,150,300]:[0,100,200,300,387]).forEach(mm=>{
+    g.textAlign="center"; g.fillText(String(mm), px(mm/1000), y1+14); });
   g.textAlign="start";
   g.fillStyle=VC.accent; g.font="10px sans-serif";
-  g.fillText(`sweep ${sweep} cpm · duty ${duty}% · ${force} lbf`, x0+6, y1-8);
+  /* 좁은 화면에서는 축 안쪽에 두면 곡선에 묻힌다 → 축 아래 빈 줄에 적는다 */
+  if(narrow) g.fillText(`sweep ${sweep} cpm · duty ${duty}%`, x0, H-4);
+  else g.fillText(`sweep ${sweep} cpm · duty ${duty}% · ${force} lbf`, x0+6, y1-8);
 
   const cap = document.getElementById("cap-diskpcr");
   if(cap) cap.innerHTML =

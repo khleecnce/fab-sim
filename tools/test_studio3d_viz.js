@@ -25,11 +25,17 @@ function el(id){
       width:640, height:260,
       getContext:()=>mkCtx(),
       querySelectorAll:()=>[],
-      dataset:{},
+      dataset:{ h: {"cv-padsec":230,"cv-padasp":250,"cv-padlife":210,
+                    "cv-diskgrit":300,"cv-diskpcr":230}[id] || 230 },
+      /* cv() 가 컨테이너 폭으로 캔버스 크기를 잡는다(2026-09-11 모바일 대응).
+         기본은 데스크톱 폭. TEST_HOST_W 로 폰 폭을 흉내낼 수 있다. */
+      parentElement:{ get clientWidth(){ return global.TEST_HOST_W || 620; } },
     };
   }
   return els[id];
 }
+global.TEST_HOST_W = 620;
+global.window = { get devicePixelRatio(){ return global.TEST_DPR || 1; } };
 
 // 테스트할 id 목록 — 없는 것은 null 을 돌려 "조용히 통과"를 확인한다
 const PRESENT = new Set(["pidBox","cap-sds","cv-padsec","cap-padsec","cv-padasp","cap-padasp",
@@ -131,6 +137,23 @@ const passed = !t.includes("fails the geometric check");
 console.log(passed?"  OK    eta=2.0e8 passes the geometric check"
                  :"  FAIL  eta=2.0e8 still flagged");
 if(!passed) bad++;
+
+/* 폰 폭에서도 예외 없이 그려지고, 캔버스가 컨테이너에 맞게 잡히는지
+   (2026-09-11 "핸드폰에서 열수있게해줘" 대응) */
+console.log("\n--- mobile widths ---");
+for(const [hostW, dpr] of [[360,2],[390,3],[320,2],[768,2]]){
+  global.TEST_HOST_W = hostW; global.TEST_DPR = dpr;
+  try{
+    drawViz();
+    const c = els["cv-diskpcr"];
+    const expCss = Math.max(hostW-18, 280);
+    const okW = c.style.width === expCss+"px";
+    const okBmp = c.width === Math.round(expCss*Math.min(dpr,3));
+    if(okW && okBmp) console.log(`  OK    ${hostW}px @${dpr}x -> css ${c.style.width}, bitmap ${c.width}px`);
+    else { console.log(`  FAIL  ${hostW}px @${dpr}x -> css ${c.style.width} (want ${expCss}px), bitmap ${c.width} (want ${Math.round(expCss*Math.min(dpr,3))})`); bad++; }
+  }catch(e){ console.log(`  FAIL  ${hostW}px @${dpr}x threw: ${e.message}`); bad++; }
+}
+global.TEST_HOST_W = 620; global.TEST_DPR = 1;
 
 console.log(bad ? `\n${bad} FAILURE(S)` : "\nALL PASS");
 process.exit(bad?1:0);
