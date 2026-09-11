@@ -115,7 +115,7 @@ print(f"동속 대조군(Rs=1.0): mu={mu0:.2e}, 비균일도=0%")
 지배한다"는 정성 서술과 **꼭 일치하지 않을 수도 있다**(오히려 Rs≠1 선택 자체가 디스크 국소
 불균일을 14% 수준 유발할 수 있다는 반대 방향의 시사점). r_cc를 근사값(195.5mm)으로 가정한
 결과이므로, 실제 r_cc(83~308mm 범위 내 시간에 따라 변함)가 다르면 비균일도도 달라진다 —
-§6 과제로 남긴다.
+§7 과제로 남긴다.
 
 ## 5. Lawing(2004) 정성 대조
 Lawing 슬라이드의 "Increasing Wafer Down-force → Pad Wear Rate 증가"는 §2 Eq.11의 P 선형항과
@@ -123,7 +123,70 @@ Lawing 슬라이드의 "Increasing Wafer Down-force → Pad Wear Rate 증가"는
 [[conditioner-disk-pad-cutting-model]] §2에서 이미 Evans-Marshall 마모율(하중 선형)로 정량화된
 것과 같은 방향성이라는 점만 재확인한다.
 
-## 6. 한계 및 다음 단원 연결
+## 6. fab-sim Γ(컨디셔닝 부하 팩터) 적용 — sweep_cpm은 속도항이 아니다 (2026-09-11)
+
+`sim/factors.py`의 `_f_gamma()`는 기존에 `Γ = (F/F_ref)×(sweep_cpm/sweep_ref)×(duty/duty_ref)`
+형태로 스윕 왕복수(cond_sweep_cpm, n_a)를 마치 상대속도 v처럼 곱했다. §2-3의 Preston형
+`PCR=Kp·P·v`와 대조하면 이는 물리적으로 틀렸다 — v_rel 식(§3)에 n_a(스윕 왕복수)는
+**전혀 나타나지 않는다**. n_a가 결정하는 것은 [[conditioner-sweep-algorithm-trajectory-density]]·
+[[conditioner-sweep-kinematics-pcr-profile]]이 이미 확립한 **반경별 궤적밀도(어디를 깎는가)**이지,
+총 절삭 부하(얼마나 세게 깎는가)가 아니다. `cond_sweep_cpm`이 실측 문헌값으로 뒷받침된다는
+사실([[conditioner-sweep-rate-literature-values]])과, 그 값이 **Γ라는 스칼라 절삭부하 곱셈항에
+들어가야 한다는 것**은 별개 주장이며 후자는 근거가 없다.
+
+**대안: v_rel을 디스크 중심속도 ω_p·r_cc로 근사하고, rpm_platen 비율로 대체한다.**
+§3 식에서 r̄=0(디스크 중심)일 때 v_R = ω_p·r_cc가 Rs(=ω_disk/ω_pad)와 무관하게 **정확히**
+성립한다(디스크 자전은 중심을 움직이지 않으므로). r̄>0에서는 Rs≠1 보정(µ항)이 국소 속도를
+바꾸지만, 디스크 전체(반경·위상 균등)로 평균하면 그 보정은 상쇄된다 — 아래 verify에서 §4와
+같은 Zheng et al. 실측조건(µ≈0.0722)에 대입해 정량 확인한다. r_cc(스윕기구 형상)는 레시피가
+아니라 장비 상수이므로 F·v 비율(현재/기준)에서 분모·분자 모두 같은 r_cc를 쓰면 상쇄된다 —
+따라서 v 항은 **rpm_platen(플래튼 rpm)의 현재/기준 비율만으로 근사 가능**하다. 이는
+[[../physics/cmp-kinematics-rotary]]에 근거해 이미 Λ 팩터(`sim/factors.py _f_lambda`)가
+쓰는 것과 동일한 "Rs=1 근사"·"ω_p가 지배항" 구조다 — 같은 플래튼이므로 같은 근사를 재사용하는
+것이 정합적이다.
+
+```python verify
+import numpy as np
+
+# Zheng et al. (2023) Table 1 실측조건(§4에서 이미 검증한 mu=0.0722)을 재사용해
+# "디스크 전체 평균 v_rel / (omega_p*r_cc)"가 1에 얼마나 가까운지 정량 확인한다.
+mu = 0.0722  # §4 verify 결과 재사용(문헌 RPM비 Rs=0.73, R_disk/r_cc≈0.267에서 유도)
+
+theta = np.linspace(0, 2 * np.pi, 200_000, endpoint=False)
+r_bar = np.linspace(0.0, 1.0, 200)  # 디스크 반경 균등 샘플(중심~에지)
+TH, R = np.meshgrid(theta, r_bar)
+v_over_omega_r = np.sqrt(1 + 2 * R * mu * np.cos(TH) + (R * mu) ** 2)
+
+disk_avg = v_over_omega_r.mean()
+edge_vals = np.sqrt(1 + 2 * mu * np.cos(theta) + mu ** 2)
+edge_avg = edge_vals.mean()
+edge_p2p = np.ptp(edge_vals)
+
+# 핵심 주장: 디스크 전체 평균은 omega_p*r_cc에서 <0.1% 벗어난다(지배항 근사 정당화)
+assert abs(disk_avg - 1.0) < 0.001, f"디스크평균 편차 {disk_avg-1:.5f} — 0.1% 기준 밖"
+# 대조: 에지 국소값은 상당히 흔들린다(peak-to-peak) — 이건 반경분포 문제지 총량 문제가 아님
+assert 0.13 < edge_p2p < 0.16, f"에지 peak-to-peak={edge_p2p:.4f} — §4의 14.4%와 불일치"
+
+print(f"디스크 전체 평균 v/(omega_p*r_cc) = {disk_avg:.5f} (편차 {abs(disk_avg-1)*100:.3f}%)")
+print(f"에지 평균 = {edge_avg:.5f}, 에지 peak-to-peak = {edge_p2p*100:.2f}%")
+print("결론: 총 절삭부하(스칼라) 근사에는 omega_p*r_cc가 지배적 — "
+      "Rs 보정은 반경분포(에지 vs 중심) 문제이지 총량 문제가 아니다.")
+```
+
+**결과(Zheng et al. 2023 Table 1 조건 재현, 2026-09-11)**: 디스크 전체 평균 v/(ω_p·r_cc) =
+1.00044 (0.044% 편차) — Rs≠1이어도 총 절삭부하 스칼라 근사에는 ω_p(rpm_platen)가 사실상
+완전히 지배적이다. 반면 에지 국소값은 peak-to-peak 14.4%까지 흔들린다(§4와 동일 수치, 대조군
+으로 재확인) — 이건 **반경별 분포**
+문제이지 Γ가 다루는 **총량** 문제가 아니라는 것을 수치로 분리했다.
+
+**fab-sim 결론**: `_f_gamma()`를 `Γ=(F/F_ref)×(rpm_platen/lambda_ref_rpm_platen)×(duty/duty_ref)`로
+재정의(2026-09-11 반영). `cond_sweep_cpm`은 f.drivers에 진단용으로만 남기고 f.value 계산에서
+제외했다. confidence는 여전히 `estimated`로 하한한다 — 이유는 Rs 보정(에지 14%, 팩에
+disk RPM 드라이버 없음), 컨디셔너 자체의 시간적 PCR 소진([[conditioner-disk-pad-cutting-model]]
+§3, 50h→16%) 미반영, 임계하중 비선형 미반영 세 가지 구조적 결측 때문이다 — 이 셋은 개별
+드라이버 confidence를 올린다고 해소되지 않는다.
+
+## 7. 한계 및 다음 단원 연결
 - Kp(경험상수) 절대값 미확보 — Cal-1(캘리브레이션 단원, G2 이후)에서 실측 대체 필요.
 - r_cc(디스크-패드 중심거리)는 스윕 중 83~308mm 범위에서 연속 변화 — 본 노트는 중간값
   단일 스냅샷 근사만 검증했다. Lv2-1(인시츄 vs 엑스시츄)에서 시간적분(전체 스윕범위) 버전으로

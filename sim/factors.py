@@ -278,46 +278,83 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
 
 
 def _f_gamma(rr: "ResolvedRecipe") -> Factor:
-    """Γ 컨디셔닝 부하 — 디스크가 패드에 가하는 단위시간 절삭일.
+    """Γ 컨디셔닝 부하 — 디스크가 패드에 가하는 단위시간 절삭일 (Preston형).
 
-    ⚠ 여기는 **장비 설정**(하중·스윕·duty)만 담는다. 디스크의 형상(그릿 밀도·
-    돌출)은 소모품이므로 κ/τ 쪽으로 간다. 이 분리를 지켜야 "디스크를 바꿀까
-    컨디셔너 세팅을 바꿀까"에 답할 수 있다.
+    Zheng et al.(2023) Eq.11: PCR = Kp·P·v_rel. v_rel(디스크-패드 상대속도)의
+    지배항은 disk-rpm-load-radius-pcr.md §4가 유도·검증한 **디스크 중심 속도
+    ω_p·r_cc**다 — 이 항은 디스크 자전비(Rs=ω_disk/ω_pad)와 무관하게 정확하고,
+    같은 문헌조건(Rs=0.73)에서 디스크 전체 평균 v/(ω_p·r_cc)는 1.0004(0.04%
+    편차)로 사실상 완전히 지배적이다(§7 verify). r_cc는 레시피가 아니라 스윕
+    기구 형상(같은 장비)이므로 F·v 비율에서 상쇄돼, v 항을 rpm_platen(같은
+    플래튼) 비율만으로 근사할 수 있다 — Λ이 이미 쓰는 것과 동일 근사(§7 참조).
+
+    **cond_sweep_cpm(스윕 왕복수 n_a)은 v_rel 식에 나타나지 않는다** — 반경별
+    궤적밀도·체류시간 분포(어디를 깎는가)를 결정하는 별개 축이다
+    (conditioner-sweep-algorithm-trajectory-density.md,
+    conditioner-sweep-kinematics-pcr-profile.md). Γ는 반경 무관 스칼라(총
+    절삭 부하)이므로 sweep_cpm을 곱하지 않는다 — 곱하면 서로 다른 물리량
+    (회전 상대속도 vs 왕복수)을 이중 계상하는 것이었다(2026-09-11 정정, 이전
+    버전은 force×sweep×duty로 sweep을 속도 대리항처럼 썼다).
+
+    confidence는 여전히 `estimated`로 하한한다 — 이유(문헌 근거 포함):
+    (1) 디스크 내 상대속도의 Rs 보정항은 무시할 수 없다(에지 peak-to-peak
+    14.4%, §7) — disk RPM 드라이버가 팩에 없어 정량 반영이 불가능하다.
+    (2) 컨디셔너 자체의 PCR 시간적 소진(50h에 초기값의 16%로 감쇠,
+    conditioner-disk-pad-cutting-model.md §3)이 전혀 모델링되지 않았다 —
+    Γ는 디스크가 신품이라고 암묵 가정한다. (3) 임계하중(critical downforce)
+    아래에서는 절삭이 안 일어난다는 비선형이 F 선형항에 미반영이다. 세 항목
+    모두 완화 가능한 근사가 아니라 구조적 결측이므로, 개별 드라이버가
+    literature 등급이어도 모델 자체의 신뢰도는 그보다 낮게 유지한다.
+
+    ⚠ 여기는 **장비 설정**(하중·회전속도·duty)만 담는다. 디스크의 형상(그릿
+    밀도·돌출)은 소모품이므로 κ/τ 쪽으로 간다. 이 분리를 지켜야 "디스크를
+    바꿀까 컨디셔너 세팅을 바꿀까"에 답할 수 있다.
     """
     f = _new("gamma")
     pk = rr.pack
-    needed = ["cond_downforce_lbf", "cond_sweep_cpm", "cond_duty_pct"]
+    needed = ["cond_downforce_lbf", "cond_duty_pct"]
     have = [k for k in needed if pk.has(k)]
     if not have:
-        f.notes.append("⚠ Γ 미모델링: 컨디셔너 하중·스윕·duty 중 어느 것도 팩에 없다. "
+        f.notes.append("⚠ Γ 미모델링: 컨디셔너 하중·duty 중 어느 것도 팩에 없다. "
                        "패드 절삭률(PCR)이 MRR 안정성을 지배하는데 통로가 없다. "
                        "담당 disk-conditioner.")
         return f
     F = float(pk.get_or("cond_downforce_lbf", 0.0))
-    sweep = float(pk.get_or("cond_sweep_cpm", 0.0))
     duty = float(pk.get_or("cond_duty_pct", 100.0))
-    f.drivers = {"cond_downforce_lbf": F, "cond_sweep_cpm": sweep, "cond_duty_pct": duty}
+    omega_p = float(rr.rpm_platen)
+    f.drivers = {"cond_downforce_lbf": F, "rpm_platen": omega_p, "cond_duty_pct": duty}
+    if pk.has("cond_sweep_cpm"):
+        # 진단용 로깅만 — Γ 크기에는 곱하지 않는다(위 docstring 참조).
+        f.drivers["cond_sweep_cpm(coverage_only,not_multiplied)"] = float(
+            pk.get_or("cond_sweep_cpm", 0.0))
     F_ref = float(pk.get_or("cond_ref_downforce_lbf", F or 1.0))
-    sweep_ref = float(pk.get_or("cond_ref_sweep_cpm", sweep or 1.0))
+    omega_ref = float(pk.get_or("lambda_ref_rpm_platen", omega_p or 1.0))
     duty_ref = float(pk.get_or("cond_ref_duty_pct", duty or 100.0))
-    denom = F_ref * sweep_ref * duty_ref
+    denom = F_ref * omega_ref * duty_ref
     if denom <= 0:
         f.notes.append("⚠ 기준 컨디셔닝 부하가 0 — Γ 계산 불가")
         return f
-    f.value = (F * sweep * duty) / denom
+    f.value = (F * omega_p * duty) / denom
     f.terms = {"force": F / F_ref if F_ref else 1.0,
-               "sweep": sweep / sweep_ref if sweep_ref else 1.0,
+               "velocity(rpm_platen)": omega_p / omega_ref if omega_ref else 1.0,
                "duty": duty / duty_ref if duty_ref else 1.0}
     f.status = "modeled" if len(have) == len(needed) else "partial"
-    f.confidence = _worst_conf(_pack_conf(pk, *have), "estimated")
+    f.confidence = _worst_conf(_pack_conf(pk, *have, "rpm_platen"), "estimated")
     f.sources = ["knowledge/equipment/conditioner-disk-pad-cutting-model.md",
                  "knowledge/equipment/disk-rpm-load-radius-pcr.md"]
     if f.status == "partial":
         missing = [k for k in needed if k not in have]
         f.notes.append(f"⚠ 부분 모델링 — 결측: {', '.join(missing)}")
-    f.notes.append("⚠ force×sweep×duty 곱 형태는 절삭일률의 1차 근사다 — "
+    f.notes.append("⚠ force×velocity(rpm_platen)×duty 곱 형태는 절삭일률의 1차 근사다 — "
                    "임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는 "
                    "비선형이 미반영. disk-conditioner 노트 참조.")
+    f.notes.append("⚠ velocity 항은 rpm_platen(패드 RPM)만 쓴다 — 디스크 자전비(Rs) 보정은 "
+                   "disk-rpm-load-radius-pcr.md §7 기준 디스크 평균으로는 <0.1%지만 디스크 "
+                   "에지에서는 peak-to-peak 14.4%까지 벌어진다(cond_disk_rpm 드라이버 부재로 "
+                   "정량 반영 불가 — 반경별 분포는 별도 모듈의 몫).")
+    f.notes.append("⚠ cond_sweep_cpm은 Γ 크기에 곱하지 않는다 — 문헌(disk-rpm-load-radius-pcr.md, "
+                   "conditioner-sweep-algorithm-trajectory-density.md)에 따르면 스윕 왕복수는 "
+                   "v_rel 식에 없고 반경별 궤적밀도(공간분포)만 결정한다. 총 절삭 부하가 아니다.")
     return f
 
 
