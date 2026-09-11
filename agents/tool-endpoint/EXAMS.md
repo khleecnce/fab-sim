@@ -140,3 +140,51 @@ A3. (a) 광학 반사: 금속막이 30–40 nm 이하로 얇아지면 관통깊�
 출처: F. Tian et al., *Micromachines* 14(11):2053 (2023), doi:10.3390/mi14112053, PMC10673209;
 H. An, E. Kim, S. Oh, T. Kim, NCCAVS 확장초록(Sungkyunkwan Univ.),
 `papers/an-nccavs-eddy-current-epd-submicron-cu.pdf`.
+
+## Lv2-2 EPD 트레이스 → 제거량·잔막 역산 방법
+
+**Q1. 간섭 신호로 두께를 잴 때 "절대 두께 모호성"(Lv2-1)과 "제거량(변화량) 역산"(Lv2-2)은
+왜 서로 다른 문제인가? US4293224의 서론이 증착(deposition)과 식각/연마(etch/polish)
+사례를 대비시키는 논리로 답하라.**
+
+A1. 특허 서론은 증착 공정에서 "두께 0에서부터 사이클 수를 세면(counting cycles starting
+when the film has zero thickness) 그 사이클 수 자체가 곧 절대 두께"라고 말한다 — 카운팅의
+기준점(0)이 이미 알려져 있기 때문이다. 반면 CMP 같은 제거 공정은 "카운팅을 시작하는 순간의
+초기 두께를 정확히 모른다"(the initial film thickness may not be known accurately enough)는
+점만 다르다. 카운팅 메커니즘 자체(사이클 수 × $\lambda/2n$ = 그 구간 동안의 두께 변화량)는
+두 경우에 동일하게 유효하다 — 따라서 **모호한 것은 절대 원점(=초기 두께)이지, 카운팅이
+시작된 이후의 상대 변화량이 아니다**. Lv2-1은 전자(원점 미지 문제)를, 이 노트는 후자(원점이
+정해진 뒤의 실시간 추적 문제)를 다룬다. 특허는 원점 문제를 두 파장의 결합 주기 확장으로
+해결한다(Lv2-1 §2·§5의 0.15/0.25 µm 예시).
+출처: US 4,293,224 (IBM, 1981), freepatentsonline.com/4293224.html, 서론 문단 직접 확인.
+상세는 [[../../knowledge/equipment/epd-trace-removal-remaining-thickness-inversion]] §2.
+
+**Q2. 모터전류·마찰·광학 반사 계열의 EPD 신호에서 "제거량"을 역산하려면 왜 반드시 별도의
+제거율(RR) 모델이 필요한가? Li et al.(2017)의 두 검출 시각(183초/189초) 수치로 절대
+제거량의 차이를 계산하라.**
+
+A2. 이 세 계열은 §3(신호특징점 대응표)에서 보듯 전이가 일어난 **시각**만 알려주고 두께
+자체를 측정하지 않는다(간섭처럼 신호가 두께의 함수가 아니라, 마찰계수나 면적분율이라는
+다른 물리량의 함수이기 때문). 따라서 시각을 두께로 바꾸려면 Preston 방정식
+($\dot h=K_pPV$, [[../../knowledge/cmp/preston-luo-dornfeld-mrr]])에서 얻는 제거율 $RR$을
+곱해야 한다: 제거량$=RR\times t_{ep}$. Li et al.(2017)은 $RR=229$ nm/min(3 psi)을 보고하고,
+대칭 필터는 183초에, 인과적 필터는 189초에 전이를 검출했다고 밝힌다. 곱하면 각각 약 698.5
+nm / 721.4 nm의 절대 제거량이 나오고 차이는 22.9 nm($=RR\times6$초)다 — 같은 $RR$이라도
+검출 시각이 달라지면 역산된 제거량이 그만큼 달라진다는 것을, 신호 자체가 아니라 $RR$을
+매개로 한 간접 역산의 특징으로 보여준다.
+출처: H.K. Li, X.C. Lu, J.B. Luo, *Micromachines* 8(6):177 (2017), doi:10.3390/mi8060177,
+PMC6190379. 상세는 [[../../knowledge/equipment/epd-trace-removal-remaining-thickness-inversion]] §4·§7.
+
+**Q3. 오버폴리시 총 시간 예산에서 "필터 지연에 의한 초과제거"와 "저다운포스 잔막 안전마진"
+은 어떻게 다른 오차원이며, 어느 쪽이 규모가 더 큰가?**
+
+A3. 필터 지연분(Lv1-2 §3, $T\approx4.94$s → 초과제거 $\approx18.8$nm)은 **이미 일어난
+전이를 신호처리 지연 때문에 늦게 검출하는** 오차다 — 검출 시각 자체에 숨어 있다. 반면
+Tian et al.(2023)이 명시한 저다운포스 단계 진입 시 남겨두는 목표 잔막(1000~2000 Å = 100~
+200 nm)은 **아직 오지 않은 잔류·불균일에 대비해 공정이 의도적으로 설계한 여유**다 — 신호
+처리를 아무리 개선해도 없어지지 않는다. 두 수치를 비교하면 저다운포스 마진(100~200nm)이
+필터지연 초과제거(18.8nm)보다 약 5.3~10.6배 커서, 실무 오버폴리시 예산은 신호처리
+정교화보다 공정설계상의 잔막 관리 전략에 더 크게 좌우된다.
+출처: H.K. Li et al. 위 Q2와 동일 출처(Lv1-2 §5 재사용); F. Tian et al., *Micromachines*
+14(11):2053 (2023), doi:10.3390/mi14112053, PMC10673209 §5.2. 상세는
+[[../../knowledge/equipment/epd-trace-removal-remaining-thickness-inversion]] §5·§7 Block C.

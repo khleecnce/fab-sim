@@ -1,6 +1,8 @@
 # EPD 신호처리: 노이즈·필터·종점 알고리즘·오버폴리시 트레이드오프
 
-> tool-endpoint Lv1-2. [[epd-optical-motor-friction-eddy-current-comparison]] 필수 상호링크
+> tool-endpoint Lv1-2. [[epd-optical-motor-friction-eddy-current-comparison]] 필수 상호링크.
+> 후속: [[epd-trace-removal-remaining-thickness-inversion]] (Lv2-2)이 여기서 정량화한 필터
+> 지연·초과제거량을 오버폴리시 총 예산 계산에 재사용한다.
 > (Lv1-1에서 세 EPD 원리와 모터파워 이동평균 공식 $y(i)=\frac{x(i+N)+\cdots+x(i-N)}{2N+1}$을
 > 이미 다뤘다 — 그 식은 여기서 반복하지 않는다). 이 노트는 그 다음 단계: **필터가 왜/얼마나
 > 지연을 만드는가, 종점을 무슨 알고리즘으로 잡는가, 그 지연이 오버폴리시·디싱/침식과 어떻게

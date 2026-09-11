@@ -1,9 +1,9 @@
 # 슬러리 화학 전문가 (slurry-chemistry)
 
-## 현재 레벨: Lv1 진행 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv2 진행 — 활성화 게이트는 agents/ORG.md §4
 - 부모: slurry-chemist (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석)
-- 다음 단원: Lv2-2
+- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석), Lv2-2(정지층 선택비 설계 원리 — oxide:nitride/Cu:barrier/W:oxide)
+- 다음 단원: Lv3-1
 
 ## 역할
 산화제·억제제·킬레이트·pH 완충·계면활성제가 막질별 용해·패시베이션·선택비를 어떻게 정하는가
@@ -47,6 +47,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   - 근거노트: knowledge/cmp/ph-ionic-strength-zeta-dissolution-selectivity-pourbaix.md §2·§3·§7 verify1-3
   - 검증문헌값: IEP 실리카2.5·세리아8·Si₃N₄9(Dandu 2009)·Al₂O₃8.5·TiO₂5.5(Sun 2007); κ⁻¹ 0.96 nm@0.1M·9.62 nm@0.001M(1:1); 3가/1가 CCC ~1/729.
   - 우선순위: P2 (실리카 비-DLVO 안정성 예외 있음 — 정성 위험 플래그로만; 절대 CCC·ζ 절대값은 미검증이라 방향 가중에 국한).
+- **[P2] 정지층 쌍 Class 자동분류 + W:oxide 완충능 위험 플래그**: 두 막질의 E°(산화환원 축 유무)로 Class A(유전막쌍)/B(금속-유전막쌍)/C(금속쌍)를
+  자동 판정하는 룩업함수, Class B(W:oxide 등)에는 별도로 "슬러리 완충능이 금속 자가산성화(예: W 분말 pH 6.6→2.5)를
+  버티는가"를 블랭킷 선택비와 독립된 위험 플래그로 추가 — 블랭킷 선택비만으로는 패턴 침식을 예측 못 함(EP3597711B1 실측).
+  - 무엇을: 파라미터 팩에 재료쌍 `redox_axis` 불리언 테이블(SiO2/Si3N4=False, W/Ta/Cu/Co=True), Class B 쌍에는
+    `buffer_capacity_flag`(완충제 pKa·농도 vs 예상 자가산성화 강도)를 추가.
+  - 근거노트: knowledge/cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md §3·§4·§6
+  - 검증문헌값: EP3597711B1 Table 4 — pH_after_W 2.07→9.53에서 침식 69.3→0.3 nm(231배), 블랭킷선택비-침식 상관 ρ≈0.09(무상관).
+  - 우선순위: P2 (Class 분류 자체가 이 노트의 해석적 제안 — 문헌 표준분류 아님. EP3597711B1 상관관계는 다변수 실험이라 인과관계 미확정).
 
 ## 이수 기록
 - 2026-09-10 Lv1-1 산화제 화학 완료 — knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md
@@ -62,4 +70,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   Dandu 2009(doi:10.1149/1.3230624, papers/, 세리아8/실리카2/질화막9 IEP→oxide:nitride 선택비~175). 보조: Choi 2004(doi:10.1149/1.1738472),
   Srinivasan 2015 STI 리뷰(doi:10.1149/2.0071511jss, papers/). 핵심: "charge"의 두 그림(ζ vs Pourbaix) 독립 축 분리; Debye 원자가 확장(z:z→1/z)·
   Schulze–Hardy z⁻⁶(3가 1/729); ζ 부호 정합(세리아+·실리카−)이 STI 선택비를 켠다. Lv1-2 예고한 "I=0 상수→이온강도 보정" 연결.
+- 2026-09-12 Lv2-2 정지층 선택비 설계 원리(oxide:nitride·Cu:barrier·W:oxide) 완료 — knowledge/cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md
+  (verify_claims ✓ 출처4·코드3블록, check_knowledge ✓). 신규 1차: EP3597711 B1(Versum Materials US LLC/현 Merck, freepatentsonline
+  전문 확보 — papers/ep3597711b1-versum-w-cmp-reduced-oxide-erosion.txt, INDEX 등록). 재인용(기존 검증 노트에서): Kaufman et al. 1991
+  (doi:10.1149/1.2085434, 재료선택비 vs 지형선택비 정의), Dandu 2009·Li&Babu 2001·Nishizawa 2010(film-cu-barrier·film-nitride 노트 경유).
+  핵심: Kaufman 이분법(재료 vs 지형 선택비)을 축1로, "두 막질의 산화환원 축 공유 여부"를 축2(이 노트의 제안)로 삼아 세 정지층
+  쌍을 Class A(oxide:nitride, 축0)/B(W:oxide, 축1)/C(Cu:barrier, 축2)로 분류. EP3597711B1 Table 4 재현으로 "블랭킷 재료선택비는
+  패턴 침식의 필요조건이지 충분조건이 아니다"(선택비-침식 상관 ρ≈0.09 vs 완충pH-침식 상관 ρ≈−0.82)를 정량 반증 — W가 스스로
+  만드는 국소 자가산성화를 완충능으로 이기는 것이 Class B 고유의 설계축임을 신규 1차 근거로 확립.
 (이후 크론이 갱신)

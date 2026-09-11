@@ -3,8 +3,10 @@
 > tool-endpoint Lv2-1. 선행: [[epd-optical-motor-friction-eddy-current-comparison]] (Lv1-1, 세 원리
 > 비교·반사율표·30–40nm 투명화), [[epd-signal-processing-filtering-overpolish]] (Lv1-2, 필터·오버폴리시).
 > 이 노트는 그 원리들을 **어느 막질/공정에 쓰는가**와 **어디서 무너지는가**로 재배치한다.
-> 신호처리(Lv1-2)는 반복하지 않고, 트레이스→제거량 역산(Lv2-2)은 넘보지 않는다. 초점은
-> **적합성·한계**뿐. 관련: [[cmp-tool-endpoint-thermal-slurry-delivery]], [[../cmp/ild-cmp-planarization-global-local-density]],
+> 신호처리(Lv1-2)는 반복하지 않고, 트레이스→제거량 역산은
+> [[epd-trace-removal-remaining-thickness-inversion]] (Lv2-2)이 다룬다 — 특히 이 노트 §2의
+> 간섭 주기 모호성은 Lv2-2 §2에서 "절대두께 모호 vs 상대 제거량 무모호"로 정밀화된다.
+> 초점은 **적합성·한계**뿐. 관련: [[cmp-tool-endpoint-thermal-slurry-delivery]], [[../cmp/ild-cmp-planarization-global-local-density]],
 > [[../cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing]], [[../cmp/pattern-dependent-dishing-erosion]].
 
 ## 1. 막질/공정별 EPD 방식 지도

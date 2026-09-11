@@ -2,7 +2,9 @@
 # CMP 장비 — 종점검출(EPD)·툴 온도관리·슬러리 공급계
 
 > 담당: tool-platen-head / tool-endpoint · 작성 2026-09-06 · 상태: 문헌(원문 확인)
-> 연결: [[cmp-tool-architecture]] · [[wiwnu-pressure-velocity-wafer-scale]] · [[cmp-kinematics-rotary]]
+> 연결: [[cmp-tool-architecture]] · [[wiwnu-pressure-velocity-wafer-scale]] · [[cmp-kinematics-rotary]] ·
+> EPD 방식별 원리는 [[epd-optical-motor-friction-eddy-current-comparison]], 트레이스→제거량
+> 역산은 [[epd-trace-removal-remaining-thickness-inversion]] 참고.
 >
 > 목적: `knowledge/components/tool.yaml` 의 endpoint / thermal / slurry_delivery 그룹 근거.
 > 기존 `cmp-tool-architecture.md` 는 헤드·플래튼·링의 **기구**를 다룬다. 이 노트는

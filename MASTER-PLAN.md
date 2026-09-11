@@ -2040,3 +2040,15 @@ corpus.py status: total 2301, with_fulltext 1334, queue fetch 967/learn 1324.
 CURRICULUM 체크박스 3건 [x] 확정(총괄 게이트 PASS 근거), ORG.md §5 3행 갱신.
 
 **한도**: 429/rate-limit 흔적 없음. 코퍼스 fetch는 특허 소스 다수 봉쇄(patent fetcher 403)로 백그라운드 계속 진행.
+
+## 2026-09-12 심야 [심야병렬] 서브에이전트 3명 동시 학습 — slurry-chemistry·film-w·tool-endpoint 각 1단원 (3/6→4/6)
+**QA루프 #40 PASS**(유의 7/20, 평균 ρ=0.9537, 회귀 없음). 격리 1건: dandu2009_sio2_ceria_ph_sweep(F2 원문 미확보+F4 used_for_calibration 누락) — 20회차 이후 집계 제외. F2 원문 미확보 다수(kenchappa2021/li2021/mariscal2020/netzband2020) 자동확보 실패(유료/봉쇄), 사람 개입 필요. completion.py: 격자 12/50(변동 없음).
+**배차**(claude -p 백그라운드, --max-turns 80, 상시 크론과 비겹침: 성장엔진=Θ/factors, 학습총괄=cmp-data-engineer/film-nitride, 직전 심야=film-poly-si/film-cu/slurry-abrasive):
+- **slurry-chemistry Lv2-2** (3/6→4/6): 정지층 선택비 설계. knowledge/cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md.
+  Kaufman1991 재료선택비 vs 지형선택비 독립실패 축 + 산화환원축 공유여부 Class A(oxide:nitride)/B(W:oxide)/C(Cu:barrier) 분류. EP3597711B1(Versum, freepatentsonline 전문·papers/ 등록) Table4 재현: 블랭킷 재료선택비-패턴침식 ρ≈0.09(무상관) vs 완충pH-침식 ρ≈−0.82 → "선택비 높을수록 좋다" 정량 반증.
+- **film-w Lv2-2** (3/6→4/6): Ti/TiN 배리어 CMP·W:배리어:옥사이드 3중선택비. knowledge/cmp/w-cmp-ti-tin-barrier-selectivity-recess-erosion.md.
+  US5916855(AMD, Table I–VI 실측)·US9752057(Cabot, TiN 억제 계면활성제) 특허 전문. Ti 과황산염 능동산화 W의 3배↑, TiN은 산화막 기계제거 지배. W:Ti 선택비 U자형(극단·역전 둘 다 dishing/erosion 악화, 최소 3.75~4.0:1) → 창 문제. Feng2021은 초록만(IOP/미러 사이트 차단).
+- **tool-endpoint Lv2-2** (3/6→4/6): EPD 트레이스→제거량·잔막 역산. knowledge/equipment/epd-trace-removal-remaining-thickness-inversion.md.
+  US4293224(FreePatentsOnline) 프린지=상대제거량 무모호/절대두께 모호. 모터전류·마찰·반사계는 Preston RR 곱 이벤트역산. 오버폴리시 예산은 필터지연(~19nm)보다 저다운포스 잔막마진(Tian2023, 100~200nm)에 5~11배 더 좌우. 와전류 교정식 미확보(정직 표기).
+**품질게이트(총괄 직접 실행이 정본)**: verify_claims 3/3 통과(출처 13건 실존, 검증코드 8블록 통과, 출처없는 수치주장 0), check_knowledge 3/3 통과, --all 137/142(반려 5편 이번 작업 무관 기존 부채). CURRICULUM 체크박스 3건 [x] 확정, ORG.md §5 3행 갱신.
+**한도**: 429/rate-limit 흔적 없음.

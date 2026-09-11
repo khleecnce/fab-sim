@@ -833,5 +833,41 @@
   "venue": "Micromachines 14, 1779 (2023)",
   "year": 2023,
   "note": "materials/film-poly-si-3dnand-har-poly-cmp-dishing.md — HAR 채널홀 → 다중 덱 → 덱 간 poly-plug CMP 변동, Ion 17 % 감소·산포 2배"
+ },
+ "ep3597711b1-versum-w-cmp-reduced-oxide-erosion": {
+  "src": "freepatentsonline (특허 전문 텍스트)",
+  "pdf_local": "papers/ep3597711b1-versum-w-cmp-reduced-oxide-erosion.txt",
+  "patent": "EP3597711B1",
+  "title": "Tungsten Chemical Mechanical Polishing for Reduced Oxide Erosion",
+  "assignee": "Versum Materials US LLC (현 Merck)",
+  "venue": "European Patent EP3597711 B1, filed 2019-07-22, published 2024-08-07",
+  "note": "cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md"
+ },
+ "avanzino1999-us5916855-w-ti-cmp-slurry": {
+  "src": "USPTO PatFT 원문 PDF 직접 확보 (image-ppubs.uspto.gov print/downloadPdf)",
+  "pdf_local": "papers/avanzino1999-us5916855-w-ti-cmp-slurry.pdf",
+  "patent": "US5916855",
+  "title": "Chemical-Mechanical Polishing Slurry Formulation and Method for Tungsten and Titanium Thin Films",
+  "assignee": "Advanced Micro Devices, Inc.",
+  "venue": "US Patent 5,916,855, filed 1997-03-26, issued 1999-06-29",
+  "note": "cmp/w-cmp-ti-tin-barrier-selectivity-recess-erosion.md"
+ },
+ "hou2017-us9752057-tin-suppression-cmp": {
+  "src": "USPTO PatFT 원문 PDF 직접 확보 (image-ppubs.uspto.gov print/downloadPdf)",
+  "pdf_local": "papers/hou2017-us9752057-tin-suppression-cmp.pdf",
+  "patent": "US9752057",
+  "title": "CMP Method for Suppression of Titanium Nitride and Titanium/Titanium Nitride Removal",
+  "assignee": "Cabot Microelectronics Corporation",
+  "venue": "US Patent 9,752,057 B2, filed 2015-02-06, issued 2017-09-05",
+  "note": "cmp/w-cmp-ti-tin-barrier-selectivity-recess-erosion.md"
+ },
+ "feng2021-cpb-tin-cmp-mechanism-naclo": {
+  "src": "초록만 확인 (OpenAlex abstract_inverted_index 재구성; iopscience 본문은 JS 챌린지로 curl 미확보, cpb.iphy.ac.cn SPA도 API 미노출)",
+  "pdf_local": null,
+  "doi": "10.1088/1674-1056/abc161",
+  "title": "Mechanism of titanium–nitride chemical mechanical polishing",
+  "authors": "Feng D-H, Wang R-B, Xu A-X, Xu F, Wang W-L, Liu W-L, Song Z-T",
+  "venue": "Chin. Phys. B 30(2), 028301 (2021)",
+  "note": "cmp/w-cmp-ti-tin-barrier-selectivity-recess-erosion.md"
  }
 }
