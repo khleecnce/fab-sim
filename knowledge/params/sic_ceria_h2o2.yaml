@@ -67,6 +67,25 @@ params:
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%)"
     confidence: measured
 
+  # ── 연마입자 입경 (base sti_ceria의 80nm 오버라이드) ─────
+  abrasive_size_nm:
+    value: 120.0
+    unit: nm
+    note: >
+      SiC+세리아 1차 문헌 실측값으로 승격(기존 base sti_ceria 상속값 80nm는 세리아가 아니라
+      같은 원문의 실리카 dmean을 잘못 전용한 값으로 보임 — 노트 §3). Chen et al. 2017
+      (RSC Adv. 7, 16938–16952, DOI 10.1039/C6RA27508G, 오픈액세스, 원문 1차 확인) §2.1
+      Materials: "ceria abrasives (dmean ≈ 120 nm, 30 wt%, Chuangyuan New materials Co. Ltd.)"
+      — 공급업체 콜로이달 스펙이자 TEM(JEOL-2100)으로 직접 확인(Fig. 1b), 실제 6H-SiC CMP
+      실험(§2.3, 4psi/80·80rpm/IC-1000)에 2wt%로 희석해 실사용.
+      ⚠ 산화제 불일치: 이 논문은 KMnO4(0.05M)를 쓰고 이 팩은 H2O2다. 그러나 연마입자
+      입경은 공급업체 콜로이달 분산 물성(입자 자체 기하)이라 산화제와 독립적 — SiC+ceria
+      입경 계는 동일하다고 본다. 산화제 차이는 화학층(MRR 배수) 쪽에만 영향.
+      ⚠ 웨이퍼는 6H-SiC(이 팩은 4H-SiC) — 폴리타입 다르나 연마입자 스펙 자체는 웨이퍼
+      폴리타입과 무관(공급업체 물성이므로 교차 적용 타당).
+    source: knowledge/cmp/sic-ceria-abrasive-particle-size-chen2017-rsc.md
+    confidence: literature
+
   # ── ψ 표면 흡착 보호 (분산제 경로, 교차계 전이) ──────────
   dispersant_type:
     value: "NONE"

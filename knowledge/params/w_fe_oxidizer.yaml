@@ -72,10 +72,18 @@ params:
     source: papers/US20110186542A1.txt
     confidence: literature
   abrasive_size_nm:
-    value: 150.0
+    value: 50.0
     unit: nm
-    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
-    confidence: estimated
+    note: >
+      Bielmann et al. 1999(ECS Solid-State Lett. 2(3) 148, DOI:10.1149/1.1390765) 실측 W CMP
+      폴리싱 슬러리의 γ-알루미나 1차입자경("primary size ~50 nm diam"). 원래 후보였던 OSTI
+      0.7μm(질산철 문구가 구리·석영유리 캡션에만 있고 텅스텐 캡션엔 없음, E5)과 Cabot v.
+      Solution Technology 판례의 60nm(그 제품 화학성분은 질산이지 질산철이 아니고, boehmite+
+      질산철 조합은 구리용 — 대상계 불일치로 기각)를 원문 대조 후 모두 기각하고, 계 근접도가
+      가장 높은 이 1차 문헌으로 대체했다. 산화제가 K3Fe(CN)6(Fe(NO3)3 아님)라는 차이는 남음 —
+      상세 근거는 노트 참조.
+    source: knowledge/cmp/w-cmp-abrasive-d50-bielmann1999-osti-cabot-conflict.md
+    confidence: literature
 
   # ── Δ 손상 유발도 (스크래치 위험) — 진단 전용, MRR에 곱해지지 않음 ──
   # ⚠ Egan & Kim 2019 §3.4: 텅스텐 벌크 CMP에서 대입자는 **MRR을 올리지 않고 스크래치만**

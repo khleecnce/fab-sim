@@ -47,10 +47,25 @@ params:
     source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md §4
     confidence: literature
   abrasive_size_nm:
-    value: 80.0
+    value: 60.0
     unit: nm
-    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
-    confidence: estimated
+    note: >
+      Dandu Veera, Peddeti, Babu 2009 (J. Electrochem. Soc. 156(12) H936-H943,
+      doi:10.1149/1.3230624) — Rhodia Inc. 세리아 슬러리, 원문 명시
+      "mean diameter d_mean = 60 nm" (무첨가, pH 4-5.5 — 이 팩의 slurry_ph=5.5·
+      ph_ref=5.5와 조건 일치). 원문 PDF 1차 확보·완독
+      (papers/dandu2009-jes-selective-sio2-sin-ceria-sti.pdf; 상세 재현은
+      knowledge/cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md §5.1·§8[D]).
+      같은 논문의 Ferro 소성 세리아는 d_mean=180 nm(첨가제 병행 실험용, 더 높은
+      옥사이드 RR). STI 세리아 상용 슬러리는 문헌상 30~230 nm대로 넓게 분포한다
+      (예: Hwang·Lyu·Kim 2026 Polymers 18, 1899, doi:10.3390/polym18151899 —
+      PAA 함유 HNU15 세리아 DLS d50 155→111 nm, 5h 밀링 후, pH~9.1·무억제제,
+      원문 PDF 1차 확보; Urban 2016 Ferro 벤더 슬라이드 D_mean 30-145 nm,
+      미검증) — 이 팩은 무첨가·pH 5.5 조건이 이 값(60 nm)과 가장 가깝다고 판단해
+      채택. 기존 80 nm(estimated)는 이 범위 안에 있었으나 특정 문헌 근거가
+      없었다.
+    source: knowledge/cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md §5.1
+    confidence: literature
 
   # ── Δ 손상 유발도(D99-스크래치) ─────────────────────────
   # ⚠ 이 세 값은 sti_ceria 팩(및 이를 상속하는 sic_ceria_h2o2)의 실제 슬러리

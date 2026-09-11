@@ -1,8 +1,8 @@
 # FabSim 모델 근거 보고서 (MODEL-BASIS)
 
-생성: 2026-09-10 21:38 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
+생성: 2026-09-11 13:31 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
 
-완성 판정: **미완** (6/50칸). 미충족 50건은 끝에.
+완성 판정: **미완** (12/50칸). 미충족 39건은 끝에.
 
 ## 0. 결합식
 
@@ -31,15 +31,15 @@ Preston MRR = Kp·P·V 에서 Kp를 뺀 나머지 전부. 장비가 웨이퍼에
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | estimated | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
-| oxide_silica | modeled | estimated | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
-| sic_ceria_h2o2 | modeled | estimated | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
-| sti_ceria | modeled | estimated | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
-| w_fe_oxidizer | modeled | estimated | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
+| cu_h2o2_bta | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
+| oxide_silica | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
+| sic_ceria_h2o2 | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
+| sti_ceria | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
+| w_fe_oxidizer | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
 
 엔진이 스스로 보고하는 한계:
 
-- P·V = 3.11 psi·m/s (기준 대비 1.000배)
+- P·V = 3.456 psi·m/s (기준 대비 1.000배)
 
 근거 노트(verify 블록 보유): `knowledge/cmp/preston-luo-dornfeld-mrr.md`, `knowledge/physics/cmp-kinematics-rotary.md`
 
@@ -61,17 +61,17 @@ Preston MRR = Kp·P·V 에서 Kp를 뺀 나머지 전부. 장비가 웨이퍼에
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | verified | uniform×1.000 | edge_pressure_amp | — |
-| oxide_silica | modeled | verified | uniform×1.000 | edge_pressure_amp | — |
-| sic_ceria_h2o2 | modeled | verified | uniform×1.000 | edge_pressure_amp | — |
-| sti_ceria | modeled | verified | uniform×1.000 | edge_pressure_amp | — |
-| w_fe_oxidizer | modeled | verified | uniform×1.000 | edge_pressure_amp | — |
+| cu_h2o2_bta | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
+| oxide_silica | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
+| sic_ceria_h2o2 | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
+| sti_ceria | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
+| w_fe_oxidizer | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
 
 엔진이 스스로 보고하는 한계:
 
 - 균일 압력 — Π=1.0 (존압력·엣지집중 없음)
 
-근거 노트(verify 블록 보유): **없음** (C5 미충족)
+근거 노트(verify 블록 보유): `knowledge/equipment/cmp-multizone-carrier-radial-response.md`
 
 
 ## Θ 열·유동 부하 (`theta`) — 축: equipment · 파트: tool · MRR 결합: 아니오(진단)
@@ -122,11 +122,11 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | unverified | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
-| oxide_silica | modeled | unverified | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
-| sic_ceria_h2o2 | modeled | unverified | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
-| sti_ceria | modeled | unverified | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
-| w_fe_oxidizer | modeled | unverified | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
+| cu_h2o2_bta | modeled | estimated | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
+| oxide_silica | modeled | estimated | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
+| sic_ceria_h2o2 | modeled | estimated | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
+| sti_ceria | modeled | estimated | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
+| w_fe_oxidizer | modeled | estimated | force×1.000, sweep×1.000, duty×1.000 | cond_downforce_lbf, cond_sweep_cpm, cond_duty_pct | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md |
 
 엔진이 스스로 보고하는 한계:
 
@@ -158,7 +158,7 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | partial | estimated | pad_hardness×1.000, asperity×1.000 | abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | pad-hardness-porosity-measurement-method; gw-contact.md |
+| cu_h2o2_bta | partial | estimated | size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
 | oxide_silica | partial | estimated | conc×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
 | sic_ceria_h2o2 | partial | estimated | conc×1.710, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
 | sti_ceria | partial | estimated | conc×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
@@ -171,10 +171,11 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 - ⚠ 농도 지수 n=0.333 — 문헌은 1/3(표면적)~4/3(압입) 두 극한만 제시하고 어느 쪽인지 정하지 않았다. 순위는 신뢰, 크기는 캘리브레이션 대상.
 - ⚠ 부분 모델링 — 반영된 항 2/4: pad_hardness, asperity
 - ⚠ 부분 모델링 — 반영된 항 3/4: conc, pad_hardness, asperity
+- ⚠ 부분 모델링 — 반영된 항 3/4: size, pad_hardness, asperity
 - ⚠ 입경 항 미적용: 지수(abrasive_size_exponent)가 팩에 없다. 문헌은 정점형(~80nm 최대)이라고만 서술하고 지수를 확정하지 못했으므로 임의값을 쓰지 않는다 — 입경을 바꿔도 κ가 변하지 않는다는 뜻이다. 단조 지수를 넣으면 정점 거동을 놓친다.
 - ⚠ 입자 함량 20 wt%가 포화농도 7 wt%를 넘었다 — 실제로는 더 넣어도 MRR이 안 오른다(Luo-Dornfeld 포화영역). 현재 항은 계속 증가시키므로 이 구간 예측은 과대평가다.
 
-근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/materials/pad-hardness-porosity-measurement-methods.md`
+근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/cmp/abrasive-size-null-result-force-partition-theory.md`, `knowledge/materials/pad-hardness-porosity-measurement-methods.md`
 
 
 ## χ 화학 반응성 (`chi`) — 축: consumable · 파트: slurry · MRR 결합: 예
@@ -218,31 +219,39 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 ### 모델 정의 근거 (코드 docstring 그대로)
 
 ```
-ψ 표면 보호도 — 억제제 피복이 만드는 제거 억제 배수 (≤1).
+ψ 표면 보호도 — 표면 흡착 보호(억제제 피복 또는 분산제 흡착)가 만드는
+제거 억제 배수 (≤1).
 
 χ와 분리한 이유: 사용자가 배합을 조정할 때 "촉진을 올릴까 억제를 낮출까"는
 서로 다른 결정이다. 하나의 화학 배수로 뭉치면 그 판단이 사라진다.
 디싱/에로전은 이 항이 지배한다.
+
+ψ 정의 확장(COMPLETION.md): 원래는 Cu/W용 금속 부동태 억제제(BTA 등)만
+모델링했다. 하지만 oxide_silica/sic_ceria_h2o2/sti_ceria 세 팩은 금속이
+아니라 실리카/세리아 슬러리라 inhibitor_mM이 없다 — 그렇다고 표면 흡착
+보호가 없는 게 아니라, 통로가 폴리머 분산제 흡착(PVA/PVP)으로 바뀐 것뿐이다.
+그래서 억제제 항이 없을 때 분산제 흡착 항으로 폴백한다.
 ```
 
 ### 팩별 상태
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | unverified | inhibitor×1.000 | inhibitor_mM | cu-bta-inhibition.md |
-| oxide_silica | unmodeled | unverified | — | — | — |
-| sic_ceria_h2o2 | unmodeled | unverified | — | — | — |
-| sti_ceria | unmodeled | unverified | — | — | — |
-| w_fe_oxidizer | modeled | unverified | inhibitor×1.000 | inhibitor_mM | cu-bta-inhibition.md |
+| cu_h2o2_bta | modeled | unverified | inhibitor×1.000 | inhibitor_mM | cu-electrochemistry-pourbaix-bta-oxidize; inhibitor-chelator-adsorption-isotherm-p |
+| oxide_silica | modeled | literature | dispersant×1.000 | dispersant_type | abrasive-size-concentration-ph-K-additiv |
+| sic_ceria_h2o2 | modeled | estimated | dispersant×1.000 | dispersant_type | abrasive-size-concentration-ph-K-additiv |
+| sti_ceria | modeled | estimated | dispersant×1.000 | dispersant_type | abrasive-size-concentration-ph-K-additiv |
+| w_fe_oxidizer | modeled | unverified | inhibitor×1.000 | inhibitor_mM | cu-electrochemistry-pourbaix-bta-oxidize; inhibitor-chelator-adsorption-isotherm-p |
 
 엔진이 스스로 보고하는 한계:
 
+- ψ 정의 확장: 표면 흡착 보호(passivation/adsorption shield) — 이 팩은 금속 부동태가 아니라 폴리머 분산제 흡착 경로
 - ⚠ surfactant가 미연결 — 계면활성제도 피복을 통해 억제에 기여하는데 통로가 없다.
-- ⚠ ψ 미모델링: 억제제 파라미터(inhibitor_mM + 흡착상수)가 팩에 없다. Cu/W 디싱 제어를 시뮬레이션할 수 없다.
+- 분산제 흡착 보호: NONE = 기준 조성이라 배수 1.000 (Kp가 이 조성에서 역산됐다 — 절대 저해율을 다시 곱하면 이중 계상). 다른 분산제로 바꾸면 그 상대비가 반영된다(knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6, Li et al. 2021 실측).
 - 억제제 1 mM (기준 1 mM), θ=0.966. ⚠ 고농도 감쇠 형상(inhibitor_strength_k)은 문헌값 없음 — 캘리브레이션 대상.
 - 억제제 121.8 mM (기준 121.8 mM), θ=0.993. ⚠ 고농도 감쇠 형상(inhibitor_strength_k)은 문헌값 없음 — 캘리브레이션 대상.
 
-근거 노트(verify 블록 보유): **없음** (C5 미충족)
+근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md`, `knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md`
 
 
 ## τ 슬러리 전달 (`tau`) — 축: consumable · 파트: slurry, pad, disk · MRR 결합: 예
@@ -295,12 +304,12 @@ Prasad III.D.2: 기공 2 µm 패드는 중심이 슬러리 기아로 처지고 �
 
 엔진이 스스로 보고하는 한계:
 
+- ⚠ τ 등급=unverified: 드라이버(기공률·그루브폭·점도)는 literature 등급이지만 τ의 **결합 지수**(tau_mrr_exponent=0.07)가 기공률 실험에서 역산해 그루브 축에 교차 대입한 값이라 크기를 문헌이 보증하지 않는다 — 가장 약한 고리가 등급을 정한다. 순위만 신뢰하라.
 - ⚠ τ가 실제로 지배하는 것은 평균 MRR이 아니라 **반경 프로파일**이다. 기공 2 µm 패드에서 중심이 슬러리 기아로 처지고 엣지-중심 RR 차이가 200 nm/min을 넘었다(Prasad 2013 III.D.2). 이 프로파일 결합은 미구현 — 담당 R3-pad × R2-slurry.
-- ⚠ τ의 MRR 결합 지수(tau_mrr_exponent=0.07)는 기공률 실험에서 역산해 그루브 축에 교차 대입한 값이다 — 미검증. 순위만 신뢰하라.
 - 그루브 폭 600 µm → 슬러리 이용효율 η=13.4% (기준 600 µm, η=13.4%). ⚠ η는 600 µm 부근에서 정체·반전한다 — 넓힐수록 좋지 않다(Mu 2016 Table 3 실측).
-- 기공률 35% (기준 35%). ⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 기각됐다(Prasad 2013). 지수 0.07은 그 8%에서 역산한 값이다.
+- 기공률 30% (기준 30%). ⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 기각됐다(Prasad 2013). 지수 0.07은 그 8%에서 역산한 값이다.
 
-근거 노트(verify 블록 보유): **없음** (C5 미충족)
+근거 노트(verify 블록 보유): `knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md`, `knowledge/materials/pad-porosity-slurry-transport-mrr.md`
 
 
 ## Δ 손상 유발도 (`delta`) — 축: consumable · 파트: slurry, pad, disk · MRR 결합: 아니오(진단)
@@ -317,18 +326,18 @@ Prasad III.D.2: 기공 2 µm 패드는 중심이 슬러리 기아로 처지고 �
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | unmodeled | unverified | — | abrasive_size_nm | — |
-| oxide_silica | unmodeled | unverified | — | abrasive_size_nm | — |
-| sic_ceria_h2o2 | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | — |
-| sti_ceria | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | — |
-| w_fe_oxidizer | unmodeled | unverified | — | abrasive_size_nm | — |
+| cu_h2o2_bta | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md |
+| oxide_silica | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md |
+| sic_ceria_h2o2 | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md |
+| sti_ceria | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md |
+| w_fe_oxidizer | partial | unverified | d99×1.000 | abrasive_d99_nm, abrasive_size_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md |
 
 엔진이 스스로 보고하는 한계:
 
-- ⚠ Δ 미모델링: 대입자 tail(abrasive_d99_nm)이 팩에 없다. 스크래치는 평균 입경이 아니라 꼬리가 만든다 — D50만으로는 예측 불가. 담당 R2-slurry × defect. 실무에서 가장 자주 문제되는 축인데 통로가 없다.
 - ⚠ 손상 지수 n=1.44는 문헌 폐형식이 없어 팩에서 받는 가정값이다. 순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. ⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 PROFILE.md에 기록).
+- ⚠ 손상 지수 n=2.54는 문헌 폐형식이 없어 팩에서 받는 가정값이다. 순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. ⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 PROFILE.md에 기록).
 
-근거 노트(verify 블록 보유): **없음** (C5 미충족)
+근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md`, `knowledge/cmp/lpc-scratch-density-tail-correlation.md`
 
 
 ## S 시간 안정성 (`stab`) — 축: consumable · 파트: slurry, pad, disk · MRR 결합: 아니오(진단)
@@ -358,11 +367,11 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9 |
-| oxide_silica | partial | literature | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9 |
-| sic_ceria_h2o2 | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9 |
-| sti_ceria | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9 |
-| w_fe_oxidizer | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9 |
+| cu_h2o2_bta | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
+| oxide_silica | partial | literature | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
+| sic_ceria_h2o2 | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
+| sti_ceria | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
+| w_fe_oxidizer | partial | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
 
 엔진이 스스로 보고하는 한계:
 
@@ -370,7 +379,7 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 - ⚠ 원 데이터는 콜로이달 실리카/IC1000 단일계다 — 이 팩의 연마입자(ceria)로의 외삽은 미검증(confidence=estimated). fumed vs colloidal 실리카만도 감쇠율이 5배 차이 난다(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §3, Lawing 2004) — 다른 화학종은 그 이상 벗어날 수 있다.
 - ⚠ 컨디셔닝 사이클·수십 시간 규모 패드 수명 누적 마모는 여전히 미모델링 (무-컨디셔닝 단발 1~10분 데이터만 반영). 담당 R3-pad × R4-disk.
 
-근거 노트(verify 블록 보유): **없음** (C5 미충족)
+근거 노트(verify 블록 보유): `knowledge/materials/pad-glazing-mechanism-mrr-decay.md`
 
 
 ## 파라미터 도출 근거 (팩 YAML의 source/note/confidence 그대로)
@@ -395,6 +404,10 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | inhibitor_ref_mM | 1.0 | mM | verified | knowledge/cmp/slurry-components-overview.md | 기준 농도. 여기서 화학 배수가 정확히 1.0이 되어 Kp가 그대로 쓰인다. Kp가 이 조성의 문헌 MRR에서 역산됐기 때문에 반드시 일치시켜야 이중계상이 없다. |
 | inhibitor_strength_k | 3.0 | - | unverified | knowledge/cmp/slurry-components-overview.md | ⚠ 억제 강도 형상 파라미터. 잔여율 = exp(-k·θ). (1-θ)를 쓰면 θ가 0.97에서 포화돼 2mM과 5mM이 구분되지 않는다(실제 발생). 실제 억제는 피복률뿐 아니라 막 치밀도·재생속도에도 달려 고농도에서도 계속 세진다. **문헌 폐형식 없음 — 캘리브레이션 1순위.**  |
 | abrasive_size_nm | 100.0 | nm | estimated | knowledge/cmp/particle-wafer-interaction-mechanical-chemical |  |
+| abrasive_size_exponent | 0.0 | - | literature | knowledge/cmp/abrasive-size-null-result-force-partition-theo | **검증된 영(null) 결과 — "모름"이 아니라 "효과 없음"이다.** EVIDENCE-RULES.md 판정 #1 (2026-09-11)로 확정. 5회차 순환하던 RESPONSE_DEAD를 종결한다. 충돌: Bai 2007(Appl.Surf.Sci. 253, 8489) 폐형식 유도는 |
+| abrasive_d99_nm | 500.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | abrasive_size_nm(100 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008). 독립 상한 대조: Showa Denko US6770218B2(알루미나 + 질산철 금속 CMP, W·Cu 동일 슬러리) 명세 "maximum grain size |
+| abrasive_ref_d99_nm | 500.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지 |
+| damage_exponent | 2.54 | - | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | Egan & Kim 2019(ECS JSS 8(5) P3206, GLOBALFOUNDRIES 300mm 양산) 두 관측 n_temp=3.73 / n_agit=1.73의 기하평균(로그축 중앙). ⚠ 원 관측은 **텅스텐** 벌크 CMP다 — Cu로의 전이는 연마입자·촉매 계열 유사성(Sh |
 | dishing_sensitivity | 1.0 | - | unverified | knowledge/cmp/pattern-dependent-dishing-erosion.md | ⚠ 미연결. dishing 정량에는 금속:산화막 MRR 비가 필요한데 아직 두 팩을 동시에 로드하는 다막질 모델이 없다(film-cu 에이전트 대기). |
 
 ### 팩 `oxide_silica`
@@ -407,6 +420,7 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | slurry_ph | 10.5 | pH | literature | knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md | 실리카 슬러리 염기성 — 표면 실라놀 이온화로 제거 촉진 |
 | abrasive_size_nm | 50.0 | nm | literature | knowledge/cmp/particle-wafer-interaction-mechanical-chemical |  |
 | abrasive_iep_ph | 2.5 | pH | verified | knowledge/cmp/ceria-slurry-ce-redox-selectivity.md | 실리카 등전점 — pH 10.5에서 강한 음전하 → 정전 안정 |
+| hamaker_j | 8.5e-21 | J | literature | knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md §5 | 실리카-물-실리카 Hamaker 상수. 노트 §5: "실리카-물-실리카는 통상 ~0.85×10^-20 J 오더로 채택(본 재현값)" — sim/tier2_physics/dlvo_colloid.py self-test가 이 값으로 DLVO V_T(h) 정성 형태(장벽 존재/소멸)를 재현한다 |
 | abrasive_wt_pct | 20.0 | wt% | literature | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | Li et al. 2021 pH 실험 조건(20 wt% 콜로이달 실리카, K+ 0.25 mol/L). 통상 범위는 1~10 wt%(총론)이나 이 논문 계는 20~30 wt%로 높다. |
 | abrasive_ref_wt_pct | 20.0 | wt% | literature | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | κ 농도항 기준점 — 위와 같은 조건 |
 | abrasive_conc_exponent | 0.3333 | - | unverified | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | R ∝ C0^(1/3) 표면적 지배 극한. 논문은 1/3(표면적)과 4/3(압입) 두 극한을 제시하고 어느 쪽인지 확정하지 않았다 — 보수적으로 낮은 쪽을 기본값으로 둔다. ⚠ 순위(농도↑→MRR↑)만 문헌이 직접 서술·검증했다. 크기는 캘리브레이션 대상. |
@@ -415,8 +429,12 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | ph_peak | 11.0 | pH | verified | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | MRR 최대 pH (20 wt% 실리카, K+ 0.25 M, SiO2 막). 정점형 거동 |
 | ph_ref | 10.5 | pH | literature | knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md | χ pH항 기준점 — 이 팩의 slurry_ph와 같은 값 |
 | ph_mrr_at_peak_rel | 1.113 | - | verified | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | pH 10.0 대비 pH 11.0의 MRR 비 (1727/1551 = 1.113, +11.3%). 노트 verify 블록이 이 값을 assert한다. |
-| slurry_viscosity_pa_s | 0.001 | Pa·s | estimated | knowledge/physics/cmp-lubrication-regimes.md §2 | 물기반 슬러리 점도 — 노트는 "~1e-3"으로만 명시 |
+| abrasive_d99_nm | 250.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | abrasive_size_nm(50 nm) × D99/D50 일반비 5.00 유도값. 일반비 출처는 Silco/Levitronix CMP Users Conference 2008 슬라이드 p.11(3세대 관측 4.29~5.00, 중앙값 5.00, 산업 컨퍼런스 2차 자료). 오더 대조:  |
+| abrasive_ref_d99_nm | 250.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지 |
+| damage_exponent | 1.44 | - | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | US8439995B2(Hitachi 세리아) 4점 로그-로그 회귀 n=1.444, R²=0.997. 막질 일치 (산화막 CMP)이나 연마입자 불일치(세리아 vs 콜로이달 실리카) — 조건 외삽. 교차확증: Remsen 2006(퓸드실리카·산화막) Table V가 선형(n≈1)을 지지해  |
+| slurry_viscosity_pa_s | 0.001 | Pa·s | literature | knowledge/materials/slurry-viscosity-rheology-literature-val | 콜로이달 실리카 CMP 슬러리 **실측** 점도. Lee et al. 2025 (Nanomaterials 15(16) 1248, DOI 10.3390/nano15161248, OA) Brookfield DV-II+Pro: 첨가제 무관 기본 슬러리 ~0.98 cP (§3.2 Fig.3a) |
 | pad_ra_m | 5e-06 | m | estimated | knowledge/physics/cmp-lubrication-regimes.md §5 | 패드 raised 영역 평균거칠기 — 노트는 "~5µm 전형"으로만 명시 |
+| dispersant_type | NONE | - | literature | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | Li et al. 2021 §6의 기준 MRR(2700 Å/min, 무첨가)과 이 팩의 기준 조성을 일치시킨다 — 팩 기본값에서 ψ=1.0이 되어 이중 계상을 피한다. PVA(-3.6%), PVP(-7.9%)는 같은 논문 실측값이며 레시피 오버라이드로 스캔한다. |
 
 ### 팩 `sic_ceria_h2o2`
 
@@ -429,6 +447,8 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | ph_softening_per_unit | 0.2787 |  | measured | Wang et al. ACS SI Table S3 50조건 역산 (pH만 다른 9조/12쌍, 배수 1.633 |  |
 | abrasive_ref_wt_pct | 4.0 |  | measured | Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%) |  |
 | oxidizer_ref_wt_pct | 4.0 |  | measured | Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%) |  |
+| dispersant_type | NONE | - | estimated | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | oxide_silica 팩에서 상속된 경로이다. Li et al. 2021은 실리카 슬러리 실통이라 세리아(STI/SiC) 화학계로의 전이는 교차계 외삽이다(EVIDENCE-RULES E4) — 세리아 슬러리는 실제로 EAA 공중합제 분산제를 사용한다는 정직 기록이 slurry-comp |
+| slurry_viscosity_pa_s | 0.0014 | Pa·s | literature | knowledge/materials/slurry-viscosity-rheology-literature-val | 세리아 슬러리 실제 점도(sti_ceria와 동일 근거: Kim 2024 DOI 10.3390/polym16243593 §3.3 Fig.17d 상용 세리아 1.41 cP, 25°C). ⚠ H2O2 추가 세리아 슬러리의 점도를 **직접 재는 문헌은 미확보**다. H2O2는 저농도 수용액이 |
 
 ### 팩 `sti_ceria`
 
@@ -448,6 +468,8 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | ce3_fraction | 0.15 | - | literature | knowledge/cmp/ceria-slurry-ce-redox-selectivity.md | 표면 Ce3+ 분율. 산소공공 x에 대해 전하균형 f=2x (노트 verify PASS). H2O2 0.5wt% 첨가 시 최대가 되며, 이때 oxide MRR이 상용 대비 5.5배로 보고됐다(Netzband & Dunn 2020). 이 값을 올리면 화학층이 MRR을 올린다. |
 | ce3_fraction_ref | 0.15 | - | estimated | knowledge/cmp/ceria-slurry-ce-redox-selectivity.md | 기준 조건(배수 1.0이 되는 지점). 여기서 Kp가 캘리브레이션돼 있다고 본다 |
 | ceria_tooth_gain | 1.0 | - | unverified | knowledge/cmp/ceria-slurry-ce-redox-selectivity.md | ⚠ Ce3+ 분율 → MRR 배수의 기울기. Netzband의 5.5배는 Ce3+ 외 다른 변수도 함께 움직인 결과라 그대로 쓸 수 없어 보수적으로 1.0(선형)을 놓았다. **문헌에 폐형식 함수가 없다 — 이 값이 캘리브레이션 1순위 대상이다.** |
+| dispersant_type | NONE | - | estimated | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | oxide_silica 팩에서 상속된 경로이다. Li et al. 2021은 실리카 슬러리 실통이라 세리아(STI/SiC) 화학계로의 전이는 교차계 외삽이다(EVIDENCE-RULES E4) — 세리아 슬러리는 실제로 EAA 공중합제 분산제를 사용한다는 정직 기록이 slurry-comp |
+| slurry_viscosity_pa_s | 0.0014 | Pa·s | literature | knowledge/materials/slurry-viscosity-rheology-literature-val | 세리아 CMP 슬러리 **실제** 점도. Kim et al. 2024 (Polymers 16(24) 3593, DOI 10.3390/polym16243593) §3.3 Fig.17d: 상용 세리아 슬러리 초기 실제 **1.41 cP** (25°C, Brookfield cone/plate |
 
 ### 팩 `w_fe_oxidizer`
 
@@ -464,6 +486,9 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 | oxidizer_curve_n | 3.0 | - | estimated | papers/US20110186542A1.txt | 위와 같은 적합에서. 현상론 형상 파라미터. |
 | oxidizer_mech_floor | 0.14 | - | literature | papers/US20110186542A1.txt | H2O2 0 wt%에서 남는 순수 기계 연마 분율(3 wt% 대비). 15조건 전부에서 0.117~0.189, 평균 0.142. Kaufman 단봉은 C=0에서 0이라 이 바닥이 없으면 산화제 0 예측이 0이 된다. |
 | abrasive_size_nm | 150.0 | nm | estimated | knowledge/cmp/particle-wafer-interaction-mechanical-chemical |  |
+| abrasive_d99_nm | 750.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | abrasive_size_nm(150 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008). Showa Denko US6770218B2(알루미나 + 질산철 3.5wt% 텅스텐 CMP) 절대 상한 1.0 µm 이내, 단 선호 상한 0.5 µm는 초과 ⚠ |
+| abrasive_ref_d99_nm | 750.0 | nm | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지 |
+| damage_exponent | 2.54 | - | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | Egan & Kim 2019(ECS JSS 8(5) P3206) 두 관측의 기하평균 √(3.73×1.73). 막질·공정 완전 일치(텅스텐 벌크 CMP, 300mm 양산 라인 defect inspection 실측). ⚠ 각 관측이 n=1 단일 대응쌍이고 저자 서술이 반올림("sixty t |
 | inhibitor | picolinic_acid |  | literature | knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissol |  |
 | inhibitor_mM | 121.8 | mM | estimated | knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissol | 1.5 wt% 피콜린산(포화 농도, 밀도 1 g/mL 근사)에 해당하는 몰농도. 원문 Lee & Seo(2022) 3.3절에서 정지식각 90->11 A/min(8.2배 감소), CMP 제거율 120->85 A/min(1.41배 감소)의 실측 포인트. wt%->mol/L 환산은 밀도 근사 |
 | inhibitor_K_L_per_mol | 1108.0 | L/mol | literature | knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissol | 원문 Table 1 Langmuir 상수 b=0.009 L/mg를 MW=123.11 g/mol로 몰단위 환산. 노트 verify 블록 PASS(K=1108 L/mol). |
@@ -482,21 +507,16 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 
 ## 미충족 항목
 
-- C2 Λ lambda/cu_h2o2_bta: confidence=estimated
-- C2 Λ lambda/oxide_silica: confidence=estimated
-- C2 Λ lambda/sic_ceria_h2o2: confidence=estimated
-- C2 Λ lambda/sti_ceria: confidence=estimated
-- C2 Λ lambda/w_fe_oxidizer: confidence=estimated
 - C2 Θ theta/cu_h2o2_bta: confidence=estimated
 - C2 Θ theta/oxide_silica: confidence=estimated
 - C2 Θ theta/sic_ceria_h2o2: confidence=estimated
 - C2 Θ theta/sti_ceria: confidence=estimated
 - C2 Θ theta/w_fe_oxidizer: confidence=estimated
-- C2 Γ gamma/cu_h2o2_bta: confidence=unverified
-- C2 Γ gamma/oxide_silica: confidence=unverified
-- C2 Γ gamma/sic_ceria_h2o2: confidence=unverified
-- C2 Γ gamma/sti_ceria: confidence=unverified
-- C2 Γ gamma/w_fe_oxidizer: confidence=unverified
+- C2 Γ gamma/cu_h2o2_bta: confidence=estimated
+- C2 Γ gamma/oxide_silica: confidence=estimated
+- C2 Γ gamma/sic_ceria_h2o2: confidence=estimated
+- C2 Γ gamma/sti_ceria: confidence=estimated
+- C2 Γ gamma/w_fe_oxidizer: confidence=estimated
 - C2 κ kappa/cu_h2o2_bta: confidence=estimated
 - C2 κ kappa/oxide_silica: confidence=estimated
 - C2 κ kappa/sic_ceria_h2o2: confidence=estimated
@@ -508,27 +528,21 @@ Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
 - C2 χ chi/sti_ceria: confidence=estimated
 - C2 χ chi/w_fe_oxidizer: confidence=estimated
 - C2 ψ psi/cu_h2o2_bta: confidence=unverified
-- C1 ψ psi/oxide_silica: status=unmodeled
-- C1 ψ psi/sic_ceria_h2o2: status=unmodeled
-- C1 ψ psi/sti_ceria: status=unmodeled
+- C2 ψ psi/sic_ceria_h2o2: confidence=estimated
+- C2 ψ psi/sti_ceria: confidence=estimated
 - C2 ψ psi/w_fe_oxidizer: confidence=unverified
 - C2 τ tau/cu_h2o2_bta: confidence=unverified
 - C2 τ tau/oxide_silica: confidence=unverified
 - C2 τ tau/sic_ceria_h2o2: confidence=unverified
 - C2 τ tau/sti_ceria: confidence=unverified
 - C2 τ tau/w_fe_oxidizer: confidence=unverified
-- C1 Δ delta/cu_h2o2_bta: status=unmodeled
-- C1 Δ delta/oxide_silica: status=unmodeled
+- C2 Δ delta/cu_h2o2_bta: confidence=unverified
+- C2 Δ delta/oxide_silica: confidence=unverified
 - C2 Δ delta/sic_ceria_h2o2: confidence=unverified
 - C2 Δ delta/sti_ceria: confidence=unverified
-- C1 Δ delta/w_fe_oxidizer: status=unmodeled
+- C2 Δ delta/w_fe_oxidizer: confidence=unverified
 - C2 S stab/cu_h2o2_bta: confidence=estimated
 - C2 S stab/sic_ceria_h2o2: confidence=estimated
 - C2 S stab/sti_ceria: confidence=estimated
 - C2 S stab/w_fe_oxidizer: confidence=estimated
 - C4 sic_ceria_h2o2: 유의 held-out 0건
-- C5 Π pi: verify 블록 있는 근거 노트 없음
-- C5 ψ psi: verify 블록 있는 근거 노트 없음
-- C5 τ tau: verify 블록 있는 근거 노트 없음
-- C5 Δ delta: verify 블록 있는 근거 노트 없음
-- C5 S stab: verify 블록 있는 근거 노트 없음

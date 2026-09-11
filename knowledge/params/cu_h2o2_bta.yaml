@@ -103,8 +103,18 @@ params:
   abrasive_size_nm:
     value: 100.0
     unit: nm
-    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
-    confidence: estimated
+    note: >
+      Cu+알루미나+H2O2+BTA를 정확히 동시에 다루는 1차 문헌(Gopal & Talbot 2007, JES 154(6)
+      H507, doi:10.1149/1.2718474 — 원문 PDF 직접 확보·판독)에서 EKC Technology 알루미나
+      공칭 입경 100 nm(Ihnfeldt & Talbot 2006, JES 153(11) G948, doi:10.1149/1.2335982
+      원문에서 확인) / 수용액 중 측정 유효 평균 입경 120 nm(Gopal 2007 원문)를 확인,
+      해당 EKC Tech 알루미나가 0.01wt% BTA + 0.1wt% H2O2 조합으로 Luo-Dornfeld MRR 모델에
+      직접 쓰였다. 기존 100 nm 값이 이 공칭값과 정확히 일치해 값은 유지한다.
+      대조: Rodel 알루미나(Seal et al., 인용 통한 2차 확인) mean diameter 170 nm은
+      H2O2+glycine 조합(BTA 없음)이라 정확 일치가 아니므로 채택하지 않음.
+      저응집 조건 대표값 — pH·첨가제에 따라 이봉 응집으로 수백nm~수μm까지 벌어질 수 있음.
+    source: knowledge/cmp/abrasive-size-d50-ekc-alumina-cu-h2o2-bta-gopal-ihnfeldt-talbot.md
+    confidence: literature
   abrasive_size_exponent:
     value: 0.0
     unit: "-"

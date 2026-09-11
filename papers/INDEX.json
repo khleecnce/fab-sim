@@ -753,5 +753,14 @@
   "src": "미러 사이트(미러 사이트 -> 미러 사이트)",
   "file": "papers/crawford2013-colsurfa-fumed-silica-shear-thickening.pdf",
   "note": "materials/slurry-viscosity-rheology-literature-values.md"
+ },
+ "chen2017-rsc-adv-ceria-silica-6hsic-particle-interaction": {
+  "src": "미러 사이트 mirror (미러 사이트) — journal itself is OA (CC-BY 3.0)",
+  "pdf_local": "papers/chen2017-rsc-adv-ceria-silica-6hsic-particle-interaction.pdf",
+  "doi": "10.1039/C6RA27508G",
+  "title": "The role of interactions between abrasive particles and the substrate surface in chemical-mechanical planarization of Si-face 6H-SiC",
+  "authors": "Guomei Chen, Zifeng Ni, Yawen Bai, Qingzhong Li, Yongwu Zhao",
+  "venue": "RSC Adv. 7, 16938-16952 (2017)",
+  "note": "cmp/sic-ceria-abrasive-particle-size-chen2017-rsc.md"
  }
 }
