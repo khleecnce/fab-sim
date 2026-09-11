@@ -1913,3 +1913,29 @@ oxidizer molarity 곡선). 둘 다 재료계는 SiC로 팩과 일치하나:
 (품질보다 진도를 앞세워 자기채점 데이터를 넣는 것은 오염). 완성 격자 12/50 불변. 다음 회차는
 1) sic 산화제 held-out 2세트 확보를 계속 시도하거나 2) 갭랭커가 다른 항목(C2 confidence 승격,
 corpus.py next --stage learn)으로 넘어가면 그쪽 우선.
+
+## 2026-09-11 14:xx [성장엔진] EVIDENCE-RULES 3회차 종결 -- sic_ceria_h2o2 C4 스코프 대기로 전환, UNWIRED abrasive_size 확인만
+갭 랭커 최우선(COMPLETION-C4, sic_ceria_h2o2)이 이번 회차로 3회차째(09-09/09-11 12시/09-11 14시) 같은
+자리다 — EVIDENCE-RULES.md "미반영/보류는 3회차까지만" 규칙 발동 대상. 이번 회차 추가 확보 시도:
+코퍼스에서 SiC+ceria/H2O2 문서 다수(nano15171366 리뷰, s41598-024-77598-x UACMP, wei2026 Fenton 등) 재확인,
+IEEE "Study on Ceria Slurry for CMP of 4H-SiC"(10531969, ceria+KMnO4)를 신규 후보로 찾았으나 OA 없음
++ 미러 사이트 미러 전부 미스(2024년 논문이라 미러 사이트 인덱스 범위 밖 — 미러 사이트는 대략 2020~2021 이후 갱신이
+드묾, 실측 확인). papers/의 jjap50-046501(Nitta, 콜로이달 실리카+H2O2/H5IO6, SiC)도 재검토했으나 그래프만
+있고(Fig.3/6, 표 없음) 재료계도 세리아가 아니라 콜로이달 실리카라 sic_ceria_h2o2 팩과 불일치.
+**판정(EVIDENCE-RULES §4 null 절차 적용): 현재 접근 가능한 출처(OA+미러 사이트) 안에서 sic_ceria_h2o2
+(4H-SiC + 세리아 + H2O2) 계의 독립적인 조성-MRR n≥4 held-out 데이터가 존재하지 않는다 — "못 찾았다"가
+아니라 "이 자원 경계 안에서는 없다"로 기록하고 재시도를 종결한다.** 남은 경로는 향후 코퍼스 fetch가
+새 논문을 발견하거나(대기), 또는 스코프를 넓혀 "SiC + 임의 산화제"까지 held-out으로 인정하는 결정을
+사용자에게 문의하는 것뿐 — 임의로 넓히지 않음. C4는 이 팩만 미충족으로 남기고 최우선 배차 대상에서
+제외 권고(다음 회차 --skip 유지 또는 accuracy_gaps.py 자체 로직에 3회 제한 반영 검토 필요 — 도구 개선
+사항으로 소프트웨어 부문에 전달 예정).
+이어서 UNWIRED abrasive_size_nm(score60) 확인: 신규 확보 papers/wei2026(4H-SiC, Fe3O4-Fenton 촉매,
+콜로이달실리카 30/80/110/130nm)가 MRR 단조증가(30nm 낮음→130nm 648nm/h)를 보고하나 중간값이 수치로
+안 주어지고 그래프 판독 필요(디지타이징 리스크) + 기존 Li et al.(2021, oxide_silica, K+계)의 정점형
+(80nm 최대)과 재료계·산화 촉매가 완전히 다르다 — 두 계 모두 "이 계에서는 입경-MRR이 이런 형태"라는
+서로 다른 레짐일 뿐 통합 지수는 만들 수 없다(EVIDENCE-RULES §3 스코프 분리 원칙 재확인, 새 판정 아님
+— 기존 노트의 미적용 결정이 옳았음을 재확인). 팩터 변경 없음.
+품질게이트: pytest 595 passed(회귀 없음), 데이터/코드 변경 없어 커밋 생략(git status 변경 없음 확인).
+완성 격자 12/50 불변. corpus.py status: total 2301, with_fulltext 1319, queue fetch 982/learn 1309.
+다음 회차: accuracy_gaps.py --next --skip "sic_ceria_h2o2"로 다음 갭(C2 confidence 승격 다수, 45점대)에
+집중 권고 — corpus.py next --stage learn이 주는 1차 문서로 파라미터 대조.
