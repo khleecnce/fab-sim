@@ -2052,3 +2052,18 @@ CURRICULUM 체크박스 3건 [x] 확정(총괄 게이트 PASS 근거), ORG.md §
   US4293224(FreePatentsOnline) 프린지=상대제거량 무모호/절대두께 모호. 모터전류·마찰·반사계는 Preston RR 곱 이벤트역산. 오버폴리시 예산은 필터지연(~19nm)보다 저다운포스 잔막마진(Tian2023, 100~200nm)에 5~11배 더 좌우. 와전류 교정식 미확보(정직 표기).
 **품질게이트(총괄 직접 실행이 정본)**: verify_claims 3/3 통과(출처 13건 실존, 검증코드 8블록 통과, 출처없는 수치주장 0), check_knowledge 3/3 통과, --all 137/142(반려 5편 이번 작업 무관 기존 부채). CURRICULUM 체크박스 3건 [x] 확정, ORG.md §5 3행 갱신.
 **한도**: 429/rate-limit 흔적 없음.
+
+## 2026-09-12 08:xx [성장엔진] 정확도루프: Θ(열·유동부하) PARTIAL 갭 3차 — 리테이닝 링 압력 발열채널 신설
+accuracy_gaps.py --next가 Θ PARTIAL(drivers에 retaining_ring_pressure_psi 없음 — Π 팩터가 이미
+경고하던 결측이 Θ에도 있었음)을 반환. Lee/Guo/Jeong 2012(DOI:10.1007/s12541-012-0004-8, Int. J.
+Precis. Eng. Manuf., E1 대상계 직접실측) Table 1(RR압력 2-6psi 스윕, 총 마찰력 F_wafer+F_ring
+선형회귀 R²>0.99) 원문을 미러 사이트 경유로 확보(2026-09-11 3회 실패했던 것을 curl+Referer 헤더로
+urllib 403 우회해 성공). heat(ring)=(0.6145+0.07692·psi)/(기준값) 채널을 Θ 분자(발열)에 곱셈
+배수로 추가, 기준 5psi=1.0. knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md
+신설(verify_claims·check_knowledge 통과, python verify로 R²>0.99·2-6psi 배수 2%이내 재현).
+sim/factors.py _f_theta에 heat(ring) 항, base.yaml literature 파라미터 2개 추가. tests 3개 신규.
+pytest 612 passed(기준 609, 회귀 0). qa_loop.py --strict PASS(유의 7/20, 평균 ρ=0.9537, 회귀 없음).
+⚠ 한계: 원문 Eq.8은 가산모델(두 독립 열원의 합)인데 팩터체계 제약상 곱셈 배수로 근사 — 극단
+RR압력 영역(문헌범위 2-6psi 밖)에서 발산 가능(미검증), 노트 §5에 정직 기록. accuracy_gaps는
+여전히 Θ PARTIAL 반환(설계상 자동 modeled 승격 없음 — 3개 냉각채널+2개 발열채널이어도 동일).
+커밋 7382ab3 push 완료.
