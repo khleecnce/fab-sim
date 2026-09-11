@@ -1939,3 +1939,16 @@ IEEE "Study on Ceria Slurry for CMP of 4H-SiC"(10531969, ceria+KMnO4)를 신규 
 완성 격자 12/50 불변. corpus.py status: total 2301, with_fulltext 1319, queue fetch 982/learn 1309.
 다음 회차: accuracy_gaps.py --next --skip "sic_ceria_h2o2"로 다음 갭(C2 confidence 승격 다수, 45점대)에
 집중 권고 — corpus.py next --stage learn이 주는 1차 문서로 파라미터 대조.
+
+## 2026-09-11 15:30 [소프트웨어] κ abrasive_size_nm confidence 승격 4팩 -- 병목 해소, κ 팩터 자체는 구조적 하한
+COMPLETION.md 병목표(tools/blockers.py 1위, abrasive_size_nm이 8칸을 막음)에 따라 κ 팩터의
+abrasive_size_nm confidence를 4팩(cu_h2o2_bta/sic_ceria_h2o2/sti_ceria/w_fe_oxidizer)에서
+estimated→literature로 승격. 각 팩의 실제 화학계에 맞는 1차 문헌 원문 확보·판독(Gopal&Talbot 2007,
+Chen 2017 RSC Adv., Dandu Veera 2009 JES, Bielmann 1999 ECS SSL). sic_ceria_h2o2는 기존 80nm이
+같은 논문의 실리카값을 잘못 전용한 값이었음을 발견해 120nm으로 정정, sti_ceria는 80nm→60nm,
+w_fe_oxidizer는 브리핑 후보 2개(OSTI 700nm·Cabot판례 60nm) 모두 원문 대조 후 대상계 불일치로
+기각하고 계 근접 1차문헌(Bielmann 50nm)으로 대체(EVIDENCE-RULES.md #4행 판정 기록). pytest 595
+passed, 커밋 3cbaae1. **κ 팩터 자체의 confidence는 여전히 estimated로 남음** — sim/factors.py의
+_f_kappa()가 농도지수(1/3~4/3 미확정)·Shore D→GPa 환산(미검증) 구조적 이유로 confidence 하한을
+코드에서 고정하고 있어 완성 격자는 12/50 불변. 근거 품질은 실질 개선됐으나 completion.py 판정
+기준에는 안 잡힘 — BACKLOG S48/STATUS.md에 그대로 기록.
