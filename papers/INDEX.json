@@ -869,5 +869,15 @@
   "authors": "Feng D-H, Wang R-B, Xu A-X, Xu F, Wang W-L, Liu W-L, Song Z-T",
   "venue": "Chin. Phys. B 30(2), 028301 (2021)",
   "note": "cmp/w-cmp-ti-tin-barrier-selectivity-recess-erosion.md"
+ },
+ "white2003-jes-dynamic-thermal-behavior-cmp": {
+  "src": "미러 사이트 -> 미러 사이트/pdf/<DOI>.pdf (DOI resolved; iopscience /pdf는 Radware 캡차, Unpaywall bronze 표시만)",
+  "pdf_local": "papers/white2003-jes-dynamic-thermal-behavior-cmp.pdf",
+  "txt_local": "papers/white2003-jes-dynamic-thermal-behavior-cmp.pdf.txt",
+  "doi": "10.1149/1.1560642",
+  "title": "Characterization and Modeling of Dynamic Thermal Behavior in CMP",
+  "authors": "White D, Melvin J, Boning D",
+  "venue": "J. Electrochem. Soc. 150(4) G271-G278 (2003)",
+  "note": "physics/frictional-heating-temperature-arrhenius-coupling.md §8 (1차 에너지균형 Eq.1-10, 집중정수 열회로 R1/Rs/Ct, 실측 ΔT 9.1 °C)"
  }
 }

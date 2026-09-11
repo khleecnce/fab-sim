@@ -126,3 +126,22 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   보정 14.4%·PCR 시간소진·임계하중 비선형 3개 구조적 결측 근거 명문화) — **칸 수는 불변(여전히
   12/50)이지만 모델식 자체의 물리적 정합성이 개선됨**(COMPLETION.md 우선순위: 데이터보다
   모델링). pytest 598 passed, qa_loop --strict PASS(ρ=0.954 불변), 커밋 1c25f14.
+- 2026-09-12 [Max워커] Θ(열·유동 부하) 정상상태 열저항 네트워크 — 우선순위 2 항목. **White 2003
+  JES 원문 확보**(미러 사이트→미러 사이트, iopscience는 캡차; papers/white2003-*.pdf, INDEX 등록) →
+  §2의 "200~300 W"가 원문 Eq.3(231~321 W)로 1차 인용 승격. 원문은 3분배 "비율표"를 주지 않고 손실
+  항(패드 전도 kAΔT/L, 슬러리 ṁc_p, 복사 0.3 mW)을 각각 계산해 균형을 맞추므로, 그 형태 그대로
+  병렬 열컨덕턴스 네트워크 Q_f=(G_slurry+G_pad+G_air)·ΔT_ss를 세움(knowledge/physics/
+  frictional-heating-temperature-arrhenius-coupling.md §8, verify_claims·check_knowledge PASS).
+  회전원판 Nu(Harmand 2013 a=0.3286, b=0.5)는 **패드→공기 채널에만** 적용(같은 유체라 Pr 전이 문제
+  해소); 슬러리는 h·A가 아니라 엔탈피 수송 ṁc_p(White Eq.9)임을 명시. White 자기재현 4항목 1% 이내,
+  네트워크 ΔT 11.3 K vs 실측 9.1 °C. Shin 2025 Fig.7a 판독 ΔT≈15 K(20.5→35.5 °C) 대조: 중앙값
+  12.5 K(−17%), 범위 7.4~18.9 K, 3분배 슬러리 74%/패드 19%/공기 7% — **정직 판정: 기존 전량슬러리
+  상한(17.0 K, +13%)이 오히려 실측에 더 가깝다.** 네트워크가 준 것은 숫자 정확도가 아니라 분배 구조와
+  White 균형과의 정합. 발견: `_f_theta()` cool_rotation=√(rpm비)는 7% 채널의 스케일을 냉각 전체에
+  적용해 회전 냉각을 과대(네트워크는 ΔT_ss∝Ω^0.97) — 정정 후보로 기록, 팩터 재정의는 ρ 재검증 필요라
+  이번엔 미반영(1회차). 엔진: sim/tier2_physics/cmp_theta_steady_state_heat_balance.py 신설(self-test
+  8/8), engine.py 진단필드 3종(theta_steady_state_delta_T_k·theta_heat_partition·note, MRR 경로 무관),
+  base.yaml에 pad_thickness_m(IC1000 50 mil)·pad_thermal_conductivity_w_mk(0.02) literature 추가.
+  **Θ confidence는 estimated 유지(칸 수 12/50 불변)** — 웨이퍼/헤드 경로 미모델링, L_pad 유효길이
+  미검증, h_air CMP 실측 없음, 슬러리 완전열교환 가정 4개 구조적 결측이 남아 브리프 기준상 올리면 오염.
+  pytest 609 passed(기준 600, 회귀 0).

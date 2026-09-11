@@ -136,10 +136,167 @@ print("ALL PASS")
 ## 7. 한계 / 미검증 표기
 - **플래시 온도 절대값 미검증:** asperity 국소 순간온도의 정량 예측(Blok flash temperature)은 본 노트 범위 밖 —
   평균온도만 정량, 플래시는 정성(A_r/A_n 배율 논증)에 그침. Lv3 후보.
-- **온도상승은 "상한 추정"만 재현:** §6 (2)는 마찰열 전량이 슬러리로 간다는 가정의 상한이며, 실제 삼분배
-  (슬러리/웨이퍼/패드) 비율은 White 2003의 열모델을 이식해야 정량화된다 — **오더 대조에 한정, 절대값 미검증**.
-- **White et al.(2003) 원문 미확보:** 마찰열 200~300 W는 Shin 2025 §2.2의 재인용 + 초록 수준 — 1차 열모델
-  본문은 미독(DOI는 crossref 실존 확인).
+- **§6 (2)의 온도상승은 "상한 추정":** 마찰열 전량이 슬러리로 간다는 가정의 상한이다. 실제 삼분배
+  (슬러리/패드 전도/공기 대류)는 **§8에서 White 2003 원문 열저항 네트워크로 정량화**했다(2026-09-12 추가).
+  웨이퍼/헤드 경로는 §8.5의 이유로 여전히 미모델링.
+- **White et al.(2003) 원문 확보(2026-09-12):** 미러 사이트 → 미러 사이트 경로로 PDF 확보,
+  papers/white2003-jes-dynamic-thermal-behavior-cmp.pdf(+.txt). §2의 "200~300 W"는 원문 Eq.3의
+  231.11~320.95 W(c_f 0.18~0.25, 8 in 웨이퍼, 6 psi, 3.14 ft/s)로 확인 — 이제 1차 인용.
 - **Ea는 특정 슬러리·툴 조건값:** Shin 2025의 Cu 151.7/Ta 29.9/SiO₂ 8.75 kJ/mol은 특정 barrier 슬러리·POLI-500
   툴의 겉보기 Ea로, 슬러리 화학·산화제가 바뀌면 달라진다 — 절대값 일반화는 **미검증**(오더·재료간 대소관계만 신뢰).
 - ceria/oxide CMP의 겉보기 Ea "≈0.43 eV"(≈41 kJ/mol) 언급을 검색에서 봤으나 1차출처 미확정 — **채택 보류**.
+
+## 8. 정상상태 열저항 네트워크 — 마찰열 3분배와 ΔT_ss (White 2003 원문 이식, 2026-09-12 [Max워커])
+
+### 8.1 1차 문헌 확보 기록
+- **White, Melvin, Boning, "Characterization and Modeling of Dynamic Thermal Behavior in CMP",
+  *J. Electrochem. Soc.* 150(4) G271-G278 (2003), doi.org/10.1149/1.1560642** — Unpaywall/OpenAlex는
+  bronze OA로 표시하지만 iopscience `/pdf`는 Radware 캡차(14 KB HTML). 미러 사이트 캡차, **미러 사이트이
+  `미러 사이트/pdf/10.1149/1.1560642.pdf` 임베드를 주어 curl(Referer 미러 사이트)로 531 KB 원문 확보**.
+  papers/white2003-jes-dynamic-thermal-behavior-cmp.pdf, 텍스트 .pdf.txt, INDEX.json 등록.
+- 원문이 주는 것: 발열·손실 메커니즘의 1차 에너지균형(Eq.1-10)과 집중정수 열회로(Fig.4, R₁·R_s·C_t).
+  **"슬러리/웨이퍼/패드 비율" 자체를 표로 주지는 않는다** — 대신 손실 항을 각각 계산해 균형을 맞추므로
+  분배는 그 항들에서 유도된다(아래 8.3). 웨이퍼/헤드 전도는 블래더 단열을 이유로 **명시적으로 무시**, 복사
+  0.30 mW, 공기 대류는 플래튼 1 rpm이라 무시.
+- 회전원판 대류: Harmand, Pellé, Poncet, Shevchuk, *Int. J. Thermal Sci.* 67 (2013) 1-30,
+  doi.org/10.1016/j.ijthermalsci.2012.11.009 (arxiv.org/abs/1305.2882 원문, [[cmp-theta-rotation-convective-cooling-driver]]
+  §1과 같은 문헌). Table 1(n=0 등온 원판, 정확 자기상사해) **a = 0.3286**, 층류 지수 b=0.5, Pr=0.71(공기).
+  Reynolds 상사 지수 m=0.53(층류)은 원문 §2 인용이나 Pr=[0.7-0.74] 데이터 범위 밖 외삽이라 채택하지 않는다.
+
+### 8.2 네트워크 유도 (전기회로 유사)
+정상상태에서 마찰동력 Q_f는 계면 온도 T_ss와 공통 싱크 T₀(공급 슬러리·플래튼·주변 공기가 같은 온도라는
+가정) 사이의 **병렬 열컨덕턴스**로 빠져나간다:
+```
+Q_f = (G_slurry + G_pad + G_air) · ΔT_ss,    ΔT_ss = T_ss − T₀
+G_slurry = ṁ·c_p              [W/K]  슬러리 엔탈피 수송  (White Eq.9: R_s = 1/(ṁc_p) = 0.057 °C/W)
+G_pad    = k_pad·A_ring/L_pad [W/K]  패드 두께 전도     (White Eq.4-5: k=0.02, A=0.19 m², L=1.27 mm)
+G_air    = h_air·A_exposed    [W/K]  회전 패드→공기 대류 (Harmand Eq.10: h = a·k_air·√(Ω/ν_air), 반경 무관)
+```
+- **슬러리 경로가 h·A가 아니라 ṁ·c_p인 이유:** 슬러리는 패드와 함께 회전하는 박막이라 "주변 유체"가
+  아니다. 열은 슬러리에 **실려 나가고**, 그 상한은 출구 슬러리가 T_ss까지 데워졌을 때의 ṁ·c_p·ΔT다
+  (White 2003 Eq.8-9가 정확히 이 형태이고 실측으로 검증됨). §6 (2)의 "상한"은 이 항 하나만 둔 경우다.
+- **회전원판 Nu 상관식은 공기 채널에만:** Harmand 2013은 공기 중 자유 회전원판(Pr 0.71) 해석이므로
+  **패드→공기** 대류에 그대로 쓴다(같은 유체, Pr 전이 없음 — 이전 노트의 E4급 전이 문제 해소).
+  h = 0.3286·0.026·√(Ω/1.5e-5): 93 rpm에서 6.9 W/m²K, Re_r(r=0.25 m)=4.1e4 < 1.8e5 층류.
+- **A_ring:** 웨이퍼가 한 회전에 쓸고 가는 패드 고리 4π·r_cc·r_w (White: 2 in~10 in 고리 0.19 m²).
+  패드가 단열체라 옆으로 안 퍼지므로 전도 면적은 가열 고리만 잡는다(White 방식). 공기 노출면은
+  고리 − 웨이퍼 footprint.
+- **L_pad:** IC1000 데이터시트 50 mil = 1.27 mm([[pad-structure-groove-subpad]] §1, Pureon 2024) —
+  White도 1.27×10⁻³ m 사용. IC1010은 80 mil = 2.03 mm → 민감도 범위로 병기.
+
+### 8.3 White 2003 자기재현 (원문 수치 vs 우리 계산)
+| 항목 | 원문(White et al. 2003) | 재현 | 비고 |
+|---|---|---|---|
+| P_mech = c_f·P·A·v (c_f 0.25 / 0.18) | 320.95 W / 231.11 W | 320.99 / 231.11 W | Eq.1-3 |
+| q_cond = kAΔT/L (14 K, L 1.27 mm) | 41.44 W | 41.89 W (G_pad 2.99 W/K) | Eq.5, 1% 반올림차 |
+| ṁ·c_p (4.17 mL/s, ρ1.04, c_p 4.01) | 17.40 W/K | 17.39 W/K | Eq.9 |
+| 균형 ΔT_slurry (232 W / 321.9 W) | 10.97 / 16.07 °C | 10.95 / 16.12 °C | Eq.10 |
+| 병렬 네트워크 ΔT_ss (232 W, 싱크 공통) | — | 11.3 K | G_air=0.11 W/K(1 rpm) |
+| 실측 패드 ΔT (Cu 폴리시 시작→끝) | **9.1 °C** | 예측 대비 −17~−20% | 원문도 "헤드/테이블 추가 손실 또는 웨이퍼 축열" 추정 |
+
+정상상태 분배(White 조건, 232 W): 슬러리 85% / 패드 전도 15% / 공기 <1%. 원문 문장 "most of the
+thermal energy … is conducted through the pad and slurry"와 정합(White et al. 2003).
+
+### 8.4 Shin 2025 정량 대조 — 무냉각 ΔT
+Shin et al.(2025) Table 1: 200 mm 웨이퍼, 2 psi, 캐리어/플래튼 87/93 rpm, 플래튼 Ø500 mm, 150 mL/min,
+Fig.7a(원문 PDF 렌더 판독) 무냉각 **약 20.5 °C(t=0) → 약 35.5 °C(90 s), ΔT_meas ≈ 15 K(판독 ±1 K)**,
+90 s에서도 완만히 상승 중(White τ 19~74 s와 정합, 92~99% 정상상태).
+입력 중 원문에 없는 것: μ(배리어 슬러리 COF, 미공개 → 0.2~0.4 스윕), r_cc(플래튼 반경 0.25 − 웨이퍼 0.10 이내
+→ 0.12~0.15 m), L_pad(KPX 하이브리드 패드 두께 미공개 → 1.27~2.03 mm). **단일 숫자를 짓지 않고 범위로 푼다.**
+
+| 케이스 | Q_f | G(슬러리+패드+공기) | ΔT_ss | 전량슬러리 상한 | 실측 대비 |
+|---|---|---|---|---|---|
+| 중앙 μ0.3, r_cc0.14, L1.27 | 177 W | 10.45+2.77+0.99=14.2 W/K | **12.5 K** | 17.0 K | −17% / 상한 +13% |
+| 최소 μ0.2, r_cc0.12, L1.27 | 101 W | 13.2 W/K | 7.4 K | 9.7 K | −51% |
+| 최대 μ0.4, r_cc0.15, L2.03 | 253 W | 13.2 W/K | 18.9 K | 24.2 K | +26% |
+
+- 재현 요약(한 줄): 네트워크 ΔT_ss 12.5 K(범위 7.4~18.9 K)는 Shin 2025 실측 ΔT≈15 K를 범위 안에서 대조하며, 3분배는 슬러리 74%/패드 19%/공기 7%다(Shin et al. 2025; White et al. 2003).
+- **정직한 판정:** 중앙값은 실측보다 17% 낮고, §6 (2)의 전량슬러리 상한(17.0 K)이 오히려 실측에 더
+  가깝다(+13%). 즉 **이 계에서 네트워크가 "더 정확한 숫자"를 준 것은 아니다** — 얻은 것은 (i) 전도·공기
+  경로가 병렬로 붙어 상한보다 26% 낮은 ΔT를 주는 구조, (ii) 3분배 비율 자체, (iii) White 원문 균형과
+  1% 이내 정합이다. 실측이 중앙값보다 높은 이유 후보: 배리어 슬러리(H₂O₂ 0.5 wt%) COF가 0.3보다 높거나
+  (μ≈0.36이면 정확히 15 K), 산화제 발열(Shin 2025가 Wang et al. 인용으로 언급) — 둘 다 미검증.
+- **지배 항:** 세 케이스 모두 G_slurry가 72~82%로 지배. 따라서 ΔT_ss는 **유량(SFR)에 거의 반비례**하고,
+  회전수는 G_air(6~8%)의 √Ω만 키우므로 냉각 쪽 기여는 미미하다 — 발열 Q_f∝Ω가 압도해 **ΔT_ss ≈ Ω^0.97**.
+  현행 `_f_theta()`의 cool_rotation=√(rpm/rpm_ref)는 이 7% 채널의 스케일을 **냉각 전체**에 적용해
+  회전 냉각을 과대평가한다(정정 후보, §8.6).
+
+### 8.5 한계 / 미검증 — Θ confidence 판단
+- **웨이퍼/헤드 전도 미모델링:** White 2003이 블래더 단열로 무시했고 우리도 따른다. White 실측이 예측보다
+  17% 낮은 잔차가 이 항일 가능성을 원문 스스로 언급 — 4번째 경로 크기는 **미검증**.
+- **L_pad = 데이터시트 두께:** 열이 실제로 흐르는 유효 길이가 그루브 바닥·다공층 두께(White R₁ 계산은
+  0.55~1.0 mm)로 더 짧다면 G_pad는 1.3~2.3배 커진다(중앙 케이스 ΔT 12.5→11.6~10.9 K). 문헌 실측 없음 —
+  **미검증**, 범위로만 제시.
+- **h_air 상관식은 매끈한 등온 원판(공기)** 것: 그루브·슬러리 젖음면의 실제 h는 미검증. 다만 이 채널이
+  총 컨덕턴스의 7%라 h가 2배 틀려도 ΔT는 7% 변한다(민감도 낮음).
+- **슬러리 완전 열교환 가정:** 출구 슬러리가 T_ss까지 데워진다는 가정. White는 슬러리가 패드 가장자리까지
+  가며 약 4 °C 식는다고 실측 — 부분 교환이면 G_slurry는 더 작고 ΔT는 더 커진다(실측 방향과 일치).
+- **결론: Θ confidence는 estimated 유지.** 위 4개 구조적 결측(웨이퍼 경로, L_pad 유효길이, h_air CMP
+  실측, 완전 열교환) 중 어느 하나도 1차 실측으로 닫히지 않았다. 브리프의 기준("하나라도 남으면
+  estimated")에 따라 올리지 않는다.
+
+### 8.6 엔진 반영
+`sim/tier2_physics/cmp_theta_steady_state_heat_balance.py`(순수함수, self-test 8/8: White Eq.3/5/9/10 재현,
+Harmand √Ω·층류, Shin 3분배)를 신설하고 `sim/engine.py`에 **진단 필드로만** 실었다
+(`theta_steady_state_delta_T_k`·`theta_heat_partition`·`theta_steady_state_note`, MRR 경로에 곱하지 않음,
+`pad_thickness_m`·`pad_thermal_conductivity_w_mk`가 팩에 없으면 조용히 None). `_f_theta()`의 비율 압축과
+cool_rotation 과대평가는 이번에 손대지 않고 정정 후보로 남긴다 — 팩터 재정의는 ρ 회귀 재검증이 필요.
+
+### 8.7 Python 재현 (열저항 네트워크)
+```python verify
+import math
+IN, FT, PSI = 0.0254, 0.3048, 6894.757
+# --- (1) White 2003 Eq.1-3: P_mech = c_f P A v, 8in 웨이퍼, 6 psi, 3.14 ft/s ---
+A8 = math.pi * (4*IN)**2; v = 3.14*FT; P6 = 6*PSI
+Q_hi, Q_lo = 0.25*P6*A8*v, 0.18*P6*A8*v
+assert abs(Q_hi - 320.95) < 2 and abs(Q_lo - 231.11) < 2, (Q_hi, Q_lo)
+# --- (2) Eq.4-5 패드 전도: k=0.02, A=0.19 m2, dT=14 K, L=1.27 mm -> 41.44 W ---
+G_pad_w = 0.02*0.19/1.27e-3
+assert abs(G_pad_w*14 - 41.44) < 0.5, G_pad_w*14
+# --- (3) Eq.9 슬러리 컨덕턴스 4.17 mL/s x 1.04 x 4.01 J/gK = 17.40 W/K ---
+G_s_w = 4.17*1.04*4.01
+assert abs(G_s_w - 17.40) < 0.05, G_s_w
+# --- (4) Eq.10 에너지균형 -> dT_slurry 10.97 / 16.07 C ---
+dT_lo, dT_hi = (232-41.44)/17.40, (321.9-41.44)/17.40
+assert abs(dT_lo-10.97) < 0.05 and abs(dT_hi-16.07) < 0.05, (dT_lo, dT_hi)
+# --- (5) 병렬 네트워크(싱크 공통) White 조건: dT_ss = Q/(G_s+G_pad+G_air), 1 rpm -> G_air~0 ---
+def h_air(omega, a=0.3286, k=0.026, nu=1.5e-5):   # Harmand 2013 Eq.10, n=0 a=0.3286
+    return a*k*math.sqrt(omega/nu)
+G_air_w = h_air(2*math.pi/60)*(0.19-A8)
+dT_w = 232/(G_s_w+G_pad_w+G_air_w)
+assert 11.0 < dT_w < 11.6 and G_air_w < 0.2, (dT_w, G_air_w)
+assert abs(dT_w-9.1)/9.1 < 0.30          # 실측 9.1 C 대비 -30% 이내 (원문 자체 잔차 -17%)
+part_w = G_s_w/(G_s_w+G_pad_w+G_air_w)
+assert 0.80 < part_w < 0.90, part_w      # 슬러리 85%, 패드 15%
+print(f"White: dT_ss={dT_w:.2f} K (실측 9.1), 슬러리 {part_w:.0%}/패드 {G_pad_w/(G_s_w+G_pad_w+G_air_w):.0%}")
+# --- (6) Harmand 2013: h ∝ sqrt(Ω), 93 rpm 250 mm 패드 층류(Re<1.8e5), h≈7 W/m2K ---
+w93 = 93*2*math.pi/60
+assert abs(h_air(2*w93)/h_air(w93) - math.sqrt(2)) < 1e-9
+Re = w93*0.25**2/1.5e-5
+assert Re < 1.8e5 and 6 < h_air(w93) < 8, (Re, h_air(w93))
+# --- (7) Shin 2025 조건: 200mm, 2 psi, 93 rpm, 150 mL/min, 실측 dT≈15 K(Fig.7a 20.5->35.5 C) ---
+A200 = math.pi*0.1**2; G_s = (150e-6/60)*1000*4180        # 10.45 W/K
+def solve(mu, rcc, L):
+    A_ring = math.pi*((rcc+0.1)**2 - (rcc-0.1)**2)
+    Qf = mu*2*PSI*A200*(w93*rcc)
+    G_p = 0.02*A_ring/L; G_a = h_air(w93)*(A_ring-A200)
+    return Qf, G_s, G_p, G_a, Qf/(G_s+G_p+G_a), Qf/G_s
+Qf, Gs, Gp, Ga, dT_c, ub_c = solve(0.30, 0.14, 1.27e-3)
+assert abs(Qf-177) < 2 and 12.0 < dT_c < 13.0 and 16.5 < ub_c < 17.5, (Qf, dT_c, ub_c)
+frac = {"slurry": Gs/(Gs+Gp+Ga), "pad": Gp/(Gs+Gp+Ga), "air": Ga/(Gs+Gp+Ga)}
+assert 0.70 < frac["slurry"] < 0.78 and 0.15 < frac["pad"] < 0.23 and 0.05 < frac["air"] < 0.10, frac
+dT_min = solve(0.20, 0.12, 1.27e-3)[4]; dT_max = solve(0.40, 0.15, 2.03e-3)[4]
+assert 7.0 < dT_min < 8.0 and 18.5 < dT_max < 19.5, (dT_min, dT_max)
+dT_meas = 35.5 - 20.5                                     # Fig.7a 판독, ±1 K
+assert dT_min < dT_meas < dT_max                          # 실측이 민감도 범위 안
+assert dT_c < dT_meas < ub_c                              # 정직: 중앙값 -17%, 상한 +13%, 실측은 그 사이
+assert dT_c < ub_c                                        # 병렬 경로 -> 상한보다 항상 낮음
+# 회전수 스케일: 냉각은 G_air(7%)만 sqrt(Ω), 발열은 Ω 선형 -> dT_ss ~ Ω^0.97 (cool_rotation √ 과대)
+Qf2, _, Gp2, Ga2, dT2, _ = solve(0.30, 0.14, 1.27e-3)
+w2 = 2*w93; Ga2 = h_air(w2)*(math.pi*((0.24)**2-(0.04)**2)-A200); dT2 = 2*Qf/(G_s+Gp+Ga2)
+expo = math.log(dT2/dT_c)/math.log(2)
+assert 0.95 < expo < 1.0, expo
+print(f"Shin: Qf={Qf:.0f} W, dT_ss={dT_c:.1f} K (실측 {dT_meas:.0f} K, 범위 {dT_min:.1f}~{dT_max:.1f}), "
+      f"상한 {ub_c:.1f} K, 분배 {frac['slurry']:.0%}/{frac['pad']:.0%}/{frac['air']:.0%}, dT~Ω^{expo:.2f}")
+print("ALL PASS")
+```

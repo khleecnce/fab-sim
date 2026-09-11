@@ -19,6 +19,7 @@ FabSim 통합 엔진 — 입력(Recipe) → 시뮬레이션 → 출력(WaferResu
 """
 from __future__ import annotations
 
+import math
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -202,6 +203,13 @@ class WaferResult:
     colloid_distance_from_iep_ph: Optional[float] = None
     colloid_stability_risk: Optional[str] = None       # "high"/"medium"/"low"
     colloid_stability_note: Optional[str] = None
+    # Θ 정상상태 열저항 네트워크 진단 — MRR과 무관. White 2003 원문 에너지균형 이식
+    # (frictional-heating-temperature-arrhenius-coupling.md §8). 공통 싱크 T₀ 대비 ΔT_ss[K]와
+    # 슬러리/패드/공기 3분배. pad_thickness_m·pad_thermal_conductivity_w_mk 없으면 조용히 None.
+    # ⚠ 절대온도가 아니다(싱크 온도 미지) — _f_theta()의 비율 압축을 대체하지 않는다.
+    theta_steady_state_delta_T_k: Optional[float] = None
+    theta_heat_partition: Optional[Dict[str, float]] = None   # {"slurry","pad","air"} 합=1
+    theta_steady_state_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -239,6 +247,9 @@ class WaferResult:
             "colloid_distance_from_iep_ph": self.colloid_distance_from_iep_ph,
             "colloid_stability_risk": self.colloid_stability_risk,
             "colloid_stability_note": self.colloid_stability_note,
+            "theta_steady_state_delta_T_k": self.theta_steady_state_delta_T_k,
+            "theta_heat_partition": self.theta_heat_partition,
+            "theta_steady_state_note": self.theta_steady_state_note,
             "factors": {k: f.to_dict() for k, f in self.factors.items()},
             "factor_coverage": coverage(self.factors) if self.factors else None,
             "equipment_outputs": {k: o.to_dict()
@@ -386,6 +397,52 @@ def _effective_pressure_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _theta_steady_state_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """Θ 정상상태 열저항 네트워크 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/cmp_theta_steady_state_heat_balance.py (White 2003 Eq.4-10 원문,
+    Harmand 2013 회전원판 층류 h, knowledge/physics/frictional-heating-temperature-arrhenius-
+    coupling.md §8). Q_f = μ·P·A·V (μ=cof_boundary: CMP는 boundary~mixed 레짐), V = ω_p·r_cc
+    (근사 매칭 회전, 노트 §8.2). 슬러리는 물 근사(ρ=1000, c_p=4180 — 모듈 상수).
+    pad_thickness_m·pad_thermal_conductivity_w_mk·cof_boundary·sfr_ml_min 중 하나라도 팩에
+    없으면 조용히 None — 지어내지 않는다. 결과는 공통 싱크 대비 ΔT_ss[K]이지 절대온도가 아니다.
+    """
+    out: Dict[str, object] = {"theta_steady_state_delta_T_k": None,
+                              "theta_heat_partition": None,
+                              "theta_steady_state_note": None}
+    need = ("pad_thickness_m", "pad_thermal_conductivity_w_mk", "cof_boundary", "sfr_ml_min")
+    if not all(rr.pack.has(k) for k in need):
+        return out
+    try:
+        import cmp_theta_steady_state_heat_balance as HB   # sim/tier2_physics (1바이트도 수정 안 함)
+        from sim.tier1_empirical import kinematics as kin
+        mu = float(rr.p("cof_boundary"))
+        L_pad = float(rr.p("pad_thickness_m"))
+        k_pad = float(rr.p("pad_thermal_conductivity_w_mk"))
+        flow = float(rr.p("sfr_ml_min")) * 1e-6 / 60.0
+        if flow <= 0 or L_pad <= 0 or rr.rpm_platen <= 0:
+            return out
+        P = rr.pressure_psi * PSI_TO_PA
+        A_w = math.pi * rr.wafer_radius_m ** 2
+        omega = kin.rpm_to_rads(rr.rpm_platen)
+        V = omega * rr.center_offset_m
+        Qf = HB.friction_power_w(mu, P, A_w, V)
+        A_ring = HB.heated_annulus_area_m2(rr.center_offset_m, rr.wafer_radius_m)
+        pad_r = rr.center_offset_m + rr.wafer_radius_m     # 가열 고리 최외곽 = 층류 판정 반경
+        res = HB.steady_state_heat_balance(Qf, flow, A_ring, L_pad, omega,
+                                           max(A_ring - A_w, 0.0), pad_r, k_pad_w_mk=k_pad)
+        out["theta_steady_state_delta_T_k"] = float(res.delta_T_ss_k)
+        out["theta_heat_partition"] = {k: float(v) for k, v in res.partition().items()}
+        out["theta_steady_state_note"] = (
+            f"Θ 정상상태 열수지(White 2003 원문 이식): {res.describe()}"
+            f"{'' if res.laminar else ' ⚠ Re_r>1.8e5 — 층류 h 상관식 범위 밖'}. "
+            "공통 싱크 대비 ΔT이며 절대온도 아님. 웨이퍼/헤드 경로·L_pad 유효길이·슬러리 완전열교환은 "
+            "미검증(노트 §8.5) — Θ confidence는 estimated 유지")
+    except Exception as e:
+        out["theta_steady_state_note"] = f"Θ 정상상태 열수지 진단 실패({e}) — None으로 둠"
+    return out
+
+
 def _cu_dishing_erosion_tugbawa_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """Cu 오버폴리시 dishing/erosion 닫힌 시간해 진단 — MRR 경로와 완전히 독립.
 
@@ -529,6 +586,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     colloid = _colloid_stability_diagnostic(rr)
     if colloid["colloid_stability_note"]:
         notes.append(colloid["colloid_stability_note"])
+    # Θ 정상상태 열저항 네트워크 진단 — MRR 경로와 완전히 독립. 패드 두께·열전도도 없으면 조용히 None.
+    theta_ss = _theta_steady_state_diagnostic(rr)
+    if theta_ss["theta_steady_state_note"]:
+        notes.append(theta_ss["theta_steady_state_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -556,6 +617,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        colloid_distance_from_iep_ph=colloid["colloid_distance_from_iep_ph"],
                        colloid_stability_risk=colloid["colloid_stability_risk"],
                        colloid_stability_note=colloid["colloid_stability_note"],
+                       theta_steady_state_delta_T_k=theta_ss["theta_steady_state_delta_T_k"],
+                       theta_heat_partition=theta_ss["theta_heat_partition"],
+                       theta_steady_state_note=theta_ss["theta_steady_state_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,

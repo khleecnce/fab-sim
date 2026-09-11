@@ -191,6 +191,25 @@ params:
     source: knowledge/physics/cmp-platen-wafer-center-distance-rcc.md
     confidence: literature
 
+  # ── Θ 정상상태 열저항 네트워크 (진단 전용, MRR 경로에 곱하지 않음) ──
+  # knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md §8
+  # (White 2003 doi:10.1149/1.1560642 원문 Eq.4-10 이식). 두 값이 없으면 engine.py
+  # theta_steady_state_* 진단은 조용히 None.
+  pad_thickness_m:
+    value: 1.27e-3
+    unit: m
+    note: >
+      IC1000 데이터시트 50 mil(Pureon 2024). White 2003 Eq.5도 1.27e-3 m 사용. ⚠ 열이 실제로
+      흐르는 유효 길이(그루브 바닥·다공층)는 이보다 짧을 수 있음 — 노트 §8.5 미검증. IC1010은 2.03e-3.
+    source: knowledge/materials/pad-structure-groove-subpad.md
+    confidence: literature
+  pad_thermal_conductivity_w_mk:
+    value: 0.02
+    unit: W/(m·K)
+    note: 다공성 PU 패드. Shin 2025(≈0.02)와 White 2003 Eq.5(0.02) 일치.
+    source: knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md
+    confidence: literature
+
   # ── Θ 열·유동 부하 (SFR) ────────────────────────────────
   sfr_ml_min:
     value: 150.0
