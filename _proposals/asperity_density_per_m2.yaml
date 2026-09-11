@@ -1,0 +1,59 @@
+key: asperity_density_per_m2
+target_file: knowledge/params/base.yaml
+proposed:
+  value: 2.0e+8
+  unit: "1/m^2"
+  note: >
+    ⚠ 값 변경 제안(1.0e11 -> 2.0e8, 500배 하향). papers/ 코퍼스 190편 전수 스캔 결과 GW asperity
+    면밀도 eta를 숫자로 명시한 1차 출처 5건이 표기만 다를 뿐 SI 환산하면 전부 정확히 2.0e8 /m^2로
+    수렴한다: Bozkaya & Muftu (2009) J. Electrochem. Soc. 156(12) H890 Table I "Pad summit density
+    2 x 10^-4 /um^2"(= 2.0e8 /m^2, 동반 R_s=50 um, sigma_s=5 um); 동 저자 (2010) JES 157(3) H287
+    Table I 동일값; Sorooshian (2005) Univ. of Arizona 학위논문 Appendix A "eta_s = 2.0x10^8 /m^2
+    (Elmufdi et al. 2004; Shan et al. 2000)"; Shi & Ring (2010) Univ. of Utah 공개 PDF J-135
+    "asperity density = 2e8 /m^2"; Suzuki, Hashimoto, Yasuda, Yamaki & Mochizuki (2017) CIRP Annals,
+    DOI 10.1016/j.cirp.2017.04.088, Table 1 "Asperity density 200 mm^-2"(= 2.0e8 /m^2, 동반
+    표준편차 5.24 um, 반구반경 50 um). 이 중 Suzuki et al.(Nagoya Univ. + Ebara)의 200 mm^-2가
+    유일하게 실기 패드 압축시험으로 동정(identified)한 값으로 수렴의 실측 앵커다.
+    동반 파라미터 정합성: 이 eta는 R=50 um, sigma=5~5.24 um와 한 세트다 — eta만 바꾸고 R/sigma를
+    다른 출처 값으로 두면 기하 일관성이 깨진다.
+  source: knowledge/materials/pad-asperity-density-gw-literature-values.md
+  confidence: literature
+found: true
+reasoning: |
+  [현재값 1.0e11이 왜 틀렸다고 보는가 — 세 겹의 근거]
+  1) 출처 추적: 1.0e11은 Ring, Prasad & Dirksen(Utah 공개 PDF J-120) Table 1의 2.938e11 /m^2
+     계열이다. 그런데 knowledge/materials/disk-design-pad-roughness-asperity-relation.md §2.7이
+     이미 이 표의 내부 모순을 기록했다 — 표가 병기한 규칙 eta=(1/D_grit)^2에 논문 자신의
+     D_grit=190 um를 넣으면 2.8e7 /m^2로 표값과 10^4배 어긋나고, eta에서 역산한 D_grit(1.85 um)과
+     sigma에서 역산한 D_grit(16.2 um)도 서로 9배 불일치한다. 즉 표의 eta는 논문 자체 규칙과
+     일관되지 않는다.
+  2) 이번 회차 추가 단서: 같은 논문 Figure 1은 Veeco 간섭계 실측 히스토그램을 "Number/m^2"
+     축(1e5~1e11)으로 그린다. 2.938e11은 GW의 "접촉 가능한 정점 면밀도"가 아니라 높이 구간별
+     개수 분포의 정규화 상수일 가능성이 높다 — 다만 논문이 구분해 주지 않아 이는 추정이다.
+  3) 추정에 의존하지 않는 기하 반증: eta=1.0e11이면 asperity 평균 간격 sqrt(1/eta) = 3.16 um다.
+     같은 문헌군이 주는 정점반경 R은 50 um(Bozkaya, Suzuki) / 7.5~8 um(Jeong 2024) / 1.1~2.0 um
+     (Liao 2014, 곡률 정의)이다. 간격 3.16 um 평면에 반경 50 um 반구를 심을 수 없다(서로 관통).
+     eta=2.0e8은 간격 70.7 um로 R=50 um와 양립한다. 노트 verify 블록에서 assert로 고정했다.
+
+  [영향 범위 — 적용 전 확인 필요]
+  Gaussian GW를 실제로 풀어 본 결과 eta 500배 변화에 대해 A_r/A_n은 1 psi에서 0.0619% ->
+  0.0748%(1.21배)로 둔감하지만 접촉점 밀도는 2.3 -> 4.2 #/mm^2(1.82배), 4 psi에서 7.4 -> 15.0
+  #/mm^2(2.03배)로 민감하다. 즉 이 파라미터 오류는 실접촉면적으로는 잘 드러나지 않고 접촉점
+  통계/국소압력에 드러난다. Preston K_p를 eta_c/A_f 비로 분해하는 작업가설에는 직접 들어가므로
+  회귀 확인이 필요하다. 별칭 pad_asperity_density_m2(kappa가 읽는 값)도 같이 봐야 한다.
+  본 작업은 sim/ 및 knowledge/params/ 수정 금지 범위이므로 제안만 남기고 적용하지 않았다.
+
+  [정직하게 남기는 한계 — 왜 measured가 아니라 literature인가]
+  - "CMP 패드 GW 3종(eta, R, sigma)을 AFM/광학 프로파일로 직접 측정해 보고한 논문"은 끝내
+    확보하지 못했다. 5건 중 실측 성격이 가장 강한 Suzuki 2017도 표면형상 직접 측정이 아니라
+    하중-변위 곡선 역동정이다. 나머지는 base parameter 또는 타 문헌 인용이다.
+  - eta=2.0e8의 원출처로 지목된 Elmufdi et al.(CAMP 2004 학회록)과 Shan(Georgia Tech 박사논문
+    2000)은 둘 다 온라인 전문을 못 찾았다 — 최초 측정 근거는 2차 인용 단계에서 끊긴다.
+  - Sun (2009) UA 학위논문의 공초점 실측 접촉정점밀도 40~240 #/mm^2(4 psi)와 주류 eta/sigma/R로
+    계산한 7.4 #/mm^2는 5~30배 차이다. Sun의 지표가 패드 파편까지 세는 것인지, sigma/R 세트가
+    Sun의 패드와 달라서인지 확인하지 못했다. 이 불일치는 노트 §6에 그대로 기록했다.
+  - Jeong et al. (2024) Materials 17:1817(PMC11051262)은 CMP 패드 GW를 정면으로 다루지만
+    Table 1이 "N (Number of contact objects)" 시야 내 개수(109/121/106...)만 주고 측정 시야
+    면적을 본문에 적지 않아 /m^2 환산이 불가능했다 — 가장 아쉬운 공백.
+  - Shi et al. (2023) J. Phys. Conf. Ser. 2557:012033(OA, IC1000 contact spot density 실측)은
+    Fig.4 그래프만 있고 수치표가 없어 판독 없이는 인용 불가. 후속 과제로 남긴다.

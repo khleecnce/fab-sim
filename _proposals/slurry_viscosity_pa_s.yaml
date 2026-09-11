@@ -1,0 +1,118 @@
+# slurry_viscosity_pa_s 승격 제안 — estimated → literature (팩별로 값이 다름)
+# 작성: 2026-09-11 | git commit 하지 않음. sim/ 및 knowledge/params/ 미수정(제안만).
+
+key: slurry_viscosity_pa_s
+found: true
+
+# 현재 상태(grep 결과): oxide_silica.yaml에만 정의(1.0e-3, estimated).
+# sic_ceria_h2o2.yaml / sti_ceria.yaml에는 키 자체가 없다 → 신규 추가 제안.
+# 세리아계는 실리카계보다 ~40% 높아 팩별로 값을 나눠야 한다.
+
+proposals:
+
+  - target_file: knowledge/params/oxide_silica.yaml
+    action: update          # 기존 키 존재(1.0e-3, estimated) — 값 동일, 근거만 승격
+    proposed:
+      value: 1.0e-3
+      unit: "Pa·s"
+      note: >
+        콜로이달 실리카 CMP 슬러리 실측 점도. Lee et al. 2025 (Nanomaterials 15(16), 1248,
+        DOI 10.3390/nano15161248) Brookfield DV-II+Pro 측정: 첨가제 무관 기본 슬러리
+        ~0.98 cP(§3.2 Fig.3a), HEC 증점제 0.0012→0.0049 wt% 첨가 시 1.01→1.12 cP
+        (§3.3 Fig.7a), TAP+HEC 병용 시 1.02→1.13 cP(§3.5 Fig.11a).
+        실측 대역 0.98e-3~1.13e-3 Pa·s의 중심값으로 1.0e-3 채택.
+        측정기 신뢰성 교차검증: Crawford 2013(DOI 10.1016/j.colsurfa.2013.06.003)이
+        동일 계열 슬러리 대조로 잰 DI water 8.6e-4 Pa·s는 물의 문헌값 8.9e-4(25 °C)의 3.4% 이내.
+        희박 슬러리는 뉴턴 거동이므로 CMP 전단속도(10^3~10^5 /s)에서도 단일 스칼라가 유효하다
+        (단, 고고형분·고이온강도 슬러리는 예외 — 노트 §2·§4 한계 1).
+      source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2
+      confidence: literature
+
+  - target_file: knowledge/params/sti_ceria.yaml
+    action: add             # 키 없음 — 신규 추가
+    proposed:
+      value: 1.4e-3
+      unit: "Pa·s"
+      note: >
+        세리아 CMP 슬러리 실측 점도. Kim et al. 2024 (Polymers 16(24), 3593,
+        DOI 10.3390/polym16243593) §3.3 Fig.17d: **상용 세리아 슬러리 초기 실측 1.41 cP**
+        (25 °C, Brookfield cone/plate; 3개월 보관 후 1.16 cP로 감소).
+        교차확인: 같은 그룹 Kim et al. 2024 (Polymers 16(6), 844, DOI 10.3390/polym16060844)
+        Table 3 세리아+SMA-1000 분산제 1.34~1.35 cP, Table 4 세리아+소포제 1.31~1.33 cP.
+        자체제조 세리아(D5/D6/D7) 1.62/1.47/1.44 cP. 실측 대역 1.31e-3~1.62e-3 Pa·s 중
+        **상용품 값**을 대표로 채택. 콜로이달 실리카계(1.0e-3)보다 1.40배 높다.
+        원문이 상용 세리아 분산제를 "Newtonian behavior"로 명시 → 단일 스칼라 정당.
+      source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2
+      confidence: literature
+
+  - target_file: knowledge/params/sic_ceria_h2o2.yaml
+    action: add             # 키 없음 — 신규 추가
+    proposed:
+      value: 1.4e-3
+      unit: "Pa·s"
+      note: >
+        세리아 슬러리 실측 점도(sti_ceria와 동일 근거: Kim 2024 DOI 10.3390/polym16243593
+        상용 세리아 1.41 cP). ⚠ H2O2 첨가 세리아 슬러리의 점도를 **직접 측정한 문헌은 미확보**.
+        H2O2는 저농도 수용액이라 점도를 크게 바꾸지 않을 것으로 보이나 근거가 없으므로,
+        세리아 일반값 전용이며 **이 전용 자체는 미검증**이다(노트 §4 한계 5).
+      source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2 §4-5
+      confidence: literature
+
+reasoning: |
+  ## 1) 사전 조사 (지시받은 grep·데이터셋 확인 결과)
+  - `grep -rn 'slurry_viscosity_pa_s' knowledge/params/` → **oxide_silica.yaml 136행 단 한 곳**.
+    값 1.0e-3, confidence=estimated, note "물기반 슬러리 점도 — 노트는 ~1e-3으로만 명시",
+    source=knowledge/physics/cmp-lubrication-regimes.md §2.
+    sic_ceria_h2o2.yaml·sti_ceria.yaml에는 키가 없다 → 두 팩은 sim/engine.py의
+    `if not rr.pack.has("slurry_viscosity_pa_s")` 경로로 유체막 진단이 조용히 None이 된다.
+  - `grep -rln 'viscosity' knowledge/` → 3개 파일뿐이며 모두 **실측이 아니라 가정**이었다:
+    · cmp-lubrication-regimes.md §2: "μ: 슬러리 점도 [Pa·s] (물기반 ~1e-3)" — 정의문의 괄호주석.
+    · pad-groove-cfd-micropattern-optimal-design.md: 논문이 "water viscosity for dilute
+      suspensions"를 가정, mu=1.0e-3을 그대로 사용 — 슬러리 실측 아님.
+    · components/slurry.yaml: viscosity_mpa_s 키를 "필요하다"고 적어둔 미해결 항목.
+  - `validation/datasets/sic2023_shear_rheological_L9.yaml` 확인: 4H-SiC **전단유동 연마(SRP)**
+    L9 데이터셋으로 압력·회전수·입도/농도 vs MRR만 있고 **점도 수치 없음**. in_scope:false,
+    used_for_calibration:false. → 이 데이터셋에서 쓸 값 없음(확인 완료).
+  - `validation/MODEL-BASIS.md` 418행도 estimated로 기록돼 있고, stageB 감도 스윕은
+    0.0005/0.001/0.0015를 썼다 — 근거 없는 브래킷이었다.
+
+  ## 2) 확보한 실측 문헌 (모두 1차 출처, 본문 확인)
+  a. **Lee 2025** Nanomaterials 15(16) 1248 (OA, PMC12388451) — 콜로이달 실리카 슬러리
+     0.98~1.13 cP, Brookfield DV-II+Pro. 첨가제 농도별 계열값 다수.
+  b. **Kim 2024b** Polymers 16(24) 3593 (OA, PMC11679047) — 상용 세리아 1.41 cP(초기),
+     자체제조 1.44~1.62 cP. 전단속도 의존성 서술(상용=Newtonian, 자체제조=thixotropic→Newtonian).
+  c. **Kim 2024a** Polymers 16(6) 844 (OA, PMC10974854) — Table 3/4에 세리아 슬러리
+     1.31~1.35 cP가 **표로** 실려 있다(±0.01~0.03 오차 포함).
+  d. **Crawford 2013** Colloids Surf. A 436, 87-96 (DOI 10.1016/j.colsurfa.2013.06.003) —
+     **CMP 실공정 전단속도에서 직접 잰 유일한 확보 문헌**. AR-G2 평행판 gap 30 µm,
+     1,000~100,000 /s. DI water 대조 8.6e-4 Pa·s(문헌값 3.4% 이내)로 측정계 검증.
+     25 wt% 퓸드실리카는 전단박화(-40%), +0.15 M KCl은 30,000 /s에서 전단증점 개시 5배.
+     미러 사이트 미러로 PDF 확보 → papers/crawford2013-colsurfa-fumed-silica-shear-thickening.pdf.
+
+  ## 3) 전단속도 판단 — 왜 Brookfield(저전단) 값을 CMP 영역에 써도 되는가
+  지시대로 CMP 전단속도 영역(10^3~10^5 /s)의 값을 골라야 한다. 확보한 cP 실측값들은
+  회전식 점도계(저전단) 측정이다. 그럼에도 채택한 근거는 두 가지다:
+  (i) Kim 2024b가 상용 세리아 분산제를 "Newtonian behavior, viscosity is linear and
+      independent of shear rate"로 **명시**,
+  (ii) Crawford가 같은 장비로 잰 물·희박계가 1,000~100,000 /s 전 구간에서 전단속도 무관.
+  → 희박 수계 슬러리에 한해 저전단 값의 고전단 외삽이 정당하다. **다만 이 외삽 자체는
+  미검증으로 노트 §4 한계 2에 명기했다.**
+  반대로 25 wt% 급 고고형분+고이온강도 슬러리는 CMP 전단영역 안(30,000 /s)에서 5배(비가역 시
+  ~100배) 증점하므로 단일 스칼라가 **물리적으로 틀린다** — 엔진 적용범위 주석 필요.
+
+  ## 4) 지어내지 않은 것 (found:false로 남기는 항목)
+  - H2O2 첨가 세리아 슬러리의 직접 측정 점도: **없음**. sic_ceria_h2o2에 넣은 1.4e-3은
+    세리아 일반값 전용이며 note와 노트 §4-5에 미검증으로 명기했다. 임의 보정계수 없음.
+  - 고형분 wt% ↔ 점도 관계식: Kim 2024a/b 모두 세리아 고형분 wt%를 본문에 쓰지 않아
+    관계식을 세울 수 없다. components/slurry.yaml의 "고형분-점도 관계" 항목은 **여전히 미해결**.
+  - 온도 의존성: 모든 값 25 °C. CMP 실제 40~60 °C 구간의 슬러리 점도 곡선 문헌 미확보.
+  - cu_h2o2_bta / w_fe_oxidizer 팩: 해당 슬러리(Cu/W용)의 점도 실측 문헌을 찾지 못했다.
+    → 이 두 팩에는 키를 **추가하지 않는다**(현행 유지, 유체막 진단 None).
+
+  ## 5) 영향
+  - oxide_silica: 값 변화 없음(1.0e-3 유지) → 예측 완전 불변, confidence만 상승.
+  - sti_ceria / sic_ceria_h2o2: 키 신규 추가 → 지금까지 None이던 유체막/Sommerfeld 진단
+    (sim/engine.py, sim/equipment_outputs.py)이 활성화된다. pad_ra_m이 해당 팩에 있는지
+    함께 확인 필요(engine.py는 두 키가 모두 있을 때만 So를 계산한다).
+  - MODEL-BASIS.md 418행과 stageB 감도 브래킷(0.0005/0.001/0.0015)도 실측 대역
+    (실리카 0.98e-3~1.13e-3, 세리아 1.31e-3~1.62e-3)으로 좁히는 것이 정합적이다(별도 제안 대상).

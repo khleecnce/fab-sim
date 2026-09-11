@@ -1,0 +1,48 @@
+key: cond_sweep_cpm
+target_file: knowledge/params/base.yaml
+proposed:
+  value: 10.0
+  unit: cycles/min
+  note: >
+    값은 현재와 동일(10.0)하나 근거 등급만 상향한다. fab-sim papers/ 코퍼스 190편 전수 스캔으로
+    "분당 스윕 왕복수"가 숫자로 명시된 300/200 mm 상용 CMP 레시피 12건을 수집했다:
+    19(Menk et al. 2010, MRS Proc. 1249 E02-02, AMAT, 원문 "The sweep rate was 19 sweeps per
+    minute"), 19(Zheng et al. 2023, Micromachines 14(9) 1683 Table 1 "Conditioner arm sweep
+    speed 19 RPM" — 같은 논문 Eq.(4)의 각진동수 정의상 분당 19회 완전 왕복이므로 Menk 표기와
+    동일 축), 15(Kim & Kang 2011, IJMTM 51:565 "sweep speed of 15 times/min"),
+    13x2(McAllister et al. 2019 Micromachines 10(4) 258 및 동 저자 UA 학위논문 "13 times per
+    minutes"), 11(McAllister 2019 학위논문, 3M PB32A 브러시), 10x4(McAllister 2019 학위논문
+    Shinhan CVD / Liao 2014 UA 학위논문 4개 실험 / Mariscal et al. 2020 JSS / MEE 2016 그루브
+    논문, 모두 "10 times per minute"), 9x2(Son & Lee 2021 Appl. Sci. 11(8) 3521 Table 1
+    "Sweep per minute (sweep/min) 9" / ASPEN 2022 ex-situ 디지털트윈 Table 1 "Sweep cycle
+    [cyc/min] 9"). 이 12건의 분포는 범위 9~19 cpm, 중앙값 10.5, 최빈값 10(4/12, 33%), 평균 12.3.
+    따라서 10.0은 실측 레시피의 최빈값이자 중앙값 근처 정수이며 추정치가 아니다.
+    Sorooshian(2005) UA 학위논문의 20/30 cpm은 100 mm 웨이퍼급 랩 폴리셔(0.5 PSI, 디스크
+    20~30 RPM)라 스트로크 스케일이 달라 모집단에서 분리했다.
+  source: knowledge/equipment/conditioner-sweep-rate-literature-values.md
+  confidence: literature
+found: true
+reasoning: |
+  [확보한 것]
+  - 스윕 왕복수를 명시적 수치로 적은 1차 문헌 레시피 12건(상용) + 2건(랩)을 원문 문장 그대로 수집.
+    전부 papers/에 PDF/XML이 실재하며 검색 스니펫 의존이 아니다.
+  - 표기 혼선 해소: Zheng et al.의 "sweep speed 19 RPM"이 Menk et al.의 "19 sweeps per minute"와
+    같은 물리량임을 논문 Eq.(4) β(T) 사인파 정의로부터 직접 확인했다(주기 60/n_a = 3.158 s,
+    verify 블록에서 상대오차 <1e-12로 assert). 이것이 없었으면 "RPM"을 디스크 자전으로
+    오독할 위험이 있었다.
+  - 물리적 정합성 교차확인: 스윕 1왕복당 패드 회전수가 12건 전부 4.9~10.3회 구간(assert 4~12).
+
+  [값을 바꾸지 않는 이유]
+  현재값 10.0이 12건 중 4건과 정확히 일치(최빈값)하고 중앙값 10.5와 0.5 차이다. 평균(12.3)으로
+  바꿀 근거가 없다 — 12건은 독립 연구그룹 기준 5그룹이고 McAllister 학위논문에서 3건이 나와
+  가중이 편향돼 있으므로, 평균보다 최빈값/중앙값이 안전하다.
+
+  [정직하게 남기는 한계]
+  - 스윕 왕복수를 독립변수로 바꿔가며 PCR/MRR을 측정한 논문은 찾지 못했다. 모든 출처가
+    왕복수를 "고정된 실험 조건"으로만 적는다. 따라서 "왜 9~19인가"는 문헌으로 답할 수 없고,
+    노트 §3의 물리 해석은 미검증 표기했다.
+  - 특허 경로(patents.google.com "CMP conditioner sweep oscillation")를 시도했으나 US7004825(Lam),
+    US5904615, US6273797(IBM), US12459078(AMAT) 모두 스윕 기구·제어를 청구할 뿐 실시예에
+    분당 왕복 횟수를 숫자로 적지 않았다. 전수 확인은 아니므로 "확인한 범위에서 없음"으로 기록.
+  - 문헌 범위가 9~19(2.1배)로 넓다. 값은 literature 등급이지만 PCR 프로파일이 여기 민감하다면
+    9~19 스윕 민감도 테스트를 별도로 돌릴 것을 권고(노트 §5).

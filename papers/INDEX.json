@@ -733,5 +733,25 @@
   "doi": "10.1016/j.mee.2020.111285",
   "file": "papers/xu2020-mee-tungsten-filling-seam.pdf",
   "matched_title": "The filling seams improvement and properties analyses of tungsten films"
+ },
+ "mrs2001-proc697-sio2-tribology-ic1000": {
+  "doi": "10.1557/proc-697-p9.3",
+  "title": "Effect of Tribological Properties of Undoped and Florine-Doped Silicon Di-Oxide Fims on Chemical Mechanical Planarization Process",
+  "authors": "Sikder, Thagella, Bandugilla, Kumar",
+  "year": 2001,
+  "journal": "MRS Proceedings 697, P9.3",
+  "src": "미러 사이트(미러 사이트 -> 미러 사이트)",
+  "file": "papers/mrs2001-proc697-sio2-tribology-ic1000.pdf",
+  "note": "materials/commercial-cmp-pad-porosity-literature-values.md"
+ },
+ "crawford2013-colsurfa-fumed-silica-shear-thickening": {
+  "doi": "10.1016/j.colsurfa.2013.06.003",
+  "title": "Shear thickening and defect formation of fumed silica CMP slurries",
+  "authors": "Crawford, Williams, Boldridge, Liberatore",
+  "year": 2013,
+  "journal": "Colloids and Surfaces A 436, 87-96",
+  "src": "미러 사이트(미러 사이트 -> 미러 사이트)",
+  "file": "papers/crawford2013-colsurfa-fumed-silica-shear-thickening.pdf",
+  "note": "materials/slurry-viscosity-rheology-literature-values.md"
  }
 }

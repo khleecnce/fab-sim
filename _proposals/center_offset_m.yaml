@@ -1,0 +1,64 @@
+# _proposals/center_offset_m.yaml
+key: center_offset_m
+target_file: knowledge/params/base.yaml
+proposed:
+  value: 0.200
+  unit: m
+  note: >
+    r_cc 웨이퍼중심-플래튼중심 거리. Zhao, Wang, He, Lu (2012) IEEE Trans. Semicond. Manuf.
+    25(3), 502-510, DOI 10.1109/TSM.2012.2190432, 제IV절(Fig. 8 직전 문단) 본문 명시값:
+    "All below calculations are based on the following dimensional parameters for 12 in CMP
+    platform: Delta-e0 = 25 mm, e0 = 200 mm." 여기서 e는 같은 논문 Eq.(1) 정의상
+    "the center distance between the platen and the wafer carrier" 로 우리의 r_cc와 동일량이다.
+    e0 = 기준 축간거리, Delta-e0 = 캐리어 왕복(sweep) 진폭의 절반.
+    운전 범위(sweep 포함): 0.175 ~ 0.225 m (= e0 +/- Delta-e0, 같은 논문 Eq.11-12).
+    교차 참고: Kim & Jeong (2004) J. Electron. Mater. 33(1), 53-60, DOI 10.1007/s11664-004-0294-4,
+    Fig. 6/Fig. 7 캡션에 D(= distance between rotation centers) = 150 mm — 단 이는 200 mm
+    웨이퍼 툴이다(Fig.7의 zeta=0.17을 역산하면 웨이퍼 반경 102 mm). 300 mm 툴은 아니므로 채택하지 않고
+    범위 참고로만 둔다. Ye & Yao (2025) Micromachines 16(4), 450, DOI 10.3390/mi16040450,
+    Table 1의 e = 277.89 mm 는 5인치 단면 폴리셔로 급이 다르며 기하 정합성 검증에만 사용했다.
+    기존값 0.180 m(estimated)도 위 sweep 범위 [0.175, 0.225] m 안에는 있었다.
+  source: knowledge/physics/cmp-platen-wafer-center-distance-rcc.md
+  confidence: literature
+found: true
+reasoning: |
+  ## 찾은 것 (우선순위 2번 경로로 성공)
+
+  1차 문헌 3편을 PDF 전문까지 확보해 본문 대조했다. 결정적 수치는 Zhao et al. (2012)
+  IEEE TSM 논문이다. 이 논문은 회전식 CMP의 상대속도장을 무차원수(alpha, beta, zeta)로
+  정리하면서, 수치 계산에 쓴 장비 치수를 "12 in CMP platform" 이라고 명시하고 e0 = 200 mm,
+  Delta-e0 = 25 mm 를 본문에 적어 두었다. 이것이 12인치(300 mm) 플랫폼 r_cc의 직접 인용
+  가능한 1차 수치다. 논문 자체가 "ω_p·e 가 상대속도 크기를 결정하는 지배항"이라고 명시하므로,
+  FabSim의 Preston 속도항 용도와 정확히 같은 맥락의 값이다.
+
+  보강으로 Kim & Jeong (2004) — 기존 노트 cmp-kinematics-rotary.md가 "원전으로 추정, 원문
+  미확보"로 남겨 두었던 zeta(kinematic number)의 원전 — 를 확보해 D = 150 mm(200 mm 웨이퍼 툴)를
+  확인했고, Ye & Yao (2025, OA)의 Table 1에서 e = 277.89 mm / 플래튼 반경 457 mm / 캐리어 반경
+  175 mm 를 얻어 e + R_carrier <= R_plate 기하 폐합(여유 4.11 mm)을 검증했다.
+
+  노트의 python verify 블록은 실제 실행해 통과했다(tools/check_knowledge.py 및
+  tools/verify_claims.py 둘 다 PASS, 인용 출처 10건 전부 DOI/PMC 실존 확인):
+    - Kim & Jeong Fig.7 조건(D=150mm, 30/40rpm)에서 zeta = 0.1667 재현 (문헌 표기 0.17)
+    - Zhao e0 = 200 mm 기준 300 mm 웨이퍼의 zeta 가 논문 유효범위 |zeta| <= 0.5 충족
+    - Ye & Yao Table 1 기하 자기정합
+    - 값 변경 영향: ω_p·r_cc @55rpm 1.036726 -> 1.151917 m/s (+11.1%)
+
+  ## 못 찾은 것 (정직한 한계 — confidence 를 measured 로 못 올리는 이유)
+
+  - 우선순위 1번(AMAT Mirra/Reflexion, Ebara 등 300 mm 양산 툴의 실제 r_cc 도면값)은
+    끝내 찾지 못했다. 장비사는 축간거리를 공개하지 않고, Google Patents 는 이번 세션 내내
+    HTTP 503 으로 조회 불가였다(tools/patent_mine.py --search 도 동일 실패).
+    채택값 200 mm 는 양산기 실측이 아니라 "12인치 플랫폼"이라 명시한 동료심사 논문의 설계 치수다.
+  - 우선순위 3번(플래튼 직경으로부터의 기하 제약)도 300 mm 툴에 대해서는 성립시키지 못했다.
+    12인치 툴 플래튼 직경의 1차 출처를 찾지 못했고, 후보였던 Zhang et al. (2023)
+    Micromachines 14, 1683 (PMC10536193) Table 1 은 "Platen diameter 380 mm" 와
+    "Conditioner arm sweep range Radial 83~308 mm" 가 서로 모순(반경 308 mm면 직경 >= 616 mm)
+    이어서 기각했다. 웹상 2차 출처(장비 재생업체 등)의 "660~750 mm" 서술은 1차 출처가 아니라 인용하지 않았다.
+  - r_cc 는 실제로는 sweep 때문에 시간함수 e(t) = e0 +/- 25 mm 이나, FabSim 엔진은 현재 정적
+    r_cc 만 받는다. 속도 절대값이 +/-12.5% 흔들린다는 뜻 — 향후 center_offset_sweep_m 도입 여지.
+
+  ## 주의
+
+  같은 base.yaml 의 lambda_ref_center_offset_m (166행, 현재 0.180 estimated) 도 같은 근거를
+  공유하지만 그것은 lambda 정규화 기준점이라 바꾸면 기존 lambda 값의 의미가 달라진다.
+  본 제안은 center_offset_m 하나만 대상으로 한다(동시 작업자 충돌 방지).

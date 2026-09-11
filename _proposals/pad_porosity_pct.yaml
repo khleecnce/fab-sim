@@ -1,0 +1,86 @@
+# pad_porosity_pct 승격 제안 — estimated → literature
+# 작성: 2026-09-11 | git commit 하지 않음. sim/ 및 knowledge/params/ 미수정(제안만).
+
+key: pad_porosity_pct
+target_file: knowledge/params/base.yaml
+proposed:
+  value: 30.0
+  unit: "%"
+  note: >
+    IC1000 캐스트 PU 패드의 문헌 명시 기공률. Sikder et al. 2001 (MRS Proc. 697, P9.3,
+    DOI 10.1557/proc-697-p9.3) §III 첫 단락 원문: "Typical polyurethane pads, either
+    perforated or grooved IC 1000, consist of pores or voids of an average diameter of
+    about 30 µm; voids account for approximately 30% of the volume of the pad."
+    SEM 단면(원문 Fig. 2) 관찰 근거의 서술값이며 오차막대·측정법 명시는 없다.
+    교차확인: Yang 2010(DOI 10.1016/j.ijmachtools.2010.06.007) IC-1010 밀도 역산 ≈37.1%,
+    Prasad 2013 Table III 상용 D100 행 14%. 상용 패드 산포는 23%p로 크므로 30.0%는
+    "IC1000의 값"으로만 유효하다(모든 상용 패드의 평균이 아님).
+  source: knowledge/materials/commercial-cmp-pad-porosity-literature-values.md §3
+  confidence: literature
+
+# ── 동반 변경(필수) ─────────────────────────────────────────────
+# pad_ref_porosity_pct는 τ 기공 팩터의 기준점이다. 반드시 함께 옮겨야
+# τ = (P/P_ref)^0.07 = 1.000 이 유지되어 기존 검증·예측이 흔들리지 않는다.
+companion:
+  key: pad_ref_porosity_pct
+  target_file: knowledge/params/base.yaml
+  proposed:
+    value: 30.0
+    unit: "%"
+    note: >
+      τ 기준점 — pad_porosity_pct와 같은 값(IC1000 30%). 두 키를 함께 옮기면
+      τ 기공 팩터는 1.000 불변(노트 §5 verify (5)에서 assert).
+    source: knowledge/materials/commercial-cmp-pad-porosity-literature-values.md §3
+    confidence: literature
+
+found: true
+
+reasoning: |
+  ## 1) 기존 노트만으로 승격 가능했는가 — 부분적으로 가능, 하지만 불충분했다
+  지시대로 기존 노트(knowledge/materials/pad-porosity-slurry-transport-mrr.md)와
+  papers/jmr-2013-pad-porosity-hardness.pdf, papers/mee-2018-pad-microstructure-yim.pdf를
+  먼저 정독·재추출했다.
+
+  - Prasad 2013(PDF 전문 재추출): 본문은 SSMF **연구용 발포 시편**을 %P 10~50%로 스윕한 것이고,
+    "IC1010/D100은 industrial standard"라는 언급은 있으나 **그 패드들의 %P 수치는 본문에 없다.**
+    → 기존 노트가 "15~45% 범위를 실험했다"까지만 쓴 것은 정확했다.
+  - **다만 이번에 새로 찾은 것**: Prasad Table III의 **마지막 행이 상용 D100 패드**다
+    (ρ_f=1.0148 g/mL, P=14%, cell 50 µm, Shore A 92, E'=480 MPa). 기존 노트는 이 행을 인용하지
+    않았다. 즉 기존 노트에서 뽑을 수 있는 유일한 상용 실측값은 **D100의 14%**였다.
+  - Yim 2018(PDF 전문 확인): Table 1의 Porosity 열이 **상대등급(Extra Small/Medium/High/
+    Extra High)**뿐이고 수치가 없다. V/A(23.8~75.9 µm)는 기공률이 아니라 체적/면적 비다.
+    → Yim에서는 %P 수치를 뽑을 수 없다(기존 노트 §6 서술과 일치).
+
+  → 결론: 기존 노트 단독으로는 "35%"를 뒷받침할 수 없었다. D100 14%를 쓰면 값이 절반 이하로
+  바뀌는데, base.yaml note가 상정한 패드는 D100이 아니라 "IC1000류"다. 따라서 **추가 문헌 필요**로
+  판단하고 IC1000 기공률을 명시한 1차 문헌을 찾았다.
+
+  ## 2) 추가 문헌 탐색 결과
+  - Rohm&Haas/Dow/DuPont의 IC1000 공식 데이터시트: 기공률 스펙 **미확보**. 공개 스펙은 밀도·경도·
+    압축률 위주이고 vol% porosity를 명시하지 않는다.
+  - Sikder et al. 2001 (MRS Proc. 697, P9.3)에서 IC1000을 이름으로 지목한 "approximately 30% of
+    the volume" 명시문을 찾았다. Cambridge Core 직링크는 봇월로 막혀(HTML 반환) 미러 사이트 미러
+    (미러 사이트 → 미러 사이트)로 PDF 확보, papers/mrs2001-proc697-sio2-tribology-ic1000.pdf
+    (7쪽 전문). DOI는 Crossref로 실존 확인(MRS Proceedings vol.697, 2001).
+  - 기존 repo 내 PDF 전수 grep(papers/*.pdf 약 200편)으로 "voids account / porosity of IC"류
+    문구를 재탐색했으나 IC1000 기공률 수치는 이 논문 외 없었다.
+
+  ## 3) 왜 35.0 → 30.0 인가, 그리고 왜 예측이 흔들리지 않는가
+  - 35.0은 "Prasad 실험범위 15~45%의 중앙 근처"라는 추정이었다(문헌 명시값 아님).
+  - 30.0은 IC1000을 지목한 문헌 명시값이다. base.yaml note가 상정한 패드와 일치한다.
+  - τ 기공 팩터는 (P/P_ref)^tau_mrr_exponent 형태이고 tau_mrr_exponent=0.07이다.
+    pad_ref_porosity_pct를 함께 30.0으로 옮기면 팩터=1.000으로 **완전 불변**.
+    즉 이 제안은 값의 근거 등급을 올릴 뿐 시뮬레이션 출력을 바꾸지 않는다.
+  - 만약 기준점을 옮기지 않고 값만 35→30으로 바꾸면 τ가 (30/35)^0.07 = 0.9893배가 되어
+    MRR이 약 1.1% 낮아진다. **반드시 두 키를 함께 반영할 것.**
+
+  ## 4) confidence를 measured가 아니라 literature로 둔 이유
+  Sikder의 30%는 SEM 단면 관찰 기반 서술값이며 ASTM D792 밀도 실측치나 오차막대가 없다.
+  D100의 14%만이 밀도 실측(ASTM D792)이지만 그건 다른 제품이다. → literature가 정확한 등급.
+
+  ## 5) 미해결 / 후속
+  - 상용 패드 간 %P 산포(D100 14% ↔ IC1000 30% ↔ IC-1010 ≈37%)가 23%p로 크다. 장기적으로는
+    pad_porosity_pct를 "패드 모델 선택"에 연동해야 하며, 단일 전역 상수는 근사다.
+    knowledge/performance/pad.yaml의 porosity_vol_pct range(15~60%)는 그대로 유효.
+  - pad.yaml의 typical_source 문구("IC1000류 전형(base.yaml pad_porosity_pct, Yang 2010 IC1010
+    밀도 역산 ≈37%)")와 typical: 35도 30으로 맞추는 것이 정합적이다(별도 제안 대상).

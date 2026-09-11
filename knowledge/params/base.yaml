@@ -20,11 +20,24 @@ params:
     source: SEMI M1 (300mm 표준)
     confidence: literature
   center_offset_m:
-    value: 0.180
+    value: 0.200
     unit: m
-    note: r_cc 웨이퍼중심-플래튼중심 거리. 툴마다 다름
-    source: knowledge/physics/cmp-kinematics-rotary.md
-    confidence: estimated
+    note: >
+      r_cc 웨이퍼중심-플래튼중심 거리. Zhao, Wang, He, Lu (2012) IEEE Trans. Semicond. Manuf.
+      25(3), 502-510, DOI 10.1109/TSM.2012.2190432 §IV 본문 명시: "All below calculations are
+      based on the following dimensional parameters for 12 in CMP platform: Δe₀ = 25 mm,
+      e₀ = 200 mm." 같은 논문 Eq.(1)이 e를 "the center distance between the platen and the
+      wafer carrier"로 정의 — 우리 r_cc와 동일량이고, 논문이 "ω_p·e가 상대속도 크기의 지배항"
+      이라 명시해 FabSim의 Preston 속도항 용도와 맥락이 일치한다.
+      운전 범위(sweep 포함): 0.175~0.225 m (= e₀ ± Δe₀, Eq.11-12).
+      교차 참고(미채택): Kim & Jeong 2004 JEM 33(1) 53-60 Fig.6/7 캡션 D=150mm는 200mm
+      웨이퍼 툴이고, Ye & Yao 2025 Micromachines 16(4) 450 Table 1의 e=277.89mm는 5인치
+      단면 폴리셔다 — 기하 폐합 검증에만 사용했다.
+      ⚠ 논문 설계치수이지 AMAT/Ebara 양산기 도면 실측이 아니다(그쪽은 Google Patents 503으로
+      확보 실패) — 그래서 measured가 아니라 literature다.
+      (이전 값 0.180 m은 근거 없는 추정이었다. 다만 위 sweep 범위 안에는 있었다.)
+    source: knowledge/physics/cmp-platen-wafer-center-distance-rcc.md
+    confidence: literature
 
   # ── 패드 표면 통계 (GW 접촉역학) ────────────────────────
   # 원래 위치: sim/tier2_physics/gw_preston_link.py 의 _E_STAR/_R/_BETA/_ETA/_A_N
@@ -164,10 +177,15 @@ params:
     source: knowledge/cmp/cmp-tool-architecture.md
     confidence: literature
   lambda_ref_center_offset_m:
-    value: 0.180
+    value: 0.200
     unit: m
-    source: knowledge/physics/cmp-kinematics-rotary.md
-    confidence: estimated
+    note: >
+      Λ 기준점 — center_offset_m과 같은 값·같은 근거(Zhao 2012 12인치 플랫폼 e₀=200mm).
+      ⚠ 반드시 center_offset_m과 함께 움직여야 Λ=1.0 기준 계약이 유지된다. 서브에이전트가
+      "바꾸면 λ 의미가 변한다"며 제외를 권고했지만, 오히려 한쪽만 두면 기준에서 Λ≠1.0이 되어
+      Kp 이중계상이 된다 — 동반 이동이 정답이다(factors.py 설계계약 §1).
+    source: knowledge/physics/cmp-platen-wafer-center-distance-rcc.md
+    confidence: literature
 
   # ── Θ 열·유동 부하 (SFR) ────────────────────────────────
   sfr_ml_min:
@@ -201,15 +219,30 @@ params:
     value: 10.0
     unit: cpm
     note: >
-      ⚠ 스윕 왕복수의 구체 수치가 확보된 노트에 없다. conditioner-sweep-kinematics
-      노트는 하중·RPM만 표로 제시한다. 10 cpm은 상용 툴 범위의 대표값 추정이다.
-    source: knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md
-    confidence: unverified
+      상용 CMP 레시피 12건의 실측 최빈값(4/12)이자 중앙값(10.5) 근처 정수 — 추정치가 아니다.
+      papers/ 코퍼스 190편 전수 스캔으로 "분당 스윕 왕복수"가 숫자로 명시된 300/200mm
+      레시피를 수집: 19(Menk 2010 MRS Proc.1249 E02-02, AMAT, "sweep rate was 19 sweeps
+      per minute"), 19(Zheng 2023 Micromachines 14(9) 1683 Table 1), 15(Kim & Kang 2011
+      IJMTM 51:565), 13x2(McAllister 2019 Micromachines 10(4) 258), 11(McAllister 2019
+      학위논문 3M PB32A), 10x4(Shinhan CVD / Liao 2014 / Mariscal 2020 JSS / MEE 2016),
+      9x2(Son & Lee 2021 Appl.Sci. 11(8) 3521 / ASPEN 2022). 분포: 범위 9~19, 중앙값 10.5,
+      최빈값 10(33%), 평균 12.3. 독립 연구그룹 5곳(AMAT·Tsinghua·한양대·Arizona·한국).
+      ⚠ 표기 혼선 해소: Zheng의 "sweep speed 19 RPM"은 같은 논문 Eq.(4) 사인파 정의상
+      Menk의 "19 sweeps per minute"와 동일 물리량이다(주기 3.158s, 오차<1e-12로 검증) —
+      디스크 자전으로 오독하면 안 된다.
+      ⚠ 한계: 스윕 왕복수를 독립변수로 스윕해 PCR/MRR을 측정한 논문은 없다(전부 고정 조건으로만
+      기재). 범위가 9~19(2.1배)로 넓으므로 PCR 프로파일이 민감한 해석에는 민감도 스캔을 병행하라.
+      Sorooshian 2005의 20/30 cpm은 100mm 랩 폴리셔라 모집단에서 분리했다.
+    source: knowledge/equipment/conditioner-sweep-rate-literature-values.md
+    confidence: literature
   cond_ref_sweep_cpm:
     value: 10.0
     unit: cpm
-    source: knowledge/equipment/conditioner-sweep-kinematics-pcr-profile.md
-    confidence: unverified
+    note: >
+      Γ 기준점 — cond_sweep_cpm과 같은 값·같은 근거(상용 레시피 12건 최빈값).
+      ⚠ 반드시 cond_sweep_cpm과 함께 움직여야 Γ=1.0 기준 계약이 유지된다.
+    source: knowledge/equipment/conditioner-sweep-rate-literature-values.md
+    confidence: literature
   cond_duty_pct:
     value: 100.0
     unit: "%"
@@ -280,18 +313,29 @@ params:
     source: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md §2
     confidence: literature
   pad_porosity_pct:
-    value: 35.0
+    value: 30.0
     unit: "%"
     note: >
-      IC1000류 캐스트 PU 패드 전형 기공률. Prasad 2013은 15~45% 범위를 실험했다.
-    source: knowledge/materials/pad-porosity-slurry-transport-mrr.md
-    confidence: estimated
+      IC1000 캐스트 PU 패드의 문헌 명시 기공률. Sikder et al. 2001 (MRS Proc. 697, P9.3,
+      DOI 10.1557/proc-697-p9.3) §III 원문: "Typical polyurethane pads, either perforated
+      or grooved IC 1000, consist of pores or voids of an average diameter of about 30 µm;
+      voids account for approximately 30% of the volume of the pad." SEM 단면(Fig.2) 근거의
+      서술값 — 오차막대·측정법 명시는 없다.
+      교차확인: Yang 2010(DOI 10.1016/j.ijmachtools.2010.06.007) IC-1010 밀도 역산 ≈37.1%,
+      Prasad 2013 Table III 상용 D100 행 14%.
+      ⚠ 상용 패드 산포가 23%p(D100 14 ↔ IC1000 30 ↔ IC1010 37)로 크다 — 30.0%는
+      "IC1000의 값"으로만 유효하고 모든 상용 패드의 평균이 아니다. 다른 패드면 교체하라.
+      (이전 값 35.0%는 Prasad 2013의 연구용 발포 시편 스윕 15~45% 중앙값 추정이었다.)
+    source: knowledge/materials/commercial-cmp-pad-porosity-literature-values.md
+    confidence: literature
   pad_ref_porosity_pct:
-    value: 35.0
+    value: 30.0
     unit: "%"
-    note: τ 기준점 — 위와 같은 값
-    source: knowledge/materials/pad-porosity-slurry-transport-mrr.md
-    confidence: estimated
+    note: >
+      τ 기준점 — pad_porosity_pct와 같은 값·같은 근거(Sikder 2001 IC1000 30%).
+      ⚠ 반드시 함께 움직여야 τ=(P/P_ref)^0.07=1.000이 유지된다. 값만 바꾸면 MRR이 1.1% 내려간다.
+    source: knowledge/materials/commercial-cmp-pad-porosity-literature-values.md
+    confidence: literature
   tau_mrr_exponent:
     value: 0.07
     unit: "-"
