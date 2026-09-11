@@ -111,3 +111,10 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
 ## 진행 기록
 - 2026-09-10 시작. 기준 확정.
 - 2026-09-11 목표 기한 2026-09-21 설정. 시작점 대비 C2 49칸→38칸(1일), C1 6칸 정체.
+- 2026-09-11 [Max워커] asperity_density_per_m2(η) 문헌값 적용(1e11→2.0e8, 5문헌 수렴,
+  estimated→literature, 커밋 ceef9b2). blockers.py에서 asperity 병목 5칸 해소했으나
+  kappa 격자 칸 수 자체는 불변(12/50) — abrasive_size_nm(4팩)·abrasive_wt_pct 등
+  다른 파라미터가 여전히 estimated/unverified라 kappa 최종 confidence는 안 올라감.
+  다음 후보: cu/sic/sti/w_fe 4팩의 abrasive_size_nm 문헌 승격(2칸씩=8칸 동시 상승 가능,
+  blockers.py 1위). R/σ(pad_asperity_radius_m·pad_height_beta_inv_m) 불일치는 후속과제로
+  노트 §6에 기록만.
