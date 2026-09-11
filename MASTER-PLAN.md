@@ -1988,3 +1988,18 @@ ORG.md §5 두 행 갱신(cmp-data-engineer 3/6→4/6, film-nitride 3/6→4/6).
 **부채 잔여 5편**(equipment/tool-layout-reflexion-class.md · conditioner-asperity-population-balance.md ·
 cmp-tool-endpoint-thermal-slurry-delivery.md · cmp/wiwnu-pressure-velocity-wafer-scale.md · components/_SCHEMA.md
 는 스키마 문서라 실제 학습노트 아님, 부채 아닌 것으로 확인 — 사실상 실질 부채 4편). 다음 회차 1편 상환 계속.
+
+## 2026-09-11 20:xx [성장엔진] 정확도루프: Θ(열·유동부하) PARTIAL 갭 — 플래튼 냉각수온도 드라이버 신설
+accuracy_gaps.py --next가 5개팩 공통 Θ PARTIAL(drivers=sfr_ml_min만)을 반환. Yuh et al.2015(doi:10.1007/
+s40684-015-0041-8, 미러 사이트 경유 원문)·Shin et al.2025(doi:10.3390/ma18194461, PMC12525981 OA)에서 플래튼
+냉각수온도가 SFR과 독립적인 두 번째 냉각채널임을 확인, cool_temp=(T_hot-T_coolant)/(T_hot-T_ref) 열전달
+구동력비로 정식화(T_hot=36°C·T_ref=30°C, Shin2025 실측 앵커). knowledge/equipment/cmp-theta-platen-
+coolant-temperature-driver.md 신설(check_knowledge/verify_claims 둘 다 통과, python verify로 2단냉각
+26.5°C 온도차 1.5833 재현), knowledge/params/base.yaml에 platen_coolant_temp_c/_ref_c/hot_side_ref_c
+3파라미터, sim/factors.py _f_theta에 항 추가(발산 가드 clip 포함), tests/test_factors.py 3개 신규(기준
+1.0/냉각강화시 Θ↓/가열시 Θ↑). pytest 598 passed, qa_loop.py --strict PASS(유의 데이터셋 7/20, 평균
+ρ=0.9537, 회귀 없음). 커밋 84c8e36 push 완료. completion.py 격자는 여전히 12/50(Θ가 confidence=estimated
+로 남아 C2 칸은 안 바뀜 — 다음 과제는 이 온도 항의 confidence를 literature로 승격하거나, 탐사한 Liu2022
+Precision Eng(구리 CMP 열영향, DOI 10.1016/j.precisioneng.2021.09.007)/Lee2012 W-CMP 온도(DOI
+10.1149/1.4717508) 원문을 미러 사이트 미러(미러 사이트이 Cloudflare로 차단됨, 다른 미러 재시도 필요)로
+확보하는 것). corpus.py status: total 2301, with_fulltext 1334, queue fetch 967/learn 1324.
