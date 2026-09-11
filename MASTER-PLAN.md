@@ -1966,3 +1966,24 @@ estimated 강제 고정이라 파라미터 값만으론 C2 칸 안 바뀜 — �
 이번 회차 규칙상 미수정). corpus.py status: total 2301, with_fulltext 1319, queue fetch 982/learn 1309.
 다음 회차: sic_ceria_h2o2/abrasive_size_nm 모두 스킵하고 corpus.py next --stage learn 문서 기반
 C2 confidence 승격 또는 VALIDATION 데이터셋(비-sic) 확보에 집중.
+
+## 2026-09-11 18:xx [학습총괄] 부채상환 1편 + 병렬배차 2명 이수 — 부채 6→5편, 진도 108→110/168
+
+**부채상환**: knowledge/equipment/conditioning-mechanism-asperity-regeneration.md — Lawing 2004/Ring 논문 둘 다
+컨퍼런스발표라 DOI 없음(2026-09-11 웹검색 재확인), 같은 저자군(Rohm and Haas)의 US6899612 특허를 1차 출처로
+추가 + Lawing 접촉면적 실측값(11.3/7.7/2.2%)·Ring D_grit/sigma 비율을 assert로 대조하는 python verify 블록 신설.
+check_knowledge/verify_claims 둘 다 통과(커밋 2b58d9a).
+
+**병렬배차 2명**(claude -p 백그라운드, 45턴 제한): cmp-data-engineer Lv2-2(합성데이터 생성기), film-nitride
+Lv2-2(SiN 직접 CMP 하드마스크/게이트). film-nitride는 정상 완주(커밋 3c6806d, 출처4건 실존·verify 2블록 PASS).
+cmp-data-engineer는 **45턴 소진으로 노트 작성만 끝내고 체크박스/PROFILE/EXAMS 마무리는 못 함** — 총괄이 직접
+노트 자체는 check_knowledge/verify_claims 통과 확인(출처5건·verify 4블록 PASS) 후 나머지 마무리해 커밋(a5b9013).
+**교훈**: cmp-data-engineer 같이 1차 문헌 탐색이 여러 편 필요한 주제는 45턴이 빠듯하다 — 다음 회차부터 이런
+주제는 --max-turns 60으로 올리거나 브리프를 "노트 1편만, 마무리는 총괄이 한다"로 명시할 것.
+
+**검증**: check_knowledge --all 129/134(기존 134 그대로), verify_claims 대상 노트 개별 통과, pytest 595 passed.
+ORG.md §5 두 행 갱신(cmp-data-engineer 3/6→4/6, film-nitride 3/6→4/6).
+
+**부채 잔여 5편**(equipment/tool-layout-reflexion-class.md · conditioner-asperity-population-balance.md ·
+cmp-tool-endpoint-thermal-slurry-delivery.md · cmp/wiwnu-pressure-velocity-wafer-scale.md · components/_SCHEMA.md
+는 스키마 문서라 실제 학습노트 아님, 부채 아닌 것으로 확인 — 사실상 실질 부채 4편). 다음 회차 1편 상환 계속.
