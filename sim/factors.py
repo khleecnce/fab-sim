@@ -365,6 +365,19 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
                     "문헌은 정점형(~80nm 최대)이라고만 서술하고 지수를 확정하지 "
                     "못했으므로 임의값을 쓰지 않는다 — 입경을 바꿔도 κ가 변하지 "
                     "않는다는 뜻이다. 단조 지수를 넣으면 정점 거동을 놓친다.")
+            elif float(n_size) == 0.0:
+                # 지수 0은 "모른다"가 아니라 "효과가 없다"는 **검증된 결론**이다.
+                # 값은 1.0이라 무반응이지만, 근거가 있으므로 항으로 계상한다
+                # (미모델링과 구분되어야 한다 — EVIDENCE-RULES.md 판정 #1).
+                terms["size"] = 1.0
+                srcs.append("knowledge/cmp/abrasive-size-null-result-"
+                            "force-partition-theory.md")
+                f.notes.append(
+                    "입경 지수 0 — **검증된 영(null) 결과**. 교란(입자 형상)을 제거한 "
+                    "부분집합에서 입경-MRR 상관이 비유의(ρ≈0.03~0.15)하고, Chen "
+                    "단층모델의 면밀도 d⁻²×압입 d⁺² 상쇄가 같은 결론을 준다. "
+                    "'지수 미확정'이 아니라 '이 계에서 입경은 지배인자가 아님'이다. "
+                    "적용 범위 밖(응집체 비율 높은 슬러리)에는 형상 팩터가 따로 필요하다.")
             else:
                 terms["size"] = (d / d_ref) ** float(n_size)
                 srcs.append("knowledge/cmp/abrasive-size-concentration-"

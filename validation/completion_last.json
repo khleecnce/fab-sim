@@ -1,0 +1,135 @@
+{
+  "ts": 1789086161.0877671,
+  "complete": false,
+  "cells_done": 6,
+  "cells_total": 50,
+  "fails": [
+    "C2 Λ lambda/cu_h2o2_bta: confidence=estimated",
+    "C2 Λ lambda/oxide_silica: confidence=estimated",
+    "C2 Λ lambda/sic_ceria_h2o2: confidence=estimated",
+    "C2 Λ lambda/sti_ceria: confidence=estimated",
+    "C2 Λ lambda/w_fe_oxidizer: confidence=estimated",
+    "C2 Θ theta/cu_h2o2_bta: confidence=estimated",
+    "C2 Θ theta/oxide_silica: confidence=estimated",
+    "C2 Θ theta/sic_ceria_h2o2: confidence=estimated",
+    "C2 Θ theta/sti_ceria: confidence=estimated",
+    "C2 Θ theta/w_fe_oxidizer: confidence=estimated",
+    "C2 Γ gamma/cu_h2o2_bta: confidence=unverified",
+    "C2 Γ gamma/oxide_silica: confidence=unverified",
+    "C2 Γ gamma/sic_ceria_h2o2: confidence=unverified",
+    "C2 Γ gamma/sti_ceria: confidence=unverified",
+    "C2 Γ gamma/w_fe_oxidizer: confidence=unverified",
+    "C2 κ kappa/cu_h2o2_bta: confidence=estimated",
+    "C2 κ kappa/oxide_silica: confidence=estimated",
+    "C2 κ kappa/sic_ceria_h2o2: confidence=estimated",
+    "C2 κ kappa/sti_ceria: confidence=estimated",
+    "C2 κ kappa/w_fe_oxidizer: confidence=estimated",
+    "C2 χ chi/cu_h2o2_bta: confidence=estimated",
+    "C2 χ chi/oxide_silica: confidence=estimated",
+    "C2 χ chi/sic_ceria_h2o2: confidence=estimated",
+    "C2 χ chi/sti_ceria: confidence=estimated",
+    "C2 χ chi/w_fe_oxidizer: confidence=estimated",
+    "C2 ψ psi/cu_h2o2_bta: confidence=unverified",
+    "C1 ψ psi/oxide_silica: status=unmodeled",
+    "C1 ψ psi/sic_ceria_h2o2: status=unmodeled",
+    "C1 ψ psi/sti_ceria: status=unmodeled",
+    "C2 ψ psi/w_fe_oxidizer: confidence=unverified",
+    "C2 τ tau/cu_h2o2_bta: confidence=unverified",
+    "C2 τ tau/oxide_silica: confidence=unverified",
+    "C2 τ tau/sic_ceria_h2o2: confidence=unverified",
+    "C2 τ tau/sti_ceria: confidence=unverified",
+    "C2 τ tau/w_fe_oxidizer: confidence=unverified",
+    "C1 Δ delta/cu_h2o2_bta: status=unmodeled",
+    "C1 Δ delta/oxide_silica: status=unmodeled",
+    "C2 Δ delta/sic_ceria_h2o2: confidence=unverified",
+    "C2 Δ delta/sti_ceria: confidence=unverified",
+    "C1 Δ delta/w_fe_oxidizer: status=unmodeled",
+    "C2 S stab/cu_h2o2_bta: confidence=estimated",
+    "C2 S stab/sic_ceria_h2o2: confidence=estimated",
+    "C2 S stab/sti_ceria: confidence=estimated",
+    "C2 S stab/w_fe_oxidizer: confidence=estimated",
+    "C4 sic_ceria_h2o2: 유의 held-out 0건",
+    "C5 Π pi: verify 블록 있는 근거 노트 없음",
+    "C5 ψ psi: verify 블록 있는 근거 노트 없음",
+    "C5 τ tau: verify 블록 있는 근거 노트 없음",
+    "C5 Δ delta: verify 블록 있는 근거 노트 없음",
+    "C5 S stab: verify 블록 있는 근거 노트 없음"
+  ],
+  "sensitivity": {
+    "chi": true,
+    "kappa": true,
+    "psi": true,
+    "tau": true
+  },
+  "heldout": {
+    "oxide_silica": {
+      "n_sig": 2,
+      "rhos": [
+        1.0,
+        0.9920948616600791
+      ],
+      "n_total": 6,
+      "mean_rho": 0.996
+    },
+    "sti_ceria": {
+      "n_sig": 2,
+      "rhos": [
+        0.9333333333333333,
+        0.9666666666666667
+      ],
+      "n_total": 5,
+      "mean_rho": 0.95
+    },
+    "sic_ceria_h2o2": {
+      "n_sig": 0,
+      "rhos": [],
+      "n_total": 2,
+      "mean_rho": null
+    },
+    "cu_h2o2_bta": {
+      "n_sig": 2,
+      "rhos": [
+        0.7174500322602797,
+        1.0
+      ],
+      "n_total": 5,
+      "mean_rho": 0.8587
+    },
+    "w_fe_oxidizer": {
+      "n_sig": 1,
+      "rhos": [
+        1.0
+      ],
+      "n_total": 2,
+      "mean_rho": 1.0
+    }
+  },
+  "c5_notes": {
+    "lambda": [
+      "knowledge/cmp/preston-luo-dornfeld-mrr.md",
+      "knowledge/physics/cmp-kinematics-rotary.md"
+    ],
+    "pi": [],
+    "theta": [
+      "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
+      "knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md"
+    ],
+    "gamma": [
+      "knowledge/equipment/conditioner-disk-pad-cutting-model.md",
+      "knowledge/equipment/disk-rpm-load-radius-pcr.md"
+    ],
+    "kappa": [
+      "knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md",
+      "knowledge/cmp/abrasive-size-null-result-force-partition-theory.md",
+      "knowledge/materials/pad-hardness-porosity-measurement-methods.md"
+    ],
+    "chi": [
+      "knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
+      "knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
+    ],
+    "psi": [],
+    "tau": [],
+    "delta": [],
+    "stab": []
+  }
+}
