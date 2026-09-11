@@ -443,3 +443,31 @@ def test_theta_hotter_coolant_raises_load():
     f_hot = _factors(pack="oxide_silica", platen_coolant_temp_c=35.0)["theta"]
     assert f_hot.value > f_ref.value, (
         f"냉각수 35C가 기준 30C보다 Θ가 높아야 한다: {f_hot.value} vs {f_ref.value}")
+
+
+def test_theta_rotation_cooling_present_at_reference():
+    """회전 대류냉각 항 추가 후에도 기준 rpm_platen(=lambda_ref_rpm_platen)에서 Θ=1.0 유지.
+
+    knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md — von Karman
+    회전원판 냉각 채널을 추가해도 기준점 1.0 계약은 깨지지 않아야 한다.
+    """
+    f = _factors(pack="oxide_silica")["theta"]
+    assert f.value == pytest.approx(1.0, abs=1e-6), f"기준 Θ={f.value} != 1.0"
+    assert "cool(rotation)" in f.terms
+
+
+def test_theta_faster_rotation_moderates_but_not_cancels_load():
+    """rpm_platen을 올리면 발열(Λ, 선형)과 냉각(rotation, 제곱근)이 함께 커지지만,
+
+    발열이 냉각보다 빠르게 늘어 순net Θ는 여전히 증가해야 한다(von Karman 지수 b=0.5 <
+    Λ의 V 선형 지수 1.0 — knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md §2).
+    단, rpm_platen만 올린 단순 배율보다는 완화되어 있어야 한다(회전냉각이 일부 상쇄).
+    """
+    f_ref = _factors(pack="oxide_silica")["theta"]
+    f_fast = _factors(pack="oxide_silica", rpm_platen=110.0)["theta"]
+    assert f_fast.value > f_ref.value, (
+        f"회전수를 올렸는데 Θ가 안 올랐다: {f_fast.value} vs {f_ref.value}")
+    # 회전냉각 항이 없다면 Λ만 2배가 되어 Θ도 정확히 2배가 됐을 것 — 실제로는 sqrt(2)로 나눠 완화됨
+    naive_double = f_ref.value * 2.0
+    assert f_fast.value < naive_double, (
+        f"회전 대류냉각이 반영 안 됨 — Θ가 순수 2배({naive_double})만큼 올랐다: {f_fast.value}")

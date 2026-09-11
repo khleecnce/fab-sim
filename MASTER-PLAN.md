@@ -2003,3 +2003,21 @@ coolant-temperature-driver.md 신설(check_knowledge/verify_claims 둘 다 통�
 Precision Eng(구리 CMP 열영향, DOI 10.1016/j.precisioneng.2021.09.007)/Lee2012 W-CMP 온도(DOI
 10.1149/1.4717508) 원문을 미러 사이트 미러(미러 사이트이 Cloudflare로 차단됨, 다른 미러 재시도 필요)로
 확보하는 것). corpus.py status: total 2301, with_fulltext 1334, queue fetch 967/learn 1324.
+
+## 2026-09-11 22:xx [성장엔진] 정확도루프: Θ(열·유동부하) PARTIAL 갭 2차 — 플래튼 회전속도 대류냉각 채널 신설
+accuracy_gaps.py --next가 Θ PARTIAL(drivers에 rpm_platen은 있으나 Λ 발열에만 쓰이고 냉각쪽엔 미사용)을
+다시 반환. Harmand et al. 2013(Int. J. Thermal Sciences, DOI:10.1016/j.ijthermalsci.2012.11.009,
+arXiv:1305.2882 OA)에서 von Karman 회전원판 층류 대류열전달 Nu_r=a·Re_r^0.5(지수 b=0.5, 여러 참조문헌
+Kreith/Popiel/Hartnett/Owen&Rogers 일치)를 확인 — h∝Ω^0.5(반경 무관, 원문 서술과 일치). 이를 근거로
+cool_rotation=sqrt(rpm_platen/lambda_ref_rpm_platen) 항을 Θ 분모에 추가(새 파라미터 없이 기존
+lambda_ref_rpm_platen 재사용, 이중기준 방지). knowledge/physics/cmp-theta-rotation-convective-cooling-
+driver.md 신설(check_knowledge/verify_claims 둘 다 통과, python verify로 2배 회전시 sqrt(2)=1.4142배
+재현). sim/factors.py _f_theta에 cool(rotation) 항 추가, tests/test_factors.py 2개 신규(기준 1.0 유지 +
+회전 올리면 발열>냉각완화로 순net 증가하되 순수2배보다는 완화됨을 확인). pytest 600 passed, qa_loop.py
+--strict PASS(유의 데이터셋 7/20, 평균 ρ=0.9537, 회귀 없음).
+⚠ 대상계 한계: 원문은 공기 중 매끈한 원판(Pr=0.71) 실험/이론, CMP는 슬러리 박막 강제대류(E4급 전이) —
+지수 b=0.5의 방향성만 채택, 계수 a는 미채택. Θ status는 여전히 "partial" 고정(accuracy_gaps는 다시
+같은 갭을 반환할 것) — 이는 코드가 3채널 이상을 자동으로 "modeled"로 승격하지 않는 설계이기 때문.
+다음 과제: Lee/Guo/Jeong 2012 CMP 패드 온도분포(DOI:10.1007/s12541-012-0004-8) 미러 사이트 3회 시도
+실패(캡차) — 대체 경로(ResearchGate·기관리포지토리) 필요, 확보되면 대상계 직접실측으로 E4→E1/E2 승격.
+corpus.py status: total 2301, with_fulltext 1334, queue fetch 967/learn 1324.

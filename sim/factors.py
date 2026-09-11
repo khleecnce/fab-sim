@@ -219,9 +219,13 @@ def _f_pi(rr: "ResolvedRecipe") -> Factor:
 def _f_theta(rr: "ResolvedRecipe") -> Factor:
     """Θ 열·유동 부하 — 마찰 발열과 슬러리 냉각/공급의 균형.
 
-    발열은 Λ에 비례하고(마찰일률), 냉각은 두 독립 채널로 이루어진다:
-    ①슬러리 유량(SFR, 대류 물질교환) ②플래튼 냉각수 온도(열전달 구동력 ΔT).
-    Yuh 2015(doi:10.1007/s40684-015-0041-8)가 이 둘을 독립 실험축으로 스윕했다
+    발열은 Λ에 비례하고(마찰일률), 냉각은 세 독립 채널로 이루어진다:
+    ①슬러리 유량(SFR, 대류 물질교환) ②플래튼 냉각수 온도(열전달 구동력 ΔT)
+    ③플래튼 회전속도(회전 대류냉각, von Karman 회전원판 Nu∝Re^0.5 — Harmand et al. 2013,
+    doi:10.1016/j.ijthermalsci.2012.11.009, knowledge/physics/cmp-theta-rotation-convective-
+    cooling-driver.md). rpm_platen은 Λ의 발열(V=ω·r_cc, 선형)에도 쓰이지만 냉각 쪽에서는
+    제곱근으로 스케일링돼 순net 효과는 완화될 뿐 상쇄되지 않는다(같은 노트 §2).
+    Yuh 2015(doi:10.1007/s40684-015-0041-8)가 SFR·온도를 독립 실험축으로 스윕했다
     (knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md §1).
     온도는 Arrhenius로 화학속도를, 유량은 신선 슬러리 공급을 지배한다.
 
@@ -259,14 +263,22 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
         if driving_ref > 0:
             cool_temp = driving_now / driving_ref
         f.drivers["platen_coolant_temp_c"] = T_coolant
-    # 부하비 = 발열(Λ) / [냉각(SFR) × 냉각(온도)]. 기준 조건에서 1.0.
-    f.value = lam.value / (cool_sfr * cool_temp)
-    f.terms = {"heat(Λ)": lam.value, "cool(SFR)": cool_sfr, "cool(coolant_temp)": cool_temp}
+    # 회전 대류냉각 채널 — von Karman 회전원판 Nu∝Re_r^0.5 (층류, 지수 b=0.5 문헌 일치,
+    # knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md §1-2).
+    # 새 파라미터 없이 Λ와 같은 lambda_ref_rpm_platen을 재사용(같은 회전축, 이중기준 방지).
+    rpm_platen = float(rr.rpm_platen)
+    rpm_ref = float(pk.get_or("lambda_ref_rpm_platen", rpm_platen or 1.0))
+    cool_rotation = math.sqrt(rpm_platen / rpm_ref) if rpm_ref > 0 else 1.0
+    # 부하비 = 발열(Λ) / [냉각(SFR) × 냉각(온도) × 냉각(회전대류)]. 기준 조건에서 1.0.
+    f.value = lam.value / (cool_sfr * cool_temp * cool_rotation)
+    f.terms = {"heat(Λ)": lam.value, "cool(SFR)": cool_sfr, "cool(coolant_temp)": cool_temp,
+               "cool(rotation)": cool_rotation}
     f.status = "partial"
     f.confidence = _worst_conf(_pack_conf(pk, "sfr_ml_min"), "estimated")
     f.sources = ["knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md",
                  "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
-                 "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md"]
+                 "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md",
+                 "knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md"]
     f.notes.append("⚠ 발열/냉각을 1차 비례로 압축했다 — 실제 열저항·체류시간은 "
                    "미반영. 절대 ΔT는 별도 열모델이 담당한다.")
     if not pk.has("sfr_ref_ml_min"):
