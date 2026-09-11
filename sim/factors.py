@@ -190,6 +190,7 @@ def _f_pi(rr: "ResolvedRecipe") -> Factor:
         f.status = "modeled"
         f.terms = {"uniform": 1.0}
         f.confidence = "verified"   # 균일은 정의상 참
+        f.sources = ["knowledge/equipment/cmp-multizone-carrier-radial-response.md"]
         f.notes.append("균일 압력 — Π=1.0 (존압력·엣지집중 없음)")
         return f
     if zp:
@@ -689,13 +690,20 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
 
 
 def _f_psi(rr: "ResolvedRecipe") -> Factor:
-    """ψ 표면 보호도 — 억제제 피복이 만드는 제거 억제 배수 (≤1).
+    """ψ 표면 보호도 — 표면 흡착 보호(억제제 피복 또는 분산제 흡착)가 만드는
+    제거 억제 배수 (≤1).
 
     χ와 분리한 이유: 사용자가 배합을 조정할 때 "촉진을 올릴까 억제를 낮출까"는
     서로 다른 결정이다. 하나의 화학 배수로 뭉치면 그 판단이 사라진다.
     디싱/에로전은 이 항이 지배한다.
+
+    ψ 정의 확장(COMPLETION.md): 원래는 Cu/W용 금속 부동태 억제제(BTA 등)만
+    모델링했다. 하지만 oxide_silica/sic_ceria_h2o2/sti_ceria 세 팩은 금속이
+    아니라 실리카/세리아 슬러리라 inhibitor_mM이 없다 — 그렇다고 표면 흡착
+    보호가 없는 게 아니라, 통로가 폴리머 분산제 흡착(PVA/PVP)으로 바뀐 것뿐이다.
+    그래서 억제제 항이 없을 때 분산제 흡착 항으로 폴백한다.
     """
-    from sim.chemistry import _inhibitor_term
+    from sim.chemistry import _inhibitor_term, _dispersant_protection_term
     f = _new("psi")
     pk = rr.pack
     notes: List[str] = []
@@ -706,20 +714,41 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
                 f.drivers[k] = float(pk.get(k))
             except (TypeError, ValueError):
                 pass
-    if v is None:
-        f.notes.append("⚠ ψ 미모델링: 억제제 파라미터(inhibitor_mM + 흡착상수)가 "
-                       "팩에 없다. Cu/W 디싱 제어를 시뮬레이션할 수 없다.")
+    if v is not None:
+        f.value = v
+        f.terms = {"inhibitor": v}
+        f.status = "modeled"
+        f.confidence = _worst_conf(_pack_conf(pk, "inhibitor_mM"), "unverified")
+        f.sources = ["knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
+                     "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"]
         f.notes.extend(notes)
+        if not pk.has("surfactant_ppm"):
+            f.notes.append("⚠ surfactant가 미연결 — 계면활성제도 피복을 통해 억제에 "
+                           "기여하는데 통로가 없다.")
         return f
-    f.value = v
-    f.terms = {"inhibitor": v}
+
+    dnotes: List[str] = []
+    dv = _dispersant_protection_term(pk, dnotes)
+    if pk.has("dispersant_type"):
+        try:
+            f.drivers["dispersant_type"] = pk.get("dispersant_type")
+        except (TypeError, ValueError):
+            pass
+    if dv is None:
+        f.notes.append("⚠ ψ 미모델링: 억제제 파라미터(inhibitor_mM + 흡착상수)도, "
+                       "분산제 파라미터(dispersant_type)도 팩에 없다. 표면 흡착 보호를 "
+                       "시뮬레이션할 수 없다.")
+        f.notes.extend(notes)
+        f.notes.extend(dnotes)
+        return f
+    f.value = dv
+    f.terms = {"dispersant": dv}
     f.status = "modeled"
-    f.confidence = _worst_conf(_pack_conf(pk, "inhibitor_mM"), "unverified")
-    f.sources = ["knowledge/cmp/cu-bta-inhibition.md"]
-    f.notes.extend(notes)
-    if not pk.has("surfactant_ppm"):
-        f.notes.append("⚠ surfactant가 미연결 — 계면활성제도 피복을 통해 억제에 "
-                       "기여하는데 통로가 없다.")
+    f.confidence = _pack_conf(pk, "dispersant_type")
+    f.sources = ["knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6"]
+    f.notes.append("ψ 정의 확장: 표면 흡착 보호(passivation/adsorption shield) — "
+                   "이 팩은 금속 부동태가 아니라 폴리머 분산제 흡착 경로")
+    f.notes.extend(dnotes)
     return f
 
 
@@ -877,6 +906,8 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     f.terms = {"d99": val}
     f.status = "partial"
     f.confidence = "unverified"
+    f.sources = ["knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
+                 "knowledge/cmp/lpc-scratch-density-tail-correlation.md"]
     f.notes.append(f"⚠ 손상 지수 n={n:g}는 문헌 폐형식이 없어 팩에서 받는 가정값이다. "
                    "순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. "
                    "⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) "
@@ -933,6 +964,7 @@ def _f_stab(rr: "ResolvedRecipe") -> Factor:
     f.confidence = "literature" if abrasive == "silica" else "estimated"
     f.sources.append(
         "Jeong et al. 2024, Materials 17(8) 1817, doi:10.3390/ma17081817 (PMC11051262) Fig.9")
+    f.sources.append("knowledge/materials/pad-glazing-mechanism-mrr-decay.md")
     if t_min > 10.0:
         f.notes.append(
             f"⚠ time_s={rr.time_s:.0f}s({t_min:.1f} min)가 문헌 관측범위(1~10 min)를 "

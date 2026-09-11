@@ -192,6 +192,66 @@ def _inhibitor_term(pack, notes: List[str]) -> Optional[float]:
     return _residual(C_molar) / ref
 
 
+DISPERSANT_MRR_RELATIVE = {
+    "NONE": 1.0,
+    "PAA": 1.0,      # Li 2021 §6: "negligible" 저해
+    "PAM": 1.0,      # Li 2021 §6: "hardly changed"
+    "PVA": 2604.0 / 2700.0,   # -3.6%, Li 2021 §6 Fig.14-15 실측
+    "PVP": 2486.0 / 2700.0,   # -7.9%, Li 2021 §6 Fig.14-15 실측
+}
+
+
+def _dispersant_protection_term(pack, notes: List[str]) -> Optional[float]:
+    """분산제 흡착 → MRR 저해 배수. ψ의 '표면 흡착 보호' 경로(억제제와 별도).
+
+    Li et al. 2021 (ECS JSS Technol. 10, 123008) §6 실측: 30wt% SiO2 콜로이달
+    실리카 슬러리(80nm, pH 11.0, 0.32M K+, 기본 MRR=2700 Å/min)에 분산제를
+    첨가했을 때의 MRR 저해를 그대로 옮긴다 — 새 지수·상수는 만들지 않는다.
+
+    ⚠ **반드시 기준 대비 비율로 돌려준다.** 절대 저해율(PVA=0.964)을 그대로
+    쓰면 기준 조건에서 ψ≠1.0이 되어 Kp에 이미 반영된 효과를 두 번 센다
+    (factors.py 설계계약 §1). 2026-09-11에 실제로 이 사고가 났다 —
+    기본 팩이 dispersant_type=PVA인데 절대값 0.964를 반환해
+    test_all_factors_are_unity_at_reference_condition 이 FAIL했다.
+
+    `dispersant_ref_type`이 팩에 없으면 **"NONE"(분산제 없음)**을 기준으로 삼는다 —
+    그게 Li 2021의 기준선(2700 Å/min)이므로 문헌 의미를 그대로 보존한다.
+    다만 팩의 Kp가 특정 분산제 조성에서 역산됐다면 그 팩은 반드시
+    `dispersant_ref_type`을 선언해야 한다. 선언하지 않으면 기준 조건에서
+    ψ≠1.0이 되어 `test_all_factors_are_unity_at_reference_condition`이 잡아낸다.
+    """
+    if not pack.has("dispersant_type"):
+        return None
+    kind = str(pack.get("dispersant_type")).strip().upper()
+    if kind not in DISPERSANT_MRR_RELATIVE:
+        notes.append(
+            f"⚠ dispersant_type='{kind}'는 Li 2021 §6 실측 테이블에 없어 "
+            "분산제 보호 항을 건너뛴다.")
+        return None
+    ref_kind = str(pack.get_or("dispersant_ref_type", "NONE")).strip().upper()
+    if ref_kind not in DISPERSANT_MRR_RELATIVE:
+        notes.append(
+            f"⚠ dispersant_ref_type='{ref_kind}'가 실측 테이블에 없다 — "
+            f"기준을 현재 종류({kind})로 대체한다.")
+        ref_kind = kind
+    rel = DISPERSANT_MRR_RELATIVE[kind] / DISPERSANT_MRR_RELATIVE[ref_kind]
+    if kind == ref_kind:
+        notes.append(
+            f"분산제 흡착 보호: {kind} = 기준 조성이라 배수 1.000 "
+            "(Kp가 이 조성에서 역산됐다 — 절대 저해율을 다시 곱하면 이중 계상). "
+            "다른 분산제로 바꾸면 그 상대비가 반영된다"
+            "(knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6, "
+            "Li et al. 2021 실측).")
+    else:
+        notes.append(
+            f"분산제 흡착 보호: {kind}/{ref_kind}(기준) → MRR 상대배수 {rel:.3f} "
+            f"[절대 저해율 {kind}={DISPERSANT_MRR_RELATIVE[kind]:.3f}, "
+            f"{ref_kind}={DISPERSANT_MRR_RELATIVE[ref_kind]:.3f}] "
+            "(knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6, "
+            "Li et al. 2021 실측)")
+    return rel
+
+
 def _ceria_term(pack, notes: List[str]) -> Optional[float]:
     """세리아 chemical tooth — Ce³⁺ 활성점이 Si-O-Ce 결합을 만든다.
 

@@ -66,3 +66,21 @@ params:
     value: 4.0
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%)"
     confidence: measured
+
+  # ── ψ 표면 흡착 보호 (분산제 경로, 교차계 전이) ──────────
+  dispersant_type:
+    value: "NONE"
+    unit: "-"
+    note: >
+      oxide_silica 팩에서 상속된 경로이다. Li et al. 2021은 실리카 슬러리 실통이라
+      세리아(STI/SiC) 화학계로의 전이는 교차계 외삽이다(EVIDENCE-RULES E4) — 세리아 슬러리는
+      실제로 EAA 공중합제 분산제를 사용한다는 정직 기록이 slurry-components-overview.md §6에
+      있으나 **정량 MRR 저해값은 문헌에 없다.**
+
+      ⚠ 그러므로 기반값은 "NONE"이다. 실리카용 PVA 수치(-3.6%)를 세리아 팩에 그대로
+      밗으면 (1) 근거 없는 수치를 도입하고 (2) 이 팩의 kp가 분산제 무관 문헌 MRR에서
+      역산됐으므로 기준 조건에서 ψ≠1.0이 되어 이중 계상한다(2026-09-11 사고).
+      confidence는 estimated를 유지해 "세리아에서는 이 경로가 정량화되지 않았다"는
+      사실을 코드에 남긴다. 세리아 전용 저해 실제가 나오면 그것으로 교체한다.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6 (교차계 — 정량값 미전이)
+    confidence: estimated

@@ -1,7 +1,7 @@
 {
-  "ts": 1789086161.0877671,
+  "ts": 1789087853.809536,
   "complete": false,
-  "cells_done": 6,
+  "cells_done": 7,
   "cells_total": 50,
   "fails": [
     "C2 Λ lambda/cu_h2o2_bta: confidence=estimated",
@@ -30,9 +30,8 @@
     "C2 χ chi/sti_ceria: confidence=estimated",
     "C2 χ chi/w_fe_oxidizer: confidence=estimated",
     "C2 ψ psi/cu_h2o2_bta: confidence=unverified",
-    "C1 ψ psi/oxide_silica: status=unmodeled",
-    "C1 ψ psi/sic_ceria_h2o2: status=unmodeled",
-    "C1 ψ psi/sti_ceria: status=unmodeled",
+    "C2 ψ psi/sic_ceria_h2o2: confidence=estimated",
+    "C2 ψ psi/sti_ceria: confidence=estimated",
     "C2 ψ psi/w_fe_oxidizer: confidence=unverified",
     "C2 τ tau/cu_h2o2_bta: confidence=unverified",
     "C2 τ tau/oxide_silica: confidence=unverified",
@@ -48,12 +47,7 @@
     "C2 S stab/sic_ceria_h2o2: confidence=estimated",
     "C2 S stab/sti_ceria: confidence=estimated",
     "C2 S stab/w_fe_oxidizer: confidence=estimated",
-    "C4 sic_ceria_h2o2: 유의 held-out 0건",
-    "C5 Π pi: verify 블록 있는 근거 노트 없음",
-    "C5 ψ psi: verify 블록 있는 근거 노트 없음",
-    "C5 τ tau: verify 블록 있는 근거 노트 없음",
-    "C5 Δ delta: verify 블록 있는 근거 노트 없음",
-    "C5 S stab: verify 블록 있는 근거 노트 없음"
+    "C4 sic_ceria_h2o2: 유의 held-out 0건"
   ],
   "sensitivity": {
     "chi": true,
@@ -109,7 +103,9 @@
       "knowledge/cmp/preston-luo-dornfeld-mrr.md",
       "knowledge/physics/cmp-kinematics-rotary.md"
     ],
-    "pi": [],
+    "pi": [
+      "knowledge/equipment/cmp-multizone-carrier-radial-response.md"
+    ],
     "theta": [
       "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
       "knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md"
@@ -127,9 +123,21 @@
       "knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
       "knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md"
     ],
-    "psi": [],
-    "tau": [],
-    "delta": [],
-    "stab": []
+    "psi": [
+      "knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md",
+      "knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
+      "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"
+    ],
+    "tau": [
+      "knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md",
+      "knowledge/materials/pad-porosity-slurry-transport-mrr.md"
+    ],
+    "delta": [
+      "knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
+      "knowledge/cmp/lpc-scratch-density-tail-correlation.md"
+    ],
+    "stab": [
+      "knowledge/materials/pad-glazing-mechanism-mrr-decay.md"
+    ]
   }
 }

@@ -114,7 +114,14 @@ def heldout_by_pack() -> Dict[str, Dict[str, Any]]:
 
 def notes_with_verify(factor: str, g: Optional[Dict] = None) -> List[str]:
     """C5: 이 팩터의 Factor.sources 가 가리키는 노트 중 verify 블록(```python + assert)이 있는 것.
-    코드가 실제로 근거로 대는 노트만 센다 — 기호 태그 검색은 노트가 태그를 안 달아 전부 놓쳤다."""
+    코드가 실제로 근거로 대는 노트만 센다 — 기호 태그 검색은 노트가 태그를 안 달아 전부 놓쳤다.
+
+    ⚠ sources 문자열은 사람이 읽을 형태로 적혀 있어 그대로 경로로 쓸 수 없다:
+      - "knowledge/....md §5"  처럼 절 번호가 붙는다
+      - "Jeong et al. 2024, Materials 17(8) ..." 처럼 경로가 아닌 서지인용도 섞인다
+    절 번호를 떼고, 경로처럼 생긴 것만 파일로 해석한다. 이 정규화가 없으면 verify 블록이
+    실제로 있는 노트를 '없음'으로 오판한다(2026-09-11 C5 5축 전부가 이 버그였다).
+    """
     srcs = set()
     if g:
         for p, c in g.get(factor, {}).items():
@@ -122,13 +129,19 @@ def notes_with_verify(factor: str, g: Optional[Dict] = None) -> List[str]:
                 srcs.add(s)
     hits = []
     for s in srcs:
-        f = ROOT / s if not s.startswith("/") else Path(s)
-        if not f.exists() or f.suffix != ".md":
+        # "path.md §5" → "path.md"  (절 번호·괄호주석 제거)
+        cand = re.split(r"\s+§", s)[0].strip()
+        if ".md" in cand:
+            cand = cand[: cand.index(".md") + 3]
+        if not cand.endswith(".md"):
+            continue        # 서지인용 문자열 — 파일이 아니다
+        f = ROOT / cand if not cand.startswith("/") else Path(cand)
+        if not f.exists():
             continue
         t = f.read_text(encoding="utf-8", errors="ignore")
         if "```python" in t and ("assert" in t or "verify" in t.lower()):
-            hits.append(s)
-    return sorted(hits)
+            hits.append(cand)
+    return sorted(set(hits))
 
 
 def check(verbose: bool = True) -> Dict[str, Any]:

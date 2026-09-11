@@ -145,3 +145,25 @@ params:
     note: 패드 raised 영역 평균거칠기 — 노트는 "~5µm 전형"으로만 명시
     source: knowledge/physics/cmp-lubrication-regimes.md §5
     confidence: estimated
+
+  # ── ψ 표면 흡착 보호 (분산제 경로) ───────────────────────
+  # 산화막/실리카 슬러리엔 금속 부동태 억제제(BTA 등)가 없다 — 대신 폴리머
+  # 분산제 흡착이 MRR을 억제한다. §6에서 PVA/PVP/PAA/PAM 네 종을 실측했다.
+  #
+  # ⚠ 기준값은 "PVA"가 아니라 "NONE"이어야 한다 (2026-09-11 수정): factors.py
+  # 전체의 계약은 "기준 조건에서 모든 팩터가 정확히 1.0"이다(이중 계상 방지,
+  # test_all_factors_are_unity_at_reference_condition). kp_m_per_pa는 이
+  # 팩의 대표 MRR에서 역산된 값이므로, 팩 기본값에 PVA(배수 0.964)를 넣으면
+  # 그 억제가 기준 조건에 이미 섞여 있는데 다시 곱해 이중 계상이 된다.
+  # "NONE"은 임의 선택이 아니라 Li et al. 2021 §6의 MRR=2700 Å/min 기준점
+  # 자체가 무첨가 조건이다 — 즉 이 팩의 기준 조성과 논문의 기준 조성이 일치한다.
+  # PVA/PVP는 레시피 오버라이드로 what-if 스캔할 때만 등장한다.
+  dispersant_type:
+    value: "NONE"
+    unit: "-"
+    note: >
+      Li et al. 2021 §6의 기준 MRR(2700 Å/min, 무첨가)과 이 팩의 기준 조성을
+      일치시킨다 — 팩 기본값에서 ψ=1.0이 되어 이중 계상을 피한다. PVA(-3.6%),
+      PVP(-7.9%)는 같은 논문 실측값이며 레시피 오버라이드로 스캔한다.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6
+    confidence: literature
