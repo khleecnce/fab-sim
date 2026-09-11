@@ -1952,3 +1952,17 @@ passed, 커밋 3cbaae1. **κ 팩터 자체의 confidence는 여전히 estimated�
 _f_kappa()가 농도지수(1/3~4/3 미확정)·Shore D→GPa 환산(미검증) 구조적 이유로 confidence 하한을
 코드에서 고정하고 있어 완성 격자는 12/50 불변. 근거 품질은 실질 개선됐으나 completion.py 판정
 기준에는 안 잡힘 — BACKLOG S48/STATUS.md에 그대로 기록.
+
+## 2026-09-11 16:xx [성장엔진] 위임 워커(κ confidence 4팩) 검증·커밋 + 갭랭커 반복 확인
+Max워커(claude -p, /tmp/brief_kappa_size.md)가 백그라운드로 수행한 κ abrasive_size_nm confidence
+승격(cu_h2o2_bta 100nm 유지·sic_ceria_h2o2 80→120nm·sti_ceria 80→60nm·w_fe_oxidizer 150→50nm,
+각 1차문헌 Gopal2007/Chen2017/Dandu2009/Bielmann1999 대조)을 확인: 새 노트 3편 check_knowledge.py
+전부 통과, pytest 595 passed, qa_loop.py --strict PASS(유의 ρ=0.944, 회귀 없음) → 커밋 3cbaae1 push 완료.
+sic_ceria_h2o2가 오늘 09-11 3회차 EVIDENCE-RULES null 판정(자원경계내 데이터없음)으로 종결됐음에도
+accuracy_gaps.py --next가 여전히 COMPLETION-C4로 이 항목을 최우선 반환(--skip 다건도 재출현) —
+도구가 EVIDENCE-RULES null 판정을 인식 못 하는 구조적 결함, 소프트웨어 부문에 개선 필요 재확인.
+completion.py check: 격자 12/50 불변(κ confidence 승격은 sim/factors.py의 _f_kappa()가 코드레벨에서
+estimated 강제 고정이라 파라미터 값만으론 C2 칸 안 바뀜 — 팩터 함수 개선은 별도 작업, factors.py는
+이번 회차 규칙상 미수정). corpus.py status: total 2301, with_fulltext 1319, queue fetch 982/learn 1309.
+다음 회차: sic_ceria_h2o2/abrasive_size_nm 모두 스킵하고 corpus.py next --stage learn 문서 기반
+C2 confidence 승격 또는 VALIDATION 데이터셋(비-sic) 확보에 집중.
