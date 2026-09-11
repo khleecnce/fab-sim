@@ -23,6 +23,35 @@
   #app{display:flex;height:100vh}
   #view{flex:1;position:relative;min-width:0}
   canvas{display:block;touch-action:none}   /* 터치 제스처를 브라우저가 스크롤로 가로채지 않게 */
+  /* ── 파트 전용 시각화 (2026-09-11: 슬러리공급/패드/디스크/로딩부) ── */
+  .viz{background:#0d1319;border:1px solid var(--line);border-radius:8px;padding:8px;margin-bottom:10px}
+  .viz canvas{width:100%;height:auto;border-radius:4px}
+  .viz .cap{color:var(--dim);font-size:11px;margin-top:6px;line-height:1.45}
+  .viz .cap b{color:var(--fg)}
+  /* P&ID 플로우 */
+  .pid{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:2px 0 8px}
+  .pid .nd{flex:1 1 auto;min-width:62px;text-align:center;background:var(--panel2);border:1px solid var(--line);
+           border-radius:6px;padding:6px 4px;font-size:10.5px;line-height:1.3}
+  .pid .nd .ic{font-size:16px;display:block;margin-bottom:1px}
+  .pid .nd .vl{color:var(--accent);font-weight:600;font-size:10px}
+  .pid .nd.dead{border-style:dashed;color:var(--dim)}
+  .pid .nd.dead .vl{color:var(--warn)}
+  .pid .ar{flex:0 0 16px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:13px}
+  /* FOUP 슬롯 격자 */
+  .foup{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:8px}
+  .foup .sl{position:relative;border:1px solid var(--line);border-radius:5px;background:var(--panel2);
+            padding:5px 3px;text-align:center;cursor:pointer;font-size:10px;transition:.12s}
+  .foup .sl:hover{border-color:var(--accent)}
+  .foup .sl .n{color:var(--dim);font-size:9px}
+  .foup .sl .w{font-weight:600;font-size:10px;margin-top:1px}
+  .foup .sl.empty{opacity:.42}
+  .foup .sl.empty .w{color:var(--dim);font-weight:400}
+  .foup .sl.on{border-color:var(--accent);background:#16324d;box-shadow:0 0 0 1px var(--accent) inset}
+  .foup .sl.npw .w{color:var(--good)} .foup .sl.ptw .w{color:var(--warn)}
+  .foupbar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+  .foupbar button{flex:1 1 auto;background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+                  border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
+  .foupbar button:hover{border-color:var(--accent)}
   #crumb{position:absolute;left:14px;top:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;
          background:rgba(11,15,20,.78);padding:6px 11px;border-radius:7px;border:1px solid var(--line);z-index:3}
   #crumb .lv{color:var(--accent);cursor:pointer} #crumb .lv:hover{text-decoration:underline}
@@ -176,8 +205,32 @@ const PARTS = {
       {k:"center_offset_m", l:"Head Offset r_cc", u:"m", min:0.10, max:0.30, step:0.005, pk:"center_offset_m",
        hint:"Wafer-center to platen-center distance. Fixed by where the head sits on the platen — a tool constant, not a per-recipe knob. Enters MRR as relative velocity V = ω_p·r_cc. Typical 0.18 m on 300 mm tools."},
     ]},
-  slurry:{ name:"② Slurry", icon:"💧",
-    sub:"Units a slurry formulator actually mixes in. Abrasive and Additives are separate blocks; each additive shows its target film and loading.",
+  sds:{ name:"② Slurry Delivery", icon:"🛢",
+    sub:"Slurry Delivery System — the cabinet outside the polisher: drum/IBC → blend tank → pump → filter → flow meter → arm nozzle. Composition lives in ③ Slurry; this part is the DELIVERY PATH only. The two are separated because a formulator owns the recipe while the tool owns the plumbing.",
+    fields:[
+      {section:"Supply Path (P&ID)"},
+      {special:"sdsflow"},
+      {section:"Delivery Set-points"},
+      {k:"sfr_ml_min", l:"Slurry Flow Rate (SFR)", u:"mL/min", min:20, max:400, step:5, pk:"sfr_ml_min",
+       hint:"The one delivery number the engine consumes: it drives Θ (thermal/flow load) as fresh-slurry supply per unit area."},
+      {k:"diw_flow_ml_min", l:"DIW Dilution Flow", u:"mL/min", min:0, max:400, step:5, pk:null,
+       dead:"Point-of-use dilution changes the abrasive wt% that actually reaches the pad. We hold no literature that quantifies in-line dilution vs. as-mixed concentration, so the engine uses the ③ Slurry loading as-is."},
+      {section:"Filtration — sets the D99 tail"},
+      {k:"filter_rating_um", l:"Filter Rating (absolute)", u:"µm", min:0.2, max:10, step:0.1, pk:null,
+       dead:"⚠ THIS IS THE REAL DEAD ONE THAT MATTERS. Δ (Damage) consumes abrasive_d99_nm, and in a real fab the POU filter is what sets that tail — but our D99 is a derived value (D50 × 5.00), not a filter-dependent one. Wiring filter → D99 needs retention-efficiency data we do not hold. Until then D99 is edited in ③ Slurry directly."},
+      {k:"filter_stage_count", l:"Filter Stages", u:"", min:1, max:3, step:1, pk:null,
+       dead:"Recorded only. Multi-stage retention is not modeled."},
+      {section:"Plumbing (recorded for provenance)"},
+      {k:"pump_type", l:"Pump Type", special:"select", pk:null,
+       options:[["diaphragm","Diaphragm"],["bellows","Bellows"],["centrifugal","Centrifugal"],["peristaltic","Peristaltic"],["magnetic_levitation","Magnetic Levitation"]],
+       dead:"Recorded only. Pump shear breaks agglomerates (Levitronix 2008 measured LPC growth across pump types) but we hold no calibrated shear→LPC transfer, so this does not move Δ."},
+      {k:"line_residence_s", l:"Line Residence Time", u:"s", min:0, max:600, step:10, pk:null,
+       dead:"Recorded only. Relevant to H₂O₂ decomposition and settling in long runs; no kinetics model held."},
+      {k:"blend_tank_l", l:"Blend Tank Volume", u:"L", min:10, max:2000, step:10, pk:null,
+       dead:"Recorded only."},
+    ]},
+  slurry:{ name:"③ Slurry", icon:"💧",
+    sub:"Units a slurry formulator actually mixes in. Abrasive and Additives are separate blocks; each additive shows its target film and loading. Flow rate and filtration live in ② Slurry Delivery.",
     fields:[
       {section:"Abrasive"},
       {k:"abrasive_type", l:"Abrasive Type", special:"select", pk:null,
@@ -201,40 +254,54 @@ const PARTS = {
       {k:"slurry_ph", l:"pH", u:"", min:0, max:14, step:0.1, pk:"slurry_ph",
        hint:"Silica pack: peak at pH 11 (Li 2021). Ceria pack: electrostatic window 2.5–6.8, collapses past pH 6 (Dandu 2009). Outside measured range = extrapolation."},
     ]},
-  pad:{ name:"③ Pad", icon:"▤",
-    sub:"Pad sets both Contact (κ) and Slurry Transport (τ).",
+  pad:{ name:"④ Pad", icon:"▤",
+    sub:"Pad sets both Contact (κ) and Slurry Transport (τ). The disk (⑤) is what creates this surface — read the two together.",
     fields:[
-      {k:"pad_hardness_shore_d", l:"Hardness", u:"Shore D", min:0, max:100, step:1, pk:"pad_hardness_shore_d",
-       hint:"Full Shore D scale shown as requested. Real CMP pads occupy a narrower band — see Performance Factors below for the sourced product range; outside it the H^-1.5 law is extrapolation."},
+      {section:"Groove Cross-section"},
+      {special:"padsection"},
       {k:"groove_width_um", l:"Groove Width", u:"µm", min:200, max:1200, step:25, pk:"groove_width_um",
        weak:"⚠ η peaks at 600 µm and drops again at 900 µm (Mu 2016 measured). Wider is not better. Outside 300–900 µm the end value is held, not extrapolated."},
+      {k:"groove_depth_mm", l:"Groove Depth", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
+       dead:"Depth is not wired to τ yet — literature we hold quantifies only width and porosity. Changing it redraws the cross-section above but does not move MRR."},
+      {k:"groove_pitch_mm", l:"Groove Pitch", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
+       dead:"Pitch not wired to τ either — same as depth. It does redraw the cross-section."},
+      {section:"Surface Statistics (Greenwood–Williamson)"},
+      {special:"padasperity"},
+      {k:"pad_hardness_shore_d", l:"Hardness", u:"Shore D", min:0, max:100, step:1, pk:"pad_hardness_shore_d",
+       hint:"Full Shore D scale shown as requested. Real CMP pads occupy a narrower band — see Performance Factors below for the sourced product range; outside it the H^-1.5 law is extrapolation."},
       {k:"pad_porosity_pct", l:"Porosity", u:"%", min:10, max:50, step:1, pk:"pad_porosity_pct",
        weak:"⚠ Porosity 15→45% (3×) raises MRR only 8% (Prasad 2013). The intuition 'more slurry carried = proportionally more MRR' is rejected by measurement."},
-      {k:"groove_depth_mm", l:"Groove Depth", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
-       dead:"Depth is not wired to τ yet — literature we hold quantifies only width and porosity. Changing it does not move MRR."},
-      {k:"groove_pitch_mm", l:"Groove Pitch", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
-       dead:"Pitch not wired to τ either — same as depth."},
+      {section:"Life / Glazing"},
+      {special:"padlife"},
       {section:"Performance Factors (literature)"},
       {special:"perf", part:"pad"},
     ]},
-  disk:{ name:"④ Disk", icon:"◈",
-    sub:"Conditioner disk. Geometry is a consumable (κ); downforce & sweep are tool set-points (Γ) — different axes, never mixed.",
+  disk:{ name:"⑤ Disk", icon:"◈",
+    sub:"Conditioner disk. Geometry is a consumable (κ); downforce & sweep are tool set-points (Γ) — different axes, never mixed. The disk carves the pad surface shown in ④.",
     fields:[
+      {section:"Grit Map (disk face)"},
+      {special:"diskgrit"},
+      {section:"Pad Cut-Rate Profile (sweep × radius)"},
+      {special:"diskpcr"},
+      {section:"Asperity Statistics the disk produces"},
       {k:"asperity_density_per_m2", l:"Asperity Density", u:"1/m²", min:2e10, max:4e11, step:1e10,
-       pk:"asperity_density_per_m2", fmt:v=>v.toExponential(2)},
+       pk:"asperity_density_per_m2", fmt:v=>v.toExponential(2),
+       weak:"⚠ 2026-09-11: five independent sources converge on 2.0e8 /m², ~500× below this value. Geometry also disagrees — at 1e11 the asperity spacing is 3.16 µm while the tip radius is 50 µm, so the hemispheres would interpenetrate. Pending a set-wise change (η together with R and σ); see the asperity panel above."},
       {k:"pad_asperity_radius_m", l:"Asperity Tip Radius", u:"m", min:1e-6, max:2e-5, step:1e-6,
        pk:"pad_asperity_radius_m", fmt:v=>v.toExponential(2),
        dead:"Only active under the GW contact model (tier2.gw_physical_kp). Unused by the Preston model."},
       {section:"Performance Factors (literature)"},
       {special:"perf", part:"disk"},
     ]},
-  wafer:{ name:"⑤ Wafer", icon:"◯",
-    sub:"⚠ Wafer is the target film, not a tuning parameter. It is excluded from merged parameters and serves only as the baseline for post-polish performance.",
+  wafer:{ name:"⑥ Loading Unit", icon:"◫",
+    sub:"Factory Interface — wafers enter here from the FOUP, so this is where they are specified. Pick a slot, then set what is in it. ⚠ Wafer is the target film, not a tuning parameter: it is excluded from the merged parameters and serves only as the baseline for post-polish performance.",
     fields:[
-      {section:"Wafer Selection"},
+      {section:"FOUP — Load Port 1 (25 slots)"},
+      {special:"foup"},
+      {section:"Selected Slot — Wafer Identity"},
       {k:"npw", l:"NPW (blanket test wafer)", special:"npw"},
       {k:"pack", l:"Film / Parameter Pack", special:"pack"},
-      {section:"Initial State (pre-CMP)"},
+      {section:"Selected Slot — Initial State (pre-CMP)"},
       {k:"initial_thickness_nm", l:"Initial Thickness (top film)", u:"nm", min:50, max:5000, step:10, special:"thick"},
       {k:"initial_ttv_nm", l:"Initial TTV", u:"nm", min:0, max:2000, step:10, pk:null,
        weak:"Recorded and used as the pre-CMP baseline for the post-polish comparison. The engine's TTV output is the polish-induced non-uniformity; final TTV = initial ⊕ polish-induced is not yet combined (needs an incoming-profile model)."},
@@ -243,13 +310,18 @@ const PARTS = {
       {k:"initial_bow_um", l:"Bow", u:"µm", min:-100, max:100, step:1, pk:null,
        dead:"Recorded only. Bow → pressure-distribution coupling not modeled."},
     ]},
-  data:{ name:"⑥ Data", icon:"📊",
+  data:{ name:"⑦ Data", icon:"📊",
     sub:"Every run is stored automatically. Drop measurement files (Excel/CSV) to store as-is; with ≥3 for a pack, a Kp calibration factor is computed.",
     fields:[ {special:"data"} ]},
 };
 
 const state = { pack:"oxide_silica", wafer:"NPW", time_s:60, recorded:{}, formulation:[],
-                initial_thickness_nm:1000, overrides:{}, base:{}, packs:[] };
+                initial_thickness_nm:1000, overrides:{}, base:{}, packs:[],
+                /* ⑥ Loading Unit — FOUP 25슬롯. 사용자 지시(2026-09-11): 웨이퍼는 로딩부에서 입력.
+                   시뮬레이션은 선택된 1장만 돌린다(배치 실행은 후속). slots[i]=null 이면 빈 슬롯. */
+                foup:{ sel:0, slots:Array.from({length:25}, (_,i)=> i===0
+                  ? {wafer:"NPW", pack:"oxide_silica", thick:1000, ttv:0, note:"active"}
+                  : null) } };
 let current = "tool";
 
 /* ─────────────────────────────────────────── 3D 씬
@@ -986,7 +1058,7 @@ pipe(new THREE.Vector3(SL_POST.x-0.05,1.02,SL_POST.z-0.05), new THREE.Vector3(SL
 const nozzle = cm(chamferCyl(0.05,0.44,0.01,32), M.tube, SL_DROP.x,0.76,SL_DROP.z, armPivot);
 cm(new THREE.CylinderGeometry(0.022,0.030,0.06,24), M.anod, SL_DROP.x,0.52,SL_DROP.z, armPivot); // 노즐 팁
 cm(new THREE.CylinderGeometry(0.065,0.065,0.03,32), M.anod, SL_DROP.x,0.96,SL_DROP.z, armPivot); // 피팅
-hot.slurry = nozzle;
+hot.sds = nozzle;   /* 노즐 클릭 → ② Slurry Delivery (공급 경로). 조성은 ③ Slurry 탭 */
 const DROP_Y = 0.49;
 
 /* 슬러리 필름 : 패드 위에 얇게 퍼진 반투명 유백 막 (SFR에 따라 넓이/농도) */
@@ -1165,7 +1237,11 @@ function goLevel(lv, id){
   setHover(null); updateUI();
 }
 window.goLevel = goLevel;
+/* 스테이션 → 담당 파트 탭. 장비 위치와 입력 위치를 일치시킨다
+   (2026-09-11 사용자 지시: "wafer는 loading unit쪽에서 입력할수있도록"). */
+const STATION_PART = { FI:"wafer" };   // Factory Interface = 웨이퍼가 들어오는 곳 = ⑥ Loading Unit
 function goFocus(id){
+  if(STATION_PART[id]) select(STATION_PART[id]);
   if(id==="P1"||id==="P2"||id==="P3") goLevel(1, id);
   else if(id==="CL") goLevel(2, "CL");
   else goLevel(0, id);
@@ -1587,6 +1663,48 @@ function drawPanel(){
       h += `<div id="addBox"><div class="meta">Loading additive catalog…</div></div>`;
       continue;
     }
+    /* ── 파트 전용 시각화 (2026-09-11 사용자 지시) ───────────────────
+       캔버스만 심고 그림은 drawViz()가 그린다. 값이 바뀌면 다시 그린다. */
+    if(f.special==="sdsflow"){
+      h += `<div class="viz" id="viz-sds"><div id="pidBox"></div>
+        <div class="cap" id="cap-sds"></div></div>`;
+      continue;
+    }
+    if(f.special==="padsection"){
+      h += `<div class="viz"><canvas id="cv-padsec" width="640" height="230"></canvas>
+        <div class="cap" id="cap-padsec"></div></div>`;
+      continue;
+    }
+    if(f.special==="padasperity"){
+      h += `<div class="viz"><canvas id="cv-padasp" width="640" height="250"></canvas>
+        <div class="cap" id="cap-padasp"></div></div>`;
+      continue;
+    }
+    if(f.special==="padlife"){
+      h += `<div class="viz"><canvas id="cv-padlife" width="640" height="210"></canvas>
+        <div class="cap" id="cap-padlife"></div></div>`;
+      continue;
+    }
+    if(f.special==="diskgrit"){
+      h += `<div class="viz"><canvas id="cv-diskgrit" width="640" height="300"></canvas>
+        <div class="cap" id="cap-diskgrit"></div></div>`;
+      continue;
+    }
+    if(f.special==="diskpcr"){
+      h += `<div class="viz"><canvas id="cv-diskpcr" width="640" height="230"></canvas>
+        <div class="cap" id="cap-diskpcr"></div></div>`;
+      continue;
+    }
+    if(f.special==="foup"){
+      h += `<div class="foupbar">
+          <button data-fa="fill-npw">Fill all · NPW</button>
+          <button data-fa="fill-ptw">Fill all · PTW</button>
+          <button data-fa="clear">Clear all but slot 1</button>
+        </div>
+        <div class="foup" id="foupGrid"></div>
+        <div class="cap" id="cap-foup" style="color:var(--dim);font-size:11px"></div>`;
+      continue;
+    }
     const isTime = f.special==="time", isThick = f.special==="thick";
     const recorded = f.pk===null;
     const cur = isTime ? state.time_s
@@ -1626,11 +1744,12 @@ function drawPanel(){
       document.getElementById("v-"+f.k).textContent = fmt(v)+" "+(f.u||"");
       if(f.special==="time") state.time_s = v;
       else if(f.special==="thick") state.initial_thickness_nm = v;
-      else if(f.pk===null){ state.recorded[f.k] = v; return; }   /* recorded only — never sent to engine */
+      else if(f.pk===null){ state.recorded[f.k] = v; drawViz(); return; }   /* recorded only — never sent to engine */
       else state.overrides[f.k] = v;
       if(f.k==="groove_pitch_mm"||f.k==="groove_depth_mm")
         buildGrooves(num("groove_pitch_mm",3.05), num("groove_depth_mm",0.76));
       if(f.k==="asperity_density_per_m2") buildGrits(v);
+      drawViz();      /* 값이 바뀌면 파트 그림도 따라 바뀐다 */
       run();
     };
   }
@@ -1650,12 +1769,494 @@ function drawPanel(){
   if(document.getElementById("addBox")) drawAdditives();
   if(document.getElementById("npwBox")) drawNPW();
   for(const part of ["pad","disk"]) if(document.getElementById("perf-"+part)) drawPerf(part);
+  drawViz();          /* 파트 전용 시각화 — 캔버스가 심긴 파트에서만 그린다 */
+  wireFoup();         /* FOUP 슬롯 클릭·일괄버튼 */
   const sp=document.getElementById("sel-pack");
   if(sp) sp.onchange=()=>{ state.pack=sp.value; state.overrides={}; boot(); };
   const sw=document.getElementById("sel-wafer");
   if(sw) sw.onchange=()=>{ state.wafer=sw.value; run(); };
   if(document.getElementById("drop")) wireDataTab();
   document.getElementById("reset").onclick=()=>{ state.overrides={}; drawPanel(); run(); };
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   파트 전용 시각화 — 2026-09-11 사용자 지시
+     "슬러리 공급장치 만들어서 슬러리 정보입력 ui를 따로만들어.
+      Pad/disk ui도 따로만들어, wafer는 loading unit쪽에서 입력"
+
+   설계 원칙 (다른 UI와 같다): **엔진에 붙지 않은 것은 붙은 척하지 않는다.**
+   그림도 마찬가지다 — dead 파라미터로 그린 형상은 점선/회색으로 그려서
+   "보이지만 결과를 바꾸지 않는다"를 시각적으로 구분한다.
+   ══════════════════════════════════════════════════════════════════════ */
+const VC = {fg:"#e6edf3", dim:"#8b9cb0", line:"#243141", accent:"#4da3ff",
+            warn:"#ffb454", bad:"#ff6b6b", good:"#5ddc9a", panel:"#131a23"};
+
+function cv(id){
+  const c = document.getElementById(id);
+  if(!c) return null;
+  const g = c.getContext("2d");
+  g.clearRect(0,0,c.width,c.height);
+  return {c, g, W:c.width, H:c.height};
+}
+function axes(g, x0, y0, x1, y1, xlab, ylab){
+  g.strokeStyle = VC.line; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(x0,y0); g.lineTo(x0,y1); g.lineTo(x1,y1); g.stroke();
+  g.fillStyle = VC.dim; g.font = "10px sans-serif";
+  if(xlab){ g.textAlign="center"; g.fillText(xlab, (x0+x1)/2, y1+26); }
+  if(ylab){ g.save(); g.translate(x0-30,(y0+y1)/2); g.rotate(-Math.PI/2);
+            g.textAlign="center"; g.fillText(ylab,0,0); g.restore(); }
+  g.textAlign="start";
+}
+
+/* ── ② Slurry Delivery — P&ID 흐름도 ───────────────────────────────── */
+function drawSDS(){
+  const box = document.getElementById("pidBox");
+  if(!box) return;
+  const rec = state.recorded||{};
+  const sfr  = num("sfr_ml_min", 200);
+  const diw  = rec.diw_flow_ml_min ?? 0;
+  const filt = rec.filter_rating_um ?? 1.0;
+  const pump = rec.pump_type ?? "diaphragm";
+  const d50  = num("abrasive_size_nm", 50);
+  const d99  = num("abrasive_d99_nm", d50*5);
+  const wt   = num("abrasive_wt_pct", 10);
+  /* 희석 후 유효 농도 — dead 이지만 '만약 붙는다면' 값을 보여준다(회색) */
+  const wtEff = diw>0 ? wt*sfr/(sfr+diw) : wt;
+  const N = [
+    {ic:"🛢", l:"Drum / IBC", v:`${wt.toFixed(1)} wt%`, dead:false},
+    {ic:"🌀", l:"Blend Tank", v:`${rec.blend_tank_l??200} L`, dead:true},
+    {ic:"⊚", l:"Pump", v:pump.replace(/_/g," "), dead:true},
+    {ic:"▦", l:"Filter", v:`${(+filt).toFixed(1)} µm abs`, dead:true},
+    {ic:"◈", l:"Flow Meter", v:`${sfr} mL/min`, dead:false},
+    {ic:"💧", l:"Arm Nozzle", v:diw>0?`+${diw} DIW`:"no dilution", dead:diw>0},
+  ];
+  box.innerHTML = `<div class="pid">` + N.map((n,i)=>
+      `${i?'<div class="ar">→</div>':''}<div class="nd ${n.dead?'dead':''}">
+         <span class="ic">${n.ic}</span>${n.l}<div class="vl">${n.v}</div></div>`
+    ).join("") + `</div>`;
+  const cap = document.getElementById("cap-sds");
+  if(cap){
+    const cut = d99 > filt*1000;
+    cap.innerHTML =
+      `Solid boxes are wired to the engine; <b>dashed boxes are recorded only</b> — they draw here but do not move the result.
+       <br>Abrasive as mixed <b>${wt.toFixed(1)} wt%</b>${diw>0?` → after ${diw} mL/min DIW the pad would see <b>${wtEff.toFixed(2)} wt%</b>, but the engine still uses ${wt.toFixed(1)} wt% (dilution not modeled)`:``}.
+       <br>Filter ${(+filt).toFixed(1)} µm vs. slurry tail D99 ${d99.toFixed(0)} nm —
+       ${cut?`<span style="color:var(--warn)">the tail is coarser than the filter rating, so a real POU filter would cut it. Our D99 is derived (D50 × 5.00) and filter-independent, so Δ (Damage) does not see this.</span>`
+            :`<span style="color:var(--good)">tail is finer than the rating; nothing to retain.</span>`}
+       <br>This is the one gap worth closing: <b>Δ consumes D99, and in a fab the filter sets D99.</b>`;
+  }
+}
+
+/* ── ④ Pad ① 그루브 단면도 ────────────────────────────────────────── */
+function drawPadSection(){
+  const o = cv("cv-padsec"); if(!o) return;
+  const {g,W,H} = o;
+  const pitch = num("groove_pitch_mm", 3.05);      // mm
+  const depth = num("groove_depth_mm", 0.76);      // mm
+  const wid   = num("groove_width_um", 600)/1000;  // mm
+  const por   = num("pad_porosity_pct", 30);
+  const padT  = 1.27;                              // mm, IC1000 전형 두께
+  const spanMM = Math.max(pitch*3.2, 8);
+  /* η 인셋이 오른쪽을 차지하므로 단면은 그 왼쪽까지만 그린다 — 겹치면 둘 다 못 읽는다 */
+  const INSET_W = 200, secW = W - 70 - INSET_W - 16;
+  const sx = secW/spanMM, x0 = 50;
+  const sy = 46, yTop = 118, yBot = yTop + padT*sy;
+
+  /* 패드 본체 */
+  g.fillStyle = "#2b3a4d"; g.fillRect(x0, yTop, secW, padT*sy);
+  /* 기공 — 기공률에 비례한 개수. 문헌: 평균 직경 ~30 µm(Sikder 2001) */
+  const nPore = Math.round(por*5);
+  g.fillStyle = "rgba(11,15,20,.55)";
+  for(let i=0;i<nPore;i++){
+    const px = x0+4+Math.random()*(secW-8), py = yTop+3+Math.random()*(padT*sy-6);
+    g.beginPath(); g.arc(px,py, 1.1+Math.random()*1.5, 0, 7); g.fill();
+  }
+  /* 그루브 — pitch 간격으로 폭 wid, 깊이 depth */
+  let nG = 0, firstGx = null;
+  for(let mm=pitch/2; mm<spanMM; mm+=pitch){
+    const gx = x0+mm*sx, gw = Math.max(wid*sx, 1.5);
+    if(gx-gw/2 < x0 || gx+gw/2 > x0+secW) continue;
+    g.fillStyle = "#0b0f14"; g.fillRect(gx-gw/2, yTop, gw, depth*sy);
+    g.strokeStyle = "rgba(255,180,84,.75)"; g.lineWidth = 1;
+    g.strokeRect(gx-gw/2, yTop, gw, depth*sy);
+    if(firstGx===null) firstGx = gx;
+    nG++;
+  }
+  /* 치수선 — 폭은 첫 그루브를 지시선으로 정확히 가리킨다 */
+  if(firstGx!==null){
+    const gw = Math.max(wid*sx, 1.5);
+    g.strokeStyle = VC.warn; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(firstGx, yTop-4); g.lineTo(firstGx, yTop-16); g.stroke();
+    g.beginPath(); g.moveTo(firstGx-gw/2, yTop-4); g.lineTo(firstGx-gw/2, yTop-10);
+                   g.moveTo(firstGx+gw/2, yTop-4); g.lineTo(firstGx+gw/2, yTop-10); g.stroke();
+    g.fillStyle = VC.warn; g.font = "10px sans-serif"; g.textAlign="center";
+    g.fillText(`width ${(wid*1000).toFixed(0)} µm`, firstGx, yTop-20);
+  }
+  g.strokeStyle = VC.accent; g.lineWidth = 1; g.setLineDash([3,3]);
+  const a = x0+(pitch/2)*sx, b = a+pitch*sx;
+  g.beginPath(); g.moveTo(a, yBot+12); g.lineTo(b, yBot+12); g.stroke();
+  g.setLineDash([]);
+  g.fillStyle = VC.accent; g.font = "10px sans-serif"; g.textAlign="center";
+  g.fillText(`pitch ${pitch.toFixed(2)} mm`, (a+b)/2, yBot+25);
+  g.textAlign="start";
+  g.fillStyle = VC.dim; g.font = "10px sans-serif";
+  g.fillText(`depth ${depth.toFixed(2)} mm / pad ${padT} mm · porosity ${por.toFixed(0)}% (pores ~30 µm, Sikder 2001)`,
+             x0, yBot+42);
+
+  /* η(그루브 폭) 곡선 — Mu 2016 실측 3점. 단면과 겹치지 않는 오른쪽 영역 */
+  const ex0 = W-INSET_W-10, ey0 = 34, ew = INSET_W-24, eh = 92;
+  const EW = [300,600,900], EV = [0.099,0.134,0.128];
+  g.fillStyle = "#0f1620"; g.fillRect(ex0, ey0, ew, eh);
+  g.strokeStyle = VC.line; g.strokeRect(ex0, ey0, ew, eh);
+  g.fillStyle = VC.dim; g.font="9px sans-serif";
+  g.fillText("η slurry utilisation (Mu 2016)", ex0, ey0-6);
+  const px = w => ex0 + (w-200)/(1200-200)*ew;
+  const py = v => ey0+eh-14 - (v-0.08)/(0.15-0.08)*(eh-24);
+  g.strokeStyle = VC.accent; g.lineWidth=1.5; g.beginPath();
+  EW.forEach((w,i)=> i?g.lineTo(px(w),py(EV[i])):g.moveTo(px(w),py(EV[i]))); g.stroke();
+  EW.forEach((w,i)=>{ g.fillStyle=VC.accent; g.beginPath(); g.arc(px(w),py(EV[i]),2.5,0,7); g.fill();
+    g.fillStyle=VC.dim; g.font="8px sans-serif"; g.textAlign="center";
+    g.fillText(String(w), px(w), ey0+eh-3); });
+  g.textAlign="start";
+  const wUm = wid*1000, clamped = wUm<300||wUm>900;
+  const cw = Math.min(Math.max(wUm,300),900);
+  const cvv = cw<=600 ? EV[0]+(cw-300)/300*(EV[1]-EV[0]) : EV[1]+(cw-600)/300*(EV[2]-EV[1]);
+  g.fillStyle = clamped?VC.warn:VC.good;
+  g.beginPath(); g.arc(px(cw), py(cvv), 4, 0, 7); g.fill();
+  g.font="8px sans-serif"; g.fillText("µm", ex0+ew-14, ey0+eh-3);
+
+  const cap = document.getElementById("cap-padsec");
+  if(cap) cap.innerHTML =
+    `${nG} grooves across ${spanMM.toFixed(1)} mm of pad. <b>Width is the only groove dimension wired to τ</b> —
+     depth and pitch redraw this section but do not move MRR (no literature held that quantifies them).
+     <br>η marker: ${clamped?`<span style="color:var(--warn)">${wUm.toFixed(0)} µm is outside the measured 300–900 µm band, so the end value is held (no extrapolation)</span>`
+                            :`<span style="color:var(--good)">η = ${(cvv*100).toFixed(1)}% at ${wUm.toFixed(0)} µm</span>`}.
+     Note the curve <b>turns over at 600 µm</b> — wider grooves are not better.`;
+}
+
+/* ── ④ Pad ② asperity 통계 (GW) — η 500배 오류가 눈에 보이는 자리 ──── */
+function drawPadAsperity(){
+  const o = cv("cv-padasp"); if(!o) return;
+  const {g,W,H} = o;
+  const eta = num("asperity_density_per_m2", 1e11);   // 1/m²
+  const R   = num("pad_asperity_radius_m", 5e-6);     // m
+  const spacing = 1/Math.sqrt(eta);                   // m — 평균 asperity 간격
+  const ratio = spacing/(2*R);                        // <1 이면 반구가 겹친다
+  const bad = ratio < 1;
+
+  /* 위: 단면 프로파일 — 실제 비율로 반구를 그린다 */
+  const y0 = 96, xs = 40, xw = W-80;
+  const viewMM = 0.25;                                 // 250 µm 시야
+  const pxPerM = xw/(viewMM/1000);
+  g.strokeStyle = VC.line; g.beginPath(); g.moveTo(xs,y0); g.lineTo(xs+xw,y0); g.stroke();
+  const rpx = Math.min(R*pxPerM, 60);
+  const spx = Math.max(spacing*pxPerM, 0.8);
+  let n=0;
+  for(let x=xs; x<xs+xw && n<4000; x+=spx, n++){
+    g.beginPath(); g.arc(x, y0, rpx, Math.PI, 0);
+    g.fillStyle = bad ? "rgba(255,107,107,.30)" : "rgba(93,220,154,.30)";
+    g.fill();
+    g.strokeStyle = bad ? "rgba(255,107,107,.75)" : "rgba(93,220,154,.75)";
+    g.lineWidth = 0.7; g.stroke();
+  }
+  g.fillStyle = VC.dim; g.font="10px sans-serif";
+  g.fillText(`cross-section over ${(viewMM*1000).toFixed(0)} µm · ${n} asperities drawn`, xs, 18);
+  g.fillText(`spacing 1/√η = ${(spacing*1e6).toFixed(2)} µm · tip radius R = ${(R*1e6).toFixed(1)} µm`, xs, 32);
+  g.fillStyle = bad?VC.bad:VC.good;
+  g.fillText(bad ? `⚠ spacing / 2R = ${ratio.toFixed(3)} < 1 → hemispheres interpenetrate. Geometrically impossible.`
+                 : `spacing / 2R = ${ratio.toFixed(2)} ≥ 1 → asperities fit side by side.`, xs, 46);
+
+  /* 아래: η 후보 비교 바 */
+  const by = 150, bh = 58;
+  const CANDS = [
+    {v:2.0e8,  l:"2.0e8 — 5 independent sources\n(Bozkaya&Müftü, Sorooshian, Shi&Ring, Suzuki/Ebara)", ok:true},
+    {v:2.938e11, l:"2.938e11 — Ring et al.\n(self-inconsistent per our note §2.7)", ok:false},
+    {v:eta,    l:"current pack value", cur:true},
+  ];
+  const lo = Math.log10(1e7), hi = Math.log10(1e12);
+  const bx = (v)=> xs + (Math.log10(v)-lo)/(hi-lo)*xw;
+  g.strokeStyle = VC.line; g.beginPath(); g.moveTo(xs,by+bh); g.lineTo(xs+xw,by+bh); g.stroke();
+  for(let e=7;e<=12;e++){
+    const x = xs+(e-lo)/(hi-lo)*xw;
+    g.strokeStyle="rgba(36,49,65,.7)"; g.beginPath(); g.moveTo(x,by); g.lineTo(x,by+bh); g.stroke();
+    g.fillStyle=VC.dim; g.font="9px sans-serif"; g.textAlign="center"; g.fillText(`1e${e}`, x, by+bh+12);
+  }
+  g.textAlign="start";
+  /* 라벨 겹침 방지: 마커를 x순으로 정렬해 차례로 놓고, 앞 라벨과 겹치면 한 줄 내린다.
+     Ring(2.9e11)과 current(1e11)는 로그축에서 가까워 반드시 충돌한다 — 이 처리가 없으면
+     두 글자가 포개져 둘 다 못 읽는다. */
+  const placed = [];
+  CANDS.map(c=>({...c, x:bx(c.v)})).sort((a,b)=>a.x-b.x).forEach(c=>{
+    const x = c.x;
+    const col = c.cur ? VC.accent : c.ok ? VC.good : VC.bad;
+    g.strokeStyle = col; g.lineWidth = c.cur?2.5:1.5;
+    g.setLineDash(c.cur?[]:[4,3]);
+    g.beginPath(); g.moveTo(x,by); g.lineTo(x,by+bh); g.stroke(); g.setLineDash([]);
+    const txt = c.cur ? `current ${c.v.toExponential(1)}`
+                      : c.ok ? "2.0e8 — 5 sources agree" : "2.9e11 — Ring (self-inconsistent)";
+    g.font = c.cur?"bold 9px sans-serif":"9px sans-serif";
+    const wTxt = g.measureText(txt).width;
+    const right = x + wTxt + 8 < xs + xw;
+    const lx = right ? x+5 : x-5;
+    const x0t = right ? lx : lx-wTxt, x1t = right ? lx+wTxt : lx;
+    let row = 0;
+    while(placed.some(p => p.row===row && !(x1t < p.x0-6 || x0t > p.x1+6))) row++;
+    placed.push({row, x0:x0t, x1:x1t});
+    g.fillStyle = col;
+    g.textAlign = right ? "start" : "end";
+    g.fillText(txt, lx, by+11+row*13);
+  });
+  g.textAlign="start";
+  g.fillStyle=VC.dim; g.font="10px sans-serif";
+  g.fillText("asperity density η [1/m²] — log scale", xs, by-6);
+
+  const cap = document.getElementById("cap-padasp");
+  if(cap) cap.innerHTML =
+    `η, R and σ are a <b>set</b> — changing one alone breaks the geometry. That is why the 500× correction is not applied yet.
+     <br>Sensitivity measured on our own GW solve: η × 500 moves real contact area A_r only <b>1.21×</b> (insensitive)
+     but contact-point density <b>2.03×</b> (sensitive) — so an η error hides in A_r and surfaces in the contact statistics and Kp decomposition.
+     ${bad?`<br><span style="color:var(--bad)">The current value fails the geometric check above.</span>`:""}`;
+}
+
+/* ── ④ Pad ③ 수명 / 글레이징 곡선 ─────────────────────────────────── */
+function drawPadLife(){
+  const o = cv("cv-padlife"); if(!o) return;
+  const {g,W,H} = o;
+  const t = state.time_s||60;
+  /* Jeong 2024 Fig.9 pooled 로그감쇠 — sim/factors.py _f_stab 와 동일 계수 */
+  const a=1.1478, b=-0.1109;
+  const x0=50, y0=24, x1=W-24, y1=H-40;
+  axes(g,x0,y0,x1,y1,"polish time [min]","normalised MRR");
+  const TMIN=0.2, TMAX=30;
+  const px = m => x0 + (Math.log10(m)-Math.log10(TMIN))/(Math.log10(TMAX)-Math.log10(TMIN))*(x1-x0);
+  const py = v => y1 - (v-0.70)/(1.12-0.70)*(y1-y0);
+  /* 관측 범위(1~10분) 밖은 clamp — 회색으로 칠해 외삽 금지를 보여준다 */
+  g.fillStyle="rgba(139,156,176,.13)";
+  g.fillRect(px(TMIN),y0, px(1)-px(TMIN), y1-y0);
+  g.fillRect(px(10),y0, px(TMAX)-px(10), y1-y0);
+  g.fillStyle=VC.dim; g.font="9px sans-serif"; g.textAlign="center";
+  g.fillText("clamped", (px(TMIN)+px(1))/2, y0+12);
+  g.fillText("clamped (no extrapolation)", (px(10)+px(TMAX))/2, y0+12);
+  g.textAlign="start";
+  /* 곡선 */
+  g.strokeStyle=VC.accent; g.lineWidth=2; g.beginPath();
+  for(let i=0;i<=200;i++){
+    const m = TMIN*Math.pow(TMAX/TMIN, i/200);
+    const mc = Math.min(Math.max(m,1),10);
+    const v = (a+b*Math.log(mc))/a;
+    i?g.lineTo(px(m),py(v)):g.moveTo(px(m),py(v));
+  }
+  g.stroke();
+  [1,10].forEach(m=>{ const v=(a+b*Math.log(m))/a;
+    g.fillStyle=VC.accent; g.beginPath(); g.arc(px(m),py(v),3,0,7); g.fill(); });
+  /* 현재 시간 마커 */
+  const tm = t/60, tc = Math.min(Math.max(tm,1),10), vc=(a+b*Math.log(tc))/a;
+  g.strokeStyle=VC.good; g.lineWidth=1.5; g.setLineDash([4,3]);
+  g.beginPath(); g.moveTo(px(tm),y0); g.lineTo(px(tm),y1); g.stroke(); g.setLineDash([]);
+  g.fillStyle=VC.good; g.beginPath(); g.arc(px(tm),py(vc),4,0,7); g.fill();
+  g.font="10px sans-serif";
+  g.fillText(`${t}s → S = ${vc.toFixed(3)}`, Math.min(px(tm)+6, W-110), py(vc)-8);
+  [0.8,0.9,1.0,1.1].forEach(v=>{ g.fillStyle=VC.dim; g.font="9px sans-serif";
+    g.fillText(v.toFixed(1), x0-26, py(v)+3); });
+  /* x축 눈금 — 로그축이라 1·2·5·10·20 을 찍는다 */
+  g.fillStyle=VC.dim; g.font="9px sans-serif"; g.textAlign="center";
+  [0.2,0.5,1,2,5,10,20].forEach(m=>{
+    const x = px(m); if(x<x0-2||x>x1+2) return;
+    g.strokeStyle="rgba(36,49,65,.8)"; g.beginPath(); g.moveTo(x,y1); g.lineTo(x,y1+4); g.stroke();
+    g.fillText(String(m), x, y1+14);
+  });
+  g.textAlign="start";
+
+  const cap = document.getElementById("cap-padlife");
+  if(cap) cap.innerHTML =
+    `S (time stability) = log decay fitted to Jeong et al. 2024 Fig.9 (IC1000 · colloidal silica · SiO₂ blanket · <b>no conditioning</b>, 1–10 min, R²=0.74).
+     <br>Grey bands are outside the measured window — the model <b>holds the end value instead of extrapolating</b>.
+     <br>⚠ This captures only the initial drift of a single unconditioned polish. Conditioning cycles and tens-of-hours pad life are still unmodeled — that is the pad-life gap, not a solved axis.`;
+}
+
+/* ── ⑤ Disk ① 그릿 맵 ─────────────────────────────────────────────── */
+function drawDiskGrit(){
+  const o = cv("cv-diskgrit"); if(!o) return;
+  const {g,W,H} = o;
+  const rec = state.recorded||{};
+  const eta = num("asperity_density_per_m2", 1e11);
+  const diskD = 0.10;                                  // m — Ø100 mm 디스크
+  const cx = 150, cy = H/2, rad = 110;
+  /* 디스크 본체 */
+  g.fillStyle="#1d2735"; g.beginPath(); g.arc(cx,cy,rad,0,7); g.fill();
+  g.strokeStyle=VC.line; g.lineWidth=1.5; g.stroke();
+  g.fillStyle="#131a23"; g.beginPath(); g.arc(cx,cy,rad*0.22,0,7); g.fill();
+  g.strokeStyle=VC.line; g.stroke();
+  /* 그릿 — 밀도는 asperity 밀도에서 오지 않는다(별개 축)이라 패턴만 보여준다 */
+  const pattern = rec.grit_pattern ?? "random";
+  const nG = 260;
+  g.fillStyle = "rgba(200,235,255,.85)";
+  for(let i=0;i<nG;i++){
+    let a, r;
+    if(pattern==="array"){ const ring=Math.floor(i/26); r=rad*(0.30+ring*0.075); a=(i%26)/26*Math.PI*2 + ring*0.12; }
+    else { a=Math.random()*Math.PI*2; r=rad*(0.24+Math.sqrt(Math.random())*0.72); }
+    if(r>rad*0.96) continue;
+    const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r;
+    g.beginPath();
+    for(let k=0;k<3;k++){ const t=a+k*2.094; const s=1.7;
+      k?g.lineTo(x+Math.cos(t)*s, y+Math.sin(t)*s):g.moveTo(x+Math.cos(t)*s, y+Math.sin(t)*s); }
+    g.closePath(); g.fill();
+  }
+  g.fillStyle=VC.dim; g.font="10px sans-serif"; g.textAlign="center";
+  g.fillText(`Ø${(diskD*1000).toFixed(0)} mm disk face · ${pattern} grit layout`, cx, cy+rad+20);
+  g.textAlign="start";
+  /* 오른쪽: 어떤 축인지 설명 박스 */
+  const tx = 290;
+  g.fillStyle=VC.fg; g.font="bold 11px sans-serif";
+  g.fillText("Two axes never mixed", tx, 34);
+  g.font="10px sans-serif";
+  const rows = [
+    ["Consumable (κ)", "grit size, density, layout, tip radius", VC.good],
+    ["Tool set-point (Γ)", "downforce, sweep rate, duty — in ① Tool", VC.accent],
+  ];
+  let yy=54;
+  rows.forEach(([a,b,c])=>{
+    g.fillStyle=c; g.fillText("● "+a, tx, yy);
+    g.fillStyle=VC.dim; g.fillText(b, tx+10, yy+14); yy+=38;
+  });
+  g.fillStyle=VC.warn; g.font="10px sans-serif";
+  g.fillText("⚠ Grit count/size are recorded only —", tx, yy+4);
+  g.fillText("no literature term maps them to cut rate.", tx, yy+17);
+  g.fillStyle=VC.dim;
+  g.fillText(`The engine's disk axis today is η = ${eta.toExponential(1)} /m²`, tx, yy+35);
+  g.fillText("(the asperity field the disk leaves on the pad).", tx, yy+48);
+
+  const cap = document.getElementById("cap-diskgrit");
+  if(cap) cap.innerHTML =
+    `The disk is drawn to scale (Ø100 mm). <b>Layout is illustrative</b>: CVD-patterned arrays and randomly scattered grit
+     are visually distinct and they do produce different pad-cut-rate profiles in literature, but we hold no calibrated
+     grit-layout → cut-rate relation, so this picture is documentation, not a model input.`;
+}
+
+/* ── ⑤ Disk ② PCR 반경 프로파일 — 스윕이 패드를 어떻게 깎는가 ──────── */
+function drawDiskPCR(){
+  const o = cv("cv-diskpcr"); if(!o) return;
+  const {g,W,H} = o;
+  const sweep = num("cond_sweep_cpm", 10);        // cycles/min — 오늘 literature 승격
+  const duty  = num("cond_duty_pct", 100);
+  const force = num("cond_downforce_lbf", 6);
+  const padR  = 0.3875;                            // m — Ø775 mm 패드
+  const diskR = 0.05;                              // m
+  const sweepIn = 0.09, sweepOut = padR-diskR;     // 스윕 반경 구간
+  const x0=52, y0=22, x1=W-20, y1=H-42;
+  axes(g,x0,y0,x1,y1,"pad radius [mm]","relative dwell / cut rate");
+  const px = r => x0 + (r/padR)*(x1-x0);
+  /* 스윕 체류시간 — 사인 왕복이면 양 끝(전환점)에서 체류가 길다 = 더 깎인다.
+     이것이 "왜 패드가 특정 반경에서만 닳나"의 1차 답이다. */
+  const prof = [];
+  for(let i=0;i<=240;i++){
+    const r = padR*i/240;
+    let d;
+    if(r<sweepIn || r>sweepOut) d = 0;
+    else{
+      const u = (r-sweepIn)/(sweepOut-sweepIn);       // 0..1
+      d = 1/Math.sqrt(Math.max(u*(1-u),1e-3));        // 사인 왕복의 체류 밀도(양끝 발산)
+    }
+    prof.push([r,d]);
+  }
+  const mx = Math.max(...prof.map(p=>p[1]))||1;
+  const py = v => y1 - (v/mx)*(y1-y0)*0.92;
+  /* 스윕 구간 음영 */
+  g.fillStyle="rgba(77,163,255,.09)";
+  g.fillRect(px(sweepIn), y0, px(sweepOut)-px(sweepIn), y1-y0);
+  /* duty 반영 곡선 */
+  const k = duty/100;
+  g.strokeStyle=VC.accent; g.lineWidth=2; g.beginPath();
+  prof.forEach(([r,d],i)=> i?g.lineTo(px(r),py(d*k)):g.moveTo(px(r),py(d*k)));
+  g.stroke();
+  g.fillStyle="rgba(77,163,255,.16)";
+  g.beginPath(); g.moveTo(px(0),y1);
+  prof.forEach(([r,d])=>g.lineTo(px(r),py(d*k)));
+  g.lineTo(px(padR),y1); g.closePath(); g.fill();
+  /* 웨이퍼 트랙 — 여기가 실제로 연마가 일어나는 띠.
+     웨이퍼 중심이 r_cc에 있고 반경이 wafer_radius_m 이므로 [r_cc−R, r_cc+R]. */
+  const rcc = num("center_offset_m", 0.20), wr = num("wafer_radius_m", 0.15);
+  const wIn = Math.max(rcc-wr, 0), wOut = Math.min(rcc+wr, padR);
+  g.fillStyle="rgba(93,220,154,.13)";
+  g.fillRect(px(wIn), y0, px(wOut)-px(wIn), y1-y0);
+  g.strokeStyle=VC.good; g.lineWidth=1; g.setLineDash([3,3]);
+  [wIn, wOut].forEach(r=>{ if(r>0&&r<padR){ g.beginPath(); g.moveTo(px(r),y0); g.lineTo(px(r),y1); g.stroke(); }});
+  g.setLineDash([]);
+  g.fillStyle=VC.good; g.font="10px sans-serif"; g.textAlign="center";
+  g.fillText(`wafer track (r_cc ${(rcc*1000).toFixed(0)} ± ${(wr*1000).toFixed(0)} mm)`,
+             (px(wIn)+px(wOut))/2, y0+13);
+  g.textAlign="start";
+  g.fillStyle=VC.dim; g.font="9px sans-serif";
+  [0,100,200,300,387].forEach(mm=>{ g.textAlign="center"; g.fillText(String(mm), px(mm/1000), y1+14); });
+  g.textAlign="start";
+  g.fillStyle=VC.accent; g.font="10px sans-serif";
+  g.fillText(`sweep ${sweep} cpm · duty ${duty}% · ${force} lbf`, x0+6, y1-8);
+
+  const cap = document.getElementById("cap-diskpcr");
+  if(cap) cap.innerHTML =
+    `A sinusoidal sweep <b>dwells longest at its turning points</b>, so those radii get cut more — this is the first-order answer
+     to "why does the pad wear in a band". The blue band is the sweep stroke (${(sweepIn*1000).toFixed(0)}–${(sweepOut*1000).toFixed(0)} mm);
+     the green band is where the wafer actually rides (r_cc ± 150 mm).
+     <br><b>Where they overlap is what matters</b> — cut rate outside the wafer track conditions pad the wafer never touches.
+     <br>⚠ Shape is kinematic (dwell time), not a fitted cut-rate model: no paper we hold sweeps sweep-rate as an independent variable
+     and measures PCR, so the <b>vertical scale is relative</b>. Sweep rate is literature-grade (12 commercial recipes, 9–19 cpm, mode 10) but its effect on PCR is not.`;
+}
+
+/* ── ⑥ Loading Unit — FOUP 25슬롯 ─────────────────────────────────── */
+function drawFoup(){
+  const grid = document.getElementById("foupGrid");
+  if(!grid) return;
+  const F = state.foup;
+  grid.innerHTML = F.slots.map((s,i)=>{
+    const on = i===F.sel;
+    const cls = ["sl", on?"on":"", s?(s.wafer==="NPW"?"npw":"ptw"):"empty"].filter(Boolean).join(" ");
+    return `<div class="${cls}" data-slot="${i}" title="${s?`${s.wafer} · ${s.pack} · ${s.thick} nm`:"empty slot — click to load"}">
+      <div class="n">${String(i+1).padStart(2,"0")}</div>
+      <div class="w">${s?s.wafer:"—"}</div></div>`;
+  }).join("");
+  const n = F.slots.filter(Boolean).length;
+  const cap = document.getElementById("cap-foup");
+  if(cap) cap.innerHTML =
+    `<b>${n}/25 slots loaded</b> · slot ${String(F.sel+1).padStart(2,"0")} is selected and its wafer is what the simulation runs.
+     Clicking an empty slot loads a copy of the current wafer settings; clicking a loaded slot selects it.
+     <br>⚠ <b>One wafer per run.</b> The batch exists as data only — sequential 25-wafer execution and wafer-to-wafer
+     uniformity (WTWNU) are not implemented, so nothing here changes the result except which slot is selected.`;
+}
+function wireFoup(){
+  const grid = document.getElementById("foupGrid");
+  if(!grid) return;
+  const F = state.foup;
+  const cur = ()=>({wafer:state.wafer, pack:state.pack,
+                    thick:state.initial_thickness_nm,
+                    ttv:(state.recorded||{}).initial_ttv_nm ?? 0});
+  grid.querySelectorAll(".sl").forEach(el=>{
+    el.onclick = ()=>{
+      const i = +el.dataset.slot;
+      if(!F.slots[i]) F.slots[i] = cur();       /* 빈 슬롯 = 현재 설정 복사해 적재 */
+      F.sel = i;
+      const s = F.slots[i];
+      state.wafer = s.wafer; state.initial_thickness_nm = s.thick;
+      if(s.pack && s.pack!==state.pack){ state.pack = s.pack; state.overrides={}; boot(); return; }
+      drawPanel(); run();
+    };
+  });
+  document.querySelectorAll("[data-fa]").forEach(b=>{
+    b.onclick = ()=>{
+      const a = b.dataset.fa, c = cur();
+      if(a==="fill-npw") F.slots = F.slots.map(()=>({...c, wafer:"NPW"}));
+      else if(a==="fill-ptw") F.slots = F.slots.map(()=>({...c, wafer:"PTW"}));
+      else if(a==="clear"){ F.slots = F.slots.map((s,i)=> i===F.sel?(s||c):null); }
+      drawFoup();
+    };
+  });
+}
+
+/* 파트가 바뀌거나 값이 바뀔 때 호출 — 해당 캔버스가 없으면 조용히 통과 */
+function drawViz(){
+  try{
+    drawSDS(); drawPadSection(); drawPadAsperity(); drawPadLife();
+    drawDiskGrit(); drawDiskPCR(); drawFoup();
+  }catch(e){ console.warn("viz", e); }
 }
 
 /* ─────────────────────────────────────────── Performance factors (pad/disk) */
