@@ -112,7 +112,49 @@ Green Tech.* (2021), PMC8617369 §"CMP 슬러리/패드" 본문 확인:
 - 에어백형 캐리어의 압력분포 예측: Suzuki et al., *CIRP Annals* 66(1):329 (2017),
   doi:10.1016/j.cirp.2017.04.088.
 
-## 4. 미확인으로 남긴 것 (⚠ 조사 필요)
+## 4. 검증 재현 — Arrhenius 선택비 계산 대 문헌값 대조
+
+Shin et al. (2025)의 활성화에너지(SiO₂ 8.75, Ta 29.9, Cu 151.7 kJ/mol, lnA=9.7/18.1/66.3)로
+$RR=A\exp(-E_a/RT)$ 를 30°C(303.15K)와 26.5°C(299.65K, 2단 냉각 후 온도)에서 직접 계산해
+문헌이 주장하는 "Cu가 SiO₂보다 훨씬 온도 민감하다"는 정성 주장을 대조·재현했다:
+
+```python verify
+import math
+R = 8.314  # J/mol/K
+species = {
+    "SiO2": (9.7, 8750.0),
+    "Ta":   (18.1, 29900.0),
+    "Cu":   (66.3, 151700.0),
+}
+T_hi, T_lo = 303.15, 299.65  # K (30 C -> 26.5 C, 문헌 2단 냉각 조건)
+
+def rr(lnA, Ea, T):
+    return math.exp(lnA) * math.exp(-Ea / (R * T))
+
+ratios = {}
+for name, (lnA, Ea) in species.items():
+    r_hi, r_lo = rr(lnA, Ea, T_hi), rr(lnA, Ea, T_lo)
+    ratios[name] = r_hi / r_lo  # 냉각으로 RR이 몇 배 떨어지는가
+
+# 정성 검증: Cu 활성화에너지가 가장 크므로 같은 온도 강하에도
+# Cu의 RR 감소비가 SiO2보다 훨씬 커야 한다 (문헌: "Cu가 압도적으로 온도 민감").
+assert ratios["Cu"] > ratios["Ta"] > ratios["SiO2"], ratios
+# 대략적 크기 대조: Cu는 3.5 °C 냉각으로 RR이 20%+ 감소해야 한다(문헌 취지:
+# 디싱 저감이 온도제어 하나로 12~16nm -> <4nm까지 됨은 Cu의 큰 Ea가 근거).
+assert ratios["Cu"] > 1.20, ratios["Cu"]
+# SiO2는 Ea가 작아 같은 냉각에도 몇 % 수준만 변해야 한다(둔감함의 정량 재현).
+assert ratios["SiO2"] < 1.05, ratios["SiO2"]
+print("RR ratio (30C/26.5C):", {k: round(v, 3) for k, v in ratios.items()})
+```
+
+실제 실행 결과(위 verify 블록, `python3` 직접 재확인): Cu RR비 ≈2.02(즉 26.5°C에서 Cu
+제거율이 30°C의 약 절반으로 떨어짐), Ta ≈1.15, SiO₂ ≈1.04(4%만 변화) — 순서(Cu>Ta>SiO₂)와
+문헌의 정성 주장(Cu 선택적 민감)이 방향적으로 일치한다. 단, **디싱 저감량
+(12~16nm→<4nm)까지 정량 재현한 것은 아니다** — 그 수치는 dishing 모델(패턴 밀도·압력 분포 결합)
+까지 필요해 이 노트 범위를 넘는다. 이 부분은 **미검증**으로 남기고, 위 activation-energy 비율
+재현만 확인된 사실로 표기한다.
+
+## 5. 미확인으로 남긴 것 (⚠ 조사 필요)
 
 - 플랫폼 계열 비교(rotary vs orbital vs linear belt)의 **정량 장단점** — 원문 확보 실패
   (ScienceDirect 403). tool.yaml `platform.kinematic_type` 은 enum만 두고 성능 주장은 안 한다.
