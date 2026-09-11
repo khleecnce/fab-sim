@@ -1862,3 +1862,18 @@ abrasive_size_cv + 적용범위(≤50nm) 게이트로 배선, tests/test_factors
 3점만 별도 서브데이터셋으로 분리)으로 재시도, 아니면 --skip.
 completion 6/50(변화없음, C1 미충족 유지 — 이번 시도가 unmodeled를 modeled로 못 바꿈). corpus fetch/extract 미실행
 (이번 회차는 기존 노트 재활용 우선, 코퍼스 사이클 다음 회차).
+
+## 2026-09-11 09:30 [소프트웨어/software-lead] ψ×3 UNMODELED 해소 + C5 5축 해소
+
+COMPLETION.md 우선순위(물리모델링 최우선, ψ×3 UNMODELED가 C1 최상위)에 따라 `oxide_silica`/
+`sic_ceria_h2o2`/`sti_ceria`의 ψ(표면 보호도) 팩터 착수. Claude Code 위임(커밋 금지 브리핑) →
+같은 시각 동시 실행 중이던 다른 크론(정확도루프 성장엔진 계열)이 같은 파일을 병렬로 작업 중이었고,
+그쪽이 먼저 완주해 커밋(2a1eb44)까지 마쳐둔 상태를 확인 — `sim/chemistry.py`에
+`_dispersant_protection_term()`(Li et al. 2021 §6 실측: PVA -3.6%, PVP -7.9%, PAA/PAM/NONE 무변화)
+신설, `sim/factors.py` `_f_psi()`가 억제제 없으면 분산제 경로로 폴백. 그쪽 세션이 기준조건 1.0 계약
+위반(ψ 절대 저해율 반환)과 세리아 2팩의 실리카 PVA값 교차계 오용을 자체 발견·수정했고, 덤으로
+`tools/completion.py`의 `notes_with_verify()` 경로 파싱 버그(절번호·서지인용 문자열을 파일 경로로
+오인)까지 고쳐 C5 5축이 함께 해소됐다. software-lead가 pytest 594 passed(기존583+신규11) 직접
+재검증, `completion.py check`로 C1 6→3칸(ψ×3 확인) + C5 10/10축 통과 확인, git fetch로 origin 대비
+로컬 4커밋 확인 후 push(2a1eb44). 격자 6/50→7/50.
+남은 C1: Δ×3(cu_h2o2_bta/oxide_silica/w_fe_oxidizer, LPC-스크래치 꼬리분포 경로) — 다음 회차 최우선.
