@@ -118,3 +118,11 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   다음 후보: cu/sic/sti/w_fe 4팩의 abrasive_size_nm 문헌 승격(2칸씩=8칸 동시 상승 가능,
   blockers.py 1위). R/σ(pad_asperity_radius_m·pad_height_beta_inv_m) 불일치는 후속과제로
   노트 §6에 기록만.
+- 2026-09-11 [Max워커] Γ(컨디셔닝 부하) 물리 재검토(모델링 우선순위 준수) — 기존
+  force×sweep_cpm×duty 곱셈에서 sweep_cpm(스윕 왕복수)이 Zheng2023 v_rel 식에 없는데도
+  속도 대리항처럼 곱해져 이중계상이었음을 발견·수정. Γ=(F/F_ref)×(rpm_platen비)×(duty비)로
+  교체(디스크 전체 평균 v/(ω_p·r_cc)=1.00044, 0.044% 편차 — 지배항 근사 정량 검증,
+  knowledge/equipment/disk-rpm-load-radius-pcr.md §6). confidence는 estimated 유지(Rs 에지
+  보정 14.4%·PCR 시간소진·임계하중 비선형 3개 구조적 결측 근거 명문화) — **칸 수는 불변(여전히
+  12/50)이지만 모델식 자체의 물리적 정합성이 개선됨**(COMPLETION.md 우선순위: 데이터보다
+  모델링). pytest 598 passed, qa_loop --strict PASS(ρ=0.954 불변), 커밋 1c25f14.
