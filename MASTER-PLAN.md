@@ -1877,3 +1877,17 @@ COMPLETION.md 우선순위(물리모델링 최우선, ψ×3 UNMODELED가 C1 최�
 재검증, `completion.py check`로 C1 6→3칸(ψ×3 확인) + C5 10/10축 통과 확인, git fetch로 origin 대비
 로컬 4커밋 확인 후 push(2a1eb44). 격자 6/50→7/50.
 남은 C1: Δ×3(cu_h2o2_bta/oxide_silica/w_fe_oxidizer, LPC-스크래치 꼬리분포 경로) — 다음 회차 최우선.
+
+## 2026-09-11 10:xx [성장엔진] EVIDENCE-RULES 판정 #1 시스템 반영 + Δ 활성화 테스트
+어제(EVIDENCE-RULES.md 판정 #1)로 "cu_h2o2_bta 입경은 null 결론"이라고 종결했지만
+accuracy_gaps.py/response_map.py는 여전히 이걸 RESPONSE_DEAD(score95)로 최우선 배차하고
+있었다 — 판정이 도구에 반영 안 돼 재작업 위험 그대로였음을 발견. tools/response_map.py에
+NULL_CONFIRMED 판정(verdict='NULL_CONFIRMED', 표시 ∅)을 신설해 (pack,key) 화이트리스트로
+등록, 이제 accuracy_gaps.py --next가 이 축을 건너뛰고 다음 진짜 갭(COMPLETION-C1 Δ)으로
+이동함을 확인. 이어서 Δ 갭을 보니 같은 시각 동시 실행 중이던 다른 크론(software-lead 계열)이
+이미 3팩(cu_h2o2_bta/oxide_silica/w_fe_oxidizer) abrasive_d99_nm/damage_exponent 파라미터를
+_proposals/delta_and_d99.md 제안서 그대로 반영해 커밋(ba5cbf7, 6ac34aa)까지 완료해둔 상태 —
+C1 3→0칸 이미 달성. 중복 작업 방지 겸 회귀 방지선으로 tests/test_factors.py에 3팩 Δ=1.0
+계약 테스트 추가. pytest 595 passed, qa_loop --strict PASS(ρ=0.944 불변 — Δ는 진단전용이라
+당연). e615adb로 커밋·push. 완성 격자 12/50(변화없음, 병렬세션이 이미 반영). 남은 C2 38칸이
+현재 최대 병목 — 다음 회차는 confidence 승격(코퍼스 next --stage learn)에 집중 권고.
