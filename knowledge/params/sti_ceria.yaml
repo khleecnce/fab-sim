@@ -142,3 +142,20 @@ params:
       사실을 코드에 남긴다. 세리아 전용 저해 실제가 나오면 그것으로 교체한다.
     source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6 (교차계 — 정량값 미전이)
     confidence: estimated
+
+  # -- tau slurry transport (viscosity) ------------------------
+  slurry_viscosity_pa_s:
+    value: 1.4e-3
+    unit: "Pa·s"
+    note: >
+      세리아 CMP 슬러리 **실제** 점도. Kim et al. 2024 (Polymers 16(24) 3593,
+      DOI 10.3390/polym16243593) §3.3 Fig.17d: 상용 세리아 슬러리 초기 실제 **1.41 cP**
+      (25°C, Brookfield cone/plate; 3개월 보관 후 1.16 cP로 감소).
+      교차확인: 동일 그룹 Kim 2024 (Polymers 16(6) 844, DOI 10.3390/polym16060844)
+      Table 3 세리아+SMA-1000 분산제 1.34~1.35 cP, Table 4 세리아+소포제 1.31~1.33 cP,
+      자제제조 세리아(D5/D6/D7) 1.62/1.47/1.44 cP. 실제 대역 1.31e-3~1.62e-3 중
+      **상용품 값**을 대표로 추출. 콜로이달 실리카계(1.0e-3)보다 1.40배 높다 —
+      그러므로 base 공통이 아니라 팩별로 나눈다.
+      원문이 상용 세리아 분산제를 "Newtonian behavior"로 명시 → 단일 스칼라 정당.
+    source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2
+    confidence: literature

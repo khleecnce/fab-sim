@@ -77,6 +77,38 @@ params:
     source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
     confidence: estimated
 
+  # ── Δ 손상 유발도 (스크래치 위험) — 진단 전용, MRR에 곱해지지 않음 ──
+  # ⚠ Egan & Kim 2019 §3.4: 텅스텐 벌크 CMP에서 대입자는 **MRR을 올리지 않고 스크래치만**
+  #   늘린다("the rate does not increase … statistically comparable"). Δ와 κ의 분리 설계가
+  #   이 팩에서 특히 물리적으로 옳다.
+  abrasive_d99_nm:
+    value: 750.0
+    unit: nm
+    note: >
+      abrasive_size_nm(150 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008).
+      Showa Denko US6770218B2(알루미나 + 질산철 3.5wt% 텅스텐 CMP) 절대 상한 1.0 µm 이내,
+      단 선호 상한 0.5 µm는 초과 ⚠. 참고: Remsen 2006 스크래치 임계 직경 680 nm(실리카
+      등가)를 넘는 유일한 팩 — 이 팩의 꼬리가 임계 이상 대역에 있다는 진단 신호.
+      알루미나 D99 실측값은 미확보(5회 탐색 실패).
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  abrasive_ref_d99_nm:
+    value: 750.0
+    unit: nm
+    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  damage_exponent:
+    value: 2.54
+    unit: "-"
+    note: >
+      Egan & Kim 2019(ECS JSS 8(5) P3206) 두 관측의 기하평균 √(3.73×1.73).
+      막질·공정 완전 일치(텅스텐 벌크 CMP, 300mm 양산 라인 defect inspection 실측).
+      ⚠ 각 관측이 n=1 단일 대응쌍이고 저자 서술이 반올림("sixty times", "85% reduction")이라
+      정밀도는 낮다 — 순위만 신뢰.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.3
+    confidence: literature
+
   # ── psi 표면 보호도 (억제제) — Lee & Seo 2022(DOI:10.3390/app12031227) 재현 (2026-09-10) ──
   # ⚠ 정확도 루프 UNMODELED 갭 해결: w_fe_oxidizer는 이제껏 억제제 파라미터가 없어
   #   부식억제제를 넣어도 ψ(psi)가 계산 안 됐다. sim/chemistry.py::_inhibitor_term은

@@ -130,6 +130,36 @@ params:
     source: knowledge/cmp/abrasive-size-null-result-force-partition-theory.md
     confidence: literature
 
+  # ── Δ 손상 유발도 (스크래치 위험) — 진단 전용, MRR에 곱해지지 않음 ──
+  abrasive_d99_nm:
+    value: 500.0
+    unit: nm
+    note: >
+      abrasive_size_nm(100 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008).
+      독립 상한 대조: Showa Denko US6770218B2(알루미나 + 질산철 금속 CMP, W·Cu 동일 슬러리)
+      명세 "maximum grain size of 1.0 µm or less, more preferably 0.5 µm" — 이 유도값이
+      선호 상한 0.5 µm와 정확히 경계 일치한다. 알루미나 D99 실측값은 5회 탐색 모두 실패
+      (abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md §3) — 유도값임을 명심.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  abrasive_ref_d99_nm:
+    value: 500.0
+    unit: nm
+    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  damage_exponent:
+    value: 2.54
+    unit: "-"
+    note: >
+      Egan & Kim 2019(ECS JSS 8(5) P3206, GLOBALFOUNDRIES 300mm 양산) 두 관측
+      n_temp=3.73 / n_agit=1.73의 기하평균(로그축 중앙). ⚠ 원 관측은 **텅스텐** 벌크 CMP다 —
+      Cu로의 전이는 연마입자·촉매 계열 유사성(Showa Denko US6770218이 W Ex.1과 Cu Ex.9를
+      동일 알루미나+질산철 슬러리로 다룸)에만 기댄다. Cu 막질에서 직접 측정된
+      D99-스크래치 대응쌍은 확인하지 못했다 → confidence를 estimated로 강등.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.3
+    confidence: estimated
+
   # Cu 고유 — 패턴 웨이퍼 dishing
   dishing_sensitivity:
     value: 1.0

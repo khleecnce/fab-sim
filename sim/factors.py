@@ -862,11 +862,20 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
     f.value = val
     f.terms = terms
     f.status = "partial"
-    f.confidence = "unverified"
+    # ⚠ τ의 confidence는 드라이버(기공률·그루브폭·점도)가 아니라 **결합 지수**가 결정한다.
+    # 드라이버는 전부 literature여도 tau_mrr_exponent=0.07이 기공률 실험에서 역산해
+    # 그루브 축에 교차 대입한 값이라, τ의 크기 자체는 문헌이 보증하지 않는다.
+    # 팩이 지수의 근거를 명시(tau_exponent_confidence)하면 그것을 쓰고,
+    # 없으면 드라이버 최악등급보다 한 단 낮춘다 — 지수가 가장 약한 고리이기 때문이다.
+    _driver_conf = _pack_conf(pk, "groove_width_um", "pad_porosity_pct",
+                              "slurry_viscosity_pa_s")
+    f.confidence = str(pk.get_or("tau_exponent_confidence", "unverified"))
     f.sources = sorted(set(srcs))
     f.notes.append(
-        "⚠ τ의 MRR 결합 지수(tau_mrr_exponent=0.07)는 기공률 실험에서 역산해 "
-        "그루브 축에 교차 대입한 값이다 — 미검증. 순위만 신뢰하라.")
+        f"⚠ τ 등급={f.confidence}: 드라이버(기공률·그루브폭·점도)는 {_driver_conf} 등급이지만 "
+        "τ의 **결합 지수**(tau_mrr_exponent=0.07)가 기공률 실험에서 역산해 그루브 축에 "
+        "교차 대입한 값이라 크기를 문헌이 보증하지 않는다 — 가장 약한 고리가 등급을 정한다. "
+        "순위만 신뢰하라.")
     f.notes.append(
         "⚠ τ가 실제로 지배하는 것은 평균 MRR이 아니라 **반경 프로파일**이다. "
         "기공 2 µm 패드에서 중심이 슬러리 기아로 처지고 엣지-중심 RR 차이가 "

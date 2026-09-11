@@ -126,19 +126,58 @@ params:
     source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §3
     confidence: verified
 
-  # ── Δ 손상 유발도 ───────────────────────────────────────
-  # ⚠ abrasive_d99_nm(대입자 tail)은 팩에 없다. 스크래치는 D50이 아니라 꼬리가
-  #   만드는데, 확보된 노트에 정량 D99 분포가 없다. factors.py의 Δ가 이 결측을
-  #   경고로 신고한다 — 임의값을 넣어 예측을 만들어내지 않는다.
+  # ── Δ 손상 유발도 (스크래치 위험) ─────────────────────────
+  # ⚠ Δ는 MRR에 곱해지지 않는 **진단 전용** 팩터다(sim/factors.py MRR_COUPLED에 delta 없음).
+  #   이 값을 바꿔도 MRR 예측은 변하지 않는다.
+  # ⚠ 아래 D99는 **실측 스펙이 아니라 유도값**이다: abrasive_size_nm(50) × D99/D50 일반비 5.00.
+  #   abrasive_d99_nm == abrasive_ref_d99_nm이므로 기준 조건에서 Δ=1.0이 정확히 성립한다.
+  #   의미 있는 것은 절대값이 아니라 recipe pack_overrides로 D99를 흔들었을 때의 상대 배수다.
+  abrasive_d99_nm:
+    value: 250.0
+    unit: nm
+    note: >
+      abrasive_size_nm(50 nm) × D99/D50 일반비 5.00 유도값. 일반비 출처는 Silco/Levitronix
+      CMP Users Conference 2008 슬라이드 p.11(3세대 관측 4.29~5.00, 중앙값 5.00, 산업
+      컨퍼런스 2차 자료). 오더 대조: Fuso US2025/0059050A1이 콜로이달 실리카 LPC를 세는
+      bin이 0.20 µm로 이 값과 같은 대역. 실측 D99 아님.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  abrasive_ref_d99_nm:
+    value: 250.0
+    unit: nm
+    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
+  damage_exponent:
+    value: 1.44
+    unit: "-"
+    note: >
+      US8439995B2(Hitachi 세리아) 4점 로그-로그 회귀 n=1.444, R²=0.997. 막질 일치
+      (산화막 CMP)이나 연마입자 불일치(세리아 vs 콜로이달 실리카) — 조건 외삽.
+      교차확증: Remsen 2006(퓸드실리카·산화막) Table V가 선형(n≈1)을 지지해 방향 일치.
+      sim/factors.py 기본값 3.0은 문헌 근거 없는 가정값이므로 반드시 덮어쓴다.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.3
+    confidence: literature
 
   # ── 윤활 레짐 진단 (Sommerfeld/λ) ────────────────────────
   # 원래 위치: cmp_lubrication_regime.py self-test 전형 조건
   slurry_viscosity_pa_s:
     value: 1.0e-3
     unit: "Pa·s"
-    note: 물기반 슬러리 점도 — 노트는 "~1e-3"으로만 명시
-    source: knowledge/physics/cmp-lubrication-regimes.md §2
-    confidence: estimated
+    note: >
+      콜로이달 실리카 CMP 슬러리 **실측** 점도. Lee et al. 2025 (Nanomaterials 15(16) 1248,
+      DOI 10.3390/nano15161248, OA) Brookfield DV-II+Pro: 첨가제 무관 기본 슬러리 ~0.98 cP
+      (§3.2 Fig.3a), HEC 증점제 0.0012→0.0049 wt% 첨가 시 1.01→1.12 cP(§3.3 Fig.7a),
+      TAP+HEC 병용 1.02→1.13 cP(§3.5 Fig.11a). 실측 대역 0.98e-3~1.13e-3의 중심값.
+      측정계 신뢰성 교차검증: Crawford 2013(DOI 10.1016/j.colsurfa.2013.06.003)이 동일 계열
+      대조로 잰 DI water 8.6e-4가 물의 문헌값 8.9e-4(25°C)의 3.4% 이내.
+      희박 슬러리는 뉴턴이라 CMP 전단속도(10³~10⁵/s)에서도 단일 스칼라가 유효하다.
+      ⚠ 예외: 25wt%+0.15M KCl 고고형분·고이온강도 슬러리는 30,000/s에서 5배 증점한다
+      (Crawford 2013) — 그 영역엔 이 스칼라를 쓰면 안 된다.
+      (이전 값도 1.0e-3이었으나 근거가 "노트 정의문의 괄호주석(~1e-3)"이었다. 값은 그대로,
+      근거만 실측으로 교체.)
+    source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2
+    confidence: literature
   pad_ra_m:
     value: 5.0e-6
     unit: m

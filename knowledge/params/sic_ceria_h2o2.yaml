@@ -84,3 +84,16 @@ params:
       사실을 코드에 남긴다. 세리아 전용 저해 실제가 나오면 그것으로 교체한다.
     source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6 (교차계 — 정량값 미전이)
     confidence: estimated
+
+  # -- tau slurry transport (viscosity) ------------------------
+  slurry_viscosity_pa_s:
+    value: 1.4e-3
+    unit: "Pa·s"
+    note: >
+      세리아 슬러리 실제 점도(sti_ceria와 동일 근거: Kim 2024
+      DOI 10.3390/polym16243593 §3.3 Fig.17d 상용 세리아 1.41 cP, 25°C).
+      ⚠ H2O2 추가 세리아 슬러리의 점도를 **직접 재는 문헌은 미확보**다.
+      H2O2는 저농도 수용액이라 점도를 크게 바꾸지 않을 것으로 보이나 근거가 없으므로,
+      세리아 일반값의 전용이며 **이 전용 자체는 미검증**이다(노트 §4 한계 5).
+    source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2 §4-5
+    confidence: literature
