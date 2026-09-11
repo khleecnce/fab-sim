@@ -1891,3 +1891,25 @@ C1 3→0칸 이미 달성. 중복 작업 방지 겸 회귀 방지선으로 tests
 계약 테스트 추가. pytest 595 passed, qa_loop --strict PASS(ρ=0.944 불변 — Δ는 진단전용이라
 당연). e615adb로 커밋·push. 완성 격자 12/50(변화없음, 병렬세션이 이미 반영). 남은 C2 38칸이
 현재 최대 병목 — 다음 회차는 confidence 승격(코퍼스 next --stage learn)에 집중 권고.
+
+
+## 2026-09-11 12:xx [성장엔진] COMPLETION-C4 sic_ceria_h2o2 held-out 탐색 -- 신규자료 확보했으나 등록 보류
+갭 랭커 최우선(COMPLETION-C4, score88): sic_ceria_h2o2 팩 유의 held-out 0건. 코퍼스(SiC 관련
+문서 70+건)와 미러 사이트를 뒤져 신규 원문 2편 확보(papers/proeng-2011-11-2673-alumina-6h-sic.pdf =
+SU et al. Procedia Eng 24(2011)441 6H-SiC알루미나 슬러리 산화제/pH/압력 시리즈; papers/
+jjap50-046501-sic-high-removal-rate.pdf = Nitta et al. JJAP 50(2011)046501 4H-SiC H2O2/H5IO6
+oxidizer molarity 곡선). 둘 다 재료계는 SiC로 팩과 일치하나:
+  1) proeng 산화제 4점(5/10/15/20ml)을 Kaufman 단봉으로 맞추면 n약0.12, Cpeak=15ml인데 이건
+     같은 4점으로 역산한 값이라 held-out이 아니라 calibration이다 -- 별도 독립 데이터가 없으면
+     등록해도 C4를 충족 못 시킨다(자기 답안지 채점 금지 원칙).
+  2) jjap 데이터(H2O2 몰농도 vs RR, 4H-SiC)로 held-out을 시도했으나, proeng에서 역산한 n=0.12,
+     Cpeak=3(ml 스케일)을 jjap의 mol/L 스케일로 그대로 못 옮긴다(단위 비양립) -- 임의 스케일
+     맞춤은 지어낸 파라미터가 되므로 보류.
+결론: sic_ceria_h2o2의 oxidizer_wt_pct/peak/curve_n 파라미터 자체가 팩에 없다(현재 oxidizer_ref_wt_pct만
+있고 chi 항이 화학 팩에서 발동 안 함, 실측 확인: chi factor에 oxidizer 항 부재). 이걸 채우려면
+같은 계(SiC, 세리아나 유사 산화제)에서 3점 이상 산화제 농도-MRR 계열이 2세트(하나는 캘리브레이션,
+하나는 held-out) 필요한데 이번 회차 확보분은 1세트뿐 -- 등록 시 used_for_calibration:true로만
+가능하고 C4는 그대로 미충족. 두 PDF는 papers/에 보관(향후 재사용 대비), 어떤 yaml도 커밋하지 않음
+(품질보다 진도를 앞세워 자기채점 데이터를 넣는 것은 오염). 완성 격자 12/50 불변. 다음 회차는
+1) sic 산화제 held-out 2세트 확보를 계속 시도하거나 2) 갭랭커가 다른 항목(C2 confidence 승격,
+corpus.py next --stage learn)으로 넘어가면 그쪽 우선.
