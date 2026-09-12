@@ -231,6 +231,18 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     (knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md §1).
     온도는 Arrhenius로 화학속도를, 유량은 신선 슬러리 공급을 지배한다.
 
+    ⚠ 회전 냉각 채널은 전체 냉각의 일부만 차지한다(2026-09-13 정정): White 2003 원문 열저항
+    네트워크(정상상태 검증판은 sim/tier2_physics/cmp_theta_steady_state_heat_balance.py,
+    frictional-heating-temperature-arrhenius-coupling.md §8.2/§8.4)에 따르면 냉각은
+    G_slurry(엔탈피 수송, 회전무관)+G_pad(전도, 회전무관)+G_air(회전 대류, √Ω)의 병렬합이고
+    Shin 2025 중앙 케이스 분해가 슬러리 74%/패드 19%/공기 7%임을 준다. 과거에는 cool_rotation
+    전체를 √Ω로 스케일해 이 7% 채널의 효과를 냉각 전체(100%)에 적용했다 — 회전 냉각 효과를
+    심하게 과대평가한 것이다(§8.4 "정정 후보"로 기록되어 있었음). 지금은 가중평균
+    (1-W_AIR_FRACTION)·1.0 + W_AIR_FRACTION·√Ω로 그 7%만 반영한다. W_AIR_FRACTION=0.07은
+    단일 케이스(Shin 2025 중앙값)에서 나온 근사치이고 범위는 6~8%다(§8.4 최소/최대 케이스) —
+    구조적 결측(§8.5: 웨이퍼/헤드 경로 미모델링, L_pad 유효길이, h_air CMP 실측, 완전 열교환
+    가정)이 전혀 닫히지 않았으므로 confidence는 여전히 estimated다.
+
     ⚠ 절대 온도가 아니라 **기준 대비 부하비**다. 실제 ΔT 예측은
     knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
     모델이 담당하고, 여기서는 팩터로 압축만 한다.
@@ -268,9 +280,21 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     # 회전 대류냉각 채널 — von Karman 회전원판 Nu∝Re_r^0.5 (층류, 지수 b=0.5 문헌 일치,
     # knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md §1-2).
     # 새 파라미터 없이 Λ와 같은 lambda_ref_rpm_platen을 재사용(같은 회전축, 이중기준 방지).
+    #
+    # ⚠ 정정(2026-09-13): 이 회전 채널(G_air)은 전체 냉각 컨덕턴스(G_slurry+G_pad+G_air)의
+    # 일부(W_AIR_FRACTION)만 차지한다 — frictional-heating-temperature-arrhenius-coupling.md
+    # §8.4 Shin 2025 "중앙 케이스" 정상상태 열저항 네트워크 분해: 슬러리 74% / 패드 19% /
+    # 공기 7%. 나머지 두 채널(G_slurry, G_pad)은 회전수와 무관(§8.2)한데도 과거 코드는
+    # √Ω 스케일을 냉각 전체에 곱해 회전 냉각 효과를 심하게 과대평가했다(§8.4 "정정 후보").
+    # 가중평균으로 고친다: 안 변하는 (1-W_AIR_FRACTION) 채널은 1.0, 공기 채널만 √Ω.
+    # W_AIR_FRACTION은 단일 케이스(Shin 2025 중앙값)에서 나온 근사치이며 범위는 6~8%다
+    # (§8.4 표의 최소/최대 케이스). 구조적 결측(§8.5)이 해소된 게 아니므로 confidence는
+    # estimated로 유지한다.
+    W_AIR_FRACTION = 0.07
     rpm_platen = float(rr.rpm_platen)
     rpm_ref = float(pk.get_or("lambda_ref_rpm_platen", rpm_platen or 1.0))
-    cool_rotation = math.sqrt(rpm_platen / rpm_ref) if rpm_ref > 0 else 1.0
+    rotation_ratio = math.sqrt(rpm_platen / rpm_ref) if rpm_ref > 0 else 1.0
+    cool_rotation = (1.0 - W_AIR_FRACTION) * 1.0 + W_AIR_FRACTION * rotation_ratio
     # 리테이닝 링 압력 — 웨이퍼-패드 마찰(Λ)과 독립인 추가 발열원(Lee/Guo/Jeong 2012 Table 1,
     # knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md). 총 마찰력 F_wafer+F_ring이
     # RR압력에 선형(R²>0.99)이라는 실측을 기준 대비 배수로 압축한다. 없으면 1.0 폴백(기존 partial 계약 유지).

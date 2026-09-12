@@ -7,6 +7,7 @@
   ④ 장비축과 소모품축이 섞이지 않는다 (사용자 확정 규칙)
   ⑤ 문헌 실측 재현 (pH 정점형)
 """
+import math
 import sys
 from pathlib import Path
 
@@ -512,6 +513,27 @@ def test_theta_faster_rotation_moderates_but_not_cancels_load():
     naive_double = f_ref.value * 2.0
     assert f_fast.value < naive_double, (
         f"회전 대류냉각이 반영 안 됨 — Θ가 순수 2배({naive_double})만큼 올랐다: {f_fast.value}")
+
+
+def test_theta_rotation_cooling_channel_is_weighted_not_full_sqrt():
+    """cool_rotation은 전체 냉각의 7%(공기 채널)만 √Ω로 스케일해야 한다.
+
+    2026-09-13 정정: 과거에는 cool_rotation=sqrt(rpm/rpm_ref) 하나로 냉각 전체를
+    스케일했다. 그러나 frictional-heating-temperature-arrhenius-coupling.md §8.4
+    (White 2003 + Shin 2025 정상상태 열저항 네트워크)에 따르면 회전 대류냉각(G_air)은
+    전체 냉각 컨덕턴스의 약 7%만 차지하고(슬러리 74%/패드 19%/공기 7%, 중앙 케이스),
+    나머지는 회전수와 무관하다. rpm_platen이 기준(55) 대비 2배(110)가 되면
+    cool_rotation은 sqrt(2)≈1.414가 아니라 0.93*1.0+0.07*sqrt(2)≈1.029에 가까워야 한다
+    — 회전 냉각 효과의 과대평가를 없애는 정정이다.
+    """
+    f_fast = _factors(pack="oxide_silica", rpm_platen=110.0)["theta"]
+    cool_rotation = f_fast.terms["cool(rotation)"]
+    expected = 0.93 * 1.0 + 0.07 * math.sqrt(2.0)
+    assert cool_rotation == pytest.approx(expected, abs=1e-6), (
+        f"cool_rotation={cool_rotation}이 가중평균 근사치 {expected}와 다르다 — "
+        f"√Ω가 냉각 전체에 그대로 적용되고 있을 가능성(과대평가 회귀).")
+    assert cool_rotation < math.sqrt(2.0), (
+        "cool_rotation이 여전히 순수 sqrt(rpm 비)와 같다 — w_air 가중치가 반영 안 됨.")
 
 
 def test_theta_retaining_ring_present_at_reference():

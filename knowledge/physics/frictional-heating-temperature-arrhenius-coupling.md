@@ -239,8 +239,11 @@ Fig.7a(원문 PDF 렌더 판독) 무냉각 **약 20.5 °C(t=0) → 약 35.5 °C(
 `sim/tier2_physics/cmp_theta_steady_state_heat_balance.py`(순수함수, self-test 8/8: White Eq.3/5/9/10 재현,
 Harmand √Ω·층류, Shin 3분배)를 신설하고 `sim/engine.py`에 **진단 필드로만** 실었다
 (`theta_steady_state_delta_T_k`·`theta_heat_partition`·`theta_steady_state_note`, MRR 경로에 곱하지 않음,
-`pad_thickness_m`·`pad_thermal_conductivity_w_mk`가 팩에 없으면 조용히 None). `_f_theta()`의 비율 압축과
-cool_rotation 과대평가는 이번에 손대지 않고 정정 후보로 남긴다 — 팩터 재정의는 ρ 회귀 재검증이 필요.
+`pad_thickness_m`·`pad_thermal_conductivity_w_mk`가 팩에 없으면 조용히 None). **(2026-09-13 정정)**
+`_f_theta()`의 `cool_rotation`을 순수 `sqrt(rpm/rpm_ref)`에서 가중평균 `(1-W_AIR_FRACTION)·1.0 +
+W_AIR_FRACTION·sqrt(rpm/rpm_ref)`(W_AIR_FRACTION=0.07, 위 Shin 2025 중앙 케이스 분배)로 교체해 7% 채널의
+스케일이 냉각 전체에 적용되던 과대평가를 정정했다. theta는 `MRR_COUPLED` 밖(진단 전용)이라 ρ 회귀에는
+영향이 없음을 재검증했다(qa_loop --strict PASS, ρ=0.9537 불변, 정정 전과 동일).
 
 ### 8.7 Python 재현 (열저항 네트워크)
 ```python verify
