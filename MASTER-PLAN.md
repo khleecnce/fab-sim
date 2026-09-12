@@ -2178,3 +2178,22 @@ pad-mechanic/PROFILE.md 구현요청 갱신. pytest 621 passed(변경없음), qa
 check_knowledge 통과. pytest 621 passed(회귀 0). qa_loop --strict PASS(#47, 유의 7/20,
 ρ=0.9537 불변 — 코드 미변경). 커밋 완료.
 다음 회차 갭: S(시간안정성) PARTIAL 또는 UNWIRED UI 슬라이더 4건 중 우선순위.
+
+## 2026-09-12 22:xx [성장엔진] BIAS 갭 — us9200180b2 별도 팩 분리 시도 후 qa_loop FAIL로 revert
+정확도루프 갭 τ→Δ→S 모두 3회차 순환/선행조건 미해결로 순차 skip 후 BIAS 종류 처리.
+`us9200180b2_cu_abrasive_series`/`us9200180b2_cu_h2o2_series`(pH 9~10 알칼리+벤젠술폰산,
+cu_h2o2_bta의 pH 4 산성+BTA와 조성 상이)를 EVIDENCE-RULES "스코프를 쪼개라" 원칙대로
+`cu_bsa_alkaline` 신설 팩으로 분리 — Kp·abrasive_conc_exponent(로그-로그 회귀,
+R²=0.966)·oxidizer_peak_wt_pct·oxidizer_curve_n(격자탐색)을 해당 7점에서 역산.
+MAPE는 크게 개선(2863%→13.2%, 5204%→14.7%)했으나 **이 파라미터를 정확히 그 7점에서
+캘리브레이션했으므로 held-out 검증이 아니다** — `used_for_calibration: true`로 전환해
+분리. pytest 621 passed(회귀 0)였지만 `qa_loop.py run --strict`가 FAIL: 유의 held-out
+데이터셋이 7→6개로 줄고 평균 ρ 0.954→0.946 하락(us9200180b2_cu_abrasive_series가
+캘리브레이션 데이터로 재분류되며 held-out 표본에서 빠진 것 자체가 원인) — 프로토콜대로
+전 변경 revert(`git checkout`), 새 팩 파일도 삭제. qa_loop 재실행으로 PASS(#40, 유의
+7/20, ρ=0.9537) 원복 확인. **교훈**: BIAS 갭의 "별도 팩 분리"가 그 갭의 원천 데이터로
+Kp/지수를 역산하는 형태라면 구조적으로 held-out을 깎는다 — 이 갭 종류는 독립된 제3의
+데이터(같은 화학계의 다른 문헌)가 없는 한 완료 조건(qa_loop PASS)을 만족시키기 어렵다.
+다음 회차는 이 BIAS 갭을 1회차로 기록하고 κ(abrasive_size_exponent) UNWIRED 항목
+(Li 2021 Eq.3-4 OCR 훼손 — pdfplumber 벡터/문자 좌표로 재파싱 시도) 또는 다른 BIAS
+갭(entegris2022 10.34배, us8070843b2 0.30배)으로 스킵.
