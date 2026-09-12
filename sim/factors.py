@@ -527,7 +527,13 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
                         "measurement-methods.md")
             f.notes.append("⚠ Shore D는 경도의 대리지표다. H^-1.5의 H는 압입경도"
                            "(GPa)인데 Shore D↔GPa 환산이 비선형이라 순위는 맞아도 "
-                           "절대값은 캘리브레이션이 필요하다.")
+                           "절대값은 캘리브레이션이 필요하다. Qi/Joyce/Boyce 2003"
+                           "(DOI:10.5254/1.3547752, 위 노트 §8)이 범용 탄성체용 "
+                           "Shore D→탄성률 해석해(eq.11)를 주지만 confidence는 "
+                           "못 올린다 — ①62D 앵커점에서 FEA 대비 49% 편향만 확인"
+                           "됐고 60D에서의 편향 크기는 모름, ②범용 가황고무 대상"
+                           "(폴리우레탄 미검증), ③애초에 그 논문의 E는 압입경도가 "
+                           "아니라 단축인장 탄성률이라 물리량 자체가 다르다.")
 
     # ④ 디스크: asperity 밀도 → 실접촉 면적
     if pk.has("asperity_density_per_m2"):

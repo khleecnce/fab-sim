@@ -1,5 +1,5 @@
 {
-  "ts": 1789131670.9876292,
+  "ts": 1789215303.169867,
   "complete": false,
   "cells_done": 12,
   "cells_total": 50,
@@ -105,6 +105,8 @@
     "theta": [
       "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
       "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md",
+      "knowledge/physics/cmp-theta-retaining-ring-pressure-heat-channel.md",
+      "knowledge/physics/cmp-theta-rotation-convective-cooling-driver.md",
       "knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md"
     ],
     "gamma": [
@@ -112,6 +114,7 @@
       "knowledge/equipment/disk-rpm-load-radius-pcr.md"
     ],
     "kappa": [
+      "knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md",
       "knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md",
       "knowledge/cmp/abrasive-size-null-result-force-partition-theory.md",
       "knowledge/materials/pad-hardness-porosity-measurement-methods.md"
