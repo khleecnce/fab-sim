@@ -145,3 +145,15 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   **Θ confidence는 estimated 유지(칸 수 12/50 불변)** — 웨이퍼/헤드 경로 미모델링, L_pad 유효길이
   미검증, h_air CMP 실측 없음, 슬러리 완전열교환 가정 4개 구조적 결측이 남아 브리프 기준상 올리면 오염.
   pytest 609 passed(기준 600, 회귀 0).
+
+- 2026-09-12 [Max워커] Γ(컨디셔닝 부하) PCR 시간적 소진(aging) 반영 — 우선순위 2 항목 후속.
+  `_f_gamma()` docstring이 명시했던 3개 구조적 결측 중 (2) 컨디셔너 자체의 PCR 소진
+  (Entegris 2013 2차인용 앵커 50h→16%, tau≈27.4h)을 `sim/tier2_physics/conditioner_pcr_decay.py`
+  의 기존 `pcr_decay()`와 연결해 해소. `cond_disk_usage_hours` 팩 파라미터가 있으면 Γ에
+  aging 배수를 곱하고, 없으면(기존 5팩 전부) aging=1.0 폴백으로 완전한 회귀 없음.
+  `knowledge/params/base.yaml`에 `cond_disk_usage_hours`(기본 0.0=신품, literature)·
+  `cond_ref_disk_usage_hours` 추가, `tests/test_gamma_pcr_aging.py` 5건 신설(usage=50h→
+  Entegris 앵커 0.16 정확 재현, 드라이버 부재시 legacy 동일값, 단조감소, confidence 불변).
+  **Γ confidence는 estimated 유지**(tau 자체가 2차인용·Rs 보정·임계하중 비선형 2개 구조적
+  결측이 남아있어 오염 방지) — 칸 수 불변(12/50), 모델의 물리적 완결성만 개선.
+  pytest 614→619 passed(회귀 없음), completion.py check 정상 실행. 커밋 51150f4.
