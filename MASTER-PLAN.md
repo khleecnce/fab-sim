@@ -2134,3 +2134,22 @@ PASS(#45, 유의 7/20, ρ=0.9537 불변 — 코드 미변경이라 당연). `acc
 다음 순위로 넘김(다음 최상위는 Δ 손상유발도 PARTIAL). 커밋 예정.
 다음 회차 갭: Δ(delta) PARTIAL — abrasive_d99_nm 항 결측(현재 abrasive_size_nm만 반응), 또는
 groove depth 그래프 이미지 벡터좌표 추출 재시도(pdfplumber page.curves/page.lines).
+
+## 2026-09-12 18:xx [학습총괄] 부채상환 1편 + 병렬배차 2명(1 성공/1 반려)
+진단: 118/168(70.2%), 속도 7.00단원/일, 완주예상 2026-09-19. 게이트 G1~G3 개방됨, G4는
+disk-kinematics만 선수충족(이미 활성 상태로 기개방 반영됨) — film-emerging(film-cu 5/6<6),
+tool-post-clean(slurry-colloid 1/3), cmp-calibrator(cmp-data-engineer 4/6<6) 모두 선수 미충족으로 보류.
+부채상환: knowledge/equipment/tool-layout-reflexion-class.md — 정량 재현/검증흔적 없음 반려 상태였음.
+§7 신설, 기하값 5건(플래튼간격 R√2, 패드간틈, IC1000 30.5in→m, SEMI E15.1 로드포트피치, 캐러셀판지름)
+python verify로 재현·오차 1cm/5mm 이내 확인. check_knowledge·verify_claims 둘 다 통과. 잔여 반려 2건
+(_SCHEMA.md는 스키마 정의 문서라 정책상 예외 검토 필요 — 다음 회차 판단, wiwnu-pressure-velocity는
+미검증 7 vs 정량 5 — 다음 순번).
+병렬배차 2명(defect-scientist Lv1-1, slurry-colloid Lv1-2) — 선수관계 모두 충족 확인 후 위임:
+- slurry-colloid Lv1-2 성공: knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md,
+  Basim&Moudgil 2002(DOI 확인) — 벌크 광산란 입도계가 LPC 꼬리 변화에 둔감함을 AFM 데이터로 재현.
+  check_knowledge·verify_claims 통과 → 커밋.
+- defect-scientist Lv1-1 반려: max-turns(45) 소진, 노트는 작성했으나 check_knowledge에서
+  "미검증 과다(미검증8 vs 정량5)"로 불합격. 체크박스 미변경 상태 유지(원래 [ ]), 커밋하지 않음.
+  다음 회차 재위임 필요 — 브리프에 "정량값 비중 높이기" 명시 예정.
+반려율 이번 회차 1/2(50%) → 병렬도 3명 상향 보류, 2명 유지.
+pytest 회귀 확인(변경 없음, 통과). git commit b07b348 push 완료.
