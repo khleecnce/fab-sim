@@ -7,7 +7,8 @@
 > 회귀식" 관점에서 다룸 — 이 노트는 같은 문헌에서 **분류 기준과 계측 장비 사양**만 가져오므로
 > 회귀식·기울기는 중복 서술하지 않는다), [[delta-scratch-damage-d99-oversize-particle-model]],
 > [[post-cmp-adsorption-cleaning-chemistry]], [[cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]],
-> [[metal-contamination-device-impact-irds-limits]], [[../equipment/conditioner-grit-wear-scratch-lifetime]]
+> [[metal-contamination-device-impact-irds-limits]], [[../equipment/conditioner-grit-wear-scratch-lifetime]],
+> [[scratch-physics-source-signatures]](Lv1-2 — 여기서 정한 스크래치 정의를 받아 **발생원별 형상 신호와 역추적 규칙**으로 확장한다)
 
 ## 1. 왜 분류가 먼저인가 — 그리고 "분류 기준은 반드시 숫자여야 한다"
 결함 밀도 모델(Lv2-2)이나 원인 역추적(Lv3-1)을 세우려면 "무엇을 하나의 결함 유형으로 셀

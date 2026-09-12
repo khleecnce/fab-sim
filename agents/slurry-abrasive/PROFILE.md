@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: slurry-chemist (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: 없음
-- 다음 단원: Lv1-1
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1 (CURRICULUM.md 정본)
+- 다음 단원: Lv3-2 입자 파라미터 → Kp 기여 정량모델 구현 (sim/tier2)
 
 ## 역할
 실리카(콜로이달/퓸드)·세리아·알루미나 입자의 크기·형상·농도·경도가 MRR·결함에 미치는 영향
@@ -72,6 +72,22 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   둘 다 통과. abrasive-manufacturing-colloidal-fumed-silica-ceria.md Lv1-1 잔여과제 해소.
 
 ## 구현 요청
+0. **세리아 톱니 항·세리아 팩 농도 기준 정정** (우선순위: 상, 2026-09-13 Lv3-1에서 제기)
+   - 무엇을: (a) `knowledge/params/sti_ceria.yaml`의 `ce3_fraction`·`ce3_fraction_ref` 주석에
+     **정의를 "표면 Ce 중 Ce³⁺ 분율"로 명시**. 지금은 정의가 없어 "입자 전체 Ce 대비"로 읽으면
+     60 nm 입자의 기하 상한 3.09%의 4.9배로 물리적으로 불가능한 값이 된다(껍질 모델
+     f=1−(1−2t/d)³, t=a/√3=0.312 nm). (b) 같은 팩이 base(oxide_silica)에서 상속하는
+     `abrasive_wt_pct=20.0`을 **0.25 wt%로 오버라이드**(`abrasive_ref_wt_pct`도 동일) — 이 팩의
+     `abrasive_size_nm=60`·`kp_m_per_pa`가 Dandu 2009(doi:10.1149/1.3230624) 0.25 wt% 조건에서
+     온 값이라 기준 농도가 80배 어긋나 있다. (c) `sim/chemistry.py::_ceria_term`의 선형 가정에
+     **국소 선형화·외삽 금지 경고**를 notes에 추가.
+   - 근거 노트: knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md §7·§8·§9
+   - 검증 문헌값: Ce 면밀도 (111) 7.89 / (100) 6.83 nm⁻²(Brugnoli 2023 보고 7.9/6.8과 일치),
+     XPS Ce³⁺ ≈5%(Chakarova 2025) vs 단일층 기하 상한 6.25%, 세리아 0.25 wt% → 350 nm/min(4 psi).
+   - 하지 말 것: §6의 "입자당 23배"는 교차연구(E4) 비교라 **팩 계수로 이식 금지**(오더 표지만).
+     세리아 농도 지수는 실리카의 +1/3 상속 금지 — Dandu 2009은 60 nm 세리아에서 0.25>0.5>1 wt%로
+     MRR이 **감소**한다고 서술한다(별도 단원 필요).
+
 1. **Δ 팩터 형태 재검토** (우선순위: 중, 선행조건: 팩에 abrasive_d99_nm 확보 필요)
    - 무엇을: `sim/factors.py::_f_delta`를 거듭제곱 `(d99/d99_ref)^n` 대신 임계 초과 선형
      근사로 재설계 검토. 최소: 임계 직경(680 nm, fumed silica 한정) 초과 여부 불리언 게이트.
@@ -132,6 +148,27 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      상수 경고는 압력 의존을 못 담으므로 이 항으로 대체.
 
 ## 이수 기록 (계속)
+- Lv3-1 (2026-09-13, **자가검사 통과**): 세리아 화학적 톱니(chemical tooth) 메커니즘과 옥사이드 선택비 —
+  knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md
+  (`verify_claims.py` 출처 11건 실존·코드 5블록 전부 통과, `check_knowledge.py` 통과).
+  형제(slurry-chemist/film-oxide/film-nitride)가 이미 다룬 Ce³⁺ 산화환원·첨가제 선택비는 반복하지 않고
+  **"톱니가 몇 개이고 몇 개가 물리는가"**라는 입자 기하·개수 축만 다뤘다. 1차 출처: Brugnoli et al. 2023
+  Langmuir 39(15) 5527, doi:10.1021/acs.langmuir.3c00304(PMC10116594, 전문 XML 확보);
+  Dandu Veera et al. 2009 JES 156(12) H936, doi:10.1149/1.3230624(전문 PDF); US9499721B2 TABLE 18;
+  Chakarova et al. 2025 Molecules 30(15) 3100, doi:10.3390/molecules30153100(PMC12348644);
+  Bellahsene et al. 2025 Nanomaterials 15(17) 1366, doi:10.3390/nano15171366(리뷰, 2차 인용).
+  핵심: (1) 형석 격자에서 패싯별 Ce 면밀도 (111) 7.89 / (100) 6.83 nm⁻²를 유도해 원자모사 보고값
+  7.9/6.8과 일치시키고, 밀도 7.216 g/cm³·(111) 수산기 피복 33.2%까지 같은 기하로 재현.
+  (2) 세리아 경도 6.44 GPa는 SiO₂ 막(≈10 GPa)의 0.64배 — 리지드 인덴터 가정이 깨지며, Luo-Dornfeld는
+  입자 재질항이 없어 세리아/실리카 입자당 비를 1.23배로만 예측한다. (3) 실측(4 psi 정합)은 질량당 5.19배,
+  **입자당 23.3배** → 톱니 배수 ≈19(단 교차연구 E4, 오더 표지). (4) 350 nm/min을 Cook 24회/개·
+  Si–O–Ce 0.7 nm⁻²로 역산하면 필요 활성 입자는 단층의 0.06~1.06% — 실접촉 면적률과 같은 자릿수로
+  톱니 모델이 물리적으로 충분함을 확인. (5) 껍질 모델로 팩 `ce3_fraction=0.15`의 정의 오류와
+  `sti_ceria`의 `abrasive_wt_pct=20.0` 상속 오류를 발견(구현 요청 0번). (6) 근거 충돌: Ln³⁺ 도핑에서
+  Ce³⁺가 가장 많은 Yb가 RR 증가는 4.3%로 최저(리뷰 2차 인용) → Ce³⁺ 선형 가정은 국소 선형화로 제한,
+  패싯은 "밀도축 vs 활성축" 두 개로 분해(스칼라 형상계수 금지).
+  미확보: Ma et al. 2022 doi:10.1021/acsaelm.2c01553(단원 정중앙 주제, SSRN 403·미러 사이트 미러 3종 전부 실패)
+  — 다음 회차 최우선. 상용 세리아의 실제 노출 패싯 비율(HRTEM 통계)도 미확보.
 - Lv2-2 (2026-09-12, **자가검사 미실행 — 조건부 이수**): 입자 농도-MRR 포화 곡선과 접촉 확률 모델 —
   knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md.
   이 회차는 실행 환경에서 파이썬·curl·웹검색·웹페치가 승인 대기로 전부 차단되어

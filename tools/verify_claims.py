@@ -97,6 +97,17 @@ def check_source(kind: str, ident: str, cache: dict) -> tuple:
         ok, data = fetch(f"https://api.crossref.org/works/{urllib.parse.quote(ident)}")
         msg = (data["message"].get("title", [""])[0][:90] if ok
                else f"Crossref 미등록 ({data})")
+        if not ok:
+            # 폴백: 학위논문·리포지토리·데이터셋 DOI는 Crossref가 아니라 DataCite에 등록된다
+            # (2026-09-13 slurry-colloid: UAlberta ERA 논문 10.7939/... 가 404로 잘못 반려됨)
+            ok2, d2 = fetch(f"https://api.datacite.org/dois/{urllib.parse.quote(ident)}")
+            if ok2:
+                try:
+                    ok = True
+                    msg = (d2["data"]["attributes"]["titles"][0]["title"][:90]
+                           + " [DataCite]")
+                except Exception:
+                    ok, msg = True, "DataCite 등록 확인(제목 파싱 실패)"
     elif kind == "pmc":
         ok, data = fetch(
             "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"

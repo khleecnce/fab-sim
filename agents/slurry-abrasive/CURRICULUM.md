@@ -7,7 +7,7 @@
 - [x] Lv1-2 입도 분포(D50·D90·LPC)와 측정법(DLS·레이저회절·SPOS)
 - [x] Lv2-1 입자 경도·형상과 기계적 제거: Hertz 압입, 입자당 제거 체적 (완료 2026-09-11)
 - [x] Lv2-2 입자 농도-MRR 포화 곡선과 접촉 확률 모델 (2026-09-12, knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md — 총괄 게이트 PASS 확인)
-- [ ] Lv3-1 세리아 화학적 톱니(chemical tooth) 메커니즘과 옥사이드 선택비
+- [x] Lv3-1 세리아 화학적 톱니(chemical tooth) 메커니즘과 옥사이드 선택비 (2026-09-13, knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md — verify_claims·check_knowledge 둘 다 통과)
 - [ ] Lv3-2 입자 파라미터 → Kp 기여 정량모델 구현 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)

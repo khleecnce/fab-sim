@@ -1031,5 +1031,147 @@
   "authors": "Dang S, Xiao C, Li J, Jiang Y, Franklin SE, Qian L, Chen L",
   "venue": "J. Manuf. Process. (2025-12)",
   "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "vazquez2018-micromachines-densitometry-ri-cmp-slurry": {
+  "src": "MDPI OA (CC-BY), 로컬 코퍼스 data/corpus/fulltext/doi_10.3390_mi9110542.xml 복사",
+  "pdf_local": "papers/vazquez2018-micromachines-densitometry-ri-cmp-slurry.xml",
+  "doi": "10.3390/mi9110542",
+  "pmcid": "PMC6266087",
+  "title": "Characterization of CMP Slurries Using Densitometry and Refractive Index Measurements",
+  "authors": "Vazquez Bengochea L, Sampurno Y, Kavaljer M, Johnston R, Philipossian A",
+  "venue": "Micromachines 9(11), 542 (2018)",
+  "used_by": [
+   "knowledge/slurry/shelf-life-dilution-two-part-blending-qc.md"
+  ],
+  "note": "POU 희석·블렌딩 QC: 밀도계 vs 굴절계 LOD 표, 제조사 블렌딩비(UPW:PL-7106:H2O2=87.0:10.2:2.8)"
+ },
+ "luan2018-ecsjss-complexing-agent-shelf-life-cu-cmp": {
+  "src": "미러 사이트 → 미러 사이트 PDF (유료 ECS, 2026-09-13 확보)",
+  "pdf_local": "papers/luan2018-ecsjss-complexing-agent-shelf-life-cu-cmp.pdf",
+  "doi": "10.1149/2.0171808jss",
+  "title": "Effect of Complexing Agent Choices on Dishing Control Level and the Shelf Life in Copper CMP Slurry",
+  "authors": "Luan X, Cheng J, Liu Y, Wang C",
+  "venue": "ECS J. Solid State Sci. Technol. 7(8), P391-P396 (2018)",
+  "used_by": [
+   "knowledge/slurry/shelf-life-dilution-two-part-blending-qc.md"
+  ],
+  "note": "쉘프라이프 7일, Table II 10-run 성분분리(2액형) 실험 — FA/O+H2O2 공존이 불안정의 원인"
+ },
+ "lin2011-ualberta-thesis-mixed-abrasive-colloidal-stability": {
+  "src": "University of Alberta ERA/Scholaris DSpace7 REST API (OA 학위논문)",
+  "pdf_local": "papers/lin2011-ualberta-thesis-mixed-abrasive-colloidal-stability.txt",
+  "doi": "10.7939/r3967c",
+  "title": "A Study of the Colloidal Stability of Mixed Abrasive Slurries of Silica and Ceria Nanoparticles for Chemical Mechanical Polishing",
+  "authors": "Lin F (MSc thesis, Univ. of Alberta)",
+  "venue": "MSc thesis, University of Alberta (2011)",
+  "used_by": [
+   "knowledge/slurry/shelf-life-dilution-two-part-blending-qc.md"
+  ],
+  "note": "2액형 혼합 헤테로응집: zero-net-charge 모델 eq.(15), IEP 중량비 pH4 0.076(모델)/0.067(실측), pH3 0.054/0.055"
+ },
+ "us8303373b2-sumco-diluted-slurry-supply": {
+  "src": "freepatentsonline.com/8303373.html (Google Patents 503 차단 폴백)",
+  "pdf_local": "papers/us8303373b2-sumco-diluted-slurry-supply.txt",
+  "patent": "US8303373B2",
+  "title": "Slurry supplying apparatus and method of polishing semiconductor wafer utilizing same",
+  "authors": "Sumco Techxiv Corp. (출원 2009-05-22, 등록 2012-11-06)",
+  "venue": "US Patent 8,303,373 B2",
+  "used_by": [
+   "knowledge/slurry/shelf-life-dilution-two-part-blending-qc.md"
+  ],
+  "note": "1:25 POU 희석 — 순수 희석 시 42→165nm 응집, 암모니아 희석 66nm, KCl 44nm; 초음파는 크기만 회복"
+ },
+ "brugnoli2023-langmuir-ceria-silica-cmp-atomistic": {
+  "src": "PMC OA (CC-BY), 로컬 코퍼스 data/corpus/fulltext/doi_10.1021_acs.langmuir.3c00304.xml 복사 (2026-09-13)",
+  "pdf_local": "papers/brugnoli2023-langmuir-ceria-silica-cmp-atomistic.xml",
+  "doi": "10.1021/acs.langmuir.3c00304",
+  "pmcid": "PMC10116594",
+  "title": "New Atomistic Insights on the Chemical Mechanical Polishing of Silica Glass with Ceria Nanoparticles",
+  "authors": "Brugnoli L, Miyatani K, Akaji M, Urata S, Pedone A",
+  "venue": "Langmuir 39(15), 5527-5540 (2023)",
+  "note": "cmp/ceria-chemical-tooth-particle-site-density-facet.md (slurry-abrasive Lv3-1) — Ce 면밀도 (111) 7.9/nm2 vs (100) 6.8/nm2, Si-O-Ce/Si 0.1~0.2, 표면 OH 밀도, Cook 24회 충돌당 1 SiO2(2차 인용)"
+ },
+ "bellahsene2025-nanomaterials-nanoabrasive-parameters-review": {
+  "src": "PMC OA (CC-BY, MDPI), 로컬 코퍼스 data/corpus/fulltext/doi_10.3390_nano15171366.xml 복사 (2026-09-13)",
+  "pdf_local": "papers/bellahsene2025-nanomaterials-nanoabrasive-parameters-review.xml",
+  "doi": "10.3390/nano15171366",
+  "pmcid": "PMC12430078",
+  "title": "A Comprehensive Review of the Nano-Abrasives Key Parameters Influencing the Performance in Chemical Mechanical Polishing",
+  "authors": "Bellahsene H, Sene S, Felix G, Larionova J, Ferrari M, Guari Y",
+  "venue": "Nanomaterials 15(17), 1366 (2025)",
+  "note": "cmp/ceria-chemical-tooth-particle-site-density-facet.md — Ln3+ 도핑 Ce3+ 증가 대비 SiO2 RR 증가율(Sm 50.0%, La 20.9%, Nd 29.6%, Yb 4.3%) 반례, SiO2-CeO2 헤테로구조 MRR"
+ },
+ "chakarova2025-molecules-ce3-sites-shape-controlled-ceria": {
+  "src": "PMC OA (CC-BY, MDPI), 로컬 코퍼스 data/corpus/fulltext/doi_10.3390_molecules30153100.xml 복사 (2026-09-13)",
+  "pdf_local": "papers/chakarova2025-molecules-ce3-sites-shape-controlled-ceria.xml",
+  "doi": "10.3390/molecules30153100",
+  "pmcid": "PMC12348644",
+  "title": "FTIR Detection of Ce3+ Sites on Shape-Controlled Ceria Nanoparticles Using Adsorbed 15N2 as a Probe Molecule",
+  "authors": "Chakarova KK, Mihaylov MY, Karapenchev BS, Drenchev NL, Ivanova EZ, Vayssilov GN, Aleksandrov HA, Hadjiivanov KI",
+  "venue": "Molecules 30(15), 3100 (2025)",
+  "note": "cmp/ceria-chemical-tooth-particle-site-density-facet.md — 패싯별 Ce3+ 형성 난이도((111) 최난), 소성 시료 XPS Ce3+ 약 5%. ⚠ 촉매 조건(773K 환원, 100K N2 흡착) — CMP 조건 아님"
+ },
+ "saka2008-cirp-nanoscale-scratching": {
+  "src": "유료(Elsevier/CIRP) — 미러 사이트 → 미러 사이트 경유 PDF 확보 2026-09-13",
+  "pdf_local": "papers/saka2008-cirp-nanoscale-scratching.pdf",
+  "doi": "10.1016/j.cirp.2008.03.098",
+  "title": "Nano-scale scratching in chemical-mechanical polishing",
+  "authors": "Saka N, Eusner T, Chun J-H",
+  "venue": "CIRP Annals - Manufacturing Technology 57(1), 341-344 (2008)",
+  "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "eusner2009-jes-controlling-scratching-cu-cmp": {
+  "src": "유료(ECS/IOP) — 미러 사이트 → 미러 사이트 경유 PDF 확보 2026-09-13",
+  "pdf_local": "papers/eusner2009-jes-controlling-scratching-cu-cmp.pdf",
+  "doi": "10.1149/1.3121964",
+  "title": "Controlling Scratching in Cu Chemical Mechanical Planarization",
+  "authors": "Eusner T, Saka N, Chun J-H, Armini S, Moinpour M, Fischer P",
+  "venue": "J. Electrochem. Soc. 156(7), H528-H534 (2009)",
+  "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "saka2010-cirp-pad-asperity-scratching": {
+  "src": "유료(Elsevier/CIRP) — 미러 사이트 → 미러 사이트 경유 PDF 확보 2026-09-13",
+  "pdf_local": "papers/saka2010-cirp-pad-asperity-scratching.pdf",
+  "doi": "10.1016/j.cirp.2010.03.113",
+  "title": "Scratching by pad asperities in chemical-mechanical polishing",
+  "authors": "Saka N, Eusner T, Chun J-H",
+  "venue": "CIRP Annals 59(1), 329-332 (2010)",
+  "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "kwon2013-tribol-lett-source-based-scratch-oxide": {
+  "src": "유료(Springer) — 미러 사이트 → 미러 사이트 경유 PDF 확보 2026-09-13",
+  "pdf_local": "papers/kwon2013-tribol-lett-source-based-scratch-oxide.pdf",
+  "doi": "10.1007/s11249-012-0098-2",
+  "title": "Investigation of Source-Based Scratch Formation During Oxide Chemical Mechanical Planarization",
+  "authors": "Kwon T-Y, Cho B-J, Ramachandran M, Busnaina AA, Park J-G",
+  "venue": "Tribology Letters 50, 169-175 (2013)",
+  "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "us6884155b2-kinik-diamond-grid-cmp-pad-dresser": {
+  "src": "특허 전문 — patents.google.com 차단(503) → freepatentsonline.com/6884155.html 경유 텍스트 확보 2026-09-13",
+  "pdf_local": "papers/us6884155b2-kinik-diamond-grid-cmp-pad-dresser.txt",
+  "patent": "US6884155B2",
+  "title": "Diamond grid CMP pad dresser",
+  "authors": "Sung C-M et al. (Kinik Co.)",
+  "venue": "US Patent 6,884,155 B2, 등록 2005-04-26 (출원 2002-03-27)",
+  "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "kwon2013-scratch-formation-diamond-conditioners": {
+  "src": "유료(Elsevier) — 미러 사이트 경유 기확보(disk-design Lv2-1 세션)",
+  "pdf_local": "papers/kwon2013-scratch-formation-diamond-conditioners.pdf",
+  "doi": "10.1016/j.triboint.2013.08.008",
+  "title": "The impact of diamond conditioners on scratch formation during chemical mechanical planarization (CMP) of silicon dioxide",
+  "authors": "Kwon T-Y, Ramachandran M, Cho B-J, Busnaina AA, Park J-G",
+  "venue": "Tribology International 67, 272-277 (2013)",
+  "note": "equipment/conditioner-grit-wear-scratch-lifetime.md · cmp/scratch-physics-source-signatures.md"
+ },
+ "3m_diamond_conditioner_design": {
+  "src": "업체 기술문서(3M) 리프린트 — MRS Symp. Proc. 1249 수록본",
+  "pdf_local": "papers/3m_diamond_conditioner_design.pdf",
+  "doi": "10.1557/proc-1249-e02-04",
+  "title": "Design, Characteristics and Performance of Diamond Pad Conditioners",
+  "authors": "Pysher D, Goers B, Zabasajja J",
+  "venue": "Mater. Res. Soc. Symp. Proc. 1249, 1249-E02-04 (2010)",
+  "note": "cmp/scratch-physics-source-signatures.md"
  }
 }
