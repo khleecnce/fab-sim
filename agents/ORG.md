@@ -42,7 +42,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   ├─ 장비 (Equipment)
 │   │   ├─ tool-platen-head                [활성, G2 2026-09-07]  플래튼·헤드·존압력·리테이너링
 │   │   ├─ tool-endpoint                   [활성, G3 2026-09-10]  EPD: 광학·모터전류·와전류
-│   │   └─ tool-post-clean                 [대기]  Post-CMP 세정·브러시·결함
+│   │   └─ tool-post-clean                 [활성, G4 2026-09-13]  Post-CMP 세정·브러시·결함
 │   │
 │   ├─ 물리 (Physics) — 횡단
 │   │   ├─ tribologist ★                   [활성]  마찰·윤활·유동·열
@@ -118,6 +118,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | tool-endpoint | 활성 (G3 개방 2026-09-10) | 4/6 (Lv2-2 완료: EPD 트레이스→제거량·잔막 역산, 프린지=상대제거량 무모호/절대두께 모호, 모터전류·마찰계는 Preston RR 곱 이벤트역산, 오버폴리시 예산은 저다운포스 잔막마진에 5~11배 더 좌우) | 2026-09-12 |
 | slurry-colloid | 활성 (G3 개방 2026-09-12) | 3/6 (Lv2-2 완료: 쉘프라이프=침강/응집/화학 세시계 min, 2액형=반응쌍(FA/O·H2O2) 분리, 희석≠재안정화, QC LOD 온도보정. Luan2018·Vazquez2018) | 2026-09-13 |
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 2/6 (Lv1-2 완료: 스크래치 물리 발생원별 형상역추적 R_est=a_c²/2δ_c, Eusner2009 32건 재현<2.5%, Saka2010 식부호정정, 경도 상단꼬리 산포지배) | 2026-09-13 |
+| tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 0/6 | 2026-09-13 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
