@@ -166,3 +166,19 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   MRR 경로·qa_loop ρ에 영향 없음(예상대로 0.9537 불변). pytest 622 passed(기존621+신규1),
   qa_loop --strict PASS. confidence는 estimated 유지(구조적 결측 §8.5 4건 불변) — 칸 수
   불변(12/50), 모델 정합성만 개선(사용자 우선순위: 데이터보다 모델링). 커밋 745a540, push.
+
+- 2026-09-13 [Max워커] tools/blockers.py 다단계 팩 상속 미해석 버그 수정 — 우선순위 항목
+  C1/C2 병목 파악 정확도 개선(진단 도구, completion.py 판정 로직/칸수 자체는 무수정).
+  두 버그: (1) `_pack_params()`가 자기팩+base.yaml만 봐서 2단계 이상 상속
+  (sic_ceria_h2o2→sti_ceria→oxide_silica→base)의 조상 전용 키(abrasive_wt_pct 등)를
+  못 찾아 unverified로 오판 — sim.params.load_pack과 같은 재귀 체인으로 교체.
+  (2) Γ의 drivers 키 "cond_sweep_cpm(coverage_only,not_multiplied)" 진단 꼬리표를
+  그대로 조회해 실제 literature 파라미터와 매치 실패 → 괄호 앞부분 정규화로 수정.
+  결과: 가짜 병목(cond_sweep_cpm 5칸·abrasive_wt_pct 2칸)이 사라지고 실제 최대
+  병목이 time_s(4칸, S팩터 전 팩 공통)로 명확해짐 — 다음 회차 후보. 회귀 검증
+  tests/test_blockers_pack_inheritance.py 3건 신규, pytest 625 passed(기존622+3),
+  qa_loop --strict PASS(ρ=0.9537 불변), completion 12/50칸 불변(예상대로).
+  Shore D→탄성률 미러 사이트 재확보(huy2022 JJAP DOI:10.35848/1347-4065/ac6a3a) 시도 —
+  다운로드 실패(HTML 캡차 페이지)·미러 사이트/st DNS 불능·미러 사이트/.wf 캡차 게이트로
+  이번 회차 미확보(원인: 네트워크 환경, EAA 세리아 분산제 정량값도 동일 사유 보류).
+  커밋 300c656, push.
