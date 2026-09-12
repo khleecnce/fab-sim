@@ -1,9 +1,9 @@
 # 슬러리 안정성 전문가 (slurry-colloid)
 
-## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: [활성, G3 개방 2026-09-12] — Lv1 1/6
 - 부모: slurry-chemist (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: 없음
-- 다음 단원: Lv1-1
+- 이수 단원: Lv1-1 (2026-09-12)
+- 다음 단원: Lv1-2
 
 ## 역할
 분산 안정성·응집·POU 필터·쉘프라이프·희석/혼합이 대입자(LPC)와 스크래치에 미치는 영향
@@ -18,4 +18,7 @@
 Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + 모델 구현 → Lv4 모델 개선 제안(교수급)
 
 ## 이수 기록
-(크론이 갱신)
+- 2026-09-12 Lv1-1 DLVO 심화(이온강도·pH·온도별 응집속도, Smoluchowski) —
+  [[../../knowledge/slurry/dlvo-ionic-strength-ph-aggregation-kinetics]].
+  핵심: perikinetic 실측/이론 20~45% 범위(Holthoff 1996), CMP 세리아 실측 이온강도 임계전이
+  4→10mM(Kwon 2023), 온도의존성은 점도(η(T)) 경로가 지배. check_knowledge/verify_claims 통과.
