@@ -2117,3 +2117,20 @@ pytest 614 passed(회귀 0, 기준 612). qa_loop --strict PASS(#43, 유의 7/20,
 completion.py는 여전히 12/50(이번 처리는 confidence 승격이 아니라 항 신규 배선이라 C1/C2 칸
 직접 이동은 없음 — kappa는 이미 C1 unmodeled 목록 밖). 커밋 b7c91de push 완료.
 다음 회차 갭: κ 여전히 PARTIAL(aggregate) — cu_h2o2_bta 농도 그래프 재판독 또는 다른 갭으로 스킵 검토.
+
+## 2026-09-12 16:xx [성장엔진] τ(tau) 갭 조사 — groove_depth_mm 배수관계 미확보, 정직 skip
+정확도루프 갭 τ PARTIAL(groove_depth_mm 항 결측) 처리 시도. 3편 신규 1차 문헌 확보(전부 미러 사이트
+경유, DOI 확인): Wei et al. 2011(Wear 270, DOI:10.1016/j.wear.2010.10.057, 동심원 그루브 폭/깊이/
+피치 실험+수치모델, "최적조건 폭1mm·깊이1.2mm·피치4mm→RR 3100~3250Å/min, NU<5%"), Kim et al.
+2005(JES 152(1)G62, DOI:10.1149/1.1836127, 그루브 패턴별 COF 0.284~0.414·Preston상수 선형관계),
+Guo et al. 2012(IJPEM 13(2)303, DOI:10.1007/s12541-012-0038-y, 폭×피치→SDT/WIWNU/MRR 상관).
+방향성은 3편 모두 정합(그루브 축소→RR↑ 또는 폭↑+피치↓→MRR↑)하지만 **배수 관계(숫자 짝)는 셋 다
+그래프 이미지로만 존재**해 텍스트 추출로 확보 불가 — accuracy_gaps 프로토콜상 배수 없이는 항을
+추가할 수 없어 sim/factors.py는 미변경, groove_depth_mm 항은 여전히 결측 상태로 남긴다(지어낸
+지수보다 정직한 미확보가 낫다는 원칙 적용). knowledge/materials/pad-groove-geometry-contact-area-
+flow-resistance.md §5에 3편 근거·정성 결론·미확보 사유를 기록(verify 블록 2개, 방향성만 assert),
+verify_claims·check_knowledge 둘 다 통과. pytest 621 passed(변경없음, 회귀 0). qa_loop --strict
+PASS(#45, 유의 7/20, ρ=0.9537 불변 — 코드 미변경이라 당연). `accuracy_gaps.py --skip`으로 τ를
+다음 순위로 넘김(다음 최상위는 Δ 손상유발도 PARTIAL). 커밋 예정.
+다음 회차 갭: Δ(delta) PARTIAL — abrasive_d99_nm 항 결측(현재 abrasive_size_nm만 반응), 또는
+groove depth 그래프 이미지 벡터좌표 추출 재시도(pdfplumber page.curves/page.lines).

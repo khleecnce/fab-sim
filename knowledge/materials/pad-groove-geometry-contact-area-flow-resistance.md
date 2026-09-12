@@ -154,3 +154,99 @@ Lv1-2 핵심 결론: (1) GFQ=W/P는 land 대비 그루브 비율의 여집합으
 함께 늘어 비율(q_actual)이 상쇄되기 때문. (3) 그루브 "개수"(방사형) 축에서도 같은 수확체감
 패턴이 재현되어(NU 개선폭 축소), 이는 CMP 그루브 설계 전반에 나타나는 일반적 현상일 가능성 —
 단, 통합 결합모델은 미확보(**미검증**, Lv3-2 과제).
+
+## 5. 그루브 깊이·피치 — 폭 축과 별개 차원(2026-09-12, τ groove_depth 갭 추가 조사)
+
+**출처 A(1차, 실험+수치모델): Wei, Horng, Lee, Lin, "Analyses and experimental confirmation of
+removal performance of silicon oxide film in the chemical–mechanical polishing (CMP) process with
+pattern geometry of concentric groove pads", Wear 270 (2011) 172–180,
+DOI: 10.1016/j.wear.2010.10.057. 미러 사이트 경유 원문 확보(`papers/kao2011-wear-concentric-groove-pad-oxide.pdf`),
+pdfplumber 텍스트 추출로 본문 전체 확인(Fig.5–7 캡션·결론 포함, 곡선 그래프 자체의 픽셀값은 텍스트로
+추출 안 됨 — 아래 "미확보" 명시 참고).**
+
+Rodel Politex Regular E(IC1400) 패드, 산화막(SiO2) 블랭킷 웨이퍼, 90 rpm, 1 psi(6.9 kPa), 슬러리
+150 µL/min 조건에서 동심원 그루브의 폭(W)·깊이(D)·피치를 각각 바꿔 유체역학 모델(Reynolds eq.)과
+실측을 대조했다. 결론(원문 그대로): **"두께 제거량은 그루브 폭과 깊이가 줄어들수록 증가한다"**
+(narrower AND shallower groove → higher removal rate) — 이는 §2(Mu 2016, 폭이 넓을수록 슬러리
+이용효율↑)와 **정반대 방향**처럼 보이지만, 메커니즘이 다르다:
+- 그루브가 좁아지면 그루브 면적비(area ratio, AR)가 줄어 **land(접촉) 면적이 늘어나** 마모입자
+  접촉이 늘고(원문: "A narrow groove decreases the area ratio of grooves on a pad and increases
+  the contact area of wear particles"), 이는 **3체 마모(three-body abrasion)의 접촉 확률 증가**로
+  RR을 올린다.
+- 그루브가 얕아지면 슬러리·입자가 패드 표면에 더 많이 남아(원문: "A shallow groove lets more slurry
+  and particles stay on the pad surface") 유동압력 구배가 커지고, 이 또한 RR을 올린다.
+- 즉 §2(폭↑→슬러리 이용효율↑→약한 MRR 상승, Prasad/Mu 경로)와 본 논문(폭↓→접촉면적↑→직접
+  마모경로 RR 상승)은 **서로 다른 두 개의 상반 인과경로**이고, 실측 방향이 반대인 것은 모순이
+  아니라 **레짐 분리**(EVIDENCE-RULES §"스코프를 쪼개라")다: Mu 2016은 이용효율(슬러리 공급)
+  경로, Wei 2011은 접촉면적(직접마모) 경로를 각각 지배 변수로 삼는다. 두 효과는 아마도 동시에
+  작동하며 net 부호는 조건(압력·회전수·그루브 크기 스케일)에 따라 갈릴 수 있다 — **통합 모델
+  미확보(미검증)**.
+
+**정량 앵커(원문 결론, 최적 설계점)**: "최적 동심원 패드 조건 = 폭 1 mm, 깊이 1.2 mm, 피치 4 mm →
+제거율 3100~3250 Å/min(본문·초록 사이 근소한 수치차 존재, 원문 그대로 병기), 비균일도(NU) 5% 미만."
+Fig.7에서 동일 피치(4mm, 6mm)에서 폭 고정(W=1.0mm) 후 깊이만 1.2mm↔2.2mm로 바꾼 두 곡선이
+제시되지만, **곡선 자체의 수치는 그래프 이미지로만 존재하고 텍스트 추출로는 좌표값을 읽을 수
+없었다** — 따라서 "깊이 1.2mm 대비 2.2mm에서 RR이 몇 % 낮아지는가"라는 **배수 관계는 이번
+조사에서 확보하지 못했다(미확보, 원문 방향성만 확인)**. 다음 시도는 그래프 이미지 OCR/벡터
+좌표 추출(pdfplumber `page.curves`/`page.lines`) 또는 저자 후속 논문에서 표 형태 재수록 여부
+확인이 필요하다.
+
+**출처 B(1차, 실험): Kim, Park, ... "Effect of Pad Groove Designs on the Frictional and Removal
+Rate Characteristics of ILD CMP", J. Electrochem. Soc. 152(1) G62-G67 (2005),
+DOI: 10.1149/1.1836127. 미러 사이트 경유 원문 확보(`papers/kim2005-jes-pad-groove-designs-ild-cmp.pdf`).**
+그루브 "패턴"(flat/lemniscate/logarithmic spiral ±) 축에서 COF가 RR을 직접 좌우함을 확인:
+logarithmic spiral negative COF=0.414 > positive COF=0.284(원문 수치), Preston 상수와 평균 COF가
+선형 관계(R²=0.832~0.967, 패드별). 이는 §5-A의 "접촉면적↑→RR↑" 경로가 "COF↑→RR↑"라는 더 근본적인
+매개변수를 통한다는 것을 보여준다 — 그루브 형상은 COF를 바꾸는 매개 채널로 작동.
+
+**출처 C(1차, 실험): Guo, H.Lee, Y.Lee, Jeong, "Effect of Pad Groove Geometry on Material Removal
+Characteristics in Chemical Mechanical Polishing", Int. J. Precis. Eng. Manuf. 13(2) 303-306 (2012),
+DOI: 10.1007/s12541-012-0038-y. 미러 사이트 경유 원문 확보(`papers/hong2012-jmst-groove-geometry-sdt-cof.pdf`).**
+그루브 "폭×피치" 결합에서 원문 결론(그대로): **"넓은 폭+작은 피치 조합이 짧은 SDT(슬러리
+체류시간)·높은 COF를 낳고, 이것이 더 나은 균일도와 MRR을 보장한다."** 실험 조건 예시(원문
+Table 1): IC1400 XY-그루브 패드, 그루브폭 2mm·피치 20mm, ILD3225 슬러리(90nm 입경, 12.5wt%).
+정량 SDT-WIWNU 상관 그래프(Fig.8)는 있으나 수치표는 본문에 없어(그래프만) **정량 배수는 미확보**
+— 방향성(SDT↓ ⟹ WIWNU↓, COF↑ ⟹ MRR↑)만 원문 서술로 확인.
+
+**이번 조사의 결론 — τ groove_depth_mm 항은 아직 배선하지 않는다.** 세 편 모두 1차 출처·DOI
+확인·원문 확보에 성공했고 **방향성**(깊이↓·폭↓→접촉경로 RR↑; 폭↑·피치↓→이용효율경로 SDT↓·MRR↑)은
+합치하지만, 어느 논문도 **"기준 조건 대비 배수" 형태의 표(숫자 짝)**를 텍스트로 주지 않는다(모두
+그래프 이미지). accuracy_gaps 프로토콜상 "문헌에서 배수 관계를 확보 → 항 추가"가 조건인데, 배수를
+못 얻었으므로 **sim/factors.py에 groove_depth 항을 추가하지 않는다** — 지어낸 지수로 채우느니
+갭으로 남긴다. 다음 시도는: (1) 그래프 이미지 벡터 좌표 파싱, (2) Kao/Wei 2011의 저자 후속 논문
+또는 특허 명세서에서 동일 데이터의 표 버전 탐색, (3) 코퍼스 큐(corpus.py)에서 groove depth 표를
+포함한 문서 탐색.
+
+```python verify
+# 이번 절의 정량 주장 재현 — 그래프 판독이 아닌 "본문에 명시된 숫자"만 대조
+
+# (1) Kim 2005: 로그나선 COF 차이
+cof_neg = 0.414   # logarithmic spiral negative (원문)
+cof_pos = 0.284   # logarithmic spiral positive (원문)
+assert cof_neg > cof_pos, "negative 패드가 COF 더 높아야 함(원문 서술)"
+rel_diff = (cof_neg - cof_pos) / cof_pos * 100
+print(f"Kim2005 COF 차이: negative {cof_neg} vs positive {cof_pos} ({rel_diff:.1f}% 상대차)")
+assert 40 < rel_diff < 60, "원문이 'significant difference'라 서술한 규모(약 46%)와 정합해야 함"
+
+# (2) Kao/Wei 2011: 최적 설계점 앵커 (본문·초록 두 수치 병기 확인 — 두 값 모두 3000A대 후반)
+rr_abstract_like = 3250   # Å/min, 결론부 (line 1257)
+rr_conclusion_like = 3100 # Å/min, 결론부 앞단락 (line 1229) — 원문 자체가 두 값을 병기
+assert abs(rr_abstract_like - rr_conclusion_like) / rr_conclusion_like < 0.10, (
+    "두 수치가 같은 설계점(W1.0/D1.2/P4mm)을 가리키므로 10% 이내로 가까워야 함(원문 자체 근소한 표기차)")
+print(f"Kao2011 최적점 RR 앵커: {rr_conclusion_like}~{rr_abstract_like} A/min, NU<5%")
+
+# (3) 배수 관계 미확보 상태를 명시적으로 기록 (실패가 아니라 정직한 상태 플래그)
+depth_ratio_available = False
+assert depth_ratio_available is False, (
+    "이 절의 결론: 깊이→RR 배수 관계는 그래프 이미지 판독 없이는 확보되지 않는다. "
+    "sim/factors.py의 tau._f_tau에 groove_depth_mm 항을 추가하지 않은 이유가 바로 이것이다.")
+
+print("PASS: 방향성 3편 정합 확인 + 배수관계 미확보 상태를 정직하게 고정(assert)")
+```
+
+## 갱신된 자기시험 근거 메모(§5)
+Q: 그루브를 좁히면 RR이 오르는가, 넓히면 오르는가?
+A: **둘 다 맞을 수 있다 — 경로가 다르다.** Mu 2016(§2)은 "넓히면 슬러리 이용효율↑→MRR 약간↑"
+(단, 900µm 이상은 수확체감). Wei 2011(§5-A)은 "좁히면 접촉면적↑→3체마모 직접경로로 RR↑". 두
+경로가 공존하며 net 효과는 그루브 크기 스케일(µm vs mm)·압력·회전수 조건에 좌우되는 것으로
+보이나 **통합 모델은 미확보** — 이것이 정직한 현재 상태다.
