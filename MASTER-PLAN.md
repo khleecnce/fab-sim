@@ -2153,3 +2153,17 @@ python verify로 재현·오차 1cm/5mm 이내 확인. check_knowledge·verify_c
   다음 회차 재위임 필요 — 브리프에 "정량값 비중 높이기" 명시 예정.
 반려율 이번 회차 1/2(50%) → 병렬도 3명 상향 보류, 2명 유지.
 pytest 회귀 확인(변경 없음, 통과). git commit b07b348 push 완료.
+
+## 2026-09-12 18:xx [성장엔진] S(stab) 갭 조사 — pad_usage_hours 시간축 문헌 확보, 이식은 선행조건 미해결로 보류
+정확도루프 τ→Δ 이어서 다음 순위 S(시간 안정성) PARTIAL 처리. Son & Lee 2021(Applied Sciences
+11(8) 3521, DOI:10.3390/app11083521, MDPI OA CC-BY, Crossref로 DOI·저자 실존 확인 — MDPI 사이트
+봇차단으로 원문 PDF는 미확보, 제3자 스펙표 재인용)에서 컨디셔너 균일마모 vs 불균일마모 조건의
+16~20시간 MRR 드리프트 정량 대조(Case I 44.9%/16h≈2.8%/h vs Case II 7.4%/20h≈0.37%/h, 6.1배차)
+확보. `_f_stab`(현재 Jeong2024 1~10분 로그감쇠만 반응)와는 시간축이 3자리 다른 별도 메커니즘임을
+확인했으나, 팩에 컨디셔너 균일마모 여부 파라미터가 없어 어느 수치를 기본값으로 잡을지 근거가
+없다 — 정직하게 no-op 유지, 오더 참고치만 노트에 기록. knowledge/materials/pad-usage-hours-
+conditioning-mrr-decay-son-lee2021.md 신규(verify_claims·check_knowledge 통과), agents/
+pad-mechanic/PROFILE.md 구현요청 갱신. pytest 621 passed(변경없음), qa_loop --strict PASS(#46,
+유의 7/20, ρ=0.9537 불변). sim/factors.py 미변경.
+다음 회차 갭: S 갭 여전히 PARTIAL(선행조건 미해결) — 컨디셔너 설계 파라미터 근거 탐색, 또는
+다음 순위(κ 접촉강도 PARTIAL)로 스킵.

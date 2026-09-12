@@ -45,3 +45,18 @@
   독립적 예측 아님을 docstring에 명시). **Phase 0 "패드: GW 접촉모델" 항목 완전 완료 처리** — 순방향
   (gw_contact)+역문제(gw_pressure_solve)+마모시계열(pad_wear_glazing)+Preston 정식연결(gw_preston_link)
   4개 모듈 체인 완성. pytest 전체 40/40 PASS.
+
+
+## 구현 요청 (2026-09-12 추가)
+- 무엇을: `sim/factors.py::_f_stab`에 두 번째 시간축(패드 누적 사용시간, `pad_usage_hours`,
+  시간 단위)을 추가하는 것을 검토. 현재는 `time_s`(단발 연마 내 분 단위 로그감쇠, Jeong 2024)만
+  반응하고 `pad_usage_hours`는 정확도루프 FACTOR_INPUTS에 드라이버로 지정돼 있지만 실제 코드는
+  이를 읽지 않는다.
+  - 근거 노트: knowledge/materials/pad-usage-hours-conditioning-mrr-decay-son-lee2021.md §5
+    (Son & Lee 2021, DOI:10.3390/app11083521).
+  - 검증에 쓸 문헌값: Case I(불균일 마모) 44.9% 감소/16h ≈ 2.81%/h, Case II(균일 마모)
+    7.4% 감소/20h ≈ 0.37%/h.
+  - 선행조건(미해결): 컨디셔너 설계(균일 마모 여부)가 팩 파라미터에 없어 두 값 중 어느 것을
+    기본으로 쓸지 근거가 없다 — 팩에 `conditioner_uniform_wear` 같은 불리언/등급 파라미터를
+    추가하는 것이 먼저다. 그 근거 없이는 no-op 유지 권고.
+  - 우선순위: 낮음(선행조건 미해결).
