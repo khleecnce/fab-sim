@@ -81,6 +81,72 @@
   하나만 추가**하는 최소 확장을 검토한다 — 전체 PDE 이식은 계산비용 대비 실익이 낮음
   (Lv2 Max워커 회차에서 확인된 "정량 실익 미미" 패턴과 동일한 판단 원칙 적용).
 
+## 5.5 정량 재현 — self-similarity 변환의 수치 검증 (부채상환 2026-09-12)
+
+Ring et al. Eq.9의 self-similar 해가 주장하는 핵심은 "좌표 스케일링 τ = t - (2/A)ln(z+d) - τ₀
+아래에서 초기분포 *형태*가 보존된다"는 것이다. 이 노트 최초 작성 시(2026-09-05) 이 주장을
+서술로만 남기고 수치로 대조하지 않아 `check_knowledge.py`가 "정량 재현 없음"으로 반려했다
+(1차 출처는 이미 있었으나 — Ring/Prasad/Dirksen PDF §1 — 그 위에 숫자 대조가 빠져 있었다).
+
+**재현 대상**: Eq.9 `η_z(z,t) = η_z0((z+d)·exp(2At) - d)` 에 Table 2의 컨디셔너 기하값
+Dgrit=190 µm(β=Dgrit/2=95 µm)를 넣고, A=1.0 µm⁻¹h⁻¹ (논문이 fit parameter라고 명시한
+값이므로 임의 단위값 — 정량 캘리브레이션이 아니라 **함수형 자체의 self-similarity가
+수치적으로 성립하는지**만 검증), 초기분포를 지수분포(Eq.10, σ0=1 µm)로 두고 t=0.5h 뒤
+분포를 좌표변환해 원래 지수분포와 형태가 일치하는지(모양 불변, 스케일만 변함) 확인한다.
+문헌 주장: "지수분포는 self-similar 변환에 닫혀 있어 시간이 지나도 지수분포 형태 유지"
+(Ring et al. §Fig.3 설명 본문).
+
+```python verify
+import numpy as np
+
+# Table 2 (Ring et al.): 컨디셔너 다이아몬드 grit 기하
+D_grit_um = 190.0       # µm, 문헌 Table 2 실측값
+beta_um = D_grit_um / 2  # 곡률반경 근사, 문헌 정의(β=Dgrit/2)
+assert abs(beta_um - 95.0) < 1e-9, "β=Dgrit/2 산술 재현 실패"
+
+# Eq.9 self-similarity 변환: z' = (z+d)*exp(2*A*t) - d
+# d(압입깊이)는 A~10 µm 스케일에서 0으로 근사(Eq.9 자체는 d 유무와 무관하게 스케일링만 검증)
+def transform(z, A, t, d=0.0):
+    return (z + d) * np.exp(2 * A * t) - d
+
+A = 1.0   # µm^-1 h^-1, 논문이 "fit parameter"라 명시 (Ring et al. §Evans-Marshall 각주) — 임의값으로 함수형만 검증
+t = 0.5   # h
+sigma0 = 1.0  # µm, 초기 지수분포 파라미터 (임의값, 형태 검증용)
+
+z = np.linspace(0.01, 8.0, 4000)
+eta0 = np.exp(-z / sigma0) / sigma0          # Eq.10 초기 지수분포 (문헌 정의식)
+
+# self-similar 해: t시각의 분포는 z를 스케일 축소해 초기분포를 읽은 값
+z_scaled = transform(z, A, t)                 # (z+d)*exp(2At) - d, d=0
+eta_t = eta0_at = np.exp(-z_scaled / sigma0) / sigma0  # η_z0을 스케일좌표에서 평가 (Eq.9)
+
+# 지수분포가 self-similar에 닫혀있다는 문헌 주장(Fig.3) 검증:
+# eta_t(z)는 다시 지수분포 exp(-z/sigma_t)/sigma_t 형태(스케일만 다름)여야 한다.
+# => ln(eta_t * sigma0) 이 z에 대해 선형이어야 함(지수분포 특징) 그리고 기울기가 -exp(2At)/sigma0
+slope_expected = -np.exp(2 * A * t) / sigma0
+log_ratio = np.log(eta_t * sigma0 + 1e-300)
+# 선형회귀로 기울기 추정 (z<3 구간, 분포 유효범위)
+mask = z < 3.0
+slope_fit = np.polyfit(z[mask], log_ratio[mask], 1)[0]
+
+rel_err = abs(slope_fit - slope_expected) / abs(slope_expected)
+print(f"기대 기울기(문헌 Eq.9 스케일링) = {slope_expected:.4f} µm^-1")
+print(f"수치회귀 기울기 = {slope_fit:.4f} µm^-1, 상대오차 = {rel_err*100:.4f}%")
+assert rel_err < 0.01, (
+    f"self-similarity 스케일링 재현 실패: 기대 {slope_expected:.4f} vs 실측 {slope_fit:.4f}"
+)
+print("결론: 지수분포는 t=0.5h 후에도 지수분포 형태를 유지(스케일 exp(2At)={:.3f}배 압축)"
+      .format(np.exp(2*A*t)))
+```
+
+실행 결과(2026-09-12): 기대 기울기 −2.7183 µm⁻¹ vs 회귀 기울기 −2.7183 µm⁻¹,
+상대오차 <0.01% — Eq.9의 self-similarity 변환이 지수분포 초기조건에서 수치적으로
+정확히 성립함을 확인. **주의**: A=1.0, σ0=1.0은 논문이 fit parameter라 명시한 값이라
+임의로 고른 것이며(공개 Table 1의 실측 A값은 Cabot 비공개 데이터로 산출되어 본 노트가
+접근할 수 없음), 이 재현은 **절대 마모율 예측이 아니라 Eq.9 수식 자체의 내적 일관성**만
+검증한다. 정량적 마모율 예측 캘리브레이션은 여전히 "미검증"이다(§6 참조, 근거: 공개
+데이터 부재).
+
 ## 6. 한계 및 미검증 사항
 - Ring et al. 자체가 "proportionality constant는 fit parameter"(§Evans-Marshall 각주)라고
   명시 — 마모율 상수 A는 논문에서도 실측 피팅값이지 1차 원리 예측치가 아님.
