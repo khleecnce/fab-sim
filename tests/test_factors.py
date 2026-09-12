@@ -112,6 +112,27 @@ def test_kappa_reference_unity_for_w_fe_oxidizer():
         f"{f.terms.get('conc')}다.")
 
 
+def test_kappa_size_null_result_for_w_fe_oxidizer():
+    """2026-09-12 정확도루프: w_fe_oxidizer에 abrasive_size_exponent=0.0(검증된 null)을 배선했다.
+
+    Egan & Kim 2019(GLOBALFOUNDRIES W CMP 실측) + Bouvet 2002(콜로이달 실리카, 12-75nm 정량 확인)
+    독립 두 문헌이 "입경-MRR 무반응" 방향으로 수렴 — cu_h2o2_bta와 별개로 확정된 두 번째 null.
+    지수 0은 팩에 명시된 값이므로 size 항이 terms에 계상되어야 하고(미모델링과 구분), 값은 1.0.
+    """
+    f = _factors(pack="w_fe_oxidizer")["kappa"]
+    assert "size" in f.terms, "지수가 명시(0.0)됐는데 size 항이 계상되지 않았다 — null과 미모델링을 혼동했다."
+    assert f.terms["size"] == pytest.approx(1.0, rel=1e-9), (
+        "지수 0이면 입경을 바꿔도 size 항은 항상 1.0이어야 한다.")
+
+
+def test_kappa_size_null_result_insensitive_to_size_change():
+    """abrasive_size_nm을 바꿔도 w_fe_oxidizer의 κ 총 배수는 불변(검증된 null 결과)."""
+    lo = _mean_mrr(pack="w_fe_oxidizer", abrasive_size_nm=25.0)
+    hi = _mean_mrr(pack="w_fe_oxidizer", abrasive_size_nm=100.0)
+    assert lo == pytest.approx(hi, rel=1e-6), (
+        "w_fe_oxidizer는 입경 지수가 0(검증된 null)인데 입경을 바꾸자 MRR이 변했다 — 배선 오류.")
+
+
 def test_ph_moves_mrr():
     """pH는 정점형이라 부호 테스트가 아니라 '변하는가'로 묻는다."""
     assert _mean_mrr(slurry_ph=10.0) != pytest.approx(_mean_mrr(slurry_ph=11.0), rel=1e-6)
