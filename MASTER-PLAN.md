@@ -2079,3 +2079,23 @@ accuracy_gaps.py --next가 Θ를 3회 연속(bcc2e5a→84c8e36→7382ab3) 반환
 completion.py는 여전히 12/50(Θ는 C1 unmodeled 리스트에서 이미 빠져 있었음 — 이번 수정은 C2
 confidence 칸이 아니라 accuracy_gaps 랭커의 무한 재방문을 끊은 것). 커밋 2614715 push 완료.
 다음 회차 갭: κ(kappa) PARTIAL — pad_hardness/asperity 항만 있고 abrasive_wt_pct 항 결측.
+
+## 2026-09-12 12:xx [성장엔진] κ(kappa) PARTIAL — 정확도루프 갭 처리: w_fe_oxidizer 농도항 배선
+accuracy_gaps.py --next가 κ PARTIAL(terms=[pad_hardness,asperity], 5팩 aggregate)을 지목.
+문헌 조사: Cooper et al. 2002(ECS Solid-State Lett. 5(12) G109, DOI:10.1149/1.1517772, 미러 사이트
+확보·원문 판독) — Cu·SiO2 양쪽에서 MRR ∝ wt%^(1/3) 직접 확인(원문 결론). Wang et al. 2012
+(ECS Trans. 41(43) 103-111, DOI:10.1149/1.4717508, 미러 사이트 확보) — W CMP 자체에서 동일 1/3
+지수 재확인(Applied Materials Reflexion GT 실측). Bielmann et al. 1999(기존 w_fe_oxidizer
+abrasive_size_nm 출처 논문, 재사용)에서 같은 문장으로 "10 wt% γ-alumina" 확인.
+→ w_fe_oxidizer.yaml에 abrasive_wt_pct=10.0(literature)·abrasive_ref_wt_pct=10.0·
+abrasive_conc_exponent=0.3333(literature) 추가, κ가 pad_hardness+asperity(2항)에서
+conc+pad_hardness+asperity(3항)로 진전(4항 완전 modeled에는 abrasive_size_exponent 결측으로
+아직 못 미침 — oxide_silica·sti_ceria도 같은 정책상 결측이라 구조적 한계).
+cu_h2o2_bta는 정확한 계(EKC알루미나+H2O2+BTA, Gopal&Talbot 2007)의 농도 수치를 원문 텍스트에서
+못 찾아 **보류**(그래프에만 있음, pdfplumber 텍스트 추출 한계) — knowledge/cmp/
+kappa-abrasive-concentration-cu-w-cooper-bielmann.md §6에 정직 기록.
+지식노트 신설·verify_claims/check_knowledge 둘 다 통과. tests/test_factors.py 2개 추가.
+pytest 614 passed(회귀 0, 기준 612). qa_loop --strict PASS(#43, 유의 7/20, 평균 ρ=0.9537 불변).
+completion.py는 여전히 12/50(이번 처리는 confidence 승격이 아니라 항 신규 배선이라 C1/C2 칸
+직접 이동은 없음 — kappa는 이미 C1 unmodeled 목록 밖). 커밋 b7c91de push 완료.
+다음 회차 갭: κ 여전히 PARTIAL(aggregate) — cu_h2o2_bta 농도 그래프 재판독 또는 다른 갭으로 스킵 검토.
