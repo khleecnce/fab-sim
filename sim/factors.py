@@ -342,11 +342,15 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     (1) 디스크 내 상대속도의 Rs 보정항은 무시할 수 없다(에지 peak-to-peak
     14.4%, §7) — disk RPM 드라이버가 팩에 없어 정량 반영이 불가능하다.
     (2) 컨디셔너 자체의 PCR 시간적 소진(50h에 초기값의 16%로 감쇠,
-    conditioner-disk-pad-cutting-model.md §3)이 전혀 모델링되지 않았다 —
-    Γ는 디스크가 신품이라고 암묵 가정한다. (3) 임계하중(critical downforce)
-    아래에서는 절삭이 안 일어난다는 비선형이 F 선형항에 미반영이다. 세 항목
-    모두 완화 가능한 근사가 아니라 구조적 결측이므로, 개별 드라이버가
-    literature 등급이어도 모델 자체의 신뢰도는 그보다 낮게 유지한다.
+    conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
+    팩에 있으면 sim/tier2_physics/conditioner_pcr_decay.py의
+    `pcr_decay()`(TAU_AGING_HOURS≈27.4h, Entegris 2차인용 앵커 50h→16% 역산)로
+    반영된다. 없으면 여전히 디스크가 신품(aging 배수=1.0)이라고 암묵 가정한다.
+    이 앵커 자체가 2차 인용(Palmgren 2004 원문 미확보)이므로 confidence 하한은
+    유지한다. (3) 임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는
+    비선형이 F 선형항에 미반영이다. (1)과 (3)은 완화 가능한 근사가 아니라
+    구조적 결측이므로, 개별 드라이버가 literature 등급이어도 모델 자체의
+    신뢰도는 그보다 낮게 유지한다.
 
     ⚠ 여기는 **장비 설정**(하중·회전속도·duty)만 담는다. 디스크의 형상(그릿
     밀도·돌출)은 소모품이므로 κ/τ 쪽으로 간다. 이 분리를 지켜야 "디스크를
@@ -372,14 +376,26 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     F_ref = float(pk.get_or("cond_ref_downforce_lbf", F or 1.0))
     omega_ref = float(pk.get_or("lambda_ref_rpm_platen", omega_p or 1.0))
     duty_ref = float(pk.get_or("cond_ref_duty_pct", duty or 100.0))
-    denom = F_ref * omega_ref * duty_ref
+
+    pcr_now = 1.0
+    pcr_ref = 1.0
+    if pk.has("cond_disk_usage_hours"):
+        import conditioner_pcr_decay as CPD   # sim/tier2_physics (1바이트도 수정 안 함)
+        t_hours = float(pk.get("cond_disk_usage_hours"))
+        t_ref_hours = float(pk.get_or("cond_ref_disk_usage_hours", 0.0))
+        pcr_now = CPD.pcr_decay(t_hours, 1.0, CPD.TAU_AGING_HOURS)
+        pcr_ref = CPD.pcr_decay(t_ref_hours, 1.0, CPD.TAU_AGING_HOURS)
+        f.drivers["cond_disk_usage_hours"] = t_hours
+
+    denom = F_ref * omega_ref * duty_ref * pcr_ref
     if denom <= 0:
         f.notes.append("⚠ 기준 컨디셔닝 부하가 0 — Γ 계산 불가")
         return f
-    f.value = (F * omega_p * duty) / denom
+    f.value = (F * omega_p * duty * pcr_now) / denom
     f.terms = {"force": F / F_ref if F_ref else 1.0,
                "velocity(rpm_platen)": omega_p / omega_ref if omega_ref else 1.0,
-               "duty": duty / duty_ref if duty_ref else 1.0}
+               "duty": duty / duty_ref if duty_ref else 1.0,
+               "aging(pcr_decay)": pcr_now / pcr_ref if pcr_ref else 1.0}
     f.status = "modeled" if len(have) == len(needed) else "partial"
     f.confidence = _worst_conf(_pack_conf(pk, *have, "rpm_platen"), "estimated")
     f.sources = ["knowledge/equipment/conditioner-disk-pad-cutting-model.md",
@@ -397,6 +413,9 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     f.notes.append("⚠ cond_sweep_cpm은 Γ 크기에 곱하지 않는다 — 문헌(disk-rpm-load-radius-pcr.md, "
                    "conditioner-sweep-algorithm-trajectory-density.md)에 따르면 스윕 왕복수는 "
                    "v_rel 식에 없고 반경별 궤적밀도(공간분포)만 결정한다. 총 절삭 부하가 아니다.")
+    if not pk.has("cond_disk_usage_hours"):
+        f.notes.append("⚠ cond_disk_usage_hours 없음 — 디스크 신품 가정(aging 배수=1.0), "
+                       "PCR 시간적 소진(conditioner-disk-pad-cutting-model.md §3) 미반영.")
     return f
 
 

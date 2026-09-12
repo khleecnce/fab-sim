@@ -320,6 +320,22 @@ params:
     unit: "%"
     source: knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md
     confidence: literature
+  cond_disk_usage_hours:
+    value: 0.0
+    unit: hours
+    note: >
+      컨디셔너 디스크 누적 사용시간. 0 = 신품 디스크(기준 조건, Γ의 PCR aging 배수=1.0).
+      0시간(신품) 자체는 임의 추정이 아니라 명시적 기준점이므로 literature로 표기한다 —
+      단, 0이 아닌 값에 적용되는 감쇠 모델(tau=27.4h, Entegris 2차인용 앵커)의 신뢰도는
+      별개다(sim/tier2_physics/conditioner_pcr_decay.py, TAU_AGING_HOURS 참조).
+    source: knowledge/equipment/conditioner-disk-pad-cutting-model.md
+    confidence: literature
+  cond_ref_disk_usage_hours:
+    value: 0.0
+    unit: hours
+    note: Γ 기준점 — cond_disk_usage_hours=0(신품)과 동일 조건, pcr_decay(0,...)=1.0.
+    source: knowledge/equipment/conditioner-disk-pad-cutting-model.md
+    confidence: literature
 
   # ── κ 접촉 강도 (패드·디스크 몫) ─────────────────────────
   pad_hardness_shore_d:
