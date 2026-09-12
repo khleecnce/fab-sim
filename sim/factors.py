@@ -289,7 +289,17 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     f.value = (lam.value * heat_ring) / (cool_sfr * cool_temp * cool_rotation)
     f.terms = {"heat(Λ)": lam.value, "heat(ring)": heat_ring, "cool(SFR)": cool_sfr,
                "cool(coolant_temp)": cool_temp, "cool(rotation)": cool_rotation}
-    f.status = "partial"
+    # 완전성 판정: SFR은 진입 가드에서 이미 필수(없으면 조기 return). 나머지 4채널
+    # (heat(ring)/cool(coolant_temp)/cool(rotation)/heat(Λ))이 전부 실제 팩 파라미터로
+    # 구동되면(문헌 4건: Lee/Guo/Jeong 2012, Yuh 2015, Harmand 2013, frictional-heating
+    # coupling 노트) modeled — kappa/chi와 동일하게 "필요 항 전부 있으면 modeled" 규칙을
+    # 적용한다. 이전 3회차(bcc2e5a/84c8e36/7382ab3)가 드라이버를 다 채웠는데도 이 줄이
+    # 무조건 partial을 리턴해 accuracy_gaps가 영원히 PARTIAL을 반환하던 버그를 수정.
+    have_all_channels = (
+        pk.has("platen_coolant_temp_c") and pk.has("platen_hot_side_ref_c")
+        and pk.has("retaining_ring_pressure_psi") and lam.value is not None
+    )
+    f.status = "modeled" if have_all_channels else "partial"
     f.confidence = _worst_conf(_pack_conf(pk, "sfr_ml_min"), "estimated")
     f.sources = ["knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md",
                  "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
