@@ -102,11 +102,34 @@ params:
     note: κ 입경항 기준점 — abrasive_size_nm과 같은 값
     source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
     confidence: literature
-  # ⚠ abrasive_size_exponent는 **일부러 비워둔다.**
-  #   Li et al. 2021은 40→80→130 nm에서 MRR이 80 nm 정점이라고 정성 서술만 했고,
-  #   원문 Eq.3-4의 지수·부호는 OCR 손상으로 노트조차 assert하지 않았다.
-  #   단조 멱함수를 넣으면 정점 거동을 놓치고 한쪽 구간만 맞는다.
-  #   → 지수를 지어내는 대신 factors.py가 '입경 항 미적용'을 경고로 보고한다.
+  # 2026-09-13: Li et al. 2021 Eq.3-4를 pdfplumber 벡터좌표로 재추출해 지수·부호가
+  # 확정됐다(이전 "OCR 손상"은 추출 방법 문제였음 — knowledge/cmp/abrasive-size-
+  # concentration-ph-K-additive-mrr-quantitative.md §4 2026-09-13 정정 참고).
+  # 40→80nm(압입 지배, φ^(4/3)) → 80→130nm(표면적 지배, φ^(-1/3)) 정점형 곡선을
+  # 배선한다. 이 팩(콜로이달 실리카·SiO2 막)이 원 논문과 동일 화학계라 직접 적용.
+  abrasive_size_peak_nm:
+    value: 80.0
+    unit: nm
+    note: Li et al. 2021 Fig.4 실측 MRR 정점 위치(40/80/130nm 스윕 중 80nm 최대)
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §4
+    confidence: literature
+  abrasive_size_exp_below_peak:
+    value: 1.3333333333
+    unit: dimensionless
+    note: >
+      정점 이하(40→80nm) 구간 지수 = Eq.4(압입 지배) φ 지수 4/3.
+      2026-09-13 pdfplumber 벡터좌표 재추출로 확정(이전 버전은 지수·부호 OCR
+      혼선으로 미배선 상태였음).
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §4
+    confidence: literature
+  abrasive_size_exp_above_peak:
+    value: -0.3333333333
+    unit: dimensionless
+    note: >
+      정점 이상(80→130nm) 구간 지수 = Eq.3(표면적 지배) φ 지수 -1/3.
+      2026-09-13 pdfplumber 벡터좌표 재추출로 확정.
+    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §4
+    confidence: literature
 
   # ── pH 정점형 거동 (Li et al. 2021 Fig.1, verify PASS) ──
   # pH 10.0 → 1551, pH 11.0 → 1727(정점), pH 12.5 → 1407 Å/min

@@ -251,15 +251,44 @@ def test_unmodeled_factors_are_excluded_from_mrr():
 
 
 def test_missing_size_exponent_does_not_invent_a_value():
-    """입경 지수가 팩에 없으면 항을 만들지 않고 경고한다.
+    """입경 정점형 파라미터가 전혀 없는 팩(w_fe_oxidizer는 null 지수 0.0을 명시하므로 제외,
+    가상의 팩 없음 시나리오는 오버라이드로 피크 파라미터를 지워 재현)이면 항을 만들지
+    않고 경고해야 한다.
 
-    Li et al. 2021은 입경을 정점형(~80nm 최대)이라고 정성 서술만 했고 원문
-    수식은 OCR 손상으로 노트조차 assert하지 않았다. 단조 멱함수를 지어내면
-    한쪽 구간만 맞고 정점을 놓친다.
+    2026-09-13: Li et al. 2021 Eq.3-4를 벡터좌표로 재추출해 지수·부호가 확정됐고
+    oxide_silica 팩에 정점형 파라미터(abrasive_size_peak_nm 등)를 배선했다 — 이제
+    oxide_silica 기본 조건에서는 입경 항이 계상된다(과거엔 미적용이었다). 이 테스트는
+    "파라미터가 아예 없을 때"의 안전장치(지어내지 않는다)를 확인하도록 갱신한다.
     """
-    f = _factors()["kappa"]
-    assert "size" not in f.terms, "팩에 지수가 없는데 입경 항을 만들어냈다."
+    f = _factors(
+        pack="oxide_silica",
+        abrasive_size_peak_nm=None,
+        abrasive_size_exp_below_peak=None,
+        abrasive_size_exp_above_peak=None,
+        abrasive_size_exponent=None,
+    )["kappa"]
+    assert "size" not in f.terms, "정점형·단일지수 파라미터를 모두 지웠는데 입경 항을 만들어냈다."
     assert any("입경" in n and "미적용" in n for n in f.notes)
+
+
+def test_oxide_silica_size_peak_at_80nm():
+    """2026-09-13: Li et al. 2021 Eq.3-4 벡터좌표 재추출로 확정된 정점형 입경 반응.
+
+    40→80nm(압입 지배, φ^(4/3))은 증가, 80→130nm(표면적 지배, φ^(-1/3))은 감소해야
+    하며, 80nm에서 정점(같은 기준 50nm 대비 최댓값)을 가져야 한다.
+    """
+    v40 = _factors(abrasive_size_nm=40.0)["kappa"].terms["size"]
+    v80 = _factors(abrasive_size_nm=80.0)["kappa"].terms["size"]
+    v130 = _factors(abrasive_size_nm=130.0)["kappa"].terms["size"]
+    assert v80 > v40, "40->80nm 구간(압입 지배)은 입경 증가시 값이 커져야 한다."
+    assert v80 > v130, "80->130nm 구간(표면적 지배)은 입경 증가시 값이 작아져야 한다."
+    assert v80 == max(v40, v80, v130), "80nm이 세 값 중 정점(최댓값)이어야 한다."
+
+
+def test_oxide_silica_size_unity_at_reference():
+    """기준 입경(abrasive_size_nm=abrasive_ref_size_nm=50.0)에서 정점형 size 항은 1.0."""
+    f = _factors()["kappa"]
+    assert f.terms["size"] == pytest.approx(1.0, rel=1e-9)
 
 
 # ═══════════════════════════════ ④ 축 분리 (사용자 확정 규칙)

@@ -511,8 +511,44 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
             # 정성 서술하지만(압입지배→표면적지배 전환), 원문 Eq.3-4의 지수·부호가
             # OCR로 뒤섞여 노트조차 입경 방향을 assert하지 않았다.
             # 그러므로 **지수를 지어내지 않는다.** 팩이 명시할 때만 적용한다.
-            n_size = pk.get_or("abrasive_size_exponent", None)
-            if n_size is None:
+            # 2026-09-13: Li et al. 2021 Eq.3-4를 pdfplumber 벡터좌표로 재추출해
+            # 지수·부호가 확정됐다(knowledge/cmp/abrasive-size-concentration-ph-K-additive-
+            # mrr-quantitative.md §4 2026-09-13 정정). 팩이 정점형 3파라미터
+            # (abrasive_size_peak_nm·abrasive_size_exp_below_peak·abrasive_size_exp_above_peak)를
+            # 명시하면 piecewise 곡선을 쓴다 — 단일 멱함수보다 우선한다(정점 거동을 담기
+            # 때문). 없으면 기존 단일지수/null 경로로 폴백한다.
+            peak_nm = pk.get_or("abrasive_size_peak_nm", None)
+            exp_below = pk.get_or("abrasive_size_exp_below_peak", None)
+            exp_above = pk.get_or("abrasive_size_exp_above_peak", None)
+            if peak_nm is not None and exp_below is not None and exp_above is not None:
+                peak_nm = float(peak_nm)
+                exp_below = float(exp_below)
+                exp_above = float(exp_above)
+
+                def _piecewise_curve(x: float) -> float:
+                    # 정점에서 두 식이 연속이 되도록 peak**exp_below를 앵커로 삼는다.
+                    if x <= peak_nm:
+                        return x ** exp_below
+                    return (peak_nm ** exp_below) * (x / peak_nm) ** exp_above
+
+                c_d, c_ref = _piecewise_curve(d), _piecewise_curve(d_ref)
+                if c_ref > 0:
+                    terms["size"] = c_d / c_ref
+                    srcs.append("knowledge/cmp/abrasive-size-concentration-"
+                                "ph-K-additive-mrr-quantitative.md §4")
+                    f.notes.append(
+                        f"입경 정점형 반영: peak={peak_nm:g}nm 기준 d={d:g}nm(지수 "
+                        f"{'below' if d<=peak_nm else 'above'}={exp_below if d<=peak_nm else exp_above:g}), "
+                        f"d_ref={d_ref:g}nm. Li et al. 2021 Eq.3-4(압입 지배 φ^{exp_below:.3g}, "
+                        f"표면적 지배 φ^{exp_above:.3g})를 벡터좌표 재추출로 확정한 값 — "
+                        "이 계(콜로이달 실리카/SiO2)에 한정, 정점 위치·지수의 타 화학종 "
+                        "일반화는 미검증.")
+                n_size = None  # 아래 단일지수 분기를 건너뛴다
+            else:
+                n_size = pk.get_or("abrasive_size_exponent", None)
+            if peak_nm is not None and exp_below is not None and exp_above is not None:
+                pass
+            elif n_size is None:
                 f.notes.append(
                     "⚠ 입경 항 미적용: 지수(abrasive_size_exponent)가 팩에 없다. "
                     "문헌은 정점형(~80nm 최대)이라고만 서술하고 지수를 확정하지 "
