@@ -2167,3 +2167,14 @@ pad-mechanic/PROFILE.md 구현요청 갱신. pytest 621 passed(변경없음), qa
 유의 7/20, ρ=0.9537 불변). sim/factors.py 미변경.
 다음 회차 갭: S 갭 여전히 PARTIAL(선행조건 미해결) — 컨디셔너 설계 파라미터 근거 탐색, 또는
 다음 순위(κ 접촉강도 PARTIAL)로 스킵.
+
+## 2026-09-12 20:16 [성장엔진] Δ(delta) 갭 조사 — damage_exponent 화학종 교차확증(세리아 vs 실리카)
+정확도루프 갭 τ가 3회차 순환(EVIDENCE-RULES §3회차 규칙) 상태라 --skip으로 넘기고 다음 순위
+Δ(손상유발도) PARTIAL을 처리. Basim & Moudgil 2002(같은 논문, 이미 확보된 원문)의 염응집(NaCl)
+시리즈에서 damage_exponent를 실리카 화학종으로 독립 회귀(n≈0.40, RMS거칠기 기준, R²=0.99) —
+기존 세리아 Hitachi특허 회귀값(n≈1.44)과 교차확증. 두 화학종 모두 코드 기본값 n=3.0보다 훨씬
+완만하다는 방향은 일치하나 절대값은 3.6배 차이로 수렴하지 않아, 코드 상수(damage_exponent=3.0)
+즉시 교체는 보류하고 구현요청(agents/slurry-colloid/PROFILE.md)만 갱신. verify_claims/
+check_knowledge 통과. pytest 621 passed(회귀 0). qa_loop --strict PASS(#47, 유의 7/20,
+ρ=0.9537 불변 — 코드 미변경). 커밋 완료.
+다음 회차 갭: S(시간안정성) PARTIAL 또는 UNWIRED UI 슬라이더 4건 중 우선순위.

@@ -22,6 +22,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   [[../../knowledge/slurry/dlvo-ionic-strength-ph-aggregation-kinetics]].
   핵심: perikinetic 실측/이론 20~45% 범위(Holthoff 1996), CMP 세리아 실측 이온강도 임계전이
   4→10mM(Kwon 2023), 온도의존성은 점도(η(T)) 경로가 지배. check_knowledge/verify_claims 통과.
+- 2026-09-12 Lv1-2§9 추가: 실리카 염응집 시리즈로 damage_exponent 화학종 교차확증(세리아 n≈1.44 vs 실리카 n≈0.40, 방향일치·절대값불일치). check_knowledge/verify_claims 통과.
 - 2026-09-12 Lv1-2 LPC 측정과 스크래치 상관관계(콜로이드 불안정화 메커니즘 관점) —
   [[../../knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism]].
   핵심: Basim & Moudgil(2002) 실측 — NaCl 0.2M(CCC 미달)에서 벌크 입도분포 불변인데도
@@ -36,6 +37,16 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   경로만 작동한다. 이걸 "d99 경로와 독립적인 손상 가중치"로 연결하는 항 추가를 검토해 달라
   — 예: `val = (d99/d99_ref)^n * (1 + w * aggregate_ratio)` 같은 곱셈 가중(형태는 미정,
   폐형식 문헌 없음 — 방향성만 제안).
+
+## 구현 요청 (2) — 2026-09-12 추가, damage_exponent 화학종 분리
+- 무엇을: `damage_exponent`(현재 전 팩 공통 n=3.0)를 화학종별로 분리 검토.
+  세리아계(sti_ceria, sic_ceria_h2o2): n≈1.44(Hitachi 특허 US8439995B2, 스크래치 카운트, R²=0.997).
+  실리카계(oxide_silica): n≈0.40(Basim & Moudgil 2002, RMS 거칠기, R²=0.99, 단 Rmax 지표로는
+  n≈0.60/R²=0.80으로 갈림). 두 화학종 모두 n=3.0보다 훨씬 완만하다는 **방향**은 교차확증되나
+  절대값은 3.6배 차이로 수렴하지 않음 — 즉시 상수 교체는 보류, 표본 확충 후 재시도.
+- 근거 노트: [[../../knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism]] §9.
+- 검증에 쓸 문헌값: §9 verify 블록(n_rms≈0.40, n_hitachi_ceria=1.444).
+- 우선순위: 낮음(표본 3~4점, 화학종별 분리의 실익이 확정되지 않음).
 - 근거 노트: [[../../knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism]] §3, §6.
   Basim & Moudgil(2002)의 NaCl 0.2M 사례(평균 입경 불변인데 Rmax 25→50nm, 2배) — d99가 전혀
   안 바뀌는 불안정화 경로로도 손상이 늘 수 있음을 보여주는 1차 실측.

@@ -140,3 +140,76 @@ print(f"임계직경 수렴: Remsen2006={d_remsen_um}um vs Kwon2023={d_kwon_um}u
 
 ## 8. 자기시험
 → [[../../agents/slurry-colloid/EXAMS.md]] Lv1-2 문항 참조.
+
+
+## 9. Δ(damage_exponent) 교차확증 - 실리카계 염응집 시리즈 회귀 (2026-09-12 추가, 정확도루프 Δ 갭)
+
+`sim/factors.py::_f_delta`의 `damage_exponent`(기본값 n=3.0)에 대해 [[../cmp/abrasive-d99-scratch-hitachi-us8439995]]
+가 세리아 1개 화학종(Hitachi 특허)에서 n약1.44(R^2=0.997)를 회귀했다. 이 절은 같은 논문(Basim & Moudgil
+2002, 인용문헌)의 염응집(salt-coagulation) 시리즈를 사용해 실리카 화학종에서 독립적으로 n을
+회귀하여 세리아계 결과와 교차확증을 시도한다.
+
+### 9.1 데이터 (원문 Table 1, 그대로)
+NaCl 첨가에 따른 평균 입경(광산란 측정)과 표면손상 지표 3점(baseline 포함):
+
+| 조건 | 평균 입경 (um) | RMS 거칠기 (nm) | Rmax (nm) |
+|---|---|---|---|
+| Baseline (0M) | 0.2 | 0.85 | 25 |
+| 0.4M NaCl | 1.3 | 1.70 | 100 |
+| 0.6M NaCl | 3.6 | 2.76 | 120 |
+
+(0.2M은 CCC 미달로 입경이 baseline과 동일해 이 회귀에서 제외 - 앞 절에서 이미 별도로 다룬 사례.)
+
+```python verify
+import numpy as np
+
+d_um = np.array([0.2, 1.3, 3.6])       # 원문 Table 1, 평균 입경
+rms_nm = np.array([0.85, 1.70, 2.76])  # 원문 Table 1, RMS 거칠기
+rmax_nm = np.array([25.0, 100.0, 120.0])  # 원문 Table 1, Rmax
+
+d0 = d_um[0]
+mask = d_um != d0
+lnD = np.log(d_um / d0)
+
+lnR_rms = np.log(rms_nm / rms_nm[0])
+n_rms = float(np.sum(lnD[mask] * lnR_rms[mask]) / np.sum(lnD[mask] * lnD[mask]))
+pred_rms = rms_nm[0] * (d_um / d0) ** n_rms
+r2_rms = 1.0 - np.sum((rms_nm - pred_rms) ** 2) / np.sum((rms_nm - rms_nm.mean()) ** 2)
+print(f"실리카 염응집 RMS 회귀: n={n_rms:.3f}, R^2={r2_rms:.4f}")
+assert r2_rms > 0.9, f"거듭제곱 적합도 낮음(R^2={r2_rms:.3f})"
+
+lnR_rmax = np.log(rmax_nm / rmax_nm[0])
+n_rmax = float(np.sum(lnD[mask] * lnR_rmax[mask]) / np.sum(lnD[mask] * lnD[mask]))
+pred_rmax = rmax_nm[0] * (d_um / d0) ** n_rmax
+r2_rmax = 1.0 - np.sum((rmax_nm - pred_rmax) ** 2) / np.sum((rmax_nm - rmax_nm.mean()) ** 2)
+print(f"실리카 염응집 Rmax 회귀: n={n_rmax:.3f}, R^2={r2_rmax:.4f}")
+
+n_hitachi_ceria = 1.444
+n_default = 3.0
+assert n_rms < n_hitachi_ceria, "실리카 RMS n이 세리아 n(1.44)보다도 완만해야(더 작아야) 이 절의 결론이 성립"
+assert n_rms < n_default and n_hitachi_ceria < n_default, (
+    "두 독립 화학종(실리카 RMS, 세리아 스크래치카운트) 모두 n=3.0보다 훨씬 완만해야 한다")
+print(f"교차확증: 세리아(Hitachi, 스크래치카운트) n={n_hitachi_ceria} vs "
+      f"실리카(Basim, RMS거칠기) n={n_rms:.3f} - 둘 다 코드 기본값 n=3.0보다 훨씬 완만(방향 일치)")
+```
+
+### 9.2 해석 - 정직한 한계
+- 방향 일치, 절대값은 불일치: 세리아 n약1.44 vs 실리카(RMS) n약0.40 - 둘 다 n=3.0보다 훨씬
+  완만하다는 방향은 교차확증되지만, 절대 지수는 화학종/측정지표(스크래치 개수 vs RMS 거칠기)가
+  달라 약 3.6배 차이로 수렴하지 않는다. 이는 이전 노트들이 이미 지적한 "지표 축이 다르면
+  동일 숫자로 엮으면 안 된다"는 원칙을 그대로 재확인하는 결과다.
+- 미검증: 표본 3점(자유도 2)으로 회귀한 n은 통계적으로 취약하다. Rmax 회귀(n약0.60,
+  R^2약0.80 - 위 verify 블록에서 계산됨)는 RMS 회귀보다도 적합도가 낮아 지표에 따라 n
+  추정치 자체가 갈린다는 사실도 정직하게 남긴다.
+- damage_exponent=3.0 기본값 교체는 아직 하지 않는다. 세리아/실리카 두 화학종 모두 방향은
+  같지만 절대값이 수렴하지 않으므로, "n을 몇으로 바꿀지"는 화학종별로 분리해야 할 가능성이 높다
+  (팩별 damage_exponent를 다르게 주는 것이 정답에 가까울 수 있음 - 아래 9.3 구현 요청).
+
+### 9.3 구현 요청 갱신 (agents/slurry-colloid/PROFILE.md, agents/slurry-abrasive/PROFILE.md 공통)
+- 무엇을: `damage_exponent` 기본값(현재 전 팩 공통 n=3.0)을 화학종별로 분리하는 것을 검토.
+  세리아계(sti_ceria, sic_ceria_h2o2)는 n약1.44(Hitachi 특허, 스크래치 카운트) 방향 근거,
+  실리카계(oxide_silica)는 이 절의 n약0.40~0.60(Basim 2002, 거칠기 지표) 방향 근거 - 단
+  둘 다 표본이 매우 작아(각 3~4점) 즉시 코드 상수를 교체하지 않는다. 추가 독립 화학종(Cu/W용
+  세리아/알루미나) 문헌이 더 모이면 화학종별 통합 회귀를 다시 시도.
+- 검증에 쓸 문헌값: 위 verify 블록(n_rms약0.40, n_hitachi_ceria=1.444, 둘 다 <3.0).
+- 우선순위: 낮음(둘 다 방향성 확증 단계, 계수 대체는 표본 확충 후).
