@@ -20,7 +20,7 @@ import argparse
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -32,15 +32,33 @@ from tools.completion import _packs, CONF_RANK, MIN_CONF, OK_STATUS  # noqa: E40
 import yaml  # noqa: E402
 
 
-def _pack_params(pack: str) -> Dict[str, dict]:
+def _pack_params(pack: str, _seen: Optional[List[str]] = None) -> Dict[str, dict]:
+    """팩 YAML의 파라미터를 **상속 체인 전체**를 따라가며 병합한다.
+
+    ⚠ 팩은 다단계로 상속한다(예: sic_ceria_h2o2 → base: sti_ceria →
+    base: oxide_silica → base: base). 예전 구현은 자기 파일 + base.yaml만
+    봐서, 중간 팩(sti_ceria/oxide_silica)에만 정의된 abrasive_wt_pct 같은
+    키를 못 찾아 항상 unverified로 오판했다(sic_ceria_h2o2·sti_ceria 5칸
+    가짜 병목의 원인, 2026-09-13 발견·수정). `sim.params.load_pack`과 같은
+    "base" 체인 규칙을 그대로 따른다.
+    """
+    _seen = _seen or []
+    if pack in _seen:
+        return {}
+    _seen = _seen + [pack]
     p = ROOT / "knowledge" / "params" / f"{pack}.yaml"
-    d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    d = yaml.safe_load(p.read_text(encoding="utf-8")) or {} if p.exists() else {}
     out = dict((d.get("params") or {}))
-    base = ROOT / "knowledge" / "params" / "base.yaml"
-    if pack != "base" and base.exists():
-        bd = yaml.safe_load(base.read_text(encoding="utf-8")) or {}
-        for k, v in (bd.get("params") or {}).items():
+    parent = d.get("base")
+    if parent and parent != pack:
+        for k, v in _pack_params(parent, _seen).items():
             out.setdefault(k, v)
+    elif pack != "base":
+        base = ROOT / "knowledge" / "params" / "base.yaml"
+        if base.exists():
+            bd = yaml.safe_load(base.read_text(encoding="utf-8")) or {}
+            for k, v in (bd.get("params") or {}).items():
+                out.setdefault(k, v)
     return {k: v for k, v in out.items() if isinstance(v, dict)}
 
 
@@ -58,11 +76,17 @@ def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
             if ok_status and conf_ok:
                 continue
             bad: List[str] = []
-            for dk in (f.drivers or {}):
+            for dk_raw in (f.drivers or {}):
+                # ⚠ 일부 팩터(Γ의 cond_sweep_cpm 등)는 진단용 표시를 위해
+                # drivers 키에 "(coverage_only,not_multiplied)" 같은 꼬리표를
+                # 붙인다 — 실제 params.yaml 키는 꼬리표가 없으므로 그대로 조회하면
+                # 항상 매치 실패(unverified 오판)한다. 괄호 앞부분으로 정규화해
+                # 실제 파라미터 confidence를 조회한다(2026-09-13 발견·수정).
+                dk = dk_raw.split("(")[0]
                 meta = params.get(dk) or {}
                 c = meta.get("confidence", "unverified")
                 if CONF_RANK.get(c, 0) < CONF_RANK[MIN_CONF]:
-                    bad.append(f"{dk}({c})")
+                    bad.append(f"{dk_raw}({c})")
                     blockers[f"{pack}:{dk}"].append(f"{key}/{pack}")
             cells.append({
                 "factor": key, "pack": pack, "status": f.status,
