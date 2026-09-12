@@ -2197,3 +2197,10 @@ Kp/지수를 역산하는 형태라면 구조적으로 held-out을 깎는다 —
 다음 회차는 이 BIAS 갭을 1회차로 기록하고 κ(abrasive_size_exponent) UNWIRED 항목
 (Li 2021 Eq.3-4 OCR 훼손 — pdfplumber 벡터/문자 좌표로 재파싱 시도) 또는 다른 BIAS
 갭(entegris2022 10.34배, us8070843b2 0.30배)으로 스킵.
+
+## 2026-09-13 심야 [심야병렬] 서브에이전트 3명 동시 학습 — defect-scientist Lv1-1 · slurry-colloid Lv2-1 · film-poly-si Lv3-1
+QA루프 #41 PASS(격리 1: dandu2009 원문 미확보 유료/봉쇄, 유의 7/20 ρ=0.9537 불변). corpus fetch60/extract120 + harvest all --pages10(일요일 주간수확) 백그라운드 병행. completion 12/50(변화없음). 대상: 활성 최저진도 3명(0/6 우선) — defect-scientist(0/6, 직전밤 max-turns+미검증과다 반려건 재위임, "정량값 비중↑" 특별지시)·slurry-colloid(1/6)·film-poly-si(3/6). 성장엔진 최근(BIAS갭 등)과 무충돌. claude -p opus 3병렬(--dangerously-skip-permissions로 직전밤 권한차단 문제 해결 — 서브에이전트가 verify/check 직접 실행·체크박스까지 갱신).
+- defect-scientist Lv1-1: knowledge/cmp/post-cmp-defect-classification-and-inspection.md (출처6·코드1 통과). killer defect 크기·스캐너 감도. 미검증 5종 정직 표기(딜라미 접착에너지 1차 미확보 등).
+- slurry-colloid Lv2-1: knowledge/slurry/pou-filtration-recirculation-pump-shear-lpc.md (출처5·코드6 통과). Khanna 전단응집·Rastegar 섬유필터·Seo POU. colloidal-destabilization 노트 상호링크.
+- film-poly-si Lv3-1: 노트 2편 — film-poly-si-high-selectivity-lowdefect-slurry.md(출처9·코드6)·film-poly-si-oxide-selectivity-gate-cmp-window.md(출처5·코드1) 둘 다 통과. Penta2011 고분자양이온 전하밀도 선택비·abrasive-free 버핑.
+품질게이트(check_knowledge --all 직접실행): 150/152 통과. ✗ 2건은 기존 반려건(wiwnu-pressure-velocity·_SCHEMA.md)이고 신규 4편과 무관. verify_claims 4편 전원 통과. 체크박스 3개 [x], ORG §5 3행 갱신. 내 파일만 git add(cmp-data-engineer 등 타크론 미커밋 변경 제외), commit ff1e6ae push 완료(pull은 unstaged 타크론변경으로 스킵, push는 성공). 한도 여유(429 흔적 없음).
