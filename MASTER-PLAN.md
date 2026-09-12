@@ -2067,3 +2067,15 @@ pytest 612 passed(기준 609, 회귀 0). qa_loop.py --strict PASS(유의 7/20, �
 RR압력 영역(문헌범위 2-6psi 밖)에서 발산 가능(미검증), 노트 §5에 정직 기록. accuracy_gaps는
 여전히 Θ PARTIAL 반환(설계상 자동 modeled 승격 없음 — 3개 냉각채널+2개 발열채널이어도 동일).
 커밋 7382ab3 push 완료.
+
+## 2026-09-12 10:xx [성장엔진] Θ PARTIAL 3회차 무한루프 원인 규명·수정 — 아키텍처 버그
+accuracy_gaps.py --next가 Θ를 3회 연속(bcc2e5a→84c8e36→7382ab3) 반환한 원인을 조사한 결과,
+문헌 채널(리테이닝 링/냉각수온도/회전대류) 3개를 전부 추가했음에도 sim/factors.py의
+`_f_theta`가 `f.status = "partial"`을 **조건 없이 무조건** 실행하는 구조적 버그였다(kappa/chi는
+`len(terms)>=N`으로 modeled 승격 조건이 있는데 theta만 없었음). 5개 팩 전부 필요 파라미터
+(sfr_ml_min, platen_coolant_temp_c+ref, platen_hot_side_ref_c, retaining_ring_pressure_psi)를
+이미 보유 중임을 `load_pack`으로 직접 확인. kappa/chi와 동일 규칙(필요 채널 전부 있으면 modeled)
+으로 교정. pytest 612 passed(회귀 0), qa_loop --strict PASS(#42, 유의 7/20, 평균 ρ=0.9537 불변).
+completion.py는 여전히 12/50(Θ는 C1 unmodeled 리스트에서 이미 빠져 있었음 — 이번 수정은 C2
+confidence 칸이 아니라 accuracy_gaps 랭커의 무한 재방문을 끊은 것). 커밋 2614715 push 완료.
+다음 회차 갭: κ(kappa) PARTIAL — pad_hardness/asperity 항만 있고 abrasive_wt_pct 항 결측.
