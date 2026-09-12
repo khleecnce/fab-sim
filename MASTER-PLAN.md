@@ -2211,3 +2211,26 @@ QA루프 #43 PASS(격리 1: dandu2009 원문 미확보 유료/봉쇄, 유의 7/2
 - slurry-colloid Lv2-2: knowledge/slurry/shelf-life-dilution-two-part-blending-qc.md (출처5·코드5 통과). 쉘프라이프=세시계 min(침강/응집/화학), 2액형=반응쌍(FA/O·H2O2 공존)분리, 희석≠재안정화, QC LOD 온도보정. 미검증6. verify_claims에 DataCite 폴백 추가(학위논문 DOI 오반려 수정, 회귀0).
 - slurry-abrasive Lv3-1: knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md (출처11·코드5 통과). 세리아 chemical tooth를 입자기하·개수 축으로 — 패싯별 Ce면밀도(111)7.89/(100)6.83 nm⁻² Brugnoli2023 일치, 입자당 23.3배(Dandu vs Cabot). 팩버그 2건 지적(ce3_fraction·sti_ceria abrasive_wt_pct 80배). 미검증7(§10 명시, Ma2022 미러 사이트 3미러 전차단=다음회차 최우선). 형제(slurry-chemistry/film-oxide) 침범회피 §0 선언.
 품질게이트(check_knowledge --all 오케스트레이터 직접실행): 153/155 통과. ✗ 2건은 기존 반려건(wiwnu-pressure-velocity·_SCHEMA.md)이고 신규 3편과 무관. verify_claims 신규 3편 전원 통과. 체크박스 3개 [x], ORG §5 3행 갱신. 내 파일만 git add(cmp-data-engineer·.source_cache 타크론 제외). 한도 여유(429 흔적 없음).
+
+## 2026-09-13 08:xx [성장엔진] κ(kappa) 갭 해결 — Li2021 Eq.3-4 벡터좌표 재추출로 입경 정점형 지수 확정
+정확도루프 갭 τ(3회차째 순환, groove_depth_mm 배수관계 여전히 그래프 이미지 뿐 — Kao/Wei 2011
+그래프 벡터좌표(색상-범례 매칭 불확실)·2024 IOP 신규논문(미러 사이트 미색인·jina 프록시로도 초록만
+확보) 모두 실패, 정직 skip 3회차 기록만 남김)를 건너뛰고 다음 순위 κ(접촉 강도) PARTIAL 처리.
+Li et al. 2021(doi:10.1149/2162-8777/ac3e44, 이미 확보된 papers/slurry-additives-cmp-oxide-
+ac3e44.pdf)의 Eq.3-4가 "OCR 손상으로 지수·부호 불신"이라고 기존 노트에 기록돼 있었는데,
+`pdfplumber.extract_text()`(선형 스트림) 대신 `page.chars` 좌표(위/아래첨자를 top·size로 구분)로
+재추출하니 **완전하고 모호함 없이 복원**됐다 — 문제는 문헌이 아니라 추출 방법이었다. 확정값:
+Eq.3(표면적지배)=C0^(1/3)φ^(-1/3), Eq.4(압입지배)=C0^(-1/3)φ^(4/3). 이전 버전은 Eq.4를
+C0^(4/3)φ^(-4/3)로 **오기재**했었다(농도·입경 지수 부호 둘 다 틀림) — 이번에 정정.
+`sim/factors.py` `_f_kappa`에 정점형(piecewise, 40→80nm φ^(4/3) 증가·80→130nm φ^(-1/3) 감소)
+3파라미터(abrasive_size_peak_nm·exp_below/above_peak) 배선, `oxide_silica` 팩(원 논문과 동일
+화학계: 콜로이달 실리카/SiO2)에 문헌값 이식. 파라미터 없는 팩은 기존 안전장치(지어내지 않음)
+그대로 유지. 테스트 2건 신규(정점 재현·기준 unity), 기존 미적용 테스트는 "파라미터 전부
+없을 때" 시나리오로 갱신. pytest 627 passed(회귀 0), qa_loop --strict PASS(#46, 유의 7/20,
+ρ=0.9537 불변 — 방향성 배선이라 held-out 배수관계 자체엔 영향 없음, 예상대로). κ가 oxide_silica
+에서 4/4 항 전부 modeled로 전환돼 accuracy_gaps에서 κ PARTIAL 항목 소멸 확인. corpus fetch/extract
+1회 수행(fetch 타임아웃, extract 21건 처리). completion 12/50(변화없음 — κ의 confidence는 여전히
+estimated, 이번 조사는 방향/구조 확정이지 confidence 승격이 아니다).
+다음 회차 갭: τ(4회차째면 EVIDENCE-RULES 규칙상 null 결론/스코프축소로 종결 검토) 또는
+UNWIRED UI 슬라이더 4건(Groove Depth·Groove Pitch·Asperity Tip Radius·Particle Size D50) 중
+Particle Size D50은 이번 회차 κ 배선으로 일부 연결됐을 가능성 — 다음 회차에 확인.
