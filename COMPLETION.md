@@ -157,3 +157,12 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   **Γ confidence는 estimated 유지**(tau 자체가 2차인용·Rs 보정·임계하중 비선형 2개 구조적
   결측이 남아있어 오염 방지) — 칸 수 불변(12/50), 모델의 물리적 완결성만 개선.
   pytest 614→619 passed(회귀 없음), completion.py check 정상 실행. 커밋 51150f4.
+
+- 2026-09-13 [Max워커] Θ(theta) cool_rotation 회전-냉각 채널 가중치 정정 — §8.4가 이미
+  "정정 후보"로 기록해둔 항목 실반영. `_f_theta()`의 cool_rotation=√(rpm/rpm_ref)(냉각
+  전체에 √Ω 적용)를 (1-W_AIR_FRACTION)·1.0 + W_AIR_FRACTION·√Ω(W_AIR_FRACTION=0.07,
+  Shin2025 §8.4 중앙 케이스 공기채널 분배)로 교체 — 회전무관 채널(G_slurry 74%/G_pad 19%)에
+  잘못 적용되던 √Ω 스케일을 실제 회전영향 채널(G_air 7%)로만 국한. Θ는 MRR_COUPLED 밖이라
+  MRR 경로·qa_loop ρ에 영향 없음(예상대로 0.9537 불변). pytest 622 passed(기존621+신규1),
+  qa_loop --strict PASS. confidence는 estimated 유지(구조적 결측 §8.5 4건 불변) — 칸 수
+  불변(12/50), 모델 정합성만 개선(사용자 우선순위: 데이터보다 모델링). 커밋 745a540, push.
