@@ -85,6 +85,36 @@ params:
     source: knowledge/cmp/w-cmp-abrasive-d50-bielmann1999-osti-cabot-conflict.md
     confidence: literature
 
+  # ── κ 농도항 (2026-09-12 정확도루프 — kappa PARTIAL 채움) ──────────
+  abrasive_wt_pct:
+    value: 10.0
+    unit: "wt%"
+    note: >
+      Bielmann et al. 1999(같은 논문·같은 문장, 위 abrasive_size_nm과 동일 출처) —
+      "The polishing slurries contained 10 wt % γ-alumina particles". 입경과 농도를
+      같은 실험·같은 문장에서 동시 확보해 내적 정합성을 유지했다(다른 논문 조합 회피).
+    source: knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielmann.md §4
+    confidence: literature
+  abrasive_ref_wt_pct:
+    value: 10.0
+    unit: "wt%"
+    note: κ 농도항 기준점 — 이 실험 조건 자체(Bielmann 1999)를 기준으로 잡아 κ=1.0 계약 유지
+    source: knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielmann.md §4
+    confidence: literature
+  abrasive_conc_exponent:
+    value: 0.3333
+    unit: "-"
+    note: >
+      Wang et al. 2012(ECS Trans. 41(43) 103-111, DOI:10.1149/1.4717508, Applied Materials
+      Reflexion GT 실제 W CMP 실험)이 W 계에서 **직접** "the removal rate was observed to
+      scale with the cubic root of the abrasive concentration"라고 명시(E1, 동일계 실측,
+      Cooper 2002를 인용하며 W 데이터로 재확인). abrasive_wt_pct(Bielmann 1999)와는 다른
+      논문 출처이나 둘 다 "W+알루미나+Fe계 산화제, 저농도 선형(collision-frequency) 레짐"
+      동일 화학 패밀리 — 완전 단일 출처 DOE로 교체 전까지 유효.
+      ⚠ 절대 wt% 스케일(x축 그래프 눈금)은 원문 텍스트에 없어 미확보. 지수값(1/3)만 채택.
+    source: knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielmann.md §4
+    confidence: literature
+
   # ── Δ 손상 유발도 (스크래치 위험) — 진단 전용, MRR에 곱해지지 않음 ──
   # ⚠ Egan & Kim 2019 §3.4: 텅스텐 벌크 CMP에서 대입자는 **MRR을 올리지 않고 스크래치만**
   #   늘린다("the rate does not increase … statistically comparable"). Δ와 κ의 분리 설계가

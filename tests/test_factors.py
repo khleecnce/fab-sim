@@ -92,6 +92,26 @@ def test_consumable_inputs_actually_move_mrr(key, ref, expect_sign):
         f"{key} 증가 시 MRR 방향이 {np.sign(hi-lo)}인데 {expect_sign}이어야 한다.")
 
 
+def test_kappa_abrasive_wt_pct_wired_for_w_fe_oxidizer():
+    """2026-09-12 정확도루프: w_fe_oxidizer에 abrasive_wt_pct(Bielmann 1999, 10 wt%)와
+    abrasive_conc_exponent(Wang 2012, 1/3)를 신규 배선했다. cu_h2o2_bta·w_fe_oxidizer 중
+    w_fe_oxidizer만 값이 있으므로 이 팩에서만 농도가 MRR을 움직여야 한다.
+    """
+    lo = _mean_mrr(pack="w_fe_oxidizer", abrasive_wt_pct=9.0)
+    hi = _mean_mrr(pack="w_fe_oxidizer", abrasive_wt_pct=11.0)
+    assert lo != pytest.approx(hi, rel=1e-6), (
+        "w_fe_oxidizer의 abrasive_wt_pct를 바꿨는데 MRR이 안 변한다 — 배선이 깨졌다.")
+    assert hi > lo, "농도 증가는 MRR 증가로 이어져야 한다(Bielmann/Wang 1/3 지수)."
+
+
+def test_kappa_reference_unity_for_w_fe_oxidizer():
+    """기준 농도(10.0 wt%, Bielmann 1999 실험 조건)에서 κ의 conc 항은 정확히 1.0."""
+    f = _factors(pack="w_fe_oxidizer")["kappa"]
+    assert f.terms.get("conc") == pytest.approx(1.0, rel=1e-9), (
+        f"기준 조건(abrasive_wt_pct=abrasive_ref_wt_pct=10.0)에서 conc항은 1.0이어야 하는데 "
+        f"{f.terms.get('conc')}다.")
+
+
 def test_ph_moves_mrr():
     """pH는 정점형이라 부호 테스트가 아니라 '변하는가'로 묻는다."""
     assert _mean_mrr(slurry_ph=10.0) != pytest.approx(_mean_mrr(slurry_ph=11.0), rel=1e-6)
