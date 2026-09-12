@@ -8,6 +8,7 @@
 > [[../cmp/pattern-dependent-dishing-erosion]] (유효밀도·PL·step-height 소멸 두 레짐), [[../cmp/pattern-metrics-dishing-erosion-stepheight]] (dishing·step height 정의),
 > [[../cmp/npw-ptw-pattern-effect-gw-physics]] (블랭킷이 패턴을 예측 못 하는 미시 물리), [[hertz-gw-contact-mechanics]] (up 영역 국소압 증폭),
 > [[../cmp/preston-luo-dornfeld-mrr]] (K = Kp·P·V — 밀도모델의 블랭킷 항)
+> 후속: [[film-poly-si-high-selectivity-lowdefect-slurry]] (Lv3-1 — 여기서 남긴 χ_down 억제인자가 Lagudu 2019의 비-Preston 문턱압력으로 실체화된다)
 
 ## 0. 출처 (5건 — 1차 원문 3건, 초록 1건, 형제 노트 경유 1건; 단원 상한 6건 준수)
 

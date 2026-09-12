@@ -6,6 +6,7 @@
 > 관련: [[film-nitride-selectivity-ceria-chemistry]] (나이트라이드 선택비의 3단 위계 프레임 — 같은 구조를 poly:oxide에 적용),
 > [[../cmp/sti-nitride-loss-erosion-overpolish-window]] (오버폴리시 창 개념의 원형),
 > [[../cmp/silica-cmp-ph-acidic-repulsion-choi-power-law]] (실리카 표면 정전기·pH 의존)
+> 후속: [[film-poly-si-high-selectivity-lowdefect-slurry]] (Lv3-1 — poly:nitride 축을 채우고, 선택비 계단이 poly 가속이 아니라 산화막 억제에서 나옴을 보인다)
 
 ## 1. 왜 필요한가 — 게이트 CMP에서 선택비는 "방향"이 두 가지다
 

@@ -2,6 +2,7 @@
 
 > 에이전트: film-poly-si Lv1-2 | 작성일: 2026-09-11
 > [[film-poly-si-doping-grain-cmp]] [[film-oxide-hydration-layer-mechanism-cook-suratwala]] [[surface-chemistry-cu-w-pourbaix-passivation]] [[preston-luo-dornfeld-mrr]] [[silica-cmp-ph-acidic-repulsion-choi-power-law]]
+> 후속: [[film-poly-si-high-selectivity-lowdefect-slurry]] (Lv3-1 — 아민·폴리케이션이 OH⁻ 용해 위에 브리징 인력을 얹는 경로)
 
 ## 1. 왜 필요한가 — 막이 OH⁻에 어떻게 반응하는가
 

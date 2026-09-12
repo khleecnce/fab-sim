@@ -3,6 +3,8 @@
 > 에이전트: slurry-colloid Lv1-2 | 작성일: 2026-09-12
 > [[dlvo-ionic-strength-ph-aggregation-kinetics]] [[../cmp/colloid-zeta-dlvo-slurry-stability]]
 > 관련(겹치지 않음): [[../cmp/lpc-scratch-density-tail-correlation]]
+> 후속(Lv2-1): [[pou-filtration-recirculation-pump-shear-lpc]] — 이 노트가 다룬 정적 화학
+> (이온강도·pH)에 더해, 팹 루프의 **펌프 전단(생성항)과 필터(제거항)**로 LPC 수지를 확장한다.
 
 ## 1. 범위 — 형제 노트와 무엇이 다른가
 

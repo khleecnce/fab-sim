@@ -889,5 +889,147 @@
   "authors": "Lee H, Guo Y, Jeong H",
   "venue": "Int. J. Precis. Eng. Manuf. 13(1) 25-31 (2012)",
   "note": "physics/cmp-theta-retaining-ring-pressure-heat-channel.md — Table 1 RR압력 2-6psi 마찰력 실측, Theta 3차 PARTIAL 해소"
+ },
+ "khanna2019-mee-shear-agglomeration-cmp": {
+  "src": "미러 사이트 -> 미러 사이트 (Elsevier paywall 폴백), 2026-09-13",
+  "pdf_local": "papers/khanna2019-mee-shear-agglomeration-cmp.pdf",
+  "doi": "10.1016/j.mee.2019.03.012",
+  "title": "Quantification of shear induced agglomeration in chemical mechanical polishing slurries under different chemical environments",
+  "authors": "Khanna AJ, Gupta S, Kumar P, Chang FC, Singh RK",
+  "venue": "Microelectronic Engineering 210, 1-7 (2019)",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md"
+ },
+ "khanna2018-ecs-jss-controlled-shear-agglomeration": {
+  "src": "미러 사이트 -> 미러 사이트 (ECS paywall 폴백), 2026-09-13",
+  "pdf_local": "papers/khanna2018-ecs-jss-controlled-shear-agglomeration.pdf",
+  "doi": "10.1149/2.0091805jss",
+  "title": "Study of Agglomeration Behavior of Chemical Mechanical Polishing Slurry under Controlled Shear Environments",
+  "authors": "Khanna AJ, Gupta S, Kumar P, Chang FC, Singh RK",
+  "venue": "ECS J. Solid State Sci. Technol. 7(5), P238-P242 (2018)",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md"
+ },
+ "seo2003-mee-pou-slurry-filter": {
+  "src": "미러 사이트 -> 미러 사이트 (Elsevier paywall 폴백), 2026-09-13",
+  "pdf_local": "papers/seo2003-mee-pou-slurry-filter.pdf",
+  "doi": "10.1016/S0167-9317(03)00278-8",
+  "title": "Advantages of point of use (POU) slurry filter and high spray method for reduction of CMP process defects",
+  "authors": "Seo YJ, Kim SY, Lee WS",
+  "venue": "Microelectronic Engineering 70, 1-6 (2003)",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md"
+ },
+ "rastegar2017-seppur-ceria-slurry-fibrous-filter": {
+  "src": "미러 사이트 -> 미러 사이트 (Elsevier paywall 폴백), 2026-09-13",
+  "pdf_local": "papers/rastegar2017-seppur-ceria-slurry-fibrous-filter.pdf",
+  "doi": "10.1016/j.seppur.2016.12.017",
+  "title": "Filtration of aqueous colloidal ceria slurries using fibrous filters - An experimental and simulation study",
+  "authors": "Rastegar V, Ahmadi G, Babu SV",
+  "venue": "Separation and Purification Technology 176, 231-242 (2017)",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md"
+ },
+ "wood2019-asmc-multistage-filtration-cmp-lpc": {
+  "src": "미러 사이트 -> 미러 사이트 (IEEE paywall 폴백), 2026-09-13",
+  "pdf_local": "papers/wood2019-asmc-multistage-filtration-cmp-lpc.pdf",
+  "doi": "10.1109/ASMC.2019.8791775",
+  "title": "The Benefits of Multi-Stage Filtration for Improved CMP Slurry Large Particle Retention",
+  "authors": "Wood BH, Hsu A, Shie B (Entegris)",
+  "venue": "2019 30th Annual SEMI ASMC, 194-197",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md"
+ },
+ "entegris-appnote-7590-filtration-characteristics": {
+  "src": "entegris.com 공개 application note 직접 다운로드, 2026-09-13",
+  "pdf_local": "papers/entegris-appnote-7590-filtration-characteristics.pdf",
+  "doi": null,
+  "title": "Filtration Characteristics of CMP Slurries (4435-7590ENT-0214)",
+  "authors": "Singh RK (Entegris)",
+  "venue": "Entegris Application Note (2014)",
+  "note": "slurry/pou-filtration-recirculation-pump-shear-lpc.md | 업체 기술문서(가중치 0.5)"
+ },
+ "entegris-appnote-7561-cmp-filter-characterization": {
+  "src": "entegris.com 공개 application note 직접 다운로드, 2026-09-13 (배경자료, 본 단원 인용 6건에는 미포함)",
+  "pdf_local": "papers/entegris-appnote-7561-cmp-filter-characterization.pdf",
+  "doi": null,
+  "title": "CMP Filter Characterization with Leading Slurry Particles (4423-7561ENT-0114)",
+  "authors": "Lu YW, Shie B, Hsiao S, Yang HJ, Lee S (Entegris)",
+  "venue": "Entegris Application Note (2014)",
+  "note": "배경자료 — 인용하지 않음"
+ },
+ "lee2024-scirep-lensfree-reflective-topography-wafer-inspection": {
+  "src": "PMC OA (CC-BY), Europe PMC fullTextXML — 로컬 코퍼스 data/corpus/fulltext/doi_10.1038_s41598-024-59496-4.xml 복사",
+  "pdf_local": "papers/lee2024-scirep-lensfree-reflective-topography-wafer-inspection.xml",
+  "doi": "10.1038/s41598-024-59496-4",
+  "pmcid": "PMC11076508",
+  "title": "Lens-free reflective topography for high-resolution wafer inspection",
+  "authors": "Lee H, Sung J, Park S, Shin J, Kim H, Kim W, Lee M (Samsung Electronics)",
+  "venue": "Sci. Rep. 14, 10519 (2024)",
+  "note": "cmp/post-cmp-defect-classification-and-inspection.md"
+ },
+ "lee2020-scirep-lpc-counting-fluctuation": {
+  "src": "PMC OA (CC-BY), Europe PMC fullTextXML — 로컬 코퍼스 data/corpus/fulltext/doi_10.1038_s41598-020-71768-3.xml 복사",
+  "pdf_local": "papers/lee2020-scirep-lpc-counting-fluctuation.xml",
+  "doi": "10.1038/s41598-020-71768-3",
+  "pmcid": "PMC7477581",
+  "title": "Universal inherent fluctuations in statistical counting of large particles in slurry used for semiconductor manufacturing",
+  "authors": "Lee M, Kim D, Heo T-Y, Park T, Kim W, Choi D, Kim H, Kim J",
+  "venue": "Sci. Rep. 10, 14731 (2020)",
+  "note": "cmp/post-cmp-defect-classification-and-inspection.md"
+ },
+ "penta2011-langmuir-pdadmac-poly-selectivity": {
+  "src": "미러 사이트(미러 사이트 → 미러 사이트) 2026-09-13 확보, 원문 전체 9쪽",
+  "pdf_local": "papers/penta2011-langmuir-pdadmac-poly-selectivity.pdf",
+  "txt_local": "papers/penta2011-langmuir-pdadmac-poly-selectivity.pdf.txt",
+  "doi": "10.1021/la104257k",
+  "title": "Role of Poly(diallyldimethylammonium chloride) in Selective Polishing of Polysilicon over Silicon Dioxide and Silicon Nitride Films",
+  "authors": "Penta NK, Dandu Veera PR, Babu SV",
+  "venue": "Langmuir 27(7), 3502-3510 (2011)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "penta2011-acsami-polycation-charge-density-poly-selectivity": {
+  "src": "미러 사이트(미러 사이트 → 미러 사이트) 2026-09-13 확보, 원문 전체 7쪽",
+  "pdf_local": "papers/penta2011-acsami-polycation-charge-density-poly-selectivity.pdf",
+  "txt_local": "papers/penta2011-acsami-polycation-charge-density-poly-selectivity.pdf.txt",
+  "doi": "10.1021/am2010114",
+  "title": "Charge Density and pH Effects on Polycation Adsorption on Poly-Si, SiO2, and Si3N4 Films and Impact on Removal During Chemical Mechanical Polishing",
+  "authors": "Penta NK, Dandu Veera PR, Babu SV",
+  "venue": "ACS Appl. Mater. Interfaces 3(10), 4126-4132 (2011)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "lagudu2019-ecsjss-nonprestonian-poly-reactive-liquids": {
+  "src": "미러 사이트 경유 확보(원문은 ECS OA, CC BY-NC-ND 4.0), 원문 전체 7쪽",
+  "pdf_local": "papers/lagudu2019-ecsjss-nonprestonian-poly-reactive-liquids.pdf",
+  "txt_local": "papers/lagudu2019-ecsjss-nonprestonian-poly-reactive-liquids.pdf.txt",
+  "doi": "10.1149/2.0081905jss",
+  "title": "Reactive Liquids for Non-Prestonian Chemical Mechanical Polishing of Polysilicon Films",
+  "authors": "Lagudu URK, Korkmaz S, Gowda A, Penta NK, Babu SV",
+  "venue": "ECS J. Solid State Sci. Technol. 8(5), P3040-P3046 (2019)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "jeon2021-mssp-abrasive-free-poly-buffing": {
+  "src": "미러 사이트(미러 사이트 → 미러 사이트) 2026-09-13 확보, 원문 전체 8쪽",
+  "pdf_local": "papers/jeon2021-mssp-abrasive-free-poly-buffing.pdf",
+  "txt_local": "papers/jeon2021-mssp-abrasive-free-poly-buffing.pdf.txt",
+  "doi": "10.1016/j.mssp.2021.105755",
+  "title": "Investigation of abrasive-free slurry for polysilicon buffing chemical mechanical planarization",
+  "authors": "Jeon S, Hong J, Hong S, Kanade C, Park K, Seok H, Kim H, Lee S, Kim T",
+  "venue": "Mater. Sci. Semicond. Process. 128, 105755 (2021)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "kim-nccavs-icpt-poly-si-mechanochemical-selective": {
+  "src": "NCCAVS CMP User Group / ICPT 발표논문 PDF 직링크 https://nccavs-usergroups.avs.org/wp-content/uploads/2023/01/P42-EKim.pdf (DOI 없음)",
+  "pdf_local": "papers/kim-nccavs-icpt-poly-si-mechanochemical-selective.pdf",
+  "txt_local": "papers/kim-nccavs-icpt-poly-si-mechanochemical-selective.pdf.txt",
+  "doi": null,
+  "title": "Mechanochemically Enhanced Selective Material Removal during poly-Si CMP by Nanocontact-induced Dissolution",
+  "authors": "Kim E, Choi S, Seok H, Kang C, Kim T",
+  "venue": "NCCAVS CMPUG / ICPT proceedings paper P42 (게재연도 미표기 — 업로드 2023-01)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
+ },
+ "dang2025-jmapro-eda-poly-selective-cmp": {
+  "src": "초록만 확보(Crossref/OpenAlex 기탁 초록). 본문은 CC-BY이나 ScienceDirect가 봇차단(403), Elsevier TDM API 키 필요 → 전문 미확보",
+  "pdf_local": null,
+  "doi": "10.1016/j.jmapro.2025.11.011",
+  "title": "Achieving highly selective polishing of polysilicon over oxide and nitride films via ethylenediamine-modulated interfacial mechanochemistry",
+  "authors": "Dang S, Xiao C, Li J, Jiang Y, Franklin SE, Qian L, Chen L",
+  "venue": "J. Manuf. Process. (2025-12)",
+  "note": "materials/film-poly-si-high-selectivity-lowdefect-slurry.md"
  }
 }
