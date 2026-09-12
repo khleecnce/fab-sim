@@ -2080,6 +2080,24 @@ completion.py는 여전히 12/50(Θ는 C1 unmodeled 리스트에서 이미 빠�
 confidence 칸이 아니라 accuracy_gaps 랭커의 무한 재방문을 끊은 것). 커밋 2614715 push 완료.
 다음 회차 갭: κ(kappa) PARTIAL — pad_hardness/asperity 항만 있고 abrasive_wt_pct 항 결측.
 
+## 2026-09-12 14:xx [성장엔진] κ(kappa) PARTIAL — w_fe_oxidizer abrasive_size_exponent null 확정
+정확도루프 갭 κ PARTIAL(w_fe_oxidizer 미배선 입경항)을 처리. Egan & Kim 2019(ECS JSSTechnol
+8(5) P3206, DOI:10.1149/2.0311905jss, GLOBALFOUNDRIES W CMP 양산실측) 초록 "removal rate not
+affected by abrasive size" 확인. 독립 확증으로 Bouvet et al. 2002(JVST B 20(4) 1556,
+DOI:10.1116/1.1490393, 미러 사이트 경유 확보) — 콜로이달실리카 12-75nm(factor 6.25)에서 W
+제거율 "quite constant" 정량 확인(단 연마입자 종류 실리카로 다름, 교란 명시). 두 독립 문헌이
+같은 방향(입경-MRR 무반응)으로 수렴 — cu_h2o2_bta(EVIDENCE-RULES 판정#1)와 별개의 두 번째
+확정 사례로 EVIDENCE-RULES.md 판정#6에 기록. w_fe_oxidizer.yaml에 abrasive_ref_size_nm=50.0·
+abrasive_size_exponent=0.0(literature) 추가. 지식노트 신설(verify_claims·check_knowledge
+통과), tests/test_factors.py 2개 신규(null 항 계상·입경 불변성). 커밋 겸사겸사 oxide_silica.yaml
+abrasive_conc_exponent confidence unverified→literature 승격분(이전 회차 미커밋 잔여)도 포함.
+pytest 621 passed(기준 619, 회귀 0). qa_loop --strict PASS(#44, 유의 7/20, 평균 ρ=0.9537 불변).
+completion.py 여전히 12/50(항 배선은 C1/C2 칸 직접 이동 없음 — 동일 정책, 이전 kappa 배선건과
+같은 사유). 커밋 f482149 push 완료.
+다음 회차 갭: τ(tau) PARTIAL — groove_depth_mm 항 결측(현재 groove_width_um·pad_porosity_pct만
+반응). 이번 회차 조사한 irfan2025(JMMP CFD groove depth)는 그루브 깊이 감소(0.75→0.25mm, 패드
+수명 경과)의 압력장/전단응력 정성 서술뿐 정량 MRR-깊이 수치는 미확보 — 다음 회차 계속 탐색 필요.
+
 ## 2026-09-12 12:xx [성장엔진] κ(kappa) PARTIAL — 정확도루프 갭 처리: w_fe_oxidizer 농도항 배선
 accuracy_gaps.py --next가 κ PARTIAL(terms=[pad_hardness,asperity], 5팩 aggregate)을 지목.
 문헌 조사: Cooper et al. 2002(ECS Solid-State Lett. 5(12) G109, DOI:10.1149/1.1517772, 미러 사이트
