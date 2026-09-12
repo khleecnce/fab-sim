@@ -275,6 +275,55 @@ FOUP(LP) ─DR→ [FI 트랜스퍼 플랫폼] ─WR(뒤집어 face-down)→ 입�
 - Reflexion LK 자체 사진은 AMAT 서버 403 으로 확보 실패; LK Prime 사진(Wayback)으로 외관을 대신했다. LK 와 LK Prime 은 정면(로드포트 3개)·색상 동일 계열이나 LK Prime 이 더 길다(14 모듈).
 - Mirra(200 mm) 특허의 "플래튼 사이 중간 세척 스테이션"은 Reflexion 도면(US 10,229,842 FIG.1)에는 없다 — 옵션으로만 모델링.
 
+## 7. 검증 (수치 재현) — 2026-09-12 부채상환
+
+기하학적으로 유도한 값들을 계산으로 재현하고, 문헌/표준값과 대조한다.
+(원 문헌은 정확 치수를 공개하지 않으므로 대조 대상은 "본문 표에 이미 적은 유도값"이며,
+이는 어떤 도구도 공개되지 않은 실측치를 대신 확인해줄 수 없다는 뜻이다 — 아래 §6에 명시된
+±25% 오차 가정은 그대로 유효하다. 이 블록의 목적은 "표에 적은 산수가 실제로 맞는지"를 담보하는 것.)
+
+```python verify
+import math
+
+# 1) 인접 플래튼 중심간 거리 = R*sqrt(2), R=0.72 (본문 §3.2)
+R = 0.72
+center_dist = R * math.sqrt(2)
+stated_center_dist = 1.02  # 본문 표 값
+assert abs(center_dist - stated_center_dist) < 0.01, (center_dist, stated_center_dist)
+
+# 2) 패드 가장자리 간 틈 = center_dist - 패드지름(0.775)
+pad_dia = 0.775
+gap = center_dist - pad_dia
+stated_gap = 0.24
+assert abs(gap - stated_gap) < 0.02, (gap, stated_gap)
+
+# 3) IC1000 패드 규격 30.5 in -> m, 플래튼 지름 표기(0.78~0.80)와 대조
+IN_TO_M = 0.0254
+pad_dia_from_spec = 30.5 * IN_TO_M
+assert abs(pad_dia_from_spec - 0.775) < 0.005, pad_dia_from_spec
+# 문헌: 30.5 in = 0.7747 m -> 본문 0.775 m 표기와 1 mm 이내 일치 (근거 [16])
+
+# 4) 로드포트 피치: SEMI E15.1 표준값 0.505 m (통용) vs 본문 좌표(0.55,1.06,1.56)
+lp_pitch_stated = [1.06 - 0.55, 1.56 - 1.06]
+semi_e15_1_pitch = 0.505  # 통용값(원문서 유료, §출처20 명시)
+for p in lp_pitch_stated:
+    assert abs(p - semi_e15_1_pitch) < 0.01, (p, semi_e15_1_pitch)
+
+# 5) 캐러셀 판 지름 추정치 재현: 2R + 여유(0.4) = 1.85 표기와 대조 -> [추정] 표기 그대로 유지, 일치 확인만
+carousel_dia_calc = 2 * R + 0.4
+assert abs(carousel_dia_calc - 1.85) < 0.02, carousel_dia_calc
+
+print("PASS: 5/5 기하 산출값이 본문 표기와 오차범위 내 일치")
+print(f"center_dist={center_dist:.4f} gap={gap:.4f} pad_dia_from_spec={pad_dia_from_spec:.4f}")
+```
+
+**결론**: 표에 적은 유도값(플래튼 간격 1.02 m, 틈 0.24 m, 패드지름 0.775 m, 로드포트 피치 0.505 m,
+캐러셀판 1.85 m)은 모두 본문에 명시한 산식(R√2, 30.5 in 환산, SEMI E15.1 통용 피치)으로 오차 1 cm/5 mm
+이내로 재현된다. **단, R=0.72 m 자체와 "여유 0.4 m"는 AMAT 비공개 치수의 [추정]이라 이 검증은 "산수가
+맞다"는 것만 보장하며 "실제 툴 치수와 일치한다"는 것은 보장하지 않는다** — §6 정직성 표기 유지.
+
+---
+
 ## 출처
 1. US 5,738,574 A, "Continuous processing system for chemical mechanical polishing", Applied Materials (Tolles et al.), 1998. https://patents.google.com/patent/US5738574A/en — 3 플래튼 + 트랜스퍼 스테이션 정사각 배치, 4-헤드 십자 캐러셀, 20 in 플래튼(200 mm), 스트로크·회전방향·컨디셔너·세척 스테이션 원문 확인.
 2. US 5,804,507 A, "Radially oscillating carousel processing system for CMP", Applied Materials (Perlov et al.), 1998. https://patents.google.com/patent/US5804507A/en
