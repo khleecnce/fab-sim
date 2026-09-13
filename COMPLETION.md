@@ -208,3 +208,11 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   신설 + steady_state_heat_balance(g_wafer_w_k=0.0) 선택인자(기본값이면 확장 전과 비트 동일,
   partition()도 3키 유지 — _f_theta/MRR 경로 무수정). pytest 636 passed, self-test 8/8→12/12,
   verify_claims 3블록 통과(출처 7건 실존), qa_loop --strict PASS ρ=0.9537 불변.
+- 2026-09-14 [Max워커] τ 결합지수 0.07 재유도 시도 → **Da 미확보로 종결**(EVIDENCE-RULES 판정#11).
+  직렬저항(수송-반응) 폐형식 MRR(η)/MRR(η_ref)=(1+Da)/(1+Da·η_ref/η) 유도는 성립(단조·포화·기준점
+  재현 verify 블록 PASS)하나, Da를 고정할 문헌이 없다: 경로(a) Mu 2016 원문에 η와 짝지어진 MRR
+  부재(전문 재검색 'removal' 1건=서론 일반론), 경로(b) 유량→MRR 실측 4편(Li 2004 doi:10.1149/1.1758818
+  유량↑→RR 15%↓ 냉각채널, 10.1149/1.1723501 COF채널, 10.1149/1.2177006 패드온도 지배,
+  Fu 2005 doi:10.1143/jjap.44.7843 'optimum' 정점형)이 전부 부호·기전 불일치라 채택 불가.
+  **sim/factors.py 무수정(0.07 유지), τ 5칸은 unverified 그대로.** 억지 승격 대신 정직한 미확보로 남긴다.
+  pytest 645 passed, completion 23/50 불변, qa_loop --strict PASS ρ=0.9537 불변.

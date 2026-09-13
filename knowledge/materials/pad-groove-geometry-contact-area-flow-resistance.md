@@ -301,3 +301,109 @@ for pack in ["cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe
 
 print("PASS: 5팩 전부 groove_depth_mm/groove_pitch_mm 제외 + status=modeled 확인")
 ```
+
+## 7. τ의 η→MRR 결합 지수(tau_mrr_exponent=0.07) 재유도 시도 — Da 미확보로 종결(2026-09-14)
+
+`sim/factors.py::_f_tau`의 `tau_mrr_exponent=0.07`은 자기 주석이 밝히듯 Prasad 2013 기공률
+실험(15→45%, RR+8%)에서 역산한 지수를 그루브 폭 축에 교차 대입한 값이라 미검증이다. 이를
+제1원리로 재유도하기 위해 물질전달-표면반응 직렬저항 모델을 시도했다.
+
+### 7.1 유도 — 직렬저항(수송-반응) 모델
+
+접촉부 표면반응물 농도 C_s는 물질전달 저항(1/k_m)과 표면반응 저항(1/k_r)의 직렬 합으로 정해진다:
+
+    J = k_m(C_b − C_s) = k_r C_s  ⟹  J = C_b / (1/k_m + 1/k_r)
+
+MRR ∝ J, k_m ∝ η(신선 슬러리 공급이 전달계수에 비례한다는 가정)로 두면, 기준조건 대비 무차원
+Damköhler 수 Da = k_r/k_m|_ref 하나로 정규화된 폐형식이 나온다:
+
+    MRR(η)/MRR(η_ref) = (1 + Da) / (1 + Da·η_ref/η)
+
+이 형태는 η→∞에서 (1+Da)로 포화(수송 무제한 한계), η→0에서 0, Da→0(반응율속)에서 η 무관,
+Da→∞(수송율속)에서 MRR∝η로 수렴한다 — **단조증가·포화형**이다(아래 §7.4 검증 블록에서 확인).
+이 단조성이 실제로 문헌과 맞는지가 다음 관문이다.
+
+### 7.2 경로 (a) — Mu 2016 원문에 η와 짝지어진 MRR이 있는가: 없다
+
+`.paper_txt_cache/mee-2016-mu-groove-width-residence-time__pdf.txt`(444줄, 본문 전체 재추출)를
+"removal"로 전수 검색하면 **1건**만 나온다 — 서론의 "can affect material removal rate and
+planarization efficiency"(일반론 문장)뿐이다. Table 3(η 실측)이 있는 결과부·논의부 어디에도
+MRR·RR 수치는 없다. 이 논문 자체로는 (η, MRR) 짝을 만들 수 없다 — 경로 (a) 실패, 원문 재확인
+완료(2026-09-14, 기존 §1·§2 조사와 동일 캐시 파일 재사용).
+
+### 7.3 경로 (b) — 유량(Q)→MRR을 η의 대리축으로 쓸 수 있는가: 문헌이 그 가정을 기각한다
+
+Q와 η를 동일시하려면 "유량을 늘리면 MRR이 늘거나(적어도 줄지 않고) 포화한다"는 최소한의
+단조성이 성립해야 한다. 슬러리 코퍼스(`data/corpus/corpus.sqlite`)에서 유량→MRR 직접 실측 4편을
+찾아 확인한 결과, **넷 다 이 단조성을 지지하지 않는다**:
+
+- **Li, Borucki, Koshiyama, Philipossian, J. Electrochem. Soc. 151(7) G482 (2004),
+  doi:10.1149/1.1758818** — 미러 사이트 경유 원문 확보(University of Arizona 실측, Cu CMP,
+  동일 p×V 고정). 원문 인용: "the removal rate at any fixed value of p × V generally
+  **decreases** as slurry flow rate increases... The increase in removal rate at the lower
+  flow rate is as much as **15%**." 기전은 명확히 진단됨 — 유량 80→140 cc/min이 웨이퍼를
+  대류 냉각시켜 T_w를 낮추고, Langmuir-Hinshelwood 반응속도상수 k1(∝ exp(−E/kT_w))를
+  낮춘다. 즉 이 계에서 Q는 **온도 채널**을 통해 MRR을 좌우하지, "더 많은 신선 슬러리 공급"
+  채널이 아니다. 부호가 우리 모델(η↑⇒MRR↑ 또는 불변)과 **반대**다.
+- **Li, Philipossian et al., J. Electrochem. Soc. (2004), doi:10.1149/1.1723501** (제목:
+  "Effect of Slurry Flow Rate on Pad Life during Interlayer Dielectric CMP") — 초록(코퍼스
+  확보): "Slurry flow rate is shown to modulate average COF... the absolute magnitude of ILD
+  removal rate is shown to be **highly dependent on the tribological mechanism**." 같은
+  연구그룹, 같은 결론 — Q는 마찰(COF) 채널로 MRR을 바꾼다.
+- **doi:10.1149/1.2177007** ("Effects of Slurry Flow Rate and Pad Conditioning Temperature on
+  Dishing, Erosion, and Metal Loss during Copper CMP") — 초록: "dishing and erosion levels
+  **decreased** with increase in slurry flow rate"이고 제거율은 **패드 표면온도**가 지배한다고
+  명시. 역시 온도/컨디셔닝 채널.
+- **Fu et al., Jpn. J. Appl. Phys. 44, 7843 (2005), doi:10.1143/jjap.44.7843** ("Slurry
+  Transport during Chemical Mechanical Polishing") — 초록(코퍼스 확보, 본문은 미러 사이트 미러가
+  다른 논문 PDF를 잘못 매핑해 미확보 — **E5, 초록만**): "we also show the **optimum** slurry
+  injection rate." 최적값이 존재한다는 것 자체가 단조-포화가 아니라 **정점형**(늘릴수록
+  나빠지는 구간 존재)임을 뜻한다.
+
+네 편 모두(같은 애리조나대 그룹 3편 + 독립 JJAP 1편) Q의 지배 채널이 열/마찰/정점형이지,
+우리 모델이 가정한 "공급 증가→반응물 농도 회복→포화형 증가"가 아니다. 이 상태로 Da를 이 중
+아무 데이터에라도 맞추면, 실제로는 냉각·COF·최적점 효과인 것을 수송저항 감소로 오귀속하는
+것이다 — 이는 "가정을 명시한 근사"가 아니라 **부호가 반대인 기전을 억지로 우리 함수형에
+욱여넣는 것**이라 EVIDENCE-RULES §금지("충돌을 평균내지 마라... 데이터 스누핑 금지")에
+저촉된다. 경로 (b) 기각.
+
+### 7.4 결론 — Da 미확보, 스코프 유지(경로 (c))
+
+경로 (a)(Mu 2016 자체 MRR 부재)와 경로 (b)(Q→MRR 문헌 4편이 전부 다른 부호/기전)가 모두
+막혀 **Da를 문헌에서 고정할 수 없다**. §7.1의 직렬저항 유도 자체는 수학적으로 유효하고(아래
+검증 블록), τ의 η 결합이 "포화형이어야 한다"는 물리적 논증으로는 남겨두지만, **이 폐형식으로
+현재의 tau_mrr_exponent=0.07을 교체하지 않는다** — 교체하려면 Da 값이 필요하고 그 값을 뒷받침할
+근거가 없다. `sim/factors.py::_f_tau`는 변경하지 않는다(0.07 유지, 여전히 교차 대입·미검증).
+
+**τ 결합 크기는 여전히 미검증이다 — 순위(전달이 나아지면 조금 낫다)만 신뢰하라.** 재개 조건:
+같은 계(그루브 폭 또는 기공률 축)에서 η와 MRR을 함께 보고하는 1차 문헌을 새로 확보하거나,
+Q→MRR 실측 중 온도/COF를 통제(고정)한 채 유량만 스윕한 데이터를 확보하는 경우.
+
+```python verify
+# §7.1 폐형식의 수학적 성질(단조·포화·극한)을 확인한다 — Da를 문헌에서 못 구했다는 사실과는
+# 별개로, 유도 자체가 옳게 서술됐는지를 검증한다.
+def mrr_ratio(eta, eta_ref, Da):
+    return (1 + Da) / (1 + Da * eta_ref / eta)
+
+eta_ref = 0.10
+# 단조증가: eta가 커질수록 비율도 커진다
+vals = [mrr_ratio(eta, eta_ref, Da=2.0) for eta in [0.05, 0.10, 0.20, 0.50, 5.0]]
+assert all(b > a for a, b in zip(vals, vals[1:])), f"단조증가가 아니다: {vals}"
+
+# 포화: eta -> 무한대에서 (1+Da)로 수렴
+assert abs(mrr_ratio(1e6, eta_ref, Da=2.0) - 3.0) < 1e-3
+
+# Da=0(반응율속)이면 eta 무관 — 비율 항상 1
+assert abs(mrr_ratio(0.5, eta_ref, Da=0.0) - 1.0) < 1e-9
+
+# eta=eta_ref면 항상 정확히 1 (기준점 재현)
+for Da in [0.1, 1.0, 10.0]:
+    assert abs(mrr_ratio(eta_ref, eta_ref, Da) - 1.0) < 1e-9
+
+print("PASS: 직렬저항 폐형식은 단조·포화·기준점 재현 성질을 만족한다(수학 자체는 유효, Da 값만 미확보)")
+```
+
+| 판정 | 서열 | 근거 | 날짜 |
+|---|---|---|---|
+| tau_mrr_exponent Da 재유도 — 경로(a)(b) 모두 실패, 0.07 유지 | 경로(b) 후보 4편 전부 **E3/E5**(같은 계 아님 또는 초록만) — 서열로 채택할 근거 자체가 없음(방향이 반대라 "약해도 채택"조차 불가) | Mu 2016 원문에 MRR 부재(재확인) + Q→MRR 문헌 4편이 전부 온도/COF/정점 채널로 진단되어 있어 "Q≡η, 단조포화" 가정과 부호가 반대. 데이터 스누핑 금지 원칙상 기각 | 2026-09-14 |
+
