@@ -2314,3 +2314,19 @@ particle, ceria 아님)·산화제(KMnO4, H2O2 아님) 불일치로 sim/factors.
 재유도 연쇄)이고 이번 회차 변경(노트+데이터셋 삭제)과 무관해 revert 대상 아님으로
 판단, 커밋 진행. completion 12/50(변화없음). 다음 회차: entegris2022 회귀 원인 조사
 (kappa 재유도가 alumina 농도항에 준 영향) 우선 확인 필요.
+
+## 2026-09-13 20:xx [성장엔진] sic_ceria_h2o2 UNMODELED 갭 종결 — wafer_iep_ph 배선(pH창항 스킵 해소)
+갭 랭커 UNWIRED(abrasive_size_nm, score60) 회차. 이전 회차(2026-09-13 14:xx) 노트가 남긴 근본원인
+갭 #1(wafer_iep_ph 미선언 → _ph_ceria_window_term 항상 스킵)을 이번 회차에서 메웠다. Singh et al.
+2007(J. Nanoparticle Res. 9, 797-806, DOI 10.1007/s11051-006-9121-6, 미러 사이트 경유 원문 1차
+확보) — SiC 표면 IEP=pH 4.9(무첨가, PCD·입도·점도 3중 정합 실측). 새 지식노트
+`knowledge/cmp/sic-isoelectric-point-singh2006-jnr.md`(check_knowledge·verify_claims 둘 다 PASS,
+python verify 블록에 mid_lo 창경계 정량 재현 포함) → `sic_ceria_h2o2.yaml`에 wafer_iep_ph=4.9
+(literature) 명시 선언. pytest 636 passed, qa_loop --strict PASS(유의 ρ=0.9537, 회귀 없음) →
+커밋 9033056 push 완료. completion.py 격자는 12/50 불변(이 갭은 C2/κ 카테고리가 아니라 화학층 pH
+항 자체의 스코프 확장이라 격자 판정 대상 밖 — 그러나 sic_ceria_h2o2에서 pH를 바꿔도 무반응이던
+구조적 결함 하나 해소, 남은 갭#2(oxidizer_peak_wt_pct 미선언)는 다음 회차 후보).
+corpus.py: fetch 시도 15건 전부 실패(patent OA 소스 rate-limit/봉쇄 추정, fetched 0/15) — total
+8960, with_fulltext 1506, queue fetch 7454/learn 1495.
+다음 회차: sic_ceria_h2o2 oxidizer_peak_wt_pct(H2O2 포화 농도) 문헌값 탐색, 또는 갭랭커 --next
+재확인.
