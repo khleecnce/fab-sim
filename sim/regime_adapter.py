@@ -1,0 +1,292 @@
+"""팩 물성 → 레짐 판정 → 지수. 사람이 지수를 적어넣지 않게 하는 배선.
+
+이 파일이 하는 일
+────────────────
+`sim/abrasive_mechanics.py` 는 "세 질문에 답하면 지수가 나온다"는 절차를 담고,
+이 파일은 **그 세 질문을 팩의 물성으로 자동 응답**한다. 즉 사용자가 슬러리
+정보를 넣으면 지수가 따라 나오게 하는 연결부다.
+
+    팩 물성                     →  판단                     →  지수
+    ───────────────────────────────────────────────────────────────
+    패드 탄성·거칠기·돌기밀도    →  실접촉면적의 압력 지수   →  χ
+    입자당 접촉응력·표면층 경도  →  탄성인가 소성인가        →  α, β
+    간극·입자 직경               →  단층인가 다층인가        →  p, q
+
+어느 단계에도 물질명이 없다. 팩이 무엇이든 같은 물성을 읽는다.
+
+없는 값은 지어내지 않는다
+─────────────────────────
+물성이 없으면 그 질문은 "미판정"으로 남고 등급이 내려간다. 이때 팩이 지수를
+직접 선언했다면 **그것을 쓰되 '유도된 값이 아님'을 신고**한다 — 기존 팩이
+깨지지 않으면서, 무엇이 이론에서 나왔고 무엇이 손으로 넣은 값인지 구분된다.
+"""
+from __future__ import annotations
+
+import math
+from typing import Dict, List, Optional, Tuple
+
+from sim.abrasive_mechanics import (
+    ALPHA_ELASTIC, ALPHA_PLASTIC, BETA_FOR_ALPHA, LoadRegime, resolve_regime,
+)
+
+PSI_TO_PA = 6894.757
+
+
+def _num(pk, key: str) -> Optional[float]:
+    """팩에서 수치를 꺼낸다. 없거나 숫자가 아니면 None (기본값을 놓지 않는다)."""
+    v = pk.get_or(key, None)
+    if v is None:
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def area_pressure_exponent(pk, notes: List[str]) -> Optional[float]:
+    """실접촉면적이 압력에 대해 갖는 지수 m (A_r ∝ P^m) → χ 판정의 입력.
+
+    입력: 돌기 높이 분포의 형태
+    판단: 지수분포로 근사되는 거친 표면에서는 실접촉면적이 하중에 **선형**이고
+          분리거리와 무관하다 — 이것이 GW 모델의 해석적 결과다. 이 경우 압력을
+          올리면 접촉 자리가 비례해 늘어나므로 하중이 입자들에게 재분배된다.
+    출력: m. 분포 형태를 모르면 None.
+
+    ⚠ 가우시안 분포에서는 m 이 1 보다 약간 작고 분리거리에 의존한다. 팩이 분포
+      형태를 선언하면 그것을 따르고, 없으면 이 계의 표준 근사(지수분포)를 쓰되
+      근거 등급을 낮춘다.
+    """
+    m = _num(pk, "contact_area_pressure_exponent")
+    if m is not None:
+        notes.append(f"실접촉면적 압력지수 m={m:.3f} (팩 선언)")
+        return m
+
+    dist = str(pk.get_or("asperity_height_distribution", "") or "").lower()
+    if dist in ("exponential", "exp"):
+        notes.append(
+            "실접촉면적 압력지수 m=1.0 — 돌기 높이가 지수분포면 A_r 이 하중에 "
+            "선형이고 분리거리와 무관하다(GW 해석해).")
+        return 1.0
+    if dist in ("gaussian", "normal"):
+        # 가우시안에서는 완전 선형이 아니지만 실용 범위에서 1 에 가깝다.
+        notes.append(
+            "⚠ 실접촉면적 압력지수 m≈0.95 — 가우시안 분포는 지수분포처럼 완전 "
+            "선형이 아니다. 근사값이며 분리거리 의존성은 무시했다.")
+        return 0.95
+    return None
+
+
+def contact_stress_pa(pk, pressure_psi: Optional[float],
+                      notes: List[str]) -> Optional[float]:
+    """입자 하나가 받는 접촉 응력 → α 판정의 입력.
+
+    ⚠ 면적 기준을 섞지 않는다 — 이 계산이 틀리는 가장 흔한 방식이다.
+    실접촉 압력은 **실접촉면적** 기준이고 돌기 밀도는 **명목면적** 기준이다.
+    둘을 그대로 나누면 단위는 맞지만 물리가 어긋나 수십 자릿수 틀린 값이 나온다.
+    그래서 전부 명목면적 1 m² 기준으로 통일해 따라간다:
+
+        명목 1 m² 의 총하중            W_tot = P_nom
+        접촉 자리 수                   N_c   = n_density
+        자리당 하중                    W_c   = W_tot / N_c
+        자리 하나의 실제 면적          A_c   = (실접촉면적비) / N_c
+        자리 하나에 들어가는 입자 수   k     = A_c / (입자 단면적)
+        입자당 하중                    F_p   = W_c / k
+        입자 접촉응력                  σ     = F_p / (입자 단면적)
+
+    마지막 두 줄을 합치면 σ = W_c / A_c 가 되어 **자리 압력과 같아진다**.
+    즉 단층 가정에서 입자가 받는 응력은 그 자리의 실접촉 압력이다 — 입자가
+    자리를 고르게 채우고 있다면 응력이 그대로 전달되기 때문이다.
+    입자가 자리를 다 못 채우면(피복률 < 1) 응력은 그만큼 커진다.
+    """
+    if pressure_psi is None:
+        return None
+    p_nom = float(pressure_psi) * PSI_TO_PA
+
+    ar_ratio = _num(pk, "real_contact_area_ratio")
+    if ar_ratio is None or ar_ratio <= 0:
+        notes.append(
+            "⚠ 접촉응력 미산출: 실접촉면적 비(real_contact_area_ratio)가 없다. "
+            "명목 압력만으로는 입자 하나가 받는 응력을 알 수 없다 — 실접촉은 "
+            "명목의 작은 일부이고 그 비가 응력을 수천 배로 키운다.")
+        return None
+
+    # 자리 압력 = 명목 압력 / 실접촉면적비 (면적 기준 통일)
+    p_contact = p_nom / ar_ratio
+
+    # 입자가 자리를 얼마나 채우는가. 피복률 1 이면 입자 응력 = 자리 압력.
+    coverage = _num(pk, "particle_surface_coverage")
+    if coverage is None:
+        notes.append(
+            f"입자 접촉응력 {p_contact:.3g} Pa — 단층·완전피복 가정에서 입자가 "
+            "받는 응력은 그 자리의 실접촉 압력과 같다. "
+            "⚠ 실제 피복률(particle_surface_coverage)이 1 보다 작으면 응력은 "
+            "그 비만큼 커진다 — 피복률 실측이 없어 상계를 못 좁혔다.")
+        return p_contact
+
+    coverage = max(min(float(coverage), 1.0), 1e-6)
+    sigma = p_contact / coverage
+    notes.append(
+        f"입자 접촉응력 {sigma:.3g} Pa (자리 압력 {p_contact:.3g} Pa ÷ "
+        f"피복률 {coverage:.3g})")
+    return sigma
+
+
+def surface_hardness_pa(pk, notes: List[str]) -> Optional[float]:
+    """제거되는 표면층의 유효 경도 → α 판정의 입력.
+
+    ⚠ **벌크 경도가 아니다.** CMP 에서 깎이는 것은 화학적으로 변질된 얇은 층이고
+    그 층의 경도는 벌크보다 낮다. 이 값의 절대치는 공개 문헌에 없다
+    (_knowledge_audit/mechanics.md 가 지목한 최대 병목).
+
+    ── 절대값을 몰라도 판정이 가능한 경우가 있다 ──────────────────────
+    우리가 α 를 고르기 위해 필요한 것은 경도의 **절대값이 아니라 접촉응력과의
+    대소 관계**다. 변질층은 정의상 벌크보다 무르므로
+
+        H_surface ≤ H_bulk
+
+    이 부등식은 절대값 없이도 성립한다. 따라서
+
+        접촉응력 ≥ H_bulk  →  H_surface 는 그보다 작으니 **반드시 소성**
+
+    이 방향의 판정은 벌크만으로도 확정된다. 반대 방향(접촉응력 ≪ H_bulk)은
+    확정되지 않는다 — 변질층이 얼마나 무른지 모르므로 소성일 수도 있다.
+    그러므로 **한쪽 방향으로만** 벌크를 쓰고, 반대쪽은 판정을 보류한다.
+    이것은 "벌크로 대체"가 아니라 부등식이 허용하는 만큼만 결론내는 것이다.
+    """
+    h = _num(pk, "surface_layer_hardness_pa")
+    if h is not None and h > 0:
+        notes.append(f"표면층 유효경도 {h:.3g} Pa (팩 선언)")
+        return h
+    return None
+
+
+def alpha_from_bulk_bound(pk, sigma_pa: Optional[float],
+                          notes: List[str]) -> Optional[Tuple[float, str]]:
+    """벌크 경도만 있을 때, 부등식이 허용하는 범위에서만 α 를 판정한다.
+
+    입력: 입자당 접촉응력, 막질 벌크 경도
+    판단: H_surface ≤ H_bulk 이므로
+          응력 ≥ H_bulk        → 소성 확정 (변질층은 더 무르다)
+          응력 ≤ H_bulk × 여유 → 탄성 쪽이 유력하나 확정 아님
+    출력: (α, 등급) 또는 None(판정 불가)
+    """
+    h_bulk = _num(pk, "film_bulk_hardness_pa")
+    if sigma_pa is None or h_bulk is None or h_bulk <= 0:
+        return None
+    ratio = sigma_pa / h_bulk
+    if ratio >= 1.0:
+        notes.append(
+            f"α 확정(소성): 접촉응력이 **벌크** 경도의 {ratio:.2f}배다. 제거되는 "
+            "변질층은 벌크보다 무르므로 변질층 경도를 몰라도 소성이 확정된다.")
+        return ALPHA_PLASTIC, "literature"
+    if ratio <= 0.1:
+        notes.append(
+            f"α 판정(탄성): 접촉응력이 벌크 경도의 {ratio:.3f}배로 두 자릿수 작다. "
+            "변질층이 벌크보다 무르더라도 그 정도 차이를 메우려면 경도가 10배 이상 "
+            "낮아야 하는데 그런 보고는 없다 — 탄성 접촉으로 본다. "
+            "⚠ 변질층 경도의 절대값이 확보되면 재판정해야 한다.")
+        return ALPHA_ELASTIC, "estimated"
+    notes.append(
+        f"⚠ α 미확정: 접촉응력/벌크경도 = {ratio:.3f} 는 중간 영역이다. 변질층이 "
+        "벌크보다 얼마나 무른지 모르면 탄성·소성을 가를 수 없다. 이 구간에서는 "
+        "변질층 경도의 실측이 필요하다.")
+    return None
+
+
+def fluid_gap_m(pk, notes: List[str]) -> Optional[float]:
+    """패드-웨이퍼 간극 → 공급 형태(p, q) 판정의 입력."""
+    for key in ("fluid_gap_m", "pad_wafer_gap_m", "film_thickness_m"):
+        v = _num(pk, key)
+        if v is not None and v > 0:
+            notes.append(f"패드-웨이퍼 간극 {v:.3g} m ({key})")
+            return v
+    return None
+
+
+def derive_regime(pk, pressure_psi: Optional[float] = None
+                  ) -> Tuple[LoadRegime, List[str]]:
+    """팩 물성만으로 레짐을 판정한다. 물질명을 보지 않는다."""
+    notes: List[str] = []
+    m = area_pressure_exponent(pk, notes)
+    sigma = contact_stress_pa(pk, pressure_psi, notes)
+    h_s = surface_hardness_pa(pk, notes)
+    gap = fluid_gap_m(pk, notes)
+    d_nm = _num(pk, "abrasive_size_nm")
+    d_m = d_nm * 1e-9 if d_nm else None
+
+    # 변질층 경도가 없어도, 벌크 경도와의 부등식이 한쪽 방향은 확정해 준다.
+    alpha_override: Optional[Tuple[float, str]] = None
+    if h_s is None:
+        alpha_override = alpha_from_bulk_bound(pk, sigma, notes)
+
+    reg = resolve_regime(
+        area_pressure_exponent=m,
+        contact_stress_pa=sigma,
+        surface_hardness_pa=h_s,
+        gap_m=gap,
+        d_p_m=d_m,
+        beta=0.0,
+    )
+    if alpha_override is not None:
+        a, conf = alpha_override
+        reg.alpha = a
+        order = ["unverified", "estimated", "literature", "measured", "verified"]
+        # 전체 등급은 여전히 가장 약한 고리를 따른다
+        if order.index(conf) > order.index(reg.confidence):
+            reg.confidence = conf if reg.confidence == "unverified" else reg.confidence
+        if reg.confidence == "unverified":
+            reg.confidence = conf
+    # β 는 α 와 짝이다 — 따로 고르면 물리가 깨진다.
+    reg.beta = BETA_FOR_ALPHA.get(reg.alpha, 0.0)
+    if reg.alpha not in BETA_FOR_ALPHA:
+        # 전이구간에서 보간된 α — β 도 같은 비율로 보간한다
+        t = (reg.alpha - ALPHA_ELASTIC) / (ALPHA_PLASTIC - ALPHA_ELASTIC)
+        b_e, b_p = BETA_FOR_ALPHA[ALPHA_ELASTIC], BETA_FOR_ALPHA[ALPHA_PLASTIC]
+        reg.beta = b_e + t * (b_p - b_e)
+    notes.extend(reg.notes)
+    return reg, notes
+
+
+def exponents_for(pk, pressure_psi: Optional[float] = None) -> Dict[str, object]:
+    """최종 산출 — 농도·입경 지수와 그것이 어디서 왔는지.
+
+    반환:
+      n_conc / n_size : 쓸 지수
+      derived         : 이론에서 유도됐는가 (False 면 팩 선언값)
+      confidence      : 근거 등급
+      notes           : 판정 과정
+    """
+    reg, notes = derive_regime(pk, pressure_psi)
+    declared_c = _num(pk, "abrasive_conc_exponent")
+    declared_d = _num(pk, "abrasive_size_exponent")
+
+    out: Dict[str, object] = {"regime": reg, "notes": notes}
+
+    if reg.confidence == "unverified":
+        # 판정에 필요한 물성이 없다. 팩이 선언한 값이 있으면 그것을 쓰되
+        # '유도된 값이 아님'을 분명히 남긴다.
+        out["n_conc"] = declared_c
+        out["n_size"] = declared_d
+        out["derived"] = False
+        out["confidence"] = "estimated" if (declared_c is not None) else "unverified"
+        notes.append(
+            "⚠ 지수를 이론에서 유도하지 못했다 — 판정에 필요한 물성(실접촉면적 "
+            "압력지수 / 표면층 유효경도 / 간극)이 팩에 없다. 팩이 선언한 지수를 "
+            "그대로 쓰지만 이것은 **그 조건에서 회귀된 값**이지 예측이 아니다. "
+            "다른 조건으로 외삽하면 틀릴 수 있다.")
+        return out
+
+    out["n_conc"] = reg.n_conc
+    out["n_size"] = reg.n_size
+    out["derived"] = True
+    out["confidence"] = reg.confidence
+
+    # 선언값이 함께 있으면 대조해 불일치를 드러낸다 — 조용히 덮지 않는다.
+    for label, derived, declared in (("농도", reg.n_conc, declared_c),
+                                     ("입경", reg.n_size, declared_d)):
+        if declared is not None and abs(derived - declared) > 0.05:
+            notes.append(
+                f"⚠ {label} 지수 불일치: 이론 유도 {derived:+.3f} vs 팩 선언 "
+                f"{declared:+.3f}. 둘 중 하나가 틀렸다 — 유도 입력(χ·α·공급형태)을 "
+                f"의심하거나, 선언값이 다른 레짐에서 회귀된 것인지 확인하라.")
+    return out

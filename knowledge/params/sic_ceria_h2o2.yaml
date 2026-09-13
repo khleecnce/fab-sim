@@ -161,3 +161,17 @@ params:
       두고 근거 없는 쪽(본값)을 DOE 중심으로 맞춘다.
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
     confidence: measured
+
+  film_bulk_hardness_pa:
+    value: 2.6e+10
+    unit: Pa
+    note: >
+      4H-SiC 단결정의 나노압입 경도. 이 저장소에서 가장 단단한 막질이고, 그래서 같은 압력에서도 탄성 쪽에 깊이 머문다.
+      ⚠ 이것은 **벌크** 경도이지 CMP 가 실제로 깎는 화학 변질층의 경도가 아니다.
+      변질층 경도의 절대값은 공개 문헌에 없다(_knowledge_audit/mechanics.md 의
+      최대 병목). 다만 변질층은 벌크보다 무르므로 H_surface ≤ H_bulk 이고,
+      이 부등식이 한쪽 방향의 판정을 확정해 준다 — 접촉응력이 벌크 경도를
+      넘으면 변질층에서는 더더욱 소성이다. 그 용도로만 쓴다
+      (sim/regime_adapter.py::alpha_from_bulk_bound).
+    source: "Nanoindentation of 4H-SiC single crystal — 보고 범위 24~28 GPa"
+    confidence: literature

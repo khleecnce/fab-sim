@@ -438,3 +438,43 @@ params:
       순위만 신뢰하고 크기는 캘리브레이션 대상이다.
     source: knowledge/materials/pad-porosity-slurry-transport-mrr.md §5
     confidence: unverified
+
+  # ── 레짐 판정 물성 (sim/regime_adapter.py) ──────────────────────
+  # 이 값들은 특정 슬러리의 성질이 아니라 **패드-웨이퍼 접촉계의 성질**이다.
+  # 그래서 base 에 둔다. 이것들이 있으면 농도·입경 지수를 팩마다 적어넣지 않고
+  # 이론에서 유도할 수 있다(3인자 분해: n_C = p(1-αχ)).
+  asperity_height_distribution:
+    value: exponential
+    unit: "-"
+    note: >
+      돌기 높이 분포의 형태. 지수분포면 실접촉면적이 하중에 **정확히 선형**이고
+      분리거리와 무관하다 — GW 모델의 해석적 결과이고, sim/tier2_physics/gw_contact.py
+      수치적분으로 A_r ∝ P^1.0000 을 재현해 확인했다(2026-09-13).
+      이 선형성이 χ(하중 분배 분율)=1 을 준다: 압력을 올리면 접촉 자리가 비례해
+      늘어나므로 하중이 입자들에게 재분배된다는 뜻이다.
+      가우시안 분포를 쓰는 계는 팩에서 덮어쓰면 된다(그 경우 지수가 1보다 약간 작다).
+    source: "Greenwood & Williamson 1966 Proc.R.Soc.A 295 300-319 (doi:10.1098/rspa.1966.0242) + Lubricants/MDPI 2022 'Rough Surface Contact Modelling—A Review' 선형 A_r-W 관계"
+    confidence: literature
+  real_contact_area_ratio:
+    value: 5.8e-4
+    unit: "-"
+    note: >
+      실접촉면적 / 명목면적. 명목 압력을 입자가 실제로 받는 응력으로 환산할 때
+      쓴다 — 실접촉은 명목의 극히 일부라 이 비가 응력을 수천 배로 키운다.
+      GW 수치적분(E*=100 MPa, 돌기반경 5 µm, 돌기밀도 2.0e8 /m², 거칠기 2 µm)에서
+      3 psi 조건의 값이다. 이때 실접촉 압력은 35.7 MPa 로, 산화막 벌크 경도(~9 GPa)
+      보다 두 자릿수 작아 **탄성 접촉 레짐**임을 가리킨다(α=2/3).
+      ⚠ 압력에 따라 변하는 값이므로 3 psi 부근에서만 유효하다. 압력 의존성을
+      정식으로 넣으려면 GW 를 런타임에 풀어야 한다 — 현재는 대표값이다.
+    source: "sim/tier2_physics/gw_contact.py 수치적분 (GW 지수분포), 입력 물성은 pad_asperity_radius_m·asperity_density_per_m2 와 일관"
+    confidence: estimated
+  active_particle_density_per_m2:
+    value: 1.845e7
+    unit: "m^-2"
+    note: >
+      접촉에 실제로 참여하는 입자의 면밀도. GW 수치적분이 준 3 psi 에서의
+      **접촉 자리 수**를 쓴다 — 자리 하나에 입자 하나가 들어간다는 단층 가정이다.
+      ⚠ 이 가정은 간극/입경 비가 1 부근일 때만 성립한다. 간극이 입자보다 훨씬
+      크면 여러 겹이 들어가 유효 참여 분율이 낮아진다(regime_adapter 가 판정).
+    source: "sim/tier2_physics/gw_contact.py 수치적분 n_contacts @ 3 psi"
+    confidence: estimated

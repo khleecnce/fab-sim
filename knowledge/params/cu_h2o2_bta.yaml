@@ -179,3 +179,17 @@ params:
       아직 두 팩을 동시에 로드하는 다막질 모델이 없다(film-cu 에이전트 대기).
     source: knowledge/cmp/pattern-dependent-dishing-erosion.md
     confidence: unverified
+
+  film_bulk_hardness_pa:
+    value: 1.2e+09
+    unit: Pa
+    note: >
+      전해도금 구리막의 나노압입 경도. 산화막보다 한 자릿수 무르다 — 같은 접촉응력에서도 소성 쪽으로 더 가깝다는 뜻이다.
+      ⚠ 이것은 **벌크** 경도이지 CMP 가 실제로 깎는 화학 변질층의 경도가 아니다.
+      변질층 경도의 절대값은 공개 문헌에 없다(_knowledge_audit/mechanics.md 의
+      최대 병목). 다만 변질층은 벌크보다 무르므로 H_surface ≤ H_bulk 이고,
+      이 부등식이 한쪽 방향의 판정을 확정해 준다 — 접촉응력이 벌크 경도를
+      넘으면 변질층에서는 더더욱 소성이다. 그 용도로만 쓴다
+      (sim/regime_adapter.py::alpha_from_bulk_bound).
+    source: "Nanoindentation of electroplated Cu films — 결정립 크기에 따라 1.0~1.5 GPa"
+    confidence: literature

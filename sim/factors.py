@@ -561,6 +561,25 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
             # 보여 순수 거듭제곱 자체는 고농도 포화를 구조적으로 표현 못 한다 — 지수값
             # 판정과는 별개 문제이며 함수형 교체는 이 결함 해소 범위 밖(같은 노트 §8 참조).
             n = float(pk.get_or("abrasive_conc_exponent", 1.0 / 3.0))
+            # ── 지수를 이론에서 유도해 본다 ─────────────────────────
+            # 팩이 적어넣은 지수는 '그 슬러리에서 회귀한 값'이라 다른 조건으로
+            # 외삽할 근거가 없다. 물성이 갖춰진 팩은 χ·α·공급형태로부터 지수를
+            # **계산**한다(sim/abrasive_mechanics.py 의 3인자 분해).
+            try:
+                from sim.regime_adapter import exponents_for
+                _ex = exponents_for(pk, getattr(rr, "pressure_psi", None))
+                if _ex.get("derived") and _ex.get("n_conc") is not None:
+                    n = float(_ex["n_conc"])          # type: ignore[arg-type]
+                    f.notes.append(
+                        f"농도 지수 n={n:+.3f} 를 **이론에서 유도**했다 "
+                        f"(등급 {_ex['confidence']}). " +
+                        str(_ex["regime"].explain()))  # type: ignore[union-attr]
+                _nts = _ex.get("notes")
+                for _nt in (list(_nts) if isinstance(_nts, list) else [])[:4]:
+                    if str(_nt).startswith("⚠"):
+                        f.notes.append(str(_nt))
+            except Exception as _e:      # 유도가 실패해도 기존 경로는 살아야 한다
+                f.notes.append(f"⚠ 지수 유도 시도 실패({_e!r}) — 팩 선언값을 쓴다.")
             terms["conc"] = (c / c_ref) ** n
             srcs.append("knowledge/cmp/abrasive-size-concentration-"
                         "ph-K-additive-mrr-quantitative.md")

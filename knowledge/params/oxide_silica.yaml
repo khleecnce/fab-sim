@@ -236,3 +236,17 @@ params:
       PVP(-7.9%)는 같은 논문 실측값이며 레시피 오버라이드로 스캔한다.
     source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6
     confidence: literature
+
+  film_bulk_hardness_pa:
+    value: 9e+09
+    unit: Pa
+    note: >
+      열산화막·TEOS 산화막의 나노압입 경도. 3 psi 조건의 실접촉 압력(약 36 MPa)보다 두 자릿수 크므로 탄성 접촉 레짐을 가리킨다.
+      ⚠ 이것은 **벌크** 경도이지 CMP 가 실제로 깎는 화학 변질층의 경도가 아니다.
+      변질층 경도의 절대값은 공개 문헌에 없다(_knowledge_audit/mechanics.md 의
+      최대 병목). 다만 변질층은 벌크보다 무르므로 H_surface ≤ H_bulk 이고,
+      이 부등식이 한쪽 방향의 판정을 확정해 준다 — 접촉응력이 벌크 경도를
+      넘으면 변질층에서는 더더욱 소성이다. 그 용도로만 쓴다
+      (sim/regime_adapter.py::alpha_from_bulk_bound).
+    source: "Nanoindentation of thermal/TEOS SiO2 films — 표준 보고 범위 8~10 GPa (예: Oliver & Pharr 법 기반 박막 경도 측정 문헌 다수)"
+    confidence: literature
