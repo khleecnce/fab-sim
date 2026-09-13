@@ -194,3 +194,17 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   재검증, 다른 크론 미커밋 변경(agents/*·validation/completion_last.json·tests/test_factors.py·
   sim/factors.py — 다른 크론 진행 중) 미접촉 확인 후 sim/engine.py + 신규 테스트파일만
   커밋(a736f95)+push. software/BACKLOG.md S13-NOTE3에도 기록.
+
+- 2026-09-13 [Max워커] Θ §8.5 구조적 결측 #1(웨이퍼/헤드 전도) **null 결론으로 종결**(커밋 d10ccde).
+  G_wafer 4번째 병렬 채널을 직렬 열저항에서 유도 → 총 컨덕턴스의 2.5~8.6%뿐이고, 결정적으로
+  White(예측 +24% 高)와 Shin(예측 −17% 低)의 **잔차 부호가 반대**라 단일 냉각 채널로 둘을 동시에
+  설명하는 것이 원리적으로 불가능함을 assert로 고정. White의 블래더 단열 가정은 타당하다고 판정.
+  부수 발견: R''_Si는 경로 저항의 0.009% — 웨이퍼 두께·200/300mm 구분은 이 경로에 무의미하다
+  (단열체의 정체는 웨이퍼가 아니라 그 뒤 폴리머/기체 층).
+  **Θ confidence는 estimated 유지**(남은 결측 3개: L_pad 유효길이·h_air CMP 실측·완전 열교환).
+  칸 수 12/50 불변 — 이번에 산 것은 등급이 아니라 **탐색 공간 축소**(잔차 원인 후보에서 제외).
+  1차 출처: Glassbrenner-Slack 1964 doi:10.1103/PhysRev.134.A1058, Sparks NBSIR 82-1664
+  doi:10.6028/nbs.ir.82-1664(원문 확보·papers/INDEX 등록). 코드: wafer_path_conductance_w_k()
+  신설 + steady_state_heat_balance(g_wafer_w_k=0.0) 선택인자(기본값이면 확장 전과 비트 동일,
+  partition()도 3키 유지 — _f_theta/MRR 경로 무수정). pytest 636 passed, self-test 8/8→12/12,
+  verify_claims 3블록 통과(출처 7건 실존), qa_loop --strict PASS ρ=0.9537 불변.
