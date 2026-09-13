@@ -204,3 +204,29 @@ assert tau_3m_h < 5.0, "가속시험 tau가 현행값보다 훨씬 짧아야 조
 슬러리)에서 두 시점 이상의 (시간, PCR) 실측을 주는 컨디셔너 디스크 특허/논문이 코퍼스에
 새로 들어오면 재탐색. 그 전까지는 3회차 규칙(EVIDENCE-RULES.md 판정 #7/#8과 동일 정신)을
 적용해 재탐색 우선순위를 낮춘다.
+
+## 8. 보강 탐색 로그 (2026-09-14, Max워커 — 같은 회차 내 추가 시도, 회차 카운터 미증가)
+
+§7(판정 #14, 1회차)과 **같은 날 같은 회차**에 별도 크론이 추가로 시도한 기록이다.
+EVIDENCE-RULES §3회차 규칙의 회차를 새로 소모하지 않는다 — 중복 탐색을 막기 위한 로그다.
+결론은 §7과 동일: **TAU_AGING_HOURS=27.4h 유지, `_f_gamma` 하한 불변.**
+
+시도한 질의와 결과(전부 부적격):
+
+1. Crossref `"conditioner disk pad cut rate decay lifetime diamond disk aging CMP"` (8건)
+   → 컨디셔너 **구조·형상**축(split disk 시뮬레이션, blade/PCD shaving dresser, water-jet
+   dressing). 시간축 PCR 감쇠 실측 없음.
+2. Crossref `"diamond conditioner disk life pad cut rate decrease over time CMP replacement criterion"`
+   (8건) → 위와 대부분 중복 + `10.1149/1.3489056`(Effects of CMP Pad Conditioner Properties
+   and Performance…)가 유일한 근접 후보였으나 **ECS 유료, 미러 사이트 미러 Cloudflare 403**으로
+   본문 미확보(1회차 §7의 IEEE 봉쇄와 동일 양상).
+3. OpenAlex `is_oa:true` 3종 질의(`"pad cut rate conditioner disk aging exponential decay hours CMP"`,
+   `"diamond disk wear grit protrusion loss pad cut rate time CMP conditioning lifetime"`,
+   `"conditioner disk performance degradation polishing pad cut rate hours of use"`)
+   → CMP 무관 문헌이 대부분(천문·의학·재료 일반). 유일한 CMP 매칭은 USF 2008 학위논문
+   (Chemical Mechanical Planarization: Study of Conditioner Abrasives…)이었으나
+   digitalcommons.usf.edu가 **403**으로 차단해 본문 미확보.
+
+**미검증 유지**: "50h→16%" 앵커는 여전히 Entegris 문서의 2차 인용(Palmgren 2004 원문 미확보)이다.
+OA 범위에서 정상 조건 (시간, PCR) 2점 이상 실측은 이번에도 발견되지 않았다.
+§7의 재개 조건을 그대로 유지한다.
