@@ -203,6 +203,13 @@ class WaferResult:
     colloid_distance_from_iep_ph: Optional[float] = None
     colloid_stability_risk: Optional[str] = None       # "high"/"medium"/"low"
     colloid_stability_note: Optional[str] = None
+    # GW 접촉역학 기반 Preston Kp 물리 분해 진단 — MRR과 무관. gw_preston_link.py
+    # (self-test 4/4 PASS)의 n_contacts(P) 선형성·alpha_removal 역산을 이 레시피의
+    # 실제 압력조건에 그대로 적용한다. pad_E_star_pa 등 GW 5개 패드 파라미터가
+    # 팩에 없으면 조용히 None.
+    gw_contact_linearity_max_dev: Optional[float] = None
+    gw_kp_physical_to_lit_ratio: Optional[float] = None
+    gw_contact_note: Optional[str] = None
     # Θ 정상상태 열저항 네트워크 진단 — MRR과 무관. White 2003 원문 에너지균형 이식
     # (frictional-heating-temperature-arrhenius-coupling.md §8). 공통 싱크 T₀ 대비 ΔT_ss[K]와
     # 슬러리/패드/공기 3분배. pad_thickness_m·pad_thermal_conductivity_w_mk 없으면 조용히 None.
@@ -247,6 +254,9 @@ class WaferResult:
             "colloid_distance_from_iep_ph": self.colloid_distance_from_iep_ph,
             "colloid_stability_risk": self.colloid_stability_risk,
             "colloid_stability_note": self.colloid_stability_note,
+            "gw_contact_linearity_max_dev": self.gw_contact_linearity_max_dev,
+            "gw_kp_physical_to_lit_ratio": self.gw_kp_physical_to_lit_ratio,
+            "gw_contact_note": self.gw_contact_note,
             "theta_steady_state_delta_T_k": self.theta_steady_state_delta_T_k,
             "theta_heat_partition": self.theta_heat_partition,
             "theta_steady_state_note": self.theta_steady_state_note,
@@ -510,6 +520,56 @@ def _colloid_stability_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _gw_contact_linearity_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """GW 접촉모델 → Preston Kp 물리 분해 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/gw_preston_link.py (self-test 4/4 PASS),
+    knowledge/materials/gw-nominal-vs-local-pressure.md,
+    knowledge/materials/hertz-gw-contact-mechanics.md.
+    이 레시피의 실제 압력범위(zone_pressures_psi가 있으면 그 값들, 없으면
+    0.5x/1x/1.5x P_center 3점)에서 n_contacts(P)의 P-선형성을 재확인하고,
+    이 팩 조건(P=rr.pressure_psi, Kp=rr.kp_m_per_pa)에서 alpha_removal을 역산해
+    Kp_physical = alpha_removal * dn/dP 을 구한다(정의상 이 지점에서는 항등식).
+    pad_E_star_pa 등 GW 5개 패드 파라미터가 팩에 없으면 조용히 None — 지어내지 않는다.
+    """
+    out: Dict[str, object] = {"gw_contact_linearity_max_dev": None,
+                              "gw_kp_physical_to_lit_ratio": None,
+                              "gw_contact_note": None}
+    pad_keys = ("pad_E_star_pa", "pad_asperity_radius_m", "pad_height_beta_inv_m",
+                "pad_asperity_density_m2", "pad_nominal_area_m2")
+    if not all(rr.pack.has(k) for k in pad_keys):
+        return out
+    try:
+        import gw_preston_link as GWL   # sim/tier2_physics (1바이트도 수정 안 함)
+        from sim.tier1_empirical import kinematics as kin
+        pad = dict(E_star=rr.p("pad_E_star_pa"), R=rr.p("pad_asperity_radius_m"),
+                   beta=rr.p("pad_height_beta_inv_m"), eta=rr.p("pad_asperity_density_m2"),
+                   A_n=rr.p("pad_nominal_area_m2"))
+        P_center = rr.pressure_psi * PSI_TO_PA
+        if rr.zone_pressures_psi:
+            P_points = [p * PSI_TO_PA for p in rr.zone_pressures_psi]
+        else:
+            P_points = [0.5 * P_center, P_center, 1.5 * P_center]
+        n_points = [GWL.n_contacts_at(P, **pad) for P in P_points]
+        slope, intercept = GWL.linear_fit_slope(P_points, n_points)
+        max_dev = max(abs((slope * P + intercept) - n) / n
+                      for P, n in zip(P_points, n_points))
+        U_mean = kin.speed_stats(rr.wafer_radius_m, rr.center_offset_m,
+                                 rr.rpm_wafer, rr.rpm_platen)["mean"]
+        alpha_removal = GWL.calibrate_alpha_removal(P_center, U_mean, rr.kp_m_per_pa, **pad)
+        kp_physical = alpha_removal * slope
+        ratio = kp_physical / rr.kp_m_per_pa
+    except Exception as e:
+        out["gw_contact_note"] = f"GW 접촉선형성 진단 실패({e}) — None으로 둠"
+        return out
+    out["gw_contact_linearity_max_dev"] = max_dev
+    out["gw_kp_physical_to_lit_ratio"] = ratio
+    out["gw_contact_note"] = (
+        f"선형성 잔차 최대 {max_dev * 100:.1f}%(압력범위 {min(P_points) / 1e3:.1f}~"
+        f"{max(P_points) / 1e3:.1f} kPa), GW-link/문헌 Kp 비 = {ratio:.3f}")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -586,6 +646,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     colloid = _colloid_stability_diagnostic(rr)
     if colloid["colloid_stability_note"]:
         notes.append(colloid["colloid_stability_note"])
+    # GW 접촉역학 선형성/Preston Kp 물리분해 진단 — MRR 경로와 완전히 독립. GW 패드 파라미터
+    # (pad_E_star_pa 등) 없으면 조용히 None.
+    gw_contact = _gw_contact_linearity_diagnostic(rr)
+    if gw_contact["gw_contact_note"]:
+        notes.append(gw_contact["gw_contact_note"])
     # Θ 정상상태 열저항 네트워크 진단 — MRR 경로와 완전히 독립. 패드 두께·열전도도 없으면 조용히 None.
     theta_ss = _theta_steady_state_diagnostic(rr)
     if theta_ss["theta_steady_state_note"]:
@@ -617,6 +682,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        colloid_distance_from_iep_ph=colloid["colloid_distance_from_iep_ph"],
                        colloid_stability_risk=colloid["colloid_stability_risk"],
                        colloid_stability_note=colloid["colloid_stability_note"],
+                       gw_contact_linearity_max_dev=gw_contact["gw_contact_linearity_max_dev"],
+                       gw_kp_physical_to_lit_ratio=gw_contact["gw_kp_physical_to_lit_ratio"],
+                       gw_contact_note=gw_contact["gw_contact_note"],
                        theta_steady_state_delta_T_k=theta_ss["theta_steady_state_delta_T_k"],
                        theta_heat_partition=theta_ss["theta_heat_partition"],
                        theta_steady_state_note=theta_ss["theta_steady_state_note"],
