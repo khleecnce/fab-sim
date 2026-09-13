@@ -152,14 +152,26 @@ params:
       단 선호 상한 0.5 µm는 초과 ⚠. 참고: Remsen 2006 스크래치 임계 직경 680 nm(실리카
       등가)를 넘는 유일한 팩 — 이 팩의 꼬리가 임계 이상 대역에 있다는 진단 신호.
       알루미나 D99 실측값은 미확보(5회 탐색 실패).
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
+      사유: 이 노트 자신이 "알루미나 D99 실측값은 미확보(5회 탐색 실패)"라고 자백하는
+      값이 화학종·용도가 실제로 일치하는 sti_ceria의 Hitachi 특허 실측 D99(estimated였던
+      값)보다 높은 등급을 받는 것은 EVIDENCE-RULES 서열(E1~E6)과 정면 모순이다.
+      게다가 일반비 5.00 자체가 abrasive-d99-scratch-hitachi-us8439995.md §9 재현 검증에서
+      실측 세리아 데이터(비=3.13~10.42, 5.00과 최대 60% 괴리)로 재현되지 않는 것으로
+      확인됐다 — 유도 경로의 핵심 상수 자체가 약하다. Showa Denko 상한 대조는 "초과하지
+      않는다"만 보증할 뿐 750nm이라는 값을 검증하지 않는다. 결론: 실측 부재 + 미검증
+      일반비 = estimated(E4/E5급)가 정직한 등급.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
+    confidence: estimated
   abrasive_ref_d99_nm:
     value: 750.0
     unit: nm
-    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    note: >
+      기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
+      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
+      맞춘다(EVIDENCE-RULES 판정#16).
     source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+    confidence: estimated
   damage_exponent:
     value: 2.54
     unit: "-"

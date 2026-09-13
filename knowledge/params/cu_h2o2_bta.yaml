@@ -150,14 +150,26 @@ params:
       명세 "maximum grain size of 1.0 µm or less, more preferably 0.5 µm" — 이 유도값이
       선호 상한 0.5 µm와 정확히 경계 일치한다. 알루미나 D99 실측값은 5회 탐색 모두 실패
       (abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md §3) — 유도값임을 명심.
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
+      사유: 일반비 5.00의 출처(Levitronix/Silco 2008)는 산업 컨퍼런스 슬라이드로 원
+      노트(delta-scratch-damage-d99-oversize-particle-model.md §2.4)가 스스로 "2차
+      자료, 동료심사 없음"이라 표기했다. 게다가 abrasive-d99-scratch-hitachi-us8439995.md
+      §9에서 이 5.00 비율을 유일하게 확보한 실측 세리아 데이터(Hitachi Ex.1/Ex.2)로
+      재현 시도하면 3.13~3.68(제어된 예)에서 최대 60% 어긋나 **재현되지 않는다** —
+      상한 대조(Showa Denko 1.0µm)는 "이 값이 상한을 넘지 않는다"는 것만 보장할 뿐
+      500nm이라는 특정값 자체를 검증하지 않는다. 화학종(알루미나) 직접 실측은 여전히
+      미확보(5회 실패). 결론: E4/E5급(전이 유도 + 미검증 일반비) — estimated가 정직한 등급.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
+    confidence: estimated
   abrasive_ref_d99_nm:
     value: 500.0
     unit: nm
-    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    note: >
+      기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
+      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
+      맞춘다(EVIDENCE-RULES 판정#16).
     source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+    confidence: estimated
   damage_exponent:
     value: 2.54
     unit: "-"

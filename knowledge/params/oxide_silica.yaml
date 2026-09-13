@@ -170,14 +170,26 @@ params:
       CMP Users Conference 2008 슬라이드 p.11(3세대 관측 4.29~5.00, 중앙값 5.00, 산업
       컨퍼런스 2차 자료). 오더 대조: Fuso US2025/0059050A1이 콜로이달 실리카 LPC를 세는
       bin이 0.20 µm로 이 값과 같은 대역. 실측 D99 아님.
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
+      사유: cu_h2o2_bta/w_fe_oxidizer와 동일한 약한 고리(일반비 5.00, 2차 컨퍼런스
+      슬라이드 출처)를 그대로 쓴다. abrasive-d99-scratch-hitachi-us8439995.md §9에서
+      이 5.00이 유일하게 확보된 실측 세리아 데이터로 재현되지 않음(3.13~10.42로
+      최대 60% 괴리)이 확인됐다 — 화학종이 실리카라고 해서 이 결함이 면제되지 않는다.
+      Fuso LPC bin(0.20µm)과의 오더 일치는 250nm이라는 *값*의 정합성 정황일 뿐,
+      **일반비 유도 방법 자체**를 검증하지 않는다(bin 경계값과 D99가 같은 물리량이라는
+      보증이 없다) — 세 팩(oxide_silica/cu_h2o2_bta/w_fe_oxidizer)의 D99 등급을
+      유도 방법 기준으로 통일한다.
+    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
+    confidence: estimated
   abrasive_ref_d99_nm:
     value: 250.0
     unit: nm
-    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지
+    note: >
+      기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
+      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
+      맞춘다(EVIDENCE-RULES 판정#16).
     source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: literature
+    confidence: estimated
   damage_exponent:
     value: 1.44
     unit: "-"

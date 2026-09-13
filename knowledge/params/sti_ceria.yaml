@@ -84,14 +84,27 @@ params:
       Hitachi US8439995B2 Example 1 D99(문헌 실측) — 화학종(세리아,
       STI/ILD 산화막 CMP) 일치를 근거로 기준점(baseline)에 이식. 팩의
       실제 조성값 아님, what-if 스캔용 기준.
-    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2
-    confidence: estimated
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] estimated→literature 상향.
+      사유: 같은 팩의 abrasive_size_nm(60nm, Dandu 2009 실측값을 그대로
+      baseline으로 이식)이 동일한 "타 실측값을 이 팩의 baseline으로 채택"
+      구조로 confidence=literature를 받고 있다 — 이 항목만 estimated로
+      두는 것은 자기모순. 근거 등급도 E2(1차 문헌 실측값, 화학종·용도 일치,
+      단 이 팩 고유 조성의 직접 측정은 아니므로 verified는 아님)로,
+      knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9(등급
+      판정)의 재현 검증(D99/D50 비 재현 실패)과 대조하면 w_fe_oxidizer 등의
+      "일반비 유도값"(E4/E5)보다 강한 근거임이 확인된다. 상세 계산·verify는
+      해당 노트 §9 참조.
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2, §9
+    confidence: literature
   abrasive_ref_d99_nm:
     value: 700.0
     unit: nm
-    note: 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중계상 방지
-    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2
-    confidence: estimated
+    note: >
+      기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중계상 방지.
+      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 literature로
+      맞춘다(EVIDENCE-RULES 판정#16).
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §2.2, §9
+    confidence: literature
   damage_exponent:
     value: 1.44
     unit: "-"

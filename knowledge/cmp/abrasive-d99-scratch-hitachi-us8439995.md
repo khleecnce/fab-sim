@@ -227,3 +227,116 @@ assert 60.0 < overestimate_pct < 70.0, f"과대추정폭이 예상 범위(60~70%
   JP10-154673 (일본 공개특허공보, 원문 본문에서 직접 인용됨).
 - 교차참조 문헌(Versum, 세리아코팅 실리카): https://patents.google.com/patent/US20190127607A1/en
 
+## 9. § D99 등급 판정(2026-09-14) — abrasive_d99_nm confidence 일관성 감사
+
+### 9.1 발견된 모순
+완성 격자 감사 중 `abrasive_d99_nm`의 팩별 confidence가 근거 강도와 **역전**되어 있음을
+확인했다:
+- `sti_ceria`(및 상속하는 `sic_ceria_h2o2`): D99=700nm, **본 노트 §2.2 Hitachi 특허
+  Example 1의 직접 실측값**(화학종=세리아, 용도=STI/ILD 산화막 CMP 둘 다 일치). 그런데
+  confidence=**estimated**였다.
+- `w_fe_oxidizer`: D99=750nm = abrasive_size_nm(150nm) × D99/D50 **일반비 5.00**
+  (Silco/Levitronix 2008 산업 컨퍼런스 슬라이드, 2차 자료, 동료심사 없음). 노트 자신이
+  "알루미나 D99 실측값은 미확보(5회 탐색 실패)"라고 자백한다. 그런데 confidence=**literature**
+  — sti_ceria보다 **높았다**.
+
+측정값을 다른 팩으로 이식한 것(sti_ceria)이, 실측 자체가 없다고 자백한 유도값(w_fe_oxidizer)
+보다 낮은 등급을 받는 것은 EVIDENCE-RULES.md 서열(E1~E6, "이론과 충돌하면 실측이 이긴다")과
+정면 모순이다.
+
+### 9.2 등급 판정
+**A: sti_ceria/sic_ceria_h2o2의 D99=700nm** — Hitachi 특허 Example 1 실측값을 화학종·용도가
+일치하는 다른 팩의 baseline으로 이식. 값의 *출처*는 실측(원문 표, §2.2)이나, *적용 대상*은
+이 팩 고유의 조성이 아니다(팩 자신이 "실제 조성값 아님"이라 명시). 이 구조는 이 팩의
+`abrasive_size_nm`(60nm, Dandu 2009 실측값을 그대로 이식, confidence=literature)과 **완전히
+같은 패턴**이다 — 둘 다 "화학종·조건이 일치하는 1차 문헌의 실측값을 이 팩의 baseline으로
+채택"이다. 등급: **E2**(1차 문헌 실측 + 계 근접도 높음, 단 이 팩 고유 측정이 아니라
+verified는 아님) → **literature**가 정직한 등급.
+
+**B: cu_h2o2_bta/w_fe_oxidizer/oxide_silica의 D99(500/750/250nm)** — `abrasive_size_nm ×
+D99/D50 일반비 5.00` 유도. 일반비 5.00의 출처(Levitronix/Silco 2008)는 원 노트
+([[delta-scratch-damage-d99-oversize-particle-model]] §2.4)가 스스로 "산업 컨퍼런스
+슬라이드(2차 자료, 동료심사 없음)"라고 표기한 것이다 — 알루미나·실리카 특정 값이 아니라
+슬러리 일반 통계다. 등급: **E4/E5**(전이 유도 + 미검증 일반비 상수) → **estimated**가
+정직한 등급. (Showa Denko US6770218B2 상한 대조·Fuso LPC bin 오더 일치는 "값이 상한을
+넘지 않는다"/"오더가 맞다"는 정황일 뿐, 일반비 5.00 자체나 특정 D99 값을 검증하지 않는다.)
+
+### 9.3 핵심 재현 검증 — "5.00이 실측 세리아 데이터에서 재현되는가?"
+과제가 요구한 핵심 질문: D99/D50 일반비 5.00이 우리가 가진 유일한 실측 D99-D50 대응쌍
+(본 노트 §2.2 Hitachi 4점)에서 실제로 재현되는가?
+
+```python verify
+import numpy as np
+
+# US8439995B2 §2.2 원문 표 그대로 (D50, D99 실측 대응쌍)
+labels = ["Ex.1", "Ex.2", "Comp.1", "Comp.2"]
+d50_nm = np.array([190.0, 160.0, 240.0, 240.0])
+d99_nm = np.array([700.0, 500.0, 2500.0, 2500.0])
+ratios = d99_nm / d50_nm
+
+print("실측 D99/D50 비:", dict(zip(labels, ratios.round(3))))
+# 제어된 예(Ex.1/Ex.2, 같은 슬러리계·침강시간만 다름)의 비
+ratio_ex1, ratio_ex2 = ratios[0], ratios[1]
+GENERIC_RATIO = 5.00  # Levitronix/Silco 2008, cu_h2o2_bta/w_fe_oxidizer/oxide_silica가 쓰는 값
+
+dev_ex1_pct = abs(GENERIC_RATIO - ratio_ex1) / ratio_ex1 * 100
+dev_ex2_pct = abs(GENERIC_RATIO - ratio_ex2) / ratio_ex2 * 100
+print(f"일반비 5.00 vs Ex.1 실측비({ratio_ex1:.3f}) 괴리: {dev_ex1_pct:.1f}%")
+print(f"일반비 5.00 vs Ex.2 실측비({ratio_ex2:.3f}) 괴리: {dev_ex2_pct:.1f}%")
+
+# 핵심 주장: 일반비 5.00은 우리가 가진 유일한 실측 세리아 대응쌍을 30% 넘게 벗어난다
+# → "재현되지 않는다"가 이 검증의 결론이다(재현됐다면 유도법의 신뢰도가 올라갔을 것이나,
+#   실제로는 반대 방향으로 나왔다 — 그대로 기록한다).
+assert dev_ex1_pct > 30.0, f"Ex.1 괴리가 예상보다 작다({dev_ex1_pct:.1f}%) — 재검토 필요"
+assert dev_ex2_pct > 30.0, f"Ex.2 괴리가 예상보다 작다({dev_ex2_pct:.1f}%) — 재검토 필요"
+
+# 조대입자 비교예(필터만, 침강 짧음)에서는 반대 방향으로 더 크게 벗어난다(10.4배)
+ratio_comp = ratios[2]
+assert ratio_comp > GENERIC_RATIO, "조대입자 비교예 비가 일반비보다 커야 한다(꼬리가 더 두꺼움)"
+print(f"비교예(Comp.1/2) 실측비 {ratio_comp:.3f} — 일반비의 {ratio_comp/GENERIC_RATIO:.2f}배")
+
+# ── sti_ceria 자신의 D50(60nm, Dandu 2009)에 일반비를 적용하면 무엇이 나오는가? ──
+# baseline 이식값(700nm, Hitachi Ex.1)과 비교 — 두 유도 경로가 서로 다른 값을 준다는 것을
+# 보여준다(하나를 정답으로 검증하는 게 아니라 "방법 간 불일치 자체"가 증거).
+sti_ceria_d50_nm = 60.0
+generic_d99_for_sti = sti_ceria_d50_nm * GENERIC_RATIO
+transplanted_d99_for_sti = 700.0  # 현재 sti_ceria.yaml abrasive_d99_nm
+divergence_factor = transplanted_d99_for_sti / generic_d99_for_sti
+print(f"sti_ceria D50(60nm)에 일반비 5.00 적용 -> {generic_d99_for_sti:.0f}nm, "
+      f"현재 채택값(Hitachi 실측 이식) {transplanted_d99_for_sti:.0f}nm, "
+      f"괴리 배수 {divergence_factor:.2f}x")
+assert divergence_factor > 2.0, "두 유도 경로(일반비 vs 실측 이식)의 괴리가 예상보다 작다"
+
+print("결론: 일반비 5.00은 유일하게 확보한 실측 세리아 데이터를 재현하지 못한다"
+      " (30~60% 괴리, 방향도 예-비교예 사이에서 뒤집힘)."
+      " -> B(일반비 유도)의 등급을 A(실측 이식)보다 높게 줄 근거가 없다.")
+```
+
+**재현 결과**(US8439995B2 §2.2 표 재계산): 일반비 5.00은 제어된 실측 예(Ex.1 괴리 35.7%, Ex.2 괴리 60.0%)를 재현하지
+못했고, 조대입자 비교예에서는 반대로 실측비(10.42)가 일반비보다 2배 이상 크다 — 즉 하나의
+고정 비율로 세리아계조차 대표할 수 없다(방향도 예에 따라 뒤집힌다). sti_ceria 자신의
+D50(60nm)에 일반비를 적용하면 300nm가 나와, 현재 baseline 이식값(700nm)과 2.33배
+벌어진다. **일반비 유도법은 이 노트가 가진 유일한 실측 대조군에서 재현되지 않는다** — 이
+결과는 B(일반비 유도, cu_h2o2_bta/w_fe_oxidizer/oxide_silica)의 등급을 A(실측 이식,
+sti_ceria)보다 높게 줄 근거가 전혀 없음을 정량으로 확인해준다.
+
+### 9.4 판정 및 코드 반영
+- `knowledge/params/sti_ceria.yaml`의 `abrasive_d99_nm`/`abrasive_ref_d99_nm`:
+  `estimated` → **`literature`**로 상향. `sic_ceria_h2o2`는 `base: sti_ceria` 상속으로
+  자동 승계(별도 선언 없음).
+- `knowledge/params/w_fe_oxidizer.yaml` / `cu_h2o2_bta.yaml` / `oxide_silica.yaml`의
+  `abrasive_d99_nm`/`abrasive_ref_d99_nm`: `literature` → **`estimated`**로 하향.
+- EVIDENCE-RULES.md 판정 기록 표 #16으로 등재.
+- 격자 영향은 목표가 아니다 — `damage_exponent`의 팩별 confidence(이미 §7~§8에서 확정,
+  변경 없음)와 `_worst_conf`로 조합되므로, 델타 팩터의 최종 confidence는 두 파라미터 중
+  나쁜 쪽을 그대로 따른다(`sim/factors.py::_f_delta`). 실제 격자 변화는
+  `tools/completion.py check` 출력으로 확인하고 그대로 보고한다.
+
+### 9.5 한계
+- 이 판정도 "5.00이 세리아에서 재현 안 됨"만 확인했을 뿐, 알루미나계 자체의 D99/D50 비를
+  실측으로 대체한 것은 아니다 — B(cu_h2o2_bta/w_fe_oxidizer/oxide_silica)를 `estimated`로
+  낮췄을 뿐 더 나은 값으로 교체하지 않았다. 알루미나 D99 실측값 확보는 여전히 미해결
+  과제([[delta-scratch-damage-d99-oversize-particle-model]] §9 "다음 단원" 참조).
+- A(sti_ceria)도 `verified`는 아니다 — 이 팩 고유 조성에서 D99를 직접 측정한 것이 아니라
+  타 특허 실시예의 이식이라는 한계는 그대로 남는다.
+
