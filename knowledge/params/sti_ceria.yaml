@@ -145,18 +145,30 @@ params:
     value: "NONE"
     unit: "-"
     note: >
-      oxide_silica 팩에서 상속된 경로이다. Li et al. 2021은 실리카 슬러리 실통이라
-      세리아(STI/SiC) 화학계로의 전이는 교차계 외삽이다(EVIDENCE-RULES E4) — 세리아 슬러리는
-      실제로 EAA 공중합제 분산제를 사용한다는 정직 기록이 slurry-components-overview.md §6에
-      있으나 **정량 MRR 저해값은 문헌에 없다.**
+      oxide_silica 팩에서 상속된 경로였다. Li et al. 2021은 실리카 슬러리 실측이라
+      세리아(STI/SiC) 화학계로의 전이는 교차계 외삽(EVIDENCE-RULES E4)이고, 값 자체는
+      여전히 전이하지 않는다(아래 참조).
 
-      ⚠ 그러므로 기반값은 "NONE"이다. 실리카용 PVA 수치(-3.6%)를 세리아 팩에 그대로
-      밗으면 (1) 근거 없는 수치를 도입하고 (2) 이 팩의 kp가 분산제 무관 문헌 MRR에서
-      역산됐으므로 기준 조건에서 ψ≠1.0이 되어 이중 계상한다(2026-09-11 사고).
-      confidence는 estimated를 유지해 "세리아에서는 이 경로가 정량화되지 않았다"는
-      사실을 코드에 남긴다. 세리아 전용 저해 실제가 나오면 그것으로 교체한다.
-    source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6 (교차계 — 정량값 미전이)
-    confidence: estimated
+      2026-09-14 EVIDENCE-RULES 판정#15: Kim et al. 2024(doi:10.3390/polym16243593,
+      PMC11679047, CC-BY) §Results가 이 팩과 같은 화학(EAA 공중합제 분산제)·같은 막질
+      (oxide, PETEOS)에서 실측을 제공한다 — 분산제 함량 5→7wt%(D5→D7)에서 oxide MRR이
+      **4224→4712 Å/min(+11.55%)로 오른다.** 실리카/Li 2021의 PVA(−3.6%)·PVP(−7.9%)와
+      **부호가 반대**다. 즉 실리카형 억제 배수를 세리아 팩에 전이하지 않는(=NONE, 배수 1.0)
+      현재 선택은 추측이 아니라 부호 반대의 1차 대상계 실측(E3, 대상계 실측이나 DLS 입경이
+      281.6→227.2nm로 동시에 변해 교란)으로 뒷받침된다.
+
+      ⚠ 그래도 **값은 바꾸지 않는다.** Kim 2024의 +11.55%도 입경 교란과 뒤섞여 있어(이 팩의
+      abrasive_size_peak_nm=163 정점 모델로 역산하면 입경만으로 +7.42%가 설명되고 잔차
+      +3.85%는 방향(양수)은 알아도 ψ 단독 귀속은 불가) 정량 ψ 배수를 추출할 근거가 못 된다.
+      실리카용 PVA 수치를 그대로 쓰면 (1) 근거 없는 수치를 도입하고 (2) 이 팩의 kp가
+      분산제 무관 문헌 MRR에서 역산됐으므로 기준 조건에서 ψ≠1.0이 되어 이중 계상한다
+      (2026-09-11 사고). 세리아 전용 저해 정량치가 나오면 그것으로 교체한다.
+
+      confidence를 estimated→literature로 올린다 — "NONE의 정량값이 문헌에서 나왔다"는
+      뜻이 아니라, **"이 경로를 실리카형으로 쓰지 않는다는 결정 자체가 이제 1차 대상계
+      실측으로 뒷받침된다"**는 뜻이다(EVIDENCE-RULES §4 null도 결론이다).
+    source: knowledge/cmp/ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md (EVIDENCE-RULES 판정#15)
+    confidence: literature
 
   # -- tau slurry transport (viscosity) ------------------------
   slurry_viscosity_pa_s:

@@ -65,9 +65,13 @@ def test_ceria_packs_psi_is_modeled_via_cross_system_transfer(pack):
     factors = compute_factors(Recipe(pack=pack).resolve())
     psi = factors["psi"]
     assert psi.status in ("modeled", "partial")
-    assert psi.confidence == "estimated", (
-        "세리아 팩은 oxide_silica에서 dispersant_type을 상속받은 교차계 전이라 "
-        "literature보다 낮은 estimated여야 한다.")
+    assert psi.confidence == "literature", (
+        "값(NONE, 배수 1.0)은 실리카에서 상속된 교차계 전이지만, EVIDENCE-RULES "
+        "판정#15(Kim et al. 2024, doi:10.3390/polym16243593)가 세리아/EAA 분산제의 "
+        "oxide MRR 방향이 실리카/PVA·PVP와 반대(억제가 아니라 촉진)임을 대상계 "
+        "직접 실측(E3)으로 확인해, '실리카형 억제를 쓰지 않는다'는 이 팩의 결정 "
+        "자체는 literature 등급 근거를 얻었다 — knowledge/cmp/"
+        "ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md.")
 
 
 # ═══════════════════ 7: 기준 1.0 계약 회귀 방지
