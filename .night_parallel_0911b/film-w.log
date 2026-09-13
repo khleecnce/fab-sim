@@ -1,0 +1,24 @@
+완료했다. 간결히 보고한다.
+
+## 완료 보고 — film-w Lv2-1
+
+**작성 노트**: `knowledge/cmp/w-cmp-plug-recess-coring-keyhole-overpolish-window.md`
+(W 플러그 리세스·코어링·키홀·심 결함 → CVD 갭필 발생 → CMP 산화제 확대 → 산화막 버프 공정 윈도우)
+
+**인용 출처 (실존 확인)**
+- 1차 원문 3건 전부 **PDF 확보·통독**, Crossref로 DOI 실존 검증됨:
+  1. **Yu et al. 2009**, JES 156 H64, DOI 10.1149/1.3009224 — 산화막 버프 폐형 모델(E_f=E_i−mL, P=nL−R), 프로트루전-결함 상관
+  2. **Kim et al. 2005**, Microelectron. Reliab. 45 1455, DOI 10.1016/j.microrel.2005.07.048 — 키홀 2단계 기전·EM 수명 1.9배·공정창
+  3. **Xu et al. 2020**, Microelectron. Eng. 226 111285, DOI 10.1016/j.mee.2020.111285 — CVD 심/보이드 발생·H₂유량 억제
+- 학회 1건(Vacassy&Chen 2006, EOE)은 **원문 미확보 → 검색요약/정성만, 정량 미검증** 명시. 부차 2차인용 3건(Wang2002·Bothra1998·Kishii1995)은 재인용 표기.
+- 3편 모두 미러 사이트→미러 사이트 경로로 확보, `papers/INDEX.json` 등록 완료.
+
+**verify 블록**: 3개 ([A] Yu 버프 트레이드오프 모델, [B] Kim 키홀 공정창·EM수명·종횡비, [C] Xu H₂유량 선형·심-코어링 정적식각 폭주) — 전부 assert 통과.
+
+**게이트**: `verify_claims.py` ✓ (출처 3/3 실존, 코드 3/3 통과, 출처없는 수치주장 0) · `check_knowledge.py` ✓
+
+**갱신**: EXAMS.md Lv2-1 3문항+답안 추가 · PROFILE.md 이수기록(Lv2 진행)+구현요청 2건(P2 버프모델, P3 심-코어링/키홀 플래그) · CURRICULUM.md Lv2-1 [x] · ORG.md §5 film-w 행 3/6 갱신.
+
+**정직 표기**: 심-코어링 폭주(§7[C])는 추정 모델(심 채널 유효 식각률 1차 데이터 미확보), 디싱 200–300 Å(Wang2002)·패턴밀도 의존·EOE 정량은 미확인/미검증으로 명시. Yu 회귀상수는 상대단위라 절대 nm 예측 금지를 구현요청에 못박음. rate-limit 흔적 없음.
+
+시도했으나 못 한 것: EOE(Vacassy 2006) 원문은 학회지라 DOI 없고 scribd/RG 프리뷰만 열려 정량 확보 실패 — 정성 결론만 인용했다.

@@ -1,0 +1,19 @@
+disk-design Lv2-2 단원을 완료하고 커밋했습니다(4996632). push는 하지 않았습니다.
+
+**산출물**
+- 지식노트 `knowledge/materials/disk-design-pad-roughness-asperity-relation.md` (≈330줄, python verify 4블록). check_knowledge·verify_claims 모두 통과: 출처 15건 실존, 코드 4블록 통과, 출처 없는 수치주장 0.
+- `agents/disk-design/EXAMS.md` Lv2-2 3문항, `PROFILE.md` 이수 기록 + "## 구현 요청" 절 신설(3건), `CURRICULUM.md` Lv2-2 [x], `knowledge/INDEX.md` 한 줄 추가. `papers/INDEX.json`에 신규 PDF 7건 등록.
+
+**확보한 1차 출처와 핵심 정량 결과**
+- Kwon 2013 (Tribol. Int., DOI 확인) Fig.2 판독: 그릿 밀도 17k→60k에서 Ra 8.05→5.95, Rpk 3.75→1.7 µm. 3점 회귀 Ra ∝ N^−0.23, Rpk ∝ N^−0.62. 본문 7.89/6.37 µm와 판독값이 9% 어긋나는 점을 그대로 기록.
+- 3M Pysher 2010 Fig.1 디지타이즈: surface finish ∝ D^0.57 (R² 0.91), 125 µm 이상 포화, 150 µm leveled 디스크는 예측의 57%로 일반 55 µm급 조도.
+- Sun 2009 UA 학위논문(유료 Sun et al. 2010 MEE의 학위논문판): 100/325-grit × 3.6/8.0 lb → λ 3.3/4.3/3.5/6.7 µm. 저하중에서는 그릿 크기 효과 없음(+7%), 고하중에서만 +36~56%. 저자 백분율(20/60/30%)은 간섭계 판독으로만 근접함을 명시. Type A/B 디스크 → 접촉면적 0.1~0.28배, η_c/A_f 1.4~3.6배.
+- McAllister 2019 (PMC6523751) + 2018 ECS JSS 저자원고: ABT 173 µm 다이아 vs EHWA CVD 45 µm 팁의 상대 마이크로텍스처와 절대값. 2018 초록과 Table I의 방향 상충을 기록.
+- Liao 2014 학위논문(λ 3.18/2.92 µm, 정점곡률 0.51/0.89 µm⁻¹), Lawing 2004(접촉면적 11.3/7.7/2.2%), Ring et al.(η=(1/D_grit)², σ=D_grit/2 규칙이 표 수치와 10⁴배·12배 불일치).
+- 핵심 발견: 지수분포 GW의 λ 효과만으로는 공격적 디스크의 실접촉면적 감소의 1/3~1/7만 설명됨. 정점반경·패드 파편·소성 접촉이 겹친다고 해석하고 정량 분리는 미검증으로 남김.
+
+**미확보(정직 기록)**: Borucki 2004 J. Eng. Math 이론, Borucki 2009 JJAP, Yang 2010 IJMT, Li 2021 ECS JSS(IOP 봇차단)는 Lv3-1로 이월. 미러 사이트는 완전 무응답.
+
+**메모리 갱신**: IOP 차단 시 Univ. of Arizona DSpace API로 Philipossian 그룹 ECS 저자원고·학위논문을 받는 경로, Europe PMC render로 MDPI PDF 받는 경로를 기존 문헌 접근 메모리에 추가했습니다.
+
+`agents/.source_cache.json`은 세션 시작 전부터 수정 상태였던 공유 파일이라 커밋에 포함하지 않았습니다.

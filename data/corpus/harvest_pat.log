@@ -1,0 +1,12 @@
+patent_corpus.json: +0
+google patents 'chemical mechanical polishing slurry rem': +0
+google patents 'CMP polishing composition ceria removal ': +0
+google patents 'CMP slurry colloidal silica oxide remova': +0
+google patents 'copper CMP slurry benzotriazole example ': +0
+google patents 'tungsten CMP slurry hydrogen peroxide re': +0
+google patents 'polishing pad groove hardness removal ra': +0
+google patents 'pad conditioner diamond disk cut rate ex': +0
+google patents 'STI CMP ceria selectivity nitride remova': +0
+google patents 'post CMP cleaning composition example de': +0
+google patents 'CMP slurry dispersant defect example rem': +0
+신규 0건. 현황: {"documents": {"paper": {"discovered": 1877, "extracted": 18, "fetched": 131}, "patent": {"discovered": 239, "extracted": 12, "fetched": 6}}, "queue": {"fetch": 2116, "learn": 167}, "extractions": 30, "total": 2283, "with_fulltext": 167}

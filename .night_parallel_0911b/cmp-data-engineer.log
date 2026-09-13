@@ -1,0 +1,25 @@
+완료 보고합니다.
+
+## Lv2-1 이수 완료 — 좌표계·단위 통일, 결측·이상치 클리닝
+
+**작성 노트**: `knowledge/data/wafer-coordinate-units-outlier-cleaning.md`
+
+**각 잡기**: 지표 정의 재유도(wafer-metrology 몫)를 피하고 **데이터 엔지니어링(정규화·클리닝 규칙)** 관점으로 한정 — raw 측정을 M20 정준 좌표·SI 정준 단위로 무손실 변환하고, 이상치를 일관 규칙으로 플래그하는 파이프라인 규칙. 핵심 통찰은 **노치 오등록·단위 슬립이 스칼라 지표(TTV·WIWNU·CV)에는 불변이라 QC를 조용히 통과하면서 공간 귀속·`(SubstrateID,X,Y)` 조인만 오염**시킨다는 점(`sim/metrics/uniformity.py` 실호출로 대조).
+
+**인용 출처(실존 확인)**:
+- **SEMI M20**(웨이퍼 좌표계, 원점=중심·노치=−y) — 스코프 확인, 원문 유료 미확보
+- **SEMI M1**(FQA/edge exclusion 2–3mm) — 스코프 확인
+- **US7539552B2**(범용좌표계 변환·NOTCH_DIRECTION 0/1/2/3) — Google Patents 텍스트, 1차
+- **Leys et al. 2013** MAD 이상치, `DOI:10.1016/j.jesp.2013.03.013` — Crossref 실존·OA 확인, 1차
+- **Bibby & Harwood 1997** `DOI:10.1016/S0040-6090(97)00435-5` — Crossref 실존, 원문 미확보(2차)
+- 단위계수는 NIST SP811 정의값
+
+**verify 블록 5개** (전부 통과): 단위변환(psi=6.894757 kPa, 1Å/s=6 nm/min, rpm≠rad/s) / 좌표 왕복 항등·다이 아핀 행부호반전 / EE 면적기하(3mm→3.96%) / MAD vs 3σ 마스킹(Leys) / 정규화 실패의 지표 영향(uniformity.py 호출).
+
+**게이트**: `check_knowledge` 통과(1/1), `verify_claims` 통과(출처 3건 실존·5블록 통과·출처없는수치 0). 첫 verify에서 표·구현요청의 무앵커 수치 2건이 걸려 앵커(DOI)/키워드 조정 후 통과.
+
+**상호링크**: 5개 이상 연결(cmp-integration-schema-keys-semi-standards, wafer-metrology-output-schema-site-flatness-standards, uniformity-metrics-definitions-standards, cmp-public-datasets-survey, wiwnu-pressure-velocity-wafer-scale, cmp-kinematics-rotary).
+
+**갱신 완료**: EXAMS.md(Lv2-1 3문항+답), PROFILE.md(이수기록 + `sim/calibration/normalize.py` 구현요청 4함수), CURRICULUM.md(Lv2-1 [x]), ORG.md §5(3/6·2026-09-11). 재사용 출처는 메모리에 기록.
+
+**미완/한계(정직성)**: SEMI M20/M1 원문 PDF는 유료 봉쇄로 1차 미확보(스코프만 확인), Bibby&Harwood·EE 벤더 수치는 2차, Leys의 임계 2.5는 CMP 도메인 검증 없이 권고 default로만 채택 — 모두 §8에 명시. git 커밋은 하지 않았습니다(오케스트레이터 일괄 커밋 대기).

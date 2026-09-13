@@ -1,0 +1,198 @@
+{
+  "pack": "cu_h2o2_bta",
+  "kp_multiplier": 0.0575,
+  "n_conditions": 33,
+  "tunables": {
+    "slurry_ph": [
+      4.0,
+      3.2,
+      4.8
+    ],
+    "oxidizer_curve_n": [
+      2.0,
+      1.0,
+      3.0
+    ],
+    "inhibitor_strength_k": [
+      3.0,
+      1.5,
+      4.5
+    ],
+    "abrasive_size_nm": [
+      100.0,
+      50.0,
+      150.0
+    ],
+    "dishing_sensitivity": [
+      1.0,
+      0.5,
+      1.5
+    ]
+  },
+  "baseline": {
+    "rho": 0.706,
+    "log_resid_sd": 2.0673
+  },
+  "trials": [
+    {
+      "param": "slurry_ph",
+      "value": 3.2,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "slurry_ph",
+      "value": 3.6,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "slurry_ph",
+      "value": 4.0,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "slurry_ph",
+      "value": 4.4,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "slurry_ph",
+      "value": 4.8,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 1.0,
+      "rho": 0.706,
+      "sd": 2.1081
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 1.5,
+      "rho": 0.706,
+      "sd": 2.0836
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 2.0,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 2.5,
+      "rho": 0.706,
+      "sd": 2.0561
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 3.0,
+      "rho": 0.706,
+      "sd": 2.0481
+    },
+    {
+      "param": "inhibitor_strength_k",
+      "value": 1.5,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "inhibitor_strength_k",
+      "value": 2.25,
+      "rho": 0.706,
+      "sd": 2.0351
+    },
+    {
+      "param": "inhibitor_strength_k",
+      "value": 3.0,
+      "rho": 0.706,
+      "sd": 2.0673
+    },
+    {
+      "param": "inhibitor_strength_k",
+      "value": 3.75,
+      "rho": 0.706,
+      "sd": 2.1054
+    },
+    {
+      "param": "inhibitor_strength_k",
+      "value": 4.5,
+      "rho": 0.706,
+      "sd": 2.1492
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 50.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 75.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 100.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 125.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 150.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "dishing_sensitivity",
+      "value": 0.5,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "dishing_sensitivity",
+      "value": 0.75,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "dishing_sensitivity",
+      "value": 1.0,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "dishing_sensitivity",
+      "value": 1.25,
+      "rho": 0.706,
+      "sd": 2.0091
+    },
+    {
+      "param": "dishing_sensitivity",
+      "value": 1.5,
+      "rho": 0.706,
+      "sd": 2.0091
+    }
+  ],
+  "proposal": {
+    "overrides": {
+      "inhibitor_strength_k": 1.5
+    },
+    "rho": 0.706,
+    "log_resid_sd": 2.0091,
+    "delta_rho": 0.0,
+    "delta_sd": -0.0581
+  },
+  "note": "제안은 자동 적용되지 않는다. 팩에 반영하려면 각 파라미터 note에 '2단계 최적화 제안 2026-09-10: 문헌값 inhibitor_strength_k=3.0 → 제안값' 을 남기고 qa_loop.py run --strict 가 PASS일 때만 커밋하라."
+}

@@ -1,0 +1,18 @@
+wafer-type Lv3-1 단원을 완료하고 커밋했다(73273d6, push 안 함).
+
+**산출물**
+- 지식노트 `knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md` — verify_claims ✓(출처 12건 실존, 코드 1블록 통과), check_knowledge ✓
+- `agents/wafer-type/EXAMS.md` Lv3-1 3문항, `PROFILE.md` 이수 기록·구현 요청 4건, `CURRICULUM.md` Lv3-1 [x]
+
+**핵심 내용과 1차 출처**
+- 모니터 웨이퍼 관행·레시피 전이: TSMC 특허 US20060116785A1(등록 US7333875B2) 원문. work function으로 변환계수 STI 1.12·IMD 1.41을 코드로 재현했다. 변수에 패턴밀도가 없어 "모니터→모니터" 전이일 뿐이라는 점을 확정.
+- NPW→PTW 실패 지점 정량: Sorooshian 2005 UA 학위논문(ESSL 2004 저널판은 IOP 차단, 학위논문판 확보). 유효압력/인가압력 2.2/1.7/1.3(10/50/90%) vs 밀도모델 1/ρ=10/2/1.11으로 3.7배 이상 괴리. 표 평균 재현 시 10% 밀도는 2.67로 요약값보다 21% 크며 원인 미상으로 정직 기록.
+- 전기 대리: Park et al. 1999 CMP-MIC(두께 추출식, 라이너 비 약 200 재현은 ρ_Cu 2.0 가정 필요), Pan et al. 1999(OP +10%→1000 Å), Chang et al. 2004 IEEE TED(표 I 판독, R_dish 40 µm 모델은 w≥2 µm에서 30% 이내, 미세선은 모델 밖).
+- VM: Di et al. 2017(PHM2016, MSE 7.07, 시계열 지배), Jebri et al. 2017(ST Rousset 제품별 JITL, 실측 1/3, MAPE 3.2~4.4%). PTW VM에는 제품 식별자·레이아웃 밀도·이전 층·다른 출력 정의가 필요하다는 결론.
+
+**미검증으로 남긴 것**
+Kim&Seo 2002 r≈0.71(원문 미확보), PHM2016 웨이퍼 유형·MRR 단위(미상), ρ_Cu 값(추정), send-ahead 블로그(2차), 인접 다이·스크라이브 라인 광학 대리의 정량 상관(1차 문헌 미확보).
+
+**기타**
+- 문헌 접근 경로(UA DSpace 학위논문판, escholarship, PHM Society, 특허 수식 오기 역검증)를 메모리에 추가했다.
+- 다른 크론(wafer-metrology)의 스테이징 변경과 knowledge/INDEX.md는 건드리지 않았다. 다음 단원은 Lv3-2(전이 규칙 정량화)이며, 유효압력비 α(ρ)를 핵심 캘리브레이션 파라미터로 구현 요청에 올려 두었다.

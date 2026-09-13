@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11)
-- 다음 단원: Lv2-2
+- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11), Lv2-2 (2026-09-11)
+- 다음 단원: Lv3-1
 
 ## 역할
 실데이터 통합 스키마, 입력 검증, 단위 통일, 이상치, 익명화, 합성 데이터 생성. 캘리브레이션 층의 기반
@@ -21,6 +21,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - 2026-09-09 Lv1-1 CMP 공개 데이터셋 조사 — knowledge/data/cmp-public-datasets-survey.md (check_knowledge/verify_claims 통과)
 - 2026-09-10 Lv1-2 통합 스키마 키 체계 — knowledge/data/cmp-integration-schema-keys-semi-standards.md (check_knowledge/verify_claims 통과)
 - 2026-09-11 Lv2-1 좌표계·단위 통일·결측/이상치 클리닝 — knowledge/data/wafer-coordinate-units-outlier-cleaning.md (check_knowledge/verify_claims 통과: 출처 3건 실존·verify 5블록 통과)
+- 2026-09-11 Lv2-2 합성 데이터 생성기(Tier1/2+노이즈) — knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 통과)
 
 ## 구현 요청 (소프트웨어 부문 몫 — cmp-data-engineer는 설계·근거만, 코드는 넘김)
 
@@ -45,3 +46,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     - `apply_edge_exclusion(r, ee_mm, D_mm)` → EE 밖은 "측정범위밖" 마스크, 결측 NaN과 **구분**. 300mm EE 3mm→제외 3.96%.
   - **검증문헌값**: psi=6.894757 kPa(NIST SP811), 1 Å/s=6 nm/min, MAD상수 1.4826(=1/Φ⁻¹0.75), EE3mm(300mm)=3.96%, 노치회전 시 TTV·WIWNU 불변·단위10× 시 CV 불변(uniformity.py 호출 대조). 전부 §5 assert.
   - **우선순위**: 중 — Lv3-2 ingest 파이프라인의 "표준화" 단계 핵심. Lv1-2 스키마 골격 확정 후 착수.
+
+- **무엇을**: `sim/calibration/synth.py`(신설) — Tier1/2 모델 출력에 노이즈를 입혀 합성 캘리브레이션 데이터셋 생성.
+  - **근거노트**: knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md §1–3, 검증은 §4 verify 블록 4개를 회귀테스트로 승격.
+  - **함수 스펙**:
+    - `add_sensor_noise(clean, sigma)` → 가산 iid 가우시안(McLoone/Susto 2018 eq.19 eps~N(0,0.02) 패턴).
+    - `add_wafer_random_effect(clean, wafer_ids, cv)` → 웨이퍼(로트) 단위 상수 배율/오프셋 랜덤효과. cv 기본 프리셋 5~14%(§3 실측 앵커).
+    - `add_drift(clean, kind='ramp'|'step', magnitude, t)` → moyne2017 §4.1의 drift/step 패턴(챔버 시즈닝·소모품 소모·유지보수 이벤트 모사).
+    - `add_spike(clean, idx, magnitude)` → moyne2017의 spike 패턴. `flag_outliers`(위 normalize.py)가 이를 잡는지 회귀테스트하는 용도.
+    - 전부 "clean 값·주입 노이즈 파라미터·seed"를 메타데이터로 반환(가역·재현) — 캘리브레이션이 원래 파라미터를 복원하는지 채점 가능해야 함.
+  - **검증문헌값**: eps~N(0,0.02)(McLoone/Susto 2018, DOI:10.1109/TASE.2017.2786213), 잔차 8.317 nm/min·R²=0.917(Li et al. 2019, DOI:10.1115/1.4042051), 실측 CV 5.3~13.8%(JP4508514B2). MAD 점탐지는 spike는 잡되 gradual drift는 못 잡음(§4.4 assert) — drift 검증에는 추세상관 등 별도 탐지기 필요.
+  - **우선순위**: 중 — Lv1-2 스키마·Lv2-1 normalize.py 확정 후, Lv3-2 ingest 파이프라인의 회귀테스트 데이터 공급원으로 착수.

@@ -1,0 +1,18 @@
+Lv2-2 단원 학습을 마치고 커밋했습니다(8b9a910, push 안 함).
+
+**산출물**
+- 지식노트 `knowledge/cmp/pattern-metrics-dishing-erosion-stepheight.md` 신설. verify_claims(출처 12건 실존, verify 블록 통과, 출처없는 수치 0)와 check_knowledge 둘 다 통과.
+- EXAMS.md에 Lv2-2 3문항, PROFILE.md에 이수 기록·Lv2-2 요약·구현요청(`sim/metrics/pattern_metrics.py`, High), CURRICULUM.md Lv2-2 [x], knowledge/INDEX.md 항목 추가.
+
+**노트 핵심 내용**
+- dishing/erosion 정의는 기준면에 따라 셋으로 갈림(Park 1998 최종 oxide면/증착두께, Pan 1999 필드 oxide면+field loss 분리, Noh e1/e2). 총손실 = field loss + erosion + dishing 항등식으로 상호 환산하고 default는 Pan식으로 판정.
+- 스텝하이트는 ISO 5436-1 교정표준 측정법의 LS 직선피팅(Z=aX+b+hδ, step=2h)을 차용(Taylor Hobson·NIST 문서로 2차 확인). 클리어 전 잔여 스텝과 클리어 후 dishing을 stage 메타로 분리.
+- "잔막"은 잔류 금속(0 허용 결함)과 잔여 막두께(연속량), "엣지 롤오프"는 SEMI M77 ROA/M68 ZDD/M67 ESFQR(웨이퍼 기하)와 CMP 제거율 엣지 프로파일로 각각 두 개념 분리.
+- 측정 구조물 8종 치수표(MIT 3종 마스크, AMAT 100 µm 트렌치·5 µm 루프, IBM US5723874, PDF Solutions US7197726B2, ITRS 기준 구조), 측정법(HRP/AFM/광학/Kelvin·vdP).
+- 판정 스펙: ITRS 2007 표(erosion 12→5 nm, 100 µm dishing 24→5 nm). erosion 행이 "10%×배선높이" 규칙임을 9개 연도 전부 ±0.5 nm로 재현.
+
+**verify 결과**: ITRS 규칙 9/9, IBM 특허 밀도정의 11/11, LS 스텝 회수 오차 0.01 nm, 곡률 미제거 오차 8.9%(문헌 "약 10%"), ROA 규약(SunEdison 120/140/148 mm vs Corning 엣지 3/6 mm) 같은 프로파일에서 4배 차이, Pan 1999 50 nm vs ITRS 24 nm 2.08배. US10600634 청구항 82.7%↔본문 120 mm의 4 mm 불일치도 assert로 고정.
+
+**정직하게 남긴 미확보**: ISO 5436-1·SEMI M67/M68/M77 원문(스코프·벤더·특허 인용으로 2차), Steigerwald 1994·Ortleb 2008·Fukuda 2012 본문(초록만), STI 필드폭-dishing 수치 출처, ITRS 글로벌 최대폭 행 재현.
+
+`agents/.source_cache.json`은 세션 시작 전부터 다른 크론이 수정 중이라 커밋에서 제외했습니다. 메모리에는 원문 확보 경로(freepatentsonline 등록특허, boning.mit.edu, ITRS 2007 PDF)를 기존 항목에 병합했습니다.

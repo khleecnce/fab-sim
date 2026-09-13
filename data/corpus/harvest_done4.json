@@ -1,0 +1,24 @@
+{
+  "documents": {
+    "paper": {
+      "discovered": 733,
+      "extracted": 1153,
+      "fetched": 132,
+      "merged": 8
+    },
+    "patent": {
+      "discovered": 239,
+      "extracted": 10,
+      "fetched": 6,
+      "merged": 2
+    }
+  },
+  "queue": {
+    "done": 10,
+    "fetch": 972,
+    "learn": 1301
+  },
+  "extractions": 1173,
+  "total": 2283,
+  "with_fulltext": 1311
+}

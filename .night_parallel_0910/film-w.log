@@ -1,0 +1,24 @@
+모든 작업을 완료했다. 최종 상태를 요약 보고한다.
+
+## 완료 보고 — film-w Lv1-1
+
+**작성 노트:** `knowledge/cmp/w-cmp-wo3-passivation-oxidizer-kaufman.md`
+(W CMP 메커니즘: WO₃ passivation 막 형성-제거 순환 + 산화제 종류별 차이)
+
+**인용 출처 (실존 확인 3건, verify_claims Crossref 조회 통과):**
+1. **Kaufman et al. 1991**, *J. Electrochem. Soc.* 138(11) 3460, DOI 10.1149/1.2085434 — 1차, **원문 확보·통독**(`papers/kaufman1991-w-cmp-mechanism.pdf`). 경쟁 모델·반응식 [1][2]·정적etch·XPS 막두께.
+2. **Lim, Park, Park 2013**, *Appl. Surf. Sci.* 282 512, DOI 10.1016/j.apsusc.2013.06.003 — 1차, **원문 확보·통독**(`papers/lim2013-apsusc-fe-nitrate-w-cmp.pdf`). H₂O₂ 단독 vs Fe(NO₃)₃ 촉매 정량 MRR.
+3. **Tamboli, Seal, Desai 1999**, *MRS Symp. Proc.* 566 89, DOI 10.1557/proc-566-89 — 보조(초록만, 전문 미공개 → 2차 인용 명시).
+
+**python verify 블록: 3개 (전부 PASS)**
+- 블록1: Kaufman Eq.[1] W용해 반응 원자·전하 균형 검증 + Eq.[2]의 원문 "8H⁺"가 균형상 오식(6H⁺가 맞음)임을 assert로 검출.
+- 블록2: Lim 산화제별 MRR — H₂O₂ 단독 5.6 nm/min vs +0.01wt% Fe 92.3 nm/min ≈ **16배** 촉매 효과.
+- 블록3: Pilling-Bedworth 비 ≈ 3.4 — WO₃가 부피팽창 다공막(무른 막)이 되는 물리적 근거.
+
+**상호링크:** 4개 (`surface-chemistry-cu-w-pourbaix-passivation`(선행), `slurry-components-overview`, `preston-luo-dornfeld-mrr`, `cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor`) — 모두 실존 파일.
+
+**자가검사:** `verify_claims.py` ✓ (출처 3건 실존·코드 3블록 통과·출처없는 수치주장 0) / `check_knowledge.py` ✓ — **둘 다 통과.**
+
+**갱신 완료:** EXAMS.md(Lv1-1 3문항+답) · CURRICULUM.md(Lv1-1 [x]) · PROFILE.md(현재레벨 Lv1·이수기록) · ORG.md §5(film-w 1/6, 2026-09-10) · knowledge/INDEX.md(cmp/ 항목 추가).
+
+**못 한 것 / 정직 표기:** Tamboli 1999 전문은 UCF 리포지토리가 미공개라 초록만 확보(정량값 인용 안 함). Kaufman Eq.[2]·Lim Eq.(6)-(8)의 원문 반응식 불균형은 노트 §5·§7에서 명시. WO₃/W 밀도는 표준 핸드북값이라 1차 논문 대조는 못 해 "미검증(핸드북값)"으로 표기. git 커밋은 지시대로 하지 않았다(오케스트레이터 일괄 커밋 대기).

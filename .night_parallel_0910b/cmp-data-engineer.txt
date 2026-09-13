@@ -1,0 +1,33 @@
+당신은 FabSim 지식베이스 학습 서브에이전트다. 한국어로 사고하고 아래 작업을 끝까지 자율 수행하라. 질문 금지, 승인 대기 금지. 작업 디렉토리는 /Users/khleecnce/fab-sim, 파이썬은 .venv/bin/python 을 쓴다.
+
+## 담당 에이전트: cmp-data-engineer
+## 학습 단원: Lv1-2 통합 스키마 설계: 소모품·툴·웨이퍼·측정을 잇는 키 체계 (data/schema/*.json)
+이 단원 하나만 깊게 학습한다. 여러 단원을 얕게 훑지 마라. <AGENT>=cmp-data-engineer 로 치환해 읽어라.
+## 단원 특이지침
+본보기로 knowledge/data/cmp-public-datasets-survey.md 도 먼저 읽어라. 이 단원은 '스키마를 문헌 근거로 설계'하는 것이다 — SEMI 표준(예: SEMI E5/E30/E90, GEM/SECS), CMP 논문 부록의 데이터 구조, 공개 데이터셋의 컬럼 체계를 근거로 키·엔터티·관계를 정리하라. 직접 data/schema/*.json 을 구현하지 말고(그건 소프트웨어 부문 몫), 스키마 설계 원리와 근거를 노트로 남기고 필요하면 PROFILE '## 구현 요청'에 적어라.
+
+## 절차 (반드시 순서대로)
+1. 담당 CURRICULUM.md와 PROFILE.md를 읽어 맥락 파악. PROFILE의 "선행 지식(부모에게 상속)" 노트를 먼저 읽어라.
+2. 조사 범위 확인: `.venv/bin/python tools/scope.py --agent <AGENT> --queries` 로 나온 검색어를 써라. 허용 소스만 인용(블로그·포럼·모델 기억 금지). 단원당 최대 6건, 1차 논문 최소 1건.
+3. 웹검색·arXiv·오픈액세스·대학 강의자료를 쓴다. 유료 논문은 `.venv/bin/python tools/find_open_access.py --paywall "<제목>"` (OA 실패시 미러 사이트 자동폴백)으로 확보. 받은 PDF는 papers/에 저장되고 papers/INDEX.json에 등록. 유료 API 금지.
+   - 기억으로 DOI를 쓰지 마라. 도구가 준 DOI만 써라. 존재하지 않는 문헌은 verify_claims.py가 Crossref/arXiv/NCBI API로 조회해 즉시 반려한다.
+4. 지식노트 작성: `knowledge/<분야>/<주제>.md`. 기존 형식을 그대로 따르라.
+   본보기(먼저 읽어라): knowledge/cmp/preston-luo-dornfeld-mrr.md, knowledge/materials/hertz-gw-contact-mechanics.md
+5. 출처를 매 수치 옆에 명시(저자·연도·제목·DOI 한 줄). 1차 논문 못 구하면 "2차 인용" 명시, 확인 못 한 수치는 "미검증" 표기. 확신하는 척 금지.
+6. 기존 노트와 [[상호링크]] 최소 3개 연결. knowledge/ 폴더를 search로 확인하고 실제 존재하는 파일명으로 링크. 고립 노트 금지.
+7. 수식/수치 주장은 반드시 ```python verify 블록으로. 문헌값을 상수로 박고 계산 결과와 assert 비교. 안 맞으면 안 맞는 대로 assert 쓰고 "문헌과 X% 차이, 원인 미상" 기록. 서술이 아니라 assert가 증거다.
+8. 구현이 필요한 모델·수식이 생기면 직접 sim/에 코딩하지 마라. 담당 PROFILE.md "## 구현 요청" 섹션으로 적어라(무엇을/근거노트/검증문헌값/우선순위). 노트의 sanity-check python verify 블록은 네가 한다.
+9. 담당 EXAMS.md에 자기시험 3문항+모범답안 추가.
+10. 자가검사(통과할 때까지 보완):
+    `.venv/bin/python tools/verify_claims.py <노트경로>`
+    `.venv/bin/python tools/check_knowledge.py <노트경로>`
+    둘 다 통과해야 완료. ✗ 남으면 CURRICULUM 체크박스를 [x]로 바꾸지 마라.
+11. 통과하면: PROFILE.md 이수기록, CURRICULUM.md 해당 단원 [x](날짜·노트경로 포함), ORG.md §5 상태표 해당 행 진도·날짜 갱신.
+
+## 금지
+- git 커밋/push 하지 마라(오케스트레이터가 검증 후 일괄 커밋한다). git add -A 절대 금지.
+- 회사(동진) 데이터 절대 금지 — 공개 논문·합성 데이터만.
+- 429/rate-limit 흔적 보이면 즉시 중단하고 "한도 임박"이라 보고.
+
+## 완료 보고 (마지막 메시지)
+작성한 노트 경로, 인용 출처 수(실존 확인), python verify 블록 수, check_knowledge/verify_claims 통과 여부, CURRICULUM/ORG 갱신 여부를 간결히 보고. 못 한 게 있으면 사유 명시(성공한 척 금지).

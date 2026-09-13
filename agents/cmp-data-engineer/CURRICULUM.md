@@ -9,7 +9,8 @@
       → knowledge/data/cmp-integration-schema-keys-semi-standards.md (2026-09-10)
 - [x] Lv2-1 단위·좌표계 통일(반경/다이 맵), 결측·이상치 처리 규칙
       → knowledge/data/wafer-coordinate-units-outlier-cleaning.md (2026-09-11)
-- [ ] Lv2-2 합성 데이터 생성기: Tier1/2 모델 + 노이즈로 파이프라인 검증용 데이터 생성
+- [x] Lv2-2 합성 데이터 생성기: Tier1/2 모델 + 노이즈로 파이프라인 검증용 데이터 생성
+      → knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (2026-09-11)
 - [ ] Lv3-1 데이터 품질 게이트와 익명화(고객 식별 정보 제거) 규칙
 - [ ] Lv3-2 ingest 파이프라인 구현: 스키마 검증 → 표준화 → 파케이/DuckDB (sim/calibration/ingest.py)
 

@@ -1,0 +1,27 @@
+Lv3-1 학습을 완료했습니다.
+
+## 요약
+
+**단원:** tribologist Lv3-1 — COF 실시간 모니터링과 마찰기반 종점검출(EPD)
+
+**산출물 (커밋 `e3e8176`):**
+1. **지식노트** `knowledge/physics/friction-cof-monitoring-endpoint-detection.md`
+   - 전단력→플래튼토크→모터전류 신호 사슬과 핵심 항등 **P_motor,fric = τ·ω = F_shear·V = μPVA = Q_f** — 모터가 마찰에 쓰는 전기동력 = 계면 마찰발열(Lv2-2 q=μPV와 동일 물리량)
+   - 마찰 EPD 원리(재료전이 시 μ 계단), 소신호(~5%)-검출지연-과연마 트레이드오프, EPD 4법 비교표(마찰/광학/와전류/음향)
+   - 레짐 의존성: boundary/mixed에서만 마찰 대비가 살아 EPD 성립, hydrodynamic이면 실패
+2. **EXAMS.md** Lv3-1 3문항+모범답안
+3. **CURRICULUM.md** Lv3-1 `[x]`, **PROFILE.md** 레벨 Lv3 승급·이수기록·구현요청(마찰 EPD 신호모델 엔진, Tier2)
+
+**1차 출처 4건 (전부 기계검증 통과):**
+- Li·Lu·Luo 2017, *Micromachines* 8(6) 177, PMC6190379 (OA) — 종점 모터전력 계단 1630W/30300W, 121점 이동평균·12.15Hz, 지연<5s·과연마<20nm
+- Headley et al. 2019, *ECS JSST* 8(10) P634, doi.org/10.1149/2.0251910jss — PMC↔전단력 r=0.955 > PMC↔COF r=0.758
+- Headley et al. 2020, doi.org/10.1149/2162-8777/ab8392
+- Lai 2001 MIT thesis ch6 (마찰법 = 웨이퍼전면 평균, 공간분해 불가)
+
+**게이트:** `verify_claims` ✓ (출처 4건 실존·코드 1블록 통과·출처없는 수치주장 0), `check_knowledge` ✓
+
+**정직성 표기:** 모터전류-COF 절대변환(K_t, r_c, baseline)·재료별 COF 절대값·전이방향 정량은 미검증으로 명시. 검증한 것은 정의 항등·μPVA 동력 항등·Li 2017 산술 재현·Headley 상관 대소관계.
+
+**메모리:** verify_claims의 DOI 정규식이 `doi.org/`·`doi:` 접두만 인식(“DOI 10…” 표기는 미검증)하는 비자명한 게이트 사실을 기존 노트에 보강했습니다.
+
+push는 오케스트레이터 일괄처리 몫이라 하지 않았고, `.source_cache.json`(세션 시작 시 이미 수정돼 있던 공유 파일)과 `.night_parallel/`는 커밋에서 제외했습니다.

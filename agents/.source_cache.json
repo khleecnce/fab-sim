@@ -962,5 +962,521 @@
  "doi:10.1016/j.apsusc.2007.04.027": {
   "ok": true,
   "msg": "A mathematical model for material removal and chemical–mechanical synergy in chemical–mech"
+ },
+ "doi:10.3390/mi14112053": {
+  "ok": true,
+  "msg": "Endpoint Detection Based on Optical Method in Chemical Mechanical Polishing"
+ },
+ "doi:10.1149/1.1342185": {
+  "ok": true,
+  "msg": "Chemical Mechanical Polishing of Copper and Tantalum in Potassium Iodate-Based Slurries"
+ },
+ "doi:10.1088/1674-1056/abc161": {
+  "ok": true,
+  "msg": "Mechanism of titanium–nitride chemical mechanical polishing*"
+ },
+ "doi:10.1016/j.powtec.2024.119989": {
+  "ok": true,
+  "msg": "A review on the development of ceria for chemical mechanical polishing"
+ },
+ "doi:10.1038/s41598-021-97122-9": {
+  "ok": true,
+  "msg": "Super fine cerium hydroxide abrasives for SiO2 film chemical mechanical planarization perf"
+ },
+ "doi:10.1149/2162-8777/ac8310": {
+  "ok": true,
+  "msg": "Perspective—Recent Advances and Thoughts on Ceria Particle Applications in Chemical Mechan"
+ },
+ "pmc:8421349": {
+  "ok": true,
+  "msg": "Super fine cerium hydroxide abrasives for SiO(2) film chemical mechanical planarization pe"
+ },
+ "arxiv:1305.2882": {
+  "ok": true,
+  "msg": "Review of fluid flow and convective heat transfer within rotating disk cavities with impin"
+ },
+ "doi:10.1149/1.1390765": {
+  "ok": true,
+  "msg": "Enhanced Tungsten Chemical Mechanical Polishing Using Stable Alumina Slurries"
+ },
+ "doi:10.1149/1.1517772": {
+  "ok": true,
+  "msg": "Effects of Particle Concentration on Chemical Mechanical Planarization"
+ },
+ "doi:10.1006/jcis.1997.4848": {
+  "ok": true,
+  "msg": "Perikinetic and Orthokinetic Aggregation/Fragmentation of Hairy Colloids"
+ },
+ "doi:10.1021/la960326e": {
+  "ok": true,
+  "msg": "Coagulation Rate Measurements of Colloidal Particles by Simultaneous Static and Dynamic Li"
+ },
+ "doi:10.3938/NPSM.73.920": {
+  "ok": true,
+  "msg": "Effect of Ionic Strength on Particle Aggregation in Ceria Slurry"
+ },
+ "doi:10.1149/2.0311905jss": {
+  "ok": true,
+  "msg": "Effect of Controlling Abrasive Size in Slurry for Tungsten Contact CMP Process"
+ },
+ "doi:10.1116/1.1490393": {
+  "ok": true,
+  "msg": "Impact of the colloidal silica particle size on physical vapor deposition tungsten removal"
+ },
+ "doi:10.1007/s12541-012-0038-y": {
+  "ok": true,
+  "msg": "Effect of pad groove geometry on material removal characteristics in chemical mechanical p"
+ },
+ "doi:10.1016/j.wear.2010.10.057": {
+  "ok": true,
+  "msg": "Analyses and experimental confirmation of removal performance of silicon oxide film in the"
+ },
+ "doi:10.1149/1.1836127": {
+  "ok": true,
+  "msg": "Effect of Pad Groove Designs on the Frictional and Removal Rate Characteristics of ILD CMP"
+ },
+ "doi:10.1006/jcis.2002.8352": {
+  "ok": true,
+  "msg": "Effect of Soft Agglomerates on CMP Slurry Performance"
+ },
+ "doi:10.1149/1.2184036": {
+  "ok": true,
+  "msg": "Analysis of Large Particle Count in Fumed Silica Slurries and Its Correlation with Scratch"
+ },
+ "doi:10.1149/1.2779402": {
+  "ok": true,
+  "msg": "Elimination of Post Cu-CMP Watermark by Optimizing Post CMP Clean to Control Cu Dissolutio"
+ },
+ "doi:10.1149/1.3009224": {
+  "ok": true,
+  "msg": "Local-Topography-Induced Defects during Tungsten Chemical Mechanical Polishing and Their I"
+ },
+ "doi:10.1149/1.3243852": {
+  "ok": true,
+  "msg": "Nanoscale Defect Generation in CMP of Low-k/Copper Interconnect Patterns"
+ },
+ "doi:10.1149/1.3694369": {
+  "ok": true,
+  "msg": "CMP Defects; Their Detection and Analysis on Root Causes"
+ },
+ "doi:10.1149/1.1640632": {
+  "ok": true,
+  "msg": "Mechanical Removal in CMP of Copper Using Alumina Abrasives"
+ },
+ "doi:10.1007/978-3-662-07928-7": {
+  "ok": true,
+  "msg": "Integrated Modeling of Chemical Mechanical Planarization for Sub-Micron IC Fabrication"
+ },
+ "doi:10.1016/j.jnoncrysol.2006.02.113": {
+  "ok": true,
+  "msg": "Effect of temperature on hardness and indentation cracking of fused silica"
+ },
+ "doi:10.3390/ma17030679": {
+  "ok": true,
+  "msg": "Polishing Mechanism of CMP 4H-SiC Crystal Substrate (0001) Si Surface Based on an Alumina "
+ },
+ "doi:10.3390/ma19102134": {
+  "ok": true,
+  "msg": "High-Temperature Mechanical Characterization of CeO2 as a Ceramic Surrogate Fuel Based on "
+ },
+ "pmc:10856169": {
+  "ok": true,
+  "msg": "Polishing Mechanism of CMP 4H-SiC Crystal Substrate (0001) Si Surface Based on an Alumina "
+ },
+ "pmc:13208460": {
+  "ok": true,
+  "msg": "High-Temperature Mechanical Characterization of CeO(2) as a Ceramic Surrogate Fuel Based o"
+ },
+ "doi:10.5772/intechopen.75408": {
+  "ok": true,
+  "msg": "Abrasive for Chemical Mechanical Polishing"
+ },
+ "doi:10.1016/j.powtec.2020.11.058": {
+  "ok": true,
+  "msg": "Shape classification of fumed silica abrasive and its effects on chemical mechanical polis"
+ },
+ "doi:10.1149/1.2335982": {
+  "ok": true,
+  "msg": "The Effects of Copper CMP Slurry Chemistry on the Colloidal Behavior of Alumina Abrasives"
+ },
+ "doi:10.1149/1.2718474": {
+  "ok": true,
+  "msg": "Use of Slurry Colloidal Behavior in Modeling of Material Removal Rates for Copper CMP"
+ },
+ "doi:10.1109/wmed.2011.5767272": {
+  "ok": true,
+  "msg": "Friction based endpoint technique for barrier polish during copper CMP"
+ },
+ "doi:10.1088/1674-4926/30/4/046001": {
+  "ok": true,
+  "msg": "Effects of pattern characteristics on copper CMP"
+ },
+ "doi:10.1149/1.1516224": {
+  "ok": true,
+  "msg": "Potential-pH Diagrams of Interest to Chemical Mechanical Planarization of Copper"
+ },
+ "doi:10.1149/1.1806395": {
+  "ok": true,
+  "msg": "Chemical Mechanical Planarization of Copper: Role of Oxidants and Inhibitors"
+ },
+ "doi:10.3390/mi14020272": {
+  "ok": true,
+  "msg": "Material Removal Characteristics of Abrasive-Free Cu Chemical-Mechanical Polishing (CMP) U"
+ },
+ "pmc:9966509": {
+  "ok": true,
+  "msg": "Material Removal Characteristics of Abrasive-Free Cu Chemical-Mechanical Polishing (CMP) U"
+ },
+ "doi:10.1143/jjap.49.05fc03": {
+  "ok": true,
+  "msg": "Fundamental Study of Chemical–Mechanical Polishing Slurry of Cobalt Barrier Metal for the "
+ },
+ "doi:10.1557/proc-767-f6.3": {
+  "ok": true,
+  "msg": "Selectivity Studies On Tantalum Barrier Layer In Copper CMP"
+ },
+ "doi:10.1109/66.999598": {
+  "ok": true,
+  "msg": "Characterization and modeling of oxide chemical-mechanical polishing using planarization l"
+ },
+ "doi:10.1023/b:adso.0000046358.35572.4c": {
+  "ok": true,
+  "msg": "A Study on the Adsorption of Benzotriazole on Copper in Hydrochloric Acid Using the Inflec"
+ },
+ "doi:10.1149/1.1344532": {
+  "ok": true,
+  "msg": "Electrochemistry of Copper in Aqueous Glycine Solutions"
+ },
+ "doi:10.1149/1.1474436": {
+  "ok": true,
+  "msg": "The Role of Glycine in the Chemical Mechanical Planarization of Copper"
+ },
+ "doi:10.1149/2.0111709jss": {
+  "ok": true,
+  "msg": "Citric Acid as a Complexing Agent in Chemical Mechanical Polishing Slurries for Cobalt Fil"
+ },
+ "doi:10.1021/es981171v": {
+  "ok": true,
+  "msg": "Catalytic Decomposition of Hydrogen Peroxide by Fe(III) in Homogeneous Aqueous Solution: M"
+ },
+ "doi:10.1149/1.1738472": {
+  "ok": true,
+  "msg": "pH and Down Load Effects on Silicon Dioxide Dielectric CMP"
+ },
+ "doi:10.1149/1.3230624": {
+  "ok": true,
+  "msg": "Selective Chemical Mechanical Polishing of Silicon Dioxide over Silicon Nitride for Shallo"
+ },
+ "doi:10.1149/2.0071511jss": {
+  "ok": true,
+  "msg": "Shallow Trench Isolation Chemical Mechanical Planarization: A Review"
+ },
+ "doi:10.1016/S0167-9317(99)00150-1": {
+  "ok": true,
+  "msg": "Alkaline cleaning of silicon wafers: additives for the prevention of metal contamination"
+ },
+ "doi:10.1149/1.1391670": {
+  "ok": true,
+  "msg": "Competitive Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Soluti"
+ },
+ "doi:10.1149/1.1838723": {
+  "ok": true,
+  "msg": "Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution: Effect o"
+ },
+ "doi:10.1149/2162-8777/add809": {
+  "ok": true,
+  "msg": "Contamination Behavior of Bare Silicon Wafer Surface During Single-Wafer Process Using Dei"
+ },
+ "doi:10.1143/jjap.42.5420": {
+  "ok": true,
+  "msg": "Surfactant Effect on Oxide-to-Nitride Removal Selectivity of Nano-abrasive Ceria Slurry fo"
+ },
+ "doi:10.1039/C6RA27508G": {
+  "ok": true,
+  "msg": "The role of interactions between abrasive particles and the substrate surface in chemical-"
+ },
+ "doi:10.1007/s11664-001-0161-5": {
+  "ok": true,
+  "msg": "Dishing and nitride erosion of STI-CMP for different integration schemes"
+ },
+ "doi:10.1016/j.mee.2005.07.002": {
+  "ok": true,
+  "msg": "A dishing model for STI CMP process"
+ },
+ "doi:10.1016/j.mee.2006.12.004": {
+  "ok": true,
+  "msg": "Investigation of polishing characteristics of shallow trench isolation chemical mechanical"
+ },
+ "doi:10.1149/2162-8777/ab89bc": {
+  "ok": true,
+  "msg": "Tribological, Thermal and Kinetic Characterization of SiO\n                    <sub>2</sub>"
+ },
+ "doi:10.3390/polym18151899": {
+  "ok": true,
+  "msg": "Poly(acrylic acid)-Containing Ceria Slurries for Shallow Trench Isolation Chemical Mechani"
+ },
+ "doi:10.1149/1.1390765(원문": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/j.apsusc.2013.06.003": {
+  "ok": true,
+  "msg": "Effect of iron(III) nitrate concentration on tungsten chemical-mechanical-planarization pe"
+ },
+ "doi:10.1063/1.555805": {
+  "ok": true,
+  "msg": "Critical Review of rate constants for reactions of hydrated electrons, hydrogen atoms and "
+ },
+ "doi:10.3390/app12031227": {
+  "ok": true,
+  "msg": "Suppression of Dissolution Rate via Coordination Complex in Tungsten Chemical Mechanical P"
+ },
+ "doi:10.1016/j.mee.2020.111285": {
+  "ok": true,
+  "msg": "The filling seams improvement and properties analyses of tungsten films"
+ },
+ "doi:10.1016/j.microrel.2005.07.048": {
+  "ok": true,
+  "msg": "Reliability improvement by the suppression of keyhole generation in W-plug vias"
+ },
+ "doi:10.1557/proc-566-89": {
+  "ok": true,
+  "msg": "XPS and Electrochemical Studies on Tungsten-Oxidizer Interaction in Chemical Mechanical Po"
+ },
+ "doi:10.1016/S0040-6090(97)00435-5": {
+  "ok": true,
+  "msg": "Cartesian coordinate maps for chemical mechanical planarization uniformity characterizatio"
+ },
+ "doi:10.1016/j.jesp.2013.03.013": {
+  "ok": true,
+  "msg": "Detecting outliers: Do not use standard deviation around the mean, use absolute deviation "
+ },
+ "doi:10.1115/msec2010-34264": {
+  "ok": true,
+  "msg": "Simulation of Diamond Disc Conditioning in Chemical Mechanical Polishing: Effects of Condi"
+ },
+ "doi:10.1109/TSM.2005.852085": {
+  "ok": true,
+  "msg": "Online End Point Detection in CMP Using SPRT of Wavelet Decomposed Sensor Data"
+ },
+ "doi:10.1109/tsm.2005.852085": {
+  "ok": true,
+  "msg": "Online End Point Detection in CMP Using SPRT of Wavelet Decomposed Sensor Data"
+ },
+ "doi:10.1007/s12633-018-9791-6": {
+  "ok": true,
+  "msg": "Characteristic Study of Silicon Nitride Films Deposited by LPCVD and PECVD"
+ },
+ "doi:10.1149/1.3596181": {
+  "ok": true,
+  "msg": "Silicon Nitride Film Removal During Chemical Mechanical Polishing Using Ceria-Based Disper"
+ },
+ "doi:10.1364/oe.396969": {
+  "ok": true,
+  "msg": "Thermo-optic properties of silicon-rich silicon nitride for on-chip applications"
+ },
+ "doi:10.3390/surfaces1010006": {
+  "ok": true,
+  "msg": "Material Structure and Mechanical Properties of Silicon Nitride and Silicon Oxynitride Thi"
+ },
+ "doi:10.1016/0022-3093(90)90200-6": {
+  "ok": true,
+  "msg": "Chemical processes in glass polishing"
+ },
+ "doi:10.1111/jace.13659": {
+  "ok": true,
+  "msg": "Chemistry and Formation of the Beilby Layer During Polishing of Fused Silica Glass"
+ },
+ "doi:10.1016/j.mser.2004.06.002": {
+  "ok": true,
+  "msg": "Chemical mechanical planarization for microelectronics applications"
+ },
+ "doi:10.1109/wmed.2010.5453755": {
+  "ok": true,
+  "msg": "A Comprehensive Study on Nanomechanical Properties of Various SiO2-Based Dielectric Films"
+ },
+ "doi:10.1557/PROC-613-E8.6.1": {
+  "ok": true,
+  "msg": "Removal Rate, Uniformity and Defectivity Studies of Chemical Mechanical Polishing of BPSG "
+ },
+ "doi:10.1149/1.2086277": {
+  "ok": true,
+  "msg": "Anisotropic Etching of Crystalline Silicon in Alkaline Solutions: I . Orientation Dependen"
+ },
+ "doi:10.1149/1.2086278": {
+  "ok": true,
+  "msg": "Anisotropic Etching of Crystalline Silicon in Alkaline Solutions: II . Influence of Dopant"
+ },
+ "doi:10.3390/nano12213893": {
+  "ok": true,
+  "msg": "Silicon Wafer CMP Slurry Using a Hydrolysis Reaction Accelerator with an Amine Functional "
+ },
+ "doi:10.7763/IJMMM.2016.V4.236": {
+  "ok": true,
+  "msg": "The Dependence of Material Removal Rate on Annealing Treatment in Polysilicon CMP"
+ },
+ "doi:10.1149/1.2912980": {
+  "ok": true,
+  "msg": "Effect of Alkaline Agent with Organic Additive in Colloidal Silica Slurry on Polishing Rat"
+ },
+ "doi:10.1149/ma2008-01/17/692": {
+  "ok": true,
+  "msg": "Effect of Alkaline Agent with Organic Additive in Colloidal Silica Slurry on Polishing Rat"
+ },
+ "doi:10.3938/jkps.51.214": {
+  "ok": true,
+  "msg": "Effects of the Size and the Concentration of the Abrasive in a Colloidal Silica (SiO2) Slu"
+ },
+ "pmc:12388451": {
+  "ok": true,
+  "msg": "Effects of Hydrolysis Reaction and Abrasive Drag Force Accelerator on Enhancing Si-Wafer P"
+ },
+ "doi:10.1016/S0007-8506(07)62112-X": {
+  "ok": true,
+  "msg": "Mechanisms of the Chemical Mechanical Polishing (CMP) Process in Integrated Circuit Fabric"
+ },
+ "doi:10.1109/TSM.2012.2190432": {
+  "ok": true,
+  "msg": "Effect of Kinematic Parameters and Their Coupling Relationships on Global Uniformity of Ch"
+ },
+ "doi:10.3390/mi16040450": {
+  "ok": true,
+  "msg": "Research on the Trajectory and Relative Speed of a Single-Sided Chemical Mechanical Polish"
+ },
+ "pmc:12029203": {
+  "ok": true,
+  "msg": "Research on the Trajectory and Relative Speed of a Single-Sided Chemical Mechanical Polish"
+ },
+ "pmc:12943132": {
+  "ok": true,
+  "msg": "Correction: Ye, G.; Yao, Z. Research on the Trajectory and Relative Speed of a Single-Side"
+ },
+ "doi:10.5254/1.3547752": {
+  "ok": true,
+  "msg": "Durometer Hardness and the Stress-Strain Behavior of Elastomeric Materials"
+ },
+ "doi:10.1016/S0167-9317(03)00278-8": {
+  "ok": true,
+  "msg": "Advantages of point of use (POU) slurry filter and high spray method for reduction of CMP "
+ },
+ "doi:10.1016/j.mee.2019.03.012": {
+  "ok": true,
+  "msg": "Quantification of shear induced agglomeration in chemical mechanical polishing slurries un"
+ },
+ "doi:10.1016/j.seppur.2016.12.017": {
+  "ok": true,
+  "msg": "Filtration of aqueous colloidal ceria slurries using fibrous filters – An experimental and"
+ },
+ "doi:10.1109/ASMC.2019.8791775": {
+  "ok": true,
+  "msg": "The Benefits of Multi-Stage Filtration for Improved CMP Slurry Large Particle Retention"
+ },
+ "doi:10.1149/2.0091805jss": {
+  "ok": true,
+  "msg": "Study of Agglomeration Behavior of Chemical Mechanical Polishing Slurry under Controlled S"
+ },
+ "doi:10.1038/s41598-020-71768-3": {
+  "ok": true,
+  "msg": "Universal inherent fluctuations in statistical counting of large particles in slurry used "
+ },
+ "doi:10.1038/s41598-024-59496-4": {
+  "ok": true,
+  "msg": "Lens-free reflective topography for high-resolution wafer inspection"
+ },
+ "pmc:11076508": {
+  "ok": true,
+  "msg": "Lens-free reflective topography for high-resolution wafer inspection."
+ },
+ "pmc:7477581": {
+  "ok": true,
+  "msg": "Universal inherent fluctuations in statistical counting of large particles in slurry used "
+ },
+ "doi:10.1016/j.jmapro.2025.11.011": {
+  "ok": true,
+  "msg": "Achieving highly selective polishing of polysilicon over oxide and nitride films via ethyl"
+ },
+ "doi:10.1016/j.mssp.2021.105755": {
+  "ok": true,
+  "msg": "Investigation of abrasive-free slurry for polysilicon buffing chemical mechanical planariz"
+ },
+ "doi:10.1021/am2010114": {
+  "ok": true,
+  "msg": "Charge Density and pH Effects on Polycation Adsorption on Poly-Si, SiO<sub>2</sub>, and Si"
+ },
+ "doi:10.1021/la104257k": {
+  "ok": true,
+  "msg": "Role of Poly(diallyldimethylammonium chloride) in Selective Polishing of Polysilicon over "
+ },
+ "doi:10.1149/2.0081905jss": {
+  "ok": true,
+  "msg": "Reactive Liquids for Non–Prestonian Chemical Mechanical Polishing of Polysilicon Films"
+ },
+ "doi:10.1149/2.0171808jss": {
+  "ok": true,
+  "msg": "Effect of Complexing Agent Choices on Dishing Control Level and the Shelf Life in Copper C"
+ },
+ "doi:10.3390/mi9110542": {
+  "ok": true,
+  "msg": "Characterization of CMP Slurries Using Densitometry and Refractive Index Measurements"
+ },
+ "pmc:6266087": {
+  "ok": true,
+  "msg": "Characterization of CMP Slurries Using Densitometry and Refractive Index Measurements."
+ },
+ "doi:10.7939/r3967c": {
+  "ok": true,
+  "msg": "A study of the colloidal stability of mixed abrasive slurries of silica and ceria nanopart [DataCite]"
+ },
+ "doi:10.1021/acsaelm.2c01553": {
+  "ok": true,
+  "msg": "Enhancing the Polishing Efficiency of CeO<sub>2</sub> Abrasives on the SiO<sub>2</sub> Sub"
+ },
+ "doi:10.3390/molecules30153100": {
+  "ok": true,
+  "msg": "FTIR Detection of Ce3+ Sites on Shape-Controlled Ceria Nanoparticles Using Adsorbed 15N2 a"
+ },
+ "doi:10.3390/nano15171366": {
+  "ok": true,
+  "msg": "A Comprehensive Review of the Nano-Abrasives Key Parameters Influencing the Performance in"
+ },
+ "pmc:12348644": {
+  "ok": true,
+  "msg": "FTIR Detection of Ce(3+) Sites on Shape-Controlled Ceria Nanoparticles Using Adsorbed (15)"
+ },
+ "pmc:12430078": {
+  "ok": true,
+  "msg": "A Comprehensive Review of the Nano-Abrasives Key Parameters Influencing the Performance in"
+ },
+ "doi:10.1007/s11249-012-0098-2": {
+  "ok": true,
+  "msg": "Investigation of Source-Based Scratch Formation During Oxide Chemical Mechanical Planariza"
+ },
+ "doi:10.1016/j.cirp.2008.03.098": {
+  "ok": true,
+  "msg": "Nano-scale scratching in chemical–mechanical polishing"
+ },
+ "doi:10.1016/j.cirp.2010.03.113": {
+  "ok": true,
+  "msg": "Scratching by pad asperities in chemical–mechanical polishing"
+ },
+ "doi:10.1149/1.3121964": {
+  "ok": true,
+  "msg": "Controlling Scratching in Cu Chemical Mechanical Planarization"
+ },
+ "doi:10.4028/www.scientific.net/SSP.219.153": {
+  "ok": true,
+  "msg": "Understanding the Formation of Circular Ring Defects in Post-CMP Cleaning"
+ },
+ "doi:10.1149/1.1605422": {
+  "ok": true,
+  "msg": "A Theoretical Evaluation of Hydrodynamic and Brush Contact Effects on Particle Removal dur"
+ },
+ "doi:10.1149/2.041111jes": {
+  "ok": true,
+  "msg": "Particle Generation on Hydrogen-Terminated Si Surface by Brush Scrubbing of Polyvinyl Alco"
+ },
+ "doi:10.1007/s00170-018-1956-3의": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
  }
 }

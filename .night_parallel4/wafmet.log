@@ -1,0 +1,19 @@
+wafer-metrology Lv3-1 학습을 마쳤고 커밋(ac002e1)까지 끝냈다. push는 지시대로 하지 않았다.
+
+**산출물**
+- 지식노트 `knowledge/cmp/inline-virtual-metrology-sampling-optimization.md` (273줄, 상호링크 10개, verify 4블록)
+- `agents/wafer-metrology/EXAMS.md` 3문항, `PROFILE.md` 이수 기록 + 구현 요청 2건(Medium: `sampling_plan.py`, Low: `vm_baseline.py`), `CURRICULUM.md` Lv3-1 [x], `knowledge/INDEX.md` 1줄
+- 게이트: verify_claims 통과(DOI·특허 17건 실존, 코드 4블록 통과, 출처 없는 수치 0), check_knowledge 통과
+
+**확보한 1차 원문과 핵심 정량값**
+- Di, Jia & Lee 2017 IJPHM(CC-BY): PHM 2016 CMP 데이터 챌린지 우승 논문. FDC 센서(존별 에어백·리테이닝링 압력, 유량, 회전수, 소모품 사용량) 125특징, 가중 앙상블 테스트 MSE 7.07(24팀 중 1위). DBN 7.29가 tree bagging 7.22보다 나쁘고 persistent 8.23이 KNN 9.60보다 좋다는 상대 순위를 표로 재현.
+- McLoone, Johnston & Susto 2018 IEEE TASE(QUB 저자원고): FSCA로 50점 → 7점 축소 시 프로파일 재구성 NMSE 0.96 %. Table I~IV 전부 재현했고, CDS의 WOI 8행이 (⌈V/Vm⌉−1)/(V−Vm) 닫힌형과 ±0.1 %p로 맞는다는 점을 새로 확인.
+- Nduhura-Munga et al. 2013 IEEE TSM(원문): static/adaptive/dynamic 샘플링 정의와 material-at-risk 개념.
+- AMD US6645780, IBM US9240360 특허 전문: 통합 계측=W2W 루프, 오프라인=L2L 루프, VM 예측오차 신뢰도 가중.
+- 합성 검증 2건(문헌값 아님으로 명기): 49→9점 SE 2.33배·range WIWNU 과소추정·엣지 롤오프 무감, VM 보강 EWMA R2R은 VM 오차가 드리프트보다 작을 때만 이득.
+
+**미확보로 정직 기록한 것**
+- Rao 2000 ISSM(통합 계측 R2R 원조)은 제목·DOI만. Jebri 2017, Kang 2009, Dreyfus 2021, Breidung 2025는 봇차단으로 초록만. Zhang 2021 Wide&Deep MSE 6.33은 검색 스니펫뿐이라 미검증.
+- 통합 계측기의 측정점 수·정밀도·처리량을 오프라인과 나란히 비교한 1차 논문, CMP 실데이터의 FSCA 성분수, Di 2017 MSE의 물리 단위는 확보하지 못했다.
+
+**부수 발견**: 노트에 `DOI 10.…`으로 쓰면 verify_claims가 출처를 검사하지 않는다(접두 `DOI:` 필요). MDPI PDF는 mdpi-res.com CDN 직링크로 받을 수 있다. 둘 다 메모리에 기록했다. 다른 크론의 미커밋 변경(wafer-type, pad-lifecycle)은 건드리지 않았다.

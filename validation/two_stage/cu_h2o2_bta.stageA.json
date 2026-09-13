@@ -1,0 +1,345 @@
+{
+  "pack": "cu_h2o2_bta",
+  "n": 39,
+  "user_n": 0,
+  "kp_multiplier": 0.0575,
+  "spread_iqr": 22.91,
+  "dataset_split": 81.94,
+  "per_dataset": {
+    "lee2021_cu_nicotinic_inhibitor": {
+      "n": 3,
+      "median_ratio": 0.018
+    },
+    "tw202115224a_cu_abrasive_size_pressure": {
+      "n": 18,
+      "median_ratio": 1.475
+    },
+    "us20110165777a1_cu_h2o2_series": {
+      "n": 11,
+      "median_ratio": 0.027
+    },
+    "us9200180b2_cu_abrasive_series": {
+      "n": 4,
+      "median_ratio": 0.04
+    },
+    "us9200180b2_cu_h2o2_series": {
+      "n": 3,
+      "median_ratio": 0.019
+    }
+  },
+  "note": "실측 39건(사용자 0) 중앙값 비 0.058 → Kp ×0.058. IQR/중앙값 22.91. 데이터셋 간 편차 81.9배. ⚠ 데이터셋마다 절대값 체계가 다르다(pH·입자·패드가 다른 계) — Kp 하나로 못 맞춘다. Stage B(형상)가 그 차이를 흡수해야 하고, 안 되면 팩을 조건별로 분리해야 한다.",
+  "rows": [
+    {
+      "dataset": "lee2021_cu_nicotinic_inhibitor",
+      "label": "억제제 없음 (nicotinic acid 0 M)",
+      "meas": 19.196,
+      "pred": 5945.72,
+      "ratio": 0.0032,
+      "read": "table"
+    },
+    {
+      "dataset": "lee2021_cu_nicotinic_inhibitor",
+      "label": "니코틴산 0.03 M",
+      "meas": 8.266,
+      "pred": 297.05,
+      "ratio": 0.0278,
+      "read": "table"
+    },
+    {
+      "dataset": "lee2021_cu_nicotinic_inhibitor",
+      "label": "니코틴산 0.05 M",
+      "meas": 5.246,
+      "pred": 296.64,
+      "ratio": 0.0177,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합1 Nalco 15nm 구형, 2.5 psi",
+      "meas": 620.4,
+      "pred": 461.43,
+      "ratio": 1.3445,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합1 Nalco 15nm 구형, 1.5 psi",
+      "meas": 408.4,
+      "pred": 276.86,
+      "ratio": 1.4751,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합2 Fuso 15nm 구형, 2.5 psi",
+      "meas": 549.2,
+      "pred": 461.43,
+      "ratio": 1.1902,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합2 Fuso 15nm 구형, 1.5 psi",
+      "meas": 345.1,
+      "pred": 276.86,
+      "ratio": 1.2465,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합3 Nalco 27nm 구형, 2.5 psi",
+      "meas": 514.0,
+      "pred": 461.43,
+      "ratio": 1.1139,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합3 Nalco 27nm 구형, 1.5 psi",
+      "meas": 371.2,
+      "pred": 276.86,
+      "ratio": 1.3408,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합4 Fuso 27nm 구형, 2.5 psi",
+      "meas": 562.9,
+      "pred": 461.43,
+      "ratio": 1.2199,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합4 Fuso 27nm 구형, 1.5 psi",
+      "meas": 351.9,
+      "pred": 276.86,
+      "ratio": 1.2711,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합5 Nalco 50nm 구형, 2.5 psi",
+      "meas": 441.4,
+      "pred": 461.43,
+      "ratio": 0.9566,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합5 Nalco 50nm 구형, 1.5 psi",
+      "meas": 310.9,
+      "pred": 276.86,
+      "ratio": 1.123,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합6 Fuso 50nm 누에고치형, 2.5 psi",
+      "meas": 845.3,
+      "pred": 461.43,
+      "ratio": 1.8319,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합6 Fuso 50nm 누에고치형, 1.5 psi",
+      "meas": 569.5,
+      "pred": 276.86,
+      "ratio": 2.057,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합7 Fuso 125nm 누에고치형, 2.5 psi",
+      "meas": 761.8,
+      "pred": 461.43,
+      "ratio": 1.651,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합7 Fuso 125nm 누에고치형, 1.5 psi",
+      "meas": 487.4,
+      "pred": 276.86,
+      "ratio": 1.7605,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합8 Fuso 140nm 응집체, 2.5 psi",
+      "meas": 849.3,
+      "pred": 461.43,
+      "ratio": 1.8406,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합8 Fuso 140nm 응집체, 1.5 psi",
+      "meas": 482.4,
+      "pred": 276.86,
+      "ratio": 1.7424,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합9 JGC 160nm 구형, 2.5 psi",
+      "meas": 775.7,
+      "pred": 461.43,
+      "ratio": 1.6811,
+      "read": "table"
+    },
+    {
+      "dataset": "tw202115224a_cu_abrasive_size_pressure",
+      "label": "배합9 JGC 160nm 구형, 1.5 psi",
+      "meas": 457.4,
+      "pred": 276.86,
+      "ratio": 1.6521,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 1%, FSN 0 ppm",
+      "meas": 16.0,
+      "pred": 485.01,
+      "ratio": 0.033,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 1%, FSN 250 ppm",
+      "meas": 15.4,
+      "pred": 485.01,
+      "ratio": 0.0318,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 3%, FSN 0 ppm",
+      "meas": 15.8,
+      "pred": 671.69,
+      "ratio": 0.0235,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 3%, FSN 250 ppm",
+      "meas": 14.6,
+      "pred": 671.69,
+      "ratio": 0.0217,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 5%, FSN 0 ppm",
+      "meas": 15.4,
+      "pred": 633.27,
+      "ratio": 0.0243,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 5%, FSN 250 ppm",
+      "meas": 15.5,
+      "pred": 633.27,
+      "ratio": 0.0245,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 7%, FSN 0 ppm",
+      "meas": 15.7,
+      "pred": 578.44,
+      "ratio": 0.0271,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 7%, FSN 250 ppm",
+      "meas": 18.2,
+      "pred": 578.44,
+      "ratio": 0.0315,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 0.25%, FSN 500 ppm",
+      "meas": 14.0,
+      "pred": 160.21,
+      "ratio": 0.0874,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 0.5%, FSN 500 ppm",
+      "meas": 12.9,
+      "pred": 295.62,
+      "ratio": 0.0436,
+      "read": "table"
+    },
+    {
+      "dataset": "us20110165777a1_cu_h2o2_series",
+      "label": "H2O2 1%, FSN 500 ppm",
+      "meas": 12.1,
+      "pred": 485.01,
+      "ratio": 0.0249,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_abrasive_series",
+      "label": "silica 0.5wt%, H2O2 1wt% (Example 11)",
+      "meas": 6.4,
+      "pred": 195.26,
+      "ratio": 0.0328,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_abrasive_series",
+      "label": "silica 1.5wt%, H2O2 1wt% (Example 12)",
+      "meas": 8.4,
+      "pred": 281.62,
+      "ratio": 0.0298,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_abrasive_series",
+      "label": "silica 10wt%, H2O2 1wt% (Example 13)",
+      "meas": 21.0,
+      "pred": 530.02,
+      "ratio": 0.0396,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_abrasive_series",
+      "label": "silica 20wt%, H2O2 1wt% (Example 14)",
+      "meas": 38.4,
+      "pred": 667.79,
+      "ratio": 0.0575,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_h2o2_series",
+      "label": "H2O2 1wt% (Example 5)",
+      "meas": 11.8,
+      "pred": 354.81,
+      "ratio": 0.0333,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_h2o2_series",
+      "label": "H2O2 2.5wt% (Example 6)",
+      "meas": 9.2,
+      "pred": 487.2,
+      "ratio": 0.0189,
+      "read": "table"
+    },
+    {
+      "dataset": "us9200180b2_cu_h2o2_series",
+      "label": "H2O2 5wt% (Example 7)",
+      "meas": 7.7,
+      "pred": 463.28,
+      "ratio": 0.0166,
+      "read": "table"
+    }
+  ]
+}

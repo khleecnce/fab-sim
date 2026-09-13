@@ -1,0 +1,32 @@
+완료 보고합니다.
+
+## Lv2-1 이수 완료 — 막질별 EPD 적합성과 한계(투명막·다층)
+
+**작성 노트**
+`knowledge/equipment/epd-film-type-suitability-transparent-multilayer-limits.md`
+(6개 절: 막질별 방식 지도 / 투명막 간섭 모호성 / 다층·패턴 신호 희석 / 물리적 검출한계 / 정량재현 / 미검증)
+
+**인용 출처 4건 (실존 확인)**
+1. **Lai 2001, MIT 박사논문 Ch.6** (학위논문 0.7) — 간섭=투명 유전막·반사=금속 면적분율 구분, 식(6.10) `R=Af·Rcu+(1−Af)·Rox`, 극박 Ta 배리어 반투명화. PDF 확보(`papers/lai2001-...pdf`).
+2. **US 4,293,224 (IBM, 1981)** (특허 0.9) — λ/2n 간섭 주기·차수 모호성·다파장 해결. FreePatentsOnline 본문 확인.
+3. **Tian et al. 2023, Micromachines** (1차논문 1.0, PMC10673209) — Cu 반사율 0.943@650nm, 금속 30–40nm 투명화 (Lv1-1 확보값 재사용).
+4. **An et al., NCCAVS** (학회초록 0.5) — 와전류 측정범위 3000Å→550–7000Å. PDF 확보(`papers/an-nccavs-...pdf`).
+
+두 신규 PDF는 `papers/`에 저장하고 `papers/INDEX.json`에 등록.
+
+**python verify 블록: 1블록(4개 서브검증 A~D, 모든 assert 통과)**
+- A: λ/2n=0.333µm(특허 "약 0.3µm"), 두 파장 결합범위 0.75µm=3배 재현, SiO₂ fringe 205.5nm
+- B: Airy 반사율 수치주기=이론 λ/2n 일치, 200nm 잔막<1주기 → 카운트 불가
+- C: 면적분율 선형 희석, f=0.1은 f=0.5의 1/5 신호
+- D: 와전류 최소 55nm ≈ 광학 투명화 30–40nm (금속 EPD 공통 "수십 nm" 한계)
+
+**게이트: check_knowledge ✓ / verify_claims ✓ (둘 다 PASS)**
+상호링크 6개(Lv1-1, Lv1-2, thermal-slurry, ild-cmp, sti-cmp, pattern-dishing).
+
+**갱신 완료**
+- CURRICULUM.md: Lv2-1 [x] (날짜·노트경로)
+- PROFILE.md: 이수기록 추가, 다음 단원 Lv2-2로
+- ORG.md §5: tool-endpoint 행 3/6·2026-09-11
+- EXAMS.md: Lv2-1 3문항+모범답안 추가
+
+**주의/한계 (숨기지 않음)**: 구현요청 없음(모델이 아닌 한계 분석 단원). Rox=0.05는 오더용 예시라 절대 ΔR은 미검증(희석 *비율*만 유효), Block B는 Si의 k≈0 근사(주기는 무관, 진폭만 영향). STI 간섭 EPD 1차 트레이스(IEEE 2017)는 유료·초록만이라 인용 안 함 — Lai 실측으로 대체. git 커밋은 지시대로 하지 않았습니다.

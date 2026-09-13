@@ -1,0 +1,190 @@
+{
+  "pack": "sti_ceria",
+  "kp_multiplier": 0.7411,
+  "n_conditions": 22,
+  "tunables": {
+    "wafer_iep_ph": [
+      2.5,
+      2.0,
+      3.0
+    ],
+    "abrasive_size_nm": [
+      80.0,
+      40.0,
+      120.0
+    ],
+    "oxide_nitride_selectivity": [
+      60.0,
+      48.0,
+      72.0
+    ],
+    "ce3_fraction": [
+      0.15,
+      0.12,
+      0.18
+    ],
+    "ceria_tooth_gain": [
+      1.0,
+      0.5,
+      1.5
+    ]
+  },
+  "baseline": {
+    "rho": 0.3667,
+    "log_resid_sd": 0.9492
+  },
+  "trials": [
+    {
+      "param": "wafer_iep_ph",
+      "value": 2.0,
+      "rho": 0.3444,
+      "sd": 0.8789
+    },
+    {
+      "param": "wafer_iep_ph",
+      "value": 2.25,
+      "rho": 0.3611,
+      "sd": 0.9006
+    },
+    {
+      "param": "wafer_iep_ph",
+      "value": 2.5,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "wafer_iep_ph",
+      "value": 2.75,
+      "rho": 0.3556,
+      "sd": 1.0392
+    },
+    {
+      "param": "wafer_iep_ph",
+      "value": 3.0,
+      "rho": 0.35,
+      "sd": 1.1778
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 40.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 60.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 80.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 100.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 120.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "oxide_nitride_selectivity",
+      "value": 48.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "oxide_nitride_selectivity",
+      "value": 54.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "oxide_nitride_selectivity",
+      "value": 60.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "oxide_nitride_selectivity",
+      "value": 66.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "oxide_nitride_selectivity",
+      "value": 72.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ce3_fraction",
+      "value": 0.12,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ce3_fraction",
+      "value": 0.135,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ce3_fraction",
+      "value": 0.15,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ce3_fraction",
+      "value": 0.165,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ce3_fraction",
+      "value": 0.18,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ceria_tooth_gain",
+      "value": 0.5,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ceria_tooth_gain",
+      "value": 0.75,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ceria_tooth_gain",
+      "value": 1.0,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ceria_tooth_gain",
+      "value": 1.25,
+      "rho": 0.3667,
+      "sd": 0.9492
+    },
+    {
+      "param": "ceria_tooth_gain",
+      "value": 1.5,
+      "rho": 0.3667,
+      "sd": 0.9492
+    }
+  ],
+  "proposal": null,
+  "note": "문헌 범위 안에서 ρ를 0.01 넘게 올리는 형상 변경이 없다 — 현재 형상이 문헌 범위 내 최적. 개선은 새 항(미모델링 팩터) 추가로만 가능."
+}

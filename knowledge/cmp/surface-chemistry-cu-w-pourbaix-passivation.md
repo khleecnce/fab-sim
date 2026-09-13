@@ -97,7 +97,31 @@ and Copper CMP in Weakly Alkaline Citrate-Based Slurries". Clarkson Univ., tribo
 ## 7. 자기시험
 → EXAMS.md Lv2-1 참조.
 
-## 8. 코드 재현
-→ `sim/tier2_physics/pourbaix_nernst_slope.py` — Nernst 식의 m/n 기울기 공식을 W/Cu 산화막
-경계 반응식에 대입해 표준 −59.1 mV/pH(m=n 경우)를 재현, 문헌 서술(WO₃ 자기제한, Cu 다중
-표면종)과의 정성적 일치를 self-test로 확인.
+## 8. 코드 재현 (python verify — CI가 매 push마다 실제 실행)
+`sim/tier2_physics/pourbaix_nernst_slope.py`가 Nernst 식의 m/n 기울기 공식을 W/Cu 산화막
+경계 반응식에 대입해 표준 −59.1 mV/pH(m=n 경우, CRC Handbook 표준값)를 재현하고, 문헌
+반응식(§3-4, Gamagedara & Roy 2024 PMC11477894)이 실제로 이 m=n 계열에 속함을 assert로 확인.
+
+```python verify
+import sys
+sys.path.insert(0, "sim/tier2_physics")
+from pourbaix_nernst_slope import nernst_ph_slope, CMP_SURFACE_REACTIONS
+
+# 표준값 대조: m=n=1 최소 사례 -> -59.16 mV/pH (CRC Handbook RT/F*ln10 @25C)
+slope = nernst_ph_slope(1, 1) * 1000.0
+assert abs(slope - (-59.16)) < 0.01, f"표준 Nernst 기울기 불일치: {slope} mV/pH"
+
+# W passivation(6,6 몰수배율 다름) 도 동일 기울기로 스케일 불변 확인
+w_rx = CMP_SURFACE_REACTIONS[0]
+assert abs(w_rx.slope_mV_per_pH() - (-59.16)) < 0.01, f"W 반응 기울기 불일치: {w_rx.slope_mV_per_pH()}"
+
+# Cu Eq.9/Eq.10 (§4 원문 반응식) 모두 m=n 치밀 화학양론 산화막 계열인지 판정
+cu9, cu10 = CMP_SURFACE_REACTIONS[1], CMP_SURFACE_REACTIONS[2]
+assert cu9.is_self_limiting_type() and cu10.is_self_limiting_type(), "Cu 반응식이 m=n 계열이 아님"
+
+print(f"PASS: 표준기울기={slope:.2f}mV/pH, W={w_rx.slope_mV_per_pH():.2f}mV/pH, Cu Eq9/10 m=n 확인")
+```
+
+한계: 이 코드가 검증하는 것은 **Nernst 식의 산술과 반응식 m/n 계수 분류**뿐이다. Pourbaix
+다이어그램의 실제 pH·전위 경계좌표(정량값)는 §6에서 밝힌 대로 원저(1966, 유료) 미확인 —
+정량 경계값은 여전히 미검증이며, 이 verify 블록은 그 사실을 바꾸지 않는다.

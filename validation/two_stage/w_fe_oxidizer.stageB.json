@@ -1,0 +1,233 @@
+{
+  "pack": "w_fe_oxidizer",
+  "kp_multiplier": 0.3275,
+  "n_conditions": 5,
+  "tunables": {
+    "slurry_ph": [
+      2.5,
+      2.0,
+      3.0
+    ],
+    "oxidizer_wt_pct": [
+      3.0,
+      2.4000000000000004,
+      3.5999999999999996
+    ],
+    "oxidizer_peak_wt_pct": [
+      6.0,
+      3.0,
+      9.0
+    ],
+    "oxidizer_curve_n": [
+      3.0,
+      1.5,
+      4.5
+    ],
+    "oxidizer_mech_floor": [
+      0.14,
+      0.11200000000000002,
+      0.168
+    ],
+    "abrasive_size_nm": [
+      150.0,
+      75.0,
+      225.0
+    ]
+  },
+  "baseline": {
+    "rho": 1.0,
+    "log_resid_sd": 0.5852
+  },
+  "trials": [
+    {
+      "param": "slurry_ph",
+      "value": 2.0,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "slurry_ph",
+      "value": 2.25,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "slurry_ph",
+      "value": 2.5,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "slurry_ph",
+      "value": 2.75,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "slurry_ph",
+      "value": 3.0,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "oxidizer_wt_pct",
+      "value": 2.4,
+      "rho": NaN,
+      "sd": 1.433
+    },
+    {
+      "param": "oxidizer_wt_pct",
+      "value": 2.7,
+      "rho": NaN,
+      "sd": 1.433
+    },
+    {
+      "param": "oxidizer_wt_pct",
+      "value": 3.0,
+      "rho": NaN,
+      "sd": 1.433
+    },
+    {
+      "param": "oxidizer_wt_pct",
+      "value": 3.3,
+      "rho": NaN,
+      "sd": 1.433
+    },
+    {
+      "param": "oxidizer_wt_pct",
+      "value": 3.6,
+      "rho": NaN,
+      "sd": 1.433
+    },
+    {
+      "param": "oxidizer_peak_wt_pct",
+      "value": 3.0,
+      "rho": 0.3,
+      "sd": 0.6019
+    },
+    {
+      "param": "oxidizer_peak_wt_pct",
+      "value": 4.5,
+      "rho": 0.7,
+      "sd": 0.5845
+    },
+    {
+      "param": "oxidizer_peak_wt_pct",
+      "value": 6.0,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "oxidizer_peak_wt_pct",
+      "value": 7.5,
+      "rho": 1.0,
+      "sd": 0.5955
+    },
+    {
+      "param": "oxidizer_peak_wt_pct",
+      "value": 9.0,
+      "rho": 1.0,
+      "sd": 0.6108
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 1.5,
+      "rho": 1.0,
+      "sd": 0.5916
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 2.25,
+      "rho": 1.0,
+      "sd": 0.5869
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 3.0,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 3.75,
+      "rho": 1.0,
+      "sd": 0.5845
+    },
+    {
+      "param": "oxidizer_curve_n",
+      "value": 4.5,
+      "rho": 1.0,
+      "sd": 0.5842
+    },
+    {
+      "param": "oxidizer_mech_floor",
+      "value": 0.112,
+      "rho": 1.0,
+      "sd": 0.4906
+    },
+    {
+      "param": "oxidizer_mech_floor",
+      "value": 0.126,
+      "rho": 1.0,
+      "sd": 0.5403
+    },
+    {
+      "param": "oxidizer_mech_floor",
+      "value": 0.14,
+      "rho": 1.0,
+      "sd": 0.5852
+    },
+    {
+      "param": "oxidizer_mech_floor",
+      "value": 0.154,
+      "rho": 1.0,
+      "sd": 0.626
+    },
+    {
+      "param": "oxidizer_mech_floor",
+      "value": 0.168,
+      "rho": 1.0,
+      "sd": 0.6633
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 75.0,
+      "rho": 1.0,
+      "sd": 0.4906
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 112.5,
+      "rho": 1.0,
+      "sd": 0.4906
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 150.0,
+      "rho": 1.0,
+      "sd": 0.4906
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 187.5,
+      "rho": 1.0,
+      "sd": 0.4906
+    },
+    {
+      "param": "abrasive_size_nm",
+      "value": 225.0,
+      "rho": 1.0,
+      "sd": 0.4906
+    }
+  ],
+  "proposal": {
+    "overrides": {
+      "oxidizer_mech_floor": 0.112
+    },
+    "rho": 1.0,
+    "log_resid_sd": 0.4906,
+    "delta_rho": 0.0,
+    "delta_sd": -0.0946
+  },
+  "note": "제안은 자동 적용되지 않는다. 팩에 반영하려면 각 파라미터 note에 '2단계 최적화 제안 2026-09-10: 문헌값 oxidizer_mech_floor=0.14 → 제안값' 을 남기고 qa_loop.py run --strict 가 PASS일 때만 커밋하라."
+}

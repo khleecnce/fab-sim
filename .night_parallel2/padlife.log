@@ -1,0 +1,24 @@
+pad-lifecycle Lv2-1 단원을 완료하고 커밋했습니다(8305c5e, push 안 함).
+
+**산출물**
+- `knowledge/materials/pad-glazing-mechanism-mrr-decay.md` 신규. glazing을 세 구성요소(asperity 소성 평탄화, 기공 막힘, 잔류물 응착)로 분해하고 정량 실측을 정리했다.
+- `agents/pad-lifecycle/EXAMS.md`에 Lv2-1 자기시험 3문항과 답안 추가.
+- PROFILE에 이수 기록, 다음 단원 Lv2-2, "구현 요청" 섹션(시간의존 접촉점·반경 모델을 wear-aware Kp에 연결) 추가. CURRICULUM Lv2-1을 [x]로 변경.
+- `papers/INDEX.json`과 `knowledge/INDEX.md`에 신규 논문·노트 등록.
+
+**핵심 출처와 수치**
+- Jeong et al. 2024, Materials 17, 1817 (doi 10.3390/ma17081817, PMC11051262). OA 전문을 Europe PMC에서 확보해 직접 읽었다. 컨디셔닝 없이 2 psi로 10분 연마 시 접촉점 수 109에서 56으로 감소, 평균 반경 7.8에서 19.6 µm로 증가, 정규화 MRR은 17%만 감소하며 초기에 오히려 상승 후 급락. 1분 컨디셔닝으로 접촉점이 114로 복원.
+- Lawing 2004 NCCAVS 발표자료(공개 PDF, 그래프 페이지를 이미지로 렌더링해 판독). 컨디셔닝 중단 후 31분간 fumed 슬러리는 35% 감쇠, colloidal은 7% 감쇠. 로그형 적합이 선형보다 잘 맞음을 확인.
+- Moon 1999 UC Berkeley 박사논문(공개 PDF)에서 기공 막힘 정의를 1차 인용.
+
+**검증 결과**
+- verify_claims: 출처 6건 실존 확인, python verify 1블록 통과, 출처 없는 수치 주장 0건.
+- check_knowledge: 통과.
+
+**정직하게 남긴 한계**
+- 기공 막힘·잔류물 응착의 정량 실측과 마찰계수 변화 수치는 1차 출처를 확보하지 못해 미검증으로 표기.
+- Jeong 2024의 σz 경험식(Eq.3)은 인쇄 형태 그대로는 t=0 값이 압력에 따라 달라지는 자기모순이 있어 재현하지 않고 모순을 verify 블록에 기록. 반경식(Eq.4)만 재현.
+- 그림에서 읽은 값은 눈금 판독이라 ±3~5% 오차를 포함하며, assert 문턱도 그만큼 느슨하게 잡았다.
+- 기존 노트 두 편이 이 논문을 "Yang et al."로 잘못 인용하고 있음을 발견했다. 실제 저자는 Jeong et al.(부산대)이며, 다른 에이전트 노트라 수정하지 않고 신규 노트와 memory에만 기록했다.
+
+`agents/.source_cache.json`은 다른 크론의 변경분과 섞여 있어 커밋에서 제외했다.

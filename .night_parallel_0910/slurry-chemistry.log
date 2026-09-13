@@ -1,0 +1,22 @@
+완료 보고입니다.
+
+## 완료 보고 — slurry-chemistry Lv1-1 산화제 화학
+
+**작성 노트**: `knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md`
+H₂O₂·KIO₃·Fe(NO₃)₃의 **표준환원전위(E°)·자기분해 열역학·금속별 오염 적합성**을 정량화. 기존 노트(passivation 메커니즘)와 겹치지 않는 "산화제 자체의 전기화학" 틈새를 채움.
+
+**인용 출처(실존 확인)**:
+1. **Vanýsek, "Electrochemical Series," CRC Handbook** — E° 값 전부 PDF에서 fitz로 직접 판독(H₂O₂ +1.776 / IO₃⁻ +1.085 / Fe³⁺ +0.771 / WO₃/W −0.090 / Cu +0.342 V). 1차 레퍼런스.
+2. **McAllister 2019 UA 학위논문** (papers/mcallister2019-dissertation-ua.pdf) — 3대 산화제 확증, §1.1.3 직접 인용. 원문 확보.
+3. **De Laat & Gallard 1999, ES&T** — Fenton 분해 속도론, `doi.org/10.1021/es981171v` (Crossref 기계검증됨). 개별 k는 2차 인용으로 명시.
+
+**python verify 블록 3개** (전부 assert 통과):
+- §5.1 산화 구동력 순위·W/Cu 자발성(E_cell, ΔG=−nFE)
+- §5.2 H₂O₂ 불균등화 자발성을 전기화학 vs 생성깁스 **두 경로 교차검증**(1.15% 이내 일치) + Fenton 속도 순위
+- §5.3 Nernst pH 기울기(H₂O₂·IO₃⁻ −59.1 mV/pH vs Fe³⁺ 0 mV/pH)
+
+**게이트**: `verify_claims.py` ✓ (출처1 실존·코드3블록 통과·출처없는수치 0), `check_knowledge.py` ✓. 상호링크 6개(모두 실존 확인).
+
+**갱신**: EXAMS.md(3문항+답), PROFILE.md(이수기록+구현요청 2건 P2/P3), CURRICULUM.md([x] Lv1-1), ORG.md §5(1/6 진도·2026-09-10).
+
+**주의/한계 명시**: E°는 표준값(실 슬러리 형식전위는 다름), Fenton k 절대값은 2차 인용(순위만 assert), 금속오염 임계치는 별도 노트 위임 — 모두 노트 §7에 정직 표기. git 커밋은 지시대로 하지 않았습니다(오케스트레이터 일괄). 한도 임박 흔적 없음.

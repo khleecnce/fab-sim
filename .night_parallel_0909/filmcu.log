@@ -1,0 +1,23 @@
+film-cu Lv1-2 단원을 완료하고 커밋했다 (`bca4da7`). push는 하지 않았다.
+
+**산출물**
+- 노트 `knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md` (319줄). 형제 노트 2편을 포함해 상호링크 7개.
+- `EXAMS.md`에 Lv1-2 자기시험 3문항, `PROFILE.md`에 이수 기록과 "구현 요청" 4건(P1 Pourbaix 경계 함수, P2 산화제 혼합전위·MRR/정적식각 비, P3 BTA 막 두께), `CURRICULUM.md` Lv1-2 [x], `knowledge/INDEX.md`·`papers/INDEX.json` 등록.
+
+**검증 결과**
+- verify_claims: 출처 6건 실존, python verify 3블록 통과, 출처 없는 수치 0건.
+- check_knowledge: 통과.
+
+**1차 출처와 핵심 내용**
+- Tamilmani 2005 Univ. of Arizona 학위논문(hdl 10150/280774) 전문을 UA DSpace API로 확보. JES 2002 "Potential-pH diagrams for Cu CMP" 논문의 학위논문판이다.
+- CRC Vanýsek 표준전위 6개만 상수로 박아 Cu²⁺/Cu 수평선, Cu/Cu₂O 경사선, 삼중점 pH를 Nernst로 계산했고, 학위논문 그림 4.1 판독값과 ±0.03 V·±0.15 pH 안에서 일치했다.
+- 4 % H₂O₂ 실측 전위가 H₂O₂/H₂O Nernst 상한보다 0.9~1.0 V 낮은 혼합전위임을 수치로 보였다. 그래서 산성 H₂O₂ 슬러리에서 Cu는 Cu²⁺ 영역에 놓이고 BTA가 속도론적으로 버틴다.
+- BTA 막은 XPS(Cu⁺ Auger, C/N 2.8)로 Cu(I)-BTA 고분자, QCM으로 2~4 분자층이며 용해속도를 약 560 Å/min에서 0.8 Å/min 미만으로 낮춘다. Cu 이온이 많을 때 막이 흡착이 아닌 침전으로 두꺼워지는 실측이 3단계 공정의 rate quench 근거가 된다.
+- Lee 2023(PMC9966509) 산업형 조성에서 MRR/정적식각 비 11.5를 재현해 소프트랜딩의 설계 변수로 연결했다.
+
+**정직하게 남긴 한계**
+- CRC 표에 CuO 반쪽반응이 없어 Cu²⁺/CuO 경계(pH 5.65)와 Cu₂O/CuO 선은 계산 재현을 못 했다. Cu(OH)₂ 대체계산으로 부등호 방향만 확인했고 0.8 pH 차이는 미검증으로 명기했다.
+- Deshpande 2004와 Tamilmani 2002 JES 본문은 IOP 429 차단으로 미확보. 어떤 수치도 거기서 가져오지 않았다.
+- XPS·QCM 실측은 하이드록실아민계라 H₂O₂계로의 일반화는 미검증으로 표기했다.
+
+메모리에는 UA DSpace로 Raghavan 그룹 학위논문을 받는 경로와 CRC 표의 CuO 부재를 기록해 두었다.

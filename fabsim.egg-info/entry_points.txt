@@ -1,0 +1,3 @@
+[console_scripts]
+fabsim = sim.cli:main
+fabsim-studio = sim.launch:main

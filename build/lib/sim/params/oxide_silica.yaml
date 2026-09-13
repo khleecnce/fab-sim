@@ -1,0 +1,40 @@
+# 산화막(TEOS/PETEOS) CMP — 실리카 슬러리 기준. 가장 검증된 조건.
+base: base
+description: "Oxide CMP: 실리카 슬러리, STI/ILD 평탄화"
+
+params:
+  film:
+    value: oxide
+    confidence: verified
+  abrasive:
+    value: silica
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+
+  # Preston 계수 — 이 팩의 핵심 값. 막질이 바뀌면 여기가 바뀐다.
+  kp_m_per_pa:
+    value: 1.0e-13
+    unit: m^2/N
+    note: >
+      STI 문헌 캘리브레이션점: P=20.7kPa, V=0.8m/s → MRR≈254.05 nm/min.
+      sim/tier1_empirical/preston.py 가 이 값으로 5/5 PASS.
+    source: knowledge/cmp/preston-luo-dornfeld-mrr.md
+    confidence: verified
+
+  slurry_ph:
+    value: 10.5
+    unit: pH
+    note: 실리카 슬러리 염기성 — 표면 실라놀 이온화로 제거 촉진
+    source: knowledge/cmp/colloid-zeta-dlvo-slurry-stability.md
+    confidence: literature
+  abrasive_size_nm:
+    value: 50.0
+    unit: nm
+    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
+    confidence: literature
+  abrasive_iep_ph:
+    value: 2.5
+    unit: pH
+    note: 실리카 등전점 — pH 10.5에서 강한 음전하 → 정전 안정
+    source: knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    confidence: verified

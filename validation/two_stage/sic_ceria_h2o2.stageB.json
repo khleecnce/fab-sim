@@ -1,0 +1,13 @@
+{
+  "pack": "sic_ceria_h2o2",
+  "kp_multiplier": 67.0834,
+  "n_conditions": 5,
+  "tunables": {},
+  "baseline": {
+    "rho": -1.0,
+    "log_resid_sd": 1.1329
+  },
+  "trials": [],
+  "proposal": null,
+  "note": "탐색할 형상 파라미터가 없거나(전부 verified) held-out이 없다."
+}

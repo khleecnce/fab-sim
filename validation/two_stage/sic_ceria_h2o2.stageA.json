@@ -1,0 +1,57 @@
+{
+  "pack": "sic_ceria_h2o2",
+  "n": 5,
+  "user_n": 0,
+  "kp_multiplier": 67.0834,
+  "spread_iqr": 1.022,
+  "dataset_split": 1.0,
+  "per_dataset": {
+    "entegris2022_us20220315802a1_sic_alumina_conc": {
+      "n": 5,
+      "median_ratio": 67.083
+    }
+  },
+  "note": "실측 5건(사용자 0) 중앙값 비 67.083 → Kp ×67.083. IQR/중앙값 1.02. 데이터셋 간 편차 1.0배.",
+  "rows": [
+    {
+      "dataset": "entegris2022_us20220315802a1_sic_alumina_conc",
+      "label": "Table1-1: Al2O3 0.1wt%",
+      "meas": 96.67,
+      "pred": 0.65,
+      "ratio": 147.847,
+      "read": null
+    },
+    {
+      "dataset": "entegris2022_us20220315802a1_sic_alumina_conc",
+      "label": "Table1-2: Al2O3 0.2wt%",
+      "meas": 86.67,
+      "pred": 0.82,
+      "ratio": 105.2098,
+      "read": null
+    },
+    {
+      "dataset": "entegris2022_us20220315802a1_sic_alumina_conc",
+      "label": "Table1-3: Al2O3 0.5wt%",
+      "meas": 75.0,
+      "pred": 1.12,
+      "ratio": 67.0834,
+      "read": null
+    },
+    {
+      "dataset": "entegris2022_us20220315802a1_sic_alumina_conc",
+      "label": "Table1-4: Al2O3 1wt%",
+      "meas": 51.67,
+      "pred": 1.41,
+      "ratio": 36.6825,
+      "read": null
+    },
+    {
+      "dataset": "entegris2022_us20220315802a1_sic_alumina_conc",
+      "label": "Table1-5: Al2O3 5wt%",
+      "meas": 20.0,
+      "pred": 2.41,
+      "ratio": 8.3039,
+      "read": null
+    }
+  ]
+}

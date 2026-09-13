@@ -1,0 +1,21 @@
+wafer-type Lv2-2 단원 완료. 노트·자기시험·PROFILE·CURRICULUM을 갱신하고 두 게이트를 통과한 뒤 커밋했다(1a20539, push 안 함).
+
+**산출물**
+- `knowledge/cmp/wafer-type-metrology-techniques-suitability.md` — NPW에서 유효한 기법이 PTW에서 제약되는 이유를 세 물리(스팟 vs 패드, 혼입광·회절, 투과깊이·탐침 기하)로 정리하고, 막질×기법×웨이퍼 유형 적합성 표를 작성.
+- EXAMS.md에 Lv2-2 Q1~Q3, PROFILE.md에 이수 기록과 구현 요청 3건(메타데이터 필수 필드, 적합성 검사 함수, XRF 강도-두께 함수), CURRICULUM Lv2-2 [x].
+
+**1차 출처(실존 확인 10건)**: 특허 US7095511(패드 100 µm·피처 0.1–10 µm)·US9574992(40 µm 타깃)·US9644956(XRF 지수법칙)·US4162528, arXiv 1909.09508(Ahn 2019 AFM)·1210.1076(SE 리뷰), DOI Johnson&Christy 1972·Aspnes 1983·Malitson 1965·Stenzel 2019, NIST 스타일러스 문서(로컬 PDF)·NIST XCOM 표.
+
+**python verify 결과(문헌값 대조)**
+
+| 항목 | 계산 | 문헌 | 판정 |
+|---|---|---|---|
+| Cu 침투깊이 | 14.8 nm | 50 nm 불투명 문턱(2차) | 정합 |
+| SE 스팟 장축 50 µm@70° | 146 µm | 패드 100 µm | 초과 확인 |
+| AFM 4픽셀 규칙 | ≤29 nm 피치 | Ahn 2019 3.91 nm 통과·39 nm 실패 | 재현 |
+| AFM 높이 vs SEM | 1.8% | 187.3 nm | 재현 |
+| XRF Cu 1 µm 비선형 | 2.3% | XCOM 52.55 cm²/g | 재현 |
+
+**정직 표기한 미검증**: SiO₂/Si Ψ·Δ 실측 대조값은 확보 못 해 Fresnel 모델의 자기일관성만 검증했다. Stenzel 2019 본문(mdpi 봇차단), Renegar 2012 본문, 기업자료(스팟 크기·XRF 반복도)는 2차로 남겼다.
+
+**다음**: Lv3-1(제품 웨이퍼 대리 지표·가상 계측). `agents/.source_cache.json`은 공유 캐시라 커밋에서 제외했다.

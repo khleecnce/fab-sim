@@ -1,0 +1,33 @@
+작업 완료했습니다.
+
+## 작성한 노트
+`knowledge/materials/film-poly-si-high-selectivity-lowdefect-slurry.md` (Lv3-1, 488줄)
+
+## 자가검사 결과
+| 도구 | 결과 |
+|---|---|
+| `tools/verify_claims.py` | **PASS** — 출처 9건 실존, python verify 6블록 전부 통과, 출처 없는 수치주장 0 |
+| `tools/check_knowledge.py` | **PASS** |
+| 기존 poly 노트 3건 회귀 | **PASS** (역링크 추가 후 재검사) |
+
+## 확보한 문헌 (6건, 상한 준수)
+1. **Penta, Dandu, Babu 2011** *Langmuir* 27, 3502, DOI 10.1021/la104257k — **전문 9쪽**. poly:oxide = poly:nitride ≈ **559/636** (PDADMAC 250 ppm), 무첨가 세리아는 poly:oxide **0.64**(부호 반전), 브리징 메커니즘 + 결합해리에너지 표.
+2. **Penta 외 2011** *ACS AMI* 3, 4126, DOI 10.1021/am2010114 — 전문. 폴리케이션 6종 전하밀도 서열 = RR 서열, 초록이 "low-defect option"으로 규정.
+3. **Lagudu 외 2019** *ECS JSS* 8, P3040, DOI 10.1149/2.0081905jss — 전문(OA). **비-Preston 문턱압력** 1.0/1.5/2.5 psi, CPB 25 ppm에서만 성립.
+4. **Jeon 외 2021** *MSSP* 128, 105755, DOI 10.1016/j.mssp.2021.105755 — 전문. AFM Ra 3.58→0.94(실리카)→0.52(무연마재)→**0.42 nm**(+PEG).
+5. **Kim 외** NCCAVS/ICPT P42 (DOI·연도 없음) — TBAF 반연마재, poly:oxide >420.
+6. **Dang 외 2025** *J. Manuf. Process.* DOI 10.1016/j.jmapro.2025.11.011 — **초록만**(ScienceDirect 403·Elsevier TDM 키 요구). E5 표기.
+
+## 특별 지시 이행
+- 기존 3D NAND HAR·알칼리 용해 노트를 먼저 읽고, 세 노트 모두에 **후속 역링크**를 넣어 상호링크로 만들었습니다.
+- **poly:nitride** 수치는 Penta 2011이 유일한 1차 실측이며(나머지는 2차 인용), 이 얇음을 §10에 명시했습니다.
+- 무결함 첨가제 메커니즘은 브리징 인력·PEG 패시베이션·CPB 문턱 세 가지로 정리했습니다.
+
+## 정직하게 남긴 것
+- "선택비 ~600"은 분모가 1±1 nm/min이라 **하한 280**일 뿐입니다 — 점추정 금지로 못박았습니다.
+- **결함 계수 1차 데이터를 못 구했습니다.** "무결함"의 유일한 정량 근거는 조도(Ra) 4점입니다.
+- Lagudu의 DADMAC 역산 기울기가 Prestonian 구간을 60 % 초과합니다(원인 미상, assert로 남김).
+- NCCAVS 포스터의 "148 MPa"는 Hertz 접촉압의 1/29, "3.4 Å"는 복합 E\* 기준의 1/2임을 역산해 드러냈습니다(§9(E)).
+
+## 갱신
+`PROFILE.md` 이수기록 + 구현 요청 **[P4] 문턱-Preston 모델(우선순위 높음)·[P5] abrasive_free 분기·[P6] 선택비→oxide 억제인자 분리** 추가, `CURRICULUM.md` Lv3-1 `[x]`, `EXAMS.md` 3문항+모범답안, `papers/INDEX.json` 6건 등록. `sim/`은 건드리지 않았고 커밋도 하지 않았습니다.

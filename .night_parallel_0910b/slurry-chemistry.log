@@ -1,0 +1,25 @@
+작업을 완료했다. 커밋은 지시대로 하지 않았다.
+
+## 완료 보고 — slurry-chemistry Lv1-2 (억제제·킬레이트 흡착·안정도상수)
+
+**작성 노트**: `knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md`
+
+선행 노트 2편(oxidizer, cu-electrochemistry-pourbaix-bta)을 먼저 읽고 **중복을 피해** 그 빈칸인 **흡착 등온식·피복률 θ·킬레이트 안정도상수 log K**를 채웠다. 선행 노트는 Cu-BTA 막의 *조성·두께·전위영역*을, 이 노트는 그 앞단인 *흡착 정량*과 반대 힘인 *용액상 착화*를 다룬다.
+
+**인용 출처(실존 확인 4건 + 근거 DB)**:
+- **MINTEQ v4 열역학 DB**(repo 내 `papers/phreeqc-minteq.v4.dat`) — Cu-glycinate logK₁=8.57·logβ₂=15.7, Cu-citrate logK=7.57, 시트르산/글리신 pKa를 줄번호 명시하며 직접 판독
+- **popuri2017**(DOI 10.1149/2.0111709jss, OA 전문) — 시트르산 pKa 교차검증·CMP 킬레이트 역할
+- **Aksu&Doyle 2001/2002**(DOI 10.1149/1.1344532·1.1474436, Crossref 확인; 본문 IOP 차단으로 미독 명시)
+- **Antonijevic&Petrovic 2008 리뷰**(OA 전문 확보→papers/ 등록) — BTA/TTA Langmuir·Frumkin, TAZ 계열
+- verify_claims가 DOI 4건 실존 확인
+
+**python verify 블록 3개(모두 assert 통과)**:
+1. MINTEQ 시트르산 pKa(3.13/4.76/6.40) ↔ popuri2017(3.2/4.9/6.4) **독립 교차검증 일치**
+2. Cu-글리시네이트 log K로 0.01M 글리신·pH7이 Cu 용해를 **~1.4×10⁶배 증대**(Aksu "용해영역 확장"의 정량화)
+3. BTA Langmuir θ=0.966(1mM) + **Frumkin 협동성**(측면인력 f>0으로 포화 급격, 2.25배→1.24배)
+
+**게이트**: verify_claims ✓ (출처4·코드3·출처없는수치0), check_knowledge ✓ (초기 2건 지적—QUANT 매칭 부재·미검증 과다—을 재현요약줄 추가와 정직표지 어휘 조정으로 해소)
+
+**갱신 완료**: EXAMS.md(Lv1-2 3문항+답), PROFILE.md(이수기록+구현요청 P2/P3 2건), CURRICULUM.md([x] 날짜·경로), ORG.md §5(2/6), papers/INDEX.json(리뷰 PDF 등록)
+
+**정직 표기**: MINTEQ log K는 I=0·25°C 값(실 이온강도 보정은 Lv2-1), ΔG_ads −35.4는 2차 인용, Frumkin f=1.5는 시연용 예시값(방향 f>0만 근거), Aksu 원문·Field 1974 원문 미독 — 노트 §8에 모두 명시. git 커밋은 하지 않았다(오케스트레이터 일괄 커밋 대기).

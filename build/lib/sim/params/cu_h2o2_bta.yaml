@@ -1,0 +1,117 @@
+# 구리 CMP — 산화제(H2O2) + 억제제(BTA) 화학이 지배. 산화막과 메커니즘이 근본적으로 다르다.
+#
+# 이 팩이 존재하는 이유가 곧 이 설계의 목적이다: 같은 엔진에 이 파일만 물리면
+# Cu 시뮬레이션이 된다. 코드는 한 줄도 안 고친다.
+base: base
+description: "Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정"
+
+params:
+  film:
+    value: cu
+    confidence: verified
+  abrasive:
+    value: alumina
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+
+  kp_m_per_pa:
+    value: 3.5e-13
+    unit: m^2/N
+    note: >
+      ⚠ Cu는 산화막보다 MRR이 크다(연질 금속 + 화학적 산화층 제거).
+      이 값은 문헌 MRR 범위(400~800 nm/min @ 2~3psi)에서 역산한 대표값이며
+      우리가 재현 검증하지 않았다. 실데이터 캘리브레이션(M3) 전까지 절대값을 신뢰하지 마라.
+    source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+    confidence: estimated
+
+  slurry_ph:
+    value: 4.0
+    unit: pH
+    note: 산성 — Pourbaix상 Cu 용해/부동태 경계 제어
+    source: knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md
+    confidence: literature
+  oxidizer:
+    value: H2O2
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+  oxidizer_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: 이번 런의 H2O2 농도. 이 값을 바꾸면 화학층이 MRR을 바꾼다
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  oxidizer_ref_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: >
+      기준 농도 — 화학 배수가 1.0이 되는 지점. Kp가 이 조성의 문헌 MRR에서
+      역산됐으므로 반드시 명시해야 한다. 없으면 로더가 '현재 농도'로 폴백해
+      항상 자기 자신과 비교하게 되고 배수가 영원히 1.0이 된다(2026-09-06 실제 발생:
+      산화제 민감도가 '미모델링'으로 오진됐다).
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  oxidizer_peak_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: >
+      Kaufman 경쟁모델의 MRR 정점 농도. 착화제 유무로 1%→3% 이동이 확인됨.
+      화학층은 이 정점 대비 손실을 계산한다(정점에서 배수 1.0).
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  oxidizer_curve_n:
+    value: 2.0
+    unit: "-"
+    note: 단봉 곡선의 정점 이후 감소 완만도. ⚠현상론 형상 파라미터, 미검증
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: unverified
+  inhibitor:
+    value: BTA
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: literature
+  inhibitor_mM:
+    value: 1.0
+    unit: mM
+    note: BTA 농도. Langmuir θ=0.97 → 표면 97% 피복 = 제거 억제
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  inhibitor_dG_ads_kJ:
+    value: -35.4
+    unit: kJ/mol
+    note: >
+      BTA 흡착 자유에너지. K=2.9e4 L/mol로 환산되며 노트 verify 블록 PASS.
+      물리흡착(-20~-40 kJ/mol) 영역 — 세리아 화학흡착(-111~-258)과 대비된다.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  inhibitor_ref_mM:
+    value: 1.0
+    unit: mM
+    note: >
+      기준 농도. 여기서 화학 배수가 정확히 1.0이 되어 Kp가 그대로 쓰인다.
+      Kp가 이 조성의 문헌 MRR에서 역산됐기 때문에 반드시 일치시켜야 이중계상이 없다.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: verified
+  inhibitor_strength_k:
+    value: 3.0
+    unit: "-"
+    note: >
+      ⚠ 억제 강도 형상 파라미터. 잔여율 = exp(-k·θ).
+      (1-θ)를 쓰면 θ가 0.97에서 포화돼 2mM과 5mM이 구분되지 않는다(실제 발생).
+      실제 억제는 피복률뿐 아니라 막 치밀도·재생속도에도 달려 고농도에서도 계속 세진다.
+      **문헌 폐형식 없음 — 캘리브레이션 1순위.** 순위는 보존되나 절대값은 신뢰 불가.
+    source: knowledge/cmp/slurry-components-overview.md
+    confidence: unverified
+  abrasive_size_nm:
+    value: 100.0
+    unit: nm
+    source: knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md
+    confidence: estimated
+
+  # Cu 고유 — 패턴 웨이퍼 dishing
+  dishing_sensitivity:
+    value: 1.0
+    unit: "-"
+    note: >
+      ⚠ 미연결. dishing 정량에는 금속:산화막 MRR 비가 필요한데
+      아직 두 팩을 동시에 로드하는 다막질 모델이 없다(film-cu 에이전트 대기).
+    source: knowledge/cmp/pattern-dependent-dishing-erosion.md
+    confidence: unverified

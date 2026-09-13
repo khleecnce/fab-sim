@@ -58,7 +58,7 @@ diameter **150 nm**를 이루는 globular aggregate — Cabot 제품 스펙 인�
 (원문 Table II), "D50 = 100~120 nm"는 **저농도·저응집(낮은 pH, 분산 잘 된) 조건**에서의 대표값
 으로 이해해야 한다.
 
-## 4. 비교 대조 — Seal et al. (사전 단서로 주어졌던 170 nm)
+## 4. 비교 대조 — Seal et al. (사전 단서로 주어졌던 170 nm, 2차 인용만 확인)
 
 Gopal & Talbot(2007) 본문이 Seal et al.을 인용한 문장을 원문 그대로 확인:
 > "A Rodel alumina slurry containing 28% alumina with a mean particle diameter of **170 nm** was
@@ -92,3 +92,33 @@ Gopal & Talbot(2007) 본문이 Seal et al.을 인용한 문장을 원문 그대�
 - EKC Technology는 이후 사업 인수·개편을 거쳤고(현재 독립 브랜드로는 사실상 소멸), 이 100 nm이
   현재 시중 Cu CMP 알루미나 슬러리의 대표값인지는 별도 확인이 필요하다 — 2000년대 중반 UCSD
   연구용 슬러리 기준값이라는 시대적 한계가 있다.
+
+## 7. 코드 재현 (python verify — CI가 매 push마다 실제 실행)
+§5 판정("기존 YAML 100.0 nm이 공칭값과 정확히 일치, 측정 유효값 120 nm과 20% 이내 부합")을
+숫자로 재현한다.
+
+```python verify
+import yaml
+from pathlib import Path
+
+yaml_path = Path("knowledge/params/cu_h2o2_bta.yaml")
+pack = yaml.safe_load(yaml_path.read_text())
+current_nm = pack["params"]["abrasive_size_nm"]["value"]
+
+# 문헌값 (본문 §3): EKC Tech 공칭 100 nm(Ihnfeldt 2006), 측정 유효 120 nm(Gopal 2007)
+nominal_nm = 100.0
+measured_nm = 120.0
+
+# 판정 1: 현재 YAML 값이 공칭값과 정확히 일치
+assert current_nm == nominal_nm, f"YAML {current_nm} != 공칭값 {nominal_nm}"
+
+# 판정 2: 공칭값과 측정 유효값 차이가 20% 이내(본문 주장)
+diff_pct = abs(measured_nm - nominal_nm) / nominal_nm * 100
+assert diff_pct <= 20.0, f"공칭-측정 차이 {diff_pct:.1f}% > 20%"
+
+print(f"PASS: YAML={current_nm}nm == 공칭 100nm, 측정값과 차이 {diff_pct:.1f}% (<=20%)")
+```
+
+한계: 이 코드는 §5의 수치 판정(값 일치·20% 이내)만 재현한다. §3-4의 원문 인용문 자체는
+코드로 검증할 수 없는 텍스트 대조이며, 미러 사이트 경유 PDF 판독의 정확성은 사람 재확인에
+의존한다(교차 재현 불가 항목으로 명시).

@@ -1,0 +1,229 @@
+{
+  "pack": "sti_ceria",
+  "n": 25,
+  "user_n": 0,
+  "kp_multiplier": 0.7411,
+  "spread_iqr": 3.954,
+  "dataset_split": 8.57,
+  "per_dataset": {
+    "dandu2009_sio2_ceria_ph_sweep": {
+      "n": 9,
+      "median_ratio": 3.557
+    },
+    "kenchappa2021_softpad_hdp_oxide": {
+      "n": 3,
+      "median_ratio": 0.415
+    },
+    "mariscal2020_peteos_ceria_pressure_velocity_3x3": {
+      "n": 9,
+      "median_ratio": 0.677
+    },
+    "netzband2020_thermal_oxide_ceria_ph": {
+      "n": 4,
+      "median_ratio": 1.436
+    }
+  },
+  "note": "실측 25건(사용자 0) 중앙값 비 0.741 → Kp ×0.741. IQR/중앙값 3.95. 데이터셋 간 편차 8.6배. ⚠ 데이터셋마다 절대값 체계가 다르다(pH·입자·패드가 다른 계) — Kp 하나로 못 맞춘다. Stage B(형상)가 그 차이를 흡수해야 하고, 안 되면 팩을 조건별로 분리해야 한다.",
+  "rows": [
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 2 (0.25wt% ceria 60nm, 4psi)",
+      "meas": 4.3,
+      "pred": 1.24,
+      "ratio": 3.4741,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 3",
+      "meas": 95.3,
+      "pred": 27.47,
+      "ratio": 3.4694,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 3.5",
+      "meas": 276.3,
+      "pred": 81.48,
+      "ratio": 3.3912,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 4 (정점 구간)",
+      "meas": 347.4,
+      "pred": 97.66,
+      "ratio": 3.5571,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 5 (정점 구간)",
+      "meas": 344.3,
+      "pred": 99.39,
+      "ratio": 3.464,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 5.5 (정점 구간, 0.01% PAA 추가)",
+      "meas": 350.4,
+      "pred": 95.57,
+      "ratio": 3.6666,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 6 (급락)",
+      "meas": 99.3,
+      "pred": 27.62,
+      "ratio": 3.5955,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 8",
+      "meas": 69.4,
+      "pred": 17.9,
+      "ratio": 3.8775,
+      "read": "digitized"
+    },
+    {
+      "dataset": "dandu2009_sio2_ceria_ph_sweep",
+      "label": "pH 10",
+      "meas": 64.3,
+      "pred": 17.9,
+      "ratio": 3.5925,
+      "read": "digitized"
+    },
+    {
+      "dataset": "kenchappa2021_softpad_hdp_oxide",
+      "label": "Commercial pad (baseline, hard, 58-60 Shore D)",
+      "meas": 170.0,
+      "pred": 409.14,
+      "ratio": 0.4155,
+      "read": "digitized"
+    },
+    {
+      "dataset": "kenchappa2021_softpad_hdp_oxide",
+      "label": "Pad-1 (hard, 60 Shore D, concentric groove)",
+      "meas": 120.0,
+      "pred": 398.95,
+      "ratio": 0.3008,
+      "read": "digitized"
+    },
+    {
+      "dataset": "kenchappa2021_softpad_hdp_oxide",
+      "label": "Pad-2 (soft, 40 Shore D, spiral groove)",
+      "meas": 325.0,
+      "pred": 732.92,
+      "ratio": 0.4434,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=2psi, v=0.75 m/s",
+      "meas": 69.8,
+      "pred": 136.52,
+      "ratio": 0.5113,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=3psi, v=0.75 m/s",
+      "meas": 140.4,
+      "pred": 204.78,
+      "ratio": 0.6856,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=4psi, v=0.75 m/s",
+      "meas": 206.4,
+      "pred": 273.04,
+      "ratio": 0.7559,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=2psi, v=1.25 m/s",
+      "meas": 155.8,
+      "pred": 227.51,
+      "ratio": 0.6848,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=3psi, v=1.25 m/s (본문 인쇄값 2,528 Å/min과 대조 확인)",
+      "meas": 252.9,
+      "pred": 341.27,
+      "ratio": 0.7411,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=4psi, v=1.25 m/s",
+      "meas": 307.9,
+      "pred": 455.02,
+      "ratio": 0.6767,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=2psi, v=1.75 m/s",
+      "meas": 171.8,
+      "pred": 318.54,
+      "ratio": 0.5393,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=3psi, v=1.75 m/s",
+      "meas": 283.8,
+      "pred": 477.8,
+      "ratio": 0.594,
+      "read": "digitized"
+    },
+    {
+      "dataset": "mariscal2020_peteos_ceria_pressure_velocity_3x3",
+      "label": "P=4psi, v=1.75 m/s",
+      "meas": 346.3,
+      "pred": 637.07,
+      "ratio": 0.5436,
+      "read": "digitized"
+    },
+    {
+      "dataset": "netzband2020_thermal_oxide_ceria_ph",
+      "label": "pH 4 (68nm ceria 1wt%, 20kPa)",
+      "meas": 19.8,
+      "pred": 75.98,
+      "ratio": 0.2606,
+      "read": "digitized"
+    },
+    {
+      "dataset": "netzband2020_thermal_oxide_ceria_ph",
+      "label": "pH 6 (최저)",
+      "meas": 11.3,
+      "pred": 21.49,
+      "ratio": 0.5259,
+      "read": "digitized"
+    },
+    {
+      "dataset": "netzband2020_thermal_oxide_ceria_ph",
+      "label": "pH 8 (세리아 IEP 부근)",
+      "meas": 20.0,
+      "pred": 13.92,
+      "ratio": 1.4363,
+      "read": "digitized"
+    },
+    {
+      "dataset": "netzband2020_thermal_oxide_ceria_ph",
+      "label": "pH 10 (최고)",
+      "meas": 21.3,
+      "pred": 13.92,
+      "ratio": 1.5296,
+      "read": "digitized"
+    }
+  ]
+}

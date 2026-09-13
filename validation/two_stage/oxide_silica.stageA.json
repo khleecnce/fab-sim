@@ -1,0 +1,253 @@
+{
+  "pack": "oxide_silica",
+  "n": 29,
+  "user_n": 0,
+  "kp_multiplier": 39.5081,
+  "spread_iqr": 0.337,
+  "dataset_split": 48.04,
+  "per_dataset": {
+    "cn109609035b_oxide_anionic_silica_ph": {
+      "n": 7,
+      "median_ratio": 0.848
+    },
+    "us9499721b2_teos_colloidal_silica_pressure_conc": {
+      "n": 22,
+      "median_ratio": 40.735
+    }
+  },
+  "note": "실측 29건(사용자 0) 중앙값 비 39.508 → Kp ×39.508. IQR/중앙값 0.34. 데이터셋 간 편차 48.0배. ⚠ 데이터셋마다 절대값 체계가 다르다(pH·입자·패드가 다른 계) — Kp 하나로 못 맞춘다. Stage B(형상)가 그 차이를 흡수해야 하고, 안 되면 팩을 조건별로 분리해야 한다.",
+  "rows": [
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 2.0 (1wt% 아니온성 실리카)",
+      "meas": 10.9,
+      "pred": 1.77,
+      "ratio": 6.162,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 2.5",
+      "meas": 3.2,
+      "pred": 1.77,
+      "ratio": 1.809,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 3.0",
+      "meas": 1.6,
+      "pred": 1.77,
+      "ratio": 0.9045,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 3.5",
+      "meas": 1.5,
+      "pred": 1.77,
+      "ratio": 0.848,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 4.0",
+      "meas": 1.1,
+      "pred": 1.77,
+      "ratio": 0.6218,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 5.0",
+      "meas": 0.5,
+      "pred": 1.77,
+      "ratio": 0.2827,
+      "read": "table"
+    },
+    {
+      "dataset": "cn109609035b_oxide_anionic_silica_ph",
+      "label": "pH 6.0 (소폭 반등)",
+      "meas": 1.2,
+      "pred": 1.77,
+      "ratio": 0.6784,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18A silica 0.5 wt%, 1.5 psi",
+      "meas": 94,
+      "pred": 1.77,
+      "ratio": 53.0834,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18A silica 0.5 wt%, 3 psi",
+      "meas": 140,
+      "pred": 3.54,
+      "ratio": 39.5302,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18A silica 0.5 wt%, 4 psi",
+      "meas": 135,
+      "pred": 4.72,
+      "ratio": 28.5888,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18B silica 1.0 wt%, 1.5 psi",
+      "meas": 110,
+      "pred": 2.23,
+      "ratio": 49.3049,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18B silica 1.0 wt%, 3 psi",
+      "meas": 207,
+      "pred": 4.46,
+      "ratio": 46.3914,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18B silica 1.0 wt%, 4 psi",
+      "meas": 256,
+      "pred": 5.95,
+      "ratio": 43.0297,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18B silica 1.0 wt%, 5 psi",
+      "meas": 269,
+      "pred": 7.44,
+      "ratio": 36.1719,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18C silica 1.5 wt%, 1.5 psi",
+      "meas": 113,
+      "pred": 2.55,
+      "ratio": 44.2471,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18C silica 1.5 wt%, 3 psi",
+      "meas": 226,
+      "pred": 5.11,
+      "ratio": 44.2471,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18C silica 1.5 wt%, 4 psi",
+      "meas": 294,
+      "pred": 6.81,
+      "ratio": 43.1703,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18C silica 1.5 wt%, 5 psi",
+      "meas": 348,
+      "pred": 8.51,
+      "ratio": 40.8796,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18D silica 2.0 wt%, 1.5 psi",
+      "meas": 117,
+      "pred": 2.81,
+      "ratio": 41.6246,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18D silica 2.0 wt%, 3 psi",
+      "meas": 229,
+      "pred": 5.62,
+      "ratio": 40.7352,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18D silica 2.0 wt%, 4 psi",
+      "meas": 314,
+      "pred": 7.5,
+      "ratio": 41.8914,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18D silica 2.0 wt%, 5 psi",
+      "meas": 363,
+      "pred": 9.37,
+      "ratio": 38.7429,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18E silica 2.5 wt%, 1.5 psi",
+      "meas": 120,
+      "pred": 3.03,
+      "ratio": 39.6319,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18E silica 2.5 wt%, 3 psi",
+      "meas": 243,
+      "pred": 6.06,
+      "ratio": 40.1273,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18E silica 2.5 wt%, 4 psi",
+      "meas": 319,
+      "pred": 8.07,
+      "ratio": 39.5081,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18E silica 2.5 wt%, 5 psi",
+      "meas": 386,
+      "pred": 10.09,
+      "ratio": 38.2448,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18F silica 3.0 wt%, 1.5 psi",
+      "meas": 124,
+      "pred": 3.22,
+      "ratio": 38.5385,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18F silica 3.0 wt%, 3 psi",
+      "meas": 248,
+      "pred": 6.44,
+      "ratio": 38.5385,
+      "read": "table"
+    },
+    {
+      "dataset": "us9499721b2_teos_colloidal_silica_pressure_conc",
+      "label": "18F silica 3.0 wt%, 5 psi",
+      "meas": 403,
+      "pred": 10.73,
+      "ratio": 37.575,
+      "read": "table"
+    }
+  ]
+}

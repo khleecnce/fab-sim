@@ -1,0 +1,4 @@
+europepmc '"chemical mechanical polishing"': +989
+europepmc '"chemical mechanical planarization"': +145
+europepmc '"CMP slurry"': +3
+신규 1137건. 현황: {"documents": {"paper": {"discovered": 1137, "extracted": 18, "fetched": 131}, "patent": {"discovered": 239, "extracted": 12, "fetched": 6}}, "queue": {"fetch": 1376, "learn": 167}, "extractions": 30, "total": 1543, "with_fulltext": 167}

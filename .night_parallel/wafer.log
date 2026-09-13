@@ -1,0 +1,29 @@
+완료했습니다.
+
+## Lv1-2 균일도 지표 정의 문헌 확정 — 요약
+
+**커밋**: `55225ca [심야병렬] wafer-metrology Lv1-2 균일도 지표 정의 문헌확정 노트` (push 안 함, 내가 만든 4개 파일만 add — `.source_cache.json`·다른 크론의 미커밋 파일 `ceria-slurry-...`는 미접촉)
+
+### 확정한 정의 (문헌 default, 회사 관행과 분리)
+| 지표 | 문헌 정의 | 1차 출처 |
+|---|---|---|
+| TTV | t_max − t_min | SEMI MF1530 (Kao&Chung 2021 2차확보) |
+| **WIWNU default = 3σ** | 100·3σ/mean | **US6922603B1 특허** + Lee&Boning 1999 |
+| WIWNU 1σ (=CV) | 100·σ/mean | Kumar 2019 IMAPS Eq.2 |
+| WIWNU half-range | 100·(max−min)/(2·mean) | Luo&Dornfeld (escholarship) |
+| 49점 체계 | 중심1 + 3링(8/16/24) | US6922603B1 |
+
+### 핵심 판단 (지시 준수)
+- **회사 관행을 default로 삼지 않음**: radial "링별 max−min의 최대"는 문헌 근거가 약한 변형으로 강등, 문헌 default(방위각 평균 반경프로파일 σ/range)를 1차로. radial 단일 표준식은 **문헌에 실제로 부재**(미검증이 아님)임을 명시.
+- WIWNU 산업 단일표준 부재 → 3σ/1σ/half-range **전부 병기**, 각 출처 부착. edge exclusion을 지표와 함께 보고 필수로 명기.
+
+### 검증
+- **verify_claims / check_knowledge 둘 다 통과**. DOI 4건 Crossref 실존 확인, verify 블록 실행 통과.
+- 정량 재현: 정의 항등식 3건(<1e-12) + 면적가중 선형프로파일 half-range **18.72% vs 문헌 해석값 18.75%(상대오차 0.16%)** + range형 outlier 민감도 방향성 재현.
+
+### 산출물
+- 노트 `knowledge/cmp/uniformity-metrics-definitions-standards.md` (상호링크 4개)
+- EXAMS.md 3문항, PROFILE.md 이수기록, CURRICULUM.md `[x]`
+- **PROFILE.md 구현요청[High]**: `sim/metrics/uniformity.py`의 PROVISIONAL 정의 교체를 소프트웨어 부문에 인계(근거노트·검증문헌값·회귀테스트 값 포함). 지시대로 직접 sim/ 수정은 안 함.
+
+미확보 항목(SEMI 원문 Cloudflare 봉쇄, IEEE/IMAPS 본문 유료·PDF바이너리)은 §8에 정직하게 미검증 표기했습니다.

@@ -1,0 +1,23 @@
+완료 보고합니다.
+
+## film-nitride Lv1-1 학습 완료
+
+**작성 노트:** `knowledge/materials/film-nitride-lpcvd-pecvd-properties-cmp.md`
+(SiN 막종류 LPCVD Si₃N₄ / PECVD SiNₓ:H 물성과 CMP 제거 난이도)
+
+**인용 출처: 7건 (전부 Crossref 실존 확인, 1차 논문 5건)**
+- 원문 완독 4건: Dandu Veera 2009 JES(10.1149/1.3230624), Srinivasan 2015 리뷰(10.1149/2.0071511jss, CC-BY), Mariscal 2020 JSS(10.1149/2162-8777/ab89bc), Gan 2018 Surfaces(10.3390/surfaces1010006, MDPI OA)
+- OA 추가 완독 1건: Nejadriahi 2020 Optics Express(10.1364/oe.396969)
+- DOI만 확인·원문 미확보 2건: Yang & Pham 2018 Silicon(10.1007/s12633-018-9791-6, Springer 봉쇄→초록 2차 인용 명시), Dandu 2011 JES(10.1149/1.3596181, IOP/미러 사이트 봉쇄→리뷰 경유 2차 인용 명시)
+- 새로 확보한 PDF 2건은 `papers/`에 저장·`papers/INDEX.json` 등록
+
+**python verify 블록: 3개 (전부 PASS)** — ①경도 서열 LPCVD-SiN 22.5 > PECVD-SiN 13.6 > SiO₂ 8.5 GPa, ②Mariscal Table I 재구성: 선택비는 Eₐ(1.40/1.47 eV)가 아닌 전지수인자 A(~115배)가 지배, 온도항 포함 시 과대예측을 정직하게 assert, ③Dandu 2009(117:1)·Mariscal(101:1) 선택비 수렴
+
+**자가검사:** `check_knowledge.py` ✓ / `verify_claims.py` ✓ (출처 7/7 실존, 코드 3/3 통과, 출처없는 수치주장 0)
+
+**갱신 완료:** CURRICULUM Lv1-1 `[x]`, PROFILE(이수기록+구현요청 Tier2 L-H 모델), knowledge/INDEX.md materials 항목, ORG.md §5 상태표(0/6→1/6), EXAMS.md 3문항+모범답안
+
+**미달·주의사항(정직 보고):**
+- Yang & Pham 2018과 Dandu 2011 원문은 Springer 인증벽·IOP Radware 캡차·미러 사이트 미러(미러 사이트) Cloudflare 봉쇄로 **확보 실패** → 해당 수치는 노트에 "초록/2차 인용"으로 표기했고, 핵심 정량은 원문 완독한 5건에서 인용했습니다.
+- LPCVD 저응력 SiN 경도(22.5 GPa, Zheng 2013)는 원문 미확보로 검색요지 기반 2차 인용·"미검증 절대값" 표기.
+- git 커밋은 하지 않았습니다(오케스트레이터 일괄 커밋). rate-limit 흔적 없음.

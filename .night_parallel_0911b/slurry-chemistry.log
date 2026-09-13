@@ -1,0 +1,21 @@
+All checks green. Lv2-1 완료 보고입니다.
+
+## 완료 보고 — slurry-chemistry Lv2-1
+
+**작성 노트**: `knowledge/cmp/ph-ionic-strength-zeta-dissolution-selectivity-pourbaix.md`
+(pH·이온강도 → ζ·용해율·선택비, Pourbaix 재해석)
+
+**인용 출처(3건, 전부 실존 확인)**
+- **1차** Sun 2007 UA 학위논문 "Colloidal and Electrochemical Aspects of Copper-CMP"(papers/, 직접 판독) — PZC 표(SiO₂ 2–4·Al₂O₃ 8–9·TiO₂ 5–6…), 자리해리 ≡M–OH↔≡M–O⁻, IEP 실리카 2.5/Cu(OH)₂ 9.5, **실리카 고이온강도 안정성 반례(비-DLVO)**, Cu 흡착 pH의존.
+- **1차** Dandu·Peddeti·Babu 2009 (doi:10.1149/1.3230624, papers/) — ζ-pH 실측(세리아 8·실리카 2·Si₃N₄ 9)로 oxide:nitride 선택비 ~175 기원.
+- **보조** Choi 2004 (doi:10.1149/1.1738472), Srinivasan 2015 STI 리뷰 (doi:10.1149/2.0071511jss, papers/). 세 DOI 모두 Crossref 200.
+
+**핵심 신규 기여**(Lv1·형제 노트와 차별): "charge"의 두 그림(입자 ζ vs Pourbaix 상 안정성)을 독립 축으로 분리 / Debye 길이 **원자가 확장**(z:z→1/z, CaCl₂→I=3c) / **Schulze–Hardy z⁻⁶**(3가는 1가의 1/729) / ζ 부호 정합이 STI 선택비를 켠다 / 실리카 비-DLVO 예외를 정직히 반례로 기록.
+
+**verify 블록 3개** — 전부 PASS (Debye/Schulze–Hardy, ζ-pH·PZC 부호·실리카 안정성, Dandu 선택비·PAA IEP 이동).
+
+**검증**: verify_claims ✓(출처 3 실존·코드 3블록), check_knowledge ✓. **상호링크 10개** 전부 실존 파일 확인.
+
+**갱신**: CURRICULUM.md Lv2-1 [x](날짜·노트경로) · PROFILE.md(이수기록 + 다음 Lv2-2 + 구현요청 P2 "ζ(pH,I)·Debye(z) 스케일러" 추가) · EXAMS.md Lv2-1 3문항+답 · ORG.md §5 진도 2/6→3/6, 날짜 2026-09-11.
+
+git 커밋은 하지 않았습니다(오케스트레이터 일괄 커밋 규칙). 미진한 점: ζ 절대 기울기·CCC 절대값·양쪽성 용해도 곡선은 문헌 정성/방향만 확인하고 절대값 독립 재현은 안 함 — 노트 §6 한계에 명시했습니다.

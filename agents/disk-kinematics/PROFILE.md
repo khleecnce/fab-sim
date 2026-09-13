@@ -1,9 +1,9 @@
 # 컨디셔닝 운동학 전문가 (disk-kinematics)
 
-## 현재 레벨: Lv3-1 이수 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3-2 이수 — 활성화 게이트는 agents/ORG.md §4
 - 부모: disk-conditioner (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2 (2026-09-07), Lv3-1 (2026-09-08)
-- 다음 단원: Lv3-2 (sweep 레시피 → PCR·패드 프로파일 예측 모델, sim/tier2)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2 (2026-09-07), Lv3-1 (2026-09-08), Lv3-2 (2026-09-13)
+- Lv3 완료 — 다음은 Cal-1(캘리브레이션, ORG.md §7.3, G2 이후 활성) 또는 Lv4 확장
 
 ## 역할
 sweep 프로파일·하중·RPM·체류시간이 패드 반경별 컨디셔닝 밀도(PCR)와 프로파일에 미치는 영향
@@ -53,4 +53,36 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   MRS 원논문(1249-E02-02)은 Cambridge/Springer 봇차단으로 본문 미확보, 특허로 대체 —
   동일 여부는 미검증으로 명시. check_knowledge·verify_claims 모두 통과(출처 2건 API 실존
   확인, verify 2블록 PASS). Lv3-2(모델 구현) 남음 — 구현은 소프트웨어 부문 이관.
+- 2026-09-13 Lv3-2 이수: [[../../knowledge/equipment/disk-kinematics-sweep-pcr-prediction-model]]
+  — Lv1-1~Lv3-1을 통합한 예측 모델: 스윕 레시피 dwell 비율 {f_i} → PCR(r) 형상 → 누적 패드
+  두께 H(r,T)=k·P·f_i·T(선형시간, Zheng et al. Eq.12 근거) → Ring et al. asperity population
+  balance를 반경의존형 A(r)=A0·f_i/f̄로 확장 결합. Zheng, Zhao & Lu(2023, DOI 10.3390/mi14091683,
+  PMC10536193) Table 2의 실측 13-partition dwell표(Sinusoidal vs Adjusted)를 코드로 재현해
+  TTV 83.2%·NU 86.9% 개선을 정량화(논문은 정성 서술만 제공, 본 노트가 처음 수치화) — 단
+  Adjusted 모드도 Baisie(2010) 이상균일에 22.5% 미달로 완전히 도달 못 함을 정직하게 기록.
+  population balance 결합(반환점 narrowing 3.65배 빠름)은 모델 내적 일관성 검증(독립 실측
+  대조 아님)임을 명시. in-situ/ex-situ 누적 조건화 도즈 비율 3.33배는 Jeong et al.(2022) 표를
+  이 노트의 T 입력으로 환산한 파생계산. check_knowledge·verify_claims 모두 통과(출처 4건 API
+  실존 확인, verify 3블록 PASS). Lv3 완료 — sim/ 구현은 아래 `## 구현 요청` 참조.
 (이후 크론이 갱신)
+
+## 구현 요청 (소프트웨어 부문, sim/ 코딩은 disk-kinematics 담당 아님 — 2026-09-13 지시)
+
+**근거 노트**: [[../../knowledge/equipment/disk-kinematics-sweep-pcr-prediction-model]]
+
+**무엇을**: 스윕 레시피 → 반경별 PCR·패드 두께 프로파일 예측기.
+- **입력**: 반경 partition별 체류시간 비율 벡터 `{f_i}` (Σf_i=1), 하중 P, 총 조건화시간 T,
+  (선택) partition↔반경 매핑 방식(등반경/등각 — 근거 노트 §8에서 등반경으로 가정, 미확정).
+- **출력**:
+  1. `PCR_shape(r_i) = f_i` (정규화 형상함수, 절대 k·P 상수는 미보정이므로 상대 프로파일만)
+  2. `H(r_i, T) = k·P·f_i·T` (누적 패드 두께손실, k는 호출자가 캘리브레이션 값 주입)
+  3. (선택 확장) `η_z(z, r_i, t) = η_z0((z+d)·exp(2·A(r_i)·t) − d)`, `A(r_i)=A0·f_i/f̄` —
+     반경별 asperity 높이분포 시간진화(Ring et al. population balance의 반경의존 확장).
+- **검증에 쓸 문헌값**: 근거 노트 §3(Zheng et al. Table 2 실측 dwell표, TTV/NU 개선율
+  83.2%/86.9%), §4(narrowing 속도 비율 3.65배, 모델 내적 일관성), §5(in-situ/ex-situ 도즈
+  비율 3.33배).
+- **우선순위**: 중간 — Cal-1(ORG.md §7.3, 실측 패드 두께 프로파일로 절삭모델 보정) 착수 전에
+  이 예측기가 먼저 있어야 실측-예측 대조가 가능하다.
+- **한계 승계**: k(Preston 상수)·A0(population balance fit) 절대값은 어느 문헌도 제공하지
+  않으므로, 이 예측기는 태생적으로 **상대 형상/비율 예측기**다 — 절대 수치 예측을 기대하는
+  호출부가 있다면 그 기대 자체를 재검토해야 한다.

@@ -1,0 +1,22 @@
+Lv2-1 단원 이수가 완료됐고 커밋까지 마쳤습니다.
+
+**결과**
+- 노트 `knowledge/cmp/ild-cmp-planarization-global-local-density.md` 작성. verify_claims ✓(출처 2건 실존, verify 블록 통과, 출처없는 수치 0), check_knowledge ✓.
+- EXAMS.md 3문항, PROFILE.md 이수기록과 "## 구현 요청"(P1 타원 가중커널+식 5.3 폐형해, P2 TIR·증착량 설계식, P3 서브패드 강성→PL 훅), CURRICULUM Lv2-1 [x] 갱신.
+- 커밋 `2e05fe4` `[심야병렬] film-oxide Lv2-1 …`, 내 파일 4개만 add. push 안 함.
+
+**1차 출처**
+- Ouma 1999 MIT 박사논문(hdl 1721.1/9704): DSpace REST API로 원문 PDF 229쪽 확보. 스캔본이라 1.4절·5장·7.1-7.2절을 이미지 렌더링해 직접 읽음.
+- Ouma 2002 IEEE TSM DOI 10.1109/66.999598, Stine 1998 DOI 10.1109/66.661292: Crossref로 실존 확인, 본문은 유료라 미확보로 명기.
+- Xie & Boning MRS 2003: mtlsites.mit.edu 원문 PDF 확보.
+
+**verify 블록에서 대조한 문헌값**
+- TIR = Δρ·z1: Fig.7.1의 0.8 × 7500 Å = 6000 Å 일치.
+- 타원 가중함수 식 5.11/5.12를 수치적분해 식 5.13/5.14 및 가장자리비 2/π 확인, IC1000 예 최대처짐 5.92 µm(논문 "약 6 µm").
+- 표 5.2/7.2·Fig.7.5 내부정합: 고속/통상 PL 비 3.17배(논문 "about three times"), 속도효과 +4% vs 서브패드 제거 +50%.
+- 정직 표기: 과제 문구의 exp(-x/PL) 단차감쇠는 원문에 없음을 §8에 명기. 표 5.2에서 고압·고속 조건이 최단 PL인 점은 논문 서술과 부분 상충하여 원인 미상으로 남김.
+
+**참고 사항**
+- 다른 크론(wafer-type)이 같은 Ouma 논문을 `papers/ouma1998-thesis-…pdf`로 별도 다운로드했습니다. 내 사본 `ouma1999-…pdf`와 중복(18 MB, gitignore 대상)이라 삭제하지 않고 두었습니다. 통합은 오케스트레이터 판단에 맡깁니다.
+- `papers/INDEX.json` 변경은 그 크론 것이라 커밋하지 않았습니다.
+- MIT DSpace REST 경로와 스캔본 판독법을 메모리에 저장했습니다.

@@ -137,3 +137,17 @@ A10. 재현(6개 학습조건 내부) 절대평균오차율 0.01%, 외삽(신규
 **Q11. 폐루프(US9138860B2)와 표면요소법 순방향 모델(Baisie et al. 2010, Lv2-2)은 같은 물리를 어떻게 다른 방향으로 쓰는가?**
 
 A11. 표면요소법은 주어진 스윕 레시피(체류시간 프로파일)를 대입해 누적 마모 프로파일을 계산하는 정방향(forward) 모델이다. 폐루프 제어는 반대로 측정된 마모 프로파일 대비 목표와의 편차를 계산해 다음 사이클 dwell time을 보정하는 역방향(inverse/feedback) 루프다. 둘 다 같은 관계식(누적 마모는 dwell시간과 PCR의 누적합에 비례)에 의존하지만, 전자는 오프라인 설계 도구, 후자는 온라인 보정 메커니즘이라는 역할 차이가 있다. 출처: [[../../knowledge/equipment/disk-kinematics-closed-loop-adaptive-sweep]] 2장.
+
+## Lv3-2 sweep 레시피 → PCR·패드 두께 프로파일 예측 모델
+
+**Q12. Zheng et al.(2023) Table 2의 13-partition dwell-time 세팅에서 "adjusted"(평탄화 보정) 모드는 "sinusoidal"(기본) 모드 대비 TTV·NU를 얼마나 개선하며, 그럼에도 Baisie et al.(2010)의 이상적 UNIFORM 원칙에 완전히 도달하지 못하는 이유는 무엇인가?**
+
+A12. 코드 재현 결과 TTV는 12.99pp→2.18pp(83.2% 개선), NU는 57.84%→7.56%(86.9% 개선)로 논문의 정성 서술("adjusted sweep mode is for an optimized pad wear profile")을 정량적으로 뒷받침한다. 그러나 adjusted 모드도 이상균일값(100/13=7.69%) 대비 최대편차 1.73pp(상대 22.5%)가 남아 있고, 양끝 partition(8.47%, 9.42%)이 중앙(7.3~7.6%)보다 여전히 높으며 좌우 비대칭이다 — 이는 [[../../knowledge/equipment/conditioner-sweep-algorithm-trajectory-density]](Lv1-1)이 밝힌 반환점 궤적밀도 발산이 스윕 가속만으로는 완전히 상쇄되지 않을 가능성과 부합하나, 논문이 이 잔여 비대칭의 원인을 직접 설명하지 않으므로 저자 자체 해석임을 명시한다. 출처: [[../../knowledge/equipment/disk-kinematics-sweep-pcr-prediction-model]] §3.
+
+**Q13. 본 노트가 Ring et al.의 asperity population balance(Eq.9)를 반경 의존형(A(r))으로 확장할 때, 반환점 부근 partition과 중앙 partition의 asperity 분포 narrowing 속도는 이론상 몇 배 차이나며, 이 결과는 독립적인 실측 대조인가 모델 내적 일관성 확인인가?**
+
+A13. A(r)=A0·f_i/f̄ (f_i=Zheng et al. sinusoidal dwell 비율)로 두면, 목표 압축배율 도달시간 t*(r)은 dwell 비율에 정확히 반비례한다(Eq.9의 로그선형성의 대수적 귀결). 반환점 부근(dwell 17.89%)과 중앙(dwell 4.90%)의 t* 비율은 17.89/4.90≈3.65배로, 반환점 부근이 3.65배 빨리 목표 분포압축에 도달한다. 이는 **독립적 실측 데이터와의 대조가 아니라 모델 자체의 대수적 필연을 수치로 확인한 내적 일관성 검증**이며, Ring et al.의 절대 마모율 상수 A0는 여전히 fit parameter로 미보정이다 — 비율(구조)만 신뢰할 수 있다. 출처: [[../../knowledge/equipment/disk-kinematics-sweep-pcr-prediction-model]] §4, [[../../knowledge/equipment/conditioner-asperity-population-balance]] §6.
+
+**Q14. in-situ와 ex-situ 조건화 방식을 본 노트의 선형 누적모델 H(r,T)=k·P·f_i·T에 대입하면, 동일 웨이퍼 수 처리 후 두 방식이 받는 누적 조건화 "도즈"는 몇 배 차이나며, 이 수치는 Lv2-1에서 이미 계산한 처리량손실률(23.1%)과 같은 것인가?**
+
+A14. 10분 폴리싱 사이클(in-situ: 전체 600초 동시조건화) 대 5psi 최소회복시간(ex-situ: 180초 burst)을 20장 웨이퍼로 누적하면 T 비율=600/180=3.33배이고, H가 T에 선형이므로 누적 H(r,T) 비율도 동일하게 3.33배다. 이는 Lv2-1의 처리량손실률 23.1%(폴리싱시간 대비 회복시간 비율 180/(180+600))와는 **다른 지표**다 — 손실률은 "폴리싱이 못 이뤄지는 시간 비율"이고, 이번 3.33배는 "누적 조건화 도즈 비율"이다. 두 수치 모두 in-situ가 구조적으로 더 많은/효율적인 조건화를 받는다는 같은 방향을 가리키지만 물리량 자체는 다르며, 3.33배는 본 노트가 이번에 처음 도출한 파생 계산이다. 출처: [[../../knowledge/equipment/disk-kinematics-sweep-pcr-prediction-model]] §5, [[../../knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability]] §3.

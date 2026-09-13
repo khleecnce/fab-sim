@@ -1,0 +1,15 @@
+pad-material Lv2-1 학습을 완료하고 커밋했다(a1b1983, push는 하지 않음).
+
+**산출물**
+- 지식노트 `knowledge/materials/pad-viscoelasticity-temp-frequency-dma.md` 신설. verify_claims(출처 12건 실존, verify 1블록 통과, 출처 없는 수치 0)와 check_knowledge 모두 통과.
+- EXAMS.md에 Q7~Q9 추가, PROFILE.md 이수 기록·다음 단원(Lv2-2)·구현 요청 3건 추가, CURRICULUM.md Lv2-1 [x] 처리, knowledge/INDEX.md에 한 줄 등록.
+
+**노트 핵심 내용**
+- WLF 식: 1955 원논문 DOI(초록만 확인)와 보편상수 두 쌍(17.44/51.6 K, 8.86/101.6 K)이 기준온도 재매개화로 서로 재현됨을 코드로 확인. CMP PU 전용 상수는 미확보로 명기.
+- Cabot 특허 US20170087688A1 Table 1B를 1차 정량표로 채택. Tg(DSC) 43~46 °C, tanδ 피크 56~67 °C(1 Hz)가 CMP 공정온도 바로 위에 있어 25→50 °C에 E'가 3~10배 감소. 초록의 "비 ≥50" 조건만으로는 상용 대조군 D100(52.6)이 배제되지 않음을 확인.
+- Khanna 2019(OA): E' 온도민감도 순서와 MRR 시간드리프트 순서 일치. GW의 A_r∝1/E* 경로로 연결하되 "7배"는 모델 함의로만 표기.
+
+**정직하게 남긴 것**
+- Kim 2006의 E'(35→10 MPa)는 2차 인용이며 Cabot 값과 15배 불일치, 원인 미상.
+- IC1000 자체의 E'(T)·tanδ(T) 숫자표는 확보 실패(Lu 2002, Charns 2005 초록/스니펫만). 미러 사이트 미러 전부 실패.
+- 조사 중 기억으로 적은 저자명 오류(IJMS 2023 1저자)를 Crossref로 잡아 수정했고, 이 교훈과 문헌 접근 우회 경로를 메모리에 기록했다.

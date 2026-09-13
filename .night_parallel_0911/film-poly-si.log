@@ -1,0 +1,24 @@
+모든 절차 완료. 완료 보고드립니다.
+
+## 완료 보고 — film-poly-si Lv1-2 (알칼리 화학 용해 메커니즘과 pH 의존성)
+
+**작성 노트**
+`knowledge/materials/film-poly-si-alkaline-dissolution-ph-kinetics.md` (8개 절)
+
+**인용 출처 (실존 확인 완료, verify_claims Crossref 조회 통과)**
+- **1차** Seidel et al. (1990) *J. Electrochem. Soc.* 137, 3612 — DOI 10.1149/1.2086277 (미러 사이트→미러 사이트 미러로 원문 전체 확보, papers/에 저장·직접 인용). 전기화학 모델(OH⁻ 4개/Si, 전자 4개 주입), 속도식 R∝[H₂O]⁴[OH⁻]^(1/4), Eₐ(100/110/111)=0.59/0.61/0.70 eV, TMAH·choline·EDP 언급.
+- **1차** Bae et al. (2022) *Nanomaterials* 12, 3893 — DOI 10.3390/nano12213893 (MDPI CC-BY, mdpi-res CDN 확보). 아민(EDA/DETA/TETA) vs NaOH/KOH, hydrolysis 반응식, XPS Si-O-H, 화학-기계 시너지 3요소.
+- Seidel Part II(10.1149/1.2086278)는 제목·DOI만 확인(미검증 표기).
+- Wang et al. (2011) *Wear* 270 (10.1016/j.wear.2010.11.006)는 확보했으나 pH-MRR이 H₂O₂/입자에 confound되어 focus(막 용해) 밖 — INDEX엔 등록, **본문 미인용**으로 명시.
+
+**검증**
+- python verify 블록 **1개**(5개 하위검증 A~E, 모두 assert 통과): 배향 이방성비 Arrhenius 재현(100°C 30.6 vs 관측 30, 상온은 75.7 vs 100 — 25% 차이 정직 기록), 속도식 peak 16.8 wt% vs 문헌 ~20 wt%, EDA/NaOH=3.12배, Bae 2단계식=Seidel 4OH/4e 화학량론, XPS 정규화 합.
+- `verify_claims`: ✓ (출처 4건 실존, 코드 통과, 출처없는 수치 0)
+- `check_knowledge`: ✓
+- 상호링크 5개(film-poly-si-doping-grain-cmp, film-oxide-hydration-layer, surface-chemistry-cu-w-pourbaix, preston-luo-dornfeld-mrr, silica-cmp-ph-acidic-repulsion) — 모두 실존 파일.
+
+**갱신 완료**: EXAMS.md(3문항+답), PROFILE.md(이수기록·다음 단원 Lv2-1), CURRICULUM.md(Lv1-2 [x]), ORG.md §5(2/6, 2026-09-11), papers/INDEX.json(PDF 3건 등록).
+
+**focus 준수**: 슬러리 제형이 아니라 막(poly-Si) 표면이 OH⁻에 어떻게 반응하는가(산화-용해 메커니즘·속도식·활성화에너지·시너지)에 집중. Bae 논문 대상이 단결정 Si 웨이퍼인 점, CMP MRR과 정적 식각의 분리 미측정 등은 §8에 미검증으로 명시했습니다(성공 과장 없음).
+
+**금지사항 준수**: git 미조작, 공개 논문만 사용, rate-limit 흔적 없음.

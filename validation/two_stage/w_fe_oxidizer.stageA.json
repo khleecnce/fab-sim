@@ -1,0 +1,57 @@
+{
+  "pack": "w_fe_oxidizer",
+  "n": 5,
+  "user_n": 0,
+  "kp_multiplier": 0.3275,
+  "spread_iqr": 0.257,
+  "dataset_split": 1.0,
+  "per_dataset": {
+    "us8070843b2_w_h2o2_series": {
+      "n": 5,
+      "median_ratio": 0.328
+    }
+  },
+  "note": "실측 5건(사용자 0) 중앙값 비 0.328 → Kp ×0.328. IQR/중앙값 0.26. 데이터셋 간 편차 1.0배.",
+  "rows": [
+    {
+      "dataset": "us8070843b2_w_h2o2_series",
+      "label": "H2O2 0 wt% (CE-5, Fe 1180 ppm)",
+      "meas": 9.6,
+      "pred": 104.86,
+      "ratio": 0.0916,
+      "read": "table"
+    },
+    {
+      "dataset": "us8070843b2_w_h2o2_series",
+      "label": "H2O2 2.03 wt% (Example 3, Fe 60 ppm)",
+      "meas": 150.8,
+      "pred": 615.45,
+      "ratio": 0.245,
+      "read": "table"
+    },
+    {
+      "dataset": "us8070843b2_w_h2o2_series",
+      "label": "H2O2 4.06 wt% (Example 2, Fe 5 ppm)",
+      "meas": 239.6,
+      "pred": 731.49,
+      "ratio": 0.3275,
+      "read": "table"
+    },
+    {
+      "dataset": "us8070843b2_w_h2o2_series",
+      "label": "H2O2 4.07 wt% (Example 1, Fe 1180 ppm)",
+      "meas": 241.0,
+      "pred": 731.72,
+      "ratio": 0.3294,
+      "read": "table"
+    },
+    {
+      "dataset": "us8070843b2_w_h2o2_series",
+      "label": "H2O2 6.10 wt% (Example 4, Fe 60 ppm)",
+      "meas": 296.5,
+      "pred": 748.95,
+      "ratio": 0.3959,
+      "read": "table"
+    }
+  ]
+}

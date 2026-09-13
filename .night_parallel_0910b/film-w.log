@@ -1,0 +1,35 @@
+메모리는 이미 IOP OA `/pdf` 직접 curl 경로를 기록하고 있어(중복 회피) 추가 저장은 생략한다. 작업 완료. 최종 보고한다.
+
+---
+
+## 완료 보고 — film-w Lv1-2
+
+**단원**: Fe 촉매 H₂O₂의 Fenton 화학과 알루미나/실리카 입자 선택
+
+**작성 노트**: `knowledge/cmp/w-cmp-fenton-catalyst-abrasive-alumina-silica.md` (신규, 7개 절)
+
+**인용 출처 (실존 확인)**: 4건이 verify_claims의 API 실존 조회 통과
+- **Buxton et al. 1988** (DOI 10.1063/1.555805) — •OH 속도상수 **원전 원문 확보·표 판독**: `•OH+Fe²⁺` 4.3×10⁸(pH3), `•OH+H₂O₂` 2.7×10⁷ M⁻¹s⁻¹ [1차]
+- **Egan & Kim 2019** (DOI 10.1149/2.0311905jss) — W contact 입자크기/스크래치, **IOP OA(CC-BY-NC-ND) 원문 확보** [1차]
+- **Lim 2013** (DOI 10.1016/j.apsusc.2013.06.003) — Fe(NO₃)₃ 농도-MRR, 선행 노트 재인용 [1차]
+- **De Laat & Gallard 1999** (DOI 10.1021/es981171v) — Fenton 개시/재생 속도상수 [2차 인용, 원문 미확보 명시]
+- 추가로 Wei 2026(Fenton CMP 정성)도 INDEX 등록.
+
+**핵심 성과**: Buxton 원전 속도상수로 **Fe²⁺가 •OH를 H₂O₂보다 ~16배 빨리 소거 → 과잉 Fe 자기소거 → 촉매 최적점 존재**를 도출, Lim 2013의 region I→II 완만화를 정량(자기소거 분율 0.01wt%~2% → 0.1wt%~18%)으로 정성 재현.
+
+**python verify 블록**: 3개 (모두 통과)
+1. Fenton 3반응 원자·전하 균형
+2. •OH 자기소거 경쟁 → 촉매 종형 곡선
+3. 알루미나 vs 실리카 경도비(5×/2.3×)·산성 IEP 부호 판정·Egan 스크래치 정량
+
+**게이트**: `check_knowledge` ✓ · `verify_claims` ✓ (출처 4건 실존, 코드 3블록 통과, 출처없는 수치주장 0)
+
+**갱신**:
+- EXAMS.md — Lv1-2 3문항+모범답안 추가
+- CURRICULUM.md — Lv1-2 [x](날짜·노트경로)
+- PROFILE.md — 이수기록 + **구현 요청**(Fe 농도→W MRR 종형 모델, P2)
+- ORG.md §5 — film-w 행 2/6 갱신
+- papers/INDEX.json — 3건 등록
+- git 커밋/add는 지침대로 하지 않음(오케스트레이터 일괄 검증)
+
+**미달·한계 (정직 표기)**: Springer nanocatalyst 논문(10.1007/s10853-019-04239-4)과 SSRN Fe-complex preprint는 봇차단/403으로 원문 미확보 → 인용 안 함. Fenton 개시 속도상수와 경도/IEP 값은 원문 미대조라 노트에 "2차 인용/미검증"으로 명시. 한도(429) 흔적 없음.

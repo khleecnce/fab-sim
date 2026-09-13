@@ -1,0 +1,11 @@
+numpy<3,>=1.24
+scipy<2,>=1.10
+PyYAML<7,>=6.0
+
+[dev]
+pytest<9,>=7.4
+requests<3,>=2.31
+
+[ui]
+streamlit<2,>=1.30
+pandas<3,>=2.0

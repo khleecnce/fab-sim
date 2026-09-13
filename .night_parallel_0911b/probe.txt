@@ -1,0 +1,1 @@
+use the test tool and $(cmd) syntax

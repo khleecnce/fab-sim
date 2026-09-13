@@ -1,0 +1,24 @@
+작업을 완료했습니다.
+
+## 완료 보고 — cmp-data-engineer Lv1-2 통합 스키마 키 체계
+
+**작성 노트:** `knowledge/data/cmp-integration-schema-keys-semi-standards.md` (약 130줄)
+
+**단원 성격 준수:** 직접 `data/schema/*.json`을 구현하지 않고(소프트웨어 부문 몫), **스키마를 문헌 근거로 설계**하는 데 집중했습니다. SEMI GEM300/CIM 표준군의 식별자 계보를 CMP에 사상하고, 필요한 구현은 PROFILE "## 구현 요청"으로 넘겼습니다.
+
+**인용 출처 (실존 확인):**
+- **1차 논문** Li, Wu, Yu 2019, ASME JMSE 141(3):031003, **DOI 10.1115/1.4042051** (verify_claims Crossref 통과 — Lv1-1에서 이미 검증된 도구제공 DOI 재사용)
+- **1차 특허** Applied Materials **US 10,593,574** (freepatentsonline로 상세 확인: 출원 2015-11-06, 등록 2020-03-17, RFID 소모품↔인시투 계측 결합). 계열 US11986922·US11848220
+- SEMI 표준군 E5/E30/E90/E142/E10/E116/E87/E40/E94 (store-us.semi.org 공식 + PEER Group/PDF Solutions 벤더 기술문서로 교차확인, 표준 원문 유료 미열람은 명시)
+
+verify_claims 기준 "출처 2건 실존"(DOI+특허) 확인, 표준 세부는 통설/미검증 표기.
+
+**python verify 블록:** 1개 — (A) PHM2016 25컬럼=19(SVID)+6(ECID) 분해 및 성능 문헌값(R²=0.917, 잔차 8.317 nm/min) 대조, (B) E10 상태 6종, (C) 소모품↔웨이퍼↔측정 참조무결성 최소모델 구조검증. 전부 통과.
+
+**게이트:** check_knowledge ✓ / verify_claims ✓ (둘 다 EXIT 0).
+
+**상호링크:** 4개 — `cmp-public-datasets-survey`, `wafer-metrology-output-schema-site-flatness-standards`, `inline-virtual-metrology-sampling-optimization`, `abrasive-size-concentration-ph-K-additive-mrr-quantitative` (모두 실존 확인).
+
+**갱신:** EXAMS.md Lv1-2 3문항+답 추가 / CURRICULUM.md Lv1-2 [x](노트·날짜) / PROFILE.md 이수기록+구현요청 / ORG.md §5 행(2/6, 2026-09-10).
+
+**미완·한계 (정직 보고):** SEMI 표준 원문은 유료로 미열람 — 식별자 세부(SVID/ECID/CEID 의미, SECS 스트림/펑션 번호)는 GEM300 벤더 기술문서 기반 통설이며 스트림/펑션 번호는 "미검증" 표기했습니다. 소모품 수명·장착구간 웨이퍼수 같은 정량 파라미터는 범위 밖으로 두고 임의값을 넣지 않았습니다(Lv2-2 합성 데이터 단원 몫). 429/rate-limit 흔적은 없었습니다. git 커밋은 지시대로 하지 않았습니다.

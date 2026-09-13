@@ -1,0 +1,21 @@
+완료했다. Lv3-1(세리아 Ce³⁺/Ce⁴⁺ 메커니즘·선택비 제어) 학습을 마쳤다.
+
+## 산출물
+- **지식노트**: `knowledge/cmp/ceria-slurry-ce-redox-selectivity.md` (9절)
+  - Ce³⁺/Ce⁴⁺ 산화환원(산소공공↔Ce³⁺, catalase-mimetic 재생), Si–O–Ce "chemical tooth" 화학결합설 vs 순수 기계설, 세리아-실리카 IEP 정전인력, oxide:nitride 선택비 제어(아미노산·계면활성제)
+  - **1차 출처(OA, DOI/PMC 실존확인)**: Netzband & Dunn 2020(ECS JSS, CC-BY), Brugnoli et al. 2023(Langmuir, PMC10116594), Hwang & Kim 2024(Polymers, PMC10974854) + Cook 1990·Hoshino 2001은 유료·1차 미확보로 정직 표기
+  - **상호링크 5개**: [[slurry-components-overview]], [[particle-wafer-interaction-mechanical-chemical-balance]], [[surface-chemistry-cu-w-pourbaix-passivation]], [[colloid-zeta-dlvo-slurry-stability]], [[post-cmp-metallic-contamination-sources]]
+  - **python verify(1블록 PASS)**: (A)전하균형 f=2x 자기일관 (B)DFT 규산 흡착E −111/−258 kJ/mol=화학흡착·(100)/(111) 2.32배 (C)세리아(+)-실리카(−) 정전인력 부호논리 (D)선택비 59–80 재현(BYK 67·G-336 80) (E)H₂O₂→Ce³⁺↑ MRR 5.5배·선택비 3:1
+- **EXAMS.md**: Lv3-1 3문항+모범답안
+- **PROFILE.md**: 이수기록 추가, Lv3 진행중으로 갱신, 구현요청(Ce³⁺비→MRR·아미노산→선택비 모델) 등록
+- **CURRICULUM.md**: Lv3-1 [x]
+- **INDEX.md**: 노트 등재
+
+## 게이트
+- `verify_claims.py` ✓ (출처 7건 실존·코드 1블록 통과)
+- `check_knowledge.py` ✓
+
+## 커밋
+`551cbf1 [심야병렬] slurry-chemist Lv3-1 세리아 Ce3+/Ce4+·선택비 노트` — 내 파일 5개만 add. `.source_cache.json`·`agents/tribologist/*`·`knowledge/physics/friction-cof-...md`·`.night_parallel/`는 타 크론 소관이라 손대지 않았다. push는 오케스트레이터가 일괄 처리하도록 하지 않았다.
+
+정직성 메모: Ce³⁺ vs Ce⁴⁺ 중 어느 쪽이 제거에 유리한지는 문헌에 상충 보고가 있어 "미검증"으로 남겼고, 아미노산 선택비 절대값(35–70)도 조건의존 미검증으로 표기했다. 세리아/실리카 IEP는 시료의존 2차 인용 범위다.
