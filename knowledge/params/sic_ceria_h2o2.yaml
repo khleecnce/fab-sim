@@ -162,6 +162,25 @@ params:
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
     confidence: measured
 
+  wafer_iep_ph:
+    value: 4.9
+    unit: pH
+    note: >
+      SiC 표면 등전점(1차 문헌 실측, 분산제 무첨가 조건, PCD·입도·점도 3중 정합).
+      base(sti_ceria)에서 상속되던 실리카 산화막 IEP(2.5)는 SiC 표면이 아니라 다른
+      막질(oxide_silica) 것이므로 이 팩 전용값을 명시적으로 선언한다(sim/factors.py
+      _ph_ceria_window_term의 `pack.has_own("wafer_iep_ph")` 게이트 — 상속값으로는
+      항이 조용히 스킵되고 있었다, 2026-09-13 COMPLETION-C4/UNWIRED abrasive_size_nm
+      회차에서 발견). Singh, Jena, Besra, Bhattacharjee 2007(J. Nanoparticle Res. 9,
+      797-806, DOI 10.1007/s11051-006-9121-6) Abstract: "the isoelectric point (iep)
+      of SiC powder was pH_iep (4.9)".
+      ⚠ 분말(나노입자) 실측이지 CMP로 깎는 단결정 웨이퍼 표면 실측이 아니다 — 표면
+      산화막 특성이 유사하다고 가정한 전이(추정). 분산제 첨가 시 IEP가 3.6까지 이동한다는
+      보고도 있어(같은 원문), 실제 CMP 슬러리(계면활성제 포함)에서는 이 값이 과대추정일
+      수 있음. 폴리타입(원문 미명시 vs 팩의 4H-SiC)도 교차 적용.
+    source: knowledge/cmp/sic-isoelectric-point-singh2006-jnr.md
+    confidence: literature
+
   film_bulk_hardness_pa:
     value: 2.6e+10
     unit: Pa
