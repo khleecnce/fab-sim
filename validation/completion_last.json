@@ -1,5 +1,5 @@
 {
-  "ts": 1789215303.169867,
+  "ts": 1789269854.0999548,
   "complete": false,
   "cells_done": 12,
   "cells_total": 50,
@@ -134,7 +134,8 @@
     ],
     "delta": [
       "knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
-      "knowledge/cmp/lpc-scratch-density-tail-correlation.md"
+      "knowledge/cmp/lpc-scratch-density-tail-correlation.md",
+      "knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md"
     ],
     "stab": [
       "knowledge/materials/pad-glazing-mechanism-mrr-decay.md"

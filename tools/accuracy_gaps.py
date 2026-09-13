@@ -45,7 +45,10 @@ FACTOR_INPUTS = {   # 팩터 → 그 팩터를 살리려면 팩에 필요한 파
     "stab":  ["zeta_potential_mV", "pot_life_h", "settling_rate"],
     "chi":   ["slurry_ph", "ph_ref", "ph_peak", "oxidizer_wt_pct"],
     "kappa": ["abrasive_wt_pct", "abrasive_size_nm", "pad_hardness_shore_d"],
-    "tau":   ["groove_width_um", "pad_porosity_pct", "groove_depth_mm"],
+    # 2026-09-13: groove_depth_mm·groove_pitch_mm은 스코프에서 제외했다(Wei/Kim/Guo
+    # 3편 모두 배수 관계가 그래프 이미지로만 존재 — EVIDENCE-RULES §3회차 규칙, sim/factors.py
+    # _f_tau 주석 참고). 남은 두 드라이버가 전부 반영되면 이 팩터는 "modeled"다.
+    "tau":   ["groove_width_um", "pad_porosity_pct"],
 }
 
 

@@ -981,15 +981,25 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
     """
     f = _new("tau")
     pk = rr.pack
-    for k in ("groove_depth_mm", "groove_pitch_mm", "groove_width_um",
-              "pad_porosity_pct", "slurry_viscosity_pa_s"):
+    # ⚠ 2026-09-13 EVIDENCE-RULES §3회차 규칙 적용 — groove_depth_mm·groove_pitch_mm은
+    # 드라이버 수집 대상에서 제외한다(스코프 축소, "가짜 완성"이 아니라 "정직한 스코프").
+    # 근거: knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md §5.
+    # Wei/Kao 2011(doi:10.1016/j.wear.2010.10.057) Fig.7이 깊이→RR 배수를 담고 있지만
+    # 그래프 이미지(곡선 440개, page.curves 벡터라 색상-범례 매칭 불가 — 실측 시도함,
+    # 2026-09-12/13 두 차례 실패)로만 존재해 "기준 대비 배수" 형태 숫자를 텍스트로 낼 수 없다.
+    # Kim 2005·Guo 2012도 같은 사유로 배수 미확보(EVIDENCE-RULES §3회차 규칙: 3회 초과 보류
+    # 금지 → null 결론/스코프 축소로 반드시 종결). 여기서는 "groove_depth_mm·groove_pitch_mm은
+    # 현재 코퍼스로 τ에 편입 불가"를 스코프 축소로 확정한다 — 지어낸 지수보다 정직한 배제가 낫다.
+    # slurry_viscosity_pa_s도 τ 결합 문헌(Prasad/Mu)에 정량 관계가 없어 같은 이유로 제외한다
+    # (roughness 모델 sim/engine.py에서 별도로 쓰이므로 그쪽 배선은 유지).
+    for k in ("groove_width_um", "pad_porosity_pct"):
         if pk.has(k):
             try:
                 f.drivers[k] = float(pk.get(k))
             except (TypeError, ValueError):
                 pass
     if not f.drivers:
-        f.notes.append("⚠ τ 미모델링: 그루브 형상·기공률·점도가 팩에 없다.")
+        f.notes.append("⚠ τ 미모델링: 그루브 폭·기공률이 팩에 없다.")
         return f
 
     # ── η(그루브 폭) — Mu 2016 Table 3 실측 3점 선형보간 ──────────
@@ -1055,18 +1065,21 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
         val *= v
     f.value = val
     f.terms = terms
-    f.status = "partial"
-    # ⚠ τ의 confidence는 드라이버(기공률·그루브폭·점도)가 아니라 **결합 지수**가 결정한다.
+    # 2026-09-13 스코프 축소 이후: 드라이버 수집 대상이 groove_width_um·pad_porosity_pct
+    # 둘뿐이라(위 EVIDENCE-RULES §3회차 규칙 주석 참고), 그 둘이 전부 term으로 반영되면
+    # 이 팩터는 "제한된 범위 안에서 완전 모델링"이다 — partial과는 다르다. 스코프를 줄인
+    # 것과 입력을 놓친 것을 혼동하지 않는다.
+    f.status = "modeled" if len(terms) == len(f.drivers) else "partial"
+    # ⚠ τ의 confidence는 드라이버(기공률·그루브폭)가 아니라 **결합 지수**가 결정한다.
     # 드라이버는 전부 literature여도 tau_mrr_exponent=0.07이 기공률 실험에서 역산해
     # 그루브 축에 교차 대입한 값이라, τ의 크기 자체는 문헌이 보증하지 않는다.
     # 팩이 지수의 근거를 명시(tau_exponent_confidence)하면 그것을 쓰고,
     # 없으면 드라이버 최악등급보다 한 단 낮춘다 — 지수가 가장 약한 고리이기 때문이다.
-    _driver_conf = _pack_conf(pk, "groove_width_um", "pad_porosity_pct",
-                              "slurry_viscosity_pa_s")
+    _driver_conf = _pack_conf(pk, "groove_width_um", "pad_porosity_pct")
     f.confidence = str(pk.get_or("tau_exponent_confidence", "unverified"))
     f.sources = sorted(set(srcs))
     f.notes.append(
-        f"⚠ τ 등급={f.confidence}: 드라이버(기공률·그루브폭·점도)는 {_driver_conf} 등급이지만 "
+        f"⚠ τ 등급={f.confidence}: 드라이버(기공률·그루브폭)는 {_driver_conf} 등급이지만 "
         "τ의 **결합 지수**(tau_mrr_exponent=0.07)가 기공률 실험에서 역산해 그루브 축에 "
         "교차 대입한 값이라 크기를 문헌이 보증하지 않는다 — 가장 약한 고리가 등급을 정한다. "
         "순위만 신뢰하라.")

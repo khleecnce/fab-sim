@@ -234,6 +234,20 @@ def test_tau_effect_is_weak_not_zero():
         "τ 결합은 약해야 한다(지수 0.07).")
 
 
+def test_tau_status_is_modeled_after_scope_reduction():
+    """2026-09-13: groove_depth_mm·groove_pitch_mm을 드라이버 수집에서 제외(스코프 축소,
+    EVIDENCE-RULES §3회차 규칙 — 배수 관계가 그래프 이미지로만 존재해 텍스트로 확보 불가).
+    남은 두 드라이버(groove_width_um·pad_porosity_pct)가 전부 term으로 반영되므로
+    τ는 이제 'partial'이 아니라 'modeled'다 — 스코프를 줄인 것이지 입력을 놓친 게 아니다.
+    accuracy_gaps.py --next가 더 이상 τ PARTIAL을 반환하지 않아야 한다.
+    """
+    for pack in ("cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe_oxidizer"):
+        f = _factors(pack=pack)["tau"]
+        assert f.status == "modeled", f"{pack}: τ가 여전히 {f.status} — 스코프 축소가 반영 안 됨"
+        assert set(f.drivers.keys()) == {"groove_width_um", "pad_porosity_pct"}, (
+            f"{pack}: τ 드라이버에 groove_depth_mm/groove_pitch_mm이 남아있다 — 스코프 축소 미반영")
+
+
 def test_tau_admits_profile_coupling_is_missing():
     """τ의 진짜 효과(반경 프로파일)가 미구현임을 스스로 신고해야 한다."""
     f = _factors()["tau"]

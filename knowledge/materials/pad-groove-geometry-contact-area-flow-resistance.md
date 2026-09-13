@@ -250,3 +250,54 @@ A: **둘 다 맞을 수 있다 — 경로가 다르다.** Mu 2016(§2)은 "넓�
 (단, 900µm 이상은 수확체감). Wei 2011(§5-A)은 "좁히면 접촉면적↑→3체마모 직접경로로 RR↑". 두
 경로가 공존하며 net 효과는 그루브 크기 스케일(µm vs mm)·압력·회전수 조건에 좌우되는 것으로
 보이나 **통합 모델은 미확보** — 이것이 정직한 현재 상태다.
+
+## 6. 스코프 축소 종결 (2026-09-13, EVIDENCE-RULES §3회차 규칙 적용)
+
+τ PARTIAL 갭에 대한 groove_depth_mm 배수관계 확보 시도는 §5에서 이미 3회차(2026-09-12 16:xx,
+2026-09-13 08:xx, 2026-09-13 12:xx — 이번 회차 벡터좌표 재파싱까지 포함하면 사실상 4회차)
+순환했다. Kao/Wei 2011 Fig.7의 `page.curves`(440개 베지어 곡선, 페이지7 한정)를 좌표로
+추출해 봤으나 곡선 440개가 색상 범례 없이 뒤섞여 있어 어느 궤적이 "깊이 1.2mm" 곡선이고 어느
+것이 "2.2mm" 곡선인지 프로그램적으로 구분할 근거가 없다(레전드가 별도 텍스트 레이어로 겹쳐
+있어 curves와 매칭 불가) — 이번 시도도 실패로 확정한다.
+
+**EVIDENCE-RULES §3회차 규칙("판정을 미루고 '미반영'으로 남기는 것은 3회차까지만 허용")에 따라
+이 갭을 스코프 축소로 종결한다.** 판정: groove_depth_mm·groove_pitch_mm은 τ 팩터의 드라이버
+수집 대상에서 **제외**한다(`sim/factors.py::_f_tau`, `tools/accuracy_gaps.py::FACTOR_INPUTS`
+양쪽 수정, 2026-09-13). 이는 "null 결론"(효과가 없다)이 아니다 — 세 편(Wei/Kao 2011, Kim 2005,
+Guo 2012) 모두 **방향성 있는 효과가 존재한다**고 보고한다(깊이↓→RR↑). 다만 그 효과의 **크기**
+(배수)를 이 코퍼스에서 텍스트로 확보할 방법이 없어, "지어낸 지수로 채우느니 스코프를 줄인다"는
+원칙을 적용한 것이다.
+
+이 판정의 결과로 τ 팩터는 이제 groove_width_um·pad_porosity_pct 두 드라이버만으로 정의되고,
+그 범위 안에서는 **완전 모델링**(`status=modeled`)이다 — "이 팩터가 하는 일이 적어졌다"가 아니라
+"이 팩터가 하겠다고 주장하는 범위를 정직하게 줄였다"는 뜻이다. groove_depth_mm/groove_pitch_mm은
+여전히 팩 YAML에 값(참고용, K-groove 전형치)으로만 남고 엔진에는 연결되지 않는다.
+
+**재개 조건(향후 회차가 이 스코프를 다시 넓히려면)**: (1) Wei/Kao 2011의 저자 후속 논문이나
+특허 명세서에서 Fig.7과 동일 데이터의 **표 버전**을 찾거나, (2) 코퍼스 큐(`corpus.py`)에서
+그루브 깊이 대 MRR을 표로 제공하는 신규 문서를 확보하거나, (3) 수작업으로 그래프를 판독해
+좌표를 추출한 후 "사람이 확인함"으로 명시하는 경우. 이 중 하나가 갖춰지기 전까지는 재시도하지
+않는다(EVIDENCE-RULES 무한 재시도 금지 원칙).
+
+| 판정 | 서열 | 근거 | 날짜 |
+|---|---|---|---|
+| groove_depth_mm/groove_pitch_mm을 τ 드라이버에서 제외(스코프 축소) | 해당사항 없음(양측 모두 E5=그래프 이미지, 서열로 못 깸) | 3회차 초과 → EVIDENCE-RULES §3회차 규칙 강제 종결. 방향성은 3편 정합하나 배수는 텍스트로 확보 불가 | 2026-09-13 |
+
+```python verify
+# 스코프 축소 결정을 기계가 검증 가능한 형태로 고정 — sim/factors.py의 실제 동작과 이 노트가
+# 어긋나지 않는지 확인한다.
+import sys
+from pathlib import Path
+ROOT = Path("/Users/khleecnce/fab-sim")
+sys.path.insert(0, str(ROOT))
+from sim.engine import Recipe, simulate
+
+for pack in ["cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe_oxidizer"]:
+    r = simulate(Recipe(pack=pack))
+    f = r.factors["tau"]
+    assert "groove_depth_mm" not in f.drivers, f"{pack}: groove_depth_mm이 여전히 드라이버에 있다 — 스코프 축소 미반영"
+    assert "groove_pitch_mm" not in f.drivers, f"{pack}: groove_pitch_mm이 여전히 드라이버에 있다 — 스코프 축소 미반영"
+    assert f.status == "modeled", f"{pack}: τ가 {f.status} — 축소된 스코프 안에서는 modeled여야 함"
+
+print("PASS: 5팩 전부 groove_depth_mm/groove_pitch_mm 제외 + status=modeled 확인")
+```
