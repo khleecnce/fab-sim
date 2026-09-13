@@ -208,8 +208,35 @@ def _run(pack_dir: Path, pack: str) -> Tuple[Optional[float], Optional[str]]:
 
 
 def _write_value(pack_dir: Path, pack: str, key: str, val: float) -> bool:
-    """팩 상속을 고려해 해당 키를 가진 YAML 을 찾아 값을 바꾼다."""
-    for cand in [pack_dir / f"{pack}.yaml"] + sorted(pack_dir.glob("*.yaml")):
+    """그 팩이 **실제로 읽게 될** 선언을 찾아 값을 바꾼다.
+
+    ⚠ 순서가 물리적으로 중요하다. 상속 체인 밖의 팩을 고치면 대상 팩의 값은
+    그대로이고, 검사기는 "0 으로 바꿨는데 배수가 안 변했다"를 **모델 결함**으로
+    오판한다. 실제로는 검사기가 엉뚱한 파일을 건드린 것이다.
+    그러므로 자식 → 부모 순(lineage 역순)으로만 훑고, 체인 밖은 보지 않는다.
+    """
+    # 상속 체인을 실제 로더에게 물어본다 (파일명 추측 금지)
+    chain: List[str] = []
+    try:
+        env = dict(os.environ)
+        env["FABSIM_PACK_DIR"] = str(pack_dir)
+        r = subprocess.run(
+            [PY, "-c",
+             f"import sys;sys.path.insert(0,{str(ROOT)!r});"
+             f"from sim.params import load_pack;"
+             f"print(','.join(load_pack({pack!r}).lineage))"],
+            capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=60)
+        if r.returncode == 0:
+            chain = [s for s in r.stdout.strip().split(",") if s]
+    except Exception:
+        pass
+    if not chain:
+        chain = [pack]
+
+    for name in reversed(chain):          # 자식이 부모를 덮으므로 자식부터
+        cand = pack_dir / f"{name}.yaml"
+        if not cand.exists():
+            continue
         t = cand.read_text()
         pat = re.compile(rf"^(\s+{re.escape(key)}:\s*\n\s+value:\s*)([-\d.eE+]+)", re.M)
         if pat.search(t):
@@ -328,6 +355,13 @@ def check_limits(packs: List[str]) -> List[Issue]:
             ok = _write_value(d / "p", pack, key, 0.0)
             if not ok:
                 shutil.rmtree(d, ignore_errors=True)
+                out.append(Issue(
+                    "L", "warn", f"[{pack}] 드라이버 '{key}' 를 극한값으로 바꾸지 못함",
+                    "이 드라이버가 팩 YAML 의 예상 형식으로 선언돼 있지 않아 "
+                    "극한 검사를 **수행하지 못했습니다**. 검사기가 조용히 건너뛰면 "
+                    "'위반 없음'으로 잘못 읽힙니다.",
+                    "팩에 이 키가 숫자 값으로 선언돼 있는지, 코드가 계산으로만 "
+                    "만들어내는 값은 아닌지 확인하십시오."))
                 continue
             m, err = _run(d / "p", pack)
             shutil.rmtree(d, ignore_errors=True)

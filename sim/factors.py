@@ -536,7 +536,18 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         c = float(pk.get("abrasive_wt_pct"))
         f.drivers["abrasive_wt_pct"] = c
         c_ref = float(pk.get_or("abrasive_ref_wt_pct", c))
-        if c_ref > 0 and c > 0:
+        # ⚠ c=0 을 조건에서 제외하면 항이 **아예 만들어지지 않아** 곱셈에서
+        # 1.0 처럼 취급된다 — "입자가 없는데 제거율은 그대로"라는 뜻이 된다.
+        # 침묵이 '효과 없음'으로 읽히는 이 패턴이 극한 검사를 무력화했다
+        # (2026-09-13). 하중을 전달할 매개가 없으면 제거 경로가 없으므로
+        # 0 을 **명시적으로 계상**한다(LIMIT_ROLE: AGENT).
+        if c_ref > 0 and c <= 0:
+            terms["conc"] = 0.0
+            f.notes.append(
+                "연마입자 함량 0 — 하중을 표면으로 전달할 매개가 없어 제거 경로가 "
+                "성립하지 않는다. 항을 0 으로 계상한다(빈 항으로 두면 '효과 없음'과 "
+                "구분되지 않는다).")
+        elif c_ref > 0 and c > 0:
             # Li et al. 2021(doi:10.1149/2162-8777/ac3e44)이 인용한 두 극한 모델:
             #   표면적 지배  R ∝ C0^(1/3)
             #   압입 지배    R ∝ C0^(4/3)
@@ -572,7 +583,13 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         d = float(pk.get("abrasive_size_nm"))
         f.drivers["abrasive_size_nm"] = d
         d_ref = float(pk.get_or("abrasive_ref_size_nm", d))
-        if d_ref > 0 and d > 0:
+        # 위 농도 항과 같은 이유 — 침묵이 '효과 없음'으로 읽히지 않게 명시 계상.
+        if d_ref > 0 and d <= 0:
+            terms["size"] = 0.0
+            f.notes.append(
+                "입자 크기 0 — 크기가 없는 입자는 입자가 아니다. 압입 깊이가 "
+                "정의되지 않으므로 항을 0 으로 계상한다.")
+        elif d_ref > 0 and d > 0:
             # ⚠ 입경 방향의 지수는 **문헌이 확정하지 못했다.**
             # Li et al. 2021은 40→80→130 nm에서 MRR이 80 nm에 정점을 갖는다고
             # 정성 서술하지만(압입지배→표면적지배 전환), 원문 Eq.3-4의 지수·부호가
@@ -667,7 +684,14 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         n_a = float(pk.get("asperity_density_per_m2"))
         f.drivers["asperity_density_per_m2"] = n_a
         n_ref = float(pk.get_or("asperity_ref_density_per_m2", n_a))
-        if n_ref > 0 and n_a > 0:
+        if n_ref > 0 and n_a <= 0:
+            # 같은 침묵 패턴 — 접촉점이 하나도 없으면 하중을 웨이퍼로 전달할
+            # 경로 자체가 없다(LIMIT_ROLE: AGENT). 명시적으로 0 을 계상한다.
+            terms["asperity"] = 0.0
+            f.notes.append(
+                "asperity 밀도 0 — 접촉점이 없으면 하중 전달 경로가 없다. "
+                "항을 0 으로 계상한다.")
+        elif n_ref > 0 and n_a > 0:
             terms["asperity"] = (n_a / n_ref) ** 0.5
             srcs.append("knowledge/physics/gw-contact.md")
             f.notes.append("⚠ asperity 밀도 지수 0.5는 GW 접촉에서 실접촉면적이 "
@@ -1131,16 +1155,40 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
                                "(외삽하지 않는다).")
 
     # ── 기공률 → 보유용량 (Prasad 2013: 매우 약한 효과) ────────────
+    #
+    # 함수형 선택의 근거 — 왜 멱함수가 아니라 아핀(affine)인가:
+    #   실측은 %P 15→45(3배)에 RR +8% 다. 즉 기공률은 메커니즘을 **만드는** 인자가
+    #   아니라 이미 존재하는 이송을 미세 조절하는 인자다(LIMIT_ROLE: MODULATOR).
+    #   그런데 (P/P_ref)^n 은 P→0 에서 항상 0 으로 간다 — "기공이 없으면 제거율 0"
+    #   이라는 뜻이고, 이는 실측과도 기전과도 어긋난다. 무공극 패드에서도 그루브와
+    #   패드-웨이퍼 간극이 슬러리를 나르므로 이송이 사라지지 않는다.
+    #   멱함수는 관측 구간(15~45%)에서만 맞고 그 밖에서 비물리적으로 소멸하는,
+    #   외삽하면 안 되는 형태였다.
+    #
+    #   그래서 "기공이 나르는 몫"과 "기공 없이도 나르는 몫"을 분리한다:
+    #       f(P) = (1-w) + w·(P/P_ref)
+    #   w = 기공 경로가 담당하는 이송 분율. P=0 에서 f=(1-w) 로 유한하게 남고,
+    #   P=P_ref 에서 정확히 1 이며, 관측 구간의 기울기를 그대로 재현한다.
+    #
+    #   w 는 실측에서 직접 나온다. P/P_ref = 15/45 = 1/3 일 때 RR 비 = 1/1.08 이므로
+    #       (1-w) + w/3 = 1/1.08  →  w = 0.111
+    #   즉 이송의 약 11%만 기공 경로가 담당하고 89%는 기공과 무관하다.
+    #   검산: w=0.111 로 45→15% 예측 비가 1.0799 (실측 1.08).
+    #   이 수치는 지수 0.07 과 같은 실측 한 쌍에서 나오지만, 함수형이 극한에서
+    #   물리적으로 옳다는 점이 다르다.
     por = pk.get_or("pad_porosity_pct", None)
     por_ref = pk.get_or("pad_ref_porosity_pct", None)
     if por is not None and por_ref is not None and float(por_ref) > 0:
-        n = float(pk.get_or("tau_mrr_exponent", 0.07))
-        terms["porosity"] = (float(por) / float(por_ref)) ** n
+        w_por = float(pk.get_or("porosity_transport_fraction", 0.111))
+        w_por = min(max(w_por, 0.0), 1.0)
+        terms["porosity"] = (1.0 - w_por) + w_por * (float(por) / float(por_ref))
         srcs.append("knowledge/materials/pad-porosity-slurry-transport-mrr.md §5")
         f.notes.append(
             f"기공률 {float(por):g}% (기준 {float(por_ref):g}%). "
             "⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 "
-            "기각됐다(Prasad 2013). 지수 0.07은 그 8%에서 역산한 값이다.")
+            "기각됐다(Prasad 2013). 이송 분율 w=%.3f로 아핀 결합: 기공 경로가 %.0f%%, "
+            "나머지 %.0f%%는 그루브·간극이 담당해 기공률 0 에서도 남는다."
+            % (w_por, w_por * 100, (1 - w_por) * 100))
 
     if not terms:
         f.notes.append(
