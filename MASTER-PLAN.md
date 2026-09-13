@@ -2265,3 +2265,21 @@ EVIDENCE-RULES.md 판정#7, knowledge 노트 §6 종결절(verify 블록 포함)
 passed(회귀 0), qa_loop --strict PASS(#48, 유의 7/20, ρ=0.9537 불변). completion 12/50
 (변화없음). accuracy_gaps --next에서 τ PARTIAL 소멸 확인. 커밋 a76f9ed push 완료.
 다음 회차 갭: Δ(delta) PARTIAL — abrasive_size_nm 항 결측(현재 abrasive_d99_nm·aggregate만 반응).
+
+## 2026-09-13 14:xx [성장엔진] Δ(delta) PARTIAL 갭 종결 — abrasive_size_nm 스코프 축소(정의 오류 정정)
+Δ가 PARTIAL로 재부상(terms=[d99,aggregate], abrasive_size_nm이 드라이버에 잡혀 무반응).
+기존 노트(lpc-scratch-density-tail-correlation.md §3, Remsen 2006)를 재검토하니 평균 입경
+(50~150nm)이 스크래치 임계(680nm)보다 훨씬 작아 그 자체로 무의미하다는 것이 이미 문헌에
+명시돼 있었다 — abrasive_size_nm을 Δ 드라이버로 수집한 설계 자체가 팩터 정의(꼬리가 지배)와
+모순되는 정의 오류였다(τ의 EVIDENCE-RULES 스코프 축소와 유사 패턴이나, 이번은 null 결론이
+아니라 애초 잘못 설계된 입력 정정). sim/factors.py _f_delta에서 abrasive_size_nm을 드라이버
+수집 대상에서 제거하고, aggregate_ratio는 팩에 실제 선언됐을 때만 term에 반영하도록 수정
+(기본 0.0이 항상 term에 잡혀 조사 안 됨과 발동 무효과를 구분 못 하던 버그, τ에서는
+이미 고쳐져 있었으나 Δ만 놓침). 5팩 모두 남은 드라이버(d99)와 term이 완전 일치해
+status=modeled로 승격. knowledge 노트에 §10 종결절(verify 블록 포함) 추가. tests/test_factors.py
+3건 갱신(modeled 계약, aggregate 부재/override 분리 테스트). pytest 636 passed(회귀 0),
+qa_loop --strict PASS(#49, 유의 7/20, ρ=0.9537 불변 — delta는 MRR_COUPLED 밖이라 예상대로).
+completion 12/50(변화없음 — 이번은 status 정정이지 confidence 승격이 아님). accuracy_gaps
+--next에서 Δ PARTIAL 소멸 확인, 다음 갭 S(시간 안정성) PARTIAL(time_min_log_decay만 반응,
+5팩). 커밋 1afe1b9 push 완료. 다른 크론(소프트웨어부문장, gw_preston_link.py 신규 진단 필드
+추가 중)의 미커밋 변경(sim/engine.py 등)은 건드리지 않음.
