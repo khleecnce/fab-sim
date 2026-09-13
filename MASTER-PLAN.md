@@ -2253,3 +2253,15 @@ estimated, 이번 조사는 방향/구조 확정이지 confidence 승격이 아�
 다음 회차 갭: τ(4회차째면 EVIDENCE-RULES 규칙상 null 결론/스코프축소로 종결 검토) 또는
 UNWIRED UI 슬라이더 4건(Groove Depth·Groove Pitch·Asperity Tip Radius·Particle Size D50) 중
 Particle Size D50은 이번 회차 κ 배선으로 일부 연결됐을 가능성 — 다음 회차에 확인.
+
+## 2026-09-13 12:xx [성장엔진] τ(tau) PARTIAL 갭 종결 — groove_depth_mm/groove_pitch_mm 스코프 축소
+정확도루프 갭 τ가 4회차째 순환(EVIDENCE-RULES §3회차 규칙 대상). Wei/Kao 2011 Fig.7 벡터좌표
+재파싱(page.curves 440개, 색상범례 텍스트레이어 분리로 매칭 불가) 재시도했으나 실패 확정.
+§3회차 규칙대로 groove_depth_mm·groove_pitch_mm을 `sim/factors.py::_f_tau` 드라이버 수집
+대상에서 제외(스코프 축소 — null 결론과 다름, 방향성은 3편 정합하나 배수만 미확보).
+남은 두 드라이버(groove_width_um·pad_porosity_pct)만으로 τ가 5팩 전부 status=modeled로
+전환. `tools/accuracy_gaps.py` FACTOR_INPUTS 동기화, tests/test_factors.py 회귀테스트 1건,
+EVIDENCE-RULES.md 판정#7, knowledge 노트 §6 종결절(verify 블록 포함) 추가. pytest 630
+passed(회귀 0), qa_loop --strict PASS(#48, 유의 7/20, ρ=0.9537 불변). completion 12/50
+(변화없음). accuracy_gaps --next에서 τ PARTIAL 소멸 확인. 커밋 a76f9ed push 완료.
+다음 회차 갭: Δ(delta) PARTIAL — abrasive_size_nm 항 결측(현재 abrasive_d99_nm·aggregate만 반응).
