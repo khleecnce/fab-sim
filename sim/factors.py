@@ -1194,15 +1194,25 @@ def _f_stab(rr: "ResolvedRecipe") -> Factor:
     (2) 1~10분 범위 밖은 clamp(외삽 금지, 값 고정). (3) 이 회귀는 무-컨디셔닝
     단발 연마의 초기 드리프트만 담는다 — 컨디셔닝 사이클·패드 수명(수십 시간)
     누적 마모는 여전히 미모델링(담당 R3-pad×R4-disk, 실데이터 없음).
+
+    ⚠ 2026-09-13 EVIDENCE-RULES 판정#8 — pad_usage_hours·pad_wafer_count·
+    disk_usage_hours를 드라이버 수집 대상에서 제외한다(스코프 축소, τ의
+    groove_depth_mm 축소와 같은 패턴). 근거: Son & Lee 2021(doi:10.3390/app11083521)
+    이 확보한 수십시간 축 MRR 드리프트(Case I 44.9%/16h vs Case II 7.4%/20h,
+    6.1배 차이)는 **컨디셔너 구조(swing-arm 단일 vs 분할형 5구역)** 가 지배
+    인자임을 논문이 직접 명시하는데, FabSim 팩은 컨디셔너 구조를 파라미터로
+    갖지 않는다 — 어느 감쇠율(2.81%/h vs 0.37%/h)을 쓸지 근거가 없다.
+    Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-1956-3)도
+    같은 구조: PWR·MRR이 그릿 배열/타입에 갈리고 시간/웨이퍼수만으로는 안 갈린다.
+    즉 이 시간축은 physically real 하지만, "장비 구성 변수"가 팩에 없어 이식할
+    수 없다 — knowledge/materials/pad-usage-hours-conditioning-mrr-decay-son-lee2021.md
+    §7(구현 요청)이 이미 이 선행조건을 명시했었다. 컨디셔너 구조가 팩 파라미터로
+    추가되기 전까지는 이 세 드라이버를 걷어내는 것이 "빠진 항을 숨기는 것"이
+    아니라 "반응 안 하는 죽은 드라이버를 정직하게 걷어내는 것"이다(PARTIAL이
+    아니라 modeled로 승격 가능해짐 — time_s만 남은 드라이버와 완전히 일치).
     """
     f = _new("stab")
     pk = rr.pack
-    for k in ("pad_usage_hours", "pad_wafer_count", "disk_usage_hours"):
-        if pk.has(k):
-            try:
-                f.drivers[k] = float(pk.get(k))
-            except (TypeError, ValueError):
-                pass
 
     t_min = rr.time_s / 60.0
     f.drivers["time_s"] = rr.time_s
@@ -1216,7 +1226,7 @@ def _f_stab(rr: "ResolvedRecipe") -> Factor:
 
     f.value = val
     f.terms = {"time_min_log_decay": val}
-    f.status = "partial"
+    f.status = "modeled" if len(f.terms) == len(f.drivers) else "partial"
     abrasive = str(pk.get_or("abrasive", "")).lower()
     f.confidence = "literature" if abrasive == "silica" else "estimated"
     f.sources.append(

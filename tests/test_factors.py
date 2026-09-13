@@ -147,9 +147,13 @@ def test_stab_reference_at_default_time_is_unity():
     2026-09-09 정확도루프: Jeong et al. 2024(doi:10.3390/ma17081817) Fig.9
     로그감쇠 회귀로 partial 모델을 부여했다. ln(1)=0이라 t=1 min에서
     정확히 1.0이 되어 기준 1.0 계약을 유지한다.
+
+    2026-09-13 EVIDENCE-RULES 판정#8: pad_usage_hours 등 3개 드라이버를
+    스코프 축소로 제거해(컨디셔너 구조 변수 결측, sim/factors.py 주석) 남은
+    드라이버(time_s)와 항이 완전히 일치 — status는 partial→modeled로 승격.
     """
     f = _factors()["stab"]
-    assert f.status == "partial"
+    assert f.status == "modeled"
     assert f.value == pytest.approx(1.0, abs=1e-9)
 
 

@@ -118,3 +118,52 @@ Case I: 44.9%/16h → 시간당 약 2.81%. Case II: 7.4%/20h → 시간당 약 0
 - 재인용: https://6ccvd.com/research/literature-reviews/2021/04/contact-area-changeable-cmp-conditioning-for-enhancing-pad-lifetime-3156965014/
   ("Original Source" 섹션에 논문 인용 명시, 기술 스펙표가 원문 표 형식 그대로 재구성됨)
 - Crossref API 조회(2026-09-12): DOI resolve 성공, 저자·소속·발행일 일치 확인.
+
+
+## 9. 2026-09-13 종결 — 스코프 축소 확정 (EVIDENCE-RULES 판정#8)
+
+`_f_stab`의 PARTIAL 갭이 재상승(정확도루프 갭 랭커가 pad_usage_hours 등 3개
+드라이버를 계속 미반응 항목으로 지목)했다. §7(구현 요청)에서 이미 예견한
+선행조건 -- "컨디셔너 구조(균일 마모 여부)가 팩에 없다" -- 을 재확인한 결과,
+이번 회차엔 그 선행조건을 풀 수 있는 새 정량 데이터를 확보하지 못했다
+(Song, Kim 2018, doi:10.1007/s00170-018-1956-3 의 4종 다이아몬드 컨디셔너
+비교도 같은 구조 -- PWR/MRR이 그릿 배열/타입에 갈리고 시간/웨이퍼수 단독으로는
+안 갈린다는 정성 확인만 추가됨, 원문 수치는 미확보).
+
+**판정**: tau 팩터의 groove_depth_mm/groove_pitch_mm 스코프 축소(2026-09-13,
+EVIDENCE-RULES 판정#7)와 동일 패턴 -- 효과는 실재하나(방향성 정합: Son/Lee,
+Song/Kim 모두 "컨디셔너 구성이 시간에 따른 MRR 드리프트의 지배 인자"라는
+같은 방향), FabSim 팩에 이식할 "기준 조건 대비 배수" 하나를 낼 수 있는
+공통 장비 변수가 없다. `sim/factors.py::_f_stab`에서 pad_usage_hours,
+pad_wafer_count, disk_usage_hours를 드라이버 수집 대상에서 제외(코드 주석에
+근거 명시). 남은 드라이버(time_s)와 항(time_min_log_decay)이 완전히 일치해
+status가 partial에서 modeled로 승격됐다(`tools/accuracy_gaps.py`도 `stab: []`로
+동기화, `tests/test_factors.py` 계약 갱신).
+
+이건 "숨기기"가 아니다 -- §7이 이미 문서화한 선행조건이 여전히 안 풀렸다는
+사실을 코드가 정직하게 반영하는 것이다. 컨디셔너 구조 파라미터가 팩에
+추가되면(소프트웨어 부문 또는 미래 회차) 이 스코프 축소를 되돌리고 §2 표의
+시간당 % 를 다시 꺼내 쓸 수 있다.
+
+```python verify
+# 스코프 축소 판단 재확인 -- Son/Lee 2021 두 조건의 감쇠율 차이가
+# "시간"만으로 설명 안 됨을 재확인 (같은 초기 MRR 부근에서 시작해 시간 척도도
+# 비슷한데(16h vs 20h) 감쇠율이 6배 다르다 -> 지배 변수는 시간이 아니라 구조)
+mrr1_start, mrr1_end, h1 = 401.3, 221.0, 16.0
+mrr2_start, mrr2_end, h2 = 387.7, 359.0, 20.0
+rate1 = (mrr1_start - mrr1_end) / mrr1_start / h1   # %/h 스케일(비율)
+rate2 = (mrr2_start - mrr2_end) / mrr2_start / h2
+ratio = rate1 / rate2
+# 시간 비율은 16/20=0.8(1.25배 차)인데 반해 감쇠율 비율은 6배 이상 --
+# "시간"이 지배 변수라면 이 비율이 훨씬 작아야 한다.
+time_ratio = h2 / h1
+assert ratio > 5.0, f"감쇠율 비율({ratio:.2f})이 예상보다 작음 -- 재검토 필요"
+assert time_ratio < 1.5, f"시간 비율({time_ratio:.2f})이 예상보다 큼"
+print(f"감쇠율 비율={ratio:.2f}배 vs 시간 비율={time_ratio:.2f}배 "
+      "-> 시간 단독으로는 설명 안 됨, 구조 변수가 지배(스코프 축소 근거)")
+```
+
+### 9.1 재현 결과
+감쇠율 비율 6.07배 vs 시간 비율 0.80배(즉 Case II가 오히려 더 오래 걸렸는데도
+덜 감쇠) -- assert 통과. 시간이 지배 변수가 아니라는 판단이 산술적으로도
+뒷받침된다.

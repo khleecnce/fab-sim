@@ -2283,3 +2283,18 @@ completion 12/50(변화없음 — 이번은 status 정정이지 confidence 승�
 --next에서 Δ PARTIAL 소멸 확인, 다음 갭 S(시간 안정성) PARTIAL(time_min_log_decay만 반응,
 5팩). 커밋 1afe1b9 push 완료. 다른 크론(소프트웨어부문장, gw_preston_link.py 신규 진단 필드
 추가 중)의 미커밋 변경(sim/engine.py 등)은 건드리지 않음.
+
+
+## 2026-09-13 16:xx [성장엔진] S(stab) PARTIAL 갭 종결 -- pad_usage_hours 등 3드라이버 스코프 축소
+정확도루프 갭 랭커가 tau -> Delta에 이어 S(시간 안정성)를 지목(3회차째 순환하지는 않았으나
+pad_usage_hours/pad_wafer_count/disk_usage_hours가 계속 미반응). §7 구현요청에서 이미 예견한
+선행조건(컨디셔너 구조 변수가 팩에 없음)이 여전히 안 풀렸음을 재확인 -- Song & Kim 2018
+(doi:10.1007/s00170-018-1956-3, 4종 다이아몬드 컨디셔너 PWR/MRR 비교, 정성 수준)로 방향성만
+추가 보강했으나 정량 이식은 여전히 불가. tau groove_depth_mm 판정#7과 동일 구조(EVIDENCE-RULES
+판정#8)로 세 드라이버를 _f_stab 드라이버 수집 대상에서 제외, 남은 드라이버(time_s)와 항
+(time_min_log_decay)이 완전히 일치해 status partial->modeled 승격. tools/accuracy_gaps.py
+FACTOR_INPUTS["stab"]=[] 동기화, tests/test_factors.py 계약 갱신(assert modeled),
+knowledge 노트 §9 종결절(verify 블록: 시간 비율 0.8배 vs 감쇠율 비율 6.07배로 "시간 단독
+설명 불가" 재확인). pytest 635 passed 1 failed(다른 크론 sic_ceria_h2o2/sti_ceria 미커밋
+파라미터 결측 -- 무관, 건드리지 않음). qa_loop --strict PASS(#51, 유의 7/20, rho=0.9537 불변).
+completion 12/50(변화없음). accuracy_gaps --next에서 S PARTIAL 소멸 확인. 커밋·push 예정.

@@ -42,7 +42,11 @@ sys.path.insert(0, str(ROOT))
 FACTOR_INPUTS = {   # 팩터 → 그 팩터를 살리려면 팩에 필요한 파라미터(문헌 근거 필요)
     "psi":   ["inhibitor_mM", "inhibitor_ref_mM", "passivation_k"],
     "delta": ["abrasive_d99_nm", "scratch_threshold_nm", "aggregate_ratio"],
-    "stab":  ["zeta_potential_mV", "pot_life_h", "settling_rate"],
+    # 2026-09-13: pad_usage_hours/pad_wafer_count/disk_usage_hours는 스코프에서
+    # 제외했다(컨디셔너 구조 변수가 팩에 없어 어느 감쇠율을 쓸지 근거 없음 —
+    # EVIDENCE-RULES 판정#8, sim/factors.py _f_stab 주석 참고). 남은 드라이버(time_s)
+    # 만으로 이 팩터는 "modeled"다.
+    "stab":  [],
     "chi":   ["slurry_ph", "ph_ref", "ph_peak", "oxidizer_wt_pct"],
     "kappa": ["abrasive_wt_pct", "abrasive_size_nm", "pad_hardness_shore_d"],
     # 2026-09-13: groove_depth_mm·groove_pitch_mm은 스코프에서 제외했다(Wei/Kim/Guo
