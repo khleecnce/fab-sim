@@ -371,3 +371,41 @@ print("D99 2배 시 Δ:", {k: round(f_delta(d99_pack[k]*2, d99_pack[k], n_pack[k
 않는다(동시 작업 충돌 방지). 후속 탐색 후보: (a) `abrasive_lpc_per_ml` 개수축 신설(Fujifilm
 임계 800,000/wt% 활용), (b) 알루미나 D99 — Fujimi/Baikowski QC 스펙은 NDA라 공개 경로가
 사실상 소진, 대신 **Cu/W 슬러리 특허의 AccuSizer 실시예 표**를 계속 훑는 것이 마지막 경로.
+
+
+## 10. 스코프 축소(2026-09-13) — abrasive_size_nm을 Δ 드라이버에서 제외
+
+정확도 루프가 Δ를 PARTIAL로 되돌렸다(terms=['d99','aggregate'], drivers에
+`abrasive_size_nm`이 추가로 잡혀 반응 안 함). §3의 lpc-scratch-density-tail-correlation.md
+인용을 다시 보면, 이 논문(Remsen 2006) 자신이 **abrasive_size_nm(평균 입경)은 스크래치
+예측에 쓸 변수가 아니다**라고 명시한다: "현재 팩들의 abrasive_size_nm(50~150nm)은 전부
+680nm보다 훨씬 작다 — 즉 평균 입경 자체는 스크래치 임계값 아래이며, 스크래치는 이 평균에서
+벗어난 극소수 대입자가 만든다"(§3 원문 인용). 즉 `_f_delta`가 애초에 `abrasive_size_nm`을
+드라이버 후보로 수집한 것 자체가 잘못된 신호 설계였다 — Δ의 정의(꼬리가 지배)와 정면으로
+모순되는 입력을 같은 팩터가 "반응해야 할 축"으로 취급하고 있었다.
+
+**판정(EVIDENCE-RULES 절차 아님, 정의 오류 정정)**: `abrasive_size_nm`을 Δ 드라이버 수집
+대상에서 제외한다. τ(그루브 깊이/피치, EVIDENCE-RULES 판정#7)와 동일한 "스코프 축소" 패턴
+— null 결론(효과 없음이 검증됨)과 다르다. 여기서는 애초에 "이 변수가 이 팩터의 입력이어야
+한다"는 전제 자체가 틀렸다는 것이 문헌 재검토로 드러났다.
+
+```python verify
+# 스코프 축소 이후 δ 드라이버 = {d99, [aggregate_ratio 선언 시]}만 반응해야 한다.
+# abrasive_size_nm은 더 이상 드라이버가 아니다 — Δ 정의(꼬리 지배)와 일치.
+def delta_drivers_after_scope_reduction():
+    return {"abrasive_d99_nm", "aggregate_ratio"}
+
+drivers = delta_drivers_after_scope_reduction()
+assert "abrasive_size_nm" not in drivers, (
+    "평균 입경은 Remsen 2006이 스스로 부정한 변수 -- Δ 드라이버에 남아있으면 안 된다")
+assert "abrasive_d99_nm" in drivers, "꼬리 대표값(D99)은 계속 핵심 드라이버여야 한다"
+print("Δ 드라이버 스코프 축소 확인:", drivers)
+```
+
+`sim/factors.py::_f_delta`를 수정해 `abrasive_size_nm`을 `f.drivers` 수집 루프에서
+제외했고, `aggregate_ratio`는 팩에 실제로 선언됐을 때만(`pk.has()`) term에 반영해
+"조사 안 됨"과 "발동했지만 무효과(1.0)"를 구분하도록 했다(이전 버전은 기본값 0.0을
+항상 term에 넣어 이 둘을 구분 못 했다 — τ에서는 이미 이 패턴이었는데 Δ만 놓쳤던 버그).
+그 결과 5팩(cu_h2o2_bta, oxide_silica, sic_ceria_h2o2, sti_ceria, w_fe_oxidizer) 모두
+드라이버(d99뿐, aggregate_ratio 미선언)와 term이 정확히 일치해 `status=modeled`로 승격됐다.
+Δ는 MRR_COUPLED 밖이라 이 변경은 MRR 예측값·백테스트 ρ에 영향을 주지 않는다(§7 이미 명시).

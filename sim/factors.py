@@ -1112,7 +1112,13 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     """
     f = _new("delta")
     pk = rr.pack
-    for k in ("abrasive_d99_nm", "abrasive_size_nm", "aggregate_ratio"):
+    # 2026-09-13 스코프 축소(EVIDENCE-RULES 패턴, τ와 동일): abrasive_size_nm(평균 입경)은
+    # 드라이버 수집 대상에서 뺐다. lpc-scratch-density-tail-correlation.md §3이 "D99는 LPC의
+    # 근사 대리변수이지 평균 입경과 동일 개념이 아니다"를 명시하고, Remsen 2006 실측(§2.2)이
+    # 평균 입경(50~150nm)은 스크래치 임계(680nm)보다 훨씬 작아 그 자체로는 무의미함을 보였다
+    # — 즉 abrasive_size_nm을 Δ의 "입력"으로 추적하는 것 자체가 잘못된 신호였다. Δ가 실제로
+    # 받는 입력은 d99(꼬리 대표값)와 aggregate_ratio(콜로이드 불안정화) 둘뿐이다.
+    for k in ("abrasive_d99_nm", "aggregate_ratio"):
         if pk.has(k):
             try:
                 f.drivers[k] = float(pk.get(k))
@@ -1132,13 +1138,24 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     # 지수는 문헌 폐형식이 없다 — 팩에서 받는다.
     n = float(pk.get_or("damage_exponent", 3.0))
     d99_term = (d99 / d99_ref) ** n
-    # aggregate_ratio 항 — 기본 0.0이면 (1+0)=1.0으로 no-op, 기준 조건 Δ=1.0 계약 보존.
-    agg_ratio = float(pk.get_or("aggregate_ratio", 0.0))
+    terms = {"d99": d99_term}
+    # aggregate_ratio 항 — 팩에 실제로 선언됐을 때만 term으로 카운트한다(τ와 동일 규칙).
+    # 기본값 0.0은 "이 팩에 대해 이 경로가 조사되지 않았다"는 뜻이지 "발동한 항이 1.0으로
+    # 확인됐다"는 뜻이 아니다 — 이 구분이 없으면 조사 안 된 팩도 항상 "aggregate"가 term에
+    # 잡혀 상태 판정(len(terms)==len(drivers))이 항상 거짓으로 나온다.
+    if pk.has("aggregate_ratio"):
+        agg_ratio = float(pk.get("aggregate_ratio"))
+        terms["aggregate"] = 1.0 + agg_ratio
+    else:
+        agg_ratio = 0.0
     agg_term = 1.0 + agg_ratio
     val = d99_term * agg_term
     f.value = val
-    f.terms = {"d99": d99_term, "aggregate": agg_term}
-    f.status = "partial"
+    f.terms = terms
+    # 2026-09-13: 남은 드라이버(d99, +선언 시 aggregate_ratio)가 전부 term으로 반영되면
+    # "제한된 범위 안에서 완전 모델링"이다(τ와 동일 논리) — abrasive_size_nm을 스코프에서
+    # 뺀 것이지, 실제 입력을 놓친 게 아니다.
+    f.status = "modeled" if len(terms) == len(f.drivers) else "partial"
     f.confidence = "unverified"
     f.sources = ["knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
                  "knowledge/cmp/lpc-scratch-density-tail-correlation.md",

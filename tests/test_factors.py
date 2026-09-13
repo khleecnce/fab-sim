@@ -316,7 +316,9 @@ def test_delta_is_unity_when_d99_equals_reference():
     """
     f = _factors(pack="sti_ceria")["delta"]
     assert f.value == pytest.approx(1.0, abs=1e-9)
-    assert f.status == "partial"
+    # 2026-09-13: abrasive_size_nm 스코프 축소 이후 남은 드라이버(d99)가 전부 term으로
+    # 반영되므로 status는 modeled다(τ와 동일 패턴 — 스코프 축소는 완전 모델링과 구분되지 않음).
+    assert f.status == "modeled"
 
 
 def test_delta_increases_with_larger_d99_per_hitachi_exponent():
@@ -340,27 +342,43 @@ def test_delta_increases_with_larger_d99_per_hitachi_exponent():
 
 def test_delta_activated_for_three_more_packs_at_unity():
     """2026-09-11 COMPLETION-C1: cu_h2o2_bta/oxide_silica/w_fe_oxidizer 3팩에 D99를
-    이식해 Δ가 unmodeled -> partial로 전환됐다. 3팩 모두 기준 조건(D99==ref)에서
-    정확히 1.0이어야 한다 — 유도값(D99/D50 일반비)의 불확실성이 기준점 계약을
-    깨면 안 된다(knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §6-D).
+    이식해 Δ가 unmodeled -> modeled(스코프 축소 이후)로 전환됐다. 3팩 모두 기준
+    조건(D99==ref)에서 정확히 1.0이어야 한다 — 유도값(D99/D50 일반비)의 불확실성이
+    기준점 계약을 깨면 안 된다(knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §6-D).
+
+    2026-09-13: abrasive_size_nm을 Δ 드라이버 스코프에서 뺀 이후(τ와 동일 패턴,
+    lpc-scratch-density-tail-correlation.md §3 — D99는 LPC 대리변수이지 평균 입경과
+    동일 개념 아님) 남은 드라이버는 d99(+선언 시 aggregate_ratio)뿐이라
+    status가 partial이 아니라 modeled로 승격됐다.
     """
     for pack in ("cu_h2o2_bta", "oxide_silica", "w_fe_oxidizer"):
         f = _factors(pack=pack)["delta"]
-        assert f.status == "partial", f"{pack}: Δ가 여전히 unmodeled — D99 이식이 반영 안 됨"
+        assert f.status == "modeled", f"{pack}: Δ가 unmodeled/partial — D99 이식이 반영 안 됨"
         assert f.value == pytest.approx(1.0, abs=1e-9), f"{pack}: 기준 조건 Δ != 1.0"
 
 
-def test_delta_aggregate_ratio_no_op_by_default():
-    """aggregate_ratio 미지정(팩 기본값 0.0)이면 Δ는 d99 항만으로 기존과 동일해야 한다.
+def test_delta_aggregate_ratio_absent_by_default():
+    """aggregate_ratio 미선언(팩에 키 자체가 없음)이면 Δ는 d99 항만으로 기존과 동일해야 한다.
 
-    2026-09-13 신규: Basim & Moudgil 2002(doi:10.1006/jcis.2002.8352) NaCl 0.2M 사례
-    (평균입경 불변인데 Rmax 2배) 근거로 aggregate_ratio 항(1+ratio)을 곱셈 추가했다.
-    기본값 0.0에서 (1+0)=1.0 no-op이므로 기존 D99 단독 값과 완전히 같아야 한다
-    (회귀 방지 — 팩 미지정 팩에서 값이 조용히 바뀌면 안 된다).
+    2026-09-13: aggregate_ratio는 이 회차 기준 어느 팩에도 파라미터로 선언돼 있지 않다
+    (조사 완료가 아니라 "아직 이 경로를 조사하지 않았다"는 뜻) — 그래서 terms에 "aggregate"
+    키 자체가 없어야 한다. 예전 버전은 기본값 0.0을 항상 term으로 넣어 "발동했지만
+    무효과"와 "조사 안 됨"을 구분하지 못했다(τ와 같은 문제, 이번에 함께 고침).
     """
     f = _factors(pack="sti_ceria")
-    assert f["delta"].terms["aggregate"] == pytest.approx(1.0, abs=1e-9)
+    assert "aggregate" not in f["delta"].terms
     assert f["delta"].value == pytest.approx(f["delta"].terms["d99"], rel=1e-9)
+
+
+def test_delta_aggregate_ratio_override_creates_term():
+    """aggregate_ratio를 recipe override로 명시하면(팩에 없어도) term에 잡혀야 한다.
+
+    pack_overrides로 주입된 값도 pk.has()가 True를 반환하므로(sim/params.py),
+    "이 회차에 조사·주입된 값"과 "팩 기본 스키마에 없는 값"을 이 테스트가 함께 검증한다.
+    """
+    f = _factors(pack="sti_ceria", aggregate_ratio=0.0)["delta"]
+    assert "aggregate" in f.terms
+    assert f.terms["aggregate"] == pytest.approx(1.0, abs=1e-9)
 
 
 def test_delta_aggregate_ratio_scales_damage():
