@@ -68,6 +68,7 @@ class Param:
     source: str = ""          # knowledge/ 노트 경로 또는 문헌
     confidence: str = "unknown"   # verified | literature | estimated | unverified
     note: str = ""
+    owner: str = ""           # 이 값을 선언한 팩 이름 (상속된 값과 자기 값을 구분)
 
     def __repr__(self) -> str:  # 디버깅 시 출처가 같이 보이게
         return f"Param({self.key}={self.value}{' ' + self.unit if self.unit else ''}, {self.confidence})"
@@ -98,6 +99,17 @@ class ParamPack:
 
     def has(self, key: str) -> bool:
         return key in self.params
+
+    def has_own(self, key: str) -> bool:
+        """이 팩이 **직접 선언한** 값인가 (상속된 값이면 False).
+
+        왜 필요한가: 상속은 "같은 물리를 공유한다"는 뜻이다. 그런데 막질·연마입자를
+        바꾼 팩은 물리 자체가 달라지므로, 부모의 재료 상수를 조용히 물려받으면
+        "남의 재료로 계산한 숫자"가 이 팩의 결과로 나온다. 재료 고유 상수를 쓰는
+        항은 그 값이 자기 선언인지 확인한 뒤에만 활성화해야 한다.
+        """
+        p = self.params.get(key)
+        return p is not None and p.owner == self.name
 
     def param(self, key: str) -> Param:
         if key not in self.params:
@@ -172,6 +184,10 @@ def load_pack(name: str, _seen: Optional[List[str]] = None) -> ParamPack:
         params.update(parent.params)      # 부모를 깔고
         lineage = parent.lineage
     params.update(_parse_params(raw.get("params")))   # 자식이 덮어쓴다
+    # 이 팩이 직접 선언한 값에 소유자를 새긴다 — 상속된 값과 구분하기 위함.
+    # (부모에서 온 Param 은 부모 이름을 그대로 달고 있다)
+    for key in _parse_params(raw.get("params")):
+        params[key].owner = name
     return ParamPack(name=name, description=raw.get("description", ""),
                      params=params, lineage=lineage + [name])
 

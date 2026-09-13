@@ -174,3 +174,14 @@ params:
       원문이 상용 세리아 분산제를 "Newtonian behavior"로 명시 → 단일 스칼라 정당.
     source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2
     confidence: literature
+
+  abrasive_ref_size_nm:
+    source: "이 팩의 abrasive_size_nm 과 같은 출처 — 기준점은 독립 측정값이 아니라 '어느 조건에서 Kp 를 역산했는가'의 선언이다"
+    value: 60.0
+    unit: nm
+    note: >
+      κ 입경항 기준점 — 이 팩의 abrasive_size_nm(60 nm)과 일치시킨다.
+      키가 없어 실리카 부모의 50 nm 를 상속해 기준조건 κ=1.275 였다
+      (2026-09-13 model_hygiene 극한검사가 검출). 값이 아니라 기준점만
+      옮기므로 예측 형상은 불변이고 배수만 1.0 으로 복원된다.
+    confidence: literature

@@ -263,6 +263,28 @@ def _ceria_term(pack, notes: List[str]) -> Optional[float]:
     메커니즘 자체가 다르다.
     ⚠ Ce³⁺ 분율과 MRR의 함수형은 문헌에 폐형식으로 없다. 선형 비례로 두되
     그 사실을 notes에 밝힌다. 이건 가정이지 검증된 물리가 아니다.
+
+    함수형 — 왜 순수 비례가 아니라 두 경로의 합인가 (2026-09-13 정정):
+      이전 형태 1 + gain·(f/f_ref − 1) 은 gain=1 에서 f→0 일 때 정확히 0 이 됐다.
+      즉 "활성점이 없으면 제거율 0" 이라는 주장인데, 이는 물리적으로 거짓이다.
+      활성점이 하나도 없어도 입자는 여전히 단단한 산화물이고, 하중을 받아 표면을
+      긁는 **기계적 경로**가 남는다(이 노트 §1: 실리카·알루미나는 경도·접촉역학이
+      지배하는 거의 순수 기계 연마 — 같은 경로가 세리아에서 사라질 이유가 없다).
+      세리아의 특징은 기계 경로가 없다는 게 아니라 그 위에 화학 경로가 **더해져서**
+      지배적이 된다는 것이다.
+
+      그래서 제거를 두 경로의 합으로 쓴다:
+          f(θ) = (1−a) + a·(θ/θ_ref)
+      a = 기준 조건에서 화학(활성점) 경로가 차지하는 분율.
+      θ→0 에서 (1−a) 로 유한하게 남고(기계 경로), θ=θ_ref 에서 정확히 1 이다.
+
+      a 는 실측에서 나온다. Netzband & Dunn 2020 은 H₂O₂ 로 Ce³⁺% 를 올려 산화막
+      MRR 이 상용 대비 5.5 배가 됐다고 보고한다. 화학 경로가 5.5 배 구간을
+      만들어냈다면 기준 조건에서 기계 경로의 몫은 대략 1/5.5 ≈ 0.18 이므로
+      a ≈ 0.82. 팩이 ceria_mechanical_floor 로 (1−a) 를 직접 주면 그것을 쓴다.
+
+      ⚠ 이 분해 자체가 문헌의 폐형식이 아니라 5.5배 관측에서 역산한 가정이다.
+      다만 극한에서 물리적으로 옳다는 점이 이전 형태와 다르다.
     """
     if str(pack.get_or("abrasive", "")) != "ceria":
         return None
@@ -273,10 +295,17 @@ def _ceria_term(pack, notes: List[str]) -> Optional[float]:
     if f_ref <= 0:
         return None
     gain = float(pack.get_or("ceria_tooth_gain", 1.0))
+    # 기계 바닥값 — 활성점이 0 이어도 남는 몫. 기본 1/5.5 (Netzband 5.5배에서 역산).
+    floor = float(pack.get_or("ceria_mechanical_floor", 1.0 / 5.5))
+    floor = min(max(floor, 0.0), 1.0)
+    a = (1.0 - floor) * gain
     notes.append(
         f"세리아 chemical tooth: Ce³⁺ 분율 {f:.3f} (기준 {f_ref:.3f}). "
-        "⚠ Ce³⁺–MRR 함수형은 문헌에 폐형식이 없어 선형 비례로 가정했다 — 미검증.")
-    return 1.0 + gain * (f / f_ref - 1.0)
+        f"화학 경로 {a * 100:.0f}% + 기계 경로 {floor * 100:.0f}% 로 분해 — "
+        "활성점이 0 이어도 입자는 단단한 산화물이라 기계적 제거가 남는다. "
+        "⚠ Ce³⁺–MRR 함수형은 문헌에 폐형식이 없어 활성점 수에 선형으로 가정했고, "
+        "분해 비율은 Netzband & Dunn 2020 의 5.5배 관측에서 역산했다 — 미검증.")
+    return floor + a * (f / f_ref)
 
 
 def _ph_softening_term(pack, notes: List[str]) -> Optional[float]:

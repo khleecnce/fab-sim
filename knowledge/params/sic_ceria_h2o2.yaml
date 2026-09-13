@@ -44,11 +44,13 @@ params:
 
   slurry_ph:
     value: 10.0
+    unit: ""            # pH 는 무차원(로그 활동도)
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (pH 9/10/11)"
     confidence: measured
 
   ph_softening_ref:
     value: 10.0
+    unit: ""            # pH 기준점 — 무차원
     source: "Wang et al. ACS SI Table S3 — DOE 중심값을 기준으로 잡는다"
     confidence: measured
 
@@ -59,6 +61,7 @@ params:
 
   abrasive_ref_wt_pct:
     value: 4.0
+    unit: "wt%"
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
     confidence: measured
 
@@ -77,6 +80,13 @@ params:
 
   oxidizer_ref_wt_pct:
     value: 4.0
+    unit: "vol%"
+    note: >
+      ⚠ 키 이름은 wt_pct 인데 원문 단위는 **vol%** 다(Wang DOE: H2O2 2/4/6 vol%).
+      H2O2 30% 수용액 기준 vol%↔wt% 는 밀도차로 약 1.1배 어긋나므로 엄밀히 같지 않다.
+      χ 항이 **기준 대비 비(c/c_ref)** 로만 쓰므로 같은 단위끼리 나눠 배수는 불변이고,
+      그래서 값을 환산하지 않고 단위만 정직하게 표기한다. 절대 농도를 쓰는 항이
+      생기면 그때 환산해야 한다 (2026-09-11 차원 검사에서 발견).
     source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (H2O2 2/4/6 vol%)"
     confidence: measured
 
@@ -129,3 +139,25 @@ params:
       세리아 일반값의 전용이며 **이 전용 자체는 미검증**이다(노트 §4 한계 5).
     source: knowledge/materials/slurry-viscosity-rheology-literature-values.md §2 §4-5
     confidence: literature
+
+  abrasive_ref_size_nm:
+    source: "이 팩의 abrasive_size_nm 과 같은 출처 — 기준점은 독립 측정값이 아니라 '어느 조건에서 Kp 를 역산했는가'의 선언이다"
+    value: 120.0
+    unit: nm
+    note: >
+      κ 입경항 기준점 — 이 팩의 abrasive_size_nm(120 nm)과 일치시킨다.
+      키가 없어 실리카 부모의 50 nm 를 상속하고 있었다
+      (2026-09-13 model_hygiene 극한검사가 검출).
+    confidence: literature
+
+  abrasive_wt_pct:
+    value: 4.0
+    unit: "wt%"
+    note: >
+      이 팩의 근거 DOE(Wang et al. ACS SI Table S3) 중심 수준. 이전에는 키가 없어
+      실리카 부모의 20 wt% 를 상속했는데, 그 값은 DOE 범위(2/4/6 wt%) 밖이고
+      이 재료계의 근거가 아니다 — 기준점 4.0 과 5배 어긋나 기준조건에서 κ 농도항이
+      0.52 로 눌려 있었다(2026-09-13 model_hygiene 검출). 근거 있는 쪽(기준점)을
+      두고 근거 없는 쪽(본값)을 DOE 중심으로 맞춘다.
+    source: "Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%)"
+    confidence: measured
