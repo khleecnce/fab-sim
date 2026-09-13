@@ -305,3 +305,20 @@ C2 미충족 4칸(cu_h2o2_bta=알루미나, sic_ceria_h2o2·sti_ceria=세리아,
 EVIDENCE-RULES §3회차 규칙 적용 대상으로 등록한다 — **이 갭은 3회차까지만 보류 가능**하며,
 그때까지 1차 문헌을 못 구하면 (a) CSTIC 2023을 다른 경로로 확보하거나 (b) "S팩터는
 실리카 계에서만 literature, 그 외는 스코프 밖"으로 **스코프 축소 종결**한다.
+
+### 8.1 2회차 탐색 기록 (2026-09-14 [Max워커], 2회차) — 전부 미확보
+
+| # | 질의 | 결과 | 부적격 사유 |
+|---|---|---|---|
+| 1 | `find_open_access.py --title "ceria slurry polishing time material removal rate decay pad glazing"` | 1건: doi:10.1007/s13391-012-2144-5 "Effect of pad surface roughness on material removal rate in CMP using ultrafine colloidal ceria slurry" | 패드 거칠기 축이지 시간축 감쇠가 아니다 |
+| 2 | Crossref `query.bibliographic="ceria slurry polishing time removal rate decrease without conditioning"` (8건) | 전부 농도·pH·계면활성제·패드거칠기 축 | 시간축 무-컨디셔닝 감쇠 데이터 없음 |
+| 3 | Crossref `query.bibliographic="polishing time dependence removal rate alumina slurry CMP pad glazing"` (8건) | 컨디셔너 물성/온도/roll-CMP 축. 그 중 CSTIC 2023 세리아 논문(doi:10.1109/cstic58779.2023.10219240, "Pad Surface Variation and its Effect on SiO2 Removal Rate in Ceria-based CMP Slurry")가 판정#9의 원 최근접 후보로 재등장 | IEEE 유료 + 미러 사이트 4개 미러 전부 실패(se/st 응답 000, ru 302 리다이렉트, ren 200이나 "Verification — Please complete the check" 캡차 페이지) — 1회차와 동일하게 본문 미확보 |
+| 4 | OpenAlex `search="ceria slurry polishing time removal rate decrease pad glazing"&filter=is_oa:true` (10건) | 스크래치·패드debris·컨디셔너 texture 축 | 시간축 감쇠 없음 |
+| 5 | OpenAlex `search="pad wear polish rate decay asperity population balance"` (10건) | 최근접 doi:10.1016/j.mee.2010.04.010 "CMP pad wear and polish-rate decay modeled by asperity population balance with fluid effect"; 나머지 OA 항목은 무관; Jeong 2024(doi:10.3390/ma17081817, 이미 확보한 동일 실리카 계 데이터)가 재등장 | mee.2010.04.010은 OA=false(Elsevier 유료); Jeong 2024는 이미 확보한 동일 실리카 계 데이터라 새 정보 아님 |
+| 6 | OpenAlex `search="copper CMP removal rate polishing time decay alumina slurry"&filter=is_oa:true` (12건) | 트리아졸 부동태화 속도론·tribo-전기화학 등 | 시간축 MRR 감쇠가 아니다 |
+
+**결론(2회차 종결, 미확보)**: 알루미나·세리아 계의 무-컨디셔닝 시간축 MRR 감쇠 실측은 OA 범위에
+존재하지 않는다. 유일한 계 근접 후보(CSTIC 2023, doi:10.1109/cstic58779.2023.10219240)는
+유료+봇차단으로 2회 연속 실패했다. **3회차에도 미확보면 4회차 없이 종결** —
+"S는 실리카 계에서만 literature"로 스코프 축소하고, `_f_stab`의 현행 `estimated` 하한을
+영구 확정한다(코드 docstring에 사유 명시).
