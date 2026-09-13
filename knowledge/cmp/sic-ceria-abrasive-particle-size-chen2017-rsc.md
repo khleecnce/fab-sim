@@ -56,3 +56,40 @@ particles and the substrate surface in chemical-mechanical planarization of Si-f
 `abrasive_size_nm` = **120 nm**, confidence: literature(1차 원문 확인, OA, 실측 CMP
 실험에 실사용된 스펙값). 산화제 불일치는 §3에 명시. D50/dmean 등가성, 폴리타입 교차적용,
 희석에 따른 응집 여부는 모두 **미검증** 가정임을 함께 남긴다.
+
+## §추가 (2026-09-13, 정확도루프 COMPLETION-C4 갭) — SiC ceria+H2O2 held-out 후보 탐색 결과
+
+COMPLETION-C4(sic_ceria_h2o2 유의 held-out 0건) 갭을 풀기 위해 SiC CMP DOE 데이터를
+추가 탐색했다. US9368367B2(Cabot Microelectronics, "CMP of silicon carbide using soft
+particles and/or soft surfaces", FreePatentsOnline 전문 확보, 2026-09-13) Example 1에
+pH 2~9 · KMnO4 0.02~0.4M 조건 6개의 완전한 제거율 표가 있었다(pH2/0.4M→1400 nm/hr,
+pH9/0.4M→360 nm/hr 등).
+
+**검증 시도 결과: 무효 데이터.** 이 실시예의 연마입자는 in-situ 생성 MnO2/MnCl3
+"soft particle"(ceria 아님), 산화제는 KMnO4(H2O2 아님)이다. sim/factors.py `_f_chi`가
+`abrasive=='ceria'`인 팩에서는 pH 항을 `_ph_ceria_window_term`(IEP 기반 창형)으로
+라우팅하는데, sic_ceria_h2o2 팩에 막질(sic_4h)의 `wafer_iep_ph`가 선언되어 있지 않아
+이 항이 통째로 스킵된다(sim/chemistry.py, wafer_iep_ph 부재 시 조용히 건너뜀 — 로그
+경고만 남김). oxidizer 항도 `oxidizer_peak_wt_pct`가 팩에 없어 발동하지 않는다.
+결과적으로 pH·산화제 조성을 6개 조건에 걸쳐 오버라이드해도 χ=1.0으로 **전혀 변하지
+않아** 예측 MRR이 전 조건 동일(분산 0, Spearman 판정불가)이었다.
+
+이는 entegris2022(alumina, kappa 기계항만 테스트 가능)와 동일한 "형식적으로는
+in_scope=true이나 화학종 불일치로 실효성 없음" 패턴이다. 차이는 entegris는 kappa가
+화학종 무관 범용 항이라 살아남았지만, 이번 건은 살아남는 범용 항이 없었다(chi의
+oxidizer 항은 화학종 무관이지만 팩에 oxidizer_peak_wt_pct 자체가 없어 죽어있다).
+
+**결론(EVIDENCE-RULES 판정): 데이터셋 등록 보류.** validation/datasets/에 넣지 않았다
+(넣어도 backtest.py가 "입력이 안 들어감" 경고와 함께 집계에서 사실상 무의미해진다).
+근본 원인은 데이터 문제가 아니라 팩 갭 2건이다:
+  1. sic_ceria_h2o2에 wafer_iep_ph(4H-SiC 등전점) 미선언 → pH 창 항 항상 스킵
+  2. sic_ceria_h2o2에 oxidizer_peak_wt_pct 미선언 → 산화제 농도 항 항상 스킵
+두 갭 모두 이번 회차에서 문헌값을 못 찾아 메우지 않았다(4H-SiC IEP·H2O2/SiC 산화제
+포화농도 모두 미검증 상태로 남김 — 지어내지 않음). 다음 SiC 갭 회차의 우선 과제로
+남긴다.
+
+**진짜 held-out 후보가 되려면**: ceria 연마입자 + H2O2(또는 팩에 이미 있는 산화제 항이
+반응하는 화학종) 조합의 SiC CMP DOE(n≥4, 조성 1축 이상 변화)가 필요하다. 현재 확보한
+sic2026(Wang, calibration에 소모), entegris2022(alumina, kappa만), 이번 건(KMnO4,
+무효) 외에 세 번째 독립 후보를 못 찾았다 — 미러 사이트·특허 검색 모두 ceria+H2O2 조합의
+정량 표를 추가로 내지 못함. "1차 미확보"로 기록.
