@@ -80,8 +80,23 @@ params:
     note: >
       BTA 흡착 자유에너지. K=2.9e4 L/mol로 환산되며 노트 verify 블록 PASS.
       물리흡착(-20~-40 kJ/mol) 영역 — 세리아 화학흡착(-111~-258)과 대비된다.
-    source: knowledge/cmp/slurry-components-overview.md
-    confidence: verified
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#17] verified→estimated 하향.
+      사유: 이 값은 **평형(equilibrium)** 흡착 자유에너지인데, `_inhibitor_term`은
+      이를 그대로 K_eq로 변환해 CMP **정상상태** θ에 대입한다. Len, McNeill & Gamble
+      2000(MRS Proc. 613, E7.4.1, DOI:10.1557/proc-613-e7.4.1, 원문 PDF 확보)의 BTA
+      0.1/0.25 wt.% 제거율 실측(65/42 nm/min, 비=0.6462)으로 이 경로를 시험하면,
+      현 K_eq=28676 L/mol에서는 두 농도 모두 θ가 이미 0.996/0.998로 포화해 모델
+      예측비가 0.9926(사실상 무변화)로 나와 34.6pp 어긋난다 — 정량 반증.
+      물리적 원인: 패드·연마입자가 Cu-BTA 막을 형성 속도와 경쟁하며 기계적으로
+      벗겨내므로(원문: "abrasives... try to mechanically abrade away this monolayer
+      as soon as it forms") 유효 K_eff는 K_eq보다 작아야 한다(역산 시 K_eff~183~250
+      L/mol, K_eq/K_eff~115~157). 단 이 값(-35.4)이 **평형값으로서 틀렸다는 뜻은
+      아니다** — "이 값을 이 경로(정상상태 θ)에 직접 쓰는 것"이 반증됐을 뿐이다.
+      계가 다른(알칼리+알루미나) [A]의 K_eff는 산성 H₂O₂+BTA 팩에 이식하지 않는다
+      (E3, 계 불일치). 산성계 K_eff 직접 실측은 미확보 — 다음 과제.
+      상세: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md
+    source: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md
+    confidence: estimated
   inhibitor_ref_mM:
     value: 1.0
     unit: mM
@@ -98,7 +113,17 @@ params:
       (1-θ)를 쓰면 θ가 0.97에서 포화돼 2mM과 5mM이 구분되지 않는다(실제 발생).
       실제 억제는 피복률뿐 아니라 막 치밀도·재생속도에도 달려 고농도에서도 계속 세진다.
       **문헌 폐형식 없음 — 캘리브레이션 1순위.** 순위는 보존되나 절대값은 신뢰 불가.
-    source: knowledge/cmp/slurry-components-overview.md
+      [2026-09-14, EVIDENCE-RULES 판정#17] Len/McNeill/Gamble 2000(MRS Proc. 613,
+      E7.4.1) 실측으로 이 팩의 억제항 전체(K·k)를 시험한 결과, 약한 고리는 **k가
+      아니라 K**로 판명됐다 — k=3.0을 고정한 채 K만 183 L/mol로 낮춰도 0.1 wt%
+      점을 정확히, 0.25 wt% 점을 −11.9% 오차로 재현한다(2점 동시 피팅해도
+      k=2.684로 3.0에서 크게 벗어나지 않음). 그러므로 이번 판정에서 k=3.0 값은
+      **건드리지 않는다** — 손댈 근거가 없다. 다만 두 역산해 모두 0.5/0.75 wt%
+      플래토(관측 ~42 nm/min 고정)를 재현하지 못한다(계속 감소를 예측) — Langmuir+
+      exp(-k*theta) 함수형 자체에 기계적 하한(mechanical floor)이 없다는 구조적
+      한계로 기록한다(코드 미변경).
+      상세: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md
+    source: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md
     confidence: unverified
   abrasive_size_nm:
     value: 100.0

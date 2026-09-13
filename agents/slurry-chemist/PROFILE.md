@@ -38,3 +38,10 @@
   (`sim/tier2_physics/ceria_redox_selectivity.py`, 노트 §7 A~E 5개 값 그대로 재현).
   **잔여 요청**: 아미노산 선택비 정량모델(35–70, 조건의존 캘리브레이션 대상), Ce³⁺ vs Ce⁴⁺ 최적방향
   (상충 보고 존재, 미검증)은 여전히 미구현 — 노트로 명확히 정리되면 소프트웨어 부문이 재개한다.
+- **BTA 억제항 K_eff 파라미터 분리** (근거: EVIDENCE-RULES 판정#17,
+  knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md): 산성 H₂O₂+BTA 계에서
+  BTA 농도-제거율 직접 스윕 실측이 확보되면, `sim/chemistry.py::_inhibitor_term`에 `inhibitor_K_eff_L_per_mol`
+  같은 파라미터를 신설해 `inhibitor_dG_ads_kJ`(평형 K_eq) 경로와 분리할 것 — 지금은 평형 ΔG를
+  정상상태 θ에 그대로 대입하는 경로만 있어 Len/McNeill/Gamble 2000(MRS Proc. 613) 실측으로
+  정량 반증됐다(34.6pp 어긋남). 함께: Langmuir+exp(-k·θ) 함수형이 고농도 플래토(관측 실측 존재,
+  §6)를 구조적으로 재현 못 하므로 **기계적 하한(mechanical floor) 항** 도입도 검토할 것.

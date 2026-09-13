@@ -197,9 +197,18 @@ params:
     note: >
       1.5 wt% 피콜린산(포화 농도, 밀도 1 g/mL 근사)에 해당하는 몰농도. 원문 Lee & Seo(2022)
       3.3절에서 정지식각 90->11 A/min(8.2배 감소), CMP 제거율 120->85 A/min(1.41배 감소)의
-      실측 포인트. wt%->mol/L 환산은 밀도 근사라 미검증.
+      실측 포인트.
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#17] estimated→literature 승격.
+      사유: 피콜린산(picolinic acid, PubChem CID 1018) MW=123.11 g/mol로 1.5 wt%를
+      환산하면 ρ=1.000 g/mL 기준 121.84 mM — 팩 값 121.8과 −0.03% 차이로 사실상 일치.
+      희박수용액 영역이라 밀도를 0.995~1.010으로 흔들어도 몰농도는 121.23~123.06 mM
+      (기준 대비 −0.5%~+1.0%)로만 움직여 ψ 계산에서 무시 가능. ⚠ `inhibitor_ref_mM`과
+      값이 같아 이 팩의 ψ 배수는 현재 항상 1.0이다 — 이번 환산 정확도 확인은 **다른
+      농도를 시뮬레이션할 때만** 실질적 의미를 갖는다. `inhibitor_ref_mM`은 기준점
+      선택 문제(환산 문제 아님)라 confidence를 건드리지 않는다.
+      상세: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md §8
     source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
-    confidence: estimated
+    confidence: literature
   inhibitor_K_L_per_mol:
     value: 1108.0
     unit: L/mol

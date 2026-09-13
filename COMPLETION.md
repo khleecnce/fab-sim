@@ -261,3 +261,19 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   적용하면 300nm로 현 baseline 700nm과 2.33배 불일치. **칸 수는 안 늘었지만 오염이 제거됐다**
   — 근거 서열에 따라 하향을 감수한 결과다. 노트: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md
   §9, 커밋 43f7c5a. pytest 645 passed, qa_loop --strict PASS ρ=0.9537 불변.
+- 2026-09-14 [Max워커] ψ BTA 억제항 K_eq 경로 **정량 반증**(EVIDENCE-RULES 판정#17). Len, McNeill &
+  Gamble 2000(MRS Proc. 613, E7.4.1, DOI:10.1557/proc-613-e7.4.1, 원문 PDF 확보) 알칼리+알루미나
+  계 Cu+BTA 실측(0.1/0.25wt%→65/42 nm/min)으로 시험한 결과, 현행 `inhibitor_dG_ads_kJ=-35.4`→
+  K_eq=28676 L/mol 경로는 0.1→0.25wt% 예측비 0.9926(무변화)인데 실측비는 0.6462 — 34.6pp 어긋남.
+  원인: 평형 흡착 ΔG를 CMP 정상상태 θ에 그대로 대입해 K가 과대(θ 포화). 역산 K_eff≈183~250 L/mol
+  (k=3.0 고정 단일점/2점 동시피팅 두 경로 모두 재현), 약한 고리는 k가 아니라 K로 판명 —
+  `inhibitor_strength_k=3.0` 값은 불변. 단 [A]가 알칼리계(E3, 계 불일치)라 K_eff 값은 산성
+  H2O2+BTA 팩에 이식하지 않음 — `inhibitor_dG_ads_kJ` confidence만 verified→estimated 강등.
+  두 역산해 모두 0.5/0.75wt% 관측 플래토(~42 nm/min 고정)를 재현 못 함(Langmuir+exp(-kθ)에
+  기계적 하한 항 부재) — 모델 한계로 기록, 코드 미변경. 별건: w_fe_oxidizer `inhibitor_mM=121.8`은
+  피콜린산 MW(PubChem CID 1018, 123.11 g/mol) 환산이 121.84mM(−0.03% 오차)로 재현돼
+  estimated→literature 승격(단 inhibitor_ref_mM과 같은 값이라 현재 ψ 배수는 항상 1.0 — 승격은
+  다른 농도 시뮬레이션 시에만 의미). 격자 27/50 **불변**(칸 수는 목표가 아니었다 — dG 강등은
+  하락 요인이나 psi 셀 confidence는 애초에 inhibitor_strength_k가 병목이라 무변화).
+  노트: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md. verify_claims
+  1/1 통과, check_knowledge 1/1 통과, pytest 645 passed, qa_loop --strict PASS ρ=0.9537 불변.
