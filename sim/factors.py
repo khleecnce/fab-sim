@@ -1337,9 +1337,10 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     d99_ref = float(pk.get_or("abrasive_ref_d99_nm", d99))
     if d99_ref <= 0:
         return f
-    # 스크래치 깊이 ∝ 입자 크기, 발생률은 그보다 가파르다고 알려져 있으나
-    # 지수는 문헌 폐형식이 없다 — 팩에서 받는다.
-    n = float(pk.get_or("damage_exponent", 3.0))
+    # 스크래치 깊이 ∝ 입자 크기, 발생률은 그보다 가파르다. 지수는 knowledge/params/base.yaml
+    # 의 damage_exponent(1.44, US8439995B2 회귀)가 기본값이고 화학종별 팩이 덮어쓴다 —
+    # 코드에 리터럴로 박지 않는다(EVIDENCE-RULES 판정#12).
+    n = float(pk.get("damage_exponent"))
     d99_term = (d99 / d99_ref) ** n
     terms = {"d99": d99_term}
     # aggregate_ratio 항 — 팩에 실제로 선언됐을 때만 term으로 카운트한다(τ와 동일 규칙).
@@ -1359,19 +1360,26 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     # "제한된 범위 안에서 완전 모델링"이다(τ와 동일 논리) — abrasive_size_nm을 스코프에서
     # 뺀 것이지, 실제 입력을 놓친 게 아니다.
     f.status = "modeled" if len(terms) == len(f.drivers) else "partial"
-    f.confidence = "unverified"
+    # ⚠ Δ의 confidence는 τ와 동일 원리: 드라이버(D99)와 **지수 근거** 중 나쁜 쪽을 쓴다.
+    # 지수는 이제 코드 상수가 아니라 damage_exponent 파라미터 자체가 confidence를 달고
+    # 다닌다(base.yaml literature, 팩별로 literature/estimated로 재선언) — τ처럼 별도
+    # "_exponent_confidence" 키를 만들 필요가 없다.
+    _driver_conf = _pack_conf(pk, "abrasive_d99_nm", "abrasive_ref_d99_nm")
+    _exp_conf = pk.param("damage_exponent").confidence
+    f.confidence = _worst_conf(_driver_conf, _exp_conf)
     f.sources = ["knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
                  "knowledge/cmp/lpc-scratch-density-tail-correlation.md",
                  "knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md"]
-    f.notes.append(f"⚠ 손상 지수 n={n:g}는 문헌 폐형식이 없어 팩에서 받는 가정값이다. "
-                   "순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. "
-                   "⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) "
-                   "회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/"
+    f.notes.append(f"손상 지수 n={n:g}(등급={_exp_conf}) — 2026-09-14 판정(EVIDENCE-RULES #12): "
+                   "이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. "
+                   "US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 "
+                   "n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/"
                    "abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: "
                    "lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 "
-                   "선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 "
-                   "1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 "
-                   "PROFILE.md에 기록).")
+                   "선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. "
+                   "순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, "
+                   "표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 "
+                   "literature — verified로는 올리지 않는다.")
     if agg_ratio != 0.0:
         f.notes.append(f"⚠ aggregate_ratio={agg_ratio:g} 항 발동(×{agg_term:.3f}) — "
                        "Basim&Moudgil 2002 NaCl 0.2M 단일 데이터점(n=1) 기반, 화학종/조건 "

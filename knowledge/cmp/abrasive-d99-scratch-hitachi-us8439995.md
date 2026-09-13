@@ -139,7 +139,87 @@ assert r2 > 0.9, f"거듭제곱 근사의 적합도가 낮다(R^2={r2:.3f}) — 
 알루미나계 D99-스크래치 대응쌍(cu_h2o2_bta/w_fe_oxidizer 팩 화학종과 직접 관련) 탐색이
 여전히 최우선 미해결 과제 — 이번 회차도 세리아·실리카계만 확보됐다.
 
-## 7. 출처 링크 (품질게이트 URL/DOI 요구 보강)
+## 7. 판정 및 코드 반영(2026-09-14)
+
+EVIDENCE-RULES.md 서열로 세 후보를 다시 판정했다:
+- **A**: `damage_exponent=3.0` — 코드 리터럴 기본값, 출처 없는 가정값. **E6(추정) = 채택 금지 등급.**
+- **B**: `n≈1.444`(본 노트 §3, US8439995B2 세리아 D99-스크래치 4점 실측 회귀, R²=0.997).
+  대상계 실측이나 표본이 작다(4점 중 실질 독립 3점) — **E3**.
+- **C**: [[lpc-scratch-density-tail-correlation]] §2.2(Remsen 2006, 퓸드실리카 LPC-스크래치
+  선형상관, r²=0.987~0.991) — 같은 방향(n=3.0보다 훨씬 완만)을 지지하는 교차확증.
+  단 §3에서 이미 밝혔듯 **물리량이 다르다**(C는 LPC 개수축의 선형관계, B는 D99 대표직경축의
+  거듭제곱 지수) — C를 B와 같은 "지수"로 합산하지 않는다. C는 방향 교차확증(대입자 tail이
+  손상을 지배하고 n=3.0급 급경사는 아니다)으로만 쓰고, 수치(n=1.444)는 B 단독에서만 가져온다.
+
+**판정: A 기각(E6, 채택 금지), B 채택(E3, 실측 회귀), C는 방향 교차확증으로 채택을 보강.**
+A와 B/C 사이에 서열 차이가 있어 §절차 1단계(등급이 다르면 높은 쪽)에서 종결 — 충돌을 깨는
+추가 단계가 필요 없다. B의 표본 한계(세리아 1개 화학종, 실질 독립 3점) 때문에 confidence
+상한은 **literature**로 둔다(`verified`는 우리가 재현한 것이 문헌 자체 수치의 자기 일관성
+확인일 뿐, 독립 실험 재현이 아니므로 해당 없음).
+
+**정량 대조** — D99가 기준점의 2배로 커지는 what-if(예: oxide_silica 기준 250→500 nm)에서:
+- n=3.0(구 기본값): Δ 배수 = 2.0^3.0 = **8.0배**
+- n=1.444(신 채택값): Δ 배수 = 2.0^1.444 ≈ **2.72배**
+- 구 기본값은 신 채택값 대비 **2.94배 더 가파르게** 예측했다 — 즉 손상도를 약 **66% 과대추정**하고
+  있었다(같은 D99 변화에서 (8.0−2.72)/8.0 ≈ 66%).
+
+```python verify
+import numpy as np
+
+# US 8,439,995 B2 Example 1/2, Comparative Example 1/2 실측값 (§3과 동일 원 데이터)
+d99_nm = np.array([500.0, 700.0, 2500.0, 2500.0])   # Ex.2, Ex.1, Comp.1, Comp.2
+scratch = np.array([10.0, 20.0, 100.0, 100.0])
+
+ref_idx = np.argmin(d99_nm)
+d99_ref = d99_nm[ref_idx]
+scratch_ref = scratch[ref_idx]
+ln_d = np.log(d99_nm / d99_ref)
+ln_s = np.log(scratch / scratch_ref)
+mask = d99_nm != d99_ref
+n_fit = float(np.sum(ln_d[mask] * ln_s[mask]) / np.sum(ln_d[mask] * ln_d[mask]))
+
+pred = scratch_ref * (d99_nm / d99_ref) ** n_fit
+ss_res = float(np.sum((scratch - pred) ** 2))
+ss_tot = float(np.sum((scratch - np.mean(scratch)) ** 2))
+r2 = 1.0 - ss_res / ss_tot
+
+print(f"재산출: n = {n_fit:.4f}, R^2 = {r2:.4f}")
+assert abs(n_fit - 1.444) < 0.01, f"재산출 n({n_fit:.4f})이 채택값 1.444와 어긋난다"
+assert r2 > 0.99, f"R^2({r2:.4f})가 노트에 기록한 0.997과 크게 어긋난다"
+
+# 정량 대조: D99가 기준점의 2배로 커질 때 구 기본값(n=3.0) vs 신 채택값(n=1.444)
+ratio = 2.0
+old_mult = ratio ** 3.0
+new_mult = ratio ** n_fit
+overestimate_pct = (old_mult - new_mult) / old_mult * 100
+print(f"D99 x2 what-if: n=3.0 -> {old_mult:.3f}배, n={n_fit:.3f} -> {new_mult:.3f}배, "
+      f"과대추정 {overestimate_pct:.1f}%")
+assert old_mult > new_mult, "구 기본값(n=3.0)이 신 채택값보다 배수가 커야 한다(과대추정 방향)"
+assert 60.0 < overestimate_pct < 70.0, f"과대추정폭이 예상 범위(60~70%) 밖이다: {overestimate_pct:.1f}%"
+```
+
+### 8.1 코드 반영
+- `knowledge/params/base.yaml`에 `damage_exponent`(value=1.44, unit="-",
+  source=본 노트 §3, confidence=literature) 기본값 신설 — 이전에는 `sim/factors.py`
+  코드 리터럴(`pk.get_or("damage_exponent", 3.0)`)이었다. `_f_delta`는 이제
+  `pk.get("damage_exponent")`로 읽는다(값이 없으면 조용히 3.0을 지어내지 않고
+  `ParamMissing`으로 멈춘다).
+- `cu_h2o2_bta` / `oxide_silica` / `sti_ceria` / `w_fe_oxidizer` 4팩은 이미 화학종별
+  값(1.44 또는 Egan&Kim 2019 기하평균 2.54)으로 이 기본값을 덮어쓰고 있었다(2026-09-13
+  선행 회차, [[delta-scratch-damage-d99-oversize-particle-model]] §4.3) — 이번 판정은
+  그 값들을 바꾸지 않는다. 바뀐 것은 **base 기본값**(코드 리터럴 3.0 → YAML literature
+  1.44)과 **confidence 산출 방식**(하드코딩된 `unverified` → 드라이버/지수 등급 중 나쁜
+  쪽, `_worst_conf`)뿐이다.
+- `sic_ceria_h2o2`는 `base: sti_ceria` 상속으로 damage_exponent=1.44(literature)를
+  간접 승계한다 — 별도 선언 불필요.
+
+### 8.2 한계 (여전히 유효)
+- 표본 크기: 세리아 1개 화학종, 실질 독립 3점(Comp.1=Comp.2 동일값) — §3.2와 동일.
+- 다른 팩(실리카·알루미나)으로의 n=1.44 외삽은 미검증 — cu_h2o2_bta/w_fe_oxidizer는
+  이미 자기 화학종 값(2.54, Egan&Kim 2019)으로 덮어써 이 한계 밖에 있다.
+- C(Remsen 2006)는 물리량이 다른 교차확증이지 수치 출처가 아니다 — n=1.444는 B 단독 값.
+
+## 8. 출처 링크 (품질게이트 URL/DOI 요구 보강)
 - 원문 특허 페이지: https://patents.google.com/patent/US8439995B2/en
 - PDF 원문: https://patentimages.storage.googleapis.com/53/4b/0a/39916f60c1d021/US8439995.pdf
   (로컬 저장: papers/US8439995-hitachi-ceria-d99-scratch.pdf)

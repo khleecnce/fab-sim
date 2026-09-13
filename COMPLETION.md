@@ -216,3 +216,11 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   Fu 2005 doi:10.1143/jjap.44.7843 'optimum' 정점형)이 전부 부호·기전 불일치라 채택 불가.
   **sim/factors.py 무수정(0.07 유지), τ 5칸은 unverified 그대로.** 억지 승격 대신 정직한 미확보로 남긴다.
   pytest 645 passed, completion 23/50 불변, qa_loop --strict PASS ρ=0.9537 불변.
+- 2026-09-14 [Max워커] Δ damage_exponent 판정 종결(EVIDENCE-RULES #12): 코드 리터럴 n=3.0(출처 없는
+  가정값=E6 채택금지) → US8439995B2 세리아 D99-스크래치 4점 실측 로그-로그 회귀 **n=1.44(R²=0.997, E3)**.
+  Remsen 2006(퓸드실리카 선형)이 같은 방향 교차확증. 지수를 knowledge/params/base.yaml로 이관(literature)하고
+  _f_delta의 `f.confidence="unverified"` 하드코딩을 _worst_conf(D99 드라이버, 지수 등급)로 교체.
+  **격자 23/50 → 25/50** (Δ 5칸 중 oxide_silica·w_fe_oxidizer 2칸 상승). 남은 3칸 사유: cu_h2o2_bta는
+  팩 damage_exponent가 Egan&Kim 2019(텅스텐→구리 화학종 전이)라 estimated, sti_ceria는 abrasive_d99_nm
+  기준점이 Hitachi 특허값 이식이라 estimated(sic_ceria_h2o2는 상속) — 억지 승격 대신 실제 근거 등급을 정직 반영.
+  pytest 645 passed(테스트 수정 0), qa_loop --strict PASS ρ=0.9537 불변(Δ는 MRR 비결합, 예상대로).

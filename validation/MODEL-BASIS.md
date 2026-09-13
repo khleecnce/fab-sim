@@ -1,8 +1,8 @@
 # FabSim 모델 근거 보고서 (MODEL-BASIS)
 
-생성: 2026-09-13 20:25 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
+생성: 2026-09-14 00:59 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
 
-완성 판정: **미완** (12/50칸). 미충족 38건은 끝에.
+완성 판정: **미완** (25/50칸). 미충족 25건은 끝에.
 
 ## 0. 결합식
 
@@ -114,11 +114,11 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | estimated | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
-| oxide_silica | modeled | estimated | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
-| sic_ceria_h2o2 | modeled | estimated | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
-| sti_ceria | modeled | estimated | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
-| w_fe_oxidizer | modeled | estimated | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
+| cu_h2o2_bta | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
+| oxide_silica | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
+| sic_ceria_h2o2 | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
+| sti_ceria | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
+| w_fe_oxidizer | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
 
 엔진이 스스로 보고하는 한계:
 
@@ -211,11 +211,11 @@ conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | partial | estimated | size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
-| oxide_silica | modeled | estimated | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
-| sic_ceria_h2o2 | modeled | estimated | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
-| sti_ceria | modeled | estimated | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
-| w_fe_oxidizer | modeled | estimated | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
+| cu_h2o2_bta | partial | literature | size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
+| oxide_silica | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
+| sic_ceria_h2o2 | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
+| sti_ceria | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
+| w_fe_oxidizer | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
 
 엔진이 스스로 보고하는 한계:
 
@@ -248,10 +248,10 @@ conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | partial | estimated | oxidizer×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
-| oxide_silica | partial | estimated | ph_peak×1.000 | slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
-| sic_ceria_h2o2 | modeled | estimated | ceria_tooth×1.000, ph_ceria_window×0.488 | slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
-| sti_ceria | modeled | estimated | ceria_tooth×1.000, ph_ceria_window×1.000 | slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| cu_h2o2_bta | partial | unverified | oxidizer×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| oxide_silica | partial | literature | ph_peak×1.000 | slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| sic_ceria_h2o2 | modeled | unverified | ceria_tooth×1.000, ph_ceria_window×1.000 | slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| sti_ceria | modeled | unverified | ceria_tooth×1.000, ph_ceria_window×1.000 | slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 | w_fe_oxidizer | partial | estimated | oxidizer×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 
 엔진이 스스로 보고하는 한계:
@@ -262,7 +262,7 @@ conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
 - ⚠ 화학 항들을 독립으로 보고 곱했다 — pH-흡착, 산화제-세리아 산화환원 커플링은 미모델링.
 - 산화제 기계 하한 φ=0.15 (기본값) — 이 팩에 관측이 없어 금속막 CMP 의 관측 대역(0.12~0.27, 4계 독립 수렴) 중앙값을 쓴다. φ 는 재료보다 기계 조건(연마재 경도·압력·속도)이 정하는 양이다. ⚠ 이 계의 직접 관측이 아니므로 절대값은 신뢰하지 말 것.
 - 세리아 chemical tooth: Ce³⁺ 분율 0.150 (기준 0.150). 화학 경로 82% + 기계 경로 18% 로 분해 — 활성점이 0 이어도 입자는 단단한 산화물이라 기계적 제거가 남는다. ⚠ Ce³⁺–MRR 함수형은 문헌에 폐형식이 없어 활성점 수에 선형으로 가정했고, 분해 비율은 Netzband & Dunn 2020 의 5.5배 관측에서 역산했다 — 미검증.
-- 세리아 정전 창: pH 10 (창 4.9~6.8, 기준 5.5) → 상대 0.488. 창 안에서 세리아(+)·실리카(−) 인력, 밖에서 반발. ⚠ 창 위치는 IEP 물리, 기울기·잔류율은 Dandu 2009 실측 역산 — 미검증.
+- 세리아 정전 창: pH 10 (창 4.9~6.8, 기준 10) → 상대 1.000. 창 안에서 세리아(+)·실리카(−) 인력, 밖에서 반발. ⚠ 창 위치는 IEP 물리, 기울기·잔류율은 Dandu 2009 실측 역산 — 미검증.
 - 세리아 정전 창: pH 5.5 (창 2.5~6.8, 기준 5.5) → 상대 1.000. 창 안에서 세리아(+)·실리카(−) 인력, 밖에서 반발. ⚠ 창 위치는 IEP 물리, 기울기·잔류율은 Dandu 2009 실측 역산 — 미검증.
 
 근거 노트(verify 블록 보유): `knowledge/cmp/ceria-slurry-ce-redox-selectivity.md`, `knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md`
@@ -394,16 +394,17 @@ doi:10.1006/jcis.2002.8352) — NaCl 0.2M(이 계의 CCC=0.25M 미달, 벌크 �
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | unverified | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| oxide_silica | modeled | unverified | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| sic_ceria_h2o2 | modeled | unverified | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| sti_ceria | modeled | unverified | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| w_fe_oxidizer | modeled | unverified | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| cu_h2o2_bta | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| oxide_silica | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| sic_ceria_h2o2 | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| sti_ceria | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| w_fe_oxidizer | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
 
 엔진이 스스로 보고하는 한계:
 
-- ⚠ 손상 지수 n=1.44는 문헌 폐형식이 없어 팩에서 받는 가정값이다. 순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. ⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 PROFILE.md에 기록).
-- ⚠ 손상 지수 n=2.54는 문헌 폐형식이 없어 팩에서 받는 가정값이다. 순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. ⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 회귀값 n≈1.44(R²=0.997)보다 약 2배 가파르다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 PROFILE.md에 기록).
+- 손상 지수 n=1.44(등급=literature) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
+- 손상 지수 n=2.54(등급=estimated) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
+- 손상 지수 n=2.54(등급=literature) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
 
 근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md`, `knowledge/cmp/lpc-scratch-density-tail-correlation.md`, `knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md`
 
@@ -544,6 +545,10 @@ Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-
 | abrasive_wt_pct | 4.0 | wt% | measured | Wang et al. ACS SI Table S3 — DOE 중심 수준 (CeO2 2/4/6 wt%) | 이 팩의 근거 DOE(Wang et al. ACS SI Table S3) 중심 수준. 이전에는 키가 없어 실리카 부모의 20 wt% 를 상속했는데, 그 값은 DOE 범위(2/4/6 wt%) 밖이고 이 재료계의 근거가 아니다 — 기준점 4.0 과 5배 어긋나 기준조건에서 κ 농도항이 0. |
 | wafer_iep_ph | 4.9 | pH | literature | knowledge/cmp/sic-isoelectric-point-singh2006-jnr.md | SiC 표면 등전점(1차 문헌 실측, 분산제 무첨가 조건, PCD·입도·점도 3중 정합). base(sti_ceria)에서 상속되던 실리카 산화막 IEP(2.5)는 SiC 표면이 아니라 다른 막질(oxide_silica) 것이므로 이 팩 전용값을 명시적으로 선언한다(sim/factors |
 | film_bulk_hardness_pa | 26000000000.0 | Pa | literature | Nanoindentation of 4H-SiC single crystal — 보고 범위 24~28 GPa | 4H-SiC 단결정의 나노압입 경도. 이 저장소에서 가장 단단한 막질이고, 그래서 같은 압력에서도 탄성 쪽에 깊이 머문다. ⚠ 이것은 **벌크** 경도이지 CMP 가 실제로 깎는 화학 변질층의 경도가 아니다. 변질층 경도의 절대값은 공개 문헌에 없다(_knowledge_audit/mec |
+| abrasive_size_peak_nm | 163.0 | nm | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 세리아 입경-MRR 정점. 근거·한계·등급은 sti_ceria.yaml 의 동일 키와 같다 (Oh et al. 2010 MEE DOI 10.1016/j.mee.2010.07.040, 62/116/163/232 nm 중 163 nm 최대 — 1차 전문 미확보, Wang et al. 202 |
+| abrasive_size_exp_below_peak | 1.3333333333 | dimensionless | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 압입 지배 d^(4/3). Bellahsene et al. 2025 (DOI 10.3390/nano15171366, MDPI OA, 전문 확보) §2.1 Eq.(1) 메커니즘 폐형식. 상속을 끊고 명시 재선언 (값은 부모와 동일하나 판단 주체를 이 팩으로 옮긴다). ⚠ 세리아·SiC 계 |
+| abrasive_size_exp_above_peak | -0.3333333333 | dimensionless | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 표면적 지배 d^(-1/3). 근거·한계는 abrasive_size_exp_below_peak 와 동일. ⚠ 이 팩의 본값 120 nm 는 정점 163 nm 아래이므로 이 지수는 현재 기준조건에서 발동하지 않는다(120 nm < 163 nm → below 가지). 입경 슬라이더를 163 |
+| ph_ref | 10.0 | pH | literature | 이 팩의 slurry_ph 와 같은 출처 — 기준점은 독립 측정값이 아니라 "어느 조건에서 Kp 를 역산했는 |  |
 
 ### 팩 `sti_ceria`
 
@@ -566,6 +571,9 @@ Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-
 | dispersant_type | NONE | - | estimated | knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr- | oxide_silica 팩에서 상속된 경로이다. Li et al. 2021은 실리카 슬러리 실통이라 세리아(STI/SiC) 화학계로의 전이는 교차계 외삽이다(EVIDENCE-RULES E4) — 세리아 슬러리는 실제로 EAA 공중합제 분산제를 사용한다는 정직 기록이 slurry-comp |
 | slurry_viscosity_pa_s | 0.0014 | Pa·s | literature | knowledge/materials/slurry-viscosity-rheology-literature-val | 세리아 CMP 슬러리 **실제** 점도. Kim et al. 2024 (Polymers 16(24) 3593, DOI 10.3390/polym16243593) §3.3 Fig.17d: 상용 세리아 슬러리 초기 실제 **1.41 cP** (25°C, Brookfield cone/plate |
 | abrasive_ref_size_nm | 60.0 | nm | literature | 이 팩의 abrasive_size_nm 과 같은 출처 — 기준점은 독립 측정값이 아니라 '어느 조건에서 Kp | κ 입경항 기준점 — 이 팩의 abrasive_size_nm(60 nm)과 일치시킨다. 키가 없어 실리카 부모의 50 nm 를 상속해 기준조건 κ=1.275 였다 (2026-09-13 model_hygiene 극한검사가 검출). 값이 아니라 기준점만 옮기므로 예측 형상은 불변이고 배수만 |
+| abrasive_size_peak_nm | 163.0 | nm | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 세리아 산화막 CMP 입경-MRR 정점. Oh, Singh, Gupta, Cho 2010 (Microelectronic Engineering, DOI 10.1016/j.mee.2010.07.040) — 수열합성 단결정 세리아 62/116/163/232 nm 4점 1축 스윕에서 163 n |
+| abrasive_size_exp_below_peak | 1.3333333333 | dimensionless | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 정점 이하 구간 지수 = 압입 지배 d^(4/3). 값 자체는 부모(oxide_silica)와 같지만 **상속이 아니라 이 계에 대한 판단으로 재선언**한다 — 재료 특이 키를 상속시키면 부모가 바뀔 때 세리아 팩이 조용히 끌려간다(같은 결함이 wafer_iep_ph 에서도 발생했다). |
+| abrasive_size_exp_above_peak | -0.3333333333 | dimensionless | literature | knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.m | 정점 이상 구간 지수. 근거·한계는 abrasive_size_exp_below_peak 와 동일 (Bellahsene 2025 §2.1 표면적 지배 가지). 세리아 재추정 없음 — 미검증. |
 
 ### 팩 `w_fe_oxidizer`
 
@@ -609,25 +617,14 @@ Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-
 
 ## 미충족 항목
 
-- C2 Θ theta/cu_h2o2_bta: confidence=estimated
-- C2 Θ theta/oxide_silica: confidence=estimated
-- C2 Θ theta/sic_ceria_h2o2: confidence=estimated
-- C2 Θ theta/sti_ceria: confidence=estimated
-- C2 Θ theta/w_fe_oxidizer: confidence=estimated
 - C2 Γ gamma/cu_h2o2_bta: confidence=estimated
 - C2 Γ gamma/oxide_silica: confidence=estimated
 - C2 Γ gamma/sic_ceria_h2o2: confidence=estimated
 - C2 Γ gamma/sti_ceria: confidence=estimated
 - C2 Γ gamma/w_fe_oxidizer: confidence=estimated
-- C2 κ kappa/cu_h2o2_bta: confidence=estimated
-- C2 κ kappa/oxide_silica: confidence=estimated
-- C2 κ kappa/sic_ceria_h2o2: confidence=estimated
-- C2 κ kappa/sti_ceria: confidence=estimated
-- C2 κ kappa/w_fe_oxidizer: confidence=estimated
-- C2 χ chi/cu_h2o2_bta: confidence=estimated
-- C2 χ chi/oxide_silica: confidence=estimated
-- C2 χ chi/sic_ceria_h2o2: confidence=estimated
-- C2 χ chi/sti_ceria: confidence=estimated
+- C2 χ chi/cu_h2o2_bta: confidence=unverified
+- C2 χ chi/sic_ceria_h2o2: confidence=unverified
+- C2 χ chi/sti_ceria: confidence=unverified
 - C2 χ chi/w_fe_oxidizer: confidence=estimated
 - C2 ψ psi/cu_h2o2_bta: confidence=unverified
 - C2 ψ psi/sic_ceria_h2o2: confidence=estimated
@@ -638,11 +635,9 @@ Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-
 - C2 τ tau/sic_ceria_h2o2: confidence=unverified
 - C2 τ tau/sti_ceria: confidence=unverified
 - C2 τ tau/w_fe_oxidizer: confidence=unverified
-- C2 Δ delta/cu_h2o2_bta: confidence=unverified
-- C2 Δ delta/oxide_silica: confidence=unverified
-- C2 Δ delta/sic_ceria_h2o2: confidence=unverified
-- C2 Δ delta/sti_ceria: confidence=unverified
-- C2 Δ delta/w_fe_oxidizer: confidence=unverified
+- C2 Δ delta/cu_h2o2_bta: confidence=estimated
+- C2 Δ delta/sic_ceria_h2o2: confidence=estimated
+- C2 Δ delta/sti_ceria: confidence=estimated
 - C2 S stab/cu_h2o2_bta: confidence=estimated
 - C2 S stab/sic_ceria_h2o2: confidence=estimated
 - C2 S stab/sti_ceria: confidence=estimated
