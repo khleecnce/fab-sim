@@ -536,12 +536,13 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         c = float(pk.get("abrasive_wt_pct"))
         f.drivers["abrasive_wt_pct"] = c
         c_ref = float(pk.get_or("abrasive_ref_wt_pct", c))
-        # ⚠ c=0 을 조건에서 제외하면 항이 **아예 만들어지지 않아** 곱셈에서
-        # 1.0 처럼 취급된다 — "입자가 없는데 제거율은 그대로"라는 뜻이 된다.
-        # 침묵이 '효과 없음'으로 읽히는 이 패턴이 극한 검사를 무력화했다
-        # (2026-09-13). 하중을 전달할 매개가 없으면 제거 경로가 없으므로
-        # 0 을 **명시적으로 계상**한다(LIMIT_ROLE: AGENT).
-        if c_ref > 0 and c <= 0:
+        # ⚠ 입자 부재 판정이 기준점 판정보다 **먼저**다 (입경 항과 같은 이유).
+        #   c=0 을 조건에서 제외하면 항이 **아예 만들어지지 않아** 곱셈에서
+        #   1.0 처럼 취급된다 — "입자가 없는데 제거율은 그대로"라는 뜻이 된다.
+        #   침묵이 '효과 없음'으로 읽히는 이 패턴이 극한 검사를 무력화했다
+        #   (2026-09-13). 하중을 전달할 매개가 없으면 제거 경로가 없으므로
+        #   0 을 **명시적으로 계상**한다(LIMIT_ROLE: AGENT).
+        if c <= 0:
             terms["conc"] = 0.0
             f.notes.append(
                 "연마입자 함량 0 — 하중을 표면으로 전달할 매개가 없어 제거 경로가 "
@@ -602,13 +603,17 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         d = float(pk.get("abrasive_size_nm"))
         f.drivers["abrasive_size_nm"] = d
         d_ref = float(pk.get_or("abrasive_ref_size_nm", d))
-        # 위 농도 항과 같은 이유 — 침묵이 '효과 없음'으로 읽히지 않게 명시 계상.
-        if d_ref > 0 and d <= 0:
+        # ⚠ 입자 부재 판정이 기준점 판정보다 **먼저**다.
+        #   기준점이 없으면 d_ref 는 본값으로 폴백하므로, d=0 일 때 d_ref 도 0 이
+        #   되어 아래 d_ref>0 분기가 전부 빠진다 — 항이 사라져 '효과 없음(1.0)'
+        #   으로 읽힌다. "입자가 없다"는 사실은 기준점을 아는지와 무관하므로
+        #   순서를 뒤집는다.
+        if d <= 0:
             terms["size"] = 0.0
             f.notes.append(
                 "입자 크기 0 — 크기가 없는 입자는 입자가 아니다. 압입 깊이가 "
                 "정의되지 않으므로 항을 0 으로 계상한다.")
-        elif d_ref > 0 and d > 0:
+        elif d_ref > 0:
             # ⚠ 입경 방향의 지수는 **문헌이 확정하지 못했다.**
             # Li et al. 2021은 40→80→130 nm에서 MRR이 80 nm에 정점을 갖는다고
             # 정성 서술하지만(압입지배→표면적지배 전환), 원문 Eq.3-4의 지수·부호가
@@ -703,14 +708,14 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
         n_a = float(pk.get("asperity_density_per_m2"))
         f.drivers["asperity_density_per_m2"] = n_a
         n_ref = float(pk.get_or("asperity_ref_density_per_m2", n_a))
-        if n_ref > 0 and n_a <= 0:
-            # 같은 침묵 패턴 — 접촉점이 하나도 없으면 하중을 웨이퍼로 전달할
-            # 경로 자체가 없다(LIMIT_ROLE: AGENT). 명시적으로 0 을 계상한다.
+        if n_a <= 0:
+            # 같은 순서 규칙 — 접촉점이 하나도 없으면 하중을 웨이퍼로 전달할
+            # 경로 자체가 없다(LIMIT_ROLE: AGENT). 기준점을 아는지와 무관하다.
             terms["asperity"] = 0.0
             f.notes.append(
                 "asperity 밀도 0 — 접촉점이 없으면 하중 전달 경로가 없다. "
                 "항을 0 으로 계상한다.")
-        elif n_ref > 0 and n_a > 0:
+        elif n_ref > 0:
             terms["asperity"] = (n_a / n_ref) ** 0.5
             srcs.append("knowledge/physics/gw-contact.md")
             f.notes.append("⚠ asperity 밀도 지수 0.5는 GW 접촉에서 실접촉면적이 "
