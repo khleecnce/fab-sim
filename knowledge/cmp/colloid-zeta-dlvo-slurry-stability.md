@@ -86,7 +86,52 @@ $$ V_{vdW}(h) = -\frac{A\,a}{12\,h}, \qquad
 
 ## 7. 재현 코드
 `sim/tier2_physics/dlvo_colloid.py` — Debye 길이(정확식 vs 0.304/√I vs 문헌앵커),
-Henry식(Smoluchowski/Hückel), DLVO $V_T(h)$ 장벽·2차최소(이온세기·pH 스캔). **12/12 PASS**.
+Henry식(Smoluchowski/Hückel), DLVO $V_T(h)$ 장벽·2차최소(이온세기·pH 스캔). **15/15 PASS**
+(`.venv/bin/python sim/tier2_physics/dlvo_colloid.py`로 직접 재실행 확인, 2026-09-13).
+
+```python verify
+import math
+
+EPS0 = 8.8541878128e-12
+KB = 1.380649e-23
+NA = 6.02214076e23
+QE = 1.602176634e-19
+EPSR_WATER = 78.5
+
+
+def debye_length_nm(I_molar, T=298.15, epsr=EPSR_WATER, z=1):
+    kappa2 = (2.0 * (z * QE) ** 2 * I_molar * 1000.0 * NA) / (EPS0 * epsr * KB * T)
+    return 1.0 / math.sqrt(kappa2) * 1e9
+
+
+def debye_length_approx_nm(I_molar):
+    return 0.304 / math.sqrt(I_molar)
+
+
+# §3: 정확식 vs 근사식(0.304/sqrt(I)) 상대오차, 문헌 앵커(dispersion.com ~1nm@0.1M, ~10nm@0.001M)
+for I, anchor in [(0.1, 1.0), (0.001, 10.0)]:
+    exact = debye_length_nm(I)
+    approx = debye_length_approx_nm(I)
+    rel_err = abs(exact - approx) / approx
+    assert rel_err < 0.02, f"정확식/근사식 상대오차 2% 이내여야 함: I={I} rel_err={rel_err:.4f}"
+    assert abs(exact - anchor) / anchor < 0.2, f"문헌 앵커값과 20% 이내 정합 필요: I={I} exact={exact:.2f} anchor={anchor}"
+
+# §2: Henry 식 역산 — Smoluchowski(f=1.5) vs Huckel(f=1.0), 비율 정확히 1.5
+def henry_zeta(mu_E, f_ka, eta=8.9e-4, epsr=EPSR_WATER):
+    return 3.0 * eta * mu_E / (2.0 * EPS0 * epsr * f_ka)
+
+mu_E = -3.0e-8
+zeta_smol = henry_zeta(mu_E, 1.5)
+zeta_huckel = henry_zeta(mu_E, 1.0)
+ratio = zeta_huckel / zeta_smol
+assert abs(ratio - 1.5) < 1e-9, f"Huckel/Smoluchowski 비는 정확히 1.5여야 함(같은 mu_E, f만 다름): {ratio}"
+zeta_smol_mV = zeta_smol * 1000
+assert -40 < zeta_smol_mV < -37, f"Smoluchowski zeta ~ -38.4 mV 기대: {zeta_smol_mV:.1f}"
+
+print(f"Debye 길이: 0.1M exact={debye_length_nm(0.1):.2f}nm, 0.001M exact={debye_length_nm(0.001):.2f}nm (문헌 앵커와 20% 이내)")
+print(f"Henry: zeta_Smoluchowski={zeta_smol_mV:.1f} mV, 비율(Huckel/Smol)={ratio:.2f}")
+print("PASS: Debye 길이 근사식/문헌앵커 정합, Henry식 Smoluchowski/Huckel 비율 1.5 확인")
+```
 
 ## 8. 자기시험
 → [[../../agents/slurry-chemist/EXAMS.md]] Lv1-1 문항 참조.
