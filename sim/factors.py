@@ -1082,6 +1082,20 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     """Δ 손상 유발도 — 스크래치·결함 발생 경향.
 
     대입자 tail(D99)이 지배한다. 평균 입경이 아니라 **꼬리**가 스크래치를 만든다.
+
+    ⚠ 2026-09-13 추가: `aggregate_ratio`(콜로이드 불안정화 정도, 0~1) 항을 곱셈으로
+    추가했다. 근거: Basim & Moudgil 2002 (J. Colloid Interface Sci. 256(1) 137-142,
+    doi:10.1006/jcis.2002.8352) — NaCl 0.2M(이 계의 CCC=0.25M 미달, 벌크 광산란
+    입도계로는 **평균 입경이 전혀 안 바뀜**)인데도 AFM 최대표면변형(Rmax)이
+    25nm→50nm로 **2배** 증가했다(원문 Table 1). 즉 d99가 포착 못 하는 "일시적
+    (transient) 응집체"에 의한 손상 경로가 d99 경로와 독립적으로 존재한다는 것이
+    실측으로 확인됐다(knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md
+    §3, §6). `aggregate_ratio=1.0`을 "이 논문의 NaCl 0.2M 불안정화 정도"로 정의하고
+    그 조건에서 관측된 배수(2.0)로 계수를 고정했다: `1 + aggregate_ratio`.
+    ⚠⚠ 이 계수는 **n=1(단일 데이터점)**에서 나온 값이다 — 화학종(실리카 학술
+    모델계)·조건(7.0 psi, IC1000/Suba IV) 특유의 값이며 다른 화학종·조건으로의
+    일반화는 미검증이다. 순위(불안정화가 클수록 손상↑)만 신뢰하라. 팩 기본값은
+    `aggregate_ratio=0.0`(무영향, 항×1.0)이라 기존 팩·기준 조건의 Δ 계약은 안 깨진다.
     """
     f = _new("delta")
     pk = rr.pack
@@ -1104,13 +1118,18 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
     # 스크래치 깊이 ∝ 입자 크기, 발생률은 그보다 가파르다고 알려져 있으나
     # 지수는 문헌 폐형식이 없다 — 팩에서 받는다.
     n = float(pk.get_or("damage_exponent", 3.0))
-    val = (d99 / d99_ref) ** n
+    d99_term = (d99 / d99_ref) ** n
+    # aggregate_ratio 항 — 기본 0.0이면 (1+0)=1.0으로 no-op, 기준 조건 Δ=1.0 계약 보존.
+    agg_ratio = float(pk.get_or("aggregate_ratio", 0.0))
+    agg_term = 1.0 + agg_ratio
+    val = d99_term * agg_term
     f.value = val
-    f.terms = {"d99": val}
+    f.terms = {"d99": d99_term, "aggregate": agg_term}
     f.status = "partial"
     f.confidence = "unverified"
     f.sources = ["knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
-                 "knowledge/cmp/lpc-scratch-density-tail-correlation.md"]
+                 "knowledge/cmp/lpc-scratch-density-tail-correlation.md",
+                 "knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md"]
     f.notes.append(f"⚠ 손상 지수 n={n:g}는 문헌 폐형식이 없어 팩에서 받는 가정값이다. "
                    "순위(큰 입자가 더 긁는다)만 신뢰하고 절대값은 쓰지 마라. "
                    "⚠ n=3.0 기본값은 US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) "
@@ -1120,6 +1139,11 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
                    "선형(n≈1 근방)을 지지 — n=3.0이 과대추정일 가능성. 표본이 작아(세리아 "
                    "1개 화학종, 실질 독립 3점) 기본값을 즉시 교체하지 않았다(구현 요청으로 "
                    "PROFILE.md에 기록).")
+    if agg_ratio != 0.0:
+        f.notes.append(f"⚠ aggregate_ratio={agg_ratio:g} 항 발동(×{agg_term:.3f}) — "
+                       "Basim&Moudgil 2002 NaCl 0.2M 단일 데이터점(n=1) 기반, 화학종/조건 "
+                       "외삽 미검증. knowledge/slurry/colloidal-destabilization-lpc-"
+                       "defect-mechanism.md §3.")
     return f
 
 

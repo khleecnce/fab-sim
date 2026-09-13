@@ -336,6 +336,36 @@ def test_delta_activated_for_three_more_packs_at_unity():
         assert f.value == pytest.approx(1.0, abs=1e-9), f"{pack}: 기준 조건 Δ != 1.0"
 
 
+def test_delta_aggregate_ratio_no_op_by_default():
+    """aggregate_ratio 미지정(팩 기본값 0.0)이면 Δ는 d99 항만으로 기존과 동일해야 한다.
+
+    2026-09-13 신규: Basim & Moudgil 2002(doi:10.1006/jcis.2002.8352) NaCl 0.2M 사례
+    (평균입경 불변인데 Rmax 2배) 근거로 aggregate_ratio 항(1+ratio)을 곱셈 추가했다.
+    기본값 0.0에서 (1+0)=1.0 no-op이므로 기존 D99 단독 값과 완전히 같아야 한다
+    (회귀 방지 — 팩 미지정 팩에서 값이 조용히 바뀌면 안 된다).
+    """
+    f = _factors(pack="sti_ceria")
+    assert f["delta"].terms["aggregate"] == pytest.approx(1.0, abs=1e-9)
+    assert f["delta"].value == pytest.approx(f["delta"].terms["d99"], rel=1e-9)
+
+
+def test_delta_aggregate_ratio_scales_damage():
+    """aggregate_ratio=1.0(문헌 NaCl 0.2M 상당 불안정화)이면 Δ가 정확히 2배가 된다.
+
+    Basim & Moudgil 2002 Table 1: NaCl 0.2M(CCC=0.25M 미달, 평균 입경 불변)에서
+    Rmax 25nm->50nm, 정확히 2.0배. aggregate_ratio=1.0을 이 배수로 정의했으므로
+    (1+1.0)=2.0 배수가 d99 항에 곱해져야 한다 — d99는 변화 없이도 손상이 는다는
+    것이 이 항의 핵심 계약이다.
+    """
+    f_ref = _factors(pack="sti_ceria")["delta"]
+    f_agg = _factors(pack="sti_ceria", aggregate_ratio=1.0)["delta"]
+    assert f_agg.terms["aggregate"] == pytest.approx(2.0, abs=1e-9)
+    # d99 항은 안 건드렸으므로(같은 d99) 총 배수 = d99항(그대로) * 2.0
+    assert f_agg.value == pytest.approx(f_ref.value * 2.0, rel=1e-9)
+    # d99는 그대로인데(팩 오버라이드 안 함) 손상이 늘었다 -- 문헌의 핵심 발견 재현
+    assert f_agg.terms["d99"] == pytest.approx(f_ref.terms["d99"], rel=1e-9)
+
+
 def test_delta_excluded_from_mrr_multiplier():
     """Δ는 MRR_COUPLED가 아니다 — 손상 지표이지 제거율 배수가 아니다.
 

@@ -2212,6 +2212,25 @@ QA루프 #43 PASS(격리 1: dandu2009 원문 미확보 유료/봉쇄, 유의 7/2
 - slurry-abrasive Lv3-1: knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md (출처11·코드5 통과). 세리아 chemical tooth를 입자기하·개수 축으로 — 패싯별 Ce면밀도(111)7.89/(100)6.83 nm⁻² Brugnoli2023 일치, 입자당 23.3배(Dandu vs Cabot). 팩버그 2건 지적(ce3_fraction·sti_ceria abrasive_wt_pct 80배). 미검증7(§10 명시, Ma2022 미러 사이트 3미러 전차단=다음회차 최우선). 형제(slurry-chemistry/film-oxide) 침범회피 §0 선언.
 품질게이트(check_knowledge --all 오케스트레이터 직접실행): 153/155 통과. ✗ 2건은 기존 반려건(wiwnu-pressure-velocity·_SCHEMA.md)이고 신규 3편과 무관. verify_claims 신규 3편 전원 통과. 체크박스 3개 [x], ORG §5 3행 갱신. 내 파일만 git add(cmp-data-engineer·.source_cache 타크론 제외). 한도 여유(429 흔적 없음).
 
+## 2026-09-13 10:xx [성장엔진] Δ(delta) PARTIAL 갭 해결 — aggregate_ratio 항 배선(콜로이드 불안정화 손상 경로)
+정확도루프 갭 τ(4회차째 순환 확인 후 --skip으로 종결 처리 이월, EVIDENCE-RULES §3회차 규칙 —
+groove_depth_mm 배수관계는 여전히 그래프 이미지뿐이라 이번 회차도 채우지 못함, 다음 회차에
+null 결론/스코프축소 최종 판정 예정) 대신 다음 순위 Δ(손상 유발도) PARTIAL 처리.
+`knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md`(2026-09-12 작성, Basim &
+Moudgil 2002, doi:10.1006/jcis.2002.8352)가 이미 확보해 둔 근거 — NaCl 0.2M(CCC=0.25M 미달,
+벌크 광산란 입도계로 평균 입경 **불변**)인데도 AFM 최대표면변형(Rmax) 25→50nm로 **정확히 2배**
+증가(원문 Table 1) — 를 `sim/factors.py::_f_delta`에 실제로 배선했다. `aggregate_ratio`(콜로이드
+불안정화 정도, 팩 드라이버로 이미 받아두고만 있던 값)를 `(1 + aggregate_ratio)` 곱셈항으로
+추가: 기본값 0.0에서 항=1.0(no-op, 기존 5팩 기준조건 Δ=1.0 계약 완전 보존), aggregate_ratio=1.0을
+문헌의 NaCl 0.2M 조건(관측 배수 2.0)으로 정의해 고정. ⚠ n=1(단일 데이터점) 기반이라 화학종/조건
+외삽은 미검증으로 명시. pytest 신규 2건(no-op 회귀방지 + 2배 배수 재현) 포함 631 passed(회귀 0),
+qa_loop --strict PASS(#47, 유의 7/20, ρ=0.9537 불변 — Δ는 MRR_COUPLED 밖 진단전용 팩터라 예상대로
+백테스트 무영향). accuracy_gaps에서 Δ PARTIAL의 terms가 `['d99']`→`['d99','aggregate']`로 전환
+확인(입력 드라이버 자체를 추가한 건 아니라 PARTIAL 유지 — groove_depth류처럼 별도 항 신설이지
+기존 드라이버 소진이 아니므로 갭 완전 소멸은 아님, 다음 회차 groove/aggregate 외 남은 드라이버
+확인 필요). completion 12/50(변화없음 — 이번 배선은 damage_exponent confidence 승격이 아니라
+새 손상 경로 항 추가, C2는 그대로).
+
 ## 2026-09-13 08:xx [성장엔진] κ(kappa) 갭 해결 — Li2021 Eq.3-4 벡터좌표 재추출로 입경 정점형 지수 확정
 정확도루프 갭 τ(3회차째 순환, groove_depth_mm 배수관계 여전히 그래프 이미지 뿐 — Kao/Wei 2011
 그래프 벡터좌표(색상-범례 매칭 불확실)·2024 IOP 신규논문(미러 사이트 미색인·jina 프록시로도 초록만
