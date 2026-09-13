@@ -44,6 +44,8 @@ from __future__ import annotations
 import sys
 import itertools
 import random
+import datetime as _dt
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -273,30 +275,42 @@ def run_all(model: str = "tier2.gw_physical_kp") -> List[BacktestResult]:
 
 
 def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--write", action="store_true",
+                    help="결과를 validation/RESULTS.md 에 기록한다(손으로 쓴 값이 묵는 것을 막는다)")
+    args = ap.parse_args()
+
+    buf: List[str] = []
+
+    def emit(s: str = "") -> None:
+        print(s)
+        buf.append(s)
+
     results = run_all()
     if not results:
         print("데이터셋이 없다. validation/datasets/*.yaml 을 추가하라.")
         print("템플릿: validation/datasets/_TEMPLATE.yaml")
         return 1
 
-    print("=" * 100)
-    print("FabSim 백테스트 — 공개 문헌 실측 대비 (주 지표: 순위)")
-    print("=" * 100)
+    emit("=" * 100)
+    emit("FabSim 백테스트 — 공개 문헌 실측 대비 (주 지표: 순위)")
+    emit("=" * 100)
     for r in results:
-        print(r.line())
+        emit(r.line())
         for n in r.notes:
-            print(f"    · {n}")
+            emit(f"    · {n}")
 
     held = [r for r in results if not r.used_for_calibration
             and r.in_scope and not np.isnan(r.spearman)]
     out_of_scope = [r for r in results if not r.in_scope]
-    print("-" * 100)
+    emit("-" * 100)
     if held:
         sig = [r for r in held if r.significant]
         weak = [r for r in held if not r.significant]
         rho = float(np.mean([r.spearman for r in held]))
         acc = float(np.mean([r.pairwise_accuracy for r in held]))
-        print(f"held-out {len(held)}개 전체 평균: ρ={rho:+.3f}, 쌍별 적중률 {acc*100:.1f}%")
+        emit(f"held-out {len(held)}개 전체 평균: ρ={rho:+.3f}, 쌍별 적중률 {acc*100:.1f}%")
 
         # ⚠ 전체 평균을 근거로 쓰면 안 된다. n=3짜리 ρ=1.000이 섞여 평균을
         #   부풀리는데, 그건 6분의 1 확률로 우연히 나오는 값이다.
@@ -304,34 +318,54 @@ def main() -> int:
             srho = float(np.mean([r.spearman for r in sig]))
             sacc = float(np.mean([r.pairwise_accuracy for r in sig]))
             ntot = sum(r.n for r in sig)
-            print(f"  └ 그중 **통계적으로 유의한 것만** ({len(sig)}개, 총 {ntot}조건): "
+            emit(f"  └ 그중 **통계적으로 유의한 것만** ({len(sig)}개, 총 {ntot}조건): "
                   f"ρ={srho:+.3f}, 쌍별 적중률 {sacc*100:.1f}%")
-            print("→ 외부에 제시할 수 있는 숫자는 이 줄뿐이다 "
+            emit("→ 외부에 제시할 수 있는 숫자는 이 줄뿐이다 "
                   "(p<0.05, 순열검정).")
             for r in sig:
-                print(f"     · {r.dataset} (n={r.n}, ρ={r.spearman:+.3f}, "
+                emit(f"     · {r.dataset} (n={r.n}, ρ={r.spearman:+.3f}, "
                       f"p={r.p_value:.4f})")
         else:
-            print("→ ⚠ 유의한 데이터셋이 하나도 없다. 아직 '검증했다'고 말할 수 없다.")
+            emit("→ ⚠ 유의한 데이터셋이 하나도 없다. 아직 '검증했다'고 말할 수 없다.")
         if weak:
-            print(f"  └ 유의하지 않음 {len(weak)}개 — 평균에서 빼고 봐야 한다: "
+            emit(f"  └ 유의하지 않음 {len(weak)}개 — 평균에서 빼고 봐야 한다: "
                   + ", ".join(f"{r.dataset}(n={r.n})" for r in weak))
-            print("     n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. "
+            emit("     n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. "
                   "조건 수를 늘리거나 여러 데이터셋을 합쳐야 한다.")
         # 절대값 사용 금지 경고 — 계통 편향이 큰 데이터셋이 다수다
         biased = [r for r in held if r.scale_factor is not None
                   and (r.scale_factor < 0.5 or r.scale_factor > 2.0)]
         if biased:
-            print(f"  └ ⚠ 계통 편향 2배 초과 {len(biased)}/{len(held)}개 — "
+            emit(f"  └ ⚠ 계통 편향 2배 초과 {len(biased)}/{len(held)}개 — "
                   "**절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.")
     else:
-        print("held-out(범위 내) 데이터셋이 없다 — 아직 '검증했다'고 말할 수 없다.")
+        emit("held-out(범위 내) 데이터셋이 없다 — 아직 '검증했다'고 말할 수 없다.")
     if out_of_scope:
-        print()
-        print(f"범위 밖 {len(out_of_scope)}개(참고용, 집계 제외): "
+        emit()
+        emit(f"범위 밖 {len(out_of_scope)}개(참고용, 집계 제외): "
               + ", ".join(r.dataset for r in out_of_scope))
-        print("→ 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. "
-              "실리콘 반도체 CMP 데이터가 필요하다.")
+        emit("→ 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. "
+             "실리콘 반도체 CMP 데이터가 필요하다.")
+
+    if args.write:
+        # ⚠ 이 파일은 **손으로 쓰지 마라.** 손으로 쓴 값은 묵어도 아무도 모른다.
+        #   실제로 2026-09-06 자 수치가 8일 동안 남아 있었고, 그것을 읽은 외부
+        #   검토자가 이미 고친 결함을 살아 있는 것으로 보고했다.
+        #   측정값을 적는 문서는 측정기가 쓴다.
+        out = Path(__file__).resolve().parent / "RESULTS.md"
+        stamp = _dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z")
+        rev = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                             cwd=_ROOT, capture_output=True, text=True)
+        head_sha = rev.stdout.strip() or "(git 정보 없음)"
+        out.write_text(
+            f"<!-- 자동 생성 — 손으로 고치지 마라.\n"
+            f"     재생성: python validation/backtest.py --write -->\n\n"
+            f"# 백테스트 결과\n\n"
+            f"- 측정 시각: {stamp}\n"
+            f"- 코드 리비전: `{head_sha}`\n\n"
+            f"```\n" + "\n".join(buf) + "\n```\n",
+            encoding="utf-8")
+        print(f"\n→ {out} 기록됨 (리비전 {head_sha})")
     return 0
 
 

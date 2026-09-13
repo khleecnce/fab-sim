@@ -84,7 +84,9 @@ def physics_health() -> Dict[str, object]:
 
 def accuracy() -> Dict[str, object]:
     """2. 정확도 — 본 적 없는 조건에서의 경향."""
-    r = _run([PY, str(ROOT / "validation" / "backtest.py")], timeout=1200)
+    # --write: 회차마다 RESULTS.md 를 다시 쓴다. 손으로 쓴 값은 묵어도
+    # 아무도 모르기 때문이다(실제로 8일 묵은 수치가 외부 검토를 오도했다).
+    r = _run([PY, str(ROOT / "validation" / "backtest.py"), "--write"], timeout=1200)
     out = r.stdout
     res: Dict[str, object] = {}
     for line in out.splitlines():
