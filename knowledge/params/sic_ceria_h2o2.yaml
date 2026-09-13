@@ -235,3 +235,16 @@ params:
       올렸을 때만 쓰인다.
     source: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §3
     confidence: literature
+
+  ph_ref:
+    value: 10.0
+    unit: pH
+    source: >
+      이 팩의 slurry_ph 와 같은 출처 — 기준점은 독립 측정값이 아니라 "어느 조건에서
+      Kp 를 역산했는가"의 선언이다. 부모(실리카 계열)의 5.5 를 상속하고 있었는데,
+      막질 등전점을 자기선언해 pH 정전 창 항이 활성화되면서 기준 조건 배수가
+      0.4877 로 어긋났다(2026-09-13 optimize_loop 검출). 이 팩의 운전 pH 와
+      일치시켜 배수를 1.0 으로 복원한다 — 예측 형상은 불변이다.
+      ⚠ 항을 **활성화**할 때도 기준점 동반 이동이 필요하다. 비활성 상태에서는
+      기준점이 틀려도 증상이 없어 조용히 남는다.
+    confidence: literature

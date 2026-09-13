@@ -265,6 +265,62 @@ _INTENSIVE_PROBES: Dict[str, List[float]] = {
 }
 
 
+def _ref_mismatch_hint(pack: str, pack_dir: Optional[Path] = None) -> str:
+    """기준 조건 배수가 1이 아닐 때, 어긋난 본값/기준점 짝을 찾아 알려준다.
+
+    판단 기준(물질명 없음): 이름이 `X` 와 `X_ref`(또는 `<접두>_ref_<나머지>`) 로
+    짝을 이루는 수치 파라미터에서 두 값이 다르면 의심 대상이다.
+    기준점은 "어느 조건에서 축척을 역산했는가"의 좌표이므로, 그 팩의 운전 조건과
+    같아야 기준 배수가 1이 된다.
+
+    ⚠ 추측을 단정으로 바꾸지 않는다 — 어긋남이 **정당한** 경우도 있으므로
+    (의도적으로 다른 조건을 기준으로 삼은 설계) '의심 지점'으로만 말한다.
+    """
+    try:
+        env = dict(os.environ)
+        env["PYTHONWARNINGS"] = "ignore"
+        env["FABSIM_PACK_DIR"] = str(pack_dir or PACKS)
+        code = (
+            f"import sys;sys.path.insert(0,{str(ROOT)!r});"
+            "import json;from sim.params import load_pack;"
+            f"pk=load_pack({pack!r});"
+            "out=[]\n"
+            "keys=list(pk.params)\n"
+            "for k in keys:\n"
+            "    if '_ref' not in k: continue\n"
+            "    # 기준점 이름에서 _ref 를 떼면 본값 이름의 **일부**가 나온다.\n"
+            "    # 접두사가 붙는 경우(예: 도메인 접두 + 축 이름)가 있으므로\n"
+            "    # 완전 일치뿐 아니라 접미/접두 일치도 후보로 본다.\n"
+            "    stem=k.replace('_ref_','_').replace('_ref','')\n"
+            "    if not stem: continue\n"
+            "    cands=[c for c in keys if c!=k and (c==stem or c.endswith('_'+stem) or stem.endswith('_'+c))]\n"
+            "    # 가장 짧은(=가장 구체적으로 대응하는) 후보를 고른다\n"
+            "    cands.sort(key=len)\n"
+            "    for c in cands:\n"
+            "        a,b=pk.get_or(c,None),pk.get_or(k,None)\n"
+            "        try:\n"
+            "            if a is not None and b is not None and float(a)!=float(b):\n"
+            "                out.append((c,float(a),k,float(b),pk.has_own(k)))\n"
+            "        except Exception: pass\n"
+            "        break\n"
+            "print(json.dumps(out))"
+        )
+        r = subprocess.run([PY, "-c", code], capture_output=True, text=True,
+                           env=env, cwd=str(ROOT), timeout=60)
+        if r.returncode != 0:
+            return ""
+        items = json.loads(r.stdout.strip().splitlines()[-1])
+    except Exception:
+        return ""
+    if not items:
+        return ""
+    parts = []
+    for base, a, ref, b, own in items[:3]:
+        tag = "자기선언" if own else "**상속값**"
+        parts.append(f"{base}={a:g} vs {ref}={b:g} ({tag})")
+    return " · ".join(parts)
+
+
 def check_limits(packs: List[str]) -> List[Issue]:
     import warnings
     warnings.filterwarnings("ignore")
@@ -282,10 +338,18 @@ def check_limits(packs: List[str]) -> List[Issue]:
             out.append(Issue("L", "error", f"[{pack}] 기준 실행 실패", err or "?"))
             continue
         if abs(base - 1.0) > 1e-6:
+            # 원인을 짚어 준다 — "배수가 1이 아니다"만으로는 어디를 볼지 모른다.
+            # 이 위반은 거의 항상 **기준점이 본값과 어긋난** 것이고, 그 어긋남은
+            # 두 경로로 생긴다: ① 본값을 바꾸며 _ref 를 안 옮겼다
+            # ② 어떤 항을 **활성화**했는데 그 항이 쓰는 기준점이 상속값이다.
+            # ②는 비활성 상태에서 증상이 없어 조용히 남는다.
+            hint = _ref_mismatch_hint(pack)
             out.append(Issue(
                 "L", "error", f"[{pack}] 기준 조건 MRR 배수가 1.0 이 아님 ({base:.6f})",
-                "Kp 가 그 조건에서 역산된 값이므로 배수는 정확히 1.0 이어야 합니다.",
-                "각 팩터의 _ref 파라미터가 본값과 같은지 확인하십시오."))
+                "Kp 가 그 조건에서 역산된 값이므로 배수는 정확히 1.0 이어야 합니다."
+                + (f"\n     의심 지점: {hint}" if hint else ""),
+                "본값과 _ref 짝을 같은 편집에서 함께 옮기십시오. 항을 새로 "
+                "활성화한 경우에도 그 항이 쓰는 기준점을 자기 팩에 선언해야 합니다."))
 
         # MRR 결합 팩터가 신고한 **모든** 드라이버를 순회한다
         try:

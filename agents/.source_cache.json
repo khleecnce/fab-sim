@@ -1478,5 +1478,81 @@
  "doi:10.1007/s00170-018-1956-3의": {
   "ok": false,
   "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1021/acsanm.0c02308(": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1143/jjap.40.6182(": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1149/1.2806173": {
+  "ok": true,
+  "msg": "Role of Surfactant Molecules in Post-CMP Cleaning"
+ },
+ "doi:10.1149/1.3621343": {
+  "ok": true,
+  "msg": "Citric Acid and NaIO4 Based Alkaline Cleaning Solution for Particle Removal during Post-Ru"
+ },
+ "doi:10.1149/2.0011410jss(": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1021/acsanm.0c02308": {
+  "ok": true,
+  "msg": "Inhibition of Silica Nanoparticle Adhesion to Poly(vinyl alcohol) Surfaces by Ammonia-Medi"
+ },
+ "doi:10.1143/jjap.40.6182": {
+  "ok": true,
+  "msg": "Particle Removal and Its Mechanism on Hydrophobic Silicon Wafer    in Highly Diluted NH<su"
+ },
+ "doi:10.1149/2.0011410jss": {
+  "ok": true,
+  "msg": "Study of Pyrazole as Copper Corrosion Inhibitor in Alkaline Post Chemical Mechanical Polis"
+ },
+ "doi:10.1007/s11051-006-9121-6": {
+  "ok": true,
+  "msg": "Dispersion of nano-silicon carbide (SiC) powder in aqueous suspensions"
+ },
+ "doi:10.1103/PhysRev.134.A1058": {
+  "ok": true,
+  "msg": "Thermal Conductivity of Silicon and Germanium from 3°K to the Melting Point"
+ },
+ "doi:10.6028/nbs.ir.82-1664": {
+  "ok": true,
+  "msg": "Thermal conductivity of a polyurethane foam from 95 K to 340 K"
+ },
+ "doi:10.1109/cstic58779.2023.10219240": {
+  "ok": true,
+  "msg": "Pad Surface Variation and its Effect on SiO<sub>2</sub> Removal Rate in Ceria-based CMP Sl"
+ },
+ "doi:10.1143/jjap.45.733": {
+  "ok": true,
+  "msg": "Effect of Pad Surface Roughness on SiO<sub>2</sub> Removal Rate in Chemical Mechanical Pol"
+ },
+ "doi:10.1149/2.0351704jss": {
+  "ok": true,
+  "msg": "Editors' Choice—Efficiency of a CMP Pad at Removing Protective Material from Copper during"
+ },
+ "doi:10.1557/s43578-020-00060-x": {
+  "ok": true,
+  "msg": "A review on chemical and mechanical phenomena at the wafer interface during chemical mecha"
+ },
+ "doi:10.1016/j.mee.2010.07.040": {
+  "ok": true,
+  "msg": "Polishing behaviors of single crystalline ceria abrasives on silicon dioxide and silicon n"
+ },
+ "doi:10.1016/j.powtec.2010.09.025": {
+  "ok": true,
+  "msg": "Polishing behaviors of ceria abrasives on silicon dioxide and silicon nitride CMP"
+ },
+ "doi:10.1143/jjap.43.l365": {
+  "ok": true,
+  "msg": "Effects of Grain Size and Abrasive Size of Polycrystalline Nano-particle Ceria Slurry on S"
+ },
+ "doi:10.1177/0036850420982451": {
+  "ok": true,
+  "msg": "The effect of slurries on lapping performance of fixed abrasive pad for Si\n               "
  }
 }
