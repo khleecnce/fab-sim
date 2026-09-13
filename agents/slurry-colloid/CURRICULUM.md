@@ -7,7 +7,7 @@
 - [x] Lv1-2 LPC(Large Particle Count) 측정과 스크래치 상관관계
 - [x] Lv2-1 POU 필터(깊이/막)·재순환·펌프 전단이 입자에 미치는 영향
 - [x] Lv2-2 쉘프라이프·희석·혼합(2액형) 안정성과 현장 QC 항목
-- [ ] Lv3-1 최신 리뷰: 응집 억제 첨가제, 실시간 입도 모니터링
+- [x] Lv3-1 최신 리뷰: 응집 억제 첨가제, 실시간 입도 모니터링 — 2026-09-14, `knowledge/slurry/aggregation-inhibitor-additives-inline-psd-monitoring.md`
 - [ ] Lv3-2 저장·이송 이력 → 유효 입도 분포 변화 모델 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)

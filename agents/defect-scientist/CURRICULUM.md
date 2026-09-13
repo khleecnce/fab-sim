@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 결함 분류 체계(스크래치·마이크로스크래치·잔류입자·부식·피트·딜라미·워터마크)와 검사 장비 — 2026-09-13, `knowledge/cmp/post-cmp-defect-classification-and-inspection.md`
 - [x] Lv1-2 스크래치 물리: 대입자·패드 파편·디스크 그릿 탈락 — 발생원별 형상 특징 — 2026-09-13, `knowledge/cmp/scratch-physics-source-signatures.md`
-- [ ] Lv2-1 부식·피트: 갈바닉·국부 용해, 슬러리 화학 연계
+- [x] Lv2-1 부식·피트: 갈바닉·국부 용해, 슬러리 화학 연계 — 2026-09-14, `knowledge/cmp/corrosion-pit-defect-morphology-density-inspection.md`
 - [ ] Lv2-2 결함 밀도 통계와 수율 영향 모델
 - [ ] Lv3-1 최신 리뷰: 결함 자동 분류(ML), 근본원인 분석 방법론
 - [ ] Lv3-2 공정 조건 → 결함 발생 확률 모델 + 원인 역추적 규칙 (sim/tier2)

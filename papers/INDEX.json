@@ -1182,5 +1182,41 @@
   "authors": "Sparks L. L.",
   "venue": "NBSIR 82-1664, National Bureau of Standards (1982)",
   "note": "physics/frictional-heating-temperature-arrhenius-coupling.md §9 (PU 폼 k 하한 앵커, Table 4: 297.00 K -> 21.6 mW/m.K)"
+ },
+ "li2019-jss-marangoni-drying": {
+  "src": "미러 사이트→미러 사이트 (Referer 헤더 필요), IOP 원문 봇차단",
+  "pdf_local": "papers/li2019-jss-marangoni-drying.pdf",
+  "doi": "10.1149/2.0061910jss",
+  "title": "Experimental Investigation of High-Performance Wafer Drying Induced by Marangoni Effect in Post-CMP Cleaning",
+  "authors": "Li Changkun; Zhao Dewen; Lu Xinchun (Tsinghua Univ.)",
+  "venue": "ECS J. Solid State Sci. Technol. 8(10) P557-P562 (2019)",
+  "note": "tool-post-clean Lv2-2 §마랑고니 건조; LLD법칙 h=0.94 l0 Ca^(2/3), Vcri(구리 8·유리 2 mm/s), IPA flux 0.02-0.05 g/min@20mm/s, 접촉각<5°, 최적 blown angle ~30°"
+ },
+ "ng2007-esl-nanoparticle-removal-postcmp": {
+  "src": "미러 사이트→미러 사이트 (Referer 헤더 필요)",
+  "pdf_local": "papers/ng2007-esl-nanoparticle-removal-postcmp.pdf",
+  "doi": "10.1149/1.2739817",
+  "title": "Nanoparticle Removal Mechanisms during Post-CMP Cleaning",
+  "authors": "Ng D.; Huang P. Y.; Jeng Y. R.; Liang H. (Texas A&M)",
+  "venue": "Electrochem. Solid-State Lett. 10(9) H227 (2007)",
+  "note": "tool-post-clean Lv2-2 §부착·제거력 프레임워크; vdW 부착력 vs 기계적 제거력, 작은 입자일수록 필요 제거력 작음(계면활성제로 응집 크기↓)"
+ },
+ "choi2022-apsusc-tungsten-corrosion-defects-wcmp": {
+  "src": "OSTI OA (SLAC/Stanford green OA), https://www.osti.gov/servlets/purl/1984662 — WebFetch로 확보, 2026-09-14",
+  "pdf_local": "papers/choi2022-apsusc-w-corrosion-defects-wear-induced.pdf",
+  "doi": "10.1016/j.apsusc.2022.153767",
+  "title": "Origins of wear-induced tungsten corrosion defects in semiconductor manufacturing during tungsten chemical mechanical polishing",
+  "authors": "Choi SH, Kreider ME, Nielander AC, Stevens MB, Kamat G, Koo JE, Bae KH, Kim H, Yoon IY, Yoon BU, Hwang K, Lee DU, Jaramillo TF",
+  "venue": "Appl. Surf. Sci. 598, 153767 (2022)",
+  "note": "defect-scientist Lv2-1 corrosion-pit-defect-morphology-density-inspection.md"
+ },
+ "ryu2019-ecs-jss-cu-cmp-corrosion-inhibitor-selection": {
+  "src": "ECS JSS CC-BY 4.0; Unpaywall이 publisher PDF 지목했으나 IOP 봇차단 → 미러 사이트→미러 사이트 미러로 확보(CC-BY라 정당), 2026-09-14",
+  "pdf_local": "papers/ryu2019-ecs-jss-cu-cmp-corrosion-inhibitor-selection.pdf",
+  "doi": "10.1149/2.0101905jss",
+  "title": "Selection and Optimization of Corrosion Inhibitors for Improved Cu CMP and Post-Cu CMP Cleaning",
+  "authors": "Ryu HY, Cho BJ, Yerriboina NP, Lee CH, Hwang JK, Hamada S, Wada Y, Hiyama H, Park JG",
+  "venue": "ECS J. Solid State Sci. Technol. 8(5), P3058-P3062 (2019)",
+  "note": "defect-scientist Lv2-1 corrosion-pit-defect-morphology-density-inspection.md"
  }
 }

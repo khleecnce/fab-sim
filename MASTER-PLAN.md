@@ -2358,3 +2358,20 @@ qa_loop --strict PASS(유의 7/20, ρ=0.9537 불변, 신규 격리 0).
 wafer_iep_ph(직전 회차)에 이어 **두 번째**라 패턴으로 판단.
 completion 격자는 23/50(직전 12/50에서 상승분은 다른 크론의 confidence_cap_audit 커밋 영향 포함).
 다음 회차: 세리아+SiC 입경 1축 스윕 실측 확보(정점 163nm의 교차막질 전이 해소), 또는 갭랭커 재확인.
+
+## 2026-09-14 심야 [심야병렬] 서브에이전트 3명 동시 학습 — defect-scientist Lv2-1 · slurry-colloid Lv3-1 · tool-post-clean Lv2-2
+QA루프 #59 PASS(유의 7/20 ρ=0.9537 불변, 격리 1: dandu2009 원문 미확보 유료/봉쇄, 3회차 연속 하락 없음). corpus fetch60/extract120
+병행 — fetch ✓4/✗56(특허 Google Patents 403 대량, 논문 큐 진행), total 8960/with_fulltext 1510/queue fetch 7450·learn 1499.
+completion 25/50(직전 23 → 상승, C2 Γ/χ/ψ estimated·unverified 25칸 잔존). 대상: progress.py 지목 최저진도 3명 — defect-scientist(2/6)·
+slurry-colloid(3/6)·tool-post-clean(3/6). 성장엔진 최근(세리아 입경/sic pH 팩)과 무충돌. claude -p opus 3병렬(--max-turns 80), 약 20~30분 소요.
+- defect-scientist Lv2-1: knowledge/cmp/corrosion-pit-defect-morphology-density-inspection.md (출처2·코드1블록 통과). 결함 관점만(갈바닉 메커니즘은 film-cu 링크로 위임).
+  W 부식결함 개수=공정변수 함수(DIW 린스 0→220s: 0→53개, edge-ring r145~148mm 편중, Choi2022 Appl.Surf.Sci OSTI OA 확보), Cu 억제제 농도↑→입자결함↑ 역설(MBTA10 1350 vs MBTA3 180, Ryu2019 ECS JSS),
+  부식/스크래치/잔류입자 판별신호(등방 concave vs 이방 선형≥50µm vs 이질조성). 구현요청 2건(부식 결함 밀도 확률항·판별 플래그). 미검증 6.
+- slurry-colloid Lv3-1: knowledge/slurry/aggregation-inhibitor-additives-inline-psd-monitoring.md (출처10·코드5블록 통과). 고분자분산제(EAA 5→7wt% ζ 42.9→52.1mV, 입경 281.6→227.2nm) 단조안정화 vs
+  SHMP 전해질형 ∩형 최적(0.5wt%). DLVO+Smoluchowski W 재현(장벽 80→117kT, 방향만 E3). LPC Poisson 바닥 E=z/√(nλ), 희석 δ=60→오차 √60배. AIP·IOP 원문 봇차단→초록만(E5) 정직 표기.
+  ⚠ 절차 템플릿에 defect-scientist 이름이 잔존(오케스트레이터 실수)했으나 서브에이전트가 불일치를 감지하고 slurry-colloid로 올바르게 진행.
+- tool-post-clean Lv2-2: knowledge/cmp/post-cmp-megasonic-marangoni-drying-watermark.md (출처7·코드1블록 통과). 메가소닉 경계층 δ_s=√(2ν/ω) 재현, 파워밀도 0.5~1.5W/cm²·60~600s(Wortman-Otto2022),
+  마랑고니 LLD h=0.94·l₀·Ca^(2/3)(V₀=1mm/s→1.47µm), IPA 0.03g/min 잔류입자 1자릿수↓(Li2019 PDF 확보), 워터마크=O₂확산 산화물 석출·N₂-UPW 억제(Miyamoto2006 초록). PDF 2건 papers/ 등록.
+품질게이트(check_knowledge --all 직접실행): 163/164 통과 — ✗ 1건은 기존 반려건(components/_SCHEMA.md, 스키마 문서)이고 신규 3편 무관. verify_claims 신규 3편 전원 PASS(DOI 19건 전부 실존).
+체크박스 3개 [x], ORG §5 3행 갱신. 내 파일만 git add(EVIDENCE-RULES·sim/factors·validation/* 등 타크론 미커밋 변경 제외). 한도 여유(429 흔적 없음).
+다음 회차 후보: defect-scientist Lv2-2(결함 밀도 통계·수율), slurry-colloid Lv3-2(sim/tier2 이력→입도 모델), tool-post-clean Lv3-1.
