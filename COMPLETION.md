@@ -232,3 +232,10 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   결정자·BET 비표면적도 동시에 변해 Netzband 2020과 동형의 다중교란 — naive gain≈3.98이 나오지만
   교란비(1.2~1.4배)가 같은 오더라 귀속 불가. **gain=1.0/unverified 유지, 팩 YAML 무수정.**
   격자 25/50 불변, pytest 645 passed, qa_loop --strict PASS ρ=0.9537.
+- 2026-09-14 [Max워커] Γ 병목(PCR 시간감쇠 앵커 2차인용) 1차출처 탐색 → **미확보 종결 1회차**
+  (EVIDENCE-RULES 판정#14). 탐색 경로를 노트 §6에 전수 기록(다음 회차 재탕 방지): 저장소 grep·
+  corpus.sqlite·papers/INDEX.json 전수 무등재, US8657652(Saint-Gobain) FIG.3은 텍스트 추출에 수치 없음,
+  find_open_access 3회 무관, McAllister 박사논문 등 전문검색 'palmgren' 부재. 대체 후보 3M Pysher 2010
+  (DOI:10.1557/proc-1249-e02-04)은 가속수명시험(공격적 W 슬러리)이라 τ 역산 3.16h vs 현행 27.4h로
+  **8.7배 괴리** — 계 불일치로 대체 불가 판정. **코드·팩 무수정, Γ 하한 estimated 유지.**
+  격자 25/50 불변, pytest 645 passed, qa_loop --strict PASS ρ=0.9537.

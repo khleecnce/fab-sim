@@ -132,3 +132,75 @@ print(f"tau = {tau_h:.2f} h (문헌 서술 27.4h와 일치, self-consistency 재
 - Lawing(2004)의 "동일 마모법칙(Eq.2)이 웨이퍼-패드 접촉과 컨디셔너-패드 접촉 양쪽에
   형태를 유지한 채 적용된다"는 가정 자체는 Ring et al. 논문의 명시적 서술이 아니라 본
   노트 저자(disk-conditioner 에이전트)의 정합적 추론 — **미검증 가정**으로 명시.
+
+### PCR 감쇠 앵커 1차출처 탐색 기록(2026-09-14, 1회차)
+
+목표: §3의 "50h→16%" 앵커가 Entegris 문서 자신의 실측이 아니라 Entegris가 각주 4번에서
+재인용한 Palmgren 2004(CMP-MIC 학회 추정)의 2차 인용이므로, 이 인용의 원문 또는 최소한
+독립적인 (사용시간, PCR) 두 점 이상 쌍을 주는 1차 문헌·특허를 확보 시도.
+
+**조회 경로와 결과:**
+1. `grep -ril palmgren` 전체 저장소(`knowledge/`, `papers/`, `sim/`) — **미등재**. 이전
+   회차가 이미 이 원문을 확보하지 못했음을 재확인(EVIDENCE-RULES.md에 이 갭에 대한 기존
+   판정 행 없음 — 이번이 1회차).
+2. `data/corpus/corpus.sqlite`의 `documents` 테이블·`papers/INDEX.json`을 "conditioner"·
+   "pad cut"·"pcr"·"palmgren"으로 훑음 — Palmgren 관련 행 **없음**. 컨디셔너 관련 기존
+   항목 10건(3M/Saint-Gobain/여러 학술지) 확인, 아래 3건을 실제로 열어봄.
+3. `papers/US8657652.txt`(Saint-Gobain SARD CMP conditioner 특허, 이미 코퍼스에 추출돼
+   있음) — "dresser life", "pad cut rate curve"(FIG.3), "conditioner life (%)"(Table 3)
+   등 정성적 서술은 있으나, **FreePatentsOnline 텍스트 추출본이라 그래프(FIG.3)의 수치가
+   본문에 없다** — (사용시간, PCR) 숫자쌍을 얻을 수 없음. Table 3은 서로 다른 두 디자인의
+   "정성 시험 종료 시점" 비교(둘 다 100% 기준)일 뿐 시간에 따른 감쇠곡선이 아님. **실패
+   사유: 수치 없음(그래프만, 본문 텍스트 미기재)**.
+4. `papers/3m_diamond_conditioner_design.pdf`(Pysher, Goers, Zabasajja, "Design,
+   Characteristics and Performance of Diamond Pad Conditioners", Mater. Res. Soc. Symp.
+   Proc. 1249, 1249-E02-04, 2010, DOI:10.1557/proc-1249-e02-04 — 이미 코퍼스에 원문 확보,
+   fitz로 전문 재확인) — 가속수명시험(텅스텐 슬러리+3% H2O2, 6.5 lbs, IC1000)에서
+   **"6시간 후 경쟁사 디스크는 초기 절삭률의 약 15%만 남았고, 자사 sharp-diamond
+   디스크는 55~65% 유지"**라는 1차 실측 수치를 본문에 명시(Fig.6 캡션 및 본문). 이는
+   Palmgren 2004 자체는 아니지만 **독립적인 1차·동종현상 수치 앵커**이므로 아래 §7에서
+   별도로 정량 대조한다. 다만 이 데이터는 [[conditioner-grit-design-space]] §5에 이미
+   "정성적으로 일치하는 별도 데이터 포인트"로 인용돼 있었다(신규 발견 아님, 이번 회차는
+   이를 **정량 대조**로 승격시킨 것).
+5. `tools/find_open_access.py --paywall`로 3개 제목 질의 —
+   `"Palmgren conditioner CMP-MIC 2004"` → 무관 매칭(ICPT 2014 fiber conditioner,
+   confidence 없음), `"diamond disk conditioner life pad cut rate exponential decay
+   CMP"` → IOP 논문 title-only(무관 추정), `"conditioner disk end of life pad cut rate
+   percent initial CMP-MIC"` → Springer 챕터 title-only(무관 추정). **세 질의 모두
+   confidence=title-only 이하로 Palmgren 2004와 매칭 근거 없음 — 미등재로 판단**.
+6. `papers/mcallister2019-dissertation-ua.pdf`(Univ. Arizona 박사논문, CMP 컨디셔닝
+   전문 다룸, 21.6만자)와 `mcallister2018-jss-downforce-breakin-microtexture.pdf` 전문에
+   "palmgren" 문자열 **부재** 확인(fitz 전문 검색) — 이 저자도 Palmgren을 인용하지 않음.
+
+**§7 신규: 3M 2010 데이터로 독립 τ 재계산 (정량 대조, Palmgren 대체 아님)**
+
+```python verify
+import math
+
+# 3M Pysher 2010 (MRS Proc. 1249-E02-04) 본문 명시치: 텅스텐 슬러리 가속수명시험,
+# 경쟁사 디스크 6h 후 초기 절삭률의 약 15% 잔존 (PCR_inf≈0 근사)
+t_3m_h = 6.0
+ratio_3m = 0.15
+tau_3m_h = -t_3m_h / math.log(ratio_3m)
+
+TAU_AGING_HOURS_CURRENT = 27.4  # sim/tier2_physics/conditioner_pcr_decay.py 현행값(Entegris 2차인용)
+
+ratio_diff = abs(tau_3m_h - TAU_AGING_HOURS_CURRENT) / TAU_AGING_HOURS_CURRENT
+print(f"tau_3M(6h,15%) = {tau_3m_h:.2f} h vs 현행 TAU_AGING_HOURS={TAU_AGING_HOURS_CURRENT} h "
+      f"-> 차이 {ratio_diff*100:.0f}%")
+assert tau_3m_h < 5.0, "가속시험 tau가 현행값보다 훨씬 짧아야 조건 불일치 가설과 정합"
+```
+실행 결과: `tau_3M(6h,15%) ≈ 3.16 h` — 현행 27.4h와 **8.7배(약 88%) 차이**, 같은 자릿수도
+아니다. **판단: 두 수치는 서로 다른 시험조건을 측정한 것이라 직접 대체·평균할 수 없다**
+— Entegris 앵커는 "상용공정(정상 하중·정상 슬러리) 50h" 실사용 조건인 반면, 3M 수치는
+"가속수명시험(6.5 lbf, 텅스텐+H2O2, 다이아몬드를 의도적으로 빠르게 마모시키는 공격적
+슬러리)" 조건 — 애초에 같은 τ로 수렴할 이유가 없는 별개 조건의 데이터다. 그러므로 이
+결과는 **(a) Palmgren 2004 원문을 대체하지 못하고, (b) 현행 27.4h를 교체할 근거도 못
+되지만, (c) "PCR이 사용시간에 따라 지수적으로 감쇠해 특정 %에서 교체된다"는 정성적
+현상 자체는 독립된 1차 문헌(3M, 피어리뷰급 학회지)이 확증한다**는 것만 보여준다.
+
+**재개 조건:** (i) Palmgren 2004의 정확한 서지(저자 이니셜·학회 정식명·연도)를 특정할
+새 단서(다른 문헌의 인용 목록 등)가 나오면 재탐색. (ii) 동일 조건(정상 하중, 비-가속
+슬러리)에서 두 시점 이상의 (시간, PCR) 실측을 주는 컨디셔너 디스크 특허/논문이 코퍼스에
+새로 들어오면 재탐색. 그 전까지는 3회차 규칙(EVIDENCE-RULES.md 판정 #7/#8과 동일 정신)을
+적용해 재탐색 우선순위를 낮춘다.
