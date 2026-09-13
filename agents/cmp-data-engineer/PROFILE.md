@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11), Lv2-2 (2026-09-11)
-- 다음 단원: Lv3-1
+- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11), Lv2-2 (2026-09-11), Lv3-1 (2026-09-14)
+- 다음 단원: Lv3-2
 
 ## 역할
 실데이터 통합 스키마, 입력 검증, 단위 통일, 이상치, 익명화, 합성 데이터 생성. 캘리브레이션 층의 기반
@@ -22,6 +22,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - 2026-09-10 Lv1-2 통합 스키마 키 체계 — knowledge/data/cmp-integration-schema-keys-semi-standards.md (check_knowledge/verify_claims 통과)
 - 2026-09-11 Lv2-1 좌표계·단위 통일·결측/이상치 클리닝 — knowledge/data/wafer-coordinate-units-outlier-cleaning.md (check_knowledge/verify_claims 통과: 출처 3건 실존·verify 5블록 통과)
 - 2026-09-11 Lv2-2 합성 데이터 생성기(Tier1/2+노이즈) — knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 통과)
+- 2026-09-14 Lv3-1 데이터 품질 게이트와 익명화 — knowledge/data/cmp-data-quality-gate-and-anonymization.md (check_knowledge/verify_claims 통과: 출처 6건 실존·verify 3블록 통과). 핵심: ①폐루프(R2R EWMA) 제어 하에서 레시피-결과 상관 0은 물리의 반증이 아님을 동일 물리게인 고정 시뮬레이션으로 재현(앵커 Sachs 1995 공정변동 2.7배 감소) ②drift 게이트는 원시출력이 아니라 컨트롤러 보정항에 걸어야 함 ③k-익명성(Sweeney 2002, DOI:10.1142/S0218488502001648) Definition 3 + 1990 US Census 87% 재식별 수치를 코드로 대조, ToolID/타임스탬프/(ToolID,RecipeID,Shift) 조합을 QI로 지정. ⚠ 제안 임계 k≥5는 미검증 초안. SEMI E89 원문(Cloudflare 봉쇄)·AIAG MSA %GRR 룰(교과서 스코프 제외)로 P/T 임계값은 공란
 
 ## 구현 요청 (소프트웨어 부문 몫 — cmp-data-engineer는 설계·근거만, 코드는 넘김)
 

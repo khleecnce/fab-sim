@@ -11,7 +11,8 @@
       → knowledge/data/wafer-coordinate-units-outlier-cleaning.md (2026-09-11)
 - [x] Lv2-2 합성 데이터 생성기: Tier1/2 모델 + 노이즈로 파이프라인 검증용 데이터 생성
       → knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (2026-09-11)
-- [ ] Lv3-1 데이터 품질 게이트와 익명화(고객 식별 정보 제거) 규칙
+- [x] Lv3-1 데이터 품질 게이트와 익명화(고객 식별 정보 제거) 규칙
+      → knowledge/data/cmp-data-quality-gate-and-anonymization.md (2026-09-14)
 - [ ] Lv3-2 ingest 파이프라인 구현: 스키마 검증 → 표준화 → 파케이/DuckDB (sim/calibration/ingest.py)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
