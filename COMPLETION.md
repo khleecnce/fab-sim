@@ -182,3 +182,15 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   다운로드 실패(HTML 캡차 페이지)·미러 사이트/st DNS 불능·미러 사이트/.wf 캡차 게이트로
   이번 회차 미확보(원인: 네트워크 환경, EAA 세리아 분산제 정량값도 동일 사유 보류).
   커밋 300c656, push.
+- 2026-09-13 [Max워커] S12(엔진 모듈 이관) 잔여 항목 — `gw_preston_link.py`(GW 접촉역학
+  기반 Preston Kp 물리분해, self-test 4/4 PASS, 원본 무수정) 진단 3필드로 engine.py 등록
+  (`gw_contact_linearity_max_dev`·`gw_kp_physical_to_lit_ratio`·`gw_contact_note`, MRR
+  경로 완전 독립). base.yaml의 GW 패드 물성 5종(pad_E_star_pa 등, estimated/literature)이
+  kp_m_per_pa 있는 5팩 전부에 상속돼 계산됨. 이 작업은 confidence를 올리는 C2 작업이
+  아니라 "물리 모델을 실제로 시뮬레이터에 연결"하는 C1 인접 통합 작업(software 부문
+  BACKLOG S12) — completion.py 칸 수는 의도대로 불변(12/50). pytest 636 passed(기존
+  630+신규6, 회귀0), qa_loop --strict PASS(ρ=0.9537 불변). Claude Code 위임(Read/Write/
+  Edit/Bash, max-turns 40, 커밋 금지 브리핑) → Max워커가 pytest/completion/qa_loop 직접
+  재검증, 다른 크론 미커밋 변경(agents/*·validation/completion_last.json·tests/test_factors.py·
+  sim/factors.py — 다른 크론 진행 중) 미접촉 확인 후 sim/engine.py + 신규 테스트파일만
+  커밋(a736f95)+push. software/BACKLOG.md S13-NOTE3에도 기록.
