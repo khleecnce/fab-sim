@@ -439,6 +439,26 @@ params:
     source: knowledge/materials/pad-porosity-slurry-transport-mrr.md §5
     confidence: unverified
 
+  # ── Δ 손상 유발도 결합 지수 (기본값 — 화학종별 팩이 실측 있으면 덮어씀) ──
+  damage_exponent:
+    value: 1.44
+    unit: "-"
+    note: >
+      (D99/D99_ref)^n 의 n. 이전 코드 리터럴 기본값 3.0은 출처 없는 가정값(E6,
+      EVIDENCE-RULES 판정 표 #12)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치
+      4점 실측, D99 500/700/2500 nm ↔ 스크래치 10/20/100)를 원점통과 로그-로그
+      회귀하면 n=1.444, R²=0.997
+      (knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3). 교차확증:
+      Remsen et al. 2006(J. Electrochem. Soc. 153(5) G453, doi:10.1149/1.2184036,
+      퓸드실리카) Table V가 스크래치-LPC 관계를 선형(n≈1 근방)으로 보고해 같은
+      방향(n=3.0보다 훨씬 완만)에 수렴한다
+      (knowledge/cmp/lpc-scratch-density-tail-correlation.md §2.2). 이 base 값은
+      화학종 미상일 때의 대표값이며, cu_h2o2_bta/oxide_silica/sti_ceria/
+      w_fe_oxidizer 4팩은 각자 화학종에 맞춘 값(1.44 또는 2.54, Egan & Kim 2019
+      기하평균)으로 이 값을 덮어쓴다.
+    source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3
+    confidence: literature
+
   # ── 레짐 판정 물성 (sim/regime_adapter.py) ──────────────────────
   # 이 값들은 특정 슬러리의 성질이 아니라 **패드-웨이퍼 접촉계의 성질**이다.
   # 그래서 base 에 둔다. 이것들이 있으면 농도·입경 지수를 팩마다 적어넣지 않고

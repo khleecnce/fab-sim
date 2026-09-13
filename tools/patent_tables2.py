@@ -252,6 +252,23 @@ def _header_columns(head: str, n_cols: int) -> Tuple[List[str], bool]:
     if len(units) == n_cols:
         return units, True
 
+    # 4) 머리글이 여러 줄로 쪼개진 표
+    #    "Slurry PVD Co RR TiN RR Selectivity # (Å/min) (Å/min) Co:TiN"
+    #    처럼 이름 줄과 단위 줄이 따로 있고, 라벨 열 이름(#)이 중간에 낀다.
+    #    이때는 **단위 줄만** 열 앵커로 쓰고, 그 앞 이름을 가까운 순서로
+    #    붙인다. 단위 개수가 열 수보다 적으면 남는 열은 이름만으로 채운다.
+    if 0 < len(units) < n_cols:
+        names = [w for w in re.findall(r"[A-Za-z%][A-Za-z0-9%/\.\-:]{1,20}", tail)
+                 if w.lower() not in ("the", "and", "with", "of", "in", "for",
+                                      "to", "table", "results")]
+        merged: List[str] = []
+        # 단위가 붙은 열을 뒤에서부터 배치하고 앞쪽은 이름으로 메운다
+        n_name = n_cols - len(units)
+        merged.extend(names[:n_name])
+        merged.extend(units)
+        if len(merged) == n_cols:
+            return merged, True
+
     return toks or units, False
 
 
