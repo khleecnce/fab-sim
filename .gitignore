@@ -24,3 +24,6 @@ data/store/
 .run/
 data/corpus/corpus.sqlite
 data/corpus/fulltext/
+
+# 특허 원문 캐시 — 재수집 가능, 용량이 크다
+_patents/raw/

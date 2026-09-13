@@ -1554,5 +1554,21 @@
  "doi:10.1177/0036850420982451": {
   "ok": true,
   "msg": "The effect of slurries on lapping performance of fixed abrasive pad for Si\n               "
+ },
+ "doi:10.1143/jjap.44.7843": {
+  "ok": true,
+  "msg": "Slurry Transport during Chemical Mechanical Polishing"
+ },
+ "doi:10.1149/1.1723501": {
+  "ok": true,
+  "msg": "Effect of Slurry Flow Rate on Pad Life during Interlayer Dielectric CMP"
+ },
+ "doi:10.1149/1.1758818": {
+  "ok": true,
+  "msg": "Effect of Slurry Flow Rate on Tribological, Thermal, and Removal Rate Attributes of Copper"
+ },
+ "doi:10.1149/1.2177007": {
+  "ok": true,
+  "msg": "Effects of Slurry Flow Rate and Pad Conditioning Temperature on Dishing, Erosion, and Meta"
  }
 }
