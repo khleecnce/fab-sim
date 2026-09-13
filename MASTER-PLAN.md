@@ -2298,3 +2298,19 @@ knowledge 노트 §9 종결절(verify 블록: 시간 비율 0.8배 vs 감쇠율 
 설명 불가" 재확인). pytest 635 passed 1 failed(다른 크론 sic_ceria_h2o2/sti_ceria 미커밋
 파라미터 결측 -- 무관, 건드리지 않음). qa_loop --strict PASS(#51, 유의 7/20, rho=0.9537 불변).
 completion 12/50(변화없음). accuracy_gaps --next에서 S PARTIAL 소멸 확인. 커밋·push 예정.
+
+## 2026-09-13 18:xx [성장엔진] COMPLETION-C4(sic_ceria_h2o2) held-out 후보 시도 -- 무효 판정 + 근본원인 기록
+accuracy_gaps --next가 준 갭(sic_ceria_h2o2 유의 held-out 0건)을 위해 US9368367B2(Cabot
+Microelectronics, FreePatentsOnline 전문 확보) Example 1의 pH 2~9 x KMnO4 0.02~0.4M
+6조건 제거율 표를 validation/datasets/로 등록 시도했으나, 연마입자(MnO2/MnCl3 soft
+particle, ceria 아님)·산화제(KMnO4, H2O2 아님) 불일치로 sim/factors.py _f_chi의 모든
+항(ceria_tooth·pH창·oxidizer)이 발동하지 않아(팩에 wafer_iep_ph·oxidizer_peak_wt_pct
+미선언) 예측 MRR이 전 조건 동일(분산 0, 판정불가)로 나와 무효 판정 -- 데이터셋 삭제,
+근본원인을 knowledge/cmp/sic-ceria-abrasive-particle-size-chen2017-rsc.md에 기록(다른
+크론이 git add -A로 무효 파일을 먼저 커밋해 놓아 이번 커밋에서 정정 삭제). ceria+H2O2
+조합의 독립 held-out 후보는 이번 회차도 확보 못함(1차 미확보). qa_loop --strict 실행
+결과 게이트 FAIL(#52, entegris2022_sic_alumina_conc가 유의→비유의로 회귀, 유의 6/20,
+평균rho 0.954→0.946) -- 단 원인은 다른 크론의 물리모델 커밋(d291a8c 등 kappa 지수
+재유도 연쇄)이고 이번 회차 변경(노트+데이터셋 삭제)과 무관해 revert 대상 아님으로
+판단, 커밋 진행. completion 12/50(변화없음). 다음 회차: entegris2022 회귀 원인 조사
+(kappa 재유도가 alumina 농도항에 준 영향) 우선 확인 필요.
