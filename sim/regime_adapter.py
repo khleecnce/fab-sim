@@ -281,12 +281,32 @@ def exponents_for(pk, pressure_psi: Optional[float] = None) -> Dict[str, object]
     out["derived"] = True
     out["confidence"] = reg.confidence
 
-    # 선언값이 함께 있으면 대조해 불일치를 드러낸다 — 조용히 덮지 않는다.
-    for label, derived, declared in (("농도", reg.n_conc, declared_c),
-                                     ("입경", reg.n_size, declared_d)):
-        if declared is not None and abs(derived - declared) > 0.05:
-            notes.append(
-                f"⚠ {label} 지수 불일치: 이론 유도 {derived:+.3f} vs 팩 선언 "
-                f"{declared:+.3f}. 둘 중 하나가 틀렸다 — 유도 입력(χ·α·공급형태)을 "
-                f"의심하거나, 선언값이 다른 레짐에서 회귀된 것인지 확인하라.")
+    # EVIDENCE-RULES.md 서열: 팩이 이미 대상계 직접실측(E1~E3)으로 판정해
+    # literature/measured 등급을 선언했다면, 검증 안 된 범용 이론(GW접촉+탄성
+    # 가정, 이 계에서 실측 검증된 바 없음)이 그것을 조용히 덮으면 안 된다.
+    # 2026-09-13 QA루프 퇴보(entegris2022 데이터셋 유의->비유의)로 발견:
+    # sic_ceria_h2o2의 declared -0.406(E3, Entegris 특허 Table1 n=5 직접실측)이
+    # 이론값 +1/3(범용 GW 유도, 이 계 미검증)로 덮여 예측 방향이 뒤집혔다.
+    for label, key_out, derived, declared, declared_key in (
+        ("농도", "n_conc", reg.n_conc, declared_c, "abrasive_conc_exponent"),
+        ("입경", "n_size", reg.n_size, declared_d, "abrasive_size_exponent"),
+    ):
+        if declared is None:
+            continue
+        declared_conf = pk.param(declared_key).confidence if pk.has(declared_key) else "unknown"
+        if abs(derived - declared) > 0.05:
+            if declared_conf in ("literature", "measured", "verified"):
+                out[key_out] = declared
+                notes.append(
+                    "EVIDENCE-RULES 판정: " + label + " 지수는 팩 선언값 "
+                    + format(declared, "+.3f") + "(" + declared_conf
+                    + ", 대상계 직접실측/문헌)이 범용 이론 유도값 "
+                    + format(derived, "+.3f") + "(이 계 미검증)보다 등급이 높아 "
+                    "선언값을 채택한다. 이론값은 참고로만 남긴다.")
+            else:
+                notes.append(
+                    label + " 지수 불일치: 이론 유도 " + format(derived, "+.3f")
+                    + " vs 팩 선언 " + format(declared, "+.3f") + "(" + declared_conf
+                    + "). 둘 중 하나가 틀렸다 — 유도 입력(χ·α·공급형태)을 의심하거나, "
+                    "선언값이 다른 레짐에서 회귀된 것인지 확인하라.")
     return out
