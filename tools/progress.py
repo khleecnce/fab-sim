@@ -173,8 +173,13 @@ def gates(p: dict) -> list:
         except Exception:
             ok = False
         # 게이트 숫자 조건을 넘어도, 선수과목 미충족자는 열 수 없다
+        # ⚠ 이미 [활성]인 에이전트는 "열 것" 목록에 넣지 않는다 — 넣으면 총괄 크론이
+        #   매 회차 같은 이름을 "지금 열 것"으로 받아 개방 작업을 반복한다(2026-09-14 실측:
+        #   disk-kinematics(09-07 개방)·tool-post-clean(09-13 개방)이 계속 재출력됐다).
         eligible, blocked = [], []
         for a in present:
+            if a in opened:
+                continue
             fine, miss = prereq_status(a, p, pre)
             (eligible if fine else blocked).append(
                 a if fine else (a, miss))
