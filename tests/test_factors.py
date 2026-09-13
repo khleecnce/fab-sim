@@ -660,3 +660,70 @@ def test_theta_lower_retaining_ring_pressure_lowers_load():
     f_low = _factors(pack="oxide_silica", retaining_ring_pressure_psi=2.0)["theta"]
     assert f_low.value < f_ref.value, (
         f"RR압력 2psi가 기준 5psi보다 Θ가 낮아야 한다: {f_low.value} vs {f_ref.value}")
+
+
+# ═══════════════════ 세리아 입경 정점 — 교차계 오전이 회귀 방지 ═══════════════════
+# 근거: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md
+# 배경: 세리아 팩(sti_ceria·sic_ceria_h2o2)이 base=oxide_silica 상속으로 **실리카**
+#       슬러리의 입경 정점(80nm)을 조용히 물려받아, 세리아 문헌(60~163nm 구간 증가)과
+#       반대 방향을 예측하고 있었다. 기준조건 κ는 1.0이라 백테스트 ρ로는 안 잡힌다.
+
+CERIA_PACKS = ("sti_ceria", "sic_ceria_h2o2")
+
+
+@pytest.mark.parametrize("pack", CERIA_PACKS)
+def test_ceria_size_peak_is_declared_not_inherited(pack):
+    """세리아 팩은 입경 3파라미터를 **자기 값으로** 가져야 한다(상속 금지).
+
+    값이 부모와 같더라도 상속이면 안 된다 — 부모(실리카)가 바뀔 때 세리아가
+    조용히 끌려가는 경로가 이 결함의 원인이었다.
+    """
+    from sim.params import load_pack
+    pk = load_pack(pack)
+    for key in ("abrasive_size_peak_nm",
+                "abrasive_size_exp_below_peak",
+                "abrasive_size_exp_above_peak"):
+        assert pk.has_own(key), (
+            f"{pack}.{key} 가 상속 상태다 — 실리카(oxide_silica) 값이 세리아 팩에 "
+            f"다시 새어든다. knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §1")
+
+
+@pytest.mark.parametrize("pack", CERIA_PACKS)
+def test_ceria_size_peak_matches_ceria_literature(pack):
+    """정점은 세리아 실측(Oh et al. 2010, doi:10.1016/j.mee.2010.07.040)의 163nm."""
+    from sim.params import load_pack
+    assert float(load_pack(pack).get("abrasive_size_peak_nm")) == pytest.approx(163.0)
+
+
+@pytest.mark.parametrize("pack", CERIA_PACKS)
+def test_ceria_mrr_rises_with_size_up_to_peak(pack):
+    """세리아 계 문헌 방향: 60 -> 120 -> 163 nm 구간에서 MRR이 단조 증가해야 한다.
+
+    Oh 2010(62/116/163/232nm, 163 최대) · Oh 2011 Powder Tech(84~417nm 단조증가) ·
+    Kang 2004 JJAP(입경↑ -> oxide RR↑) 세 편이 같은 방향을 준다. 구 설정(정점 80nm)
+    에서는 120->163 이 **감소**했다 — 그 회귀를 막는다.
+    """
+    m60 = _mean_mrr(pack=pack, abrasive_size_nm=60.0)
+    m120 = _mean_mrr(pack=pack, abrasive_size_nm=120.0)
+    m163 = _mean_mrr(pack=pack, abrasive_size_nm=163.0)
+    assert m60 < m120 < m163, (
+        f"{pack}: 세리아 입경 증가 구간에서 MRR이 증가해야 한다 "
+        f"(60nm={m60:.1f}, 120nm={m120:.1f}, 163nm={m163:.1f})")
+
+
+@pytest.mark.parametrize("pack", CERIA_PACKS)
+def test_ceria_size_term_is_unity_at_reference(pack):
+    """기준 조건(팩 본값 = 기준점)에서 κ 입경항은 정확히 1.0 — 이중 계상 금지."""
+    from sim.params import load_pack
+    pk = load_pack(pack)
+    f = compute_factors(Recipe(pack=pack).resolve())["kappa"]
+    assert float(pk.get("abrasive_size_nm")) == pytest.approx(
+        float(pk.get("abrasive_ref_size_nm"))), f"{pack}: 본값과 기준점이 어긋났다"
+    assert f.terms.get("size") == pytest.approx(1.0), (
+        f"{pack}: 기준조건 입경항이 1.0이 아니다 ({f.terms.get('size')}) — Kp에 이중 계상된다")
+
+
+def test_silica_pack_keeps_its_own_peak():
+    """실리카 팩의 정점은 80nm 그대로여야 한다 — 세리아 수정이 부모를 오염시키면 안 된다."""
+    from sim.params import load_pack
+    assert float(load_pack("oxide_silica").get("abrasive_size_peak_nm")) == pytest.approx(80.0)

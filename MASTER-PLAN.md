@@ -2330,3 +2330,31 @@ corpus.py: fetch 시도 15건 전부 실패(patent OA 소스 rate-limit/봉쇄 �
 8960, with_fulltext 1506, queue fetch 7454/learn 1495.
 다음 회차: sic_ceria_h2o2 oxidizer_peak_wt_pct(H2O2 포화 농도) 문헌값 탐색, 또는 갭랭커 --next
 재확인.
+
+## 2026-09-13 22:xx [성장엔진] RESPONSE_CONFLICT 발견·해소 — 세리아 팩이 실리카 입경 정점(80nm)을 상속하고 있었다
+갭 랭커는 UNWIRED(abrasive_size_nm, score60)를 줬지만, 조사해보니 실제 결함은 미배선이 아니라
+**교차계 오전이**였다. `sti_ceria`·`sic_ceria_h2o2`가 `base: oxide_silica` 상속으로 Li et al. 2021
+**콜로이달 실리카** 논문의 입경 정점 3파라미터(peak 80nm, +4/3, -1/3)를 자기 값 없이 물려받아,
+sic 팩 본값(120nm)이 **감소 가지** 위에서 돌고 있었다 — 즉 "세리아 입자를 키우면 MRR이 떨어진다"는
+문헌과 반대 방향 예측. 기준조건 κ=1.0이라 백테스트 ρ로는 잡히지 않는 조용한 결함이다.
+세리아 계 1차 문헌 4편(Oh 2010 MEE doi:10.1016/j.mee.2010.07.040 62/116/163/232nm n=4 1축 스윕에서
+163nm 최대 / Oh 2011 Powder Tech doi:10.1016/j.powtec.2010.09.025 84~417nm 단조증가 / Kang 2004 JJAP
+doi:10.1143/jjap.43.l365 입경·grain size 독립제어에서 oxide RR 증가 / Netzband 2020
+doi:10.1149/2162-8777/ab8393 5/20/68nm)이 전부 **증가 방향**으로 수렴 — EVIDENCE-RULES E3(대상계 실측)
+> E4(타계 전이)로 판정, 정점을 163nm로 옮기고 지수 2개는 Bellahsene 2025 리뷰(doi:10.3390/nano15171366,
+MDPI OA 전문 확보)의 메커니즘 폐형식이라 형식 전용하되 **상속을 끊고 명시 재선언**했다.
+⚠ Oh 2010 원문은 Elsevier 페이월 + 미러 사이트 미러 4곳 전부 봇검증/502 → **1차 전문 미확보**, 정점값
+163nm는 Wang 2020(doi:10.1177/0036850420982451, SAGE OA 전문확보) 2차 인용(E5)으로만 확인. 그래서
+배수는 넣지 않고 정점 위치만 옮겼다. sic 팩은 웨이퍼가 SiC라 교차막질 전이(E4)임을 팩 note에 명시.
+새 노트 `knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md`(check_knowledge·verify_claims
+둘 다 PASS, DOI 6건 전부 Crossref 실조회 확인, verify 블록이 '팩이 값을 자기 것으로 갖는지'까지 assert).
+`tests/test_factors.py`에 회귀 테스트 9건 추가(상속 금지·정점 163·60→120→163 단조증가·기준조건 1.0·
+부모 오염 금지). 검증: 응답지도 sic/sti 둘 다 "정점 6.24x"→"단조↑ 15.32x"로 방향 정정, pytest 645 passed,
+qa_loop --strict PASS(유의 7/20, ρ=0.9537 불변, 신규 격리 0).
+부수 처리: 팩 note에 Netzband DOI를 적었더니 qa_loop 감사가 held-out 데이터셋
+(netzband2020_thermal_oxide_ceria_ph)을 '교정에 쓴 문헌'으로 보고 격리해버려 → 그 DOI는 팩에서 빼고
+근거 노트 표에만 남겼다(값 근거가 아니라 방향 확증이므로).
+구현 요청 1건 등록(노트 §8): `tools/model_hygiene.py`에 재료 특이 키 상속 검사 — 같은 결함이
+wafer_iep_ph(직전 회차)에 이어 **두 번째**라 패턴으로 판단.
+completion 격자는 23/50(직전 12/50에서 상승분은 다른 크론의 confidence_cap_audit 커밋 영향 포함).
+다음 회차: 세리아+SiC 입경 1축 스윕 실측 확보(정점 163nm의 교차막질 전이 해소), 또는 갭랭커 재확인.

@@ -194,3 +194,44 @@ params:
       (sim/regime_adapter.py::alpha_from_bulk_bound).
     source: "Nanoindentation of 4H-SiC single crystal — 보고 범위 24~28 GPa"
     confidence: literature
+
+  # ── κ 입경 정점형 곡선 — 세리아 실측으로 재선언 (2026-09-13) ──────────
+  # ⚠ 이 세 키는 조부모(oxide_silica)에서 상속되고 있었다. 상속값 정점 80 nm 는
+  #   콜로이달 **실리카** 슬러리 값이라, 이 팩의 본값 120 nm 가 **감소 가지** 위에
+  #   놓여 "세리아 입자를 키우면 MRR이 떨어진다"는 문헌과 반대 방향 예측을 하고
+  #   있었다. 근거: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §1·§3
+  abrasive_size_peak_nm:
+    value: 163.0
+    unit: nm
+    note: >
+      세리아 입경-MRR 정점. 근거·한계·등급은 sti_ceria.yaml 의 동일 키와 같다
+      (Oh et al. 2010 MEE DOI 10.1016/j.mee.2010.07.040, 62/116/163/232 nm 중
+      163 nm 최대 — 1차 전문 미확보, Wang et al. 2020 DOI 10.1177/0036850420982451
+      2차 인용으로 확인, E5).
+      ⚠ **교차막질 전이**: 근거 문헌 4편은 전부 SiO2/SiN 막이고 이 팩은 4H-SiC 다
+      (EVIDENCE-RULES E4). 세리아+SiC 입경 1축 스윕 실측은 이번 회차에 확보하지
+      못했다 — 미검증. 다만 상속값(실리카 연마입자 기준 80 nm)보다는 최소한
+      **연마입자 종류가 일치**하므로 개선으로 판단해 채택한다. SiC+세리아 입경
+      스윕이 나오면 즉시 교체한다.
+    source: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §2 §5
+    confidence: literature
+  abrasive_size_exp_below_peak:
+    value: 1.3333333333
+    unit: dimensionless
+    note: >
+      압입 지배 d^(4/3). Bellahsene et al. 2025 (DOI 10.3390/nano15171366, MDPI OA,
+      전문 확보) §2.1 Eq.(1) 메커니즘 폐형식. 상속을 끊고 명시 재선언
+      (값은 부모와 동일하나 판단 주체를 이 팩으로 옮긴다).
+      ⚠ 세리아·SiC 계 실측 재추정 없음 — 형식 전용, 미검증.
+    source: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §3
+    confidence: literature
+  abrasive_size_exp_above_peak:
+    value: -0.3333333333
+    unit: dimensionless
+    note: >
+      표면적 지배 d^(-1/3). 근거·한계는 abrasive_size_exp_below_peak 와 동일.
+      ⚠ 이 팩의 본값 120 nm 는 정점 163 nm 아래이므로 이 지수는 현재 기준조건에서
+      발동하지 않는다(120 nm < 163 nm → below 가지). 입경 슬라이더를 163 nm 위로
+      올렸을 때만 쓰인다.
+    source: knowledge/cmp/ceria-abrasive-size-mrr-peak-shift-vs-silica.md §3
+    confidence: literature
