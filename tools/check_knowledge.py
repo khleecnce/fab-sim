@@ -110,7 +110,10 @@ def main() -> int:
     ap.add_argument('--all', action='store_true')
     a = ap.parse_args()
 
-    targets = ([p for p in KNOWLEDGE.rglob('*.md') if p.name != 'INDEX.md']
+    # '_'로 시작하는 파일은 지식 노트가 아니라 형식 규약·감사 메모다
+    # (_SCHEMA.md 등). 노트 게이트(인용 3건·검증 흔적)를 적용할 대상이 아니다.
+    targets = ([p for p in KNOWLEDGE.rglob('*.md')
+                if p.name != 'INDEX.md' and not p.name.startswith('_')]
                if a.all else [Path(p) for p in a.paths])
     if not targets:
         print('검사할 노트가 없다')
