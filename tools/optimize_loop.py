@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -130,11 +131,50 @@ def tests() -> Dict[str, object]:
     return {"passed": passed, "summary": tail[:120]}
 
 
+def confidence_caps() -> Dict[str, object]:
+    """근거 등급 상한 — 문헌이 아니라 코드가 칸을 막고 있는가.
+
+    격자가 며칠 정체한 원인이 코드에 박힌 등급 리터럴이었다. 겉으로는 "근거
+    부족"으로 보여 다음 회차가 또 문헌을 찾으러 갔다. 이 신호가 있으면 문헌
+    조사보다 코드 정리가 먼저다.
+    """
+    r = _run([PY, str(ROOT / "tools" / "confidence_cap_audit.py"), "--json"])
+    if r.returncode not in (0, 1):
+        return {"ok": False, "error": r.stderr[-200:]}
+    try:
+        d = json.loads(r.stdout)
+    except Exception:
+        return {"ok": False, "error": "파싱 실패"}
+    if not isinstance(d, dict) or "pressed" not in d:
+        return {"ok": False, "error": "예상과 다른 JSON 형태"}
+    return {
+        "pressed": len(d.get("pressed") or []),
+        "unjustified_caps": len(d.get("unjustified_caps") or []),
+    }
+
+
+def grid_cells() -> Dict[str, object]:
+    """완성 격자 칸 수 — 정체 자체를 신호로 삼는다.
+
+    며칠 같은 숫자에 멈춰 있었는데 아무도 그것을 '이상'으로 보고하지 않았다.
+    회차마다 기록해 두면 '오르지 않음'이 판정 대상이 된다.
+    """
+    r = _run([PY, str(ROOT / "tools" / "completion.py"), "check"], timeout=900)
+    m = re.search(r"격자\s+(\d+)/(\d+)칸", r.stdout)
+    if not m:
+        return {"ok": False, "error": "칸 수를 읽지 못했다"}
+    return {"done": int(m.group(1)), "total": int(m.group(2))}
+
+
 def snapshot() -> Dict[str, object]:
     print("  · 물리 위생 검사…")
     ph = physics_health()
     print("  · 회귀 테스트…")
     ts = tests()
+    print("  · 근거 등급 상한 감사…")
+    cc = confidence_caps()
+    print("  · 완성 격자…")
+    gc = grid_cells()
     print("  · 과적합 감시…")
     of = overfit()
     print("  · 정확도 백테스트…")
@@ -143,6 +183,7 @@ def snapshot() -> Dict[str, object]:
         "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "commit": _run(["git", "rev-parse", "--short", "HEAD"]).stdout.strip(),
         "physics": ph, "tests": ts, "overfit": of, "accuracy": ac,
+        "caps": cc, "grid": gc,
     }
 
 
@@ -176,6 +217,18 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
     of = cur.get("overfit") or {}
     if int(of.get("risk_count", 0) or 0):  # type: ignore[union-attr]
         v.append(f"🔴 과적합 위험 신호 {of.get('risk_count')}건.")  # type: ignore[union-attr]
+
+    # 근거 등급 상한 — 문헌이 아니라 코드가 칸을 막고 있는가
+    caps = cur.get("caps") or {}
+    if isinstance(caps, dict):
+        if caps.get("ok") is False:
+            v.append(f"🔴 등급 상한 감사를 읽지 못했다 ({caps.get('error')}).")
+        elif int(caps.get("unjustified_caps", 0) or 0):
+            v.append(
+                f"🔴 근거 없는 등급 하한 {caps.get('unjustified_caps')}곳 — "
+                "문헌을 채워도 칸이 오르지 않는 구조다. **문헌 조사보다 코드 정리가 "
+                "먼저다.** 하한이 정당하면 '가장 약한 고리가 무엇인가'를 주석에 적고, "
+                "적을 수 없으면 제거하라.")
 
     if prev is None:
         v.append("ℹ️ 첫 회차 — 비교 대상이 없다. 이 기록이 기준선이 된다.")
@@ -216,6 +269,24 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
                          "물리를 바로잡느라 내려간 것인지 확인하라. "
                          "정직한 하락은 후퇴가 아니다.")
 
+    # ── 정체 감지 — '오르지 않음'을 판정 대상으로 만든다 ────────────────
+    # 격자가 며칠 같은 숫자였는데 아무도 이상으로 보고하지 않았다. 지표가
+    # 나빠지는 것만 잡고 '안 움직이는 것'을 놓치면, 막힌 구조를 영영 못 찾는다.
+    g_now = g(cur, "grid", "done")
+    g_old = g(prev, "grid", "done")
+    if g_now is not None and g_old is not None:
+        if g_now > g_old:
+            v.append(f"✅ 완성 격자 {g_old:.0f} → {g_now:.0f}칸.")
+        elif g_now == g_old:
+            v.append(
+                f"🟡 완성 격자가 {g_now:.0f}칸에서 움직이지 않았다. 연속 정체라면 "
+                "남은 칸이 '근거 부족'인지 '구조가 막은 것'인지 먼저 가려라 — "
+                "후자면 문헌을 더 찾아도 오르지 않는다 "
+                "(tools/confidence_cap_audit.py).")
+        else:
+            v.append(f"🟡 완성 격자 하락 {g_old:.0f} → {g_now:.0f}칸 — "
+                     "판정 기준이 엄격해진 것인지 회귀인지 확인하라.")
+
     if gap_now is not None and gap_old is not None and gap_now > gap_old + 0.05:
         v.append(f"🟡 일반화 격차가 벌어졌다({gap_old:.3f}→{gap_now:.3f}) — "
                  "맞춘 곳에서만 맞기 시작했다는 신호다.")
@@ -253,6 +324,10 @@ def main() -> int:
         print(f"  정확도     : 유의 {ac.get('significant_n','?')}개 "  # type: ignore[union-attr]
               f"ρ={ac.get('rho_significant','?')} "                   # type: ignore[union-attr]
               f"쌍별 {ac.get('pairwise_pct','?')}%")                  # type: ignore[union-attr]
+        cc, gc = cur.get("caps", {}), cur.get("grid", {})
+        print(f"  완성 격자  : {gc.get('done','?')}/{gc.get('total','?')}칸")   # type: ignore[union-attr]
+        print(f"  등급 상한  : 눌린 칸 {cc.get('pressed','?')} · "             # type: ignore[union-attr]
+              f"근거없는 하한 {cc.get('unjustified_caps','?')}곳")              # type: ignore[union-attr]
         print(f"  자유도 예산: {of.get('G1','?')} · 유도비율 {of.get('G2','?')} · "  # type: ignore[union-attr]
               f"편중 {of.get('G3','?')} · 일반화격차 {of.get('G4','?')}")            # type: ignore[union-attr]
         print()

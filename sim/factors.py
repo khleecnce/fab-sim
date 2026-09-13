@@ -182,6 +182,12 @@ def _worst_conf(*confs: str) -> str:
 
 
 def _pack_conf(pack, *keys: str) -> str:
+    """주어진 키들의 근거 등급 중 가장 약한 것.
+
+    ⚠ 키가 하나도 없으면 "unverified" 를 돌려준다 — 이것은 하한이 아니라
+    **"근거를 물어볼 대상이 없다"**는 뜻이다. 선언되지 않은 것을 통과시키면
+    미선언이 통과로 읽힌다.
+    """
     confs = []
     for k in keys:
         if pack.has(k):
@@ -391,7 +397,13 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
         and pk.has("retaining_ring_pressure_psi") and lam.value is not None
     )
     f.status = "modeled" if have_all_channels else "partial"
-    f.confidence = _worst_conf(_pack_conf(pk, "sfr_ml_min"), "estimated")
+    # 등급 하한 판정 (2026-09-13) — 근거 없는 리터럴을 걷어낸다.
+    #   이 팩터의 가장 약한 고리는 무엇인가? 결합 관계(마찰일 → 온도 상승)는
+    #   에너지 보존에서 나오고 계수는 문헌 노트에 근거가 있다. 즉 드라이버보다
+    #   약한 별도 요소가 없다. 그러므로 하한을 두지 않고 드라이버 등급을 따른다.
+    #   ⚠ 채널이 덜 갖춰진 상태(partial)는 등급이 아니라 status 가 말한다 —
+    #     둘을 섞으면 문헌을 채워도 등급이 안 오르는 구조가 된다(실제로 그랬다).
+    f.confidence = _pack_conf(pk, "sfr_ml_min")
     f.sources = ["knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md",
                  "knowledge/equipment/cmp-rpm-ratio-flowrate-temperature-mrr-stability.md",
                  "knowledge/equipment/cmp-theta-platen-coolant-temperature-driver.md",
@@ -488,6 +500,12 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
                "duty": duty / duty_ref if duty_ref else 1.0,
                "aging(pcr_decay)": pcr_now / pcr_ref if pcr_ref else 1.0}
     f.status = "modeled" if len(have) == len(needed) else "partial"
+    # 등급 하한 판정 (2026-09-13) — 이 하한은 **정당하다**. 근거를 남긴다.
+    #   가장 약한 고리는 드라이버가 아니라 **PCR 시간 감쇠 앵커**다. 그 수치는
+    #   공개 백서가 재인용한 학회 발표(원문 미확보)에서 왔다 — 즉 2차 인용이라
+    #   드라이버가 전부 문헌값이어도 aging 배수의 크기를 문헌이 보증하지 않는다.
+    #   원문을 확보하거나 앵커를 독립 재현하면 이 하한을 제거할 수 있다.
+    #   (_knowledge_audit/planarization.md 미확보 항목 #12)
     f.confidence = _worst_conf(_pack_conf(pk, *have, "rpm_platen"), "estimated")
     f.sources = ["knowledge/equipment/conditioner-disk-pad-cutting-model.md",
                  "knowledge/equipment/disk-rpm-load-radius-pcr.md"]
@@ -734,10 +752,16 @@ def _f_kappa(rr: "ResolvedRecipe") -> Factor:
     f.terms = terms
     # 네 항이 다 있어야 modeled. 하나라도 빠지면 partial.
     f.status = "modeled" if len(terms) >= 4 else "partial"
+    # 등급 하한 판정 (2026-09-13) — 리터럴 "estimated" 를 걷어내고 실제 약한 고리를 읽는다.
+    #   이 팩터의 가장 약한 고리는 드라이버가 아니라 **결합 지수**일 수 있다.
+    #   그런데 그 지수들은 이미 팩에 등급과 함께 선언돼 있다 — 그러면 리터럴을 박을
+    #   이유가 없다. 선언된 등급을 읽으면 문헌을 확보했을 때 등급이 실제로 오른다.
+    #   (리터럴 하한은 문헌을 아무리 채워도 칸이 안 오르게 만들어 며칠을 정체시켰다)
     f.confidence = _worst_conf(
         _pack_conf(pk, "abrasive_wt_pct", "abrasive_size_nm",
                    "pad_hardness_shore_d", "asperity_density_per_m2"),
-        "estimated")
+        _pack_conf(pk, "abrasive_conc_exponent", "abrasive_size_exponent",
+                   "abrasive_size_exp_below_peak", "abrasive_size_exp_above_peak"))
     f.sources = sorted(set(srcs))
     if f.status == "partial":
         f.notes.append(f"⚠ 부분 모델링 — 반영된 항 {len(terms)}/4: "
@@ -1006,8 +1030,12 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     f.value = val
     f.terms = terms
     f.status = "modeled" if len(terms) >= 2 else "partial"
+    # 등급 하한 판정 (2026-09-13): κ 와 같은 규칙 — 화학 항의 형상 파라미터도
+    # 팩에 등급과 함께 선언돼 있으므로 리터럴 대신 그것을 읽는다.
     f.confidence = _worst_conf(
-        _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"), "estimated")
+        _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"),
+        _pack_conf(pk, "oxidizer_curve_n", "oxidizer_peak_wt_pct",
+                   "ph_peak", "ceria_tooth_gain"))
     f.sources = ["knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
                  "knowledge/cmp/particle-wafer-interaction-"
                  "mechanical-chemical-balance.md"]
@@ -1050,7 +1078,11 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
         f.value = v
         f.terms = {"inhibitor": v}
         f.status = "modeled"
-        f.confidence = _worst_conf(_pack_conf(pk, "inhibitor_mM"), "unverified")
+        # 등급 하한 판정 (2026-09-13): 억제 항의 약한 고리는 흡착-제거 변환 계수다.
+        # 그 계수도 팩 선언값이므로 리터럴 대신 읽는다.
+        f.confidence = _worst_conf(
+            _pack_conf(pk, "inhibitor_mM"),
+            _pack_conf(pk, "inhibitor_strength_k", "inhibitor_ref_mM"))
         f.sources = ["knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
                      "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"]
         f.notes.extend(notes)
