@@ -111,13 +111,13 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | film-cu | 활성 (G1 개방 2026-09-08) | 4/6 (Lv3-1 완료: 저압 Cu CMP <1psi·Cu/Ru·Cu/Mo 갈바닉 억제(니코틴산/구연산), Tamilmani Faraday환산 갈바닉 기여 하이드록실아민계 45% vs H2O2계 3~11% 레짐분리) | 2026-09-12 |
 | slurry-abrasive | 활성 (G2 개방 2026-09-09) | 5/6 (Lv3-1 완료: 세리아 chemical tooth 입자기하·개수축 — 패싯별 Ce면밀도(111)7.89/(100)6.83nm⁻² Brugnoli2023 일치, 입자당 23.3배, 팩버그 ce3_fraction·sti_ceria abrasive_wt_pct 지적) | 2026-09-13 |
 | slurry-chemistry | 활성 (G2 개방 2026-09-09) | 4/6 (Lv2-2 완료: 정지층 선택비 설계 — Kaufman 재료선택비 vs 지형선택비 독립실패, 산화환원축 공유여부로 Class A/B/C 분류, EP3597711B1 Table4 재현으로 블랭킷선택비-침식 무상관 ρ≈0.09 vs 완충pH-침식 ρ≈−0.82) | 2026-09-12 |
-| film-w | 활성 (G2 개방 2026-09-09) | 4/6 (Lv2-2 완료: Ti/TiN 배리어 CMP·W:배리어:옥사이드 3중선택비, US5916855/US9752057 특허 실측, Ti 과황산염 능동산화 W의 3배·TiN은 기계제거지배, W:Ti 선택비 U자형 최소 3.75~4.0:1) | 2026-09-12 |
+| film-w | 활성 (G2 개방 2026-09-09) | 5/6 (Lv3-1 완료: 3D NAND W 벌크/버프 2단계 — 벌크 ~318nm/min·W:TEOS 40–61:1 vs 버프 39–67nm/min·1.09–2.56:1, 버프 비선택으로 배열 침식 15.4→0.9nm, Cabot/Versum 특허 4건) | 2026-09-14 |
 | cmp-data-engineer | 활성 (G2 개방 2026-09-09) | 4/6 (Lv2-2 완료: 합성데이터 생성기 — RBF/Zernike 가산노이즈(McLoone/Susto 2018), 실측 CMP VM 잔차 8.317nm/min 바닥(Li 2019), CV% 5~14% 가이드, spike/drift 탐지 역할분리) | 2026-09-11 |
-| film-nitride | 활성 (G3 개방 2026-09-09) | 4/6 (Lv2-2 완료: SiN 직접 CMP — 하드마스크/게이트 응용, Ce³⁺첨가 RR 10→300nm/min(30배), 카르복실기+음이온연마재 SiN:TEOS 역선택비 최대97:1, FinFET 핀캡 3단계CMP로 제거대상 전환) | 2026-09-11 |
+| film-nitride | 활성 (G3 개방 2026-09-09) | 5/6 (Lv3-1 완료: SiN 억제 첨가제 — 아미노산/폴리카복실산 정량·Langmuir 재현, Praveen2014 La 도핑 세리아서 프롤린 무력화, 3D NAND 요구 SiO₂:Si₃N₄≈30:1(Zhao2025 실측 35.5)) | 2026-09-14 |
 | film-poly-si | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: 고선택비·무결함 Poly 슬러리 리뷰 — 고분자양이온 전하밀도 선택비제어(Penta 2011), 기계화학 선택연마, abrasive-free 버핑. 심야병렬 2노트) | 2026-09-13 |
 | tool-endpoint | 활성 (G3 개방 2026-09-10) | 4/6 (Lv2-2 완료: EPD 트레이스→제거량·잔막 역산, 프린지=상대제거량 무모호/절대두께 모호, 모터전류·마찰계는 Preston RR 곱 이벤트역산, 오버폴리시 예산은 저다운포스 잔막마진에 5~11배 더 좌우) | 2026-09-12 |
 | slurry-colloid | 활성 (G3 개방 2026-09-12) | 4/6 (Lv3-1 완료: 응집억제 첨가제 — 고분자분산제(EAA) 단조안정화 vs 전해질형(SHMP) ∩형 최적점, DLVO+Smoluchowski W 재현; 인라인 LPC Poisson 계수바닥 E=z/√(nλ). Hwang2024·Mei2024·Lee2020) | 2026-09-14 |
-| defect-scientist | 활성 (G3 개방 2026-09-12) | 3/6 (Lv2-1 완료: 부식·피트 결함 형상·밀도·검사판별 — W 부식결함 DIW린스 0→220s에서 0→53개·edge-ring 편중(Choi2022), Cu 억제제↑→입자결함↑ 역설(Ryu2019), Faraday 등가 재현) | 2026-09-14 |
+| defect-scientist | 활성 (G3 개방 2026-09-12) | 4/6 (Lv2-2 완료: 수율 폐형식 Poisson/Murphy/음이항(Cunningham1990) 재현, D0 3nm 0.20~14nm 0.08/cm²·α 3–10(E5), 공간통계 Koo&Hwang2021 E1 전문, WM811k p≈0.14) | 2026-09-14 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 4/6 (Lv2-2 완료: 메가소닉 δ_s=√(2ν/ω) 0.5/1/2MHz→0.80/0.56/0.40µm, 파워밀도 0.5~1.5W/cm²; 마랑고니 LLD h=0.94·l₀·Ca^(2/3); 워터마크=잔류액적 O₂확산 산화물 석출. Wortman-Otto2022·Li2019·Ng2007) | 2026-09-14 |
 | (그 외) | 대기 | — | — |
 

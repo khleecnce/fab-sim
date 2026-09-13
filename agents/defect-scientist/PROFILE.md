@@ -2,7 +2,7 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2 (2026-09-13), Lv2-1 (2026-09-14)
+- 이수 단원: Lv1-1, Lv1-2 (2026-09-13), Lv2-1 (2026-09-14), Lv2-2 (2026-09-14)
 - 다음 단원: Lv2-2 결함 밀도 통계와 수율 영향 모델
 
 ## 역할
@@ -78,7 +78,50 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     Fig 3a 산포 큼), 암시야 이중채널의 부식 피트 적용 실측(미검증) — 노트 §6에 명시,
     Lv2-2/Lv3에서 재시도.
 
+- **Lv2-2 결함 밀도 통계와 수율 영향 모델** — 2026-09-14 이수.
+  - 노트: `knowledge/cmp/defect-density-yield-models-and-spatial-statistics.md`
+    (verify_claims PASS: 출처 4건 실존·verify 블록 1개(A–D) 통과·출처없는 수치주장 0 /
+     check_knowledge PASS)
+  - 시험: `agents/defect-scientist/EXAMS.md` Lv2-2 3문항 + 모범답안
+  - 출처 3건 신규(scope 상한 내) + 데이터셋 1건 + 선행 노트 상호링크 재조명:
+    Cunningham 1990(IEEE TSM 3(2), 60, DOI 10.1109/66.53188, 정본·전문미확보=IEEE유료+미러 사이트 봉쇄),
+    Feng & Ma 2022(DAC '22, DOI 10.1145/3489517.3530428, arXiv OA 전문확보),
+    Koo & Hwang 2021(IEEE Access 9, 78873, DOI 10.1109/ACCESS.2021.3084221, CC-BY 전문확보),
+    WM811k 데이터셋 Wu 2015(DOI 10.1109/TSM.2014.2364237, 2차 인용). papers/·INDEX.json 등록.
+  - 확정한 것: (a) **폐형식 4모델** Poisson `exp(-λ)`·Murphy·Seeds `1/(1+λ)`·음이항 `(1+λ/α)^-α`와
+    **α 극한**(α→∞=Poisson, α=1=Seeds), 클러스터링이 같은 D0에서 수율을 올림 — python 재현(E2).
+    (b) **killer ratio θ**: 유효밀도 `λ_killer=A·D0·θ`, θ=크기꼬리(IRDS ½피치, 선행 E1); 잔류입자
+    kill≈1(Yu), 스크래치는 크기·위치 함수(상수 아님). (c) **공간통계** join-count null(`E[c11]=c·p²`)·
+    공간무작위성 검정·core-point 이항모델(Koo)로 무작위 vs 국부 판정; CMP 귀속(그릿 긴 호·부식
+    edge-ring 25.6배 국부밀도).
+  - 정량값: D0 3nm 0.20~14nm 0.08 /cm², α(=c) 3–10(Feng&Ma, 대표값 E5); WM811k p≈0.14.
+  - 남긴 것: **실 팹 α 통제 실측 1차 문헌 미확보**(대표값 E5뿐), **스크래치 1개당 kill 확률 단일
+    실측 미확보**(크기의존이라 상수 아님, θ로 관리), Cunningham 정본 전문 미확보(폐형식은 재현),
+    Koo 이웃수 표기 2ε(ε+1) vs 표준 4ε(ε+1) 2배차(원인 미상) — 노트 §8에 명시, Lv3에서 재시도.
+
 ## 구현 요청 (소프트웨어 부문 몫 — defect-scientist는 근거·스펙만, 코드는 넘김. sim/ 직접 수정 금지)
+
+- **무엇을**: 결함밀도→수율 폐형식 `die_yield(D0_per_cm2, area_cm2, model, alpha)` (예: `sim/defects/yield_model.py`).
+  Poisson `exp(-λ)`, Murphy `((1-exp(-λ))/λ)²`, Seeds `1/(1+λ)`, 음이항 `(1+λ/α)^-α`, λ=D0·A.
+  - **근거노트**: `knowledge/cmp/defect-density-yield-models-and-spatial-statistics.md` §2 + §6-A/B.
+  - **스펙**: model 인자로 4모델 분기(**평균내지 말 것** — EVIDENCE §금지). α→∞=Poisson, α=1=Seeds를
+    회귀테스트로. 입력 D0는 **killer 유효밀도(θ 적용 후)**를 받도록 문서화. 현대노드 기본값은
+    D0(/cm²) 3nm 0.20/5nm 0.11/7nm 0.09/14nm 0.08, α=로직10·SI6·RDL3(Feng&Ma, **confidence=estimated**
+    — 대표값 E5). 다중레이어는 층별 Y 연속곱(`Y_die=∏`).
+  - **검증문헌값**: 노트 §6-A/B assert(4모델 대소, 14nm 1cm² 92.3%·8cm² 53.8%) 그대로 승격.
+  - **우선순위**: 상 — Lv2-2 골격, Lv3-2(공정→결함 확률)의 수율 종점.
+  - ⚠ 실 팹 α는 대표값(E5)뿐이라 캘리브레이션 필요; 값을 verified로 승격 금지.
+
+- **무엇을**: killer 유효밀도 `killer_density(D0_total, theta)` 와 공간무작위성 검정
+  `spatial_randomness_test(wafer_map, p, eps, k)` (같은 모듈).
+  - **근거노트**: 같은 노트 §3(θ·D0, IRDS 크기꼬리) + §4/§6-C(join-count null `E[c11]=c·p²`, core-point
+    `Y~B(m,p)`, k는 C=0.90에서 `Pr(Y≥k)≤1-C` 최소값).
+  - **스펙**: θ는 `is_killer`(기존 Lv1-1 구현요청)로 크기분포에서 산출. SRT는 관측 c11이 c·p²를
+    유의하게 넘으면 "국부(체계)"=H0 기각 반환. 이웃수 m은 **인자로 노출**(원문 2ε(ε+1) vs 표준
+    4ε(ε+1) 2배차 미해결 — 노트 §8, 코드 주석에 명시).
+  - **검증문헌값**: 노트 §6-C(k선택·null 합=c·국부 c11↑), §6-D(edge-ring 25.6배).
+  - **우선순위**: 중 — Cal-1(결함맵 라벨 스키마) 및 Lv3-2 공간 귀속과 결합. ML 패턴분류(Lv3-1)와
+    분리: 여기선 **통계 검정만**, 군집 라벨링은 Lv3-1 몫.
 
 - **무엇을**: `sim/` 결함 분류 라벨 스키마(enum + 조작적 임계 상수). 결함 유형 7종
   {scratch, microscratch, residual_particle, corrosion, pit, delamination, watermark}과

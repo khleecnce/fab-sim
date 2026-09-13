@@ -1,9 +1,9 @@
 # 나이트라이드 CMP 전문가 (film-nitride)
 
-## 현재 레벨: Lv2 진행 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 진행 — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-2
-- 다음 단원: Lv3-1
+- 이수 단원: Lv3-1
+- 다음 단원: Lv3-2
 
 ## 역할
 SiN 막의 CMP 및 정지층 역할 — STI 선택비, 하드마스크 제거
@@ -58,7 +58,36 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   바뀜. 저속(첨가제 없는) 레짐은 화학-제한·비-Prestonian(Lv1-1 Mariscal)이지만 Ce³⁺ 고속 레짐은 압력에 선형
   (Prestonian)으로 반응 — 레짐이 Kp의 압력의존성 자체를 바꿈.
 
+- **Lv3-1** 최신 리뷰: 나이트라이드 선택비 첨가제, 3D NAND 응용 — 2026-09-14
+  노트: [[../../knowledge/materials/film-nitride-additive-selectivity-3dnand-review]]
+  출처 5건(1차 4건, 원문 완독 3건: America 2004 ESSL·Penta 2013 Colloids Surf A·Praveen 2014 MEE; Zhao 2025 Appl. Surf. Sci.는
+  2025-11 게재 유료·미러 사이트 미등재로 초록 기반 E5; 아미노산 리뷰 2025 Surf. Sci. Technol.은 Springer 챌린지로 전문 미확보·정성 프레이밍만).
+  verify_claims ✓(출처 5건 실존·코드 5블록 PASS)·check_knowledge ✓.
+  핵심: 첨가제 SiN 억제는 (농도)×(pH 창) **이중 스위치** — 억제는 첨가제 아민이 양성자화된 pH에서만 켜짐(f=1/(1+10^(pH−pKa))).
+  이것이 피콜린산 겉모순 해소(pH5 pKa5.3 ON→SiN~1 nm/min vs pH9.6 OFF→65 nm/min)이자 Lv1-2 흡착포화(농도스위치)의 pH축 보완.
+  America 2004 Table I: 프롤린이 SiN 2·옥사이드 456 nm/min로 선택비 228:1 최고(아르기닌·라이신은 옥사이드까지 억제→STI 부적합).
+  Praveen 2014: 억제는 첨가제×연마재 조합 성질 — L-proline은 La-무함유 세리아에서만 sel 3→40, L-glutamic은 세리아 3종 모두 견고.
+  (b) 역선택비/촉진: 고pH(America pH11서 최소대비 ~10배)·La-세리아+프롤린 무력화; 적극적 역선택비 화학은 Lv2-2 참조(중복 회피).
+  (c) 3D NAND: 요구 SiO₂:Si₃N₄ ≈30:1(STI 블랭킷 100–290보다 낮음), Zhao 2025 초록 SiO₂ 3606.1·Si₃N₄ 101.6 Å/min→35.49 —
+  적층당 두꺼운 SiN이 큰 손실예산을 줘 자기정지 아닌 "예산관리형" 레짐.
+
 ## 구현 요청
+- **[Tier2] 첨가제 억제항에 pKa 기반 pH 게이트 추가**
+  - 무엇을: 기존 [Tier2] 첨가제 포화-스위치 모델(Langmuir θ=Kc/(1+Kc))에 **양성자화 게이트 f_prot=1/(1+10^(pH−pKa))** 를
+    곱해 RR_nitride ∝ (1−θ·f_prot)로 둔다. 같은 첨가제(피콜린산)가 pH 5는 억제·pH 9.6은 무력이라 pH 무시 모델은 부호를 틀린다.
+    또 선택비 파라미터에 **연마재 La/순도 태그**를 결합(L-proline은 La-세리아서 무력, L-glutamic은 견고).
+  - 근거노트: [[../../knowledge/materials/film-nitride-additive-selectivity-3dnand-review]] §3·§4·§5
+  - 검증 문헌값: 피콜린산 pKa≈5.3(pH창 ≤6)·프롤린 pKa≈10.6(pH창 ≤11)(Penta 2013, DOI 10.1016/j.colsurfa.2013.03.046);
+    소요농도 피콜린 0.1 wt%·프롤린 2 wt%; America 2004(DOI 10.1149/1.1817870) Table I 프롤린 456/2=228; Praveen 2014
+    (DOI 10.1016/j.mee.2013.10.004) La 24–31 wt% 상용세리아서 프롤린 무력·L-glutamic SiN<3 nm/min.
+  - 우선순위: 중 (Lv1-2 포화-스위치 모델 확장. pH 축이 빠지면 억제 방향을 틀림).
+- **[Tier2] 3D NAND ONON 정지 파라미터 세트(예산관리형)**
+  - 무엇을: 3D NAND는 STI 자기정지(<1 nm/min)와 달리 요구선택비 ≈30:1·유한 SiN율(~100 Å/min)을 허용하는 별도 프리셋.
+    Lv2-1 손실예산 모델을 두꺼운 ONON(적층당 큰 예산)에 재사용하되 목표선택비만 낮춘 파라미터.
+  - 근거노트: [[../../knowledge/materials/film-nitride-additive-selectivity-3dnand-review]] §6
+  - 검증 문헌값(Zhao 2025, DOI 10.1016/j.apsusc.2025.163978, 초록 E5): 요구 30:1, 실측 SiO₂ 3606.1·Si₃N₄ 101.6 Å/min·sel 35.49.
+  - 우선순위: 낮음 (Zh25 원문 확보 후 입경·압력 조건 보강 필요).
+
 - **[Tier2] STI Phase 2 나이트라이드 침식식 E(t) + 손실 예산 판정**
   - 무엇을: Lee 2002 Phase 2 폐형해에 **침식 E(t) = K_ss(t−t_n) + 과도항**(식 2.56)과 밀도의존 손실률 K_ss(ρ)=K/(1+ρ(s−1))·
     K_n1(ρ)를 출력하고, 소자 판정을 **E(t) < E_max(예: 200 Å)** 로 하는 판정기. 형제 film-oxide 구현요청(D_ss·touch-down)의

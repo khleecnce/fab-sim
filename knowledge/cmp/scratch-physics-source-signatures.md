@@ -9,7 +9,8 @@
 > [[w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019]],
 > [[../equipment/conditioner-grit-wear-scratch-lifetime]](같은 Kwon 2013 Tribol. Int. 논문을
 > **디스크 수명** 관점에서 다룸 — 본 노트는 같은 논문에서 **디브리 크기·형상 신호**만 가져오고
-> 패드 절삭율·수명 판정은 중복 서술하지 않는다), [[colloid-zeta-dlvo-slurry-stability]]
+> 패드 절삭율·수명 판정은 중복 서술하지 않는다), [[colloid-zeta-dlvo-slurry-stability]],
+> [[defect-density-yield-models-and-spatial-statistics]](Lv2-2 — 여기 §7의 디스크 그릿 긴 호(곡률 0.24–0.50m)를 **결함맵 공간 signature→CMP 원인 귀속**으로 받는다)
 
 ## 1. 질문을 바꾼다 — "스크래치가 몇 개인가"가 아니라 "이 스크래치는 누가 냈는가"
 Lv1-1에서 스크래치의 조작적 정의(길이 ≥ 50 µm, dark-field 계수)와 검사장비를 고정했다. 그러나

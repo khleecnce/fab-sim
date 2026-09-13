@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv2 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2
-- 다음 단원: Lv3-1 (최신 리뷰: 3D NAND 워드라인 W CMP, 저결함 W 슬러리)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1
+- 다음 단원: Lv3-2 (W Kp·산화 속도 파라미터 + 문헌값 재현, sim/tier2)
 
 ## 역할
 W 플러그·contact CMP — 산화제(H2O2/Fe) 화학, 리세스·코어링, 배리어(Ti/TiN)
@@ -43,7 +43,31 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   dishing/erosion 악화, 균형점(3.75~4.0:1)에서 최소 — 선택비는 극대화가 아니라 균형 창 문제. verify_claims
   ✓(출처 3/코드 4블록) · check_knowledge ✓. EXAMS Lv2-2 3문항.
 
+- Lv3-1 (2026-09-14): 3D NAND 워드라인 W CMP와 벌크·버프 2단계 슬러리 — 고 MRR 벌크제거 vs
+  저결함 버프 마무리. 노트 `knowledge/cmp/w-cmp-3dnand-wordline-bulk-buff-two-stage-low-defect.md`.
+  1차 특허 원문 4건 — Cabot Microelectronics US20190211228A1(벌크, 등록 EP3738140B1/TWI772590B)·
+  US20190211227A1(버프, 등록 JP7370984B2): freepatentsonline WebFetch 판독, 실시예 Table 값을 RR로부터
+  선택비 역산해 자체 대조 — + Versum EP3597711B1(pKa≥4 침식억제제·pH≥4 유지, 로컬 전문)·KR102732305B1
+  (아미노실란/인 혼입 콜로이달 실리카, 벌크↔버프 pH 레짐, 로컬 전문) — + 보조 초록 Wang 2024 DOI
+  10.1149/2162-8777/ad60fe(710 Å/min, E5). 핵심 정량: (1) 벌크 W ~318 nm/min·W:TEOS 40–61:1(발명예가
+  비교예의 ~2배), 120 nm 개질입자가 0.18µm 고립 라인 국소부식 5→1 nm(−80 %). (2) 버프 W 39–67 nm/min
+  (벌크의 1/5~1/8)·W:TEOS 1.09–2.56:1(비선택), 배열 침식 15.4→0.9 nm(−94 %)·1µm 라인 24.6→7.4 nm(−70 %).
+  (3) 저결함 3축=입자(개질·ζ)×산화제/억제제(Fe³⁺/H₂O₂/글리신)×pH 완충(부산물 산성화 상쇄). verify_claims
+  ✓(출처 7/코드 3블록) · check_knowledge ✓. EXAMS Lv3-1 3문항.
+
 ## 구현 요청 (software-lead용, 우선순위 순)
+
+- (P2) **벌크·버프 2단계 W CMP MRR/선택비/침식 트레이드오프 모델**: 두 단계를 서로 다른 동작점으로
+  태그. 벌크: 고 MRR(W ~318 nm/min)·고선택(W:oxide ~40–61:1), 출력=throughput·초기 EOE. 버프: 저 MRR
+  (~40–67 nm/min)·비선택(~1–2.6:1), 옥사이드도 함께 제거해 벌크가 남긴 프로트루전/침식을 편평화(→
+  Yu 2009 산화막버프 폐형 모델 `_f`와 결합, w-cmp-plug-recess 노트 §4). 근거노트
+  `w-cmp-3dnand-wordline-bulk-buff-two-stage-low-defect.md` §2·§3·§4·§7[A][B]. 검증 문헌값: 벌크 Table 2
+  (W RR 267~330 nm/min, 선택비 40~61:1, US20190211228A1); 버프 Table 3(W 39~67 nm/min, 선택비
+  1.09~2.56:1)·Table 4(배열 침식 15.4→0.9 nm, 1µm 24.6→7.4 nm, US20190211227A1). **계수는 패턴·패드
+  의존이라 Cal-1에서 재추출** — 절대 nm 이식 금지, 부호·배수 구조만.
+- (P3) **저결함 pH-완충 침식 항**: W 연마 부산물(텅스텐산) 산성화로 pH 하강 → 조밀 W 구조 침식 증가.
+  pKa≥4 억제제로 pH≥4 유지 시 침식 저감. 산화제 세기와 독립 축. 근거노트 동일 §5(EP3597711B1). 검증값:
+  W:oxide >10·>40(pH≥4 유지). **pH-부산물 동역학 1차 데이터 미확보 → Cal-1에서 실측 필요, 정성 플래그로만**.
 - (P2) **Fe 촉매 농도 → W MRR 종형(포화) 모델**: MRR ∝ 생성률(Fe↑ 증가) × 활용률(Fe↑ 자기소거로
   감소). 근거노트 `w-cmp-fenton-catalyst-abrasive-alumina-silica.md` §2.2·§3. 검증 문헌값: Lim 2013
   region I 급증(0.01 wt% 923 Å/min) → region II 완만(>0.1 wt%); Buxton 1988 속도상수비 16. 현재

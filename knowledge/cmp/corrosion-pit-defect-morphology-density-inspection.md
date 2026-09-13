@@ -11,6 +11,7 @@
 >   정의·갈바닉 2–32 µA/cm²·dark-field·convex/concave"를 **부식 결함 축으로 확장**한다. 중복 서술 대신 링크로 참조)
 > 관련: [[scratch-physics-source-signatures]] (Lv1-2 — 스크래치 형상 신호. §3의 구별에서 대비축) [[cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor]] (BTA·Pourbaix — film-cu 소유)
 > [[metal-contamination-device-impact-irds-limits]] [[pattern-dependent-dishing-erosion]]
+> [[defect-density-yield-models-and-spatial-statistics]](Lv2-2 — 여기 §1.1의 edge-ring(r145–148mm)·부식 개수(0/12/363)를 **공간 비무작위성 검정·수율 폐형식**으로 받는다)
 >
 > **스코프(결함 관점만)**: (a) 부식·피트 결함의 **형상·크기·밀도** 정량(개수/wafer, 위치, 산화막 두께, 노듈 지름), (b) 슬러리·공정 화학 변수(pH·산화제 H₂O₂·억제제 BTA/MBTA
 > 농도·세정/린스 시간·가압)→**부식 결함 밀도**의 실측 정량 관계, (c) 부식 결함을 **스크래치·잔류입자와 구별하는 신호**(검사 채널·형상·조성). **제외**(형제 영역): 갈바닉·혼합전위·

@@ -2375,3 +2375,19 @@ slurry-colloid(3/6)·tool-post-clean(3/6). 성장엔진 최근(세리아 입경/
 품질게이트(check_knowledge --all 직접실행): 163/164 통과 — ✗ 1건은 기존 반려건(components/_SCHEMA.md, 스키마 문서)이고 신규 3편 무관. verify_claims 신규 3편 전원 PASS(DOI 19건 전부 실존).
 체크박스 3개 [x], ORG §5 3행 갱신. 내 파일만 git add(EVIDENCE-RULES·sim/factors·validation/* 등 타크론 미커밋 변경 제외). 한도 여유(429 흔적 없음).
 다음 회차 후보: defect-scientist Lv2-2(결함 밀도 통계·수율), slurry-colloid Lv3-2(sim/tier2 이력→입도 모델), tool-post-clean Lv3-1.
+
+## 2026-09-14 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — defect-scientist Lv2-2 · film-w Lv3-1 · film-nitride Lv3-1
+QA루프 #65 PASS(유의 7/20 ρ=0.9537 불변, 격리 1: dandu2009 원문 미확보·F4 used_for_calibration 누락, 3회차 연속 하락 없음). corpus fetch60/extract120 —
+fetch ✓0/✗60(ECS/JKEM/TEEM/OpenAlex 전부 봉쇄 — 논문 큐도 막힘, 특허 403에 이어 소스 고갈 징후), total 8960/with_fulltext 1510/queue fetch 7450·learn 1499.
+completion 27/50(직전 25 → +2, Max워커 ψ 세리아 2팩 literature 승격 효과; C2 Γ/χ/ψ/τ 23칸 잔존). 대상: progress.py 최저진도 defect-scientist(3/6) + 4/6 그룹 중
+G4 선수조건 직결인 film-w·film-nitride(cmp-calibrator/film-emerging 게이트). 성장엔진·Max워커(Δ d99 브리프 진행중)와 무충돌. claude -p opus 3병렬(--max-turns 80), 13~22분 소요.
+- defect-scientist Lv2-2: knowledge/cmp/defect-density-yield-models-and-spatial-statistics.md (출처4·코드1블록). Poisson/Murphy/음이항 폐형식 재현(Cunningham1990 DOI 확인, 전문은 IEEE+미러 사이트 봉쇄로 미확보→E2 재현),
+  Feng&Ma2022 arXiv OA 전문(D0 3nm 0.20→14nm 0.08/cm², α 3–10 E5), Koo&Hwang2021 CC-BY 전문(공간통계 E1, 이웃수 2ε(ε+1) vs 표준 4ε(ε+1) 2배차 원인미상 명시). 스크래치 kill 확률=크기의존이라 상수 아님→θ로 관리. 구현요청 2건. 미검증 6.
+- film-w Lv3-1: knowledge/cmp/w-cmp-3dnand-wordline-bulk-buff-two-stage-low-defect.md (출처7·코드3블록). Cabot US20190211228A1/227A1·Versum EP3597711B1 특허 원문(freepatentsonline) — 벌크 318nm/min·W:TEOS 40–61:1 vs 버프 39–67nm/min·1.09–2.56:1,
+  배열 침식 15.4→0.9nm(−94%). WL 게이트 자체는 에치백(CMP 아님) 정직 표기. 입경-MRR은 다중교란이라 판정#6 유지(slurry-abrasive 영역 불침범). 구현요청 2건. 미검증 6.
+- film-nitride Lv3-1: knowledge/materials/film-nitride-additive-selectivity-3dnand-review.md (출처5·코드5블록). America2004·Penta2013·Praveen2014 원문 완독(미러 사이트→미러 사이트), Langmuir 재현,
+  원문 Table 알라닌 산술 불일치(455/18=25.3≠인쇄 30.3, 17%) 은폐 없이 명시. Zhao2025 3D NAND 요구 ≈30:1·실측 35.49(초록 E5). 구현요청 2건(pKa pH 게이트·3D NAND 예산관리형 프리셋). 미검증 1.
+품질게이트(check_knowledge --all 직접실행): 167/168 — ✗ 1건은 기존 반려 components/_SCHEMA.md(스키마 문서)로 신규 3편 무관. verify_claims 신규 3편 전원 PASS(DOI/특허 16건 실존, 코드 9블록 0실패). 429 흔적 없음.
+체크박스 3개 [x], ORG §5 3행 갱신. 타크론 미커밋(EVIDENCE-RULES·params/*.yaml·validation/*·abrasive-d99 노트)은 제외하고 내 파일만 add.
+⚠ 코퍼스 fetch 0/60 — 논문 소스까지 전면 봉쇄. 다음 낮 회차에서 corpus.py 소스별 실패 원인(HTTP 코드) 집계 필요.
+다음 회차 후보: defect-scientist Lv3-1(ML 분류·RCA), film-w Lv3-2(W Kp·산화속도 파라미터, sim/tier2), film-nitride Lv3-2, cmp-data-engineer Lv3-1(G4 cmp-calibrator 선수).
