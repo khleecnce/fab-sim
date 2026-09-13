@@ -239,3 +239,25 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   (DOI:10.1557/proc-1249-e02-04)은 가속수명시험(공격적 W 슬러리)이라 τ 역산 3.16h vs 현행 27.4h로
   **8.7배 괴리** — 계 불일치로 대체 불가 판정. **코드·팩 무수정, Γ 하한 estimated 유지.**
   격자 25/50 불변, pytest 645 passed, qa_loop --strict PASS ρ=0.9537.
+- 2026-09-14 [Max워커] ψ 세리아 2팩(sti_ceria·sic_ceria_h2o2) confidence estimated→literature,
+  격자 25→27/50. EVIDENCE-RULES 판정#15. 근거: Kim et al. 2024(doi:10.3390/polym16243593,
+  PMC11679047, CC-BY, OA 전문 확보) — 세리아+EAA 공중합제 분산제/PETEOS oxide 실측에서
+  분산제 함량 5→7wt% 시 MRR이 4224→4712 Å/min(+11.55%)로 **오른다**. 실리카(Li 2021 PVA
+  −3.6%/PVP −7.9%)와 **부호가 반대**. `dispersant_type="NONE"`(배수 1.0) **값은 유지** —
+  DLS 입경이 281.6→227.2nm로 동시에 변해(판정#13 Hwang 2026과 동형 교란) 정량 ψ 배수는
+  여전히 추출 불가. 이 팩의 κ 정점 모델(peak=163nm)로 역산하면 입경만으로 +7.42%가
+  설명되고 잔차 +3.85%도 억제 방향이 아님을 verify 블록으로 확인. 즉 승격의 의미는 "NONE의
+  정량값이 나왔다"가 아니라 "실리카형 억제를 쓰지 않는다는 결정이 부호 반대의 1차 대상계
+  실측으로 뒷받침된다"이다. 노트: knowledge/cmp/ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md,
+  커밋 9c3a176. pytest 645 passed, qa_loop --strict PASS ρ=0.9537 불변.
+- 2026-09-14 [Max워커] Δ abrasive_d99_nm confidence **역전 시정**. EVIDENCE-RULES 판정#16.
+  격자 27→27/50 **불변**(상향 2칸과 하향 2칸이 상쇄). 발견: 실측이 없다고 노트가 자백한
+  유도값(w_fe_oxidizer, D50×일반비 5.00)이 `literature`인데, 화학종·용도가 일치하는 특허
+  직접 실측 이식값(sti_ceria, Hitachi US8439995B2 Ex.1 D99=700nm)이 `estimated`였다 — 약한
+  근거가 강한 근거보다 높은 등급. 조치: sti_ceria/sic_ceria_h2o2 estimated→literature(E2),
+  cu_h2o2_bta/w_fe_oxidizer/oxide_silica literature→estimated(E4/E5). 재현 검증: 일반비 5.00을
+  유일한 실측 D99/D50 대응쌍(Hitachi 4점)에 대면 제어된 예(Ex.1/Ex.2)에서 30~60% 괴리, 조대입자
+  비교예는 반대 방향으로 2배 이상 벗어나 **재현되지 않는다**. sti_ceria D50(60nm)에 같은 비를
+  적용하면 300nm로 현 baseline 700nm과 2.33배 불일치. **칸 수는 안 늘었지만 오염이 제거됐다**
+  — 근거 서열에 따라 하향을 감수한 결과다. 노트: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md
+  §9, 커밋 43f7c5a. pytest 645 passed, qa_loop --strict PASS ρ=0.9537 불변.
