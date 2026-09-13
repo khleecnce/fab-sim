@@ -279,3 +279,29 @@ print("PASS: (A)~(E) 전부 문헌 상수 재현/대조 통과")
 - J. McGrath, C. Davis (2004), "Polishing pad surface characterisation in chemical mechanical planarisation", *J. Mater. Process. Technol.* 153-154, 666-673, doi.org/10.1016/j.jmatprotec.2004.04.094 — DOI 실존 확인, 초록 스니펫만(2차).
 - L. Borucki (2002), "Mathematical modeling of polish-rate decay in chemical-mechanical polishing", *J. Eng. Math.* 43, 105-114, doi.org/10.1023/A:1020305108358 — DOI 실존 확인, 본문 미확보.
 - Hong Shi, Terry A. Ring (2010), *Microelectron. Eng.* 87, 2368, doi.org/10.1016/j.mee.2010.04.010 — [[pad-conditioning-wear-regeneration-balance]]에서 전문 확보 완료, 이 노트는 재인용.
+
+## 8. 비-실리카 계 외삽 갭 — 1차 문헌 탐색 기록 (2026-09-13 [Max워커], 1회차)
+
+`_f_stab()`은 confidence를 `literature if abrasive == "silica" else "estimated"`로 준다.
+Jeong 2024 원 데이터가 콜로이달 실리카/IC1000 단일계이기 때문이다. 따라서 S(stab) 팩터의
+C2 미충족 4칸(cu_h2o2_bta=알루미나, sic_ceria_h2o2·sti_ceria=세리아, w_fe_oxidizer=알루미나)은
+**"다른 연마입자계에서 무-컨디셔닝 시간감쇠를 실측한 1차 문헌"** 하나로 동시에 해소된다
+(`tools/blockers.py` 키별 1위: time_s 4칸).
+
+이번 회차 탐색 결과 — **미확보**:
+
+| 후보 | 상태 |
+|---|---|
+| Pad Surface Variation and its Effect on SiO₂ Removal Rate in Ceria-based CMP Slurry, **CSTIC 2023, doi:10.1109/cstic58779.2023.10219240** | 제목·DOI상 **정확히 필요한 세리아 계 문헌**. IEEE 유료. 미러 사이트 "논문을 찾을 수 없습니다", 미러 사이트/.ren Cloudflare Turnstile 캡차, 미러 사이트/.st DNS 불능 → 본문 미확보 |
+| Effect of Pad Surface Roughness on SiO₂ Removal Rate in CMP with Ceria Slurry, JJAP 45, 733 (2006), doi:10.1143/jjap.45.733 | Unpaywall이 OA로 표시하나 IOP `/pdf`가 14 KB HTML(봇 차단) 반환 → 미확보 |
+| Choi, Doyle, Dornfeld, *ECS JSSST* **6**, P187 (2017), doi:10.1149/2.0351704jss | **OA 전문 확보**(11 p). 그러나 내용은 BTA 보호막 제거효율(전기화학 전류밀도)이지 **시간감쇠가 아니다** — 이 갭에 무효 |
+| Seo, *J. Mater. Res.* (2020), doi:10.1557/s43578-020-00060-x | 전문 확보(23 p, 리뷰). 2차 인용이라 C2 승격 근거로 불가 |
+
+**판정(미종결, 1회차)**: 알루미나·세리아 계 시간감쇠는 지금 코퍼스로 확정할 수 없다.
+근거 없이 실리카 계수(a=1.1478, b=−0.1109)를 4팩에 전이하는 것은 금지 — 같은 노트 §3이
+**fumed vs colloidal 실리카만으로도 감쇠율이 5배 차이**남을 기록하고 있어, 연마입자 종류를
+넘는 전이는 E4(타계 전이)로도 정당화되지 않는다. 현행 `estimated` 유지가 정직한 상태다.
+
+EVIDENCE-RULES §3회차 규칙 적용 대상으로 등록한다 — **이 갭은 3회차까지만 보류 가능**하며,
+그때까지 1차 문헌을 못 구하면 (a) CSTIC 2023을 다른 경로로 확보하거나 (b) "S팩터는
+실리카 계에서만 literature, 그 외는 스코프 밖"으로 **스코프 축소 종결**한다.
