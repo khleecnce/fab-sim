@@ -42,7 +42,7 @@ nitrate")이다 — **텅스텐이 아니라 구리** 계다. 더구나 이 판�
 텅스텐용 60 nm 알루미나·질산철 조합을 뒷받침하는 서술은 이 판례문서 어디에도 없다.
 
 ## 4. 채택 — Bielmann et al., *Electrochem. Solid-State Lett.* 2(3), 148–150 (1999) (E2)
-DOI: 10.1149/1.1390765(원문 PDF 확보). 계 근접도가 가장 높다 — **CVD W(0.6 μm)막, γ-알루미나
+DOI: 10.1149/1.1390765 (원문 PDF 확보). 계 근접도가 가장 높다 — **CVD W(0.6 μm)막, γ-알루미나
 연마입자, Fe계 산화제[K₃Fe(CN)₆, 0.1–0.15 M], pH 4(HNO₃로 조정)**, IC-1000/SUBA IV 패드, 6.5 psi,
 150 rpm 실제 CMP 폴리싱 실험(제거율 결과로 자체 검증됨). 원문 실험절 발췌:
 > "The polishing slurries contained 10 wt % γ-alumina particles (**primary size ~50 nm diam**)."
