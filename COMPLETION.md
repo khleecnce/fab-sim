@@ -224,3 +224,11 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   팩 damage_exponent가 Egan&Kim 2019(텅스텐→구리 화학종 전이)라 estimated, sti_ceria는 abrasive_d99_nm
   기준점이 Hitachi 특허값 이식이라 estimated(sic_ceria_h2o2는 상속) — 억지 승격 대신 실제 근거 등급을 정직 반영.
   pytest 645 passed(테스트 수정 0), qa_loop --strict PASS ρ=0.9537 불변(Δ는 MRR 비결합, 예상대로).
+- 2026-09-14 [Max워커] χ 병목 ceria_tooth_gain(세리아 2팩 유일 병목) 1차근거 시도 → **미확보로 종결**
+  (EVIDENCE-RULES 판정#13). Ce3+/Ce4+ 비만 독립 스윕한 문헌 3편(doi:10.1016/j.mssp.2023.107349,
+  doi:10.1016/j.powtec.2021.11.069, doi:10.1021/acsaelm.2c01553) DOI 실존 확인했으나 전문 획득 실패
+  (미러 사이트 미등재/altcha 차단/Cloudflare 403). 이미 보유한 Hwang 2026(Polymers CC-BY)은 Ce3+ XPS와
+  oxide MRR을 같은 실험에서 보고(22.1%→114.4 Å/min vs 17.7%→57.5 Å/min)하나 두 시료가 TEM 입경·XRD
+  결정자·BET 비표면적도 동시에 변해 Netzband 2020과 동형의 다중교란 — naive gain≈3.98이 나오지만
+  교란비(1.2~1.4배)가 같은 오더라 귀속 불가. **gain=1.0/unverified 유지, 팩 YAML 무수정.**
+  격자 25/50 불변, pytest 645 passed, qa_loop --strict PASS ρ=0.9537.
