@@ -1173,5 +1173,14 @@
   "authors": "Pysher D, Goers B, Zabasajja J",
   "venue": "Mater. Res. Soc. Symp. Proc. 1249, 1249-E02-04 (2010)",
   "note": "cmp/scratch-physics-source-signatures.md"
+ },
+ "sparks1982-nbsir82-1664-pu-foam-thermal-conductivity": {
+  "src": "NIST NVL public PDF (nvlpubs.nist.gov/nistpubs/Legacy/IR/nbsir82-1664.pdf), US Gov 저작물",
+  "pdf_local": "papers/sparks1982-nbsir82-1664-pu-foam-thermal-conductivity.pdf",
+  "doi": "10.6028/nbs.ir.82-1664",
+  "title": "Thermal Conductivity of a Polyurethane Foam from 95 K to 340 K",
+  "authors": "Sparks L. L.",
+  "venue": "NBSIR 82-1664, National Bureau of Standards (1982)",
+  "note": "physics/frictional-heating-temperature-arrhenius-coupling.md §9 (PU 폼 k 하한 앵커, Table 4: 297.00 K -> 21.6 mW/m.K)"
  }
 }

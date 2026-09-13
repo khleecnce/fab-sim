@@ -50,6 +50,18 @@ AIR_NU_M2_S = 1.5e-5                      # 공기 동점성계수 @~300 K
 WATER_RHO_KG_M3 = 1000.0
 WATER_CP_J_KGK = 4180.0
 
+# ── 웨이퍼/헤드 경로 물성 (§9, 2026-09-13 추가) ───────────────────────────────
+SI_THERMAL_CONDUCTIVITY_W_MK = 142.0   # Glassbrenner & Slack, Phys. Rev. 134 A1058 (1964),
+                                       # doi:10.1103/PhysRev.134.A1058 — 순수 Si @300 K
+SI_WAFER_THICKNESS_200MM_M = 725e-6    # SEMI M1 공칭 두께 (200 mm)
+SI_WAFER_THICKNESS_300MM_M = 775e-6    # SEMI M1 공칭 두께 (300 mm)
+PU_FILM_THERMAL_CONDUCTIVITY_W_MK = 0.0216   # Sparks, NBSIR 82-1664 (1982),
+                                       # doi:10.6028/nbs.ir.82-1664 Table 4: 297.00 K → 21.6 mW/m·K.
+                                       # ⚠ 원 시료는 32 kg/m³ 단열 폼이다. CMP 캐리어 필름(치밀 PU)의
+                                       # k는 이보다 크므로 이 값은 **하한 앵커**다(= G_wafer 상한 아님).
+BLADDER_K_AIR_W_MK = 0.026             # 공기 @~300 K (AIR_K_W_MK와 동일, 가독성용 별칭)
+BLADDER_K_WATER_W_MK = 0.61            # 물 @~300 K (표준 물성표)
+
 
 def friction_power_w(mu: float, pressure_pa: float, area_m2: float, velocity_mps: float) -> float:
     """마찰동력 Q_f = μ·P·A·V [W] (White 2003 Eq.1-3: P_mech = c_f·P_r·A·v)."""
@@ -106,6 +118,7 @@ class HeatBalanceResult:
     G_slurry_w_k: float
     G_pad_w_k: float
     G_air_w_k: float
+    G_wafer_w_k: float
     delta_T_ss_k: float
     delta_T_all_slurry_upper_bound_k: float
     h_air_w_m2k: float
@@ -114,21 +127,58 @@ class HeatBalanceResult:
 
     @property
     def G_total_w_k(self) -> float:
-        return self.G_slurry_w_k + self.G_pad_w_k + self.G_air_w_k
+        return (self.G_slurry_w_k + self.G_pad_w_k + self.G_air_w_k
+                + self.G_wafer_w_k)
 
     def partition(self) -> Dict[str, float]:
-        """정상상태 열 3분배 비율(합=1): 슬러리 / 패드 전도 / 공기 대류."""
+        """정상상태 열분배 비율(합=1): 슬러리 / 패드 전도 / 공기 대류 / 웨이퍼-헤드.
+
+        `g_wafer_w_k=0.0`(기본, White 2003 블래더 단열 가정)이면 **"wafer" 키 자체가 없고**
+        나머지 셋은 기존 3분배와 정확히 같다 — 엔진 진단필드 계약 하위호환
+        (tests/test_cmp_theta_steady_state_heat_balance.py가 3키를 검사한다).
+        """
         G = self.G_total_w_k
-        return {"slurry": self.G_slurry_w_k / G, "pad": self.G_pad_w_k / G,
+        part = {"slurry": self.G_slurry_w_k / G, "pad": self.G_pad_w_k / G,
                 "air": self.G_air_w_k / G}
+        if self.G_wafer_w_k:
+            part["wafer"] = self.G_wafer_w_k / G
+        return part
 
     def describe(self) -> str:
         p = self.partition()
         return (f"Q_f={self.friction_power_w:.0f} W, G=(slurry {self.G_slurry_w_k:.2f} + "
-                f"pad {self.G_pad_w_k:.2f} + air {self.G_air_w_k:.2f}) W/K → "
+                f"pad {self.G_pad_w_k:.2f} + air {self.G_air_w_k:.2f}"
+                f"{f' + wafer {self.G_wafer_w_k:.2f}' if self.G_wafer_w_k else ''}) W/K → "
                 f"ΔT_ss={self.delta_T_ss_k:.1f} K (전량슬러리 상한 "
                 f"{self.delta_T_all_slurry_upper_bound_k:.1f} K); 분배 슬러리 {p['slurry']:.0%}/"
                 f"패드 {p['pad']:.0%}/공기 {p['air']:.0%}")
+
+
+def wafer_path_conductance_w_k(area_wafer_m2: float,
+                               t_si_m: float = SI_WAFER_THICKNESS_300MM_M,
+                               k_si_w_mk: float = SI_THERMAL_CONDUCTIVITY_W_MK,
+                               t_film_m: float = 0.5e-3,
+                               k_film_w_mk: float = PU_FILM_THERMAL_CONDUCTIVITY_W_MK,
+                               t_bladder_m: float = 1.0e-3,
+                               k_bladder_w_mk: float = BLADDER_K_AIR_W_MK) -> float:
+    """웨이퍼→캐리어→헤드 경로의 열컨덕턴스 G_wafer = A / ΣR'' [W/K] (노트 §9.2).
+
+    직렬 면적기준 열저항의 합:
+        R''_path = t_Si/k_Si + t_film/k_film + t_bladder/k_bladder   [m²K/W]
+        G_wafer  = A_wafer / R''_path
+
+    실리콘 항은 R''의 0.1% 미만이라 **웨이퍼 두께·200/300 mm 구분은 무의미**하다
+    (§9.3) — 경로 저항은 전적으로 캐리어 필름과 블래더 층이 지배한다. 이것이
+    White 2003이 "블래더 단열"을 이유로 이 경로를 무시한 물리적 근거다.
+
+    ⚠ 미검증: CMP 캐리어 필름의 실제 두께·k를 준 1차 문헌을 확보하지 못했다.
+    k_film 기본값은 단열 PU 폼(Sparks 1982) 값이라 **하한**이고, 치밀 PU라면
+    더 크다. 따라서 이 함수의 기본 반환값은 G_wafer의 하한 추정이다. 크기
+    판정은 §9.3처럼 공기/물 블래더 양 극단을 **범위로** 풀어서 하라.
+    """
+    r_path = (t_si_m / k_si_w_mk + t_film_m / k_film_w_mk
+              + t_bladder_m / k_bladder_w_mk)
+    return area_wafer_m2 / r_path if r_path > 0 else 0.0
 
 
 def steady_state_heat_balance(Q_f_w: float, flow_m3_s: float, area_heated_m2: float,
@@ -136,21 +186,28 @@ def steady_state_heat_balance(Q_f_w: float, flow_m3_s: float, area_heated_m2: fl
                               area_exposed_m2: float, pad_radius_m: float,
                               k_pad_w_mk: float = PAD_THERMAL_CONDUCTIVITY_W_MK,
                               rho_slurry: float = WATER_RHO_KG_M3,
-                              cp_slurry: float = WATER_CP_J_KGK) -> HeatBalanceResult:
+                              cp_slurry: float = WATER_CP_J_KGK,
+                              g_wafer_w_k: float = 0.0) -> HeatBalanceResult:
     """Q_f = (G_slurry + G_pad + G_air)·ΔT_ss 를 풀어 ΔT_ss와 3분배를 돌려준다.
 
     area_heated_m2: 패드 전도 면적(웨이퍼가 쓸고 가는 고리, White 2003).
     area_exposed_m2: 공기에 노출된 가열 패드 면적(고리 − 웨이퍼 footprint 권장).
     pad_radius_m: 층류 판정용 최외곽 반경(Re_r 최대).
+    g_wafer_w_k: 웨이퍼→캐리어→헤드 4번째 병렬 채널 [W/K]. **기본 0.0 = White 2003의
+        블래더 단열 가정**이며 이 경우 결과는 확장 전과 비트 단위로 동일하다(하위호환).
+        값은 `wafer_path_conductance_w_k()`로 만든다. 판정 근거는 노트 §9.4:
+        이 채널은 총 컨덕턴스의 2.5~8.6%에 불과하고, **White와 Shin의 잔차 부호가
+        서로 반대**라 어느 한쪽도 이 채널로 설명되지 않는다.
     """
     G_s = slurry_conductance_w_k(flow_m3_s, rho_slurry, cp_slurry)
     G_p = pad_conduction_conductance_w_k(k_pad_w_mk, area_heated_m2, pad_thickness_m)
     h = rotating_disk_h_air(omega_platen_rad_s)
     G_a = h * area_exposed_m2
     Re_edge = rotating_disk_reynolds(omega_platen_rad_s, pad_radius_m)
-    dT = Q_f_w / (G_s + G_p + G_a)
+    dT = Q_f_w / (G_s + G_p + G_a + g_wafer_w_k)
     return HeatBalanceResult(friction_power_w=Q_f_w, G_slurry_w_k=G_s, G_pad_w_k=G_p,
-                             G_air_w_k=G_a, delta_T_ss_k=dT,
+                             G_air_w_k=G_a, G_wafer_w_k=g_wafer_w_k,
+                             delta_T_ss_k=dT,
                              delta_T_all_slurry_upper_bound_k=Q_f_w / G_s,
                              h_air_w_m2k=h, reynolds_edge=Re_edge,
                              laminar=Re_edge < RE_LAMINAR_LIMIT)
@@ -209,6 +266,43 @@ def _self_test() -> bool:
     ok = s.delta_T_ss_k < s.delta_T_all_slurry_upper_bound_k
     results.append(("ΔT_ss < 전량슬러리 상한", ok,
                     f"{s.delta_T_ss_k:.1f} < {s.delta_T_all_slurry_upper_bound_k:.1f} K"))
+
+    # --- Test 9: 하위호환 — g_wafer_w_k=0.0(기본)이면 확장 전과 완전히 동일 (§9) ---
+    s0 = steady_state_heat_balance(Qf, 150e-6 / 60, A_ring, 1.27e-3, w93,
+                                   A_ring - A200, 0.25, g_wafer_w_k=0.0)
+    ok = (s0.delta_T_ss_k == s.delta_T_ss_k and s0.G_wafer_w_k == 0.0
+          and abs(s0.partition()["slurry"] - p["slurry"]) < 1e-12
+          and "wafer" not in s0.partition())
+    results.append(("하위호환: g_wafer=0이면 ΔT·분배가 확장 전과 비트 동일", ok,
+                    f"ΔT {s0.delta_T_ss_k:.6f} == {s.delta_T_ss_k:.6f}, 키 {sorted(s0.partition())}"))
+    # --- Test 10: §9.2 직렬저항 — 실리콘 항은 경로 저항의 0.1% 미만(블래더/필름 지배) ---
+    r_si = SI_WAFER_THICKNESS_300MM_M / SI_THERMAL_CONDUCTIVITY_W_MK
+    r_tot = (r_si + 0.5e-3 / PU_FILM_THERMAL_CONDUCTIVITY_W_MK
+             + 1.0e-3 / BLADDER_K_AIR_W_MK)
+    ok = r_si / r_tot < 1e-3
+    results.append(("R''_Si / R''_path < 0.1% — Si 두께는 G_wafer에 무의미", ok,
+                    f"{r_si / r_tot * 100:.4f}% (R''_Si={r_si:.2e}, R''_path={r_tot:.2e})"))
+    # --- Test 11: §9.3 G_wafer는 총 컨덕턴스의 소수 채널(공기 블래더 2~5%, 물 5~10%) ---
+    gw_air = wafer_path_conductance_w_k(A200, t_bladder_m=1e-3,
+                                        k_bladder_w_mk=BLADDER_K_AIR_W_MK)
+    gw_wat = wafer_path_conductance_w_k(A200, t_bladder_m=1e-3,
+                                        k_bladder_w_mk=BLADDER_K_WATER_W_MK)
+    s_air = steady_state_heat_balance(Qf, 150e-6 / 60, A_ring, 1.27e-3, w93,
+                                      A_ring - A200, 0.25, g_wafer_w_k=gw_air)
+    s_wat = steady_state_heat_balance(Qf, 150e-6 / 60, A_ring, 1.27e-3, w93,
+                                      A_ring - A200, 0.25, g_wafer_w_k=gw_wat)
+    f_air, f_wat = s_air.partition()["wafer"], s_wat.partition()["wafer"]
+    ok = 0.02 < f_air < 0.05 and 0.05 < f_wat < 0.10 and gw_wat > gw_air
+    results.append(("G_wafer 분율: 공기 블래더 2~5%, 물 블래더 5~10%", ok,
+                    f"공기 {f_air:.1%} (G={gw_air:.2f}), 물 {f_wat:.1%} (G={gw_wat:.2f})"))
+    # --- Test 12: §9.4 방향 검사 — 채널을 더하면 ΔT는 내려가고 Shin 실측(15 K)과 더 벌어진다 ---
+    dT_meas_shin = 15.0
+    ok = (s_air.delta_T_ss_k < s.delta_T_ss_k < dT_meas_shin
+          and s_wat.delta_T_ss_k < s_air.delta_T_ss_k
+          and abs(s_wat.delta_T_ss_k - dT_meas_shin) > abs(s.delta_T_ss_k - dT_meas_shin))
+    results.append(("방향 검사: 웨이퍼 채널 추가 → Shin 실측과의 괴리 악화(원인 아님)", ok,
+                    f"3ch {s.delta_T_ss_k:.2f} → +공기 {s_air.delta_T_ss_k:.2f} → "
+                    f"+물 {s_wat.delta_T_ss_k:.2f} K, 실측 {dT_meas_shin:.0f} K"))
 
     print("=== cmp_theta_steady_state_heat_balance.py self-test ===")
     n_pass = 0

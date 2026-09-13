@@ -224,6 +224,9 @@ Fig.7a(원문 PDF 렌더 판독) 무냉각 **약 20.5 °C(t=0) → 약 35.5 °C(
 ### 8.5 한계 / 미검증 — Θ confidence 판단
 - **웨이퍼/헤드 전도 미모델링:** White 2003이 블래더 단열로 무시했고 우리도 따른다. White 실측이 예측보다
   17% 낮은 잔차가 이 항일 가능성을 원문 스스로 언급 — 4번째 경로 크기는 **미검증**.
+  → **§9에서 종결(2026-09-13)**: G_wafer는 총 컨덕턴스의 2.5~8.6%에 불과하고, White·Shin의 잔차 부호가
+  서로 반대라 단일 냉각 채널로 둘을 동시에 설명하는 것이 원리적으로 불가능하다. **null 결론** — 이 경로는
+  잔차의 원인이 아니며 White의 블래더 단열 가정은 타당하다. (나머지 결측 3개는 그대로 → Θ는 estimated 유지)
 - **L_pad = 데이터시트 두께:** 열이 실제로 흐르는 유효 길이가 그루브 바닥·다공층 두께(White R₁ 계산은
   0.55~1.0 mm)로 더 짧다면 G_pad는 1.3~2.3배 커진다(중앙 케이스 ΔT 12.5→11.6~10.9 K). 문헌 실측 없음 —
   **미검증**, 범위로만 제시.
@@ -301,5 +304,171 @@ expo = math.log(dT2/dT_c)/math.log(2)
 assert 0.95 < expo < 1.0, expo
 print(f"Shin: Qf={Qf:.0f} W, dT_ss={dT_c:.1f} K (실측 {dT_meas:.0f} K, 범위 {dT_min:.1f}~{dT_max:.1f}), "
       f"상한 {ub_c:.1f} K, 분배 {frac['slurry']:.0%}/{frac['pad']:.0%}/{frac['air']:.0%}, dT~Ω^{expo:.2f}")
+print("ALL PASS")
+```
+
+## 9. 웨이퍼/헤드 전도 경로 — §8.5 결측 #1의 정량 종결 (2026-09-13 [Max워커])
+
+§8.5는 Θ의 confidence를 estimated에 묶어 두는 구조적 결측 4개를 열거했다. 그중 #1
+**"웨이퍼/헤드 전도 미모델링"**을 여기서 종결한다. White 2003은 캐리어 블래더 단열을 이유로
+이 경로를 **명시적으로 무시**했고 우리도 따랐지만, White 본인이 예측-실측 잔차의 원인 후보로
+이 항을 언급했다. 즉 "무시해도 되는가"가 검증된 적이 없었다.
+
+### 9.1 1차 문헌·물성 출처
+
+| 물성 | 값 | 출처 | 등급 |
+|---|---|---|---|
+| k_Si @300 K | 142 W/m·K | Glassbrenner, Slack, *Phys. Rev.* **134**, A1058 (1964), doi:10.1103/PhysRev.134.A1058 | E1 (표준 실측) |
+| 웨이퍼 두께 | 725 µm (200 mm) / 775 µm (300 mm) | SEMI M1 공칭 두께 | E5 (규격 2차) |
+| PU k @297 K | 21.6 mW/m·K | Sparks, **NBSIR 82-1664** (1982), doi:10.6028/nbs.ir.82-1664 **Table 4** (297.00 K → 21.6) — 원문 확보 `papers/sparks1982-nbsir82-1664-pu-foam-thermal-conductivity.pdf` | E4 (타계 전이) |
+| 공기 k @300 K | 0.026 W/m·K | 표준 물성표 (§8.7과 동일 값) | E5 |
+| 물 k @300 K | 0.61 W/m·K | 표준 물성표 | E5 |
+
+⚠ **미확보**: CMP 캐리어 필름(치밀 PU backing film)의 두께·열전도도를 직접 준 1차 문헌을
+찾지 못했다. Sparks 1982는 32 kg/m³ **단열 폼**이라 치밀 PU보다 k가 작다 — 즉 이 값은
+G_wafer의 **하한 앵커**이고 실제 G_wafer는 이보다 크다. 그래서 아래는 단일 숫자가 아니라
+블래더 매질 양 극단(공기/물)의 **범위**로 푼다. 캐리어 헤드 구조는
+[[cmp-carrier-head-retaining-ring-vendors]] §28(공압 블래더가 웨이퍼 뒷면에 직접 작용)을 따른다.
+
+### 9.2 유도 — 4번째 병렬 채널
+
+§8.2의 병렬 컨덕턴스에 웨이퍼 경로를 하나 더 단다. 이 경로는 층이 겹쳐 있으므로 **직렬** 저항의 합이다:
+
+```
+R''_path = t_Si/k_Si + t_film/k_film + t_bladder/k_bladder      [m²K/W]
+G_wafer  = A_wafer / R''_path                                   [W/K]
+ΔT_ss    = Q_f / (G_slurry + G_pad + G_air + G_wafer)
+```
+
+**즉시 드러나는 사실**: R''_Si = 775 µm / 142 = 5.46e-6 m²K/W 인데 R''_path ≈ 6.2e-2 m²K/W다.
+실리콘은 경로 저항의 **0.009%**다. 웨이퍼가 두껍든 얇든, 200 mm든 300 mm든 G_wafer는 변하지
+않는다 — 경로는 전적으로 캐리어 필름과 블래더 층이 지배한다. 이것이 White의 "블래더 단열"
+가정의 물리적 정체다: 웨이퍼가 단열체라서가 아니라, **웨이퍼 뒤에 붙은 폴리머·기체 층이
+단열체**이기 때문이다.
+
+### 9.3 재계산 — 3분배 → 4분배
+
+**White 2003 조건** (8 in, 6 psi, Q_f=232 W, 플래튼 1 rpm, A_wafer=0.0324 m²):
+
+| 케이스 | G_wafer [W/K] | 분율 | ΔT_ss [K] | 실측 9.1 K 대비 |
+|---|---|---|---|---|
+| 3채널 (기존) | — | — | 11.32 | **+24%** |
+| +PU 0.5 mm / 공기 블래더 1 mm | 0.53 | 2.5% | 11.04 | +21% |
+| +PU 0.5 mm / 물 블래더 1 mm | 1.31 | 6.0% | 10.64 | +17% |
+
+**Shin 2025 조건** (200 mm, 2 psi, 93 rpm, 150 mL/min, 실측 ΔT ≈ 15 K):
+
+| 케이스 | Q_f [W] | 3채널 ΔT | +공기 블래더 | +물 블래더 | 실측 대비(중앙, 물) |
+|---|---|---|---|---|---|
+| 중앙 (µ0.30, r_cc0.14, L1.27) | 177 | 12.47 | 12.03 (3.5%) | 11.45 (8.2%) | **−24%** |
+| 최소 (µ0.20, r_cc0.12, L1.27) | 101 | 7.42 | 7.15 (3.6%) | 6.79 (8.5%) | −55% |
+| 최대 (µ0.40, r_cc0.15, L2.03) | 253 | 18.91 | 18.21 (3.7%) | 17.27 (8.6%) | +15% |
+
+역산 점검도 같은 말을 한다. White 조건에서 실측을 맞추려면 G가 20.50 → 25.49 W/K로 **+5.0 W/K
+더 필요**한데(즉 냉각이 더 세야 한다), 위 forward 계산의 G_wafer는 0.53~1.31 W/K뿐이다.
+공기 블래더 기준으로 필요량의 **11%**밖에 안 된다.
+
+### 9.4 판정 — null 결론 (근거 서열 E1/E3)
+
+**웨이퍼/헤드 경로는 §8 네트워크의 예측-실측 잔차를 설명하지 못한다.** 두 갈래로 종결한다:
+
+1. **크기가 부족하다.** G_wafer는 총 컨덕턴스의 2.5~8.6%다. 물 블래더라는 최대 가정에서도
+   ΔT를 8% 남짓 움직인다. White 잔차(+24%)에도 Shin 중앙 잔차(−17%)에도 못 미친다.
+2. **부호가 갈린다(더 결정적).** 냉각 채널을 더하면 예측 ΔT는 **반드시 내려간다**. 그런데
+   두 데이터셋의 잔차 방향이 서로 반대다 — White는 예측이 실측보다 **높고**(+24%, 내려가야 함),
+   Shin은 예측이 실측보다 **낮다**(−17%, 올라가야 함). 단일 냉각 채널로 두 잔차를 동시에
+   설명하는 것은 **원리적으로 불가능**하다. 즉 이 경로를 아무리 정교하게 모델링해도 두 잔차 중
+   하나는 반드시 더 나빠진다(§9.7 verify (iv)가 이 부등식을 검사한다).
+
+따라서 **"White 2003의 블래더 단열 가정은 타당하다"**를 검증된 결론으로 채택한다. 이건 미완이
+아니라 EVIDENCE-RULES의 **null 결론**이다 — 이 계에서 웨이퍼/헤드 경로는 지배인자가 아니다.
+근거 등급: k_Si는 E1, 블래더/필름은 E4(타계 전이, 하한 앵커) — 그러나 **판정 자체는 부호 논증에
+의존**하므로 필름 k의 불확실성에 영향받지 않는다. k_film을 10배 키워도(치밀 PU 상한) G_wafer는
+R''이 블래더에 의해 하한되어 분율이 한 자릿수%를 크게 벗어나지 못하고, 부호 논증은 그대로다.
+
+**잔차의 진짜 원인 후보는 따로 남는다**(둘 다 미검증):
+- White(예측 高): 슬러리 완전 열교환 가정 과대 — §8.5 결측 #4. White 본인이 슬러리가 패드
+  가장자리까지 가며 ~4 °C 식는다고 실측했다(부분 교환이면 G_slurry는 더 작고 ΔT는 더 커져야
+  하므로 이것도 방향이 반대다 — 남는 후보는 헤드/테이블 추가 손실 또는 웨이퍼 축열).
+- Shin(예측 低): 배리어 슬러리 COF가 가정치 0.3보다 높거나(µ≈0.36이면 정확히 15 K),
+  H₂O₂ 산화 반응열이 추가 발열원 — §8.4에 이미 기록.
+
+### 9.5 코드 반영
+
+`sim/tier2_physics/cmp_theta_steady_state_heat_balance.py`:
+`wafer_path_conductance_w_k()` 신설, `steady_state_heat_balance()`에 선택 인자
+`g_wafer_w_k=0.0` 추가(**기본값이면 확장 전과 비트 단위로 동일** — self-test 9가 검사),
+`HeatBalanceResult.partition()`이 4분배 반환. `_f_theta()`와 MRR 경로는 **미수정**.
+self-test 8/8 → **12/12 PASS**(신규 4건: 하위호환·Si 저항 무시가능·분율 범위·방향 검사).
+
+### 9.6 confidence 판정 — estimated 유지
+
+§8.5의 결측 4개 중 **#1만** 닫혔다. 남은 3개는 그대로다:
+- #2 L_pad 유효길이(데이터시트 두께가 열 유동 길이인지 미검증)
+- #3 h_air의 CMP 실측(매끈한 등온 원판 상관식을 그루브·젖음면에 적용)
+- #4 슬러리 완전 열교환 가정
+
+**따라서 Θ의 confidence는 estimated를 유지한다.** 하나를 닫았다고 등급을 올리는 것은 오염이다.
+이번 회차가 실제로 산 것은 등급이 아니라 **탐색 공간의 축소**다 — 남은 잔차를 쫓을 때
+웨이퍼/헤드 경로는 이제 후보에서 제외된다.
+
+### 9.7 Python 재현
+
+```python verify
+import math
+IN, PSI = 0.0254, 6894.757
+K_SI, T_SI300 = 142.0, 775e-6          # Glassbrenner, Slack 1964 doi:10.1103/PhysRev.134.A1058
+K_PU = 0.0216                          # Sparks NBSIR 82-1664 Table 4 @297.00 K = 21.6 mW/m.K
+K_AIR_B, K_H2O = 0.026, 0.61
+def h_air(w, a=0.3286, k=0.026, nu=1.5e-5): return a*k*math.sqrt(w/nu)
+def g_wafer(A, t_film=0.5e-3, k_film=K_PU, t_b=1e-3, k_b=K_AIR_B):
+    return A / (T_SI300/K_SI + t_film/k_film + t_b/k_b)
+
+# (i) 물성 상수 — Sparks Table 4 297.00 K 행
+assert abs(K_PU*1000 - 21.6) < 1e-9
+# (ii) 직렬저항: 실리콘 항은 경로의 0.1% 미만 -> 웨이퍼 두께는 G_wafer에 무의미
+r_si = T_SI300/K_SI; r_path = r_si + 0.5e-3/K_PU + 1e-3/K_AIR_B
+assert r_si/r_path < 1e-3, r_si/r_path
+r_path200 = 725e-6/K_SI + 0.5e-3/K_PU + 1e-3/K_AIR_B
+assert abs(r_path200/r_path - 1.0) < 1e-3          # 200 vs 300 mm 차이 0.1% 미만
+
+# (iii) White 2003 조건 4채널
+A8 = math.pi*(4*IN)**2
+G_s, G_p = 4.17*1.04*4.01, 0.02*0.19/1.27e-3
+G_a = h_air(2*math.pi/60)*(0.19-A8)
+G3 = G_s+G_p+G_a; Q_w, dT_meas_w = 232.0, 9.1
+dT3_w = Q_w/G3
+assert abs(dT3_w - 11.32) < 0.05, dT3_w
+gw_air_w = g_wafer(A8); gw_h2o_w = g_wafer(A8, t_b=1e-3, k_b=K_H2O)
+assert 0.4 < gw_air_w < 0.7 and 1.1 < gw_h2o_w < 1.5, (gw_air_w, gw_h2o_w)
+dT4_air_w = Q_w/(G3+gw_air_w); dT4_h2o_w = Q_w/(G3+gw_h2o_w)
+assert abs(dT4_air_w - 11.04) < 0.05 and abs(dT4_h2o_w - 10.64) < 0.05
+# 역산: 실측을 맞추려면 +5.0 W/K 필요한데 G_wafer는 그 11%뿐
+need_w = Q_w/dT_meas_w - G3
+assert 4.8 < need_w < 5.2, need_w
+assert gw_air_w/need_w < 0.15, gw_air_w/need_w
+
+# (iv) Shin 2025 조건 + 방향 검사 (판정의 핵심)
+w93 = 93*2*math.pi/60; A200 = math.pi*0.1**2; G_s_s = (150e-6/60)*1000*4180
+def shin(mu, rcc, L):
+    Ar = math.pi*((rcc+0.1)**2-(rcc-0.1)**2)
+    Qf = mu*2*PSI*A200*(w93*rcc)
+    return Qf, G_s_s + 0.02*Ar/L + h_air(w93)*(Ar-A200)
+dT_meas_s = 15.0
+Qf_c, G3_c = shin(0.30, 0.14, 1.27e-3)
+gw_air_s = g_wafer(A200); gw_h2o_s = g_wafer(A200, t_b=1e-3, k_b=K_H2O)
+f_air = gw_air_s/(G3_c+gw_air_s); f_h2o = gw_h2o_s/(G3_c+gw_h2o_s)
+assert 0.02 < f_air < 0.05 and 0.05 < f_h2o < 0.10, (f_air, f_h2o)     # (v) 분율 범위
+dT3_s = Qf_c/G3_c; dT4a_s = Qf_c/(G3_c+gw_air_s); dT4w_s = Qf_c/(G3_c+gw_h2o_s)
+assert dT4w_s < dT4a_s < dT3_s                       # 냉각 채널 추가 -> ΔT 감소 (항상)
+assert dT3_s < dT_meas_s                             # Shin: 예측이 이미 실측보다 낮다
+assert abs(dT4w_s-dT_meas_s) > abs(dT3_s-dT_meas_s)  # -> 채널 추가하면 더 벌어진다(악화)
+
+# 부호 논증: White는 예측이 실측보다 높고(내려가야 함), Shin은 낮다(올라가야 함).
+# 단일 냉각 채널로 둘을 동시에 설명하는 것은 원리적으로 불가능 -> null 결론.
+assert dT3_w > dT_meas_w and dT3_s < dT_meas_s
+print(f"White: dT 11.32->{dT4_air_w:.2f}/{dT4_h2o_w:.2f} K (실측 9.1, 여전히 +{100*(dT4_h2o_w-9.1)/9.1:.0f}%)")
+print(f"Shin : dT {dT3_s:.2f}->{dT4a_s:.2f}/{dT4w_s:.2f} K (실측 15, 괴리 악화), G_wafer 분율 {f_air:.1%}~{f_h2o:.1%}")
+print("판정: null 결론 — 웨이퍼/헤드 경로는 잔차의 원인이 아니다. White 블래더 단열 가정 타당.")
 print("ALL PASS")
 ```
