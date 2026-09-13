@@ -1165,30 +1165,39 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
     #   멱함수는 관측 구간(15~45%)에서만 맞고 그 밖에서 비물리적으로 소멸하는,
     #   외삽하면 안 되는 형태였다.
     #
-    #   그래서 "기공이 나르는 몫"과 "기공 없이도 나르는 몫"을 분리한다:
-    #       f(P) = (1-w) + w·(P/P_ref)
-    #   w = 기공 경로가 담당하는 이송 분율. P=0 에서 f=(1-w) 로 유한하게 남고,
-    #   P=P_ref 에서 정확히 1 이며, 관측 구간의 기울기를 그대로 재현한다.
+    #   그래서 "기공이 나르는 몫"과 "기공 없이도 나르는 몫"을 분리한다. 단,
+    #   분리는 **절대 기공률**로 해야 한다 — (P/P_ref) 로 쓰면 같은 두 조건의
+    #   예측 비가 기준점에 따라 달라진다(기준 15% 에서 1.08, 45% 에서 1.03).
+    #   물리량의 비가 "어디를 기준으로 삼았는가"에 의존하면 그건 물리가 아니다.
     #
-    #   w 는 실측에서 직접 나온다. P/P_ref = 15/45 = 1/3 일 때 RR 비 = 1/1.08 이므로
-    #       (1-w) + w/3 = 1/1.08  →  w = 0.111
-    #   즉 이송의 약 11%만 기공 경로가 담당하고 89%는 기공과 무관하다.
-    #   검산: w=0.111 로 45→15% 예측 비가 1.0799 (실측 1.08).
-    #   이 수치는 지수 0.07 과 같은 실측 한 쌍에서 나오지만, 함수형이 극한에서
-    #   물리적으로 옳다는 점이 다르다.
+    #       g(P) = P_floor + (P − P_floor)·s          (이송 능력, 임의 단위)
+    #       f(P) = g(P) / g(P_ref)                    (기준 대비 배수)
+    #
+    #   여기서 P_floor 는 "기공이 0 이어도 남는 이송"을 기공률 단위로 환산한
+    #   등가값이다. 두 실측점만 있으면 닫힌 형태로 풀린다:
+    #       g(45)/g(15) = 1.08  →  (45 + k) / (15 + k) = 1.08,  k = P_floor/s
+    #       k = (45 − 1.08·15) / (1.08 − 1) = 360
+    #   즉 그루브·간극이 담당하는 이송은 기공률 360% 에 해당하는 크기다 —
+    #   기공 경로가 전체의 4% 남짓(15/(15+360))이라는 뜻이고, "기공률을 3배로
+    #   늘려도 8% 밖에 안 오른다"는 실측과 정확히 같은 말이다.
+    #
+    #   이 형태는 (a) P=0 에서 유한하고 (b) P=P_ref 에서 정확히 1 이며
+    #   (c) 두 조건의 비가 기준점 선택과 무관하다.
     por = pk.get_or("pad_porosity_pct", None)
     por_ref = pk.get_or("pad_ref_porosity_pct", None)
     if por is not None and por_ref is not None and float(por_ref) > 0:
-        w_por = float(pk.get_or("porosity_transport_fraction", 0.111))
-        w_por = min(max(w_por, 0.0), 1.0)
-        terms["porosity"] = (1.0 - w_por) + w_por * (float(por) / float(por_ref))
-        srcs.append("knowledge/materials/pad-porosity-slurry-transport-mrr.md §5")
-        f.notes.append(
-            f"기공률 {float(por):g}% (기준 {float(por_ref):g}%). "
-            "⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 "
-            "기각됐다(Prasad 2013). 이송 분율 w=%.3f로 아핀 결합: 기공 경로가 %.0f%%, "
-            "나머지 %.0f%%는 그루브·간극이 담당해 기공률 0 에서도 남는다."
-            % (w_por, w_por * 100, (1 - w_por) * 100))
+        k_por = float(pk.get_or("porosity_transport_floor_pct", 360.0))
+        g_cur = float(por) + k_por
+        g_ref = float(por_ref) + k_por
+        if g_ref > 0:
+            terms["porosity"] = max(g_cur, 0.0) / g_ref
+            srcs.append("knowledge/materials/pad-porosity-slurry-transport-mrr.md §5")
+            f.notes.append(
+                f"기공률 {float(por):g}% (기준 {float(por_ref):g}%). "
+                "⚠ 실측상 기공률 15→45%(3배)에도 RR은 8%만 올랐다 — 비례 가정은 "
+                f"기각됐다(Prasad 2013). 기공 외 이송(그루브·간극)을 기공률 등가 "
+                f"{k_por:g}% 로 두어 두 실측점을 정확히 재현한다. 기공 경로 기여는 "
+                f"{float(por) / g_cur * 100:.1f}% 뿐이다.")
 
     if not terms:
         f.notes.append(
