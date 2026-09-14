@@ -73,7 +73,7 @@ d₀=웨이퍼 돔높이, R₁=웨이퍼반경, R₂=웨이퍼중심-패드중�
   **절반 미만** — 2-D는 웨이퍼·패드 회전을 둘 다 반영 못해 필름두께를 과대예측한다.
   (Thakurta 그룹 자체 비교, §Fig.5 — 1차 확인).
 
-## 6. 실험 검증 (구리 CMP, IPEC 372M 툴)
+## 6. 실험 검증 — 구리 CMP, IPEC 372M 툴 (Thakurta et al. 2001, DOI 10.1149/1.1355691, §Experimental·Fig.9; 원문 p.G212 "blanket copper films are polished using an IPEC 372M CMP tool")
 - 무차원 제거율 RR/U vs (U*/P*_app)^(1/2) (U*=U/1m/s, P*_app=P_app/20kPa)가 **모든
   패드-슬러리 조합에서 단조 상관** — 이는 §4 결론(필름두께가 (U/P_app)^(1/2)의 단조증가
   함수)과 일치, 즉 **필름두께 이론(간접량)과 제거율(직접 측정량)의 상관관계로 모델을
@@ -85,7 +85,65 @@ d₀=웨이퍼 돔높이, R₁=웨이퍼반경, R₂=웨이퍼중심-패드중�
   유의하게 높은데, 다공성·압축성만으로는 설명 안 됨 — 패드 거칠기·groove·입자역학 등 **본
   모델 미포함 요인**으로 남김(저자가 직접 "not clearly understood"라 명시).
 
-## 7. Python 재현
+## 7. Python 재현 — 문헌값 대조 (2026-09-14 부채상환, 1차 원문 `papers/thakurta2001_slurry_flow_lubrication.pdf.txt` 대조)
+
+아래 블록은 원문 샘플 케이스(P_app=21 kPa, ω₁=ω₂=60 rpm, R₁=4 in, R₂=7 in, μ=0.005 Pa·s)를
+받아 **논문이 명시한 세 가지 정량 주장**을 독립 계산으로 검산한다. 세 번째(하중 폐합)는
+압력장 형상을 포물면으로 가정한 근사이므로 허용오차를 넓게 두고 **차이를 그대로 기록**한다.
+
+```python verify
+import math
+
+# --- 원문 상수 (Thakurta et al., JES 148(4) G207-G214, 2001) ---
+P_app   = 21e3      # Pa   (p.G210 "P_app = 21 kPa")
+rpm     = 60.0      # ω1 = ω2 = 60 rpm
+R1      = 4*0.0254  # m, 웨이퍼 반경 4 in
+R2      = 7*0.0254  # m, 웨이퍼중심-패드중심 거리 7 in
+mu      = 0.005     # Pa·s
+rho     = 1000.0    # kg/m^3 (수계 슬러리, 문헌 미명시 → 물 값 가정)
+h_avg   = 48e-6     # m  (원문 p.G211 "average slurry film thickness is 48 mm[µm]")
+h_max   = 69e-6     # m
+h_min   = 36e-6     # m
+Pf_max  = 47e3      # Pa (원문 p.G210 "maximum of 47 kPa near the wafer center")
+
+w = 2*math.pi*rpm/60.0          # rad/s
+U = w*R2                        # 웨이퍼 중심에서의 패드 선속도
+
+# 주장 1 — Eq.1 환산 레이놀즈수가 1e-3~1e-2 오더라 윤활이론이 정당하다
+Re_star = (rho*U*R1/mu)*(h_avg/R1)**2
+assert 1e-3 <= Re_star <= 1e-2, f"Re*={Re_star:.3e} (문헌 주장: 1e-2~1e-3 오더)"
+
+# 주장 2 — 보고된 필름두께 3종의 순서·기울기 정합
+assert h_min < h_avg < h_max
+tilt = (h_max - h_min)/2        # 기울기 진폭 ≈ 16.5 µm
+assert abs((h_max + h_min)/2 - h_avg)/h_avg < 0.10, "평균이 최대·최소의 중점에서 10% 이상 벗어남"
+
+# 주장 3 — 접촉이 없으므로 유체압이 인가압을 전부 지지해야 한다(하중 폐합)
+#   P_f(edge)=0, P_f(center)=47 kPa 인 포물면 근사: <P_f> = Pf_max/2
+P_mean_est = Pf_max/2
+ratio = P_mean_est/P_app
+assert 0.8 <= ratio <= 1.3, f"하중 폐합 비 {ratio:.2f} — 포물면 근사로도 설명 불가"
+
+# 주장 4 — §5 표의 부호: z0 ∝ sqrt(mu*w/P_app) 이므로 h_min은 P↑감소, μ↑증가, ω↑증가
+def z0(P=P_app, mu_=mu, w_=w):
+    return math.sqrt(2*mu_*w_*R1*R2/P)
+assert z0(P=2*P_app) < z0()          # P_app ↑ → 감소
+assert z0(mu_=2*mu)   > z0()          # 점도 ↑ → 증가
+assert z0(w_=2*w)     > z0()          # 회전 ↑ → 증가
+
+print(f"Re*={Re_star:.3e}  z0={z0()*1e6:.0f} um  h_avg/z0={h_avg/z0():.3f}  하중폐합비={ratio:.2f}")
+```
+
+재현 결과 — 위 `python verify` 블록을 실제 실행한 표준출력이다(2026-09-14, 입력 상수는 전부
+Thakurta et al. 2001, DOI 10.1149/1.1355691 §Model Results 인용):
+`Re*=5.067e-03  z0=232 um  h_avg/z0=0.206  하중폐합비=1.12`.
+- Re*는 원문이 주장한 1e-2~1e-3 구간 안 → **재현 확인**.
+- 하중 폐합비 1.12는 **12% 초과**다. 포물면 가정이 실제 압력장(중심 편심·기울기)보다
+  중앙에 무게를 더 주기 때문으로 보이며, 원문의 실제 적분값은 정의상 1.00이어야 한다.
+  **12% 차이는 근사 오차이지 원문 오류가 아니다** — 형상을 모르는 상태의 상한 검산임을 명시한다.
+- z₀(233 µm)는 필름두께(48 µm)의 약 5배다. z₀는 절대 두께가 아니라 **스케일 길이**이므로
+  h̄/z₀=0.206이라는 무차원비 자체가 원문에 보고돼 있지 않아 **대조 불가(미검증)**.
+
 `sim/tier2_physics/slurry_film_lubrication.py` — 전체 2-D Reynolds PDE는 풀지 않고
 (그리드+뉴턴법은 이 규모의 sanity check에 과함), **무차원 스케일링(z₀) 관계와 정성적
 파라미터 의존성 부호(§5 표)를 재현하는 스케일링 모델**을 구현. 실제 수치해(P_f 필드)는
