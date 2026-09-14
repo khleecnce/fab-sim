@@ -1247,13 +1247,13 @@
   "note": "tool-post-clean Lv2-2 §마랑고니 건조; LLD법칙 h=0.94 l0 Ca^(2/3), Vcri(구리 8·유리 2 mm/s), IPA flux 0.02-0.05 g/min@20mm/s, 접촉각<5°, 최적 blown angle ~30°"
  },
  "ng2007-esl-nanoparticle-removal-postcmp": {
-  "src": "미러 사이트→미러 사이트 (Referer 헤더 필요)",
+  "src": "기확보(Lv2-2), fitz 텍스트 추출 — Lv3-1에서 정량 심화 재사용",
   "pdf_local": "papers/ng2007-esl-nanoparticle-removal-postcmp.pdf",
   "doi": "10.1149/1.2739817",
   "title": "Nanoparticle Removal Mechanisms during Post-CMP Cleaning",
-  "authors": "Ng D.; Huang P. Y.; Jeng Y. R.; Liang H. (Texas A&M)",
-  "venue": "Electrochem. Solid-State Lett. 10(9) H227 (2007)",
-  "note": "tool-post-clean Lv2-2 §부착·제거력 프레임워크; vdW 부착력 vs 기계적 제거력, 작은 입자일수록 필요 제거력 작음(계면활성제로 응집 크기↓)"
+  "authors": "Ng D, Huang PY, Jeng YR, Liang H",
+  "venue": "Electrochem. Solid-State Lett. 10(9), H227-H231 (2007)",
+  "note": "knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md — vdW F=AR/6d²(A=0.37eV SiO2/H2O/Si, d=0.4nm), 부착력 3.087e-9~1.544e-8 N(R=50~250nm 대응). friction 제거력 ∝접촉면적 R²(작은 입자=작은 제거력). 계면활성제로 cluster 4.38→3.06µm, 제거에너지 4.04e-16→1.45e-17 J"
  },
  "choi2022-apsusc-tungsten-corrosion-defects-wcmp": {
   "src": "OSTI OA (SLAC/Stanford green OA), https://www.osti.gov/servlets/purl/1984662 — WebFetch로 확보, 2026-09-14",
@@ -1503,5 +1503,68 @@
   "authors": "Hou et al.",
   "venue": "Materials 17(11) 2759 (2024), MDPI, CC-BY",
   "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.7 — NaHCO3/NH4HCO3 발포 자체제작 PU 패드의 압축강도 곡선(Fig.7c/7d)뿐, IC1000류 상용 패드 아니고 수치가 그림으로만 제시돼 항복강도 값 B로 부적격"
+ },
+ "dai2024-researchsquare-triazole-threshold-cu-cmp": {
+  "src": "OpenAlex best_oa_location (green OA) -> researchsquare.com landing page -> assets-eu.researchsquare.com direct PDF link (curl, Chrome UA) — 2026-09-15 psi 억제항 폐형식 조사",
+  "pdf_local": "papers/dai2024-researchsquare-triazole-threshold-cu-cmp.pdf",
+  "doi": "10.21203/rs.3.rs-5011272/v1",
+  "title": "Corrosion inhibition threshold effect of 1,2,4-triazole in alkaline chemical mechanical polishing of copper: Investigations using synchrotron radiation microinfrared",
+  "authors": "Dai L, Yan Z, Zhang D, Li C, Shi C, Gao L, Xin Z",
+  "venue": "Research Square preprint (posted 2024-10-04), Shanghai University of Electric Power",
+  "note": "knowledge/cmp/psi-inhibitor-isotherm-functional-form-survey.md — TAZ(1,2,4-triazole) 0/5/10/15/20mM, 알칼리 Cu CMP 슬러리(2wt% Gly + 0.5wt% H2O2, pH9) 전기화학(EIS Rp) 억제효율 실측. 15mM에서 최대 억제효율(85.34%), 20mM에서 소폭 하락(81.57%, Cu-TAZ 응집에 의한 막 붕괴) — 비단조 최적농도형 문턱이라 판정#24가 필요로 하는 단조 포화형 임계피복률과는 다른 메커니즘(§3 한계로 기록)"
+ },
+ "shi2026-electronics-semiwafernet": {
+  "src": "MDPI OA CC-BY 직링크 (mdpi-res.com), 전문 확보 2026-09-15",
+  "pdf_local": "papers/shi2026-electronics-semiwafernet.pdf",
+  "doi": "10.3390/electronics15071437",
+  "title": "SemiWaferNet: Efficient Semi-Supervised Hybrid CNN-Transformer Models for Wafer Defect Classification and Segmentation",
+  "authors": "Shi, Liu, Zhou, Zhou",
+  "venue": "Electronics 15(7), 1437 (2026)",
+  "note": "knowledge/cmp/ml-defect-classification-and-rca-methodology.md — WM-811K 811,457/172,950 labeled/638,507 unlabeled 9클래스; Table5 클래스별 P/R/F1(ViT-Only, HybridCNN-ViT); Macro-F1 supervised 0.9835→SSL 0.9861; acc 98.72%. F1=2PR/(P+R) 재계산 대조원."
+ },
+ "shin2023-sensors-wafer-bin-map-cnn": {
+  "src": "MDPI OA CC-BY (mdpi-res.com), 전문 확보 2026-09-15",
+  "pdf_local": "papers/shin2023-sensors-wafer-bin-map-cnn.pdf",
+  "doi": "10.3390/s23041926",
+  "title": "Efficient Convolutional Neural Networks for Semiconductor Wafer Bin Map Classification",
+  "authors": "Shin E-M, Yoo CD",
+  "venue": "Sensors 23(4), 1926 (2023)",
+  "note": "동단원 노트 — 경량 전이CNN(MobileNetV3 등). WM-811K 클래스분포 표(Center4294/…/None147431/Total172950). MobileNetV3 acc 98%·macro-F1 89.5%(불균형에서 acc≫F1). unlabeled 639,507 표기는 811,457과 불일치(정오표성 오차)."
+ },
+ "choi2010-jes-oxide-scratch-cmp": {
+  "src": "Northeastern eScholarship OA (neu:329896), Exa web_fetch로 본문·Table추출 2026-09-15 (WebFetch/curl 403차단)",
+  "pdf_local": "papers/choi2010-jes-oxide-scratch-cmp.pdf.txt",
+  "doi": "10.1149/1.3265474",
+  "title": "Analysis of Scratches Formed on Oxide Surface during Chemical Mechanical Planarization",
+  "authors": "Choi J-G, Prasad YN, Kim I-K, Kim I-G, Kim W-J, Busnaina AA, Park J-G",
+  "venue": "J. Electrochem. Soc. 157(2), H186-H191 (2010)",
+  "note": "동단원 노트 — CMP 특화 1차 RCA. Table II 스크래치 치수(길이 24.1/0.2/2.49µm 등); 시그니처→발생원(응집체=약함·~2µm, 패드/디스크 debris=강함·>8µm); 1µm 대입자 49 vs 26 scratches/wafer; 소스 추정 thin flake 폭0.06/직경0.5µm."
+ },
+ "lin2019-asmc-cmp-defect-classification-ido": {
+  "src": "IEEE ASMC 유료 — 미러 사이트(box/ren)만 URL제공하나 Cloudflare 챌린지로 전문 미확보. 초록만 확인(IEEE Xplore 봇차단, exa CRAWL 타임아웃).",
+  "pdf_local": null,
+  "doi": "10.1109/asmc.2019.8791750",
+  "title": "Fast and accurate defect classification for CMP process monitoring",
+  "authors": "Lin Y-Y, Tsai F-S, Hsu L-C, Hsu H-K, Li C-Y, Ke Y-Y, et al.",
+  "venue": "2019 30th SEMI ASMC, pp.1-3 (2019)",
+  "note": "동단원 노트 — CMP 특화 ADC(iDO). 초록: 레이저산란+iDO로 scratch/ring-pit/particle-residue를 형상(concave/concave-convex/convex)으로 자동분류, purity>80%, SEM 리뷰 없이 excursion 웨이퍼 partition time 40%↓. 전문 미확보→E5."
+ },
+ "zhang1999-jes-particle-adhesion-removal-cmp-postclean": {
+  "src": "find_open_access.py(Unpaywall→IOP paywall)→미러 사이트→미러 사이트 PDF — 2026-09-15 tool-post-clean Lv3-1",
+  "pdf_local": "papers/zhang2000-jes-particle-adhesion-removal-cmp-postclean.pdf",
+  "doi": "10.1149/1.1391989",
+  "title": "Particle Adhesion and Removal in Chemical Mechanical Polishing and Post-CMP Cleaning",
+  "authors": "Zhang F, Busnaina AA, Ahmadi G",
+  "venue": "J. Electrochem. Soc. 146(7), 2665-2669 (1999)",
+  "note": "knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md — vdW 부착력 Eq.6 F_a=AR/6z0²(1+a²/Rz0), 유체항력 Eq.14 F_D∝μR²(0.001-0.01nN), 양력 Eq.16 무시. 결론: 유체역학 힘은 너무 작아 접촉력(pad/brush asperity JKR) 필요. 알루미나 부착력=실리카 12배(oxide면). 파일명 2000은 초판 오타(실제 1999)"
+ },
+ "seo2019-jss-cuco-galvanic-postclean": {
+  "src": "find_open_access.py(Unpaywall CC-BY, IOP 봇차단)→미러 사이트→미러 사이트 PDF — 2026-09-15 tool-post-clean Lv3-1",
+  "pdf_local": "papers/seo2019-jss-cuco-galvanic-postclean.pdf",
+  "doi": "10.1149/2.0011908jss",
+  "title": "Post-CMP Cleaning Solutions for the Removal of Organic Contaminants with Reduced Galvanic Corrosion at Copper/Cobalt Interface for Advanced Cu Interconnect Applications",
+  "authors": "Seo J, Vegi SSRKH, Babu SV",
+  "venue": "ECS J. Solid State Sci. Technol. 8(8), P379-P387 (2019)",
+  "note": "knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md — 50mM 에틸렌디아민(En) pH11+초음파로 BTA/Cu-BTA/Co-BTA·실리카 거의 완전제거(리간드 교환, Cu-En/Co-En 안정도상수>Cu-BTA/Co-BTA). En 단독은 Ecorr~40mV. 0.75mM Cys+9.25mM UA+50mM En pH11 → Ecorr~5mV, Igc~0.7µA/cm²(갈바닉 억제). Crossref author 'Lee' 오류→원문 Seo"
  }
 }
