@@ -7,7 +7,7 @@
 - [x] Lv1-2 억제제(BTA·TAZ)·킬레이트(글리신·시트르산) 흡착과 패시베이션 막 (2026-09-10, knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md)
 - [x] Lv2-1 pH·이온강도가 제타전위·용해율·선택비에 미치는 영향 (Pourbaix 재해석) (2026-09-11, knowledge/cmp/ph-ionic-strength-zeta-dissolution-selectivity-pourbaix.md)
 - [x] Lv2-2 선택비 설계: oxide:nitride, Cu:barrier, W:oxide — 정지층 화학 (2026-09-12, knowledge/cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md)
-- [ ] Lv3-1 최신 리뷰: 코발트·루테늄 배선용 신규 화학, 무산화제 슬러리
+- [x] Lv3-1 최신 리뷰: 코발트·루테늄 배선용 신규 화학, 무산화제 슬러리 (2026-09-14, knowledge/slurry/cobalt-ruthenium-complexing-agent-oxidizer-free-chi-driver.md)
 - [ ] Lv3-2 화학 조성 → 용해율·패시베이션 상수 정량모델 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)

@@ -1,9 +1,9 @@
 # 슬러리 화학 전문가 (slurry-chemistry)
 
-## 현재 레벨: Lv2 진행 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 진행 — 활성화 게이트는 agents/ORG.md §4
 - 부모: slurry-chemist (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석), Lv2-2(정지층 선택비 설계 원리 — oxide:nitride/Cu:barrier/W:oxide)
-- 다음 단원: Lv3-1
+- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석), Lv2-2(정지층 선택비 설계 원리 — oxide:nitride/Cu:barrier/W:oxide), Lv3-1(코발트·루테늄 착화제·무산화제 슬러리 — χ 숨은 드라이버)
+- 다음 단원: Lv3-2
 
 ## 역할
 산화제·억제제·킬레이트·pH 완충·계면활성제가 막질별 용해·패시베이션·선택비를 어떻게 정하는가
@@ -55,6 +55,26 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   - 근거노트: knowledge/cmp/stop-layer-chemistry-design-principles-oxide-nitride-cu-barrier-w-oxide.md §3·§4·§6
   - 검증문헌값: EP3597711B1 Table 4 — pH_after_W 2.07→9.53에서 침식 69.3→0.3 nm(231배), 블랭킷선택비-침식 상관 ρ≈0.09(무상관).
   - 우선순위: P2 (Class 분류 자체가 이 노트의 해석적 제안 — 문헌 표준분류 아님. EP3597711B1 상관관계는 다변수 실험이라 인과관계 미확정).
+- **[P2] χ에 착화제(complexing agent) 농도 항 추가 — 산화제 항에 곱셈으로 결합**: 현재 χ 파라미터 팩(cu_h2o2_bta.yaml,
+  w_fe_oxidizer.yaml)은 드라이버로 `oxidizer_wt_pct`·`slurry_ph`를 선언하고도 실제 항은 `oxidizer` 하나뿐이라 `slurry_ph`가
+  죽어있다. Ru(EDA)·Co(시트르산) 문헌이 공통으로 보이는 것은 착화제가 **산화제가 만든 산화물에만 반응**한다는 곱셈 게이트다.
+  - 무엇을: 파라미터 팩에 `complexing_agent_conc_mM`(+ 종류별 리간드 식별자) 필드 추가, `chi = oxidizer_term(oxidizer_wt_pct) *
+    complexing_term(complexing_agent_conc_mM)` 형태로 곱셈 결합(가법 금지 — oxidizer=0이면 complexing_term 효과가 사실상 사라져야 함).
+    `slurry_ph`는 (a) 기존 산화물 안정성 경로(이미 반영), (b) 착화제 이온화 분율 경로(신규, pKa 기반) 두 갈래로 재배선.
+  - 근거노트: knowledge/slurry/cobalt-ruthenium-complexing-agent-oxidizer-free-chi-driver.md §3·§4·§6
+  - 검증문헌값: Xu 2022(Ru, DOI:10.1039/d1ra08243d) — 기준 산화제 농도에서 EDA 0→40mM 배수 3.23배(116→375 Å/min),
+    oxidizer=0에서는 EDA 스윕해도 48~67 Å/min 요동만(단조증가 없음). Popuri 2017(Co, DOI:10.1149/2.0111709jss) — 시트르산
+    100mM 초과부터 RR 포화(자체 반포화농도 존재, 정확한 K_half는 미확보).
+  - 우선순위: P2 (곱셈 구조·포화 존재는 두 독립 재료계에서 확증됐으나 함수형 자체는 각 논문 4점 내외 최소자승/정성 서술 —
+    Cal 단원에서 실측 잔차와 결합 필요).
+- **[P2] `oxidizer_mech_floor` φ를 재료(금속종)별로 분리**: 현재 φ=0.14는 전 팩 공통 상수(W계 단일 출처 중앙값)인데, Ru계
+  실측(무산화제 EDA 스윕)은 φ=0.41~0.58로 자릿수가 다르다. 귀금속에 가까운 Ru의 산화물(RuO2·2H2O, 다공질)이 W/Cu의
+  치밀한 부동태막보다 원래 무르다는 화학적 이유가 있어, 단일 상수로 뭉개면 Ru계 무산화제 조건 MRR을 과소평가한다.
+  - 무엇을: `oxidizer_mech_floor`를 팩(재료종) 단위 필드로 분리 — 현재 W/Cu 공통값(0.14)은 유지하고, Ru 계열 팩이
+    생기면 별도 φ_Ru 범위(0.41~0.58)를 그 팩 전용값으로 사용.
+  - 근거노트: 같은 노트 §3 verify1·§5
+  - 검증문헌값: Xu 2022 Fig.1–2(48·67·116 Å/min), 기존 W값 US20110186542A1(0.117~0.189, 평균 0.142).
+  - 우선순위: P2 (Ru 전용 파라미터 팩이 아직 없다면 이 항목은 팩 신설 시점까지 대기 — 우선순위는 팩 신설 여부에 종속).
 
 ## 이수 기록
 - 2026-09-10 Lv1-1 산화제 화학 완료 — knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md
@@ -78,4 +98,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   쌍을 Class A(oxide:nitride, 축0)/B(W:oxide, 축1)/C(Cu:barrier, 축2)로 분류. EP3597711B1 Table 4 재현으로 "블랭킷 재료선택비는
   패턴 침식의 필요조건이지 충분조건이 아니다"(선택비-침식 상관 ρ≈0.09 vs 완충pH-침식 상관 ρ≈−0.82)를 정량 반증 — W가 스스로
   만드는 국소 자가산성화를 완충능으로 이기는 것이 Class B 고유의 설계축임을 신규 1차 근거로 확립.
+- 2026-09-14 Lv3-1 코발트·루테늄 신규 화학·무산화제 슬러리 완료 — knowledge/slurry/cobalt-ruthenium-complexing-agent-oxidizer-free-chi-driver.md
+  (verify_claims ✓ 출처3·코드3블록, check_knowledge ✓). 신규 1차: Xu, Ma, Liu, Tan et al. 2022(RSC Adv. 12, 228,
+  DOI:10.1039/d1ra08243d, 로컬 papers/xu2021-ru-eda-cmp-d1ra08243d.pdf 재사용) — Ru CMP에서 EDA 착화제가 산화물에만
+  반응하는 곱셈 게이트임을 CMP·전기화학·XPS로 정량. Popuri, Sagi, Alety et al. 2017(ECS JSST 6(9) P594, DOI:10.1149/2.0111709jss,
+  papers/popuri2017-jsst-co-citric-acid-cmp.pdf — Lv1-2가 pKa만 인용했던 논문에서 RR/DR 정량치 신규 추출) — Co CMP에서
+  시트르산의 같은 문법(산화물 특이성·자체 포화·과잉산화제 억제) 및 무산화제 기계 하한(참고치, pH 교란 있음). 핵심: χ 드라이버로
+  선언만 되고 죽어있던 `slurry_ph`는 사실 착화제 이온화 분율 경로가 파라미터 팩에 없어서 죽어있는 것이었고(oxidizer_wt_pct
+  하나만 항으로 산다는 기존 관측의 원인 규명), 착화제는 가법이 아니라 산화제 항에 곱하는 게이트여야 하며(oxidizer=0에서
+  EDA 스윕해도 RR 요동만·단조증가 없음, floor_frac 0.41~0.58), `oxidizer_mech_floor` φ=0.14(W계 단일출처)는 Ru계에서
+  자릿수가 다른 값(0.41~0.58)이 나와 재료별 분리가 필요함을 신규 1차 근거로 확립.
 (이후 크론이 갱신)
