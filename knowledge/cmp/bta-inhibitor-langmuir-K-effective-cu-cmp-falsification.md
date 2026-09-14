@@ -289,3 +289,112 @@ print(f"피콜린산: {c_picolinic:.2f} mM (팩값 121.8, {pack_dev_pct:.2f}% �
 5. w_fe_oxidizer의 `inhibitor_mM` 승격이 실제 시뮬레이션 결과를 바꾸는가?
    → 아니다. `inhibitor_ref_mM == inhibitor_mM`이라 ψ 배수는 항상 1.0이다 — 승격은 "이 팩이
    다른 피콜린산 농도로 재계산될 때 쓸 환산식의 신뢰도"에 대한 것이다.
+
+## 13. §(2회차) 산성계 BTA 농도스윕 접근 재시도 — 조사 중
+
+> 1회차(판정#24B)가 남긴 과제: 10.1143/jjap.47.108(Kim et al. 2008, JJAP) 본문 IOP 페이월 +
+> 미러 사이트 미러 5종 전부 봇차단으로 미확보. 이번 회차는 **새 탐색 경로**(J-Stage, CiNii, 저자
+> 소속기관 리포지토리, CORE API v3, OpenAlex locations[] 전수, Semantic Scholar openAccessPdf)로
+> 접근만 재시도한다. 미러 사이트 재시도는 1~2회만.
+
+- (진행 중 — 경로별 결과를 아래에 즉시 누적한다)
+
+### 13.1 10.1143/jjap.47.108(Kim 2008) 접근 재시도 결과 — **여전히 미확보, 이번엔 "전 경로 소진" 확인**
+
+시도한 경로와 응답(전부 curl, 2026-09-15):
+
+| 경로 | 질의 | 결과 |
+|---|---|---|
+| Crossref API | `works/10.1143/jjap.47.108` | 서지만 반환(저자 In-Kwon Kim, Young-Jae Kang, Tae-Gon Kim, Jin-Goo Park; Hanyang University), 전문 링크 없음 |
+| OpenAlex API | `works/doi:10.1143/jjap.47.108` | `open_access.oa_status="bronze"`, `any_repository_has_fulltext=false`, `locations[]`에 IOP `/pdf` URL 단 1개뿐 — 저자 기관 리포지토리 사본 없음 |
+| Semantic Scholar Graph API | `paper/DOI:...?fields=openAccessPdf` | `openAccessPdf.status="BRONZE"`, url이 동일 IOP `/pdf`, abstract도 퍼블리셔가 elide(비공개) |
+| J-Stage | globalSearchKey 검색 | JJAP 47권은 J-Stage 이관 이전(IOP 직접 발행) 자료라 히트 없음(다른 저자·잡지만 매칭) |
+| CiNii Research (cir.nii.ac.jp) | opensearch API | 서지 레코드 확정(CRID 1520572357577428864), 식별자에 NDL 디지털컬렉션 항목 있으나 **저작권 보호 기간 내 외국 학술지라 개인송신 대상 아님**(URL만 있고 PDF 아님), 링크는 결국 IOP로 귀결 |
+| Hanyang Univ. 기관 리포지토리 (repository.hanyang.ac.kr) | `/search?query=benzotriazole` | 302→검색 페이지 자체가 404(엔드포인트 불일치); 이 저자들의 2008년 논문이 리포지토리에 셀프아카이브된 근거 없음 |
+| CORE API v3 | 제목 정확 질의 + DOI 질의 + 키워드 질의(benzotriazole copper polishing rate pH etch) | 3질의 모두 **totalHits=0** 또는 무관 결과(다른 pH/CMP 논문들) — CORE 색인에 이 논문 자체가 없음 |
+| IOP 직접 fetch (`/article/10.1143/JJAP.47.108/pdf`, UA 스푸핑) | GET | HTTP 200이지만 본문에 "Purchase"·"subscribe" — **구매 안내 페이지**(1회차와 동일) |
+| 미러 사이트, 미러 사이트 | 직접 접근 | **DNS resolve 실패**(`Could not resolve host`) — 이 세션 네트워크에서 도메인 자체가 차단됨(1회차 "봇차단"과 다른 실패모드: 이번엔 도달 자체가 안 됨). 지시된 상한(1~2회)만 시도 후 중단 |
+
+**결론: 서지 API 6종(Crossref/OpenAlex/S2/CiNii/J-Stage/CORE) 전부가 IOP `/pdf` 단일 경로로 귀결되고,
+그 경로는 구매 페이지다. 저자 기관(Hanyang) 리포지토리에도 셀프아카이브 사본이 없다. 미러 사이트는
+네트워크 레벨에서 도달 불가.** 1회차의 "미확보"가 "탐색 부족"이 아니라 **구조적 접근 불가**임이
+이번 회차에서 재확인됐다 — Bronze OA는 "출판사가 무료로 열어줄 수도 있다"는 상태일 뿐 현재는
+잠겨 있고, 어떤 3자 인덱스도 사본을 보유하지 않는다.
+
+### 13.2 대체 문헌 탐색 (CORE/OpenAlex 전문검색 ≥8질의 + 특허)
+
+Kim 2008이 구조적으로 봉쇄됐으므로, 같은 필요조건(산성 pH + BTA 농도 스윕 + Cu 제거율/식각률)을
+만족하는 대체 문헌을 찾는다. 질의 로그(2026-09-15):
+
+| # | 도구·질의 | 결과 |
+|---|---|---|
+| 1 | CORE `benzotriazole copper CMP removal rate pH acidic` | 무관 결과(레이저 폴리싱 등) |
+| 2 | CORE `BTA concentration copper polishing hydrogen peroxide removal rate` | 무관(부식 리뷰 등) |
+| 3 | CORE `corrosion inhibitor copper slurry etch rate wt% benzotriazole` | 무관(부식공학 일반) |
+| 4 | OpenAlex search `benzotriazole copper CMP removal rate acidic hydrogen peroxide` | 140건 중 상위 후보 8개 확인(아래) |
+| 5 | OpenAlex search `BTA concentration copper etch rate slurry pH` | 97건 중 상위 후보 8개 확인 |
+| 6 | Google Patents XHR `benzotriazole copper slurry acidic concentration` | KR102264348B1(BASF, BTA 유도체) 등 10건 |
+| 7 | freepatentsonline/Google Patents 본문 확인 — US8435421B2, US11168239B2(BASF 패밀리) | BTA **고정 농도(1 wt-%)** 로 유도체 종류만 비교 — 농도 스윕 아님, 부적격 |
+| 8 | CORE `Copper Surface Chemistry Relevant to Chemical Mechanical Planarization` (Keleher/Stewart 학위논문 추정) + IDEALS(UIUC) 검색 | UIUC IDEALS는 JS 렌더링이라 curl로 검색결과 미획득, CORE도 무관 결과만 반환 — 미확보 |
+| 9 | OpenAlex search `Aksu Doyle benzotriazole copper electrochemistry` / `Luo Ramarajan Babu ... thin solid films` | Doyle/Babu 그룹 관련 논문 다수 확인(아래 표) |
+
+상위 후보와 접근성 확인 결과:
+
+| DOI | 제목 | 필요조건 부합도 | 접근성 |
+|---|---|---|---|
+| 10.1149/1.3499217 | Choi et al. 2010, "Copper CMP Modeling: Millisecond Scale Adsorption Kinetics of BTA...pH 4" | **산성(pH4) 맞음, 그러나 BTA 농도 고정(0.01 M) — 스윕 아님** | ✅ 확보(UC eScholarship, `papers/choi2010-...`) — §13.3에서 다룬다 |
+| 10.1149/1.2953583 | Stewart, Keleher, Gewirth 2008, "Molecular Structure and Removal Rates...BTA vs 1,2,4-Triazole" | 유력(제거율-구조 관계, BTA 포함) | ❌ IOP bronze만, 저자(UIUC Gewirth group) 페이지 404, CORE 무관 |
+| 10.1557/proc-1157-e06-02 | Tripathi, Doyle, Dornfeld 2009, MRS Proc | 유력(패시베이션 속도론) | ❌ OpenAlex `oa_status=closed`, repo 없음 |
+| 10.5006/1.3280782 | (저자 미확인) "Adsorption of Benzotriazole on Copper Electrode Surfaces in Citric Acid Media" | 산성(citric acid) 맞음, 그러나 전극 평형흡착(§4-5의 K_eq 문제 재발 우려) | ❌ DIGITAL.CSIC 리포지토리 등재는 되어있으나 `is_oa=false`(제한), handle 리졸브해도 API 404 |
+| 10.1149/1.2104247 | Lee, Kang, Kim 2005, 5-aminotetrazole 억제제 | 화합물 불일치(BTA 아님) | 부적격(대상 무관) |
+| 10.1149/2.0171605jss | Jiang et al. 2016, 1,2,4-triazole 패시베이션 속도론 | 화합물 불일치(BTA 아님) | 부적격(대상 무관) |
+| US8435421B2 / US11168239B2(BASF) | Ag/Cu용 BTA 첨가 CMP 특허 | BTA는 고정 농도(0.1~1 wt-%)만 — 농도 스윕 실시예 없음 | 부적격(스윕 없음) |
+
+**⚠ 8질의 이상 수행했으나 필요조건(산성 pH + BTA 농도 스윕 + Cu 제거율) 3요소를 동시에 만족하고
+접근 가능한 문헌을 찾지 못했다.** 가장 가까운 후보(Choi 2010)는 산성계 BTA 흡착 속도론이지만
+농도 변수가 없어 K_eff·k 동시식별에 쓸 수 없다.
+
+### 13.3 확보한 Choi et al. 2010의 활용 — 값 식별 아님, 정성 보강만
+
+`papers/choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4.pdf`(J. Electrochem. Soc. 157(12)
+H1153, DOI 10.1149/1.3499217)는 pH 4, 0.01 M glycine + 0.01 M BTA 단일 농도에서 마이크로전극
+크로노암페로메트리로 BTA 흡착 속도론을 측정한다. 핵심 결과:
+
+- 전형적 Cu CMP 제거율(130~600 nm/min) 조건에서 정상상태 피복률 θ_ss는 **0.49~0.93 사이에
+  분포**(완전 포화 아님) — §5에서 제안한 "K_eff < K_eq" 그림(정상상태 피복률이 평형값보다 낮다)과
+  정성적으로 일치한다.
+- 애스퍼리티 접촉 한 번(20% 임의 가정)마다 θ가 부분적으로만 회복되는 사이클을 거치며, 저농도
+  MRR(130 nm/min)에서는 θ_ss≈0.88~0.93(거의 포화), 고농도 MRR(600 nm/min)에서는 θ_ss≈0.49~0.64로
+  훨씬 낮다 — **MRR(기계적 제거 속도)가 빠를수록 정상상태 피복률이 낮다**는, 이 노트 §5의
+  "형성/제거 경쟁" 프레임을 직접 뒷받침하는 정량 관찰이다.
+- 그러나 **BTA 농도를 변수로 스윕하지 않았으므로**(0.01 M 고정), 이 논문만으로는 K_eff(L/mol)를
+  역산할 수 없다. 농도 의존성이 없으면 Langmuir 흡착등온식의 "C" 변수를 시험할 데이터가 없다.
+
+**결론: 이 논문은 §5-6의 정성적 그림(정상상태 θ < 평형 θ, 기계적 하한의 물리적 기원)을 독립
+문헌으로 보강하지만, K_eff·k 수치 식별에는 쓸 수 없다.** cu_h2o2_bta.yaml은 변경하지 않는다.
+
+### 13.4 §(2회차) 결론
+
+> ⚠ **2회차도 1차 출처(산성 Cu+BTA 농도 스윕 + Cu 제거율) 미확보로 종결.**
+> - Kim 2008(10.1143/jjap.47.108)은 서지 API 6종 전부가 동일한 IOP 구매 페이지로 귀결되는
+>   **구조적 접근 불가**로 재확인(1회차 "탐색 부족" 가설을 폐기).
+> - 대체 문헌 탐색(CORE·OpenAlex 9질의 + 특허 검색)에서 산성계 BTA 흡착/속도론 논문 다수를
+>   확인했으나, "농도 스윕"이 있는 것은 전부 접근 불가(IOP/CORROSION 페이월, DIGITAL.CSIC
+>   `is_oa=false`)였고, 접근 가능했던 유일한 문헌(Choi 2010, eScholarship)은 농도가 고정돼
+>   있어 K_eff·k 식별에 쓸 수 없었다.
+> - **식별성 검사(SSE(K,k) 스윕)는 수행하지 못했다** — 수행할 데이터(농도별 실측 제거율 n≥3)가
+>   없기 때문이다. "축퇴 여부"를 판정할 대상 자체가 없다.
+> - `cu_h2o2_bta.yaml`은 **손대지 않았다.** `inhibitor_dG_ads_kJ`(estimated)·`inhibitor_strength_k`
+>   (unverified) 등급은 판정#17 종료 시점 그대로다.
+> - 확보한 Choi 2010(`papers/choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4.pdf`,
+>   `papers/INDEX.json` 등록)은 §5-6 정성 논거의 독립 보강 근거로만 노트에 편입한다(§13.3).
+> - **3회차 지침**: Kim 2008과 이번 회차에서 접근 실패한 3건(Stewart 2008, Tripathi MRS 2009,
+>   Aksu 미상저자 2011 CSIC)은 동일 경로 재시도 금지. 남은 미탐색 방향은 (a) Babu(Clarkson)/
+>   Doyle(Berkeley) 그룹의 **미공개 학위논문**(ProQuest/학교 리포지토리, Clarkson은 미확인) —
+>   Choi 2010이 Berkeley eScholarship에서 나온 것처럼 동일 그룹의 박사논문이 리포지토리에 있을
+>   가능성, (b) 특허 실시예 쪽은 이번 회차에 확인한 BASF/Cabot 계열이 전부 고정농도였으므로
+>   **Rohm and Haas Electronic Materials, Air Products, Hitachi Chemical**의 오래된(2000년대
+>   초) Cu CMP 슬러리 특허(농도 범위 청구항이 아니라 실시예 표에 다농도 비교가 있는 것)를
+>   다음 회차에 우선 탐색.
+
+

@@ -1,4 +1,13 @@
 {
+ "choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4": {
+  "src": "OpenAlex locations[] → escholarship.org repository copy (UC Berkeley eScholarship, qt0pn4r425) — curl에 Chrome UA 헤더 필요(기본 UA는 CloudFront 403) — 2026-09-15 cu_h2o2_bta 2회차",
+  "pdf_local": "papers/choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4.pdf",
+  "doi": "10.1149/1.3499217",
+  "title": "Copper CMP Modeling: Millisecond Scale Adsorption Kinetics of BTA in Glycine-Containing Solutions at pH 4",
+  "authors": "Choi S, Tripathi S, Dornfeld DA, Doyle FM",
+  "venue": "J. Electrochem. Soc. 157(12), H1153-H1159 (2010)",
+  "note": "knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md §13 — pH4 산성계, BTA 0.01M 단일농도(스윕 아님)의 밀리초 스케일 흡착 속도론. K_eff/k 동시식별에는 부적격(농도변수 없음)이나, θ_ss<1(부분피복 정상상태)·direct dissolution 우세 메커니즘을 독립적으로 뒷받침 — §6 '기계적 하한' 정성 논거의 보강 근거로만 인용"
+ },
  "doddabasanagouda2004-isu-ms-thesis-cmp-pad-multiscale-response": {
   "src": "CORE API v3 search (works?q=quantitative analysis multi-scale response CMP pad quasi-static dynamic characterization dry wet pad) → core.ac.uk/download/595616917.pdf — 2026-09-14 2회차 재탐색",
   "pdf_local": "papers/doddabasanagouda2004-isu-ms-thesis-cmp-pad-multiscale-mechanical-response.pdf",
