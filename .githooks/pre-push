@@ -1,0 +1,22 @@
+#!/bin/bash
+# pre-push: CI가 보는 것과 같은 "클린 트리"에서 테스트를 돌린다.
+#
+# 왜: 크론이 `git add <명시 경로>`로 커밋하면 동반 변경(팩 YAML·헬퍼)이 워킹트리에만 남고,
+# 로컬은 통과하는데 CI는 빨간불이 된다(2026-09-14 하루 8회 연속 실패 — 원인은 전부 이것).
+# 워킹트리 테스트는 그 사고를 못 잡는다. 여기서는 HEAD를 임시 디렉토리에 export해 돌린다.
+#
+# 우회: FABSIM_SKIP_PREPUSH=1 git push  (급할 때만, CI는 여전히 돈다)
+set -e
+[ -n "$FABSIM_SKIP_PREPUSH" ] && exit 0
+ROOT=$(git rev-parse --show-toplevel)
+TMP=$(mktemp -d /tmp/fabsim-prepush.XXXXXX)
+trap 'rm -rf "$TMP"' EXIT
+git -C "$ROOT" archive HEAD | tar -x -C "$TMP"
+PY="$ROOT/.venv/bin/python"
+if ! (cd "$TMP" && "$PY" -m pytest -q -x -p no:cacheprovider tests/ >"$TMP/out.txt" 2>&1); then
+  echo "✗ pre-push: HEAD(클린 트리)에서 테스트 실패 — 동반 변경을 커밋하지 않았을 가능성:"
+  git -C "$ROOT" status --short | grep -E '^ M' | head -10
+  tail -15 "$TMP/out.txt"
+  exit 1
+fi
+echo "✓ pre-push: 클린 트리 테스트 통과"

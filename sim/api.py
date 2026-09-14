@@ -539,6 +539,29 @@ def api_scope(agent: str):
 
 _INDEX = Path(__file__).resolve().parent / "web" / "index.html"
 _STUDIO3D = Path(__file__).resolve().parent / "web" / "studio3d.html"
+_DEMO = Path(__file__).resolve().parent / "web" / "demo.html"
+_BASIS = ROOT / "validation" / "MODEL-BASIS.md"
+
+
+@app.get("/demo", response_class=HTMLResponse)
+def demo_landing():
+    """비공개 데모 랜딩(영어) — 면접관용. FABSIM_DEMO=1이면 '/'도 여기로 온다."""
+    return HTMLResponse(_DEMO.read_text(encoding="utf-8"),
+                        headers={"Cache-Control": "no-store"})
+
+
+@app.get("/basis", response_class=HTMLResponse)
+def basis_report():
+    """근거 보고서(MODEL-BASIS.md)를 그대로 보여준다 — 자동 생성물이라 손대지 않는다."""
+    if not _BASIS.exists():
+        raise HTTPException(404, "MODEL-BASIS.md not in this build")
+    import html as _h
+    body = _h.escape(_BASIS.read_text(encoding="utf-8"))
+    page = ("<!doctype html><meta charset=utf-8><title>FabSim — model basis</title>"
+            "<style>body{background:#0b0d10;color:#e6e8eb;font:14px/1.5 ui-monospace,Menlo,monospace;"
+            "max-width:1000px;margin:0 auto;padding:32px 20px}pre{white-space:pre-wrap;word-break:break-word}"
+            "a{color:#5ec1ff}</style><a href='/demo'>← demo</a><pre>" + body + "</pre>")
+    return HTMLResponse(page, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/3d", response_class=HTMLResponse)
@@ -608,6 +631,8 @@ def icon():
 
 @app.get("/", response_class=HTMLResponse)
 def index():
+    if os.environ.get("FABSIM_DEMO") == "1":
+        return demo_landing()
     if _INDEX.exists():
         return _INDEX.read_text()
     return "<h1>FabSim API</h1><p>/docs 에서 API 문서를 보십시오.</p>"

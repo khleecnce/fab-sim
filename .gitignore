@@ -27,3 +27,10 @@ data/corpus/fulltext/
 
 # 특허 원문 캐시 — 재수집 가능, 용량이 크다
 _patents/raw/
+deploy/demo/.vercel
+deploy/demo/.env.local
+deploy/demo/sim/
+deploy/demo/knowledge/
+deploy/demo/validation/
+deploy/demo/tools/
+deploy/demo/requirements.txt

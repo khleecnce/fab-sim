@@ -1,0 +1,36 @@
+# FabSim — 비공개 데모 이미지 (면접관용, 토큰 게이트)
+#
+# 목적: 면접관에게만 링크로 보여주는 데모. 코드 공개 없음.
+# 넣지 않는 것: knowledge/*.md 연구 노트, papers/, data/corpus, data/store(런 DB),
+#               validation/datasets 원본, agents/, tools/ 크론 도구, 테스트.
+# 넣는 것: 엔진(sim/), 물성 팩(knowledge/params), UI 카탈로그 3개(additives/wafers/performance),
+#          MODEL-BASIS.md(근거 보고서 — /api/basis 로 노출).
+#
+#   docker build -f Dockerfile.demo -t fabsim-demo .
+#   docker run --rm -e FABSIM_TOKEN=xxxx -p 8848:8848 fabsim-demo
+#   → http://localhost:8848/3d?t=xxxx
+
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    FABSIM_DEMO=1 PORT=8848
+
+WORKDIR /app
+
+COPY requirements-demo.txt ./
+RUN pip install --no-cache-dir -r requirements-demo.txt
+
+COPY sim/ ./sim/
+COPY knowledge/params/ ./knowledge/params/
+COPY knowledge/additives/catalog.yaml ./knowledge/additives/catalog.yaml
+COPY knowledge/wafers/npw_catalog.yaml ./knowledge/wafers/npw_catalog.yaml
+COPY knowledge/performance/ ./knowledge/performance/
+COPY validation/MODEL-BASIS.md ./validation/MODEL-BASIS.md
+COPY tools/ingest_measurement.py ./tools/ingest_measurement.py
+
+# 런 DB는 컨테이너 안(휘발) — 면접관이 올린 파일은 재시작 시 사라진다. 의도된 동작.
+RUN mkdir -p data/store && useradd -m -u 10001 fabsim && chown -R fabsim:fabsim /app
+USER fabsim
+
+EXPOSE 8848
+CMD ["sh", "-c", "uvicorn sim.api:app --host 0.0.0.0 --port ${PORT}"]

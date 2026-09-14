@@ -29,9 +29,10 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import os
 
 ROOT = Path(__file__).resolve().parents[1]
-DB_DIR = ROOT / "data" / "store"
+DB_DIR = Path(os.environ["FABSIM_STORE_DIR"]) if os.environ.get("FABSIM_STORE_DIR") else ROOT / "data" / "store"
 DB_PATH = DB_DIR / "fabsim.sqlite"
 
 _SCHEMA = """
