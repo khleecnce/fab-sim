@@ -325,3 +325,31 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
 - 2026-09-14 현재 격자 **40/50**(두 회차 모두 칸 수 불변 — 올릴 근거가 없었고 부풀리지 않았다).
   남은 10칸: Γ×5(2회차 미해소, 3회차가 마지막) · ψ×3(cu unverified=함수형 한계, sti/w_fe) ·
   χ/cu×1 · Δ/cu×1. ⚠ 기한 2026-09-21까지 7일.
+- 2026-09-15 [Max워커] Γ 임계하중 3회차·종결(커밋 3b20e71) — Wei 2010 UA(Xiaomin Wei)를
+  OpenAlex 저자API→UA DSpace7 REST로 3회차 만에 최초 식별·확보(19MB PDF)했으나 내용이 furrow
+  단면적(Borucki 2007 재사용)·UTS 대용값뿐이라 값 A(마모 그릿 팁반경 R)·값 B(IC1000 항복강도
+  Y) 둘 다 부적격. Irene Li 2000(UCF, 대상계 정확 일치)은 엠바고 미확보, Hou 2024(MDPI)는
+  계 불일치, 신규질의 9건 전부 부적격 → **"R·Y 직접값은 이 코퍼스로 못 낸다"로 스코프 축소
+  영구 종결**(EVIDENCE-RULES 판정 `22-종결` 행 신설, `_f_gamma` docstring 사유(3)을
+  "미해소"→"종결·재탐색 금지, 4회차 없음"으로 전환, Γ 5칸은 하한이 아니라 **확정 estimated**
+  로 고정).
+- 2026-09-15 [Max워커] cu 산성 BTA 농도스윕 2회차(커밋 9a1364d) — Kim 2008 JJAP
+  doi:10.1143/jjap.47.108이 서지API 6종(Crossref/OpenAlex/Semantic Scholar/CiNii·NDL/
+  J-Stage/CORE) 전부 동일 IOP 구매페이지로 귀결·저자기관(Hanyang) 사본 없음·미러 사이트 DNS
+  차단 확인 → 1회차의 "탐색 부족" 가설을 "구조적 접근 불가"로 대체(판정 24C 신설). 대체
+  확보한 Choi 2010(UC eScholarship, pH4 산성계)은 BTA 농도 고정(0.01M)이라 K_eff·k 동시식별
+  불가, 정성 보강(θ_ss<1, 기계적 하한 논거)으로만 편입. cu_h2o2_bta.yaml 값 불변.
+- 2026-09-15 [Max워커] ψ 억제항 등온식 함수형 조사(커밋 107a8f3, 노트
+  `knowledge/cmp/psi-inhibitor-isotherm-functional-form-survey.md`) — Frumkin·임계피복률·
+  Temkin·Sips 4종을 조사. Frumkin(f≈2.0~2.2)이 판정#24·#17 앵커를 현행 Langmuir+exp(-kθ)
+  보다 잘 재현하고 식별성 스윕도 통과했으나, f값의 1차 물리적 근거를 어느 계에서도 확증 못
+  해 **코드 교체 보류**. 직결 문헌 Krishnan et al. 2024(IBM, Cu+BTA+Frumkin+cusp
+  catastrophe)는 IOP·미러 사이트 전 경로 차단 — 3회차 우선순위(Krishnan 2024 전문 확보)로 기록.
+- 2026-09-15 현재 격자 **40/50 불변** — 세 건 모두 "근거를 확보해 등급을 올린" 것이 아니라
+  "근거 미확보를 확정하고 종결/보류한" 것이라 승격 요인이 원천적으로 없었다. 남은 C2 10칸 중
+  Γ×5는 이번 회차로 미확보가 영구 종결(estimated 확정, 4회차 없음)됐고, ψ×3(cu unverified·
+  sti·w_fe)는 Frumkin이 유력하나 1차근거 미확보로 보류, χ/cu×1·Δ/cu×1은 미착수. ⚠ **기한
+  (09-21, 남은 6일) 내 40/50 초과 달성 가능성은 낮게 본다** — Γ×5는 이번 회차로 재탐색 자체가
+  금지됐고, 유일하게 남은 전진 경로는 ψ(Krishnan 2024 확보 시 +2칸)뿐이며 나머지도 구조적
+  접근 문제(cu BTA)라 회차를 더 투입해도 성공률이 낮다. 남은 회차는 C2보다 C5(verify 노트
+  5축)에 배분하는 것이 합리적이다.
