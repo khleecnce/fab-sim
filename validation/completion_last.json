@@ -1,7 +1,7 @@
 {
-  "ts": 1789313591.535468,
+  "ts": 1789349341.561514,
   "complete": false,
-  "cells_done": 23,
+  "cells_done": 32,
   "cells_total": 50,
   "fails": [
     "C2 Γ gamma/cu_h2o2_bta: confidence=estimated",
@@ -14,19 +14,10 @@
     "C2 χ chi/sti_ceria: confidence=unverified",
     "C2 χ chi/w_fe_oxidizer: confidence=estimated",
     "C2 ψ psi/cu_h2o2_bta: confidence=unverified",
-    "C2 ψ psi/sic_ceria_h2o2: confidence=estimated",
-    "C2 ψ psi/sti_ceria: confidence=estimated",
     "C2 ψ psi/w_fe_oxidizer: confidence=unverified",
-    "C2 τ tau/cu_h2o2_bta: confidence=unverified",
-    "C2 τ tau/oxide_silica: confidence=unverified",
-    "C2 τ tau/sic_ceria_h2o2: confidence=unverified",
-    "C2 τ tau/sti_ceria: confidence=unverified",
-    "C2 τ tau/w_fe_oxidizer: confidence=unverified",
-    "C2 Δ delta/cu_h2o2_bta: confidence=unverified",
-    "C2 Δ delta/oxide_silica: confidence=unverified",
-    "C2 Δ delta/sic_ceria_h2o2: confidence=unverified",
-    "C2 Δ delta/sti_ceria: confidence=unverified",
-    "C2 Δ delta/w_fe_oxidizer: confidence=unverified",
+    "C2 Δ delta/cu_h2o2_bta: confidence=estimated",
+    "C2 Δ delta/oxide_silica: confidence=estimated",
+    "C2 Δ delta/w_fe_oxidizer: confidence=estimated",
     "C2 S stab/cu_h2o2_bta: confidence=estimated",
     "C2 S stab/sic_ceria_h2o2: confidence=estimated",
     "C2 S stab/sti_ceria: confidence=estimated",
@@ -118,7 +109,7 @@
       "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"
     ],
     "tau": [
-      "knowledge/materials/pad-groove-geometry-contact-area-flow-resistance.md",
+      "knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md",
       "knowledge/materials/pad-porosity-slurry-transport-mrr.md"
     ],
     "delta": [

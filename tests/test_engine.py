@@ -29,11 +29,31 @@ def test_simulate_shapes_and_units():
 
 
 def test_preston_linearity_in_pressure_and_time():
+    """압력은 여전히 엄밀히 선형. **시간은 2026-09-14부터 초선형(superlinear)이다.**
+
+    시간 계약 변경의 근거: Philipossian & Mitchell 2004(doi:10.1149/1.1731539)는
+    턴오버비 TR = MRT/t_polish 가 커질수록 Preston 상수가 **떨어진다**는 것을 ILD oxide
+    실측으로 보였다(TR=1.13에서 370 Å vs TR=0에서 500 Å, 26% 감소). 짧은 폴리시일수록
+    물→슬러리 치환 과도기가 차지하는 비중이 커져 계면 고형분 농도가 정상상태에 못 미치기
+    때문이다. 그래서 시간을 2배로 늘리면 제거량은 **2배보다 조금 더** 나온다.
+    → knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §5, τ의 turnover 항.
+
+    ⚠ 압력 선형성은 **의도적으로 지켰다.** Mu 2016이 MRT의 압력 의존도 실측했지만
+      (3→5 PSI에서 MRT 약 0.90배), P는 이미 Preston 본항이 지배적으로 담고 있고
+      MRT 경로 기여는 30 s·2 PSI 스윙에서 약 1.1%에 불과하다. 오더가 두 자릿수 차이나는
+      부차 경로 때문에 전역 계약을 깨지 않는다(sim/factors.py::_f_tau 주석 참조).
+    """
     a = simulate(Recipe(pressure_psi=2.0, time_s=30)).removed_nm
     b = simulate(Recipe(pressure_psi=4.0, time_s=30)).removed_nm
     c = simulate(Recipe(pressure_psi=2.0, time_s=60)).removed_nm
-    assert np.allclose(b, 2 * a, rtol=1e-9)
-    assert np.allclose(c, 2 * a, rtol=1e-9)
+    assert np.allclose(b, 2 * a, rtol=1e-9), "압력 선형성은 유지돼야 한다"
+
+    # 시간: 2배보다 크되, 문헌이 준 크기(30 s에서 τ 배수 0.9576)와 일치해야 한다.
+    ratio = float(np.mean(c) / np.mean(2 * a))
+    assert ratio > 1.0, "TR 효과로 긴 폴리시가 유리해야 한다(2배보다 더 제거)"
+    assert ratio == pytest.approx(1 / 0.9576, abs=0.002), (
+        f"시간 2배 제거량 비가 {ratio:.4f} — 문헌 유도값 1/0.9576=1.0443이어야 한다. "
+        "τ turnover 항이 빠졌거나 크기가 달라졌다.")
 
 
 def test_uniform_pressure_gives_low_nonuniformity():

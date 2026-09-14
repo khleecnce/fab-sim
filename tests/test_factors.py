@@ -201,41 +201,49 @@ def test_tau_porosity_reproduces_prasad_8_percent():
         "비례 가정으로 퇴행했을 수 있다.")
 
 
-def test_tau_groove_width_is_not_monotonic():
-    """그루브 폭 η은 600 µm에서 정점이고 900 µm에서 오히려 내려간다.
+def test_tau_groove_width_reduces_mrr_via_turnover():
+    """그루브를 넓히면 슬러리 체류시간(MRT)이 길어져 **MRR이 내려간다**.
 
-    Mu 2016 Table 3 (3 PSI): 300→9.9%, 600→13.4%, 900→12.8%
-    ⚠ 단조 증가 모델("넓힐수록 잘 흐른다")로 바꾸면 여기서 잡힌다. 실측은
-      V_groove와 V_total이 함께 커져 q_actual 비율이 안 변한다고 말한다.
+    2026-09-14 교체. 이전 테스트는 η(이용효율) 정점 형상(600 µm 최대)을 지켰으나,
+    η와 MRT는 같은 실측의 종속량(η·MRT = V_total/q_total, 실측 6점 2% 이내 일치)이라
+    TR 항과 함께 쓰면 이중 계상이었다. 등급이 낮은 쪽(η 지수 0.07 = 기공률→그루브
+    교차대입, E4)을 빼고 TR(ILD oxide 직접 실측 폐형식, E2)만 남겼다.
+    근거: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §4.
+
+    ⚠ 방향의 독립 확인: Kao 2011(doi:10.1016/j.wear.2010.10.057) "the removal rate was
+      reduced by increasing the groove width such that it finally approached the result
+      of a non-grooved pad". 누군가 "넓을수록 잘 흐르니 MRR이 오른다"로 되돌리면 여기서 잡힌다.
     """
     t300 = _factors(groove_width_um=300.0)["tau"].value
     t600 = _factors(groove_width_um=600.0)["tau"].value
     t900 = _factors(groove_width_um=900.0)["tau"].value
-    assert t600 > t300, "600 µm가 300 µm보다 나아야 한다(η 9.9→13.4%)"
-    assert t900 < t600, (
-        f"900 µm({t900:.5f})가 600 µm({t600:.5f})보다 크다 — 단조 모델로 "
-        "퇴행했다. 실측은 정체·감소다.")
+    assert t300 > t600 > t900, (
+        f"좁은 그루브가 유리해야 한다(MRT 9.2 < 10.6 < 13.9 s) — 실제 {t300:.4f}/"
+        f"{t600:.4f}/{t900:.4f}")
+    assert t600 == pytest.approx(1.0), "기준 폭 600 µm에서 τ=1.0 계약"
 
 
-def test_tau_does_not_extrapolate_outside_measured_range():
-    """실측 범위(300~900 µm) 밖은 외삽하지 않고 끝값으로 고정한다."""
-    assert _factors(groove_width_um=200.0)["tau"].value == pytest.approx(
-        _factors(groove_width_um=300.0)["tau"].value)
-    assert _factors(groove_width_um=1200.0)["tau"].value == pytest.approx(
-        _factors(groove_width_um=900.0)["tau"].value)
-    f = _factors(groove_width_um=200.0)["tau"]
-    assert any("범위" in n and "밖" in n for n in f.notes), (
-        "외삽 구간인데 경고하지 않는다.")
+def test_tau_polish_time_lowers_mrr_philipossian_2004():
+    """폴리시 시간을 60 s→30 s로 줄이면 TR이 2배가 되어 평균 MRR이 4.2% 더 떨어진다.
 
+    Philipossian & Mitchell 2004 (doi:10.1149/1.1731539): f_TR = 1 − 0.2301·TR.
+    기준 조건(W=600 µm, 3 PSI)에서 MRT=10.6 s(Mu 2016 Table 3)이므로
+      60 s: TR=0.177 → 0.9594 / 30 s: TR=0.353 → 0.9187  ⟹ 비 0.9576.
 
-def test_tau_effect_is_weak_not_zero():
-    """τ는 약하게라도 MRR을 움직여야 한다 — '반응 없음'과 '약한 반응'은 다르다."""
-    a = _mean_mrr(groove_width_um=300.0)
-    b = _mean_mrr(groove_width_um=600.0)
-    assert a != pytest.approx(b, rel=1e-9), "그루브를 바꿔도 MRR이 전혀 안 변한다"
-    assert abs(b / a - 1.0) < 0.10, (
-        f"그루브 폭 변화가 MRR을 {abs(b/a-1)*100:.1f}% 바꾼다 — 실측 대비 과하다. "
-        "τ 결합은 약해야 한다(지수 0.07).")
+    ⚠ 이 테스트가 지키는 것: time_s가 MRR에 **영향을 준다**는 사실. 예전 엔진에서
+      time_s는 총 제거량만 선형 스케일했고 순간 MRR과 무관했다 — 그 구조적 결측을
+      되돌리면 여기서 잡힌다.
+    """
+    # time_s는 팩 파라미터가 아니라 **레시피** 필드다 — _factors의 pack_overrides로는
+    # 안 들어간다. Recipe에 직접 준다.
+    def _tau(t):
+        return compute_factors(
+            Recipe(pack="oxide_silica", time_s=t).resolve())["tau"].value
+    t30, t60, t120 = _tau(30.0), _tau(60.0), _tau(120.0)
+    assert t60 == pytest.approx(1.0), "기준 60 s에서 τ=1.0 계약"
+    assert t30 / t60 == pytest.approx(0.9576, abs=0.001), (
+        f"30 s 배수가 {t30/t60:.4f} — 문헌 유도값은 0.9576이다")
+    assert t120 > t60, "긴 폴리시는 과도기 비중이 작아 유리해야 한다"
 
 
 def test_tau_status_is_modeled_after_scope_reduction():
@@ -248,7 +256,9 @@ def test_tau_status_is_modeled_after_scope_reduction():
     for pack in ("cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe_oxidizer"):
         f = _factors(pack=pack)["tau"]
         assert f.status == "modeled", f"{pack}: τ가 여전히 {f.status} — 스코프 축소가 반영 안 됨"
-        assert set(f.drivers.keys()) == {"groove_width_um", "pad_porosity_pct"}, (
+        # time_s는 2026-09-14 TR 채널이 끌어온 **레시피** 드라이버라 소모품 스코프 계약에서
+        # 제외한다(turnover 항 안에 이미 반영됨).
+        assert set(f.drivers) - {"time_s"} == {"groove_width_um", "pad_porosity_pct"}, (
             f"{pack}: τ 드라이버에 groove_depth_mm/groove_pitch_mm이 남아있다 — 스코프 축소 미반영")
 
 

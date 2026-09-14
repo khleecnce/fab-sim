@@ -2391,3 +2391,18 @@ G4 선수조건 직결인 film-w·film-nitride(cmp-calibrator/film-emerging 게�
 체크박스 3개 [x], ORG §5 3행 갱신. 타크론 미커밋(EVIDENCE-RULES·params/*.yaml·validation/*·abrasive-d99 노트)은 제외하고 내 파일만 add.
 ⚠ 코퍼스 fetch 0/60 — 논문 소스까지 전면 봉쇄. 다음 낮 회차에서 corpus.py 소스별 실패 원인(HTTP 코드) 집계 필요.
 다음 회차 후보: defect-scientist Lv3-1(ML 분류·RCA), film-w Lv3-2(W Kp·산화속도 파라미터, sim/tier2), film-nitride Lv3-2, cmp-data-engineer Lv3-1(G4 cmp-calibrator 선수).
+
+## 2026-09-14 10:00 [성장엔진] tau 이중계상 제거 + TR(턴오버비) 채널 신설 — 완성격자 27→32/50
+COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence 숫자만 올린 게 아니라 **tau의 결합 형식 자체를 교체**한 것이다.
+- 발견: tau가 쓰던 eta(슬러리 이용효율) 항과 이번에 넣으려던 MRT 항이 **종속**이다 — Mu 2016 정의를 풀면 eta*MRT = V_total/q_total이고 실측 6점에서 2% 이내 일치(최악 +1.83%).
+  둘을 곱하면 그루브 폭 효과를 두 번 센다. 등급 판정: eta 지수 0.07은 Prasad 기공률→그루브 교차대입(E4), TR은 ILD oxide 직접 실측 폐형식(E2) → E2 채택, eta 항 제거.
+- 신설: f_TR = 1 - a*(MRT/t_polish), a=0.2301 (Philipossian/Mitchell 2004 doi:10.1149/1.1731539 본문 앵커 TR=1.13에서 370A vs TR=0에서 500A = 26% 감소에서 닫힌 형태 유도).
+  MRT(폭)는 Mu 2016 Table 3 실측 3점 보간, 범위 밖 끝값 고정. 미러 사이트 -> 미러 사이트으로 원문 PDF 확보(papers/ 등록).
+- **새 물리: Recipe.time_s가 MRR에 영향을 준다.** 이전엔 총 제거량만 선형 스케일했다. 60->30 s 반감 시 평균 MRR이 추가로 4.2% 하락(코드 실측 0.9576 = 문헌 유도값).
+  tests/test_engine.py::test_preston_linearity_in_pressure_and_time의 시간 선형 계약을 초선형으로 갱신(압력 선형성은 유지).
+- 방향 독립 확인: 모델의 그루브 폭->MRR 방향이 뒤집히므로(600um 정점 -> 좁을수록 유리) 제3문헌 대조. Kao 2011(doi:10.1016/j.wear.2010.10.057) "removal rate was reduced by
+  increasing the groove width" — 다른 그룹·기법이 같은 방향(E3). 반대 주장 Hong 2012은 MRR 수치가 그림뿐이라 정량 부적격 + 범위 밖(W=2mm)으로 기록.
+- 스코프 축소 1건: MRT의 압력 의존(Mu 2016 실측 3->5PSI에서 약 0.90배)은 **의도적으로 배선하지 않음** — 엔진 Preston 압력 선형성 계약이 깨지는데 기여는 30s·2PSI 스윙에서 1.1%뿐.
+  "못 찾았다"가 아니라 "찾았으나 뺐다"로 코드 주석·노트에 크기와 함께 명시.
+검증(직접 실행): pytest 644 passed. qa_loop --strict PASS(#72, 유의 7/20 rho 0.9537 불변). completion 27->32/50(C2 23->18). check_knowledge·verify_claims 신규 노트 PASS(출처 7건 실존·코드 1블록).
+다음: C2 잔여 18칸 중 Gamma 5칸(컨디셔너 — disk RPM 드라이버 부재·PCR 시간감쇠 앵커가 2차인용이라 구조적 결측 2건 선행 필요), chi 4칸.

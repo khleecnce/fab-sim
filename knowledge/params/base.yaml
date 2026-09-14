@@ -427,6 +427,40 @@ params:
       ⚠ 반드시 함께 움직여야 τ=(P/P_ref)^0.07=1.000이 유지된다. 값만 바꾸면 MRR이 1.1% 내려간다.
     source: knowledge/materials/commercial-cmp-pad-porosity-literature-values.md
     confidence: literature
+  # ── τ turnover 채널 (2026-09-14 신설) ──
+  # 근거: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md
+  tr_preston_slope:
+    value: 0.2301
+    unit: "1/TR"
+    note: >
+      f_TR = 1 − a·TR 의 a. Philipossian & Mitchell 2004(DOI 10.1149/1.1731539) 본문
+      앵커 2점에서 닫힌 형태로 유도: TR=1.13에서 370 Å vs TR=0(린스 제거 조건)에서 500 Å
+      = 26% 감소 ⟹ a = (1 − 370/500)/1.13 = 0.2301.
+      ⚠ 2점 유도라 **곡률은 미검증** — 논문은 Fig.12에서 "decreases steadily"라고만 적는다.
+      실측 TR 범위는 0.28~1.13이며 그 밖 외삽은 하지 않는다(코드가 하한 0.05로 클램프).
+      논문 명시 오차: TR·Preston 상수 양축 상대표준편차 약 10%.
+    source: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §2
+    confidence: literature
+  tau_ref_polish_time_s:
+    value: 60.0
+    unit: s
+    note: >
+      τ turnover 항의 **정규화 기준 폴리시 시간**. 물리 상수가 아니라 앵커다 —
+      엔진 기본 레시피(Recipe.time_s=60)와 맞춰 두어야 기준 조건에서 τ=1.0이 되고,
+      Kp가 이 시간에서 캘리브레이션됐다는 뜻이 된다. 값 자체를 문헌이 지정하지 않으므로
+      confidence는 estimated다. ⚠ 이 값을 바꾸면 τ 전체가 상수배로 움직이고 Kp와 상쇄된다 —
+      **예측의 상대 비교(시간을 바꿨을 때의 변화)는 앵커 선택과 무관**하다.
+    source: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §5
+    confidence: estimated
+  tau_ref_pressure_psi:
+    value: 3.0
+    unit: psi
+    note: >
+      같은 앵커의 압력 축. Mu 2016 MRT 실측이 3·5 PSI 두 점이고 pressure_psi 기본값이
+      3.0이라 3.0으로 둔다. 3~5 PSI 밖은 코드가 끝값 고정(외삽 금지).
+    source: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §3
+    confidence: literature
+
   tau_mrr_exponent:
     value: 0.07
     unit: "-"
@@ -436,6 +470,11 @@ params:
       ⚠ "슬러리를 더 나르면 MRR이 비례해 오른다"는 직관은 이 실측으로 기각됐다.
       ⚠ 기공률 실험에서 뽑아 그루브 축에 교차 대입한 값이라 미검증 —
       순위만 신뢰하고 크기는 캘리브레이션 대상이다.
+      ⚠⚠ **2026-09-14부로 τ 코드에서 사용하지 않는다(사장).** 이 지수가 곱하던 η(이용효율)
+      항은 MRT와 종속(η·MRT = V_total/q_total, 실측 6점 2% 이내 일치)이라 TR 항과 함께 쓰면
+      이중 계상이었고, 등급도 E4(교차대입) < E2(TR, 대상계 실측)라 TR 항으로 교체됐다.
+      근거: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §4.
+      키는 이력 보존용으로 남긴다.
     source: knowledge/materials/pad-porosity-slurry-transport-mrr.md §5
     confidence: unverified
 

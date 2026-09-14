@@ -1172,43 +1172,97 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
         f.notes.append("⚠ τ 미모델링: 그루브 폭·기공률이 팩에 없다.")
         return f
 
-    # ── η(그루브 폭) — Mu 2016 Table 3 실측 3점 선형보간 ──────────
-    ETA_W = [300.0, 600.0, 900.0]        # µm
-    ETA_V = [0.099, 0.134, 0.128]        # 슬러리 이용효율 (3 PSI)
+    # ── TR(턴오버비) — Philipossian 2004 실측, 그루브 폭·압력·폴리시 시간 ──
+    #
+    # 2026-09-14 교체: 기존 η(이용효율) 항을 제거하고 TR 항으로 갈아끼운다.
+    # 근거: knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md §4.
+    #   η = q_actual/q_total, q_actual = V_total/MRT  ⟹  **η·MRT = V_total/q_total**
+    #   즉 η와 MRT는 같은 실측(반응기 저류부피 V_total)의 두 얼굴이라 **종속**이다.
+    #   둘을 곱으로 병치하면 그루브 폭 효과를 두 번 센다(실측 6점에서 η·MRT가
+    #   V_total/q_total과 2% 이내 일치 — 같은 노트 §7 verify).
+    #   등급 판정: η 항의 지수 0.07은 Prasad 기공률 실험 → 그루브 축 교차대입(E4),
+    #   TR 항은 ILD oxide + 콜로이달 실리카 직접 실측 폐형식(E2). E2 > E4 → TR 채택.
+    #   방향 독립 확인: Kao 2011(doi:10.1016/j.wear.2010.10.057) "removal rate was
+    #   reduced by increasing the groove width" — 다른 그룹·기법이 같은 방향(§4-1).
+    #
+    # TR = MRT / t_polish,  f_TR = 1 − a·TR,  a = (1 − 370/500)/1.13 = 0.2301
+    #   (Philipossian 2004 doi:10.1149/1.1731539 본문: TR=1.13에서 370 Å vs TR=0에서
+    #    500 Å = 26% 감소). 기준 조건 대비 배수로만 쓴다 — 절대 손실률을 주장하지 않는다.
+    ETA_W = [300.0, 600.0, 900.0]                      # µm, Mu 2016 Table 1
+    MRT_3PSI = [9.2, 10.6, 13.9]                       # s, Mu 2016 Table 3
+    MRT_5PSI = [8.3, 9.3, 12.7]                        # s, 같은 표
     terms: Dict[str, float] = {}
     srcs: List[str] = []
+
+    def _interp(xs: List[float], ys: List[float], x: float) -> float:
+        """구간 밖은 끝값 고정 — 실측이 없는 곳으로 외삽하지 않는다."""
+        if x <= xs[0]:
+            return ys[0]
+        if x >= xs[-1]:
+            return ys[-1]
+        for i in range(len(xs) - 1):
+            if xs[i] <= x <= xs[i + 1]:
+                t = (x - xs[i]) / (xs[i + 1] - xs[i])
+                return ys[i] + t * (ys[i + 1] - ys[i])
+        return ys[-1]
+
+    def _mrt(width_um: float, psi: float) -> float:
+        m3 = _interp(ETA_W, MRT_3PSI, width_um)
+        m5 = _interp(ETA_W, MRT_5PSI, width_um)
+        # 압력 3~5 PSI 사이만 선형 보간, 밖은 끝값 고정(외삽 금지)
+        if psi <= 3.0:
+            return m3
+        if psi >= 5.0:
+            return m5
+        return m3 + (psi - 3.0) / 2.0 * (m5 - m3)
 
     w = pk.get_or("groove_width_um", None)
     w_ref = pk.get_or("groove_ref_width_um", None)
     if w is not None and w_ref is not None:
-        def _eta(x: float) -> float:
-            x = float(x)
-            if x <= ETA_W[0]:
-                # 300 µm 아래는 실측이 없다 — 외삽하지 않고 끝값으로 고정한다
-                return ETA_V[0]
-            if x >= ETA_W[-1]:
-                return ETA_V[-1]
-            for i in range(len(ETA_W) - 1):
-                if ETA_W[i] <= x <= ETA_W[i + 1]:
-                    t = (x - ETA_W[i]) / (ETA_W[i + 1] - ETA_W[i])
-                    return ETA_V[i] + t * (ETA_V[i + 1] - ETA_V[i])
-            return ETA_V[-1]
-
-        e_cur, e_ref = _eta(w), _eta(float(w_ref))
-        if e_ref > 0:
-            n = float(pk.get_or("tau_mrr_exponent", 0.07))
-            terms["groove_eta"] = (e_cur / e_ref) ** n
-            srcs.append("knowledge/materials/pad-groove-geometry-"
-                        "contact-area-flow-resistance.md §2")
-            f.notes.append(
-                f"그루브 폭 {float(w):g} µm → 슬러리 이용효율 η={e_cur*100:.1f}% "
-                f"(기준 {float(w_ref):g} µm, η={e_ref*100:.1f}%). "
-                "⚠ η는 600 µm 부근에서 정체·반전한다 — 넓힐수록 좋지 않다"
-                "(Mu 2016 Table 3 실측).")
-            if float(w) < ETA_W[0] or float(w) > ETA_W[-1]:
-                f.notes.append(f"⚠ 그루브 폭 {float(w):g} µm는 실측 범위"
-                               f"({ETA_W[0]:g}~{ETA_W[-1]:g} µm) 밖 — 끝값으로 고정했다"
-                               "(외삽하지 않는다).")
+        a_tr = float(pk.get_or("tr_preston_slope", 0.2301))
+        t_pol = float(getattr(rr, "time_s", 0.0) or 0.0)
+        t_ref = float(pk.get_or("tau_ref_polish_time_s", t_pol or 1.0))
+        # ⚠ 압력 축은 τ에 **넣지 않는다**(2026-09-14 스코프 판정).
+        #   Mu 2016은 MRT의 압력 의존을 실측했다(3→5 PSI에서 MRT 비 0.902/0.877/0.914,
+        #   슬러리 필름이 얇아져 반응기 부피가 줄기 때문). 물리적으로 실재하는 효과다.
+        #   그런데 이걸 τ에 배선하면 **엔진의 Preston 압력 선형성 계약이 깨진다**
+        #   (tests/test_engine.py::test_preston_linearity_in_pressure_and_time).
+        #   P는 이미 Preston 본항이 지배적으로 담고 있고, MRT 경로의 추가 기여는
+        #   30 s 폴리시·2 PSI 스윙에서 약 1.1%에 불과하다(계산: W=600에서
+        #   MRT 10.6→9.3 s ⟹ f_TR 0.9187→0.9287). 오더가 두 자릿수 차이나는
+        #   부차 경로 때문에 엔진 전역 계약을 깨는 것은 이득보다 위험이 크다.
+        #   그래서 MRT는 **기준 압력에서 평가**하고, 배제한 효과의 크기를 위에 남긴다
+        #   (EVIDENCE-RULES §3회차 규칙의 "스코프 축소로 종결"과 같은 처리 —
+        #   "못 찾았다"가 아니라 "찾았으나 의도적으로 뺐다"이다).
+        psi_ref = float(pk.get_or("tau_ref_pressure_psi", 3.0))
+        if t_pol > 0 and t_ref > 0:
+            mrt_cur = _mrt(float(w), psi_ref)
+            mrt_ref = _mrt(float(w_ref), psi_ref)
+            # f_TR은 TR > 1/a = 4.35 에서 음수가 되는 명백한 비물리가 있다 — 클램프.
+            f_cur = max(1.0 - a_tr * (mrt_cur / t_pol), 0.05)
+            f_ref = max(1.0 - a_tr * (mrt_ref / t_ref), 0.05)
+            if f_ref > 0:
+                terms["turnover"] = f_cur / f_ref
+                srcs.append("knowledge/cmp/slurry-turnover-ratio-"
+                            "mrt-preston-constant.md §2,§3")
+                f.drivers["time_s"] = t_pol
+                f.notes.append(
+                    f"그루브 폭 {float(w):g} µm({psi_ref:g} PSI 기준) → 슬러리 MRT={mrt_cur:.1f} s, "
+                    f"폴리시 {t_pol:g} s에서 턴오버비 TR={mrt_cur / t_pol:.3f} "
+                    f"→ Preston 배수 {f_cur:.3f} (기준 {f_ref:.3f}). "
+                    "⚠ 폴리시 시간이 짧을수록 물→슬러리 치환 과도기 비중이 커져 "
+                    "평균 MRR이 떨어진다(Philipossian 2004 doi:10.1149/1.1731539).")
+                if float(w) < ETA_W[0] or float(w) > ETA_W[-1]:
+                    f.notes.append(
+                        f"⚠ 그루브 폭 {float(w):g} µm는 MRT 실측 범위"
+                        f"({ETA_W[0]:g}~{ETA_W[-1]:g} µm) 밖 — 끝값 고정(외삽하지 않는다). "
+                        "1.2 mm 초과 구간은 Hong 2012의 반대 방향 레짐일 수 있다(노트 §4-1).")
+                f.notes.append(
+                    "⚠ MRT의 압력 의존(Mu 2016 실측, 3→5 PSI에서 MRT 약 0.90배)은 τ에 "
+                    "배선하지 않았다 — Preston 압력 선형성 계약을 지키기 위한 의도적 "
+                    "스코프 축소다. 배제한 크기는 30 s·2 PSI 스윙에서 약 1.1%.")
+        else:
+            f.notes.append("⚠ τ turnover 항 미적용: 폴리시 시간(time_s)이 0 이하다.")
 
     # ── 기공률 → 보유용량 (Prasad 2013: 매우 약한 효과) ────────────
     #
@@ -1272,20 +1326,27 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
     # 둘뿐이라(위 EVIDENCE-RULES §3회차 규칙 주석 참고), 그 둘이 전부 term으로 반영되면
     # 이 팩터는 "제한된 범위 안에서 완전 모델링"이다 — partial과는 다르다. 스코프를 줄인
     # 것과 입력을 놓친 것을 혼동하지 않는다.
-    f.status = "modeled" if len(terms) == len(f.drivers) else "partial"
-    # ⚠ τ의 confidence는 드라이버(기공률·그루브폭)가 아니라 **결합 지수**가 결정한다.
-    # 드라이버는 전부 literature여도 tau_mrr_exponent=0.07이 기공률 실험에서 역산해
-    # 그루브 축에 교차 대입한 값이라, τ의 크기 자체는 문헌이 보증하지 않는다.
-    # 팩이 지수의 근거를 명시(tau_exponent_confidence)하면 그것을 쓰고,
-    # 없으면 드라이버 최악등급보다 한 단 낮춘다 — 지수가 가장 약한 고리이기 때문이다.
+    # status: 소모품/패드 드라이버(groove_width_um·pad_porosity_pct)가 전부 term으로
+    # 반영됐는지로 판정한다. time_s는 2026-09-14 TR 채널이 새로 끌어온 **레시피** 드라이버라
+    # 별도 항을 만들지 않는다(turnover 항 안에 이미 들어간다) — 개수 비교에서 제외한다.
+    _consumable_drivers = [k for k in f.drivers if k != "time_s"]
+    f.status = "modeled" if len(terms) >= len(_consumable_drivers) else "partial"
+    # τ 등급 (2026-09-14 재판정, 노트 §9).
+    # 이전에는 결합 지수 tau_mrr_exponent=0.07(기공률→그루브 교차대입, E4)이 가장 약한
+    # 고리라 τ 전체를 unverified로 하한했다. 그 항을 TR(E2, 대상계 직접 실측 폐형식)로
+    # 교체했으므로 그 하한 근거가 사라졌다. 남은 두 항은
+    #   turnover — Philipossian 2004(ILD oxide 실측 2점) + Mu 2016(MRT 실측 6점)  E2
+    #   porosity — Prasad 2013(기공률 축 **직접** 실측 2점)                        E2
+    # 이므로 드라이버 등급을 그대로 쓴다. verified로 올리지 않는 이유: a=0.2301이
+    # 2점 유도라 곡률 미검증, MRT 표가 IC1000 200 mm 한정(노트 §6).
     _driver_conf = _pack_conf(pk, "groove_width_um", "pad_porosity_pct")
-    f.confidence = str(pk.get_or("tau_exponent_confidence", "unverified"))
+    f.confidence = str(pk.get_or("tau_exponent_confidence", _driver_conf))
     f.sources = sorted(set(srcs))
     f.notes.append(
-        f"⚠ τ 등급={f.confidence}: 드라이버(기공률·그루브폭)는 {_driver_conf} 등급이지만 "
-        "τ의 **결합 지수**(tau_mrr_exponent=0.07)가 기공률 실험에서 역산해 그루브 축에 "
-        "교차 대입한 값이라 크기를 문헌이 보증하지 않는다 — 가장 약한 고리가 등급을 정한다. "
-        "순위만 신뢰하라.")
+        f"⚠ τ 등급={f.confidence}: 결합 형식이 전부 대상계 실측 폐형식(E2)으로 교체됐다 — "
+        "TR 항은 ILD oxide 실측(Philipossian 2004), 기공률 항은 기공률 축 직접 실측"
+        "(Prasad 2013). 종속이던 η 항은 제거했다(이중 계상, 노트 §4). "
+        "verified가 아닌 이유는 TR 기울기 a=0.2301이 2점 유도라 곡률이 미검증이기 때문이다.")
     f.notes.append(
         "⚠ τ가 실제로 지배하는 것은 평균 MRR이 아니라 **반경 프로파일**이다. "
         "기공 2 µm 패드에서 중심이 슬러리 기아로 처지고 엣지-중심 RR 차이가 "
