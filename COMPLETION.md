@@ -448,4 +448,16 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   `tests/test_qa_calibration_contact.py`(5건) 추가, 기존 `tests/test_qa_loop.py::test_f4_self_grading`은
   새 `_pack_sources()` 반환 스키마(중첩 dict)에 맞춰 갱신. pytest 전체 **703 passed, 0 failed**
   (회귀 0 확정). `tools/completion.py check` 격자 40/50 불변.
-
+- 2026-09-15 [Max워커] **레거시 산화제 형상 파라미터가 dead code임을 실측·고정**(칸 수 불변).
+  백로그 항목 "w_fe_oxidizer 정점 위 농도(≥12wt%) 실측 1점을 찾아 (n,C_peak) 축퇴를 깨라"를
+  집행하려다, 문헌 탐색 전에 **대상 파라미터가 실제로 모델에 연결돼 있는지부터** 확인했다.
+  결과: `sim/chemistry.py::_oxidizer_term` 은 if-체인이고 ①`oxidizer_langmuir_K`(w_fe 보유)·
+  ②`oxidizer_passivation_K`(cu 보유)가 먼저 return 하므로 ③레거시 Kaufman 단봉
+  (`oxidizer_peak_wt_pct`+`oxidizer_curve_n`)에는 **도달하지 못한다**(판정#19의 Langmuir
+  대체가 남긴 잔재). 실측: peak 1.0→83.0(83배)·n 0.5→6.0 으로 흔들어도 두 팩의 산화제 항이
+  **비트 단위로 불변**(축퇴 노트가 열거한 (22.1,0.5)·(41.1,2.0)·(83.0,6.0) 전부 동일 출력).
+  **함의**: 그 문헌을 유료벽 뚫고 확보해도 모델 출력·격자·ρ가 하나도 안 바뀐다 — 회차를 쓸
+  이유가 없어 백로그에서 "탐색 불필요"로 종결했다. 같은 탐색이 재배차되는 것을 막으려
+  `tests/test_oxidizer_legacy_shape_inert.py`(3건)로 기계 고정했다. ③ 경로 자체는 **제거하지
+  않았다** — Langmuir 계수가 없는 팩의 하위호환 경로로 살아 있고, 그 경우 peak가 실제로 출력을
+  바꾼다는 것도 같은 테스트가 함께 검증한다(코드·YAML 값 변경 0줄).
