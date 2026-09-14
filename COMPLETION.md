@@ -426,4 +426,26 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   09-14, delta-damage-model-synthesis 09-14, pad-steady-state-glazing-conditioning-balance 09-14).
   → **우선순위 4번(C5 부분)은 완료로 간주한다.** 남은 것은 C8 MODEL-BASIS.md 뿐.
   ⚠ 따라서 잔여 미완은 **C2 10칸(그중 7칸은 문헌부재 종결) + C4 sic팩**으로 좁혀졌다.
+- 2026-09-15 [Max워커] **C4 held-out 자기채점(F4)·출처매칭(F2) 오탐/실탐 분리**. `tools/qa_loop.py`의
+  `_pack_sources()`가 팩 YAML을 raw 텍스트로 스캔해 **주석(#)**까지 F4로 오탐하던 문제를 구조화(
+  yaml.safe_load로 파싱해 파라미터 source/note 문자열만 스캔)로 제거 — w_fe_oxidizer/US8070843B2
+  오탐 소멸 확인(전 F4, 후 clean). 나머지 4건(oxide_silica/US9499721B2, sic_ceria_h2o2/
+  US20220315802A1, cu_h2o2_bta/TW202115224A, sti_ceria/dandu2009)은 note 원문 확인 결과 진짜
+  부분오염이라 데이터셋 YAML에 `calibration_contact:` 필드로 신고, F4→C4(soft flag 집계 제외)로
+  격하. `_find_source_file()`에 (저자 4자+ 토큰·19xx/20xx 연도) 이중조건 파일명 폴백을 추가해
+  dandu2009_sio2_ceria_ph_sweep의 F2 오탐(papers/에 pdf 실존)을 제거 — **부당 격리 해제**(격리
+  1개→0개). 같은 폴백의 부수효과로 kenchappa2021·mariscal2020의 F2도 같이 풀렸다(둘 다 실제
+  papers/ 파일 존재, ID매칭만 실패했던 동일 버그). li2021/phm2016/sic2026/cn109609035b의 F2는
+  `ls papers/`로 직접 확인 — 실제로 파일이 없거나(li2021) DOI/특허번호 자체가 없어(나머지) 그대로
+  방치. 초기 폴백 구현이 "sic2026"의 "sic"를 저자 토큰으로 오인해 무관한 "...4hsic..." 논문에
+  오매칭될 뻔한 것을 저자 토큰 최소 4자 + ID 존재 조건으로 재발 방지.
+  **결과 (qa_loop run #117)**: 유의 데이터셋 7/21→**8/21**(dandu2009 비유의→유의), 유의 평균
+  ρ 0.9537→**0.9512**(4자리 반올림 차이, 데이터셋 8개로 늘어난 재계산), 격리 1개→**0개**.
+  `validation/backtest.py`에 calibration_contact 없는 "무접촉(clean) held-out" 줄 신설:
+  **clean 4개(cn109609035b·mariscal2020·us8070843b2·us9200180b2_cu_abrasive_series), ρ=+0.992**
+  — 헤드라인(8개, ρ=+0.951)보다 오히려 **높게** 나왔다(꾸미지 않고 그대로 기록). 팩
+  YAML·confidence·완성 격자(40/50, `tools/completion.py check` 재확인) 전부 불변. 신규 테스트
+  `tests/test_qa_calibration_contact.py`(5건) 추가, 기존 `tests/test_qa_loop.py::test_f4_self_grading`은
+  새 `_pack_sources()` 반환 스키마(중첩 dict)에 맞춰 갱신. pytest 전체 **703 passed, 0 failed**
+  (회귀 0 확정). `tools/completion.py check` 격자 40/50 불변.
 

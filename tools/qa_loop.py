@@ -179,7 +179,13 @@ def _source_ids(src: str) -> List[str]:
     return [i.rstrip(".,;") for i in ids]
 
 
-def _find_source_file(src: str, papers: Dict[str, str], index: Dict) -> Optional[str]:
+def _all_paper_names() -> List[str]:
+    """papers/ 안의 모든 파일명(텍스트 추출 여부 무관) — 파일명 토큰 폴백용."""
+    return [f.name for f in PAPERS.glob("*") if f.is_file()]
+
+
+def _find_source_file(src: str, papers: Dict[str, str], index: Dict,
+                       stem: str = "", all_names: Optional[List[str]] = None) -> Optional[str]:
     ids = _source_ids(src)
     for name in papers:
         for i in ids:
@@ -191,9 +197,23 @@ def _find_source_file(src: str, papers: Dict[str, str], index: Dict) -> Optional
             if isinstance(v, dict):
                 blob = json.dumps(v)
                 if i in blob or i in k:
-                    fn = v.get("file") or v.get("filename") or v.get("path")
+                    fn = v.get("file") or v.get("filename") or v.get("path") or v.get("pdf") or v.get("pdf_local")
                     if fn and Path(fn).name in papers:
                         return Path(fn).name
+    # 파일명 토큰 폴백 — ID가 파일명에 없을 때. **ID 자체가 있는데** 매칭에
+    # 실패한 경우에만 시도한다(ID가 전혀 없으면 stem이 "저자연도" 형식인지도
+    # 불확실해 오매칭 위험이 커진다 — 예: "sic2026_..."의 "sic"를 저자로 오인해
+    # 무관한 "...4hsic..." 파일에 매칭될 뻔했다). 저자 소문자 토큰(4자 이상,
+    # 오인식 방지로 짧은 접두사(us/tw/cn 등)는 제외) + 19xx/20xx 연도가 **둘 다**
+    # papers/ 파일명에 있어야 매칭.
+    if ids and all_names:
+        m = re.match(r"^([a-z]{4,})(19\d{2}|20\d{2})", stem.lower())
+        if m:
+            author, year = m.group(1), m.group(2)
+            for name in all_names:
+                lname = name.lower()
+                if author in lname and year in lname:
+                    return name
     return None
 
 
@@ -237,15 +257,38 @@ def _try_fetch_source(src: str) -> Optional[str]:
     return None
 
 
-def _pack_sources() -> Dict[str, str]:
-    out = {}
+def _pack_sources() -> Dict[str, Dict[str, Dict[str, str]]]:
+    """팩 YAML을 파싱해 파라미터별 source/note **문자열 값만** 모은다.
+
+    yaml.safe_load를 쓰므로 주석(#)은 파싱 단계에서 이미 사라진다 — F4가 주석에
+    적힌 "held-out은 다른 문헌으로 한다" 같은 선언까지 자기채점으로 오탐하는
+    문제를 구조적으로 없앤다. 반환: {팩이름: {파라미터이름: {"source"/"note": 문자열}}}
+    """
+    out: Dict[str, Dict[str, Dict[str, str]]] = {}
     for f in (ROOT / "knowledge" / "params").glob("*.yaml"):
-        out[f.stem] = f.read_text(encoding="utf-8")
+        try:
+            d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        except Exception:
+            continue
+        params = d.get("params") or {}
+        fields: Dict[str, Dict[str, str]] = {}
+        for pname, pval in params.items():
+            if not isinstance(pval, dict):
+                continue
+            texts = {}
+            for key in ("source", "note"):
+                v = pval.get(key)
+                if isinstance(v, str) and v.strip():
+                    texts[key] = v
+            if texts:
+                fields[pname] = texts
+        out[f.stem] = fields
     return out
 
 
-def audit_dataset(path: Path, papers: Dict[str, str], index: Dict, pack_src: Dict[str, str],
-                  last_rows: Dict[str, Dict]) -> Dict:
+def audit_dataset(path: Path, papers: Dict[str, str], index: Dict,
+                  pack_src: Dict[str, Dict[str, Dict[str, str]]],
+                  last_rows: Dict[str, Dict], all_names: Optional[List[str]] = None) -> Dict:
     d = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     conds = d.get("conditions") or []
     flags, info = [], {}
@@ -254,7 +297,7 @@ def audit_dataset(path: Path, papers: Dict[str, str], index: Dict, pack_src: Dic
         return {"dataset": path.stem, "flags": [], "verified_by_human": True, "info": {}}
 
     # F2 출처 파일
-    sf = _find_source_file(src, papers, index)
+    sf = _find_source_file(src, papers, index, path.stem, all_names)
     if sf is None and FETCH and _source_ids(src):
         sf = _try_fetch_source(src)
         if sf:
@@ -267,7 +310,9 @@ def audit_dataset(path: Path, papers: Dict[str, str], index: Dict, pack_src: Dic
         flags.append("F2:출처 원문 미확보(papers/) — 자동 확보 실패(유료/봉쇄), 사람이 넣어야 함")
 
     # F1 원문 대조 — mrr 값 또는 그 흔한 변환(Å/min = nm×10, Å/30s 등)을 찾는다
-    if sf:
+    # sf는 papers/ 파일명 토큰 폴백으로도 찾을 수 있어(PDF만 있고 텍스트 미추출)
+    # 항상 papers(텍스트 딕셔너리)에 있는 건 아니다 — 없으면 대조를 생략한다.
+    if sf and sf in papers:
         nums = _numbers_in(papers[sf])
         miss = 0
         for c in conds:
@@ -281,6 +326,8 @@ def audit_dataset(path: Path, papers: Dict[str, str], index: Dict, pack_src: Dic
         info["values_not_in_source"] = f"{miss}/{len(conds)}"
         if conds and miss / len(conds) > FAIL_MISSING_RATIO:
             flags.append(f"F1:실측값 {miss}/{len(conds)}이 출처 원문에 없음")
+    elif sf:
+        info["values_not_in_source"] = "텍스트 미추출(PDF만 있음) — 원문대조 생략"
 
     # F3 부자연스러운 패턴
     vals = [float(c["mrr_nm_per_min"]) for c in conds if c.get("mrr_nm_per_min") is not None]
@@ -297,13 +344,29 @@ def audit_dataset(path: Path, papers: Dict[str, str], index: Dict, pack_src: Dic
         if len(set(vals)) == 1:
             flags.append("F3:전 조건 동일값")
 
-    # F4 자기 채점
+    # F4 자기 채점 — 팩 파라미터의 source/note(파싱된 값, 주석 제외)에서 같은
+    # 문헌 ID가 나오면 히트. calibration_contact에 신고돼 있으면 "미신고 자기채점"이
+    # 아니라 "신고된 부분오염"(C4)으로 격하한다 — 격리 유발 soft flag 집계 제외.
     pk = d.get("pack")
     if pk and not d.get("used_for_calibration") and pk in pack_src:
-        for i in _source_ids(src):
-            if i and i in pack_src[pk]:
-                flags.append(f"F4:팩 {pk}의 source에 같은 문헌({i}) — used_for_calibration 누락")
-                break
+        contacts = {(c.get("pack"), c.get("param")) for c in (d.get("calibration_contact") or [])}
+        seen_params = set()
+        for param_key, fields in pack_src[pk].items():
+            if param_key in seen_params:
+                continue
+            for field_name, text in fields.items():
+                hit = next((i for i in _source_ids(src) if i and i in text), None)
+                if hit:
+                    seen_params.add(param_key)
+                    if (pk, param_key) in contacts:
+                        flags.append(
+                            f"C4:신고된 부분오염 — 팩 {pk}의 파라미터 {param_key}({field_name})가 "
+                            f"같은 문헌({hit})에서 도출(calibration_contact 신고됨)")
+                    else:
+                        flags.append(
+                            f"F4:팩 {pk}의 파라미터 {param_key}({field_name})가 같은 문헌({hit})에서 "
+                            "도출 — used_for_calibration 누락")
+                    break
 
     # F5 지나치게 잘 맞음
     r = last_rows.get(path.stem)
@@ -324,11 +387,12 @@ def audit_all(last_rows: Dict[str, Dict]) -> List[Dict]:
         except Exception:
             index = {}
     pack_src = _pack_sources()
+    all_names = _all_paper_names()
     out = []
     for f in sorted(DS_DIR.glob("*.yaml")):
         if f.name.startswith("_"):
             continue
-        out.append(audit_dataset(f, papers, index, pack_src, last_rows))
+        out.append(audit_dataset(f, papers, index, pack_src, last_rows, all_names))
     return out
 
 

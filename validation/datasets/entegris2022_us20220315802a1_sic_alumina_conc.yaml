@@ -33,6 +33,15 @@ used_for_calibration: false
 #   w_fe_oxidizer)에서 동일하게 false로 유지 중이다 — 이 저장소의 기존 관행과 일치시켜
 #   false를 유지한다. F4는 경고(⚠)이고 F1/F3처럼 격리를 강제하지 않는다. 세 팩 모두의
 #   캘리브레이션-검증 분리를 일관되게 다시 정리하는 것은 별도 과제로 남긴다(미검증).
+calibration_contact:
+  - param: abrasive_conc_exponent
+    pack: sic_ceria_h2o2
+    what: >
+      knowledge/params/sic_ceria_h2o2.yaml의 abrasive_conc_exponent(-0.406) note —
+      "SiC+알루미나 직접 실측(US20220315802A1 Table 1, n=5, 0.1~5wt%)에서 로그-로그
+      회귀로 지수 -0.406 확인" — 이 데이터셋(Table 1)에서 그대로 도출했다(위
+      2026-09-11 주석과 동일 사실).
+    axis: abrasive_wt_pct
 
 conditions:
   - label: "Table1-1: Al2O3 0.1wt%"

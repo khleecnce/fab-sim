@@ -113,6 +113,7 @@ class BacktestResult:
     scale_factor: Optional[float]     # 계통 편향: 실측/예측 중앙값
     in_scope: bool = True             # 팩이 이 재료계를 실제로 다루는가
     used_for_calibration: bool = False
+    calibration_contact: bool = False  # 이 데이터셋에서 팩 파라미터를 뽑은 이력(부분 오염) 신고 여부
     source: str = ""
     notes: List[str] = field(default_factory=list)
     p_value: Optional[float] = None   # 순열검정 — 우연히 이만큼 맞을 확률
@@ -238,12 +239,13 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
                "이 데이터셋은 `overrides:` 블록이 비어 있다. 논문의 조성 변수를 "
                "overrides로 옮기지 않으면 압력·rpm만 모델에 전달된다."))
 
+    has_contact = bool(raw.get("calibration_contact"))
     if len(obs) < 3:
         notes.append(f"조건 {len(obs)}개 — 순위 지표는 3개 이상 필요")
         return BacktestResult(path.stem, len(obs), float("nan"), float("nan"),
                               float("nan"), None, None, in_scope,
                               bool(raw.get("used_for_calibration", False)),
-                              raw.get("source", ""), notes)
+                              has_contact, raw.get("source", ""), notes)
 
     rho = spearman_rho(pred, obs)
     tau = kendall_tau(pred, obs)
@@ -259,7 +261,7 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
     return BacktestResult(path.stem, len(obs), rho, tau, (1 + tau) / 2,
                           mape, scale, in_scope,
                           bool(raw.get("used_for_calibration", False)),
-                          raw.get("source", ""), notes,
+                          has_contact, raw.get("source", ""), notes,
                           p_value=perm_p_value(rho, len(obs)))
 
 
@@ -325,6 +327,18 @@ def main() -> int:
             for r in sig:
                 emit(f"     · {r.dataset} (n={r.n}, ρ={r.spearman:+.3f}, "
                       f"p={r.p_value:.4f})")
+
+            # ⚠ 위 숫자에는 calibration_contact(팩 파라미터를 이 데이터셋에서
+            #   일부 뽑은 부분오염) 신고 데이터셋이 섞여 있을 수 있다. 유리한 쪽만
+            #   보이면 안 되므로, 그런 접촉이 전혀 없는 데이터셋만 모은 값도 같이 낸다.
+            clean = [r for r in sig if not r.calibration_contact]
+            if clean:
+                crho = float(np.mean([r.spearman for r in clean]))
+                emit(f"  └ 그중 **calibration_contact가 전혀 없는(무접촉/clean) 것만** "
+                      f"({len(clean)}개): ρ={crho:+.3f}")
+            else:
+                emit("  └ ⚠ calibration_contact가 없는 유의 데이터셋이 하나도 없다 "
+                      "— 위 숫자 전부가 부분오염 신고를 포함한다.")
         else:
             emit("→ ⚠ 유의한 데이터셋이 하나도 없다. 아직 '검증했다'고 말할 수 없다.")
         if weak:

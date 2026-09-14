@@ -14,6 +14,16 @@ source: >
 in_scope: true
 used_for_calibration: false
 pack: sti_ceria
+calibration_contact:
+  - param: abrasive_size_nm
+    pack: sti_ceria
+    what: >
+      knowledge/params/sti_ceria.yaml의 abrasive_size_nm(60.0) note — "Dandu Veera,
+      Peddeti, Babu 2009 ... 원문 명시 'mean diameter d_mean = 60 nm'"를 그대로
+      팩 기준값으로 채택했다. 이 데이터셋(같은 논문 Figure 3)의 전 조건이 그
+      60nm·0.25wt% 세리아로 고정돼 있다 — pH 축 자체는 오염되지 않았으나, 배경
+      상수(입경)가 이 데이터셋의 원천 문헌에서 왔다.
+    axis: abrasive_size_nm
 
 # ── 판독 방법과 검증 ────────────────────────────────────────────────────
 # Figure 3은 PDF 벡터 산점도라 마커 중심과 축 눈금 좌표를 직접 읽어 선형사상했다.

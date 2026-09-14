@@ -21,6 +21,15 @@ source: >
 in_scope: true
 used_for_calibration: false
 pack: oxide_silica
+calibration_contact:
+  - param: abrasive_conc_exponent
+    pack: oxide_silica
+    what: >
+      knowledge/params/oxide_silica.yaml의 abrasive_conc_exponent(0.3333) note —
+      "US9499721B2 E1 직접 실측(TABLE 18, 0.5~3.0wt% 4압력)을 3psi 행에서 로그-로그
+      전역회귀하면 n≈0.30" — 이 데이터셋(Example 18 TABLE 18)의 3psi 행을 그대로
+      회귀해 지수를 도출했다. 나머지 축(압력)과 다른 wt% 행들은 회귀에 안 썼다.
+    axis: abrasive_wt_pct
 
 # rpm_wafer(헤드 회전수)는 원문 미기재 → 필드 생략, 팩 기본값 사용.
 conditions:

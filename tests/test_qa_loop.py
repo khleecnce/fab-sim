@@ -52,7 +52,7 @@ def test_f5_too_good_digitized(tmp_path):
 
 def test_f4_self_grading(tmp_path):
     p = _ds(tmp_path, "x", [100, 150, 210], source="doi:10.1149/2162-8777/ac3e44")
-    packs = {"oxide_silica": "source: Li 2021 doi:10.1149/2162-8777/ac3e44"}
+    packs = {"oxide_silica": {"some_param": {"source": "Li 2021 doi:10.1149/2162-8777/ac3e44"}}}
     a = Q.audit_dataset(p, {}, {}, packs, {})
     assert any(f.startswith("F4") for f in a["flags"])
 

@@ -7,6 +7,16 @@ source: >
 in_scope: true
 used_for_calibration: false
 pack: cu_h2o2_bta
+calibration_contact:
+  - param: abrasive_size_exponent
+    pack: cu_h2o2_bta
+    what: >
+      knowledge/params/cu_h2o2_bta.yaml의 abrasive_size_exponent(0.0) note —
+      "TW202115224A 실측 n=18"에서 순수 구형 부분집합(15/27/50/160nm, n=6/압력)만
+      골라 Spearman을 돌려 rho≈0.03~0.15(비유의)로 "입경이 지배인자가 아니다"는
+      영(null) 판정을 내렸다. 이 데이터셋(TW202115224A 표2, n=18 전체)이 그 실측
+      원천이다.
+    axis: abrasive_size_nm
 
 # 공정조건(특허 명시): Reflexion LK, VP9280 패드, 정반 93 RPM, 슬러리 300 mL/min,
 #   1단계 2.5 psi / 2단계 1.5 psi. 전면 전해도금 Cu 웨이퍼(제거율용).
