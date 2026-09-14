@@ -69,6 +69,23 @@ def mrr_oxidizer(C, C_peak, mrr_peak=1.0, n=2.0):
     return mrr_peak * ((n + 1.0) * x) / (1.0 + n * x ** ((n + 1.0) / n))
 
 
+def oxidizer_coverage_langmuir(C, K):
+    """산화제 농도 C에 대한 표면 피복률(Langmuir-Hinshelwood 포화형).
+
+      theta(C) = K*C / (1 + K*C)          C [wt%], K [1/wt%]
+
+    판정#19(knowledge/cmp/chi-oxidizer-curve-exponent-identifiability.md)로
+    기존 mrr_oxidizer()의 (n, C_peak) 단봉 형상이 정점 아래 관측만으로는
+    완전축퇴(식별 불가)임이 수치로 확인됐다. 이 함수는 그 대체 경로 —
+    자유 파라미터가 K 하나뿐이라 관측 2점(C=0, C=C_ref)만으로 완전히 식별된다.
+    물리적 근거: 산화제의 금속 표면 흡착·산화막 형성은 가용 산화 사이트가
+    유한한 포화형 표면반응이다(정점형 부동태화가 아니라 포화형 흡착).
+    신규 팩은 이 경로를 쓴다. 기존 mrr_oxidizer()는 하위호환을 위해 유지한다.
+    """
+    KC = K * C
+    return KC / (1.0 + KC)
+
+
 def _argmax_scan(C_peak, n, hi=8.0, npts=20001):
     """[0,hi*C_peak] 격자에서 MRR 최대 위치(농도)를 수치 탐색."""
     best_c, best_v = 0.0, -1.0

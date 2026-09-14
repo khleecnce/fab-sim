@@ -98,19 +98,21 @@ class ChemistryEffect:
 
 
 def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
-    """산화제 농도 → 기준 농도 대비 상대 MRR (Kaufman 단봉).
+    """산화제 농도 → 기준 농도 대비 상대 MRR.
+
+    두 경로:
+      - Langmuir 피복 (`oxidizer_langmuir_K` 있음) — 판정#19 이후 권장 경로.
+        θ(C)=K·C/(1+K·C), 자유 파라미터 K 하나뿐이라 식별 가능.
+      - 레거시 Kaufman 단봉 (`oxidizer_curve_n`+`oxidizer_peak_wt_pct`) — 하위호환.
+        정점 아래 관측만으로는 (n, C_peak)가 완전축퇴한다(식별 불가, EVIDENCE-RULES
+        판정#19, knowledge/cmp/chi-oxidizer-curve-exponent-identifiability.md).
 
     기준 농도(oxidizer_ref_wt_pct, 없으면 현재 농도)에서 1.0이 되도록 나눈다.
     Kp가 그 기준 조성에서 역산된 값이므로 이중 계상을 피하려면 반드시 상대값이어야 한다.
     """
-    if not (pack.has("oxidizer_wt_pct") and pack.has("oxidizer_peak_wt_pct")):
+    if not pack.has("oxidizer_wt_pct"):
         return None
     C = float(pack.get("oxidizer_wt_pct"))
-    C_peak = float(pack.get("oxidizer_peak_wt_pct"))
-    if C_peak <= 0:
-        notes.append("⚠ oxidizer_peak_wt_pct ≤ 0 — 산화제 항 건너뜀")
-        return None
-    n = float(pack.get_or("oxidizer_curve_n", 2.0))
     if pack.has("oxidizer_ref_wt_pct"):
         C_ref = float(pack.get("oxidizer_ref_wt_pct"))
     else:
@@ -121,15 +123,11 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
         C_ref = C
         notes.append("⚠ oxidizer_ref_wt_pct가 팩에 없어 기준=현재 농도로 폴백했다 "
                      "— 산화제 변화가 MRR에 반영되지 않는다. 팩에 기준 농도를 명시하라.")
-    cur = float(SC.mrr_oxidizer(C, C_peak, mrr_peak=1.0, n=n))
-    ref = float(SC.mrr_oxidizer(C_ref, C_peak, mrr_peak=1.0, n=n))
-    if ref <= 0:
-        return None
+
     # ── 기계 하한 (mechanical floor) ───────────────────────────────
     # 산화제 농도가 0 이어도 연마입자는 존재하고 하중을 받으므로 순수 기계
-    # 제거 경로가 남는다. 단봉형 g(C) 는 C=0 에서 0 이라 이를 담을 수 없으므로
-    # 가산 하한을 둔다:
-    #     f(C) = φ + (1-φ)·g(C)        g(0)=0, g(C_ref)=1
+    # 제거 경로가 남는다. 단봉형/포화형 g(C) 는 C=0 에서 0 이라 이를 담을 수
+    # 없으므로 가산 하한을 둔다.
     #
     # φ 의 크기 — 재료 상수가 아니라 **공정(기계) 상수**에 가깝다.
     #   독립적인 금속막 4계에서 관측 대역이 0.12~0.27 로 수렴했고, 금속 종류·
@@ -152,15 +150,44 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
             "낮아지는 계라는 뜻인데, 현재 결합식은 그 거동을 표현하지 못한다. "
             "이 팩에서는 산화제 항의 적용 범위를 벗어났다.")
     floor = min(max(floor, 0.0), 1.0)
+    floor_default_note = (
+        f"산화제 기계 하한 φ={floor:.2f} (기본값) — 이 팩에 관측이 없어 "
+        "금속막 CMP 의 관측 대역(0.12~0.27, 4계 독립 수렴) 중앙값을 쓴다. "
+        "φ 는 재료보다 기계 조건(연마재 경도·압력·속도)이 정하는 양이다. "
+        "⚠ 이 계의 직접 관측이 아니므로 절대값은 신뢰하지 말 것.")
+
+    if pack.has("oxidizer_langmuir_K"):
+        # Langmuir 경로 — 폐형식: f(C) = φ + (1-φ)·θ(C)/θ(C_ref).
+        # (레거시 경로처럼 φ를 분자·분모 양쪽에 넣고 나누는 게 아니다 — 그러면
+        # 다른 함수가 되어 knowledge/params/w_fe_oxidizer.yaml의 K=0.549550
+        # 폐형식 유도(f(0)=φ, f(C_ref)=1)와 어긋난다.)
+        K = float(pack.get("oxidizer_langmuir_K"))
+        theta = float(SC.oxidizer_coverage_langmuir(C, K))
+        theta_ref = float(SC.oxidizer_coverage_langmuir(C_ref, K))
+        if theta_ref <= 0:
+            return None
+        if floor > 0 and not pack.has("oxidizer_mech_floor"):
+            notes.append(floor_default_note)
+        return floor + (1.0 - floor) * (theta / theta_ref)
+
+    if not pack.has("oxidizer_peak_wt_pct"):
+        return None
+    C_peak = float(pack.get("oxidizer_peak_wt_pct"))
+    if C_peak <= 0:
+        notes.append("⚠ oxidizer_peak_wt_pct ≤ 0 — 산화제 항 건너뜀")
+        return None
+    n = float(pack.get_or("oxidizer_curve_n", 2.0))
+    cur = float(SC.mrr_oxidizer(C, C_peak, mrr_peak=1.0, n=n))
+    ref = float(SC.mrr_oxidizer(C_ref, C_peak, mrr_peak=1.0, n=n))
+    notes.append("⚠ 레거시 산화제 곡선 — (n,C_peak) 축퇴(판정#19). "
+                 "oxidizer_langmuir_K 권장.")
+    if ref <= 0:
+        return None
     if floor > 0:
         cur = floor + (1.0 - floor) * cur
         ref = floor + (1.0 - floor) * ref
         if not pack.has("oxidizer_mech_floor"):
-            notes.append(
-                f"산화제 기계 하한 φ={floor:.2f} (기본값) — 이 팩에 관측이 없어 "
-                "금속막 CMP 의 관측 대역(0.12~0.27, 4계 독립 수렴) 중앙값을 쓴다. "
-                "φ 는 재료보다 기계 조건(연마재 경도·압력·속도)이 정하는 양이다. "
-                "⚠ 이 계의 직접 관측이 아니므로 절대값은 신뢰하지 말 것.")
+            notes.append(floor_default_note)
     return cur / ref
 
 

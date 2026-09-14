@@ -1032,10 +1032,18 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     f.status = "modeled" if len(terms) >= 2 else "partial"
     # 등급 하한 판정 (2026-09-13): κ 와 같은 규칙 — 화학 항의 형상 파라미터도
     # 팩에 등급과 함께 선언돼 있으므로 리터럴 대신 그것을 읽는다.
+    # 산화제 형상 파라미터 등급 소스 — 팩이 Langmuir 경로(oxidizer_langmuir_K)를
+    # 쓰면 그 키에서 등급을 읽는다. 레거시 (n, C_peak)는 판정#19로 비활성화됐으므로
+    # Langmuir 경로를 쓰는 팩에서는 등급 계산에서 제외한다(안 그러면 비활성 키의
+    # estimated 등급이 계속 발목을 잡는다). Langmuir 키가 없는 팩(cu_h2o2_bta 등)은
+    # 기존 그대로 (n, C_peak)를 읽는다 — 하위호환, 동작 불변.
+    if pk.has("oxidizer_langmuir_K"):
+        oxidizer_shape_keys = ("oxidizer_langmuir_K",)
+    else:
+        oxidizer_shape_keys = ("oxidizer_curve_n", "oxidizer_peak_wt_pct")
     f.confidence = _worst_conf(
         _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"),
-        _pack_conf(pk, "oxidizer_curve_n", "oxidizer_peak_wt_pct",
-                   "ph_peak", "ceria_tooth_gain"))
+        _pack_conf(pk, *oxidizer_shape_keys, "ph_peak", "ceria_tooth_gain"))
     f.sources = ["knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
                  "knowledge/cmp/particle-wafer-interaction-"
                  "mechanical-chemical-balance.md"]
