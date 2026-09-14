@@ -465,14 +465,19 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     증명했다. 따라서 2차 인용 앵커는 |A−1| > GAMMA_AGING_CONF_TOL 일 때만 estimated
     하한 사유가 되고, 그때 notes에 이유를 남긴다(판정#14를 뒤집는 것이 아니라
     "그 앵커가 기준조건 등급을 제한하지 않는다"는 별개 사실).
-    (3) **미해소 — 이 하한이 남는 이유.** 임계하중(critical downforce) 아래에서는
-    절삭이 안 일어난다는 비선형이 F 선형항에 미반영이다. 구형 팁 Hertz+Tabor로
-    유도한 P_c = π³R²(1.65Y)³/(6E*²)에 IC1000 물성(Saka 2008: E_p 0.5 GPa,
-    H_p 0.05 GPa)을 넣으면, 중심 사례(R=15 µm 가정, 작동 그릿 10%)는 그릿당 하중이
-    P_c의 ~40배(임계 downforce ≈0.10 lbf)로 운전점 4 lbf에서 멀지만, 마모 팁 반경 R의
-    1차 문헌값이 없고(후보 3편 미확보) R을 기하 상한(D/2=90 µm)으로 밀면 1.1배,
-    작동 그릿 18,000개까지 겹치면 0.28배로 **부호까지 뒤집힌다**. 임계 downforce
-    범위(0.02~14 lbf)가 운전점을 가로지르므로 하한 유지(노트 §4). ⚠ 임계 아래에서는
+    (3) **스코프 축소 종결(3회차, 2026-09-15) — 재탐색 금지, 4회차 없음.** 임계하중
+    (critical downforce) 아래에서는 절삭이 안 일어난다는 비선형이 F 선형항에
+    미반영이다. 구형 팁 Hertz+Tabor로 유도한 P_c = π³R²(1.65Y)³/(6E*²)에 IC1000
+    물성(Saka 2008: E_p 0.5 GPa, H_p 0.05 GPa)을 넣으면, 중심 사례(R=15 µm 가정,
+    작동 그릿 10%)는 그릿당 하중이 P_c의 ~40배(임계 downforce ≈0.10 lbf)로 운전점
+    4 lbf에서 멀지만, 마모 팁 반경 R을 기하 상한(D/2=90 µm)으로 밀면 1.1배, 작동
+    그릿 18,000개까지 겹치면 0.28배로 **부호까지 뒤집힌다**. 임계 downforce
+    범위(0.02~14 lbf)가 운전점을 가로지르므로 하한 유지(노트 §4). 3회차에 걸쳐
+    (마모 그릿 팁 반경 R 실측, IC1000 항복강도 직접 실측 Y)를 겨냥한 문헌 탐색을
+    반복했으나(3회차에 Wei 2010 UA 학위논문을 처음 식별·확보했지만 furrow 단면적·
+    UTS 대용값뿐이라 부적격), 이 코퍼스에서 두 값의 1차 문헌은 나오지 않는다는
+    결론이 확정됐다 — **"임계하중 비선형은 실재하나 이 계에서 정량화할 1차 문헌이
+    없다"는 영구 확정**(노트 §4.7, EVIDENCE-RULES 판정#22-종결). ⚠ 임계 아래에서는
     선형 F항이 과대추정이다.
 
     **S(stab)와의 결합(2026-09-14)**: 같은 `aging(pcr_decay)` 배수 A(t_disk)가 S의 컨디셔닝 강도
@@ -528,18 +533,19 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     f.status = "modeled" if len(have) == len(needed) else "partial"
     # 등급 판정 (2026-09-14, 노트 gamma-conditioning-load-confidence-basis.md §5) —
     #   드라이버 등급 위에 두 종류의 하한을 건다. 값(f.value)은 건드리지 않는다.
-    #   · 사유(3) 임계하중 비선형: **미해소** → 무조건 estimated 하한. 해제 조건은
-    #     마모 그릿 팁 반경 실측 + IC1000 항복강도 직접값 확보(노트 §4.4).
+    #   · 사유(3) 임계하중 비선형: **스코프 축소 종결(3회차, §4.7)** → 무조건 estimated
+    #     확정(하한이 아니라 확정값). 마모 그릿 팁 반경·IC1000 항복강도 직접값 모두
+    #     이 코퍼스에 없다고 3회차 규칙으로 종결됐다 — 후속 재탐색 금지, 4회차 없음.
     #   · 사유(2) τ 2차 인용 앵커(판정#14): 기준조건에서는 A≡1이라 무관 → |A−1| >
-    #     GAMMA_AGING_CONF_TOL 일 때만 하한(조건부). 사유(3)이 해소되면 이 조건부
-    #     하한만 남도록 분리해 두었다.
+    #     GAMMA_AGING_CONF_TOL 일 때만 하한(조건부). 사유(3)과 독립이라 이 조건부
+    #     하한만 별도로 남겨 두었다.
     #   · 사유(1) Rs 보정: 해소(총량 스칼라 한정) — 하한 사유에서 제외.
     aging_ratio = f.terms["aging(pcr_decay)"]
     driver_keys = [*have, "rpm_platen"]
     if pk.has("cond_disk_usage_hours"):
         driver_keys.append("cond_disk_usage_hours")
     driver_conf = _pack_conf(pk, *driver_keys)
-    f.confidence = _worst_conf(driver_conf, "estimated")          # 사유(3) 미해소 하한
+    f.confidence = _worst_conf(driver_conf, "estimated")          # 사유(3) 스코프 축소 종결(확정 하한)
     if abs(aging_ratio - 1.0) > GAMMA_AGING_CONF_TOL:
         f.confidence = _worst_conf(f.confidence, "estimated")    # 사유(2) 조건부 하한
         f.notes.append(
@@ -555,10 +561,11 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
         f.notes.append(f"⚠ 부분 모델링 — 결측: {', '.join(missing)}")
     f.notes.append("⚠ force×velocity(rpm_platen)×duty 곱 형태는 절삭일률의 1차 근사다 — "
                    "임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는 비선형이 "
-                   "미반영(estimated 하한 사유, 미해소). Hertz+Tabor 유도 P_c는 마모 팁 반경 R²에 "
-                   "걸리는데 R의 1차 문헌값이 없어 임계 downforce가 0.02~14 lbf 범위로 운전점 4 lbf를 "
-                   "가로지른다 — 임계 아래에서는 선형 F항이 과대추정이다"
-                   "(gamma-conditioning-load-confidence-basis.md §4).")
+                   "미반영(estimated 확정 사유 — 스코프 축소 종결, 3회차 재탐색 완료·재탐색 금지). "
+                   "Hertz+Tabor 유도 P_c는 마모 팁 반경 R²에 걸리는데 R·IC1000 항복강도 직접값 "
+                   "모두 이 코퍼스에서 못 낸다고 확정돼 임계 downforce가 0.02~14 lbf 범위로 운전점 "
+                   "4 lbf를 가로지른다 — 임계 아래에서는 선형 F항이 과대추정이다"
+                   "(gamma-conditioning-load-confidence-basis.md §4, §4.7).")
     f.notes.append("velocity 항은 rpm_platen(패드 RPM)만 쓴다 — 디스크 자전비(Rs) 보정은 총량 스칼라에 "
                    "대해 1+μ²/8+μ⁴/192(면적 가중 폐형식)로 묶이고 문헌 범위(|1−Rs|≤0.75, "
                    "R_disk/r_cc≤0.63)에서 스윕평균 <1%라 등급 사유에서 제외(해소, "

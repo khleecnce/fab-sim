@@ -1476,5 +1476,23 @@
    "knowledge/cmp/ceria-tooth-ce3-mrr-exponent-netzband-pair.md"
   ],
   "note": "Table I(as-received Ce3+%: 58nm 12%, 15nm 25%, 6nm 31%) + Fig.4(H2O2 0~5wt% -> Ce3+%, 벡터 판독). EVIDENCE-RULES 판정#23의 A측 1차 출처."
+ },
+ "wei2010-ua-phd-thesis-tribological-thermal-wear-cmp-consumables": {
+  "src": "OpenAlex author API(Xiaomin Wei, A5022255930, Univ. of Arizona)로 식별(W191125918) → UA DSpace 7 REST API items/{id}/bundles→bitstreams/{id}/content (landing page는 마이그레이션 HTML만 반환) — 2026-09-15 3회차 재탐색",
+  "pdf_local": "papers/wei2010-ua-phd-thesis-tribological-thermal-wear-cmp-consumables.pdf",
+  "doi": null,
+  "title": "Fundamental Characterization of Tribological, Thermal, Fluid Dynamic and Wear Attributes of Consumables in Chemical Mechanical Planarization",
+  "authors": "Wei X (advisor: Philipossian A)",
+  "venue": "PhD dissertation, University of Arizona (2010), UA Campus Repository handle 10150/195125",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.7 — Ch.8 furrow 단면적 분석(Fig.8.12, Borucki et al. 2007 원 데이터 재사용, 폭/깊이 미분리)은 §4.5 ECS Trans. 2013과 동일 한계로 값 A 부적격; Table 8.1 UTS 45-96 MPa(IC/D100 계열 범위, 미인용)은 항복강도 아니고 IC1000 단독값도 아니라 값 B 부적격"
+ },
+ "hou2024-materials-secondary-foaming-pu-polishing-pad": {
+  "src": "OpenAlex fulltext.search(polishing pad polyurethane compressive yield) → doi 10.3390/ma17112759 → mdpi-res.com CDN 직링크(landing page 403) — 2026-09-15 3회차 재탐색",
+  "pdf_local": "papers/hou2024-materials-secondary-foaming-pu-polishing-pad.pdf",
+  "doi": "10.3390/ma17112759",
+  "title": "Effect of Secondary Foaming on the Structural Properties of Polyurethane Polishing Pad",
+  "authors": "Hou et al.",
+  "venue": "Materials 17(11) 2759 (2024), MDPI, CC-BY",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.7 — NaHCO3/NH4HCO3 발포 자체제작 PU 패드의 압축강도 곡선(Fig.7c/7d)뿐, IC1000류 상용 패드 아니고 수치가 그림으로만 제시돼 항복강도 값 B로 부적격"
  }
 }

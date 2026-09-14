@@ -3,8 +3,9 @@
 
 > `sim/factors.py::_f_gamma()`는 confidence를 `estimated`로 하한하고 그 사유를 3개 적어 두었다
 > ([[disk-rpm-load-radius-pcr]] §6). 이 노트는 그 셋을 **하나씩** 판정한다. 목표는 "해소"가 아니라
-> 판정이다 — 근거 없는 승격은 오염이다. 결과: (1) 해소, (2) 조건부 하한으로 전환, (3) **미해소**.
-> 따라서 기준조건 등급은 그대로 `estimated`다(칸 수 불변).
+> 판정이다 — 근거 없는 승격은 오염이다. 결과: (1) 해소, (2) 조건부 하한으로 전환, (3) **스코프 축소
+> 영구 종결(3회차, §4.7)** — R·Y 직접값은 이 코퍼스로 못 낸다. 따라서 기준조건 등급은 그대로
+> `estimated`다(칸 수 불변, 확정값이며 하한이 아니다).
 > 관련: [[conditioner-disk-pad-cutting-model]] [[conditioner-grit-density-protrusion-cutrate]]
 > [[cvd-diamond-disk-patterned-grit-array]] [[../cmp/scratch-physics-source-signatures]]
 > [[../materials/hertz-gw-contact-mechanics]] [[conditioning-mechanism-asperity-regeneration]]
@@ -507,22 +508,111 @@ OpenAlex `best_oa_location`/CORE API, Semantic Scholar Graph API, 미러 사이�
 > 하한을 "임계하중 비선형은 실재하나 이 계(diamond conditioner wear literature)에서 정량화할 1차 문헌이
 > 없다"는 **영구 확정**으로 전환하고 격자는 estimated 그대로 둔다.
 
+### 4.7 3회차 재탐색(2026-09-15) — **마지막 회차, 종결**
+
+과제: (1) Wei 2010 UA 학위논문을 OpenAlex/UA 리포지토리/ProQuest/CORE/Semantic Scholar로 정확히 식별,
+(2) 실패 시 값 A(마모 그릿 팁 반경)·값 B(IC1000 항복강도 직접값)를 겨냥한 신규 질의 최소 8건
+(1·2회차 미시도 질의만), (3) 3회차 규칙에 따라 이번 회차에 종결.
+
+**Wei 2010 UA 학위논문 — 이번 회차에 처음으로 식별·원문 확보 성공.** OpenAlex 저자 API로 University
+of Arizona 소속 "Xiaomin Wei"(OpenAlex A5022255930)를 특정 — 2015년 논문
+"Method for accelerated diamond fracture characterization in chemical mechanical planarization"
+(§4.6에서 이미 폐쇄 확인된 그 doi:10.1016/j.mee.2015.09.006)의 공저자로 나타나 저자군이 일치함을
+확인했다. 이 저자의 2010년 학위논문 W191125918 "Fundamental Characterization of Tribological,
+Thermal, Fluid Dynamic and Wear Attributes of Consumables in Chemical Mechanical Planarization"
+(Univ. of Arizona PhD, 지도교수 Philipossian 그룹, DOI 없음, UA Campus Repository handle
+10150/195125)이 바로 2회차가 식별하지 못했던 "Wei 2010 UA"다. `repository.arizona.edu/handle/...`
+랜딩 페이지는 이번 세션에도 DSpace 7 마이그레이션 안내 HTML만 반환했지만, DSpace 7 REST API
+(`/server/api/core/items/{id}/bundles` → `bundles/{id}/bitstreams` → `bitstreams/{id}/content`)로
+우회하자 원문 PDF(19 MB, 315쪽)를 확보했다(1·2회차가 시도한 landing-page/OAI 경로와 다른 API 경로).
+papers/wei2010-ua-phd-thesis-tribological-thermal-wear-cmp-consumables.pdf로 저장.
+
+원문을 전문 검색한 결과 **값 A·B 둘 다 부적격**임을 확인했다:
+- 값 A(팁 반경): Ch.8 "Identifying and Positioning the Aggressive Diamonds"의 furrow 단면적 분석
+  (Fig. 8.12)은 캡션에 "(Borucki et al. 2007)"로 명시돼 있어 **§4.5가 이미 확보·기각한 ECS Trans.
+  2013(furrow 단면적만, E5)과 같은 원조 방법론·같은 인용 원본**임이 확인된다 — furrow 폭·깊이가
+  분리 보고되지 않아(단면적만) 반경 역산이 여전히 불가능하다. Ch.9(diamond pullout/fracture,
+  doi:10.1016/j.mee.2015.09.006 의 원 데이터)도 SEM은 탈락/파단 사진일 뿐 마모 팁 곡률 측정이 아니다.
+- 값 B(항복강도): Table 8.1(Ch.8, p.250)이 "Ultimate Tensile Strength (MPa): Polycarbonate 66,
+  Hard Polyurethane Pads 45–96"를 보고하지만 (i) **인장강도(UTS)이지 항복강도가 아니고**, (ii)
+  "Hard Polyurethane Pads"는 "IC family by Dow Chemical or D100 family by Cabot Microelectronics"를
+  묶은 범위값이라 IC1000 단독 수치가 아니며, (iii) 이 표 자체의 1차 출처가 본문에 인용되지 않는다
+  (2차 인용 수준 미만). 값 B로 채택 불가.
+
+**신규 발견 — Irene Li 2000 UCF PhD 학위논문, 대상계 정확히 일치했으나 미확보.**
+"Chemical-mechanical wear mechanism in polyurethane polishing pad materials"(OpenAlex
+W2804437860)는 초록부터 **IC1000/Suba IV 적층 패드**를 명시적으로 다뤄 이번 과제의 대상계와
+정확히 일치하는 유일한 학위논문이다(Shore 경도·DMA·흡수시험은 언급되나 초록에 항복강도 언급 없음
+— 본문 확인이 필요했다). OpenAlex는 `oa_status: green`, `stars.library.ucf.edu/rtd/1912`를
+가리키지만 실제 랜딩 페이지는 "This document is currently not available"(임베고/비공개)를
+반환한다. CORE API 검색도 같은 논문(core id 71373238)을 찾았으나 `downloadUrl`이 없다(CORE도
+원문 미보유). ProQuest 공개 메타데이터·Semantic Scholar 경로는 API 429(요청과다)로 이번 회차엔
+접근 불가. **미확보로 남긴다** — 4회차가 없으므로 재시도 대상에서 제외.
+
+**신규 확보(부적격) — Hou et al. 2024, *Materials* 17(11) 2759(doi:10.3390/ma17112759, CC-BY).**
+mdpi-res.com CDN 직링크(`d_attachment/materials/materials-17-02759/...`)로 원문 확보(landing
+page는 403). NaHCO₃/NH₄HCO₃ 발포제를 첨가한 **자체 제작 발포 폴리우레탄 연마패드**의 압축강도
+곡선(Fig. 7c/7d)을 보고하지만 (i) IC1000류 상용 패드가 아닌 임의 배합 시료이고, (ii) 수치가
+본문 문장이 아니라 곡선 그림으로만 제시돼 페이지 인용 없이 추출할 수 없으며, (iii) "compressive
+strength"라는 용어를 쓰되 항복점 정의가 본문에 없다 — 값 B 부적격. papers/hou2024-materials-
+secondary-foaming-pu-polishing-pad.pdf로 저장(참고용, 값 B 근거로는 미채택).
+
+**신규 질의 9건 (1·2회차 미시도, 전부 부적격/미확보)**:
+1. OpenAlex `fulltext.search`="IC1000 yield point"(95건, 상위 8건 검토) → 경도·Von Mises·STI
+   모델링 등 무관.
+2. OpenAlex `fulltext.search`="polyurethane pad compressive yield strength microcellular"(49건)
+   → 전부 신발 밑창·복합재 리뷰 등 CMP 무관 발포재 문헌.
+3. OpenAlex `fulltext.search`="CMP pad material datasheet tensile yield Rohm Haas"(0건).
+4. CORE `q`='"tip radius" "diamond conditioner" wear CMP' → 압입경도 리뷰 2편(무관)·다이아몬드
+   터닝공구 마모(실리콘 가공, 계 상이)·Wei 2010 본인(위에서 이미 처리) 재등장, 신규 없음.
+5. CORE `q`='IC1000 "yield strength" polyurethane pad' → Lu 2002 DMA(§4.6에서 이미 미확보 확인된
+   그 논문, doi:10.1016/s1044-5803(03)00004-4) 재등장·나머지 무관 PU 발포재.
+6. CORE `q`='polishing pad polyurethane "compressive yield"' → Zantye et al. 2004(MRS Proc. 816,
+   K4.7, doi:10.1557/proc-816-k4.7, "Investigation of Mechanical Integrity … Novel Polyurethane
+   Polishing Pad") 발견, OpenAlex `is_oa: false`·CORE 미보유로 **미확보**; Irene Li 2000·Hou 2024는
+   위에서 별도 처리.
+7. Semantic Scholar Graph API `paper/search`(worn diamond tip radius / diamond dresser wear flat
+   radius) → 두 질의 모두 HTTP 429(rate limit), 이번 회차엔 API 키 없이 접근 불가.
+8. CORE `q`="diamond disc conditioner used worn AFM tip radius CMP measurement" → 응답 파싱 실패
+   (빈 본문), 재시도 없이 실패로 기록.
+9. CORE `q`="CMP conditioner diamond apex radius characterization wear scanning electron
+   microscopy" → 실리콘 다이아몬드터닝 공구마모·전자현미경 응용 리뷰 등, 팁 반경 수치 없음.
+
+**결론(3회차·최종): 값 A·B 모두 미확보.** 처음으로 Wei 2010 UA를 식별·원문 확보했으나 §4.5가 이미
+기각한 것과 **같은 furrow-단면적 방법론**(Borucki et al. 2007 원 데이터 재사용)과 **같은 종류의
+UTS 대용값**만 담고 있어 판정을 바꾸지 못한다. 유일하게 대상계(IC1000/Suba IV)가 정확히 일치했던
+신규 후보(Irene Li 2000)는 임베고로 접근 불가였고, 그 대체로 확보한 Hou 2024는 계 불일치(임의
+발포배합)로 부적격이다. **3회차 규칙에 따라 이번 회차로 종결한다.**
+
+> ⚠ **3회차 1차 출처 확보 실패(최종)**: Wei 2010 UA(원문 확보했으나 furrow-단면적·UTS 대용값만,
+> 부적격)·Irene Li 2000 UCF(대상계 정확 일치했으나 임베고로 미확보)·Zantye 2004 MRS(폐쇄, 미확보)·
+> Hou 2024 MDPI(원문 확보했으나 계 불일치로 부적격)·Semantic Scholar(rate limit) — **값 A(마모
+> 그릿 팁 반경)·값 B(IC1000 항복강도 직접값) 어느 쪽도 3회차 누적 25편 이상의 확보/검토 문헌에서
+> 나오지 않는다.**
+
+**최종 판정 — 스코프 축소 영구 종결.** "R·Y 직접값은 이 코퍼스로 못 낸다." `_f_gamma` 사유(3)의
+하한은 "미해소(재탐색 대상)"에서 **"스코프 축소 종결 — 후속 크론은 재탐색 금지, 4회차 없음"**으로
+전환한다. Γ confidence 하한은 그대로 `estimated`이며, 이는 이제 **추가 조사로 해소될 하한이 아니라
+확정된 값**이다(EVIDENCE-RULES §서두 3회차 규칙 — 판정#9-종결·#22의 동형). 코드·격자·Γ 값은 전부
+불변.
+
 ## 5. 종합 — `_f_gamma` 반영
 | 사유 | 판정 | 코드 반영 |
 |---|---|---|
 | (1) Rs 보정 | 해소(총량 스칼라 한정, 문헌 범위 내 스윕평균 <1%) | docstring "해소"로 갱신, notes 문구 수정 |
 | (2) τ 앵커 | 조건부 — 기준조건 무관, \|A−1\|>0.01일 때만 하한 | `GAMMA_AGING_CONF_TOL`, 조건부 note |
-| (3) 임계하중 | **미해소** — 입력 불확실성이 결론을 뒤집음 | 무조건 `estimated` 하한 유지 |
+| (3) 임계하중 | **스코프 축소 종결(3회차, §4.7)** — R·Y 직접값은 이 코퍼스로 못 낸다 | 무조건 `estimated` 하한 유지, 재탐색 금지 |
 
-기준조건 Γ 등급: `estimated` 그대로(칸 수 불변). Γ **값**은 한 곳도 바뀌지 않는다
-(`tests/test_gamma_confidence_basis.py`가 5팩·t=0/20/50 h에서 고정). EVIDENCE-RULES 판정#22.
+기준조건 Γ 등급: `estimated` **확정값**(하한이 아니다 — 3회차 규칙에 따른 영구 종결, §4.7). Γ **값**은
+한 곳도 바뀌지 않는다(`tests/test_gamma_confidence_basis.py`가 5팩·t=0/20/50 h에서 고정). EVIDENCE-RULES 판정#22.
 
 ## 6. 미검증·한계
 - (1)의 상계는 균일 압력·균일 그릿밀도 가정이다. 디스크 짐벌·에지 압력 집중은 미반영(분포 모듈 몫).
 - 역회전(1−Rs>1) 레시피는 문헌에서 확인하지 못했다 — 나타나면 §2.3 (d)를 재계산.
-- (3)의 R은 **1차 미확보**(2회차 재탐색까지, §4.5·§4.6), Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
+- (3)의 R은 **1차 미확보로 영구 확정**(3회차까지, §4.5·§4.6·§4.7), Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
   응력 집중으로 P_c가 더 작아지므로 이 가정은 보수적이다). 3M DOP는 기준면 정의라 "침투 깊이"로 읽는
   것은 해석이다.
 - N_total의 정방격자 환산은 디스크 전면이 그릿으로 덮였다는 가정(edge exclusion 무시)이라 상한 쪽이다.
-- **3회차가 마지막**(§4.6 종결) — Wei 2010 UA 학위논문 식별부터 시작하고, 실패하면 "R·Y 직접값은
-  이 코퍼스로 못 낸다"로 스코프 축소 종결한다.
+- **3회차로 종결(§4.7)** — Wei 2010 UA 학위논문을 이번 회차에 식별·원문 확보했으나 값 A·B 모두
+  부적격이었고, 대상계가 정확히 일치하는 유일한 신규 후보(Irene Li 2000 UCF)는 임베고로 미확보였다.
+  "R·Y 직접값은 이 코퍼스로 못 낸다"로 **스코프 축소 영구 종결** — 4회차 없음, 후속 크론은 재탐색 금지.
