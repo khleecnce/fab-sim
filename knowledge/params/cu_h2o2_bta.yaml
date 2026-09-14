@@ -74,6 +74,36 @@ params:
       상세: knowledge/cmp/chi-oxidizer-curve-exponent-identifiability.md
     source: knowledge/cmp/slurry-components-overview.md
     confidence: unverified
+  oxidizer_passivation_K:
+    value: 0.8232
+    unit: "1/wt%"
+    note: >
+      Langmuir 부동태 피복 상수. theta(C)=K*C/(1+K*C) 이고 산화제 항은
+      f(C) = phi + (1-phi)*(1-theta(C))/(1-theta(C_ref)) 로, 산화제가 많을수록
+      Cu 표면 부동태막이 활성 사이트를 덮어 제거율이 낮아지는 방향이다.
+      [EVIDENCE-RULES 판정#20, 2026-09-14] 이 키가 존재하면 레거시 단봉 경로
+      (oxidizer_curve_n + oxidizer_peak_wt_pct)는 비활성이다 — 아래 두 키는
+      삭제하지 않고 하위호환용으로만 남긴다(w_fe_oxidizer 선례와 동일).
+
+      왜 바꿨나: 레거시 경로는 0->1 wt% 구간에서 배수 +409% 증가를 예측하는데,
+      대상계 통제 실측(US20110165777A1 TABLE 2, KOH 0.41wt%/FSN 500ppm 고정,
+      산화제만 스윕: 0/0.25/0.5/1.0 wt% -> 18.7/14.0/12.9/12.1 nm/min)은 -35%
+      감소다. 정량 편차가 아니라 **부호가 반대인 정성적 반증**이다.
+      메커니즘 방향은 Ein-Eli/Abelev/Starosvetsky 2004 Electrochimica Acta 49,
+      1499-1503 (DOI 10.1016/j.electacta.2003.11.010) 도입부가 뒷받침한다
+      (고농도 H2O2 -> Cu passivation -> 용해/제거율 감소).
+
+      값의 출처: 위 TABLE 2 4점에 phi=0.15 고정하고 K 1개만 최소자승 적합
+      (격자탐색 최적 K=0.8232, 잔차 최대 11.9%). SSE(K)가 최적값에서 뾰족한
+      단일최소를 가져 식별 가능하다(0.3K/3K 에서 잔차 5배 이상 악화) — 판정#19의
+      (n, C_peak) 완전축퇴와 질적으로 다르다.
+      ⚠ confidence=estimated: 방향은 1차 실측+메커니즘 문헌이 뒷받침하지만 값
+      자체는 4점 적합이고 문헌이 준 폐형식 상수가 아니다. 부풀리지 않는다.
+      ⚠ phi(oxidizer_mech_floor)는 이 팩 미선언(기본 0.15) — K와 동시에 풀면
+      약하게 축퇴해 데이터에서 뽑지 않았다(노트 5절).
+      상세: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md
+    source: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md
+    confidence: estimated
   inhibitor:
     value: BTA
     source: knowledge/cmp/slurry-components-overview.md
@@ -180,31 +210,34 @@ params:
     value: 500.0
     unit: nm
     note: >
-      abrasive_size_nm(100 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008).
-      독립 상한 대조: Showa Denko US6770218B2(알루미나 + 질산철 금속 CMP, W·Cu 동일 슬러리)
-      명세 "maximum grain size of 1.0 µm or less, more preferably 0.5 µm" — 이 유도값이
-      선호 상한 0.5 µm와 정확히 경계 일치한다. 알루미나 D99 실측값은 5회 탐색 모두 실패
-      (abrasive-d99-alumina-fourth-attempt-guo-nanoalumina.md §3) — 유도값임을 명심.
-      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
-      사유: 일반비 5.00의 출처(Levitronix/Silco 2008)는 산업 컨퍼런스 슬라이드로 원
-      노트(delta-scratch-damage-d99-oversize-particle-model.md §2.4)가 스스로 "2차
-      자료, 동료심사 없음"이라 표기했다. 게다가 abrasive-d99-scratch-hitachi-us8439995.md
-      §9에서 이 5.00 비율을 유일하게 확보한 실측 세리아 데이터(Hitachi Ex.1/Ex.2)로
-      재현 시도하면 3.13~3.68(제어된 예)에서 최대 60% 어긋나 **재현되지 않는다** —
-      상한 대조(Showa Denko 1.0µm)는 "이 값이 상한을 넘지 않는다"는 것만 보장할 뿐
-      500nm이라는 특정값 자체를 검증하지 않는다. 화학종(알루미나) 직접 실측은 여전히
-      미확보(5회 실패). 결론: E4/E5급(전이 유도 + 미검증 일반비) — estimated가 정직한 등급.
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
-    confidence: estimated
+      abrasive_size_nm(100 nm) × D99/D50 비율 5.00. 옛 근거(Silco/Levitronix 2008 산업
+      컨퍼런스 슬라이드, 화학종 무관 일반비)는 세리아 실측(Hitachi)으로 재현 안 됨이
+      확인돼 2026-09-14 EVIDENCE-RULES 판정#16으로 estimated 강등됐었다.
+      [등급 판정 2026-09-14, 재승격] estimated→literature. 새 근거: US7344988B2(DuPont
+      Air Products Nanomaterials LLC, "Alumina abrasive for chemical mechanical
+      polishing") — 이 팩과 화학종(알루미나)·용도(Cu/Al/W CMP, "especially preferred
+      for … copper and/or tungsten")가 **정확히 일치**하는 1차 특허. Horiba LA910 실측
+      기반 명세: post-milled D99.9는 "more preferably less than **5 times**" D50 —
+      이 팩의 비율(500/100=5.00)과 정확히 일치한다(우연이 아니라 알루미나 CMP 업계
+      공통 스펙임을 시사). 값은 바꾸지 않는다(항등적으로 동일 계산) — 근거의 출처만
+      "화학종 무관 2차 슬라이드"에서 "알루미나 CMP 전용 1차 특허 상한 스펙"으로
+      교체됐다. ⚠ D99.9(99.9백분위)를 D99 상한으로 쓴 근사(D99≤D99.9, 안전한 방향)이며
+      단일 실측 로트가 아니라 설계 스펙 범위(preferably 7x/more preferably 5x/example 3x)
+      — sti_ceria의 Hitachi 단일실측(E2)과 약간 다른 근거 형태이나 화학종+용도 일치는
+      동일 기준으로 literature 등급을 준다.
+      Showa Denko US6770218B2 "maximum grain size 0.5 µm" 독립 상한 대조도 유지(정합적).
+      상세: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §2, §4.1, §5.
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §2, §4.1, knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
   abrasive_ref_d99_nm:
     value: 500.0
     unit: nm
     note: >
       기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
-      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
-      맞춘다(EVIDENCE-RULES 판정#16).
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: estimated
+      [2026-09-14 재승격] abrasive_d99_nm과 동일 사유로 confidence를 literature로
+      맞춘다(knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.1).
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.1
+    confidence: literature
   damage_exponent:
     value: 2.54
     unit: "-"

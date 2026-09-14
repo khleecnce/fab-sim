@@ -19,7 +19,8 @@ if str(_ROOT) not in sys.path:
 from sim.engine import Recipe, simulate  # noqa: E402
 import sim.models  # noqa: E402,F401
 from sim.sensitivity import (FACTORS, CANCELLED_BY_CALIBRATION,  # noqa: E402
-                             decompose, elasticity, rank_factors)
+                             Sensitivity, decompose, elasticity,
+                             rank_factors)
 
 BY_KEY = {f.key: f for f in FACTORS}
 CU = Recipe(pack="cu_h2o2_bta", time_s=60)
@@ -46,30 +47,73 @@ def test_velocity_elasticity_is_near_unity():
 
 # ── 민감도 0의 네 가지 의미 ─────────────────────────────────
 def test_optimum_is_not_confused_with_no_effect():
-    """산화제가 정점에 앉아 있으면 1차 민감도는 0이지만 '영향 없음'이 아니다.
+    """탄성도 0의 네 의미('이미 최적'/'무영향'/'미모델링'/'상쇄됨')를 구분하는가.
 
-    회귀 방어: 두 상태가 똑같이 0.000으로 보이는데 의미는 정반대다.
+    회귀 방어: 이 상태들은 숫자가 똑같이 0.000으로 보이는데 의미는 정반대다.
     실제로 산화제가 '미모델링'으로 오진됐었다(2026-09-06).
+
+    ⚠ 2026-09-14(EVIDENCE-RULES 판정#20) 이전에는 이 판별을 cu_h2o2_bta 산화제가
+    정점(3.0 wt%)에 앉아 있다는 전제로 엔진을 통해 걸었다. 그 전제 자체가 대상계
+    실측으로 반증됐고(레거시 단봉 경로 → Langmuir 부동태 억제 경로로 교체,
+    knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md), 이제 어느 저장 팩도
+    레거시 정점 경로를 쓰지 않는다. 그래서 판별 **로직 자체**를 직접 건다 —
+    보호 대상(0의 의미가 뒤섞이지 않는 것)은 그대로이고, 더 이상 참이 아닌
+    물리 전제에 의존하지 않는다.
     """
-    # 팩 기본값(3.0)이 곧 정점이라 여기서 재면 1차가 0
-    s = elasticity(CU, BY_KEY["oxidizer_wt_pct"], metric="mrr")
-    assert s is not None
-    assert abs(s.elasticity) < 1e-3
-    assert s.curvature < 0, "정점이면 2차 도함수가 음수여야 한다"
-    assert s.at_optimum()
-    assert "정점" in s.direction()
+    def mk(elast, curv, modeled=True, key="oxidizer_wt_pct"):
+        return Sensitivity(factor=BY_KEY[key], metric="mrr", base_value=1.0,
+                           base_metric=1.0, elasticity=elast, leverage=0.0,
+                           stable=True, modeled=modeled, curvature=curv)
+
+    # (a) 이미 최적 — 1차 0, 2차 음수
+    at_peak = mk(0.0, -0.53)
+    assert at_peak.at_optimum()
+    assert "정점" in at_peak.direction()
+
+    # (b) 진짜 무영향 — 1차 0, 2차도 0. (a)와 숫자는 같지만 의미가 정반대다.
+    flat = mk(0.0, 0.0)
+    assert not flat.at_optimum()
+    assert flat.direction() == "무영향"
+
+    # (c) 미모델링 — 엔진이 이 인자를 아예 안 쓴다
+    unmodeled = mk(0.0, 0.0, modeled=False)
+    assert not unmodeled.at_optimum()
+    assert unmodeled.direction() == "미모델링"
+
+    # (d) 캘리브레이션 상쇄 — 0이지만 '무관'이 아니라 모델 구조 문제
+    cancelled = mk(0.0, 0.0, modeled=False, key="pad_E_star_pa")
+    assert cancelled.direction() == "상쇄됨"
+
+    # 네 상태가 서로 다른 라벨로 갈라져야 한다(뒤섞이면 이 테스트의 존재 이유가 사라진다)
+    labels = {at_peak.direction(), flat.direction(),
+              unmodeled.direction(), cancelled.direction()}
+    assert len(labels) == 4, f"0의 네 의미가 구분되지 않는다: {labels}"
 
 
-def test_oxidizer_sensitivity_revives_off_peak():
-    """정점을 벗어나면 민감도가 살아나고, 부호가 Kaufman 단봉을 따라야 한다."""
-    low = Recipe(pack="cu_h2o2_bta", time_s=60,
-                 pack_overrides={"oxidizer_wt_pct": 1.0})
-    high = Recipe(pack="cu_h2o2_bta", time_s=60,
-                  pack_overrides={"oxidizer_wt_pct": 6.0})
-    s_low = elasticity(low, BY_KEY["oxidizer_wt_pct"], metric="mrr")
-    s_high = elasticity(high, BY_KEY["oxidizer_wt_pct"], metric="mrr")
-    assert s_low.elasticity > 0.1, "정점 아래면 더 넣을수록 좋아야 한다"
-    assert s_high.elasticity < -0.1, "정점 위면 더 넣을수록 나빠야 한다"
+def test_oxidizer_sensitivity_sign_follows_passivation():
+    """cu_h2o2_bta 산화제 탄성도는 전 구간 음수여야 한다(부동태 억제 지배).
+
+    2026-09-14 EVIDENCE-RULES 판정#20으로 함수형이 바뀌었다. 이전 버전은
+    Kaufman 단봉을 전제해 "정점 아래면 양수, 위면 음수"를 요구했는데, 그 전제는
+    대상계 통제 실측(US20110165777A1 TABLE 2: H2O2 0→1 wt%에서 Cu RR
+    18.7→12.1 nm/min, 단조 **감소**)과 부호가 반대였다.
+    지금은 Langmuir 부동태 피복 억제항이라 관측 구간 전체가 감소 가지다.
+    근거: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md
+    """
+    for C in (1.0, 3.0, 6.0):
+        r = Recipe(pack="cu_h2o2_bta", time_s=60,
+                   pack_overrides={"oxidizer_wt_pct": C})
+        s = elasticity(r, BY_KEY["oxidizer_wt_pct"], metric="mrr")
+        assert s is not None
+        assert s.elasticity < -0.05, (
+            f"C={C} wt%: 산화제를 더 넣으면 MRR이 낮아져야 한다"
+            f"(부동태 억제) — got {s.elasticity:.4f}")
+
+    # 민감도가 살아 있는가 — '미모델링'과 구분되어야 한다(산화제 오진 회귀 방어)
+    s_mid = elasticity(Recipe(pack="cu_h2o2_bta", time_s=60,
+                              pack_overrides={"oxidizer_wt_pct": 3.0}),
+                       BY_KEY["oxidizer_wt_pct"], metric="mrr")
+    assert abs(s_mid.elasticity) > 1e-3, "산화제 축이 죽어 있으면 안 된다"
 
 
 def test_pad_properties_are_flagged_as_cancelled_not_irrelevant():

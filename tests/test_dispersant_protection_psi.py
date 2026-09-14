@@ -65,13 +65,22 @@ def test_ceria_packs_psi_is_modeled_via_cross_system_transfer(pack):
     factors = compute_factors(Recipe(pack=pack).resolve())
     psi = factors["psi"]
     assert psi.status in ("modeled", "partial")
-    assert psi.confidence == "literature", (
-        "값(NONE, 배수 1.0)은 실리카에서 상속된 교차계 전이지만, EVIDENCE-RULES "
-        "판정#15(Kim et al. 2024, doi:10.3390/polym16243593)가 세리아/EAA 분산제의 "
-        "oxide MRR 방향이 실리카/PVA·PVP와 반대(억제가 아니라 촉진)임을 대상계 "
-        "직접 실측(E3)으로 확인해, '실리카형 억제를 쓰지 않는다'는 이 팩의 결정 "
-        "자체는 literature 등급 근거를 얻었다 — knowledge/cmp/"
-        "ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md.")
+    # 분산제 이산 항의 등급은 literature (판정#15). 2026-09-14 ψ 농도축 배선 이후
+    # sti_ceria 는 Park 2003 회귀(그림 판독·(K,n,k) 묶음 비식별)가 약한 고리라 팩터
+    # 전체 등급은 estimated 로 내려간다 — 이것은 퇴보가 아니라 새 항이 정직하게 자기
+    # 등급을 신고한 것이다(knowledge/cmp/psi-adsorption-shield-oxide-systems.md §3).
+    disp_conf = psi.confidence if "adsorption_shield" not in psi.terms else None
+    if disp_conf is not None:
+        assert disp_conf == "literature", (
+            "값(NONE, 배수 1.0)은 실리카에서 상속된 교차계 전이지만, EVIDENCE-RULES "
+            "판정#15(Kim et al. 2024, doi:10.3390/polym16243593)가 세리아/EAA 분산제의 "
+            "oxide MRR 방향이 실리카/PVA·PVP와 반대(억제가 아니라 촉진)임을 대상계 "
+            "직접 실측(E3)으로 확인해, '실리카형 억제를 쓰지 않는다'는 이 팩의 결정 "
+            "자체는 literature 등급 근거를 얻었다 — knowledge/cmp/"
+            "ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md.")
+    else:
+        assert psi.confidence in ("estimated", "literature")
+        assert "dispersant" in psi.terms and psi.terms["dispersant"] == 1.0
 
 
 # ═══════════════════ 7: 기준 1.0 계약 회귀 방지

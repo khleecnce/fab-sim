@@ -96,12 +96,20 @@ def test_legacy_pack_without_langmuir_key_is_unchanged():
     assert legacy_expected(1.0, 6.0, 3.0, 3.0, 0.14) == pytest.approx(0.6373, abs=1e-4)
 
 
-# (e) cu_h2o2_bta의 χ 값·confidence가 변경 전과 동일 (건드리지 않는 팩)
-def test_cu_h2o2_bta_chi_unchanged():
-    """cu_h2o2_bta는 C=C_ref=C_peak=3.0이라 배수 항등 1.0, n은 무영향 — 이번 과제 범위 밖."""
+# (e) cu_h2o2_bta — 2026-09-14 판정#20으로 Langmuir 부동태 억제 경로로 이관됐다
+def test_cu_h2o2_bta_chi_migrated_to_passivation_langmuir():
+    """기준 운전점(C=C_ref=3.0)에서 배수는 여전히 항등 1.0 — Kp 이중계상이 없다.
+
+    단 등급은 unverified → estimated 로 올라간다: 축퇴해 식별 불가능하던
+    (oxidizer_curve_n, oxidizer_peak_wt_pct) 대신, 데이터로 식별되는
+    oxidizer_passivation_K(estimated) 하나를 형상 파라미터로 읽기 때문이다.
+    근거: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md (판정#20)
+    """
     f = compute_factors(Recipe(pack="cu_h2o2_bta").resolve())["chi"]
     assert f.value == pytest.approx(1.0, abs=1e-9)
-    assert f.confidence == "unverified"
+    assert f.confidence == "estimated", (
+        "oxidizer_passivation_K(estimated)가 형상 파라미터 등급으로 읽혀야 한다 — "
+        "비활성화된 oxidizer_curve_n(unverified)이 더 이상 발목잡으면 안 된다")
 
 
 # ── 보너스: w_fe_oxidizer 팩 등급이 Langmuir 채택으로 올라갔는가 (완성도 회귀 방지) ──
