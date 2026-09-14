@@ -1,0 +1,37 @@
+모든 작업이 완료되었습니다. 최종 보고드립니다.
+
+## 작업 완료 보고 — film-cu Lv3-2
+
+**작성 노트:** `knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation.md`
+
+**게이트 결과:**
+- `verify_claims.py` → **PASS** (출처 7건 실존, 검증코드 5블록 전부 통과, 출처없는 수치주장 0)
+- `check_knowledge.py` → **PASS**
+
+### 핵심 결과 (kp_m_per_pa=3.5e-13 판정: **뒷받침됨, 반증 아님**)
+
+**(a) Kp 역산 분포** — Preston `Kp=MRR/(P·V)`로 1차 (P,V,MRR) 데이터점 역산:
+| 문헌 | 계 | 역산 Kp | 팩 대비 |
+|---|---|---|---|
+| Guo & Subramanian 2004 (Preston 계수 직접 적합) | 알루미나·무첨가 | 1.75e-13 | 0.50× |
+| wei2013 | 실리카·**H2O2+BTA+glycine** | 1.1–2.0e-13 | 0.32–0.57× |
+| Tugbawa 2002 (r_cu 역산) | Mirra 4psi | 2.8–5.8e-13 | 0.79–1.65× |
+| Li&Babu 2001 (교차) | KIO3 | 1.17e-13 | 0.33× |
+
+산성/중성 H2O2·기계 계 분포 **1.1~5.8e-13 (중앙 ≈1.9e-13)**에 팩값 3.5e-13이 상단부로 포함. **특히 Tugbawa 블랭킷 Cu 실측 r_cu=159 Å/s@4psi 역산치 3.67e-13이 팩값과 5% 이내 일치** → "미재현" 딱지 종결. Guo 무첨가 baseline(0.5×)이 팩보다 낮은 건 화학강화(Kp_chem>Kp_mech) 방향으로 물리적으로 옳음.
+
+**(b) Preston 선형성:** Guo 2004 실측 지수 — threshold~1.5psi·V≲0.7m/s·P≲6psi 레짐에서만 a=b=1, 고압 P^(1/6)·고속 포화. 팩 Kp는 "포화문턱 근처 유효계수".
+
+**(c) 화학상수:** Seal/Gopal 산성 pH4 정점 3.6wt%로 `oxidizer_peak_wt_pct=3.0` 확증. 판정#20(알칼리 단조감소)과는 pH 레짐 분리(EVIDENCE-RULES §3, 평균 안 냄).
+
+**(d) dishing 커널:** r_cu와 kp_m_per_pa가 같은 Kp로 수렴함을 처음 확인(MRR·dishing 모델 정합).
+
+**팩 갱신 제안:** kp_m_per_pa 값 3.5e-13 유지·근거를 일반범위→Tugbawa r_cu 역산으로 교체, confidence **estimated 유지**(rpm→V의 r_cc 환산 ±30~44% 불확실).
+
+### 부수 갱신
+- `agents/film-cu/EXAMS.md` Lv3-2 자기시험 3문항+모범답안
+- `agents/film-cu/PROFILE.md` 이수기록(Lv3 6/6) + 구현요청 2건([P2] Preston 유효창 플래그, [P3] 산화제 pH 레짐 분기)
+- `agents/film-cu/CURRICULUM.md` Lv3-2 [x]
+- `papers/INDEX.json` Gopal&Talbot 2007 등록
+
+**주의:** sim/ 미변경, git 커밋/push 안 함(총괄 몫). 한계: 팩 화학을 정확히 재현한 단일 (P,V,MRR) 문헌은 미확보(wei2013은 연마재가 실리카), rpm 문헌들의 r_cc 미보고.

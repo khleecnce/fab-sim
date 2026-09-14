@@ -1,0 +1,35 @@
+완료했습니다. 최종 결과를 보고합니다.
+
+## 작업 완료 보고 — defect-scientist Lv2-2 결함 밀도 통계와 수율 영향 모델
+
+### 작성 노트
+`knowledge/cmp/defect-density-yield-models-and-spatial-statistics.md`
+
+### 자가검사 결과 (둘 다 통과)
+- **verify_claims.py: PASS** — 출처 4건 실존(0건 미실존), verify 블록 1개(A–D 항) 통과, 출처없는 수치주장 0
+- **check_knowledge.py: PASS**
+- 선행 3노트도 링크 추가 후 check_knowledge 3/3 통과
+
+### 다룬 내용 (지시사항 대응)
+- **(a) 폐형식**: Poisson `exp(-λ)`, Murphy `((1-e^-λ)/λ)²`, Seeds `1/(1+λ)`, 음이항/Stapper `(1+λ/α)^-α`를 전부 python으로 재현하고 **극한관계**(α→∞=Poisson, α=1=Seeds)와 4모델 대소(Poisson≤Murphy≤음이항≤Seeds), 클러스터링 수율이득까지 assert. **killer ratio θ·D0**와 IRDS ½피치 critical area로 CMP 스크래치·잔류입자·부식의 kill 성격 분기.
+- **(b) 공간통계**: Koo&Hwang 2021의 join-count null(`E[c11]=c·p²`)·공간무작위성 검정·core-point 이항모델을 재현하고, **CMP 원인 귀속**(그릿 긴 호·부식 edge-ring 25.6배 국부밀도)으로 연결. ML 분류(Lv3-1)는 재서술 않고 통계 검정만.
+- **(c) 정량값**: D0 3nm 0.20~14nm 0.08 /cm², α(=c) 3–10, WM811k p≈0.14.
+
+### 출처 (scope 6건 상한 내)
+1. **Cunningham 1990** (IEEE TSM, DOI 10.1109/66.53188) — 정본 폐형식. scope `--check`로 1990=경계값 허용 확인, Stapper 1983/1984는 제외 확인. 전문은 IEEE 유료+미러 사이트 이 세션 봉쇄로 미확보 → 폐형식은 python 재현(E2)
+2. **Feng & Ma 2022 Chiplet Actuary** (DAC'22, DOI 10.1145/3489517.3530428, arXiv OA **전문확보**) — NB 적용형+현대노드 D/c값(E5)
+3. **Koo & Hwang 2021** (IEEE Access CC-BY, DOI 10.1109/ACCESS.2021.3084221, **전문확보**) — 공간통계(E1)
+4. WM811k 데이터셋 Wu 2015 (2차 인용)
+
+papers/ 저장 및 INDEX.json 등록 완료.
+
+### 갱신 파일
+- 선행 3노트에 역링크 추가(상호링크)
+- `EXAMS.md` Lv2-2 3문항+모범답안 추가
+- `PROFILE.md` 이수기록 + 구현요청 2건(수율 폐형식 함수, killer 유효밀도+SRT) 추가
+- `CURRICULUM.md` Lv2-2 체크박스 `[x]`
+
+### 정직하게 남긴 미검증
+- 실 팹 α 통제 실측 1차 문헌 미확보(대표값 E5뿐), 스크래치 1개당 kill 확률 단일 실측 미확보(크기의존이라 상수 아님→θ로 관리), Cunningham 정본 전문 미확보, Koo 이웃수 표기 2ε(ε+1) vs 표준 4ε(ε+1) 2배차(원인 미상) — 모두 노트 §8에 명시.
+
+sim/·git은 건드리지 않았습니다(지시대로 총괄이 커밋).

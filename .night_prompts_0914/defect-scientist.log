@@ -1,0 +1,31 @@
+모든 작업과 자가검사를 완료했습니다.
+
+## 작업 보고 (defect-scientist Lv2-1: 부식·피트, 슬러리 화학 연계)
+
+### 작성한 노트
+`knowledge/cmp/corrosion-pit-defect-morphology-density-inspection.md`
+
+**focus("결함 관점")를 세 축으로 구성** — 형제 영역(film-cu/film-w의 갈바닉·혼합전위·Pourbaix 메커니즘)은 재서술하지 않고 상호링크로만 참조:
+- **(a) 형상·크기·밀도**: W 부식 결함 개수 = 공정변수 함수(가압 0/12/363 ea, DIW 린스 0→220 s: 0→53개), edge-ring 편중(r 145–148 mm, 면적 3.9%), 최소척도 = 3 nm W 산화막·200 nm Cu-SHA 노듈
+- **(b) 화학→밀도 정량**: H₂O₂가 Cu 정적에칭 2→39 nm/min(~20배), 억제제 78–90% 억제; **억제제 농도↑→입자 결함↑ 역설**(오염 MBTA10 1350 vs MBTA3 180), PRE 26/31/66/62%; W 용해 pH 의존(알칼리 1800 vs 산성 55 ppb, Faraday 등가 38 µA)
+- **(c) 구별 신호**: 부식=등방 concave/convex + 산화물 조성 + edge/패턴 편중 vs 스크래치=이방 선형(≥50 µm), 잔류입자=이질조성; 인과가 반대(린스↑→부식↑ vs 세정↑→잔류입자↓)
+
+정량값은 미검증(6건)의 수 배 이상으로 확보.
+
+### 확보한 출처 (신규 1차 논문 2건, DOI Crossref 검증)
+1. **Choi et al. 2022** (Appl. Surf. Sci. 598, 153767, DOI 10.1016/j.apsusc.2022.153767) — OSTI green OA purl로 확보. Samsung+Stanford, W CMP 부식 결함.
+2. **Ryu et al. 2019** (ECS JSS 8, P3058, DOI 10.1149/2.0101905jss, CC-BY) — 미러 사이트→미러 사이트으로 확보. Cu 억제제 농도→에칭/입자 결함.
+   - 그림 수치(Fig 2·8, Fig 3)는 fitz 렌더+Read 판독(±5% 명시)
+   - 로컬 코퍼스에 반도체 부식 결함 정량이 부족해 웹/OA로 신규 확보, `papers/` 저장 + `INDEX.json` 등록
+
+### 자가검사 결과 (둘 다 통과)
+- `verify_claims.py`: **PASS** (출처 2건 실존 · verify 코드블록 A–F 6항 통과 · 출처없는 수치주장 0)
+- `check_knowledge.py`: **PASS**
+
+### 갱신 완료
+- `EXAMS.md`: Lv2-1 3문항+모범답안 추가
+- `PROFILE.md`: 이수기록 + 구현요청 2건(부식 결함 밀도 확률항·판별 플래그, 팩별 분기·Cu/W 미통합 명시)
+- `CURRICULUM.md`: Lv2-1 체크박스 `[x]`
+- 메모리: OSTI green OA 경로(Elsevier 유료도 국립연구소 공저면 servlets/purl로 확보)를 문헌접근 우회 노트에 추가
+
+sim/은 건드리지 않았고, git 커밋/push는 하지 않았습니다(총괄 몫).

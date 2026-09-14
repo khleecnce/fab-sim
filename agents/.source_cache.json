@@ -1570,5 +1570,433 @@
  "doi:10.1149/1.2177007": {
   "ok": true,
   "msg": "Effects of Slurry Flow Rate and Pad Conditioning Temperature on Dishing, Erosion, and Meta"
+ },
+ "doi:10.1063/5.0165811": {
+  "ok": true,
+  "msg": "Instrument with an ultra-wide dynamic detection range for the optical counting and sizing "
+ },
+ "doi:10.1088/1361-6501/ae6ba6": {
+  "ok": true,
+  "msg": "Nano liquid particle monitoring system for colloidal nanoparticle measurement: reducing no"
+ },
+ "doi:10.3390/ma17194901": {
+  "ok": true,
+  "msg": "The Effect of Sodium Hexametaphosphate on the Dispersion and Polishing Performance of Lant"
+ },
+ "doi:10.3390/polym16243593": {
+  "ok": true,
+  "msg": "The Stability Evaluation of Ceria Slurry Using Polymer Dispersants with Varying Contents f"
+ },
+ "pmc:11477672": {
+  "ok": true,
+  "msg": "The Effect of Sodium Hexametaphosphate on the Dispersion and Polishing Performance of Lant"
+ },
+ "doi:10.1143/jjap.45.7637": {
+  "ok": true,
+  "msg": "Enhancement of Post-Cu-Chemical Mechanical Polishing Cleaning Process for Low-k Substrate"
+ },
+ "doi:10.1143/jjap.48.07gm04": {
+  "ok": true,
+  "msg": "Application of Novel Ultrasonic Cleaning Equipment Using Waveguide mode for Post-Chemical-"
+ },
+ "doi:10.1149/1.2739817": {
+  "ok": true,
+  "msg": "Nanoparticle Removal Mechanisms during Post-CMP Cleaning"
+ },
+ "doi:10.1149/2.0061910jss": {
+  "ok": true,
+  "msg": "Experimental Investigation of High-Performance Wafer Drying Induced by Marangoni Effect in"
+ },
+ "doi:10.1149/2162-8777/ac9c2e": {
+  "ok": true,
+  "msg": "Mechanism Analysis of Megasonic and Brush Cleaning Processes for Silicon Substrate after C"
+ },
+ "doi:10.1016/j.apsusc.2022.153767": {
+  "ok": true,
+  "msg": "Origins of wear-induced tungsten corrosion defects in semiconductor manufacturing during t"
+ },
+ "doi:10.1149/2.0101905jss": {
+  "ok": true,
+  "msg": "Selection and Optimization of Corrosion Inhibitors for Improved Cu CMP and Post-Cu CMP Cle"
+ },
+ "doi:10.1007/s13391-012-2144-5": {
+  "ok": true,
+  "msg": "Effect of pad surface roughness on material removal rate in chemical mechanical polishing "
+ },
+ "doi:10.1109/cstic58779.2023.10219240(CSTIC": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.3390/ma17081817(Jeong": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1149/2162-8777/ad60fe": {
+  "ok": true,
+  "msg": "Synergetic Effect of Chemical Components in a Tungsten CMP Slurry and the Evolution of Tun"
+ },
+ "doi:10.1109/66.53188": {
+  "ok": true,
+  "msg": "The use and evaluation of yield models in integrated circuit manufacturing"
+ },
+ "doi:10.1109/ACCESS.2021.3084221": {
+  "ok": true,
+  "msg": "A Unified Defect Pattern Analysis of Wafer Maps Using Density-Based Clustering"
+ },
+ "doi:10.1109/TSM.2014.2364237": {
+  "ok": true,
+  "msg": "Wafer Map Failure Pattern Recognition and Similarity Ranking for Large-Scale Data Sets"
+ },
+ "doi:10.1145/3489517.3530428": {
+  "ok": true,
+  "msg": "Chiplet actuary"
+ },
+ "doi:10.1007/s44251-025-00077-6": {
+  "ok": true,
+  "msg": "Application of amino acids as auxiliary reagents in chemical mechanical polishing: an in-d"
+ },
+ "doi:10.1016/j.apsusc.2025.163978": {
+  "ok": true,
+  "msg": "Improvement of polishing performance of SiO2/Si3N4 by surfactants in CeO2 based slurry"
+ },
+ "doi:10.1016/j.colsurfa.2013.03.046": {
+  "ok": true,
+  "msg": "Role of hydrogen bonding on the adsorption of several amino acids on SiO2 and Si3N4 and se"
+ },
+ "doi:10.1016/j.mee.2013.10.004": {
+  "ok": true,
+  "msg": "Abrasive and additive interactions in high selectivity STI CMP slurries"
+ },
+ "doi:10.1149/1.1817870": {
+  "ok": true,
+  "msg": "Slurry Additive Effects on the Suppression of Silicon Nitride Removal during CMP"
+ },
+ "doi:10.1557/proc-613-e7.4.1": {
+  "ok": true,
+  "msg": "An Evaluation of the Effects of Benzotriazole in NH<sub>4</sub>OH Slurry for Copper CMP"
+ },
+ "doi:10.1149/1.3273079": {
+  "ok": true,
+  "msg": "Study of Polishing Characteristics of Monodisperse Ceria Abrasive in Chemical Mechanical P"
+ },
+ "doi:10.1149/1.3299254": {
+  "ok": true,
+  "msg": "Measurement of CMP Slurry Abrasive Size Distribution by Scanning Mobility Particle Sizer"
+ },
+ "doi:10.1109/66.350755": {
+  "ok": true,
+  "msg": "Run by run process control: combining SPC and feedback control"
+ },
+ "doi:10.1142/S0218488502001648": {
+  "ok": true,
+  "msg": "k-ANONYMITY: A MODEL FOR PROTECTING PRIVACY"
+ },
+ "doi:10.1177/096228029900800102": {
+  "ok": true,
+  "msg": "Multiple imputation: a primer"
+ },
+ "doi:10.2307/1270028": {
+  "ok": true,
+  "msg": "Statistical Process Monitoring and Feedback Adjustment: A Discussion"
+ },
+ "doi:10.1016/0021-9517(62)90063-5": {
+  "ok": true,
+  "msg": "The promoting effect of cupric ions on the ferric ion catalyzed decomposition of hydrogen "
+ },
+ "doi:10.1016/j.electacta.2003.11.010": {
+  "ok": true,
+  "msg": "Electrochemical aspects of copper chemical mechanical planarization (CMP) in peroxide base"
+ },
+ "doi:10.1016/j.matchemphys.2004.06.007": {
+  "ok": true,
+  "msg": "Effects of hydrogen peroxide and alumina on surface characteristics of copper chemical–mec"
+ },
+ "doi:10.1143/jjap.47.5385": {
+  "ok": true,
+  "msg": "The Effect of Hydrogen Peroxide on Frictional and Thermal Behaviors in a Citric Acid-Based"
+ },
+ "doi:10.1149/1.2393015": {
+  "ok": true,
+  "msg": "The Effect of Hydrogen Peroxide in a Citric Acid Based Copper Slurry on Cu Polishing"
+ },
+ "doi:10.1016/j.apsusc.2013.06.005": {
+  "ok": true,
+  "msg": "Effect of air on debris formation in femtosecond laser ablation of crystalline Si"
+ },
+ "doi:10.1143/JJAP.42.7259": {
+  "ok": true,
+  "msg": "Slurry Utilization Efficiency Studies in Chemical Mechanical Planarization"
+ },
+ "doi:10.1149/1.1731539": {
+  "ok": true,
+  "msg": "Mean Residence Time and Removal Rate Studies in ILD CMP"
+ },
+ "doi:10.1149/2.0311910jss": {
+  "ok": true,
+  "msg": "Investigation into the Effect of CMP Slurry Chemicals on Ceria Abrasive Oxidation State us"
+ },
+ "doi:10.1016/j.apsusc.2013.07.057": {
+  "ok": true,
+  "msg": "Use of anionic surfactants for selective polishing of silicon dioxide over silicon nitride"
+ },
+ "doi:10.1016/j.apsusc.2015.10.158": {
+  "ok": true,
+  "msg": "Performance of colloidal silica and ceria based slurries on CMP of Si-face 6H-SiC substrat"
+ },
+ "doi:10.1149/05201.0597ecst": {
+  "ok": true,
+  "msg": "Aggressive Diamond Characterization and Wear Analysis During Chemical Mechanical Planariza"
+ },
+ "doi:10.1557/proc-0991-c01-01": {
+  "ok": true,
+  "msg": "CMP Active Diamond Characterization and Conditioner Wear"
+ },
+ "doi:10.7567/jjap.50.05ec05": {
+  "ok": true,
+  "msg": "Diamond Conditioner Microwear Effect on Pad Surface Height Distribution in Tungsten Chemic"
+ },
+ "doi:10.1016/j.procir.2014.03.014": {
+  "ok": true,
+  "msg": "The Effect of Pad-asperity Curvature on Material Removal Rate in Chemical-mechanical Polis"
+ },
+ "doi:10.1016/j.wear.2006.08.001": {
+  "ok": true,
+  "msg": "Wear-corrosion properties of diamond conditioners in CMP slurry"
+ },
+ "doi:10.1149/05039.0035ecst": {
+  "ok": true,
+  "msg": "Scratching of Patterned Composite Surfaces by Pad Asperities in Chemical-Mechanical Polish"
+ },
+ "doi:10.1149/1.1812738": {
+  "ok": true,
+  "msg": "Second-Order Normal Force Brought about by Polishing with a Polyurethane Pad"
+ },
+ "doi:10.1149/1.1837542": {
+  "ok": true,
+  "msg": "Von Mises Stress in Chemical‐Mechanical Polishing Processes"
+ },
+ "doi:10.1149/1.3186032": {
+  "ok": true,
+  "msg": "Impact of Pad–Wafer Contact Area in Chemical Mechanical Polishing"
+ },
+ "doi:10.1149/1.3231691": {
+  "ok": true,
+  "msg": "A Material Removal Model for CMP Based on the Contact Mechanics of Pad, Abrasives, and Waf"
+ },
+ "doi:10.1149/1.3273077": {
+  "ok": true,
+  "msg": "Analyses of Diamond Disk Substrate Wear and Diamond Microwear in Copper Chemical Mechanica"
+ },
+ "doi:10.1149/1.3368700": {
+  "ok": true,
+  "msg": "Experimental Analysis of Pad Wear Response Effect on Removal Rate Variations in Tungsten C"
+ },
+ "doi:10.1149/2.0201905jss": {
+  "ok": true,
+  "msg": "A Quantitative Analysis of Multi-Scale Response of CMP Pad and Implication to Process Asse"
+ },
+ "doi:10.1149/2.027405jss": {
+  "ok": true,
+  "msg": "Pad Scratching in Chemical-Mechanical Polishing: The Effects of Mechanical and Tribologica"
+ },
+ "doi:10.1149/2.0321704jss": {
+  "ok": true,
+  "msg": "Nonlinear Compression Behavior of the Grooved Polishing Pad: A Model and Its Validation"
+ },
+ "doi:10.1557/proc-337-637": {
+  "ok": true,
+  "msg": "Effect of Polishing Pad Material Properties on Chemical Mechanical Polishing (Cmp) Process"
+ },
+ "doi:10.1557/proc-732-i5.4": {
+  "ok": true,
+  "msg": "Effect of CMP Pad Exposure to Aqueous Media on the Pad Properties. Part 1. Dynamic Mechani"
+ },
+ "doi:10.17760/d10019194": {
+  "ok": true,
+  "msg": "Mechanics of the pad-abrasive-wafer contact in chemical mechanical\n                    pol"
+ },
+ "doi:10.23860/thesis-ponte-david-2015": {
+  "ok": true,
+  "msg": "Mechanics Framework of Pad Scratching in Chemical-Mechanical Planarization"
+ },
+ "doi:10.31274/rtd-20201023-76": {
+  "ok": true,
+  "msg": "A quantitative analysis of multi-scale response of CMP pad: quasi-static and dynamic chara"
+ },
+ "doi:10.35848/1347-4065/acd42a": {
+  "ok": true,
+  "msg": "An investigation of the Vickers hardness of polishing pads using simulations based on micr"
+ },
+ "doi:10.4313/teem.2007.8.1.015": {
+  "ok": true,
+  "msg": "Diamond Conditioner Wear Characterization for a Copper CMP Process"
+ },
+ "doi:10.1002/9780470180907.ch8(Cu": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/0168-583x(94)95457-7(Lexan": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1021/la7013557.s001(": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1002/9780470180907.ch8": {
+  "ok": true,
+  "msg": "Corrosion Inhibitor for Cu CMP Slurry"
+ },
+ "doi:10.1016/0168-583x(94)95457-7": {
+  "ok": true,
+  "msg": "A study of the dependence of the bulk etch rate and the reduced etch rate on the concentra"
+ },
+ "doi:10.1021/la7013557.s001": {
+  "ok": true,
+  "msg": "Mechanism of Electrochemical Reduction of Hydrogen Peroxide on Copper in Acidic Sulfate So"
+ },
+ "doi:10.1016/j.mee.2015.09.006": {
+  "ok": true,
+  "msg": "Method for accelerated diamond fracture characterization in chemical mechanical planarizat"
+ },
+ "doi:10.1016/j.mee.2015.09.006의": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1557/proc-816-k4.7": {
+  "ok": true,
+  "msg": "Investigation of Mechanical Integrity and its effect on Polishing for Novel Polyurethane P"
+ },
+ "doi:10.1143/jjap.47.108": {
+  "ok": true,
+  "msg": "Effect of Corrosion Inhibitor, Benzotriazole, in Cu Slurry on Cu Polishing"
+ },
+ "doi:10.1016/j.procir.2014.03.025": {
+  "ok": true,
+  "msg": "In-situ CMP Endpoint Detection Using Acoustic Emission"
+ },
+ "doi:10.1109/asmc51741.2021.9435673": {
+  "ok": true,
+  "msg": "A hybrid feature selection approach for virtual metrology: Application to CMP process"
+ },
+ "doi:10.20965/ijat.2025.p0879": {
+  "ok": true,
+  "msg": "Real-Time Interfacial Pressure Prediction in CMP Using Machine Learning Surrogates of Fini"
+ },
+ "doi:10.24406/publica-5596": {
+  "ok": true,
+  "msg": "Real-Time Interfacial Pressure Prediction in CMP Using Machine Learning Surrogates of Fini [DataCite]"
+ },
+ "doi:10.5120/5746-7953": {
+  "ok": true,
+  "msg": "Using Discrete Wavelet analysis and Sequential test to detect the endpoint in CMP process"
+ },
+ "doi:10.5121/ijcsit.2012.4402": {
+  "ok": true,
+  "msg": "PCA - Wavelet Coefficients for T2 chart to Detect Endpoint in CMP process"
+ },
+ "doi:10.1016/s1452-3981(23)15441-1(오픈액세스": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1149/2162-8777/ad5fe4": {
+  "ok": true,
+  "msg": "Molecular Interactions in Copper Chemical Mechanical Planarization: A Phenomenological Stu"
+ },
+ "doi:10.21203/rs.3.rs-5011272/v1": {
+  "ok": true,
+  "msg": "Corrosion inhibition threshold effect of 1,2,4-triazole in alkaline chemical mechanical po"
+ },
+ "doi:10.1016/s1452-3981(23)15441-1": {
+  "ok": true,
+  "msg": "Copper Corrosion Inhibitors. A review"
+ },
+ "doi:10.1016/j.apsusc.2026.167590": {
+  "ok": true,
+  "msg": "Gas-dissolved water assisted post-CMP cleaning for removal of sub-10 nm fine ceria particl"
+ },
+ "doi:10.1016/j.mssp.2024.108279": {
+  "ok": true,
+  "msg": "The effect of non-ionic surfactants on the removal of cerium oxide particles in STI CMP po"
+ },
+ "doi:10.1021/acsaelm.3c01315": {
+  "ok": true,
+  "msg": "Developing an Efficient Forward Design Method for Co Post-CMP Cleaning Formulations Based "
+ },
+ "doi:10.1149/1.1391989": {
+  "ok": true,
+  "msg": "Particle Adhesion and Removal in Chemical Mechanical Polishing and Post‐CMP Cleaning"
+ },
+ "doi:10.1109/asmc.2019.8791750": {
+  "ok": true,
+  "msg": "Fast and accurate defect classification for CMP process monitoring"
+ },
+ "doi:10.1149/1.3265474": {
+  "ok": true,
+  "msg": "Analysis of Scratches Formed on Oxide Surface during Chemical Mechanical Planarization"
+ },
+ "doi:10.3390/electronics15071437": {
+  "ok": true,
+  "msg": "SemiWaferNet: Efficient Semi-Supervised Hybrid CNN–Transformer Models for Wafer Defect Cla"
+ },
+ "doi:10.3390/s23041926": {
+  "ok": true,
+  "msg": "Efficient Convolutional Neural Networks for Semiconductor Wafer Bin Map Classification"
+ },
+ "doi:10.1016/j.surfcoat": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1016/j.surfcoat.2012.04.004": {
+  "ok": true,
+  "msg": "The influence of abrasive particle size in copper chemical mechanical planarization"
+ },
+ "doi:10.1016/j.tsf.2012.03.057": {
+  "ok": true,
+  "msg": "Nano-scratch evaluations of copper chemical mechanical polishing"
+ },
+ "doi:10.1117/12.485223": {
+  "ok": true,
+  "msg": "Characterization and reduction of copper chemical-mechanical-polishing-induced scratches"
+ },
+ "doi:10.1149/1.1393931": {
+  "ok": true,
+  "msg": "Effect of Particle Size of Chemical Mechanical Polishing Slurries for Enhanced Polishing w"
+ },
+ "doi:10.1149/2.0101806jss": {
+  "ok": true,
+  "msg": "Role of Dispersant Agent on Scratch Reduction during Copper Barrier Chemical Mechanical Pl"
+ },
+ "doi:10.14356/kona.2008010": {
+  "ok": true,
+  "msg": "Particulate Science and Technology in the Engineering of Slurries for                    C"
+ },
+ "doi:10.4028/www.scientific.net/amr.463-464.321": {
+  "ok": true,
+  "msg": "Surface Measurement of GLSI Wafer with Copper Interconnects after CMP"
+ },
+ "doi:10.1143/jjap.43.l1060": {
+  "ok": true,
+  "msg": "Effect of Molecular Weight of Surfactant in Nano Ceria Slurry on Shallow Trench Isolation "
+ },
+ "doi:10.1149/2162-8777/ab8ffa": {
+  "ok": true,
+  "msg": "Cleaning Solutions for Removal of ∼30 nm Ceria Particles from Proline and Citric Acid Cont"
+ },
+ "doi:10.1149/ma2008-01/17/693": {
+  "ok": true,
+  "msg": "Enhancement of Selectivity of Oxide-to-Nitride Films on Organic Additive in Nano-ceria Slu"
+ },
+ "doi:10.1016/0040-6090(95)07088-5": {
+  "ok": true,
+  "msg": "Chemical mechanical polishing of PSG and BPSG dielectric films: the effect of phosphorus a"
+ },
+ "doi:10.1007/s40735-016-0041-4": {
+  "ok": true,
+  "msg": "Prediction of Removal Rates in Chemical–Mechanical Polishing (CMP) Using Tribocorrosion Mo"
+ },
+ "doi:10.1149/1.4717508": {
+  "ok": true,
+  "msg": "Removal Mechanism of Tungsten CMP Process: Effect of Slurry Abrasive Concentration and Pro"
  }
 }

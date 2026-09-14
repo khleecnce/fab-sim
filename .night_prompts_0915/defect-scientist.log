@@ -1,0 +1,39 @@
+완료했습니다. 최종 보고입니다.
+
+## 학습 완료 보고 — defect-scientist Lv3-1
+
+**단원**: 최신 리뷰 — 결함 자동 분류(ML)·근본원인 분석(RCA) 방법론
+
+### 작성 노트
+`knowledge/cmp/ml-defect-classification-and-rca-methodology.md`
+
+### 자가검사 결과 (커밋 전 필수)
+- **verify_claims.py**: ✅ PASS — 출처 5건 실존(DOI 전수 조회), 코드 1블록(A–D) 통과, 출처없는 수치주장 0
+- **check_knowledge.py**: ✅ PASS
+
+### 확보한 것 (scope 상한 6건 내, 5건 사용)
+| 출처 | 유형 | 전문 |
+|---|---|---|
+| Wu 2015 (WM-811K 원출처, IEEE TSM) | 데이터셋 출처 | 유료→2차인용(분포는 OA가 재수록·산술검증) |
+| Shin & Yoo 2023 (Sensors, CC-BY) | 1차 OA | 확보 |
+| Shi 2026 SemiWaferNet (Electronics, CC-BY) | 1차 OA | 확보 |
+| **Choi 2010 (JES) — CMP 특화 1차 RCA** | 1차 | **확보**(Northeastern OA, exa web_fetch로 본문+Table 전량) |
+| Lin 2019 iDO (SEMI ASMC) — CMP 특화 ADC | 1차 | 초록만(E5, 전문 봉쇄) |
+
+### 다룬 내용
+- **(a) ADC**: WM-811K(811,457맵/172,950 라벨/638,507 미라벨/9클래스, None 85.24% 불균형). 성능 재계산 — **F1=2PR/(P+R)**로 Shi 2026 Table 5 9클래스 전부 재현(최대오차 0.006%p, macro-F1 98.35%). 경량 전이CNN macro-F1 89.5%(acc 98%)~반지도 CNN-Transformer 98.6%. **자명분류기 정확도 85.24% vs macro-F1 0.095**로 "정확도 부풀림" 정량화.
+- **(b)(c) CMP RCA**: Choi 2010 — 스크래치 길이(~2µm=응집체 약소스 / >8µm=패드·디스크 debris 강소스)·폭→소스직경 ~0.5µm(Eusner R_est와 교차확증)·1µm 대입자 49 vs 26=1.88배. Lin 2019 — 형상 ADC+commonality/excursion.
+- **§8 규칙 후보 표(시그니처→원인→근거, R1–R6)** — Lv3-2 설계 입력.
+
+### 정직성 표기
+- WM-811K 미라벨 수 원문 충돌(639,507 vs 638,507) → 총계 811,457과 정합하는 **638,507 채택**(EVIDENCE-RULES §④)
+- Lin 2019 전문 미확보 → **초록만 E5**(방향/오더로만); R5(Center편중) CMP 전용 1차 매핑 미검증
+
+### 부수 갱신
+- `agents/defect-scientist/EXAMS.md` — Lv3-1 3문항+모범답안
+- `PROFILE.md` — 이수기록 + 구현요청 2건(RCA 규칙 커널, 불균형 ADC 평가지표)
+- `CURRICULUM.md` — Lv3-1 `[x]`
+- `papers/INDEX.json` — 4건 등록, 임시 파일 정리
+- 메모리 — 재사용 수치·접근경로 기록
+
+sim/ 미수정, git 커밋/push 안 함(총괄 몫). 검사장비(Lv1-1)·수율모델(Lv2-2)은 링크로만 참조하고 재서술하지 않았습니다.

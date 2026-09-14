@@ -1,0 +1,22 @@
+작업을 완료했습니다.
+
+## 완료 보고 — film-nitride Lv3-1
+
+**작성 노트**: `knowledge/materials/film-nitride-additive-selectivity-3dnand-review.md`
+
+**자가검사 결과**:
+- `verify_claims.py` → **PASS** (출처 5건 실존 · 코드 5블록 통과)
+- `check_knowledge.py` → **PASS**
+
+**단원 요구 (a)(b)(c) 커버리지**:
+- **(a) SiN 억제 첨가제 정량**: America 2004(ESSL, 원문완독) Table I 10종 스크리닝 — 프롤린 SiN 2·옥사이드 456 nm/min → 선택비 228:1 최고, 억제 요건 3종(카복실기+α위치+아민H). Penta 2013(Colloids Surf A, 원문완독) 첨가제별 소요농도(피콜린 0.1 vs 프롤린 2 wt%)·흡착 포화(~100 mg/g 랑뮤어형). **핵심 발견**: 억제는 (농도)×(pH 창) 이중 스위치 — 헨더슨-하셀바흐 f=1/(1+10^(pH−pKa))로 "피콜린산이 pH5는 억제·pH9.6은 무력"이라는 겉모순을 정량 해소(python verify [B]).
+- **(b) 역선택비/촉진**: America pH 창(pH11서 최소 대비 ~10배 촉진), Praveen 2014(MEE, 원문완독) La 24–31 wt% 상용세리아서 프롤린 무력화 — 적극적 역선택비 화학(Ce³⁺·카복실기)은 Lv2-2 링크로 중복 회피.
+- **(c) 3D NAND**: Zhao 2025(Appl. Surf. Sci., 초록 E5) 요구 SiO₂:Si₃N₄ ≈30:1(STI 블랭킷 100–290보다 낮음), 실측 3606.1/101.6 Å/min=35.49 — 자기정지 아닌 "예산관리형" 레짐임을 Lv2-1 손실예산과 연결.
+
+**출처 5건**: 1차 4건(America 2004·Penta 2013·Praveen 2014 원문완독 3건 미러 사이트→미러 사이트 확보, Zhao 2025 초록 E5), 최신 리뷰 1건(Springer 챌린지로 전문 미확보·정성 프레이밍만). DOI 5건 전부 Crossref 실존 확인. `papers/INDEX.json` 3편 등록.
+
+**정직성**: 원문 Table I의 알라닌 산술 불일치(455/18=25.3≠인쇄값 30.3, ~17%, 원인 미상)를 숨기지 않고 verify 블록·본문에 명시. Zhao 2025·리뷰의 미확보를 §8에 E5로 표기.
+
+**갱신**: EXAMS.md(Lv3-1 3문항+답), PROFILE.md(이수기록+구현요청 2건: pKa 기반 pH 게이트, 3D NAND 예산관리형 프리셋), CURRICULUM.md 체크박스 [x]. film-nitride 외 에이전트 파일·sim/은 미수정. git 커밋은 하지 않았습니다(총괄 담당).
+
+*참고: `git status`에 보이는 defect-scientist·film-w 변경은 동시 실행 중인 다른 워커의 것으로, 제가 건드리지 않았습니다.*

@@ -1,0 +1,28 @@
+완료했습니다. 모든 자가검사를 통과했습니다.
+
+## 작업 요약 (film-w Lv3-2: W Kp·산화 속도 파라미터 + 문헌값 재현)
+
+**작성 노트:** `knowledge/cmp/w-cmp-preston-kp-oxidizer-rate-literature-reproduction.md`
+**자가검사:** `verify_claims` **PASS**(출처 7건 실존·코드 3블록 통과·출처없는 수치 0) / `check_knowledge` **PASS**
+
+### 핵심 결과
+
+**(a) Kp = MRR/(P·V) 역산** — 3개 독립 1차 문헌:
+- lim2013(6 psi/70 rpm/117.7 nm/min) → 5.0e-14
+- US8070843B2(4 psi/79 rpm/296.5 nm/min) → 1.67e-13
+- Stojadinović 2016(5 psi/50 rpm/150 nm/min) → 1.07e-13
+- **중앙값 1.1e-13, 범위 5e-14~1.7e-13 m²/N.** 팩값 **2.8e-13은 ~2.6배 계통 과대**(R_cc 밴드 1.8~3.4배). 자릿수는 일치. V(선속도)를 어느 문헌도 안 주고 rpm만 줘서 R_cc=0.13m 가정이 지배 오차 → **confidence estimated 유지 권고**.
+
+**(b) Preston 선형성** — 레짐 분기(평균 금지, EVIDENCE-RULES §3): Wang 2012 선형실측(기계율속) / Bouvet 2002 화학율속 포화(a→0) / Stojadinović 2016 모델 P^0.5. 직접 실측이 선형을 지지하므로 **팩 선형(a=b=1) 유지**, P^0.5는 모델(E4)이라 미채택.
+
+**(c) 산화제 농도-MRR** — 세 산화제 포화농도가 100배 규모로 다름: Fe(NO₃)₃ **~0.1 wt%** / KIO₃ **~2 wt%** / H₂O₂ **>6.1 wt%(정점 미도달)**. 팩이 oxidizer=Fe(NO₃)₃로 선언하면서 곡선은 H₂O₂ 스케일로 캘리브레이션 → **30~60배 불일치**를 확인(구현요청 P1로 등록).
+
+**(d) 온도의존** — Wang 2012 선형 T-MRR + Arrhenius, Kaufman 정성. **Ea(kJ/mol) 수치는 미확보**(방향만 1차 확정).
+
+### 신규 확보 원문
+- Stojadinović 2016 (J.Bio-Tribo-Corros., EPFL, DOI 10.1007/s40735-016-0041-4) — 미러 사이트→미러 사이트 경유 PDF 확보. `papers/`에 저장, `INDEX.json` 등록.
+- Wang 2012 (ECST 10.1149/1.4717508) 로컬 PDF에서 텍스트 추출·등록.
+
+### 갱신 파일
+`CURRICULUM.md` Lv3-2 [x] · `PROFILE.md` 이수기록+구현요청 P1 · `EXAMS.md` Lv3-2 3문항 · `INDEX.json` 2건.
+지시대로 `knowledge/params/*.yaml`·`sim/`은 건드리지 않았고 커밋도 하지 않았습니다(총괄/크론 판정 대기).

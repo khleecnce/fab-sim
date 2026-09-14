@@ -1,0 +1,4 @@
+✓ pre-push: 클린 트리 테스트 통과
+To https://github.com/khleecnce/fab-sim.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at ed6dd52a51e4940b13dcab143e68ee6f52cf0385 but expected 33871d8160f1bdbc9941188c6e71b74cd1568b55)
+error: failed to push some refs to 'https://github.com/khleecnce/fab-sim.git'

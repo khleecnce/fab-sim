@@ -1,0 +1,22 @@
+완료했습니다. 한국어로 요약 보고합니다.
+
+## 작업 요약 — film-w Lv3-1 (3D NAND 워드라인 W CMP, 저결함 W 슬러리)
+
+**작성 노트**: `knowledge/cmp/w-cmp-3dnand-wordline-bulk-buff-two-stage-low-defect.md`
+
+**자가검사 결과**:
+- `verify_claims.py` → **PASS** (출처 7건 실존 · 코드 3블록 통과 · 출처 없는 수치주장 0)
+- `check_knowledge.py` → **PASS**
+
+**핵심 내용 (세 하위주제 모두 커버)**:
+- **(a) 3D NAND 특수성**: 스테어케이스 콘택·플러그·인터커넥트의 두꺼운 W → 고 MRR·throughput, EOE(fanging)·고립라인 국소부식, 확장 오버폴리시 내성. (WL 게이트 자체는 CMP 아닌 에치백임을 정직 표기)
+- **(b) 저결함 3축**: 입자(표면개질·ζ 제어) × 산화제/억제제(Fe³⁺/H₂O₂/글리신) × pH 완충(pKa≥4로 부산물 산성화 상쇄).
+- **(c) 벌크 vs 버프 2단계**: 벌크 W ~318 nm/min·W:TEOS 40–61:1(고선택) vs 버프 39–67 nm/min·1.09–2.56:1(비선택). 버프 비선택으로 배열 침식 15.4→0.9 nm(−94%) 편평화 — Yu 2009 산화막버프 모델의 실물.
+
+**출처 (1차 특허 4건 + 보조 초록 1)**: Cabot `US20190211228A1`(벌크)·`US20190211227A1`(버프), Versum `EP3597711B1`·`KR102732305B1`, 보조 Wang 2024(DOI 10.1149/2162-8777/ad60fe, E5). 벌크/버프는 freepatentsonline WebFetch로 판독하고 보고 선택비를 RR로 역산해 전사 정확도를 verify에서 자체 대조.
+
+**형제 영역 준수**: 입경↑→W MRR↑ 관측은 표면개질·ζ 다중교란이라 EVIDENCE-RULES 판정#6을 뒤집지 않고 입경-MRR 지수 추출(slurry-abrasive 영역)은 하지 않음을 명시. WO₃/Fenton은 링크 참조만.
+
+**갱신 파일**: EXAMS.md(Lv3-1 3문항), PROFILE.md(이수기록·구현요청 2건 P2/P3), CURRICULUM.md(체크박스 `[x]`). 메모리 2건 기록.
+
+`sim/` 미변경, git 커밋/push 미실행(총괄 담당).

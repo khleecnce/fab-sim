@@ -1,0 +1,27 @@
+완료했습니다. 최종 보고입니다.
+
+## 작업 완료 보고 — slurry-colloid Lv3-1
+
+**⚠ 먼저 확인한 불일치**: 절차문은 `--agent defect-scientist` / `agents/defect-scientist/`를 지목했으나, 담당 에이전트·선행 노트 4편·단원 주제·EXAMS 참조가 모두 **slurry-colloid**였고, `agents/slurry-colloid/CURRICULUM.md`의 Lv3-1이 "응집 억제 첨가제, 실시간 입도 모니터링"과 정확히 일치했습니다(defect-scientist Lv3-1은 ML 결함분류로 무관). 템플릿 오류로 판단하고 **slurry-colloid**로 진행했습니다.
+
+**작성한 노트**: `knowledge/slurry/aggregation-inhibitor-additives-inline-psd-monitoring.md`
+
+**게이트 결과 (둘 다 PASS)**:
+- `verify_claims.py`: ✓ **출처 10건 전부 실존, 코드 5블록 전부 통과, 출처없는 수치 0**
+- `check_knowledge.py`: ✓ 통과
+
+**확보한 출처 5건** (형제영역=합성/제형 배제, 안정화·모니터링 관점만):
+- (a) 첨가제 — Hwang 2024 `10.3390/polym16243593`(고분자 EAA 분산제, 전문 JATS) / Mei 2024 `10.3390/ma17194901`(SHMP 전해질형, 전문 JATS)
+- (b) 모니터링 — Lee 2020 `10.1038/s41598-020-71768-3`(LPC Poisson 통계, 전문) / Hussels 2024 `10.1063/5.0165811`(SPOS, **초록만·본문 봇차단→E5**) / Cho 2026 `10.1088/1361-6501/ae6ba6`(Nano-LPM, **초록만·E5**)
+- AIP·IOP는 perfdrive/radware 캡차로 원문 봉쇄 → 초록 명시값만 인용하고 미검증 표기.
+
+**핵심 정량 발견** (모두 python verify 재현):
+- **고분자 분산제 = 단조 안정화** vs **전해질형 SHMP = ∩형(최적점)**: EAA 5→7wt%에서 제타 42.9→52.1mV↑·입경 281.6→227.2nm↓·점도드리프트 0.39→0.03cP↓(세 지표 일치); SHMP는 0.5wt% 최대 후 과투여 재-불안정화.
+- **폐형식 재현(요청사항)**: 측정 제타·입경을 DLVO+Smoluchowski W에 대입 → ζ²(×1.47)가 반경감소(×0.81)를 이겨 순장벽 D5 80kT→D7 117kT 단조증가, **W(D7)/W(D5)≈10¹⁶배**. 절대값은 이온강도 가정 의존→방향만 검증(E3).
+- **모니터링 Poisson 바닥**: 상대오차 E=z/√(nλ), 기기무관. 희석 δ=60이 오차 √60배 악화, 꼬리(λ~50)는 교정 R²와 무관하게 ~16% — "선형성(계통)≠계수통계(우연)".
+
+**상호링크**: 선행 4개 노트 + cmp 콜로이드/LPC 노트 전부 연결(고립 아님).
+
+**부수 갱신**: `EXAMS.md` Lv3-1 3문항+모범답안 추가 / `PROFILE.md` 이수기록·구현요청(5) 추가 / `CURRICULUM.md` Lv3-1 `[x]`.
+
+**준수 사항**: `sim/` 무변경, git 커밋/push 안 함. (참고: `knowledge/cmp/ceria-slurry-ce-redox-selectivity.md`가 M으로 뜨나 제 작업이 아닙니다 — 병행 프로세스 흔적으로 보이며 건드리지 않았습니다.)

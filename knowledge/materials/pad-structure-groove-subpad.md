@@ -24,7 +24,11 @@ IC1000™/IC1010™ Datasheet, 2024-04-09, https://pureon.com/wp-content/uploads
 - Shore D 60은 pad-mechanic Lv1-1 노트에서 언급한 상용 패드 범위(60–90, US Patent 10391606)의
   하한부에 해당 — 상대적으로 유연한 축에 속하는 CMP 하드패드.
 - 적용 공정: W(텅스텐)/Cu/ILD/STI/폴리실리콘 — 즉 IC1000이 다양한 재료계에 범용으로 쓰이는
-  "표준" 하드패드임을 확인 (앞서 Lv2-1 preston.py에서 참조한 STI 254 nm/min 문헌값과 동일 패드 계열).
+  "표준" 하드패드임을 확인. ⚠ 이전 판본은 여기에 "Lv2-1 preston.py가 참조한 STI 254 nm/min
+  문헌값과 동일 패드 계열"이라 적었으나, **그 254.05 nm/min은 2차 인용**이고
+  ([[../cmp/preston-luo-dornfeld-mrr]] §3 코드 주석이 "*2차 인용*"으로 명시) 그 출처가
+  IC1000 패드를 썼다는 서술은 어디에도 확인되지 않는다 — **패드 계열 동일성 주장은 근거가
+  없으므로** 본 판본에서 철회한다. 데이터시트가 실제로 보증하는 것은 "적용 공정 목록에 STI가 있다"까지다.
 
 ## 2. K-groove 패턴
 
@@ -91,7 +95,61 @@ PMC6523751 (오픈액세스 CC-BY), DOI: 10.3390/mi10040258**
    이력의 함수**임을 뜻함 — v0 GW 구현 시엔 우선 정적 파라미터로 고정하고, disk-conditioner
    에이전트 지식이 쌓이면 동적으로 갱신하는 것으로 범위를 명확히 유보.
 
-## 미검증 목록
+## 6. 검증 — 데이터시트 수치 재현과 인용 정합성 감사 (2026-09-15 부채상환)
+
+이 노트는 `check_knowledge.py`는 통과했으나 `verify_claims.py`에서 **검증 코드 블록 없음**으로
+반려 상태였다(22편 중 21편이 같은 상태였던 그 부채). 아래 블록이 ①단위 환산 ②이 노트를
+`source:`로 지목하는 팩 파라미터의 정합성을 기계로 잠근다.
+
+**감사 결과(중요)**: `knowledge/params/base.yaml::groove_depth_mm = 0.76`(= 30 mil)이
+이 노트를 `source:`로 지목하고 confidence `literature`를 달고 있었는데, **이 노트는 §2에서
+"K-groove 수치 치수는 비공개", §7 목록에서 "K-groove 정확한 치수(깊이·폭·피치)"를
+**근거 미보유**로 명시**하고 있다 — 즉 팩이 이 노트가 갖고 있지 않은 수치의 근거로 이 노트를
+인용하고 있다. 노트를 고쳐 수치를 만들어 내는 것은 할루시네이션이므로 하지 않는다.
+대신 아래 assert가 **그 불일치를 사실로 고정**하고, 올바른 1차 출처를 가진
+[[pad-groove-geometry-contact-area-flow-resistance]](Rosales-Yeomans 2005 IC1000 3종,
+깊이 400 µm 실측 / Zhao 2022 깊이 1.2 mm 최적점)로 `source:` 재지정이 필요함을 신고한다.
+이것은 이 노트가 아니라 팩 YAML의 결함이므로 담당(pad-structure)에게 이관한다.
+
+```python verify
+# ── ① 데이터시트 단위 환산 재현 (Pureon IC1000/IC1010 2024-04-09) ──
+MIL_TO_M = 25.4e-6                      # 1 mil = 1/1000 inch = 25.4 µm
+ic1000_m = 50 * MIL_TO_M
+ic1010_m = 80 * MIL_TO_M
+assert abs(ic1000_m - 1.27e-3) < 1e-9, f"IC1000 50mil 환산 {ic1000_m}"
+assert abs(ic1010_m - 2.03e-3) < 1e-5, f"IC1010 80mil 환산 {ic1010_m}"   # 2.032e-3 ≈ 2.03e-3
+assert abs(ic1010_m / ic1000_m - 1.6) < 1e-12, "두께비 80/50 = 1.6 — 경도(Shore D 60)는 동일"
+
+# ── ② 이 노트를 source로 지목하는 팩 파라미터 감사 ──
+# 노트가 실제로 담고 있는 정량값은 데이터시트 3종(압축률·Shore D·두께)뿐이다.
+import re, pathlib
+note = pathlib.Path("knowledge/materials/pad-structure-groove-subpad.md").read_text()
+assert "수치 치수는 비공개" in note, "§2가 K-groove 치수 비공개를 명시해야 한다"
+assert "K-groove 정확한 치수" in note, "§7 목록에 K-groove 치수가 있어야 한다"
+
+base = pathlib.Path("knowledge/params/base.yaml").read_text()
+# 이 노트를 source로 쓰는 블록의 키 이름을 모은다
+keys = re.findall(
+    r"^  (\w+):\n(?:(?:    .*\n|\s*\n)*?)    source: knowledge/materials/pad-structure-groove-subpad\.md",
+    base, re.M)
+print("이 노트를 근거로 인용하는 팩 키:", keys)
+
+SUPPORTED = {"pad_thickness_m"}          # 데이터시트가 실제로 보증하는 값
+for k in keys:
+    if k in SUPPORTED:
+        continue
+    # 노트가 근거 미보유로 선언한 축(groove 치수)을 이 노트 근거로 쓰고 있으면 결함
+    assert "groove" in k, f"예상 못 한 인용 키 {k} — 감사 범위를 넓혀야 한다"
+    print(f"⚠ 출처 불일치: base.yaml::{k} 가 이 노트를 인용하지만 "
+          f"이 노트는 groove 치수의 근거를 갖고 있지 않다 → pad-structure 이관")
+
+# 불일치가 실제로 존재함을 고정한다(해소되면 이 assert가 깨져 재판정을 강제한다)
+assert any("groove" in k for k in keys), \
+    "groove 치수 인용이 해소됐다면 이 절의 감사 기록을 갱신하라"
+print("감사 완료 — 데이터시트 환산 2건 재현, 출처 불일치 1건 신고")
+```
+
+## 7. 근거 미보유 목록 (갱신 2026-09-15)
 - IC1000 실제 기공 크기·기공률 정량값 (데이터시트 비공개)
 - K-groove 정확한 치수(깊이·폭·피치)
 - Circular vs circular+radial groove의 CFD 정량 비교 결과 (페이월)

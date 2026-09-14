@@ -6,7 +6,13 @@ source: >
   원 단위 Å/min → ÷10으로 nm/min 환산.
   https://patents.google.com/patent/US20110165777A1/en
 in_scope: true
-used_for_calibration: false
+# 2026-09-14 (EVIDENCE-RULES 판정#20): false -> true.
+# 이 파일의 TABLE 2 4점(H2O2 0/0.25/0.5/1.0 wt%)에 cu_h2o2_bta 팩의
+# oxidizer_passivation_K(=0.8232)를 최소자승으로 적합했다. 따라서 이 데이터셋으로
+# 그 팩을 채점하면 자기 채점(self-scoring)이다 — qa_loop F4가 정확히 이것을 잡아냈다.
+# 근거 노트: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md §5
+# (교차확인에만 쓴 us9200180b2_cu_h2o2_series 는 적합에 쓰지 않았으므로 held-out 유지)
+used_for_calibration: true
 pack: cu_h2o2_bta
 
 # 피연마재(특허 명시): 전해도금 구리 블랭킷 웨이퍼

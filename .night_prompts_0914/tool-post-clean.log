@@ -1,0 +1,22 @@
+완료했습니다. 기존 메모리(fabsim-literature-access-fallbacks.md 152번 줄)에 이미 "미러 사이트이 JJAP DOI에 무관한 논문을 내줄 수 있으니 1쪽 제목 fitz 확인" 및 "Referer 미러 사이트 경로"가 기록돼 있어 오늘 겪은 것과 동일 — 중복 기록하지 않습니다.
+
+---
+
+## 작업 완료 보고 — tool-post-clean Lv2-2
+
+**작성 노트**: `knowledge/cmp/post-cmp-megasonic-marangoni-drying-watermark.md`
+
+**검증 결과**: 둘 다 **PASS**
+- `verify_claims.py` → ✓ (출처 7건 실존·코드 1블록 통과·출처없는 수치주장 0)
+- `check_knowledge.py` → ✓ (분량·출처·구조·상호링크·정직성·1차출처·정량재현 모두 충족)
+
+**확보한 정량 (요구 (a)(b)(c) 모두 충족)**
+- **(a) 메가소닉**: 주파수 대역(초음파 20–200 kHz vs 메가소닉 0.7–2 MHz), 파워밀도 **0.5–1.5 W/cm²·60–600 s**(Wortman-Otto 2022, 전문), **과출력→결함증가 손상 문턱**(Li K 2022, 초록). 음향 경계층 폐형식 **δ_s=√(2ν/ω)** → 0.5/1/2 MHz에서 0.80/0.56/0.40 µm를 python으로 재현, "경계층 축소→서브µm 입자 제거"(Wortman-Otto 서술)와 정합.
+- **(b) 마랑고니/IPA 건조**: **LLD 법칙 h=0.94·l₀·Ca^(2/3)** (V₀=1 mm/s→1.47 µm, h∝V₀^(2/3) 재현), 접촉각 의존 **V_cri**(구리 8·유리 2 mm/s→마랑고니 시 >20 mm/s), IPA 0.03 g/min에서 **잔류입자 1 자릿수↓**(Li C 2019, 전문 PDF 확보).
+- **(c) 워터마크 메커니즘**: 잔류 microdroplet 속 **O₂ 확산→실리콘 산화물/수화물(FTIR) 석출**, 소수성 low-k에서 심함, **N₂-UPW로 억제**(Miyamoto 2006, 초록).
+
+**소스 6건**(상한 준수, 1차 전문 3건): Wortman-Otto 2022(전문)·Li C 2019(PDF)·Ng 2007(PDF) + Li K 2022·Miyamoto 2006·Ito 2009(초록). 모든 DOI Crossref 실존 확인.
+
+**신규 PDF 2건** `papers/`에 저장 + `INDEX.json` 등록: `li2019-jss-marangoni-drying.pdf`, `ng2007-esl-nanoparticle-removal-postcmp.pdf` (미러 사이트→미러 사이트, Referer 헤더 경로).
+
+**갱신**: EXAMS.md Lv2-2 3문항+모범답안, PROFILE.md 이수기록+구현요청 2건, CURRICULUM.md `[x]`. **선행노트 3개와 상호링크** 완료, 형제영역(surface-contamination 금속화학, defect-scientist 결함분류) 침범 없음, sim/ 무변경, git 미커밋(총괄 담당).

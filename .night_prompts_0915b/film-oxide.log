@@ -1,0 +1,40 @@
+두 도구 모두 통과했고, `knowledge/params/`·`sim/`은 손대지 않았다(git status 빈 출력). 작업을 마무리한다.
+
+## 작업 완료 보고 — film-oxide Lv3-2
+
+**작성 노트**: `knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md`
+
+**검증 결과**: 
+- `verify_claims.py` **PASS** (출처 5건 실존·verify 4블록 통과·출처없는 수치주장 0)
+- `check_knowledge.py` **PASS**
+
+### 핵심 산출: 막질별 Kp 배율 표 (thermal oxide = 1, 실리카 슬러리 전용)
+
+1차 문헌 3편(전부 원문 확보·완독)으로 만들었다:
+- **Wei 2010** (IEEE WMED, 콜로이달 실리카) — Lv1-1이 "그래프라 못 읽음"으로 남긴 Fig.1/2를 8× 렌더 판독해 미도핑 5종 경도·MRR 수치화
+- **Liu 1995** (Thin Solid Films, fumed silica/KOH) — 모든 값이 **wet thermal oxide 기준 정규화**라 thermal=1 절대 앵커를 직접 제공
+- **Mariscal 2020** (ECS JSS, 콜로이달 세리아) — 세리아 HDP≪PETEOS
+
+| 막질 | 상대 Kp | 절대 Kp 제안 | 등급 |
+|---|---|---|---|
+| thermal | 1.00 | 0.74e-13 | E3/literature |
+| TEOS | 1.35 | 1.0e-13(현행앵커) | E4다리 |
+| HDP/SOD/Silane/O₃-TEOS | 1.30~1.50 | 0.96~1.11e-13 | E3/literature |
+| PSG(5.6%P) | 2.9 | 2.15e-13 | E3/literature |
+| BPSG(4.9%B) | 4.6 | 3.40e-13 | E3/literature |
+
+⚠ 상대비 열은 literature(1차 실측), **절대 Kp 열 전체는 estimated**(교차논문 다리+앵커 곱).
+
+### 과제 요구 4항목
+- **(a)** 최소 3편으로 thermal=1 배율표 제시 ✓
+- **(b)** 정량 대조: 미도핑막은 경도로 **약하게만**(MRR∝H⁻⁰·²), 도핑막은 경도 무관·수화 확산(화학) 지배 — 밀도는 공개 정량값 부재로 정성만
+- **(c)** 세리아는 막질 민감도 축이 **경도(실리카)→밀도/화학(세리아)**로 달라 배율표 이식 금지 (실리카 HDP/TEOS=0.964 vs 세리아 HDP≪PETEOS)
+- **(d)** 선택비의 막질 의존은 분자(oxide RR)에서 옴 — 세리아 선택비 수치는 Lv2-2 노트 링크로 대체(재서술 금지), 형제 영역 침범 없음
+
+### 기타 갱신
+- `EXAMS.md` Lv3-2 3문항 추가
+- `CURRICULUM.md` Lv3-2 `[x]` (6/6 완료)
+- `PROFILE.md` 이수기록 + 구현요청 [P5](kp 막질 분화)·[P6](세리아 배수 미완 과제)
+- `papers/INDEX.json` liu1995 등록
+
+`sim/`·`knowledge/params/*.yaml` 미변경(성장엔진 판정 대기), git 커밋 안 함.

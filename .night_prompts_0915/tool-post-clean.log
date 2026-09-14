@@ -1,0 +1,26 @@
+모든 검사 통과, 상호링크 무결, INDEX 유효합니다. 작업을 완료했습니다.
+
+## 완료 보고 — tool-post-clean Lv3-1
+
+**작성 노트**: `knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md`
+**자가검사**: `verify_claims.py` **PASS**(출처 6건 실존·코드 1블록 통과·출처없는 수치 0) / `check_knowledge.py` **PASS**
+
+### 핵심 성과 — 나노입자 제거 한계의 정량 물리
+지시대로 vdW 부착력과 유체 항력의 입경 스케일링을 python으로 계산·대조하고 임계 입경을 도출했습니다.
+- **부착력 ∝ R**(vdW, Zhang1999 Eq.6 / Ng2007), **유체 항력 ∝ R²**(Zhang1999 Eq.14) → **F_D/F_a ∝ R**. 작은 입자일수록 유체 제거력이 부착력보다 빠르게 사라짐.
+- Ng 2007 부착력 경계값(3.087e-9 / 1.544e-8 N)을 **오차 1% 이내로 정확 재현** → 각각 입경 100 / 500 nm에 대응.
+- **임계 반경 R_crit ≈ 385 µm**(대표 G=5000/s): 서브µm·나노 입자는 유체역학적으로 제거 불가 → 접촉력(브러시)·음향·화학 병행 필수(Zhang 결론과 합치).
+- **¼피치 관리임계(지름 10 nm) 입자는 250 nm 대비 유체 제거 25배 불리** → advanced node 갭을 정량화.
+
+### 확보 원문 (1차 전문 3건, papers/INDEX.json 등록)
+1. **Zhang, Busnaina, Ahmadi 1999** JES, DOI 10.1149/1.1391989 — 부착/제거력 폐형식 (신규, 미러 사이트→미러 사이트)
+2. **Seo, Vegi, Babu 2019** ECS JSST, DOI 10.1149/2.0011908jss (OA CC-BY) — Cu/Co 갈바닉 억제 En/Cys/UA, ΔEcorr 40→5mV·Igc 0.7µA/cm² (신규)
+3. **Ng et al. 2007** ESL (Lv2-2 확보분 정량 심화 재사용)
+
+E5(초록/제목/스니펫)로 apsusc 2026 sub-10nm 세리아·Co forward design 2023·비이온 계면활성제 2024를 최신 동향으로만 인용, 미검증은 5건 이하로 관리. (c) advanced node killer 규칙은 기존 노트 §5 상호링크로 처리(침범 없음).
+
+### 산출물
+- **§8 모델 후보 표**(입경·재료·세정조건→PRE→문헌값, 근거등급 병기) — Lv3-2 잔류확률 모델 설계 입력
+- EXAMS.md Lv3-1 3문항 추가, PROFILE.md 이수기록+구현요청 3건, CURRICULUM.md `[x]` 갱신
+
+주의점 정직 표기: 벽전단률 G는 Zhang 미명시→역산 가정값이라 R_crit은 오더로만 주장, 제거력 3승 항은 R²까지만 확보, sub-10nm 세리아·계면활성제 PRE는 원문 봇차단으로 E5. git 커밋은 하지 않았습니다(총괄 담당).
