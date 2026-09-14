@@ -2433,3 +2433,20 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
 - 진도 137/168(81.5%) · 속도 8.21단원/일 · 완주예상 2026-09-17(2027-01 목표 대비 여유).
 - 다음 회차 후보: defect-scientist Lv3-1 재시도(Δ·d99), film-w Lv3-2, tool-endpoint Lv3-1,
   그리고 **G1 상쇄용 in_scope:false 5셋의 팩 부재 해소**(데이터 확보보다 팩 추가가 싸다).
+
+## 2026-09-14 18:00 [성장엔진] 판정#21 — UNWIRED 갭 4건 전부 "이미 종결된 건"으로 판명, 랭킹 43→39
+- 갭 랭커가 4회차 연속 최상위(점수 60)로 올린 UNWIRED 4건(입경 D50·groove depth·pitch·asperity tip
+  radius)을 실제 엔진 응답으로 검증한 결과 **한 건도 미배선이 아니었다.** 랭커는 UI의 `dead:` 문자열
+  (E5, 2차 신호)을 근거로 썼고, 그 문자열은 판정#1·#6·#8·#10이 내려지기 전에 쓰인 잔류물이었다.
+- 실측(엔진 직접 실행, abrasive_size_nm 40~200 nm 스윕):
+  oxide_silica 106.2→267.6(80nm 정점)→197.2 / sti_ceria 183.2→1163.5(160nm)→1114.0 (판정#10 정점
+  163 nm와 일치) / sic_ceria_h2o2 동형 / cu_h2o2_bta 500.545 **완전 평탄** · w_fe_oxidizer 400.436
+  **완전 평탄** — 후자 둘은 `abrasive_size_exponent=0.0`(판정#1·#6 null 채택)의 의도된 결과다.
+  groove depth/pitch는 2026-09-13 3회차 규칙으로 스코프 축소 종결, asperity R은 GW 모델 조건부.
+- 조치: UI 배지에 `closed:`(⏹ closed by evidence ruling)를 신설해 `dead:` 4건을 교체하고 판정 근거와
+  위 측정 수치를 본문에 명기. **모델 코드·파라미터 값은 한 줄도 바꾸지 않았다** — 바꿀 게 없다는 것이
+  이 회차의 결론이다. EVIDENCE-RULES 판정 #21로 기록.
+- 검증: pytest 675 PASS · qa_loop --strict PASS(유의 7/21, ρ=0.9537 → 0.9537 불변) · 완성격자 36/50 불변
+  · accuracy_gaps 43→39건(UNWIRED 4→0). 다음 1순위는 PARTIAL χ(3팩, 드라이버 2개 중 활성 1개).
+- 교훈(재발방지): null 결론을 낸 축은 UI에서도 "미배선"과 구분 표기해야 한다. 안 그러면 κ 입경 5회차
+  순환과 같은 무한 재조사가 랭커를 통해 되살아난다.

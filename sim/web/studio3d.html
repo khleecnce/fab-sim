@@ -111,6 +111,7 @@
   .meta{font-size:10px;color:var(--dim);margin-top:3px;line-height:1.45}
   .dead{color:var(--warn)}
   .weak{color:#8ab4d8}
+  .closed{color:#9aa0a6}
   #out{border-top:1px solid var(--line);padding:11px 14px;background:var(--panel2);
        max-height:44vh;overflow-y:auto;flex-shrink:0}
   .row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
@@ -245,7 +246,7 @@ const PARTS = {
       {k:"abrasive_d10_nm", l:"Particle Size D10", u:"nm", min:5, max:300, step:5, pk:null,
        dead:"Recorded only. The engine consumes D50 (below) — no D10 term exists in the literature we hold."},
       {k:"abrasive_size_nm", l:"Particle Size D50", u:"nm", min:5, max:300, step:5, pk:"abrasive_size_nm",
-       dead:"Size exponent unresolved in literature (OCR-damaged source) — no term built. Left blank rather than invented."},
+       closed:"Wired, pack-dependent by evidence ruling. Oxide/ceria packs use a peak model (peak 80 nm silica / 163 nm ceria, ruling #10): 40→80 nm raises MRR 106→268 nm/min on oxide_silica, and ceria keeps rising to 163 nm. Cu and W packs are deliberately flat (exponent 0.0) — rulings #1 and #6 found the size→MRR effect null once particle-shape confounding was removed, confirmed by two independent W studies. A flat response here is a result, not a missing term."},
       {k:"abrasive_d90_nm", l:"Particle Size D90", u:"nm", min:5, max:600, step:5, pk:null,
        weak:"Recorded. Δ (Damage) will use D90/D99 for large-particle scratch risk once that axis is wired."},
       {k:"abrasive_mean_nm", l:"Particle Size Mean", u:"nm", min:5, max:300, step:5, pk:null,
@@ -286,9 +287,9 @@ const PARTS = {
       {k:"groove_width_um", l:"Groove Width", u:"µm", min:200, max:1200, step:25, pk:"groove_width_um",
        weak:"⚠ η peaks at 600 µm and drops again at 900 µm (Mu 2016 measured). Wider is not better. Outside 300–900 µm the end value is held, not extrapolated."},
       {k:"groove_depth_mm", l:"Groove Depth", u:"mm", min:0.2, max:1.5, step:0.02, pk:"groove_depth_mm",
-       dead:"Depth is not wired to τ yet — literature we hold quantifies only width and porosity. Changing it redraws the cross-section above but does not move MRR."},
+       closed:"Scope-closed 2026-09-13 (3-round rule). Depth→τ multipliers exist in Wei/Kim/Guo only as graph images with no extractable numbers, so no term was built rather than a guessed one. τ is modeled on groove width + porosity; depth redraws the cross-section only. Reopens if a paper with tabulated depth-series MRR appears."},
       {k:"groove_pitch_mm", l:"Groove Pitch", u:"mm", min:1, max:8, step:0.05, pk:"groove_pitch_mm",
-       dead:"Pitch not wired to τ either — same as depth. It does redraw the cross-section."},
+       closed:"Scope-closed 2026-09-13, same ruling as depth — pitch appears in the held literature only as un-digitizable plots. Redraws the cross-section; does not move MRR by design."},
       {section:"Surface Statistics (Greenwood–Williamson)"},
       {special:"padasperity"},
       {k:"pad_hardness_shore_d", l:"Hardness", u:"Shore D", min:0, max:100, step:1, pk:"pad_hardness_shore_d",
@@ -313,7 +314,7 @@ const PARTS = {
        weak:"⚠ 2026-09-11: five independent sources converge on 2.0e8 /m², ~500× below this value. Geometry also disagrees — at 1e11 the asperity spacing is 3.16 µm while the tip radius is 50 µm, so the hemispheres would interpenetrate. Pending a set-wise change (η together with R and σ); see the asperity panel above."},
       {k:"pad_asperity_radius_m", l:"Asperity Tip Radius", u:"m", min:1e-6, max:2e-5, step:1e-6,
        pk:"pad_asperity_radius_m", fmt:v=>v.toExponential(2),
-       dead:"Only active under the GW contact model (tier2.gw_physical_kp). Unused by the Preston model."},
+       closed:"Model-conditional, not unwired: active under the GW contact model (tier2.gw_physical_kp) and ignored by Preston, which folds asperity geometry into Kp. Switch the model in ⑥ to make this slider move the result."},
       {section:"Performance Factors (literature)"},
       {special:"perf", part:"disk"},
     ]},
@@ -1810,6 +1811,7 @@ function drawPanel(){
         <select id="s-${f.k}" data-k="${f.k}" class="recSel">${f.options.map(([v,l])=>
           `<option value="${v}" ${v===cur?"selected":""}>${l}</option>`).join("")}</select>
         ${f.dead?`<div class="meta dead">⚠ not wired: ${f.dead}</div>`:""}
+        ${f.closed?`<div class="meta closed">⏹ closed by evidence ruling: ${f.closed}</div>`:""}
         ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
         ${f.hint?`<div class="meta">${f.hint}</div>`:""}</div>`;
       continue;
@@ -1875,6 +1877,7 @@ function drawPanel(){
       <label><span>${f.l}</span><span class="val" id="v-${f.k}">${fmt(cur)} ${f.u||""}</span></label>
       <input type="range" id="r-${f.k}" min="${f.min}" max="${f.max}" step="${f.step}" value="${cur}">
       ${f.dead?`<div class="meta dead">⚠ not wired: ${f.dead}</div>`:""}
+        ${f.closed?`<div class="meta closed">⏹ closed by evidence ruling: ${f.closed}</div>`:""}
       ${f.weak?`<div class="meta weak">${f.weak}</div>`:""}
       ${f.hint?`<div class="meta">${f.hint}</div>`:""}
     </div>`;
