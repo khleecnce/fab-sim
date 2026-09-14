@@ -1,8 +1,8 @@
 # FabSim 모델 근거 보고서 (MODEL-BASIS)
 
-생성: 2026-09-14 17:07 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
+생성: 2026-09-14 17:47 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
 
-완성 판정: **미완** (32/50칸). 미충족 18건은 끝에.
+완성 판정: **미완** (36/50칸). 미충족 14건은 끝에.
 
 ## 0. 결합식
 
@@ -163,6 +163,12 @@ conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
 비선형이 F 선형항에 미반영이다. (1)과 (3)은 완화 가능한 근사가 아니라
 구조적 결측이므로, 개별 드라이버가 literature 등급이어도 모델 자체의
 신뢰도는 그보다 낮게 유지한다.
+
+**S(stab)와의 결합(2026-09-14)**: 같은 `aging(pcr_decay)` 배수 A(t_disk)가 S의 컨디셔닝 강도
+G = duty/100·A 에도 들어간다(knowledge/materials/pad-steady-state-glazing-conditioning-balance.md
+§3). Γ은 A를 절삭 **부하**로, S는 정상상태 **조도** R_ss=k_c G/(k_g+k_c G)로 변환한다 —
+한 함수를 공유하므로 드레서 마모의 이중 정의가 없고, 드레서 사용량↑ → Γ↓·S↓ 가 같은 부호다.
+PHM2016 실장비(드레서 사용량 vs MRR 저속군 ρ=−0.696)는 이 경로의 순위 검증이다(S 쪽 verify).
 
 ⚠ 여기는 **장비 설정**(하중·회전속도·duty)만 담는다. 디스크의 형상(그릿
 밀도·돌출)은 소모품이므로 κ/τ 쪽으로 간다. 이 분리를 지켜야 "디스크를
@@ -483,72 +489,62 @@ D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/
 ### 모델 정의 근거 (코드 docstring 그대로)
 
 ```
-S 시간 안정성 — 컨디셔닝 없는 연속 연마 중 MRR 드리프트(로그감쇠).
+S 안정성 — 글레이징률 vs 컨디셔닝 재생률의 균형이 정하는 정상상태 패드 조도.
 
-출처: Jeong, Shin, Jeong, Jeong, Jeong (2024), "Novel Probability Density
-Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
-1817, doi:10.3390/ma17081817 (PMC11051262, 전문 확보). Fig.9 정규화 MRR
-(IC1000 패드·콜로이달 실리카·SiO2 블랭킷·컨디셔닝 없이 1~10분 연속연마,
-2/5 psi 두 조건 pooled)를 rate=a+b·ln(t[min]) 로그감쇠 회귀(R²=0.74,
-지식노트 knowledge/materials/pad-glazing-mechanism-mrr-decay.md §4(D)가
-로그형이 선형보다 우수함을 별도로 확인)로 피팅해 시간축 인자로 편입.
-기준 조건(Recipe 기본 time_s=60s=1 min)에서 정확히 1.0 — ln(1)=0.
+모델 (knowledge/materials/pad-steady-state-glazing-conditioning-balance.md §1):
+    dR/dt = −k_g·R + k_c·G·(1 − R),   G = (duty/100)·A(t_disk),  A = exp(−t_disk/τ_aging)
+    R_ss  = k_c·G / (k_g + k_c·G)
+    S     = R_ss(G) / R_ss(G_ref)                       (G > 0, in-situ 균형; 시간 무관)
+    S     = exp(−k_g·(clamp(t,1,10 min) − 1 min))       (G = 0, 무컨디셔닝 — Jeong 2024 특수해)
+기준 조건(cond_ref_duty_pct=100, cond_ref_disk_usage_hours=0)에서 정확히 1.0.
 
-⚠ 도메인 한계: (1) 원 데이터는 실리카/IC1000 단일계이며 세리아·알루미나
-슬러리·다른 패드로의 외삽은 미검증(confidence=estimated로 강등).
-(2) 1~10분 범위 밖은 clamp(외삽 금지, 값 고정). (3) 이 회귀는 무-컨디셔닝
-단발 연마의 초기 드리프트만 담는다 — 컨디셔닝 사이클·패드 수명(수십 시간)
-누적 마모는 여전히 미모델링(담당 R3-pad×R4-disk, 실데이터 없음).
+파라미터 (base.yaml, 팩 5개 공통 — 패드 재질 성질):
+  k_g = 0.02796 /min  Jeong et al. 2024 (doi:10.3390/ma17081817) Fig.9 pooled 로그회귀
+                      (a=1.1478, b=−0.1109)의 10 min 손실 22.25%를 지수형으로 이식. 10 min 값은
+                      기존 로그감쇠와 동일(회귀 테스트), 중간점 R²는 exp 0.77 > log 0.64.
+  k_c = 4.08 /min     Jeong et al. 2022 ASPEN (doi:10.3850/978-981-18-6021-8_or-12-0224) Table 1
+                      3 psi → 30 s 완전 회복 + Jeong 2024 복원 허용폭 ±13% → ln(1/0.13)/0.5.
+  A(t_disk)           Γ과 같은 함수(sim/tier2_physics/conditioner_pcr_decay.pcr_decay, τ=27.4 h)
+                      — 드레서 마모가 Γ(절삭 부하)와 S(정상상태 조도)에 한 번씩, 같은 부호로 들어간다.
 
-⚠ 2026-09-13 EVIDENCE-RULES 판정#8 — pad_usage_hours·pad_wafer_count·
-disk_usage_hours를 드라이버 수집 대상에서 제외한다(스코프 축소, τ의
-groove_depth_mm 축소와 같은 패턴). 근거: Son & Lee 2021(doi:10.3390/app11083521)
-이 확보한 수십시간 축 MRR 드리프트(Case I 44.9%/16h vs Case II 7.4%/20h,
-6.1배 차이)는 **컨디셔너 구조(swing-arm 단일 vs 분할형 5구역)** 가 지배
-인자임을 논문이 직접 명시하는데, FabSim 팩은 컨디셔너 구조를 파라미터로
-갖지 않는다 — 어느 감쇠율(2.81%/h vs 0.37%/h)을 쓸지 근거가 없다.
-Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-1956-3)도
-같은 구조: PWR·MRR이 그릿 배열/타입에 갈리고 시간/웨이퍼수만으로는 안 갈린다.
-즉 이 시간축은 physically real 하지만, "장비 구성 변수"가 팩에 없어 이식할
-수 없다 — knowledge/materials/pad-usage-hours-conditioning-mrr-decay-son-lee2021.md
-§7(구현 요청)이 이미 이 선행조건을 명시했었다. 컨디셔너 구조가 팩 파라미터로
-추가되기 전까지는 이 세 드라이버를 걷어내는 것이 "빠진 항을 숨기는 것"이
-아니라 "반응 안 하는 죽은 드라이버를 정직하게 걷어내는 것"이다(PARTIAL이
-아니라 modeled로 승격 가능해짐 — time_s만 남은 드라이버와 완전히 일치).
+검증 (같은 노트 §4 verify):
+  · duty=0, t=10 min → 0.7775 = 기존 로그감쇠 값(1e−9 이내).
+  · PHM2016 실장비 477 웨이퍼(validation/raw/phm2016): S 순위 vs MRR 순위 저속군 ρ=+0.696
+    (원변수 드레서 사용량 −0.696의 부호 반전), 사용량→시간 배율 0.02/0.05/0.1 전부 동일 —
+    데이터가 은닉 배율로 스케일돼 있어 **순위만** 검증(절대값 금지, README).
 
-⚠ 2026-09-14 EVIDENCE-RULES 판정#9 **3회차 종결(영구 확정)** — 비-실리카 계
-(알루미나·세리아 4팩)의 시간축 MRR 감쇠 계수는 3개 회차(09-13·09-14·09-14)에
-걸친 탐색에서 확보 실패했다. 3회차 질의: find_open_access(세리아 시간감쇠) →
-doi:10.1007/s13391-012-2144-5(패드거칠기 축, 부적격) 1건뿐, OpenAlex OA 3질의
-(알루미나/W 글레이징·세리아 무컨디셔닝 연속연마·비실리카 패드글레이징) 18건 전부
-랩핑리뷰·세정·스크래치·무관분야로 시간축 무-컨디셔닝 MRR 감쇠 실측 0건.
-규칙상 4회차는 없다 → **스코프 축소로 종결**: S(stab)의 로그감쇠 계수
-(a=1.1478, b=-0.1109)는 **실리카 계에서만 literature** 등급이고, 비-실리카
-팩에서는 `estimated`가 하한이 아니라 **영구 확정값**이다(위 abrasive 분기).
-이는 "문헌을 더 찾으면 오른다"가 아니라 "이 코퍼스에 존재하지 않는다"는
-확정된 결론이다 — 후속 크론은 이 항목을 재탐색 대상으로 잡지 마라.
-(근거: 같은 노트 §3이 fumed vs colloidal 실리카만으로도 감쇠율 5배 차이를
-기록한다 — 연마입자 종류를 넘는 전이는 E4로도 정당화 불가.)
-time_s 4칸(cu/sic/sti/w_fe stab)은 이 사유로 estimated 확정.
+등급 판정(리터럴 하한이 아니라 계산): 비-실리카 팩의 k_g는 코퍼스에 없다(EVIDENCE-RULES
+판정#9 종결 — 재탐색 금지). 그 불확실성이 이번 런에 실제로 미치는 폭을 잰다: k_g를
+stab_glaze_rate_uncertainty_x(=5, Lawing 2004 fumed/colloidal)배로 바꿔 S를 재계산해
+|ΔS| < 0.03(제품 오차 목표)이면 k_g는 약한 고리가 아니므로 k_c·A·duty 등급(literature)을 따르고,
+넘으면 estimated. 기준점(G=G_ref)에서는 k_g가 식에서 상쇄돼 ΔS=0 — 실리카가 아니어도
+in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) 구간은 판정#9대로 실리카만 literature.
+
+한계(문헌이 지지하지 않아 뺀 항, 노트 §6):
+  · k_g 압력 지수(2 psi 0.0223 / 5 psi 0.0392 — 2점) 미도입, ±40% 밴드로만 기록. 압력은 Λ의 축.
+  · G에 컨디셔너 하중·속도(F·v) 미포함 — k_c 도출 조건(0.7 psi·101 rpm)→기준(4 lbf·55 rpm) 환산
+    지수 없음. 하중·속도의 S 반응은 미모델링(Γ이 부하로만 담는다).
+  · 그릿 밀도·형상 → k_c(Kwon 2013 37/23/19 µm/h)는 팩에 그릿 키가 없어 미연결.
+  · 수십시간 패드 수명(Son & Lee 2021)은 컨디셔너 구조 변수 부재로 판정#8 유지.
+  · ε=0.13은 접촉수 기준 — k_c 자릿수(1.3~6 /min)만 확실, 4.08은 그 안의 한 점.
 ```
 
 ### 팩별 상태
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
-| oxide_silica | modeled | literature | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
-| sic_ceria_h2o2 | modeled | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
-| sti_ceria | modeled | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
-| w_fe_oxidizer | modeled | estimated | time_min_log_decay×1.000 | time_s | ma17081817 (PMC11051262) Fig.9; pad-glazing-mechanism-mrr-decay.md |
+| cu_h2o2_bta | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
+| oxide_silica | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
+| sic_ceria_h2o2 | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
+| sti_ceria | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
+| w_fe_oxidizer | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
 
 엔진이 스스로 보고하는 한계:
 
-- ⚠ 원 데이터는 콜로이달 실리카/IC1000 단일계다 — 이 팩의 연마입자(alumina)로의 외삽은 미검증(confidence=estimated). fumed vs colloidal 실리카만도 감쇠율이 5배 차이 난다(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §3, Lawing 2004) — 다른 화학종은 그 이상 벗어날 수 있다.
-- ⚠ 원 데이터는 콜로이달 실리카/IC1000 단일계다 — 이 팩의 연마입자(ceria)로의 외삽은 미검증(confidence=estimated). fumed vs colloidal 실리카만도 감쇠율이 5배 차이 난다(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §3, Lawing 2004) — 다른 화학종은 그 이상 벗어날 수 있다.
-- ⚠ 컨디셔닝 사이클·수십 시간 규모 패드 수명 누적 마모는 여전히 미모델링 (무-컨디셔닝 단발 1~10분 데이터만 반영). 담당 R3-pad × R4-disk.
+- in-situ 균형: 시정수 1/(k_g+k_c·G)=0.24 min ≪ 연마시간이라 정상상태 — S는 time_s에 무관하고 duty·드레서 마모만 본다.
+- ⚠ 미모델링: 컨디셔너 하중·속도의 S 반응(k_c 환산 지수 없음), 그릿 밀도→k_c, 수십시간 패드 수명(컨디셔너 구조 변수 부재, 판정#8). 균형 노트 §6.
 
-근거 노트(verify 블록 보유): `knowledge/materials/pad-glazing-mechanism-mrr-decay.md`
+근거 노트(verify 블록 보유): `knowledge/equipment/conditioner-disk-pad-cutting-model.md`, `knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md`, `knowledge/materials/pad-glazing-mechanism-mrr-decay.md`, `knowledge/materials/pad-steady-state-glazing-conditioning-balance.md`
 
 
 ## 파라미터 도출 근거 (팩 YAML의 source/note/confidence 그대로)
@@ -711,7 +707,7 @@ time_s 4칸(cu/sic/sti/w_fe stab)은 이 사유로 estimated 확정.
 | 팩 | 데이터셋 | 유의 | 유의 평균 ρ |
 |---|---|---|---|
 | cu_h2o2_bta | 5 | 2 | 0.8587 |
-| oxide_silica | 6 | 2 | 0.996 |
+| oxide_silica | 7 | 2 | 0.996 |
 | sic_ceria_h2o2 | 2 | 1 | 1.0 |
 | sti_ceria | 5 | 2 | 0.95 |
 | w_fe_oxidizer | 2 | 1 | 1.0 |
@@ -732,7 +728,3 @@ time_s 4칸(cu/sic/sti/w_fe stab)은 이 사유로 estimated 확정.
 - C2 Δ delta/cu_h2o2_bta: confidence=estimated
 - C2 Δ delta/oxide_silica: confidence=estimated
 - C2 Δ delta/w_fe_oxidizer: confidence=estimated
-- C2 S stab/cu_h2o2_bta: confidence=estimated
-- C2 S stab/sic_ceria_h2o2: confidence=estimated
-- C2 S stab/sti_ceria: confidence=estimated
-- C2 S stab/w_fe_oxidizer: confidence=estimated

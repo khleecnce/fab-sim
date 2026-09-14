@@ -142,45 +142,91 @@ def test_ph_moves_mrr():
 # ═══════════════════════════════ ③ 미모델링을 숨기지 않는다
 
 def test_stab_reference_at_default_time_is_unity():
-    """S(시간 안정성)는 기본 time_s=60s(=1 min, Jeong 2024 관측 하한)에서 1.0.
+    """S(안정성)는 기준 조건(in-situ duty 100%·신품 디스크·time_s=60s)에서 1.0.
 
-    2026-09-09 정확도루프: Jeong et al. 2024(doi:10.3390/ma17081817) Fig.9
-    로그감쇠 회귀로 partial 모델을 부여했다. ln(1)=0이라 t=1 min에서
-    정확히 1.0이 되어 기준 1.0 계약을 유지한다.
-
-    2026-09-13 EVIDENCE-RULES 판정#8: pad_usage_hours 등 3개 드라이버를
-    스코프 축소로 제거해(컨디셔너 구조 변수 결측, sim/factors.py 주석) 남은
-    드라이버(time_s)와 항이 완전히 일치 — status는 partial→modeled로 승격.
+    2026-09-14 글레이징-컨디셔닝 균형 모델(knowledge/materials/
+    pad-steady-state-glazing-conditioning-balance.md): S = R_ss(G)/R_ss(G_ref).
+    기준점은 Γ과 공유(cond_ref_duty_pct, cond_ref_disk_usage_hours)한다.
     """
     f = _factors()["stab"]
     assert f.status == "modeled"
     assert f.value == pytest.approx(1.0, abs=1e-9)
+    assert f.terms["R_ss(G)"] == pytest.approx(0.9932, abs=5e-4)   # k_c/(k_g+k_c), 노트 §5-1
 
 
-def test_stab_decreases_with_longer_polish_time():
-    """time_s를 늘리면 S가 로그감쇠로 줄어든다 (Jeong 2024 Fig.9, 접촉수 반토막에도
+def _stab(pack="oxide_silica", time_s=60, **ov):
+    return compute_factors(Recipe(pack=pack, time_s=time_s, pack_overrides=ov).resolve())["stab"]
 
-    MRR은 −17%만 줄어드는 완만한 로그형 드리프트 — 방향만 신뢰, 절대값은 literature).
+
+def test_stab_no_conditioning_reproduces_jeong2024_log_decay():
+    """duty=0(웨이퍼마다 ex-situ 재생, 연마 중 무컨디셔닝) 특수해 = Jeong 2024 로그감쇠 회귀.
+
+    회귀 테스트: 균형 모델로 바꿔도 무컨디셔닝 10 min 값(0.7775)은 기존 로그감쇠
+    (a=1.1478, b=−0.1109)와 1e-9 이내로 같아야 한다 — k_g가 그 값에서 역산됐기 때문.
     """
-    short = compute_factors(Recipe(pack="oxide_silica", time_s=60).resolve())["stab"].value
-    long_ = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"].value
-    assert long_ < short, "10분 연속연마가 1분보다 S가 낮아야 한다(glazing 드리프트)"
-    assert 0.7 < long_ < 1.0, f"10 min S={long_}가 문헌 관측범위(−17%~−30%)를 벗어남"
+    a, b = 1.1478, -0.1109
+    for t in (60, 180, 600):
+        f = _stab(time_s=t, cond_duty_pct=0.0)
+        assert "no_conditioning_decay" in f.terms
+        legacy_10 = (a + b * math.log(10)) / a
+        if t == 600:
+            assert f.value == pytest.approx(legacy_10, abs=1e-9)
+    short = _stab(time_s=60, cond_duty_pct=0.0).value
+    long_ = _stab(time_s=600, cond_duty_pct=0.0).value
+    assert short == pytest.approx(1.0, abs=1e-9)
+    assert long_ < short and 0.7 < long_ < 1.0
+
+
+def test_stab_in_situ_steady_state_is_time_independent():
+    """in-situ(G>0)에서는 시정수 0.24 min ≪ 연마시간이라 S가 time_s에 무관하다 (식 5a)."""
+    assert _stab(time_s=60).value == pytest.approx(_stab(time_s=600).value, abs=1e-12)
+    assert _stab(time_s=600).value == pytest.approx(_stab(time_s=3600).value, abs=1e-12)
 
 
 def test_stab_clamped_outside_observed_range():
-    """관측범위(1~10 min) 밖은 clamp — 외삽으로 거짓 정밀도를 내지 않는다."""
-    at_10 = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"].value
-    at_60min = compute_factors(Recipe(pack="oxide_silica", time_s=3600).resolve())["stab"].value
+    """무컨디셔닝 분기의 관측범위(1~10 min) 밖은 clamp — 외삽으로 거짓 정밀도를 내지 않는다."""
+    at_10 = _stab(time_s=600, cond_duty_pct=0.0).value
+    at_60min = _stab(time_s=3600, cond_duty_pct=0.0).value
     assert at_60min == pytest.approx(at_10), "10 min 초과는 t=10 min 값으로 clamp되어야 한다"
 
 
-def test_stab_confidence_downgraded_for_non_silica_packs():
-    """원 데이터가 콜로이달 실리카/IC1000 단일계라 다른 연마입자는 estimated로 강등."""
-    silica = compute_factors(Recipe(pack="oxide_silica", time_s=600).resolve())["stab"]
-    alumina = compute_factors(Recipe(pack="cu_h2o2_bta", time_s=600).resolve())["stab"]
+def test_stab_increases_with_conditioning_duty():
+    """duty↑ → 컨디셔닝 강도 G↑ → R_ss↑ → S↑ (단조), 100%에서 1.0."""
+    # duty=0 은 무컨디셔닝 분기(시간 의존)이므로 10 min 연마로 고정해 비교한다.
+    vals = [_stab(time_s=600, cond_duty_pct=d).value for d in (0.0, 25.0, 50.0, 100.0)]
+    assert all(vals[i] < vals[i + 1] for i in range(len(vals) - 1)), vals
+    assert vals[-1] == pytest.approx(1.0, abs=1e-9)
+
+
+def test_stab_decreases_with_dresser_usage_and_shares_gamma_aging():
+    """드레서 사용량↑ → A(t)↓ → G↓ → S↓ (단조). PHM2016 실장비 ρ=−0.70의 방향.
+
+    S와 Γ은 같은 pcr_decay 배수를 본다 — 'dresser_wear_A' == Γ 'aging(pcr_decay)'.
+    """
+    hours = [0.0, 10.0, 27.4, 50.0, 100.0]
+    vals = [_stab(cond_disk_usage_hours=h).value for h in hours]
+    assert all(vals[i] > vals[i + 1] for i in range(len(vals) - 1)), vals
+    for h in (0.0, 50.0):
+        fs = compute_factors(Recipe(pack="oxide_silica", pack_overrides={"cond_disk_usage_hours": h}).resolve())
+        assert fs["stab"].terms["dresser_wear_A"] == pytest.approx(fs["gamma"].terms["aging(pcr_decay)"], abs=1e-12)
+
+
+def test_stab_confidence_is_computed_from_k_g_band_not_literal():
+    """비-실리카 팩의 등급은 리터럴 강등이 아니라 k_g 밴드(×5)가 이번 운전점에 미치는 |ΔS|로 판정.
+
+    기준점(G=G_ref)에서는 k_g가 상쇄돼 ΔS=0 → literature. 무컨디셔닝(duty=0)에서는
+    밴드가 지배적(|ΔS|≈0.49) → 판정#9대로 estimated. 실리카는 어느 구간이든 literature.
+    """
+    assert _stab("cu_h2o2_bta").confidence == "literature"
+    assert _stab("cu_h2o2_bta").terms["k_g_band_dS"] == pytest.approx(0.0, abs=1e-12)
+    silica = _stab("oxide_silica", time_s=600, cond_duty_pct=0.0)
+    alumina = _stab("cu_h2o2_bta", time_s=600, cond_duty_pct=0.0)
     assert silica.confidence == "literature"
     assert alumina.confidence == "estimated"
+    assert alumina.terms["k_g_band_dS"] > 0.03
+    # 드레서 50 h: 밴드 0.11 > 0.03 → 비-실리카는 estimated (정직한 강등, 계산된 값)
+    assert _stab("cu_h2o2_bta", cond_disk_usage_hours=50.0).confidence == "estimated"
+    assert _stab("oxide_silica", cond_disk_usage_hours=50.0).confidence == "literature"
 
 
 # ═══════════════════════════════ τ 슬러리 전달 — 실측이 직관을 기각한 축

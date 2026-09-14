@@ -456,6 +456,12 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     구조적 결측이므로, 개별 드라이버가 literature 등급이어도 모델 자체의
     신뢰도는 그보다 낮게 유지한다.
 
+    **S(stab)와의 결합(2026-09-14)**: 같은 `aging(pcr_decay)` 배수 A(t_disk)가 S의 컨디셔닝 강도
+    G = duty/100·A 에도 들어간다(knowledge/materials/pad-steady-state-glazing-conditioning-balance.md
+    §3). Γ은 A를 절삭 **부하**로, S는 정상상태 **조도** R_ss=k_c G/(k_g+k_c G)로 변환한다 —
+    한 함수를 공유하므로 드레서 마모의 이중 정의가 없고, 드레서 사용량↑ → Γ↓·S↓ 가 같은 부호다.
+    PHM2016 실장비(드레서 사용량 vs MRR 저속군 ρ=−0.696)는 이 경로의 순위 검증이다(S 쪽 verify).
+
     ⚠ 여기는 **장비 설정**(하중·회전속도·duty)만 담는다. 디스크의 형상(그릿
     밀도·돌출)은 소모품이므로 κ/τ 쪽으로 간다. 이 분리를 지켜야 "디스크를
     바꿀까 컨디셔너 세팅을 바꿀까"에 답할 수 있다.
@@ -1651,94 +1657,155 @@ def _delta_diagnostics(pk, d99_nm: float) -> List[str]:
     return out
 
 
+def _stab_balance(k_g: float, k_c: float, G: float) -> float:
+    """정상상태 패드 조도 R_ss = k_c·G/(k_g + k_c·G)  (식 3, 균형 노트 §1)."""
+    return k_c * G / (k_g + k_c * G)
+
+
+def _stab_value(k_g: float, k_c: float, G: float, G_ref: float,
+                t_min: float, t_ref_min: float) -> tuple[float, str]:
+    """S 값과 어느 분기(in-situ 균형 / ex-situ 감쇠)인지 돌려준다 — 균형 노트 식 (5a)/(5b).
+
+    G>0  : in-situ. 시정수 1/(k_g+k_c G)≈0.24 min ≪ 연마시간이라 직전 웨이퍼에서 이미
+           정상상태 → S = R_ss(G)/R_ss(G_ref), 시간 무관.
+    G==0 : ex-situ/무컨디셔닝 프로토콜(웨이퍼마다 R(0)=1) → S = exp(−k_g (clamp(t,1,10) − t_ref)).
+           Jeong 2024 관측범위(1~10 min) 밖은 clamp(외삽 금지, 기존 계약 유지).
+    """
+    if G > 0.0:
+        return _stab_balance(k_g, k_c, G) / _stab_balance(k_g, k_c, G_ref), "steady_state"
+    t_c = min(max(t_min, 1.0), 10.0)
+    return math.exp(-k_g * (t_c - t_ref_min)), "no_conditioning_decay"
+
+
 def _f_stab(rr: "ResolvedRecipe") -> Factor:
-    """S 시간 안정성 — 컨디셔닝 없는 연속 연마 중 MRR 드리프트(로그감쇠).
+    """S 안정성 — 글레이징률 vs 컨디셔닝 재생률의 균형이 정하는 정상상태 패드 조도.
 
-    출처: Jeong, Shin, Jeong, Jeong, Jeong (2024), "Novel Probability Density
-    Function of Pad Asperity by Wear Effect over Time in CMP", Materials 17(8),
-    1817, doi:10.3390/ma17081817 (PMC11051262, 전문 확보). Fig.9 정규화 MRR
-    (IC1000 패드·콜로이달 실리카·SiO2 블랭킷·컨디셔닝 없이 1~10분 연속연마,
-    2/5 psi 두 조건 pooled)를 rate=a+b·ln(t[min]) 로그감쇠 회귀(R²=0.74,
-    지식노트 knowledge/materials/pad-glazing-mechanism-mrr-decay.md §4(D)가
-    로그형이 선형보다 우수함을 별도로 확인)로 피팅해 시간축 인자로 편입.
-    기준 조건(Recipe 기본 time_s=60s=1 min)에서 정확히 1.0 — ln(1)=0.
+    모델 (knowledge/materials/pad-steady-state-glazing-conditioning-balance.md §1):
+        dR/dt = −k_g·R + k_c·G·(1 − R),   G = (duty/100)·A(t_disk),  A = exp(−t_disk/τ_aging)
+        R_ss  = k_c·G / (k_g + k_c·G)
+        S     = R_ss(G) / R_ss(G_ref)                       (G > 0, in-situ 균형; 시간 무관)
+        S     = exp(−k_g·(clamp(t,1,10 min) − 1 min))       (G = 0, 무컨디셔닝 — Jeong 2024 특수해)
+    기준 조건(cond_ref_duty_pct=100, cond_ref_disk_usage_hours=0)에서 정확히 1.0.
 
-    ⚠ 도메인 한계: (1) 원 데이터는 실리카/IC1000 단일계이며 세리아·알루미나
-    슬러리·다른 패드로의 외삽은 미검증(confidence=estimated로 강등).
-    (2) 1~10분 범위 밖은 clamp(외삽 금지, 값 고정). (3) 이 회귀는 무-컨디셔닝
-    단발 연마의 초기 드리프트만 담는다 — 컨디셔닝 사이클·패드 수명(수십 시간)
-    누적 마모는 여전히 미모델링(담당 R3-pad×R4-disk, 실데이터 없음).
+    파라미터 (base.yaml, 팩 5개 공통 — 패드 재질 성질):
+      k_g = 0.02796 /min  Jeong et al. 2024 (doi:10.3390/ma17081817) Fig.9 pooled 로그회귀
+                          (a=1.1478, b=−0.1109)의 10 min 손실 22.25%를 지수형으로 이식. 10 min 값은
+                          기존 로그감쇠와 동일(회귀 테스트), 중간점 R²는 exp 0.77 > log 0.64.
+      k_c = 4.08 /min     Jeong et al. 2022 ASPEN (doi:10.3850/978-981-18-6021-8_or-12-0224) Table 1
+                          3 psi → 30 s 완전 회복 + Jeong 2024 복원 허용폭 ±13% → ln(1/0.13)/0.5.
+      A(t_disk)           Γ과 같은 함수(sim/tier2_physics/conditioner_pcr_decay.pcr_decay, τ=27.4 h)
+                          — 드레서 마모가 Γ(절삭 부하)와 S(정상상태 조도)에 한 번씩, 같은 부호로 들어간다.
 
-    ⚠ 2026-09-13 EVIDENCE-RULES 판정#8 — pad_usage_hours·pad_wafer_count·
-    disk_usage_hours를 드라이버 수집 대상에서 제외한다(스코프 축소, τ의
-    groove_depth_mm 축소와 같은 패턴). 근거: Son & Lee 2021(doi:10.3390/app11083521)
-    이 확보한 수십시간 축 MRR 드리프트(Case I 44.9%/16h vs Case II 7.4%/20h,
-    6.1배 차이)는 **컨디셔너 구조(swing-arm 단일 vs 분할형 5구역)** 가 지배
-    인자임을 논문이 직접 명시하는데, FabSim 팩은 컨디셔너 구조를 파라미터로
-    갖지 않는다 — 어느 감쇠율(2.81%/h vs 0.37%/h)을 쓸지 근거가 없다.
-    Song & Kim 2018류 디스크 그릿 구조 비교 문헌(doi:10.1007/s00170-018-1956-3)도
-    같은 구조: PWR·MRR이 그릿 배열/타입에 갈리고 시간/웨이퍼수만으로는 안 갈린다.
-    즉 이 시간축은 physically real 하지만, "장비 구성 변수"가 팩에 없어 이식할
-    수 없다 — knowledge/materials/pad-usage-hours-conditioning-mrr-decay-son-lee2021.md
-    §7(구현 요청)이 이미 이 선행조건을 명시했었다. 컨디셔너 구조가 팩 파라미터로
-    추가되기 전까지는 이 세 드라이버를 걷어내는 것이 "빠진 항을 숨기는 것"이
-    아니라 "반응 안 하는 죽은 드라이버를 정직하게 걷어내는 것"이다(PARTIAL이
-    아니라 modeled로 승격 가능해짐 — time_s만 남은 드라이버와 완전히 일치).
+    검증 (같은 노트 §4 verify):
+      · duty=0, t=10 min → 0.7775 = 기존 로그감쇠 값(1e−9 이내).
+      · PHM2016 실장비 477 웨이퍼(validation/raw/phm2016): S 순위 vs MRR 순위 저속군 ρ=+0.696
+        (원변수 드레서 사용량 −0.696의 부호 반전), 사용량→시간 배율 0.02/0.05/0.1 전부 동일 —
+        데이터가 은닉 배율로 스케일돼 있어 **순위만** 검증(절대값 금지, README).
 
-    ⚠ 2026-09-14 EVIDENCE-RULES 판정#9 **3회차 종결(영구 확정)** — 비-실리카 계
-    (알루미나·세리아 4팩)의 시간축 MRR 감쇠 계수는 3개 회차(09-13·09-14·09-14)에
-    걸친 탐색에서 확보 실패했다. 3회차 질의: find_open_access(세리아 시간감쇠) →
-    doi:10.1007/s13391-012-2144-5(패드거칠기 축, 부적격) 1건뿐, OpenAlex OA 3질의
-    (알루미나/W 글레이징·세리아 무컨디셔닝 연속연마·비실리카 패드글레이징) 18건 전부
-    랩핑리뷰·세정·스크래치·무관분야로 시간축 무-컨디셔닝 MRR 감쇠 실측 0건.
-    규칙상 4회차는 없다 → **스코프 축소로 종결**: S(stab)의 로그감쇠 계수
-    (a=1.1478, b=-0.1109)는 **실리카 계에서만 literature** 등급이고, 비-실리카
-    팩에서는 `estimated`가 하한이 아니라 **영구 확정값**이다(위 abrasive 분기).
-    이는 "문헌을 더 찾으면 오른다"가 아니라 "이 코퍼스에 존재하지 않는다"는
-    확정된 결론이다 — 후속 크론은 이 항목을 재탐색 대상으로 잡지 마라.
-    (근거: 같은 노트 §3이 fumed vs colloidal 실리카만으로도 감쇠율 5배 차이를
-    기록한다 — 연마입자 종류를 넘는 전이는 E4로도 정당화 불가.)
-    time_s 4칸(cu/sic/sti/w_fe stab)은 이 사유로 estimated 확정.
+    등급 판정(리터럴 하한이 아니라 계산): 비-실리카 팩의 k_g는 코퍼스에 없다(EVIDENCE-RULES
+    판정#9 종결 — 재탐색 금지). 그 불확실성이 이번 런에 실제로 미치는 폭을 잰다: k_g를
+    stab_glaze_rate_uncertainty_x(=5, Lawing 2004 fumed/colloidal)배로 바꿔 S를 재계산해
+    |ΔS| < 0.03(제품 오차 목표)이면 k_g는 약한 고리가 아니므로 k_c·A·duty 등급(literature)을 따르고,
+    넘으면 estimated. 기준점(G=G_ref)에서는 k_g가 식에서 상쇄돼 ΔS=0 — 실리카가 아니어도
+    in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) 구간은 판정#9대로 실리카만 literature.
+
+    한계(문헌이 지지하지 않아 뺀 항, 노트 §6):
+      · k_g 압력 지수(2 psi 0.0223 / 5 psi 0.0392 — 2점) 미도입, ±40% 밴드로만 기록. 압력은 Λ의 축.
+      · G에 컨디셔너 하중·속도(F·v) 미포함 — k_c 도출 조건(0.7 psi·101 rpm)→기준(4 lbf·55 rpm) 환산
+        지수 없음. 하중·속도의 S 반응은 미모델링(Γ이 부하로만 담는다).
+      · 그릿 밀도·형상 → k_c(Kwon 2013 37/23/19 µm/h)는 팩에 그릿 키가 없어 미연결.
+      · 수십시간 패드 수명(Son & Lee 2021)은 컨디셔너 구조 변수 부재로 판정#8 유지.
+      · ε=0.13은 접촉수 기준 — k_c 자릿수(1.3~6 /min)만 확실, 4.08은 그 안의 한 점.
     """
     f = _new("stab")
     pk = rr.pack
-
     t_min = rr.time_s / 60.0
     f.drivers["time_s"] = rr.time_s
 
-    # Jeong et al. 2024 Fig.9, pooled(2psi+5psi) 로그감쇠 회귀 계수
-    # (knowledge/materials/pad-glazing-mechanism-mrr-decay.md §4(D) verify 블록에서
-    #  개별 압력별 R²>0.65 확인, pooled 계수는 이 파일 docstring 재현으로 별도 산출)
-    a_fit, b_fit = 1.1478, -0.1109
-    t_clamped = min(max(t_min, 1.0), 10.0)
-    val = (a_fit + b_fit * math.log(t_clamped)) / a_fit
+    needed = ["stab_glaze_rate_per_min", "stab_cond_recovery_rate_per_min"]
+    if not all(pk.has(k) for k in needed):
+        # 균형 파라미터가 없으면 무컨디셔닝 로그감쇠 특수해로 후퇴한다 (기존 계약 그대로).
+        a_fit, b_fit = 1.1478, -0.1109
+        t_c = min(max(t_min, 1.0), 10.0)
+        f.value = (a_fit + b_fit * math.log(t_c)) / a_fit
+        f.terms = {"time_min_log_decay": f.value}
+        f.status = "partial"
+        abrasive = str(pk.get_or("abrasive", "")).lower()
+        f.confidence = "literature" if abrasive == "silica" else "estimated"
+        f.sources.append("knowledge/materials/pad-glazing-mechanism-mrr-decay.md")
+        f.notes.append("⚠ stab_glaze_rate/stab_cond_recovery_rate 없음 — 컨디셔닝 균형 미모델링, "
+                       "Jeong 2024 무컨디셔닝 로그감쇠만 적용.")
+        return f
 
+    k_g = float(pk.get("stab_glaze_rate_per_min"))
+    k_c = float(pk.get("stab_cond_recovery_rate_per_min"))
+    t_ref_min = float(pk.get_or("stab_ref_time_s", 60.0)) / 60.0
+    duty = float(pk.get_or("cond_duty_pct", 100.0))
+    duty_ref = float(pk.get_or("cond_ref_duty_pct", duty or 100.0))
+    f.drivers["cond_duty_pct"] = duty
+
+    A_now = A_ref = 1.0
+    if pk.has("cond_disk_usage_hours"):
+        import conditioner_pcr_decay as CPD   # sim/tier2_physics — Γ과 같은 함수, 수정 없음
+        t_h = float(pk.get("cond_disk_usage_hours"))
+        t_ref_h = float(pk.get_or("cond_ref_disk_usage_hours", 0.0))
+        A_now = CPD.pcr_decay(t_h, 1.0, CPD.TAU_AGING_HOURS)
+        A_ref = CPD.pcr_decay(t_ref_h, 1.0, CPD.TAU_AGING_HOURS)
+        f.drivers["cond_disk_usage_hours"] = t_h
+
+    G = (duty / 100.0) * A_now
+    G_ref = (duty_ref / 100.0) * A_ref
+    if G_ref <= 0.0:
+        f.notes.append("⚠ 기준 컨디셔닝 강도 G_ref=0 — 균형 기준점을 정의할 수 없어 S 계산 불가")
+        return f
+
+    val, branch = _stab_value(k_g, k_c, G, G_ref, t_min, t_ref_min)
     f.value = val
-    f.terms = {"time_min_log_decay": val}
-    f.status = "modeled" if len(f.terms) == len(f.drivers) else "partial"
+    f.terms = {branch: val,
+               "R_ss(G)": _stab_balance(k_g, k_c, G) if G > 0 else 0.0,
+               "R_ss(G_ref)": _stab_balance(k_g, k_c, G_ref),
+               "conditioning_strength_G": G,
+               "dresser_wear_A": A_now / A_ref if A_ref else 1.0}
+    f.status = "modeled"
+
+    # ── 등급: k_g 불확실성이 이번 운전점에서 실제로 미치는 폭으로 판정 ──
+    x = float(pk.get_or("stab_glaze_rate_uncertainty_x", 5.0))
+    val_hi, _ = _stab_value(k_g * x, k_c, G, G_ref, t_min, t_ref_min)
+    band = abs(val_hi - val)
+    f.terms["k_g_band_dS"] = band
     abrasive = str(pk.get_or("abrasive", "")).lower()
-    f.confidence = "literature" if abrasive == "silica" else "estimated"
-    f.sources.append(
-        "Jeong et al. 2024, Materials 17(8) 1817, doi:10.3390/ma17081817 (PMC11051262) Fig.9")
-    f.sources.append("knowledge/materials/pad-glazing-mechanism-mrr-decay.md")
-    if t_min > 10.0:
+    base_conf = _pack_conf(pk, *needed, "cond_duty_pct",
+                           *(["cond_disk_usage_hours"] if pk.has("cond_disk_usage_hours") else []))
+    if abrasive == "silica" or band < 0.03:
+        f.confidence = base_conf
+    else:
+        f.confidence = _worst_conf(base_conf, "estimated")
         f.notes.append(
-            f"⚠ time_s={rr.time_s:.0f}s({t_min:.1f} min)가 문헌 관측범위(1~10 min)를 "
-            "초과해 t=10 min 값으로 clamp했다 — 장시간 외삽 아님, 과소추정 가능.")
-    if t_min < 1.0:
-        f.notes.append(
-            f"⚠ time_s={rr.time_s:.0f}s({t_min:.2f} min)가 관측 최솟값(1 min) 미만이라 "
-            "t=1 min(=1.0) 값으로 clamp했다.")
-    if abrasive != "silica":
-        f.notes.append(
-            f"⚠ 원 데이터는 콜로이달 실리카/IC1000 단일계다 — 이 팩의 연마입자"
-            f"({abrasive or '미상'})로의 외삽은 미검증(confidence=estimated). "
-            "fumed vs colloidal 실리카만도 감쇠율이 5배 차이 난다"
-            "(knowledge/materials/pad-glazing-mechanism-mrr-decay.md §3, Lawing 2004) — "
-            "다른 화학종은 그 이상 벗어날 수 있다.")
-    f.notes.append(
-        "⚠ 컨디셔닝 사이클·수십 시간 규모 패드 수명 누적 마모는 여전히 미모델링 "
-        "(무-컨디셔닝 단발 1~10분 데이터만 반영). 담당 R3-pad × R4-disk.")
+            f"⚠ k_g는 실리카/IC1000 값이고 이 팩({abrasive or '미상'})의 k_g는 코퍼스에 없다"
+            f"(판정#9). 이 운전점에서 k_g×{x:g} 밴드가 |ΔS|={band:.3f}(>0.03)라 estimated.")
+    f.sources = [
+        "knowledge/materials/pad-steady-state-glazing-conditioning-balance.md",
+        "knowledge/materials/pad-glazing-mechanism-mrr-decay.md",
+        "knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md",
+        "knowledge/equipment/conditioner-disk-pad-cutting-model.md",
+        "Jeong et al. 2024, Materials 17(8) 1817, doi:10.3390/ma17081817 (PMC11051262) Fig.9",
+        "Jeong et al. 2022, ASPEN 2022 pp.568-570, doi:10.3850/978-981-18-6021-8_or-12-0224 Table 1",
+    ]
+    if branch == "no_conditioning_decay":
+        f.notes.append("duty=0 → 웨이퍼마다 ex-situ 재생 프로토콜(R(0)=1)로 해석: Jeong 2024 무컨디셔닝 "
+                       "감쇠 특수해. 장시간 무컨디셔닝 연속 운전(G→0⁺, R_ss→0)과는 다른 프로토콜이다.")
+        if t_min > 10.0:
+            f.notes.append(f"⚠ time_s={rr.time_s:.0f}s({t_min:.1f} min)가 관측범위(1~10 min) 초과 — "
+                           "t=10 min 값으로 clamp(외삽 아님, 과소추정 가능).")
+        if t_min < 1.0:
+            f.notes.append(f"⚠ time_s={rr.time_s:.0f}s가 관측 최솟값(1 min) 미만 — t=1 min 값으로 clamp.")
+    else:
+        f.notes.append(f"in-situ 균형: 시정수 1/(k_g+k_c·G)={1/(k_g+k_c*G):.2f} min ≪ 연마시간이라 "
+                       "정상상태 — S는 time_s에 무관하고 duty·드레서 마모만 본다.")
+    if not pk.has("cond_disk_usage_hours"):
+        f.notes.append("⚠ cond_disk_usage_hours 없음 — 디스크 신품 가정(A=1.0).")
+    f.notes.append("⚠ 미모델링: 컨디셔너 하중·속도의 S 반응(k_c 환산 지수 없음), 그릿 밀도→k_c, "
+                   "수십시간 패드 수명(컨디셔너 구조 변수 부재, 판정#8). 균형 노트 §6.")
     return f
 
 
