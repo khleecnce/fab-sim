@@ -7,7 +7,7 @@
 - [x] Lv1-2 PVA 브러시 스크럽 물리: 접촉·전단·제타전위 제어
 - [x] Lv2-1 세정 화학: 암모니아·시트르산·계면활성제·부식 방지
 - [x] Lv2-2 메가소닉·건조(IPA/마랑고니)와 워터마크 — 2026-09-14, `knowledge/cmp/post-cmp-megasonic-marangoni-drying-watermark.md`
-- [ ] Lv3-1 최신 리뷰: 저결함 세정, 나노입자 제거 한계
+- [x] Lv3-1 최신 리뷰: 저결함 세정, 나노입자 제거 한계 — 2026-09-15, `knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md`
 - [ ] Lv3-2 세정 조건 → 잔류 결함 확률 모델 (sim/tier2)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)

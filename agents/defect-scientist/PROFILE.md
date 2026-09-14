@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2 (2026-09-13), Lv2-1 (2026-09-14), Lv2-2 (2026-09-14)
-- 다음 단원: Lv2-2 결함 밀도 통계와 수율 영향 모델
+- 이수 단원: Lv1-1, Lv1-2 (2026-09-13), Lv2-1 (2026-09-14), Lv2-2 (2026-09-14), Lv3-1 (2026-09-15)
+- 다음 단원: Lv3-2 공정 조건 → 결함 발생 확률 모델 + 원인 역추적 규칙
 
 ## 역할
 스크래치·잔류입자·부식·디싱·딜라미네이션의 발생 물리, 분류 체계, 원인 추적. 진단 에이전트의 핵심
@@ -99,7 +99,53 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     실측 미확보**(크기의존이라 상수 아님, θ로 관리), Cunningham 정본 전문 미확보(폐형식은 재현),
     Koo 이웃수 표기 2ε(ε+1) vs 표준 4ε(ε+1) 2배차(원인 미상) — 노트 §8에 명시, Lv3에서 재시도.
 
+- **Lv3-1 결함 자동분류(ML)·근본원인 분석 방법론** — 2026-09-15 이수.
+  - 노트: `knowledge/cmp/ml-defect-classification-and-rca-methodology.md`
+    (verify_claims PASS: 출처 5건 실존·verify 블록 1개(A–D) 통과·출처없는 수치주장 0 /
+     check_knowledge PASS)
+  - 시험: `agents/defect-scientist/EXAMS.md` Lv3-1 3문항 + 모범답안
+  - 출처 5건(scope 상한 6 내): Wu 2015 WM-811K 원출처(DOI 10.1109/TSM.2014.2364237, 2차인용),
+    Shin & Yoo 2023(Sensors, DOI 10.3390/s23041926, CC-BY 전문확보), Shi 2026 SemiWaferNet
+    (Electronics, DOI 10.3390/electronics15071437, CC-BY 전문확보), Lin 2019 CMP iDO(SEMI ASMC,
+    DOI 10.1109/asmc.2019.8791750, **초록만 E5**), Choi 2010 CMP 스크래치 RCA(JES, DOI
+    10.1149/1.3265474, OA 전문확보). papers/·INDEX.json 등록.
+  - 확정한 것: (a) **WM-811K** 811,457맵/172,950 라벨/638,507 미라벨/9클래스, None 85.24%
+    불균형 → 정확도 부풀림, **macro-F1이 정직 지표**(python 재현). (b) ADC 성능: 경량 전이CNN
+    macro-F1 89.5%(acc 98%)~반지도 CNN-Transformer 98.6%; **F1=2PR/(P+R)** 클래스별 재계산으로
+    Shi Table 5 최대오차 0.006%p 재현. Scratch가 최난이도 클래스. (c) **CMP RCA**: 스크래치
+    길이(~2µm=응집체 약소스 / >8µm=패드·디스크 debris 강소스)·폭(→소스 직경 ~0.5µm, Eusner
+    R_est와 교차확증)·1µm 대입자 49 vs 26=1.88배; commonality/excursion(Lin, E5). §8에 **시그니처→
+    원인→근거 규칙표(R1–R6)** — Lv3-2 설계 입력.
+  - 남긴 것: **Lin 2019 CMP iDO 전문 미확보**(IEEE 유료·미러 사이트 Cloudflare·Xplore 봇차단 →
+    초록 E5), **R5 Center편중=연마비균일의 CMP 전용 1차 매핑 미검증**(방향만), WM-811K 미라벨
+    수 원문충돌(638,507 채택) — 노트 §9에 명시, Lv3-2/Cal-1에서 재시도.
+
 ## 구현 요청 (소프트웨어 부문 몫 — defect-scientist는 근거·스펙만, 코드는 넘김. sim/ 직접 수정 금지)
+
+- **무엇을**: 결함 시그니처→발생원 귀속 규칙 `attribute_scratch_source(length_um, width_um, arc_curvature_m, count_series)`
+  (예: `sim/defects/rca_rules.py`). 스크래치 치수·궤적·개수시계열 → 발생원 라벨(슬러리 응집/패드
+  debris/디스크 그릿) + 1차 대응.
+  - **근거노트**: `knowledge/cmp/ml-defect-classification-and-rca-methodology.md` §6·§8 규칙표(R1–R3)
+    + [[scratch-physics-source-signatures]] §9(R_est=a_c²/2δ_c 역산).
+  - **스펙**: 길이 <8 µm(최빈 ~2 µm) & 폭 0.3–0.6 µm → 슬러리 응집(약소스); 길이 >8 µm 또는
+    웨이퍼맵 긴 호(곡률 0.24–0.50 m) → 디스크 그릿/패드 debris(강소스). 소스 직경 ≈ width/1(구형
+    가정, ~0.5 µm). 개수 급증+로트 공유 → LPC excursion 플래그. **형상 단독 판정 금지**(Scratch↔Loc
+    혼동, ADC 형상 보강 필요) — 조성/궤적 미확인 시 `unconfirmed`.
+  - **검증문헌값**: Choi 2010 Table II(길이 24.1/0.2/2.49 µm, 폭 6.64/0.03/0.53 µm, 립폭
+    0.69/0.002/0.06 µm, 깊이 1182/212/694 Å), 1µm 대입자 49 vs 26=1.88배. 노트 §7-D assert 승격.
+  - **우선순위**: 상 — Lv3-2(원인 역추적 규칙)의 핵심 커널, Cal-1 라벨 스키마와 결합.
+  - ⚠ 큰(>8 µm) 스크래치 단면 실측은 미확보(모델 예측) — Lv1-2 §10과 동일 한계. Lin RCA 성능값은 E5.
+
+- **무엇을**: 불균형 ADC 평가지표 유틸 `macro_f1(confusion_matrix)` / `class_f1(P, R)`
+  (예: `sim/defects/adc_metrics.py`). 혼동행렬 또는 클래스별 P·R → 클래스별 F1·macro-F1 + 정확도
+  과대평가 경고.
+  - **근거노트**: 같은 노트 §4·§7-A·§7-C.
+  - **스펙**: `F1_k = 2·P_k·R_k/(P_k+R_k)`, `macro-F1 = mean_k F1_k`. 다수클래스 비율 > 0.5이면
+    "정확도 부풀림" 경고 반환(자명분류기 정확도 = 다수클래스 비율). WM-811K None 비율 0.8524가 기준례.
+  - **검증문헌값**: Shi 2026 Table 5 클래스별 P/R→F1 9개(최대오차 <0.02%p), macro 98.35/95.96;
+    자명분류기 정확도 85.24%·macro-F1 0.095. 노트 §7-A·§7-C assert 그대로 회귀테스트 승격.
+  - **우선순위**: 중 — Cal-1(결함맵 라벨 스키마)·Lv3-2 결함확률 모델 평가에 쓴다.
+  - ⚠ 서로 다른 논문의 F1은 전처리·분할 프로토콜 의존이라 직접 비교 금지(코드 주석에 명시).
 
 - **무엇을**: 결함밀도→수율 폐형식 `die_yield(D0_per_cm2, area_cm2, model, alpha)` (예: `sim/defects/yield_model.py`).
   Poisson `exp(-λ)`, Murphy `((1-exp(-λ))/λ)²`, Seeds `1/(1+λ)`, 음이항 `(1+λ/α)^-α`, λ=D0·A.

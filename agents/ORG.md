@@ -115,10 +115,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | cmp-data-engineer | 활성 (G2 개방 2026-09-09) | 4/6 (Lv2-2 완료: 합성데이터 생성기 — RBF/Zernike 가산노이즈(McLoone/Susto 2018), 실측 CMP VM 잔차 8.317nm/min 바닥(Li 2019), CV% 5~14% 가이드, spike/drift 탐지 역할분리) | 2026-09-11 |
 | film-nitride | 활성 (G3 개방 2026-09-09) | 5/6 (Lv3-1 완료: SiN 억제 첨가제 — 아미노산/폴리카복실산 정량·Langmuir 재현, Praveen2014 La 도핑 세리아서 프롤린 무력화, 3D NAND 요구 SiO₂:Si₃N₄≈30:1(Zhao2025 실측 35.5)) | 2026-09-14 |
 | film-poly-si | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: 고선택비·무결함 Poly 슬러리 리뷰 — 고분자양이온 전하밀도 선택비제어(Penta 2011), 기계화학 선택연마, abrasive-free 버핑. 심야병렬 2노트) | 2026-09-13 |
-| tool-endpoint | 활성 (G3 개방 2026-09-10) | 4/6 (Lv2-2 완료: EPD 트레이스→제거량·잔막 역산, 프린지=상대제거량 무모호/절대두께 모호, 모터전류·마찰계는 Preston RR 곱 이벤트역산, 오버폴리시 예산은 저다운포스 잔막마진에 5~11배 더 좌우) | 2026-09-12 |
+| tool-endpoint | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: ML/통계 EPD — 웨이블릿+SPRT·PCA-T² 조기검출(BenZakour2012), AE가 마찰보다 10s 조기·오버폴리시 5% 방지(Helu2014), AMAT US10478937B2 AE 다중센서, fPCA 압력 대리모델(Rothe2025 E5); 투명·다층막 물리 한계는 ML로 못 넘음) | 2026-09-15 |
 | slurry-colloid | 활성 (G3 개방 2026-09-12) | 4/6 (Lv3-1 완료: 응집억제 첨가제 — 고분자분산제(EAA) 단조안정화 vs 전해질형(SHMP) ∩형 최적점, DLVO+Smoluchowski W 재현; 인라인 LPC Poisson 계수바닥 E=z/√(nλ). Hwang2024·Mei2024·Lee2020) | 2026-09-14 |
-| defect-scientist | 활성 (G3 개방 2026-09-12) | 4/6 (Lv2-2 완료: 수율 폐형식 Poisson/Murphy/음이항(Cunningham1990) 재현, D0 3nm 0.20~14nm 0.08/cm²·α 3–10(E5), 공간통계 Koo&Hwang2021 E1 전문, WM811k p≈0.14) | 2026-09-14 |
-| tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 4/6 (Lv2-2 완료: 메가소닉 δ_s=√(2ν/ω) 0.5/1/2MHz→0.80/0.56/0.40µm, 파워밀도 0.5~1.5W/cm²; 마랑고니 LLD h=0.94·l₀·Ca^(2/3); 워터마크=잔류액적 O₂확산 산화물 석출. Wortman-Otto2022·Li2019·Ng2007) | 2026-09-14 |
+| defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
+| tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

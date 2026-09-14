@@ -2393,6 +2393,17 @@ G4 선수조건 직결인 film-w·film-nitride(cmp-calibrator/film-emerging 게�
 ⚠ 코퍼스 fetch 0/60 — 논문 소스까지 전면 봉쇄. 다음 낮 회차에서 corpus.py 소스별 실패 원인(HTTP 코드) 집계 필요.
 다음 회차 후보: defect-scientist Lv3-1(ML 분류·RCA), film-w Lv3-2(W Kp·산화속도 파라미터, sim/tier2), film-nitride Lv3-2, cmp-data-engineer Lv3-1(G4 cmp-calibrator 선수).
 
+## 2026-09-15 심야 01:00 [심야병렬] 서브에이전트 3명 동시 학습 — defect-scientist Lv3-1 · tool-endpoint Lv3-1 · tool-post-clean Lv3-1 (각 4/6→5/6)
+QA루프 #109 PASS(유의 7/21 ρ=0.9537 불변, 격리 1: dandu2009 원문 미확보+F4, 3회차 연속 하락 없음). corpus fetch ✓9/✗51(ECS·IOP·JJAP 봉쇄, KONA·JSPE·TTP 등 소형 OA만 통과), extract 8, total 8960/with_fulltext 1519/queue fetch 7441·learn 1507.
+completion 40/50(C2 Γ5·χ1·ψ3·Δ1 잔존 — 전부 Max워커 판정#22~24로 하한 종결·재탐색 금지 상태라 학습 주제로 부적합). 대상: progress.py 최저진도 4/6 3명(defect-scientist·tool-endpoint·tool-post-clean) — Max워커(ψ 등온식, 01:25 커밋)·성장엔진(χ/Γ)과 무충돌. claude -p opus 3병렬(--max-turns 80), 18~25분 소요.
+- defect-scientist Lv3-1: knowledge/cmp/ml-defect-classification-and-rca-methodology.md (출처5·코드1블록). WM-811K 분포(811,457/172,950 라벨/9클래스, None 85.24%) 산술검증 — 원문 미라벨수 충돌(639,507 vs 638,507)은 총계 정합 쪽 채택. Shi2026 SemiWaferNet(CC-BY) Table5 F1 9클래스 전수 재현(최대오차 0.006%p), 자명분류기 acc 85.24% vs macro-F1 0.095로 정확도 부풀림 정량화. CMP 특화 RCA: Choi2010 JES 원문(스크래치 길이 ~2µm=응집체/>8µm=패드·디스크 debris, 1µm 대입자 49 vs 26=1.88배). Lin2019 iDO는 초록만 E5. §8 규칙 후보표 R1–R6(Lv3-2 입력). 구현요청 2건.
+- tool-endpoint Lv3-1: knowledge/equipment/epd-ml-statistical-insitu-metrology-integration.md (출처8·코드4블록). BenZakour2012 웨이블릿+SPRT(CV 202 vs 분산 231점 조기검출)·PCA-T²(378s 정확 vs 320/329s 오검출), Helu-Dornfeld2014 AE 10s 조기·오버폴리시 5% 방지(초록 E5), AMAT US10478937B2 AE 도파관+FFT 225–350kHz 1차 특허, Rothe2025 fPCA 5-zone 압력 대리모델(전문 미확보). pywt 부재로 이동블록 통계 대체 재현. PDF는 봇차단으로 0건 확보(exa 본문 발췌). 모델 후보표 작성. 구현요청 3건. 미검증 3.
+- tool-post-clean Lv3-1: knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md (출처6·코드1블록). Zhang-Busnaina-Ahmadi 1999 JES 원문(미러 사이트) 부착력∝R·유체항력∝R² 폐형식, Ng2007 경계값 3.087e-9/1.544e-8 N 1% 이내 재현, R_crit≈385µm(G=5000/s 역산 가정 — 오더로만 주장), 10nm 입자는 250nm 대비 25배 불리. Seo2019 JSST CC-BY Cu/Co 갈바닉 ΔEcorr 40→5mV. 3D NAND killer 규칙은 기존 노트 링크로 처리. §8 모델 후보표. 구현요청 3건. 미검증 ≤5.
+품질게이트(check_knowledge --all 직접실행): **187/187 통과**(직전 회차 반려 _SCHEMA.md도 해소됨). verify_claims 신규 3편 전원 PASS(DOI/특허 19건 실존, 코드 6블록 0실패). 429 흔적 없음.
+체크박스 3개 [x], ORG §5 3행 갱신. papers/INDEX.json 변경분은 Max워커 01:25 커밋(107a8f3)에 이미 포함됨. 타크론 미커밋(validation/*·docs/*·chi/psi 노트·.txt)은 제외.
+⚠ 코퍼스 fetch 9/60 — ECS/IOP/JJAP 계열 전면 봉쇄 지속. 소형 OA 저널만 통과. 미러 사이트 도메인은 봇차단, 미러 사이트 경로만 작동(2편 확보).
+다음 회차 후보: 4/6 잔여 없음 → 5/6 그룹 Lv3-2(sim/tier2 파라미터 단원)는 구현 성격이라 소프트웨어 부문 BACKLOG 연계 필요. 심야 학습은 Cal-1(G2 이후 허용) 또는 반려 부채 0이므로 종료 검토.
+
 ## 2026-09-14 10:00 [성장엔진] tau 이중계상 제거 + TR(턴오버비) 채널 신설 — 완성격자 27→32/50
 COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence 숫자만 올린 게 아니라 **tau의 결합 형식 자체를 교체**한 것이다.
 - 발견: tau가 쓰던 eta(슬러리 이용효율) 항과 이번에 넣으려던 MRT 항이 **종속**이다 — Mu 2016 정의를 풀면 eta*MRT = V_total/q_total이고 실측 6점에서 2% 이내 일치(최악 +1.83%).

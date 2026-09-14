@@ -188,3 +188,42 @@ Tian et al.(2023)이 명시한 저다운포스 단계 진입 시 남겨두는 �
 출처: H.K. Li et al. 위 Q2와 동일 출처(Lv1-2 §5 재사용); F. Tian et al., *Micromachines*
 14(11):2053 (2023), doi:10.3390/mi14112053, PMC10673209 §5.2. 상세는
 [[../../knowledge/equipment/epd-trace-removal-remaining-thickness-inversion]] §5·§7 Block C.
+
+## Lv3-1 최신 리뷰: ML 기반 EPD, 인시츄 계측 통합
+
+**Q1. BenZakour & Taleb(2012)는 AE 신호의 웨이블릿 detail에 SPRT를 걸 때 분산(variance)과
+변동계수(CV=std/mean) 두 통계를 비교했다. CV 기반이 분산 기반보다 종점을 더 일찍 검출한
+물리적 이유는 무엇이며, 이들이 보고한 두 검출점 수치는?**
+
+A1. 문헌은 분산 SPRT가 231번째, CV SPRT가 202번째 수집점에서 H1을 수락해 CV가 약 29점(12.6%)
+먼저 종점을 잡았다고 보고한다. 이유는 AE 진폭이 연마 진행에 따라 **감소**하기 때문이다 —
+종점 전이 시 평균(mean)이 줄면 CV=std/mean의 분모가 작아져 같은 std 변화라도 CV가 더 크게
+증폭된다. 따라서 평균이 함께 이동하는 비정상 신호에서는 정규화된 분산(CV)이 순수 분산보다
+민감하다. 단 이 논문은 저품질 저널(IJCA) 게재물로 원 PDF 미확보(E5)이며, 방법 계보 자체는
+Das et al.(2005, IEEE TSM)의 후속이라 방법의 정당성은 상위 근거가 뒷받침한다. 상세·재현은
+[[../../knowledge/equipment/epd-ml-statistical-insitu-metrology-integration]] §1·§5 Block A.
+출처: S. Ben Zakour, H. Taleb (2012), doi:10.5120/5746-7953.
+
+**Q2. Helu, Chien, Dornfeld(2014)는 AE EPD가 마찰력 방식보다 ~10초 빨리 검출해 5% 오버폴리시를
+방지했다고 보고한다. 이 두 수치("10초"와 "5%")가 자기일관적이려면 총 연마시간은 얼마여야 하며,
+이 조기검출 이득을 Preston 제거율로 환산하면 몇 nm인가?**
+
+A2. overpolish% = Δt / t_polish 이므로 5% = 10s / t_polish → t_polish = 200초. 이는 선행노트
+Li et al.(2017)의 주폴리싱(EPD) 구간 20~220초([[../../knowledge/equipment/epd-optical-motor-friction-eddy-current-comparison]] §1)
+안에 들어 자기일관적이다. Preston RR=229 nm/min(3 psi, Lv1-2·Lv2-2 재사용)로 환산하면
+10초 조기검출 = RR×10s ≈ 38.2 nm 덜 깎음. 이는 선행노트의 필터지연 초과제거(4.94초, 18.8 nm,
+Lv1-2 §5)와 같은 오더로, **센서 선택(AE 채택)이 필터 튜닝만큼 오버폴리시를 좌우**함을 보인다.
+재현은 [[../../knowledge/equipment/epd-ml-statistical-insitu-metrology-integration]] §5 Block C.
+출처: M. Helu, J. Chien, D. Dornfeld (2014), doi:10.1016/j.procir.2014.03.025 (초록 확인).
+
+**Q3. US10478937B2(Applied Materials)는 광학+와전류 통합(US6966816B2)을 넘어 어떤 인시츄 센서를
+도입했으며, 단일 종점 시각을 넘어 무엇을 노리는가? ILD/STI 연마 시 감시 주파수 대역은?**
+
+A3. 이 특허는 폴리싱 패드를 관통하는 도파관(waveguide)으로 결합한 **음향방출(AE) 센서**를
+도입했다(동작대역 125–550 kHz). 프로세서가 FFT 스펙트럼의 특정 대역 세기(또는 국소 극값 폭)가
+임계를 넘으면 하부층 노출로 보아 종점을 트리거하며, ILD/STI 연마에는 **225–350 kHz 대역**을
+감시한다. 나아가 복수 AE 센서의 신호 도착 시간차를 상호상관으로 삼각측량해 음향 이벤트의
+웨이퍼 상 **반경별(2D) 위치 매핑**까지 노린다 — 단일 종점 시각을 넘어선 다중센서 융합이다.
+특허는 1차 자료(가중 0.9)이나 실측 성능 수치는 청구범위 중심이라 없다. 상세는
+[[../../knowledge/equipment/epd-ml-statistical-insitu-metrology-integration]] §3.
+출처: US 10,478,937 B2, Applied Materials, 우선일 2015-03-05, 등록 2019-11-19.
