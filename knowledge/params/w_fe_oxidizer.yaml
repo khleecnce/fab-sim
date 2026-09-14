@@ -246,20 +246,33 @@ params:
     value: 121.8
     unit: mM
     note: >
-      기준 농도 = inhibitor_mM과 동일(1.5 wt% 포화점). 여기서 화학 배수 1.0, 이 팩의
-      kp_m_per_pa는 이 농도 근처(원 특허 실시예)에서 역산된 값이라 이중계상 방지를 위해
-      일치시켰다.
+      기준 농도 = inhibitor_mM과 동일(1.5 wt% 포화점) — 이중계상 방지를 위한 정의.
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#24] estimated 유지. 원래 이 노트가
+      "kp_m_per_pa가 이 농도 근처에서 역산됐다"고 적었으나, kp_m_per_pa의 실제 출처는
+      피콜린산 농도와 무관한 일반 W MRR 범위(300~600 nm/min @ 3psi) 대표값이다 — 조성
+      일치 근거는 성립하지 않는다. cu_h2o2_bta의 동일 성격 파라미터도 같은 사유로
+      verified→estimated 하향해 등급을 맞췄다(양쪽 다 estimated로 일치).
+      상세: knowledge/cmp/psi-inhibitor-strength-k-grade-ruling.md §A.4
     source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
     confidence: estimated
   inhibitor_strength_k:
     value: 2.117
     unit: "-"
     note: >
-      정지식각 90->11 A/min(8.2배 감소) 역산값. Cu/BTA의 k=3.0(cu_h2o2_bta.yaml)과 다른
-      화학종 전용 값 — 물질계별로 별도 파라미터가 필요함을 보여준다. 노트 verify PASS.
-      0.5wt%에서 모델은 이미 강한 억제를 예측하나 원문은 "억제 실패" 정성 서술 —
-      저농도 문턱 거동 불일치(RESPONSE_CONFLICT 후보, 노트 6절 한계 참조).
-    source: knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissolution-suppression.md
+      정지식각 90->11 A/min(8.2배 감소, 1.5wt% 앵커) 역산값. Cu/BTA의 k=3.0(cu_h2o2_bta.yaml)과
+      다른 화학종 전용 값.
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#24] unverified 유지(승격하지 않음). 사유:
+      원문 Figure 4b를 픽셀 판독해 0.5wt% 실측 정지식각(≈55.7 A/10min, None≈89.7 대비 잔여율
+      0.621)을 확보했다(기존 "정량값 없음" 기록을 정정). K=1108 L/mol(Table 1)+임의의 k로는
+      1.5wt% 앵커(잔여율 0.134)를 만족시키며 동시에 0.5wt% 값(0.621)을 재현할 수 없다 — K→0
+      극한(이론적 하한)에서도 예측 0.512로 실측 0.621에 17.6% 못 미친다. 즉 **k를 어떤 값으로
+      바꿔도(심지어 K까지 자유롭게 풀어도) 이 불일치가 해소되지 않는다** — 약한 고리가 k
+      단독이 아니라 Langmuir(n=1)+exp(-kθ) 함수형 자체의 구조적 한계(고농도 앵커에 맞추면
+      저농도에서 과포화). 대체 폐형식(임계피복률 문턱·Frumkin 등온식 등)은 이 코퍼스에서
+      확보하지 못해 코드 변경 없이 한계로만 기록. 판정#16과 달리(그쪽은 등급만 잘못 낮았던
+      순수 하이진 결함) 여기는 정량 반증이 실재해 승격 불가.
+      상세: knowledge/cmp/psi-inhibitor-strength-k-grade-ruling.md §A
+    source: knowledge/cmp/psi-inhibitor-strength-k-grade-ruling.md
     confidence: unverified
 
   film_bulk_hardness_pa:

@@ -141,10 +141,18 @@ params:
     value: 1.0
     unit: mM
     note: >
-      기준 농도. 여기서 화학 배수가 정확히 1.0이 되어 Kp가 그대로 쓰인다.
-      Kp가 이 조성의 문헌 MRR에서 역산됐기 때문에 반드시 일치시켜야 이중계상이 없다.
+      기준 농도. 여기서 화학 배수가 정확히 1.0이 되어 Kp가 그대로 쓰인다(이중계상 방지).
+      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#24] verified→estimated 하향. 사유:
+      이 노트는 원래 "Kp가 이 조성(1.0mM BTA)의 문헌 MRR에서 역산됐다"고 근거를 댔으나
+      감사 결과 `kp_m_per_pa`의 실제 출처(knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md)는
+      BTA 농도와 무관한 **일반 문헌 MRR 범위**(400~800 nm/min @ 2~3psi)의 대표값이지, 1.0mM
+      BTA 조성에서 역산된 값이 아니다 — "같은 조성에서 역산했다"는 근거 자체가 성립하지 않는다.
+      기준점 선택(ref_mM=inhibitor_mM)은 이중계상을 막는 **정의**로서는 여전히 옳지만(코드로
+      항등 확인 가능), "이 특정 값이 Kp 계산과 조성 일치를 이룬다"는 근거는 없다 — w_fe_oxidizer의
+      동일 성격 파라미터(estimated)와 등급을 맞춘다.
+      상세: knowledge/cmp/psi-inhibitor-strength-k-grade-ruling.md §A.4
     source: knowledge/cmp/slurry-components-overview.md
-    confidence: verified
+    confidence: estimated
   inhibitor_strength_k:
     value: 3.0
     unit: "-"
