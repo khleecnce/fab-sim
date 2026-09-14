@@ -120,6 +120,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
      신규 3건, qa_loop --strict PASS, ρ=0.9349 불변). 잔여: cu_h2o2_bta·w_fe_oxidizer
      (알루미나)·oxide_silica(콜로이달실리카)는 여전히 D99 미확보 — 대안 (b) LPC 임계
      전환이 다음 시도 대상.
+   - **2026-09-14 해소됨**: 알루미나 D99 절대값은 여전히 미확보이나, sti_ceria와 동일한
+     "화학종+용도 일치 1차 특허 baseline 이식" 논거로 3팩 전부 literature 승격
+     완료(knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md). 알루미나 2팩은
+     US7344988B2(DuPont, 알루미나 CMP 특허)의 D99.9/D50 상한(more preferred ≤5x)이 기존
+     유도값(비율 5.00)과 정확히 일치해 값은 그대로 두고 근거만 교체, oxide_silica는
+     US10894906B2(Versum, 실리카 코어 CMP 복합입자) 실측 절대값(287.5nm)으로 교체.
 
 3. **Δ damage_exponent 하향 조정 검토** (우선순위: 중, 신규 2026-09-09)
    - 무엇을: `sim/factors.py::_f_delta`의 `damage_exponent` 기본값 3.0 → 1.4~1.5 범위 검토.
@@ -218,3 +224,24 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   교차확증. **3팩 confidence 판정은 바꾸지 않음**(새 절대 D99값도 새 구현 요청도 없음 —
   기존 §9.4 판정 유지가 이 노트의 발견과 모순되지 않음). verify_claims/check_knowledge
   둘 다 통과.
+
+- 갭 해소 (2026-09-14): 알루미나 2팩 + 콜로이달실리카 1팩 abrasive_d99_nm estimated→literature —
+  knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md
+  (US7344988B2, DuPont Air Products Nanomaterials LLC, "Alumina abrasive for chemical
+  mechanical polishing" — freepatentsonline.com 2회 독립 fetch로 claim/명세 수치 교차 확인;
+  US10894906B2, Versum Materials US, LLC, "Composite particles, method of refining and use
+  thereof" — 동일 방법으로 Table 1 교차 확인). 6회차에 걸친 선행 탐색(알루미나 D99 4연속
+  실패 + 일반비 대체)이 소진한 자리에서, **화학종+용도가 정확히 일치하는 신규 1차 특허 2건**을
+  찾아 sti_ceria(§9, Hitachi Ex.1 baseline 이식)와 동일한 E2 논거를 적용했다. (1)
+  `cu_h2o2_bta`·`w_fe_oxidizer`(둘 다 알루미나): 기존 D99=D50×5.00 유도값을 **바꾸지 않고**
+  근거만 교체 — US7344988B2가 Cu/Al/W CMP 알루미나에 "post-milled D99.9 more preferably
+  <5x D50" 상한을 명시하는데, 이 팩들의 비율(정확히 5.00)이 그 상한과 정확히 일치한다.
+  (2) `oxide_silica`(콜로이달 실리카): 같은 5.00 비율이 실리카 코어 실측(US10894906B2 Table1
+  "No Treatment", D50=152.3/D99=287.5nm, 비율 1.887)과 100% 넘게 벌어짐을 확인하고 폐기,
+  대신 이 실측 절대값(287.5nm)을 baseline으로 채택(250→287.5, `abrasive_ref_d99_nm` 동반
+  이동). 세 팩 모두 confidence=literature. tests/test_factors.py의 대응 regression test
+  (`test_delta_synthesis_derived_d99_matches_d50_times_generic_ratio`)를 새 근거에 맞춰
+  갱신(estimated 고정 assert → literature 확인 + oxide_silica 실측값 assert로 교체) —
+  같은 날 판정#16이 이 테스트를 작성했으므로 후속 갱신으로 간주. ⚠ D99.9≠D99(안전한 방향의
+  상한 근사), damage_exponent는 이 회차 범위 밖(변경 없음). verify_claims/check_knowledge/
+  pytest tests/test_factors.py 셋 다 통과.

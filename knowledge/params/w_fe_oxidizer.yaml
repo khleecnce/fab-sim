@@ -173,36 +173,30 @@ params:
     value: 250.0
     unit: nm
     note: >
-      [2026-09-14 정정, delta-damage-model-synthesis.md §3] abrasive_size_nm(50 nm,
-      Bielmann 1999 실측) × D99/D50 일반비 5.00 = 250 nm 유도값(Silco/Levitronix 2008).
-      **D50×일반비 유도, 직접값 아님.** 이전 값 750 nm는 승격 전 옛 D50(150 nm)×5.00의
-      잔재였다 — 유도 입력(abrasive_size_nm)이 바뀌면 유도값과 _ref 짝을 함께 재계산해야
-      한다. abrasive_ref_d99_nm을 같은 편집에서 250으로 옮겨 기준 Δ=1.0 계약 불변.
-      정정 후 Showa Denko US6770218B2 선호 상한 0.5 µm 이내로 들어오고, Remsen 2006
-      스크래치 임계 680 nm 아래가 된다(이전의 "임계 초과 유일 팩" 진단은 옛 D50의 잔재).
-      알루미나 D99 실측값은 미확보(5회 탐색 실패).
-      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
-      사유: 이 노트 자신이 "알루미나 D99 실측값은 미확보(5회 탐색 실패)"라고 자백하는
-      값이 화학종·용도가 실제로 일치하는 sti_ceria의 Hitachi 특허 실측 D99(estimated였던
-      값)보다 높은 등급을 받는 것은 EVIDENCE-RULES 서열(E1~E6)과 정면 모순이다.
-      게다가 일반비 5.00 자체가 abrasive-d99-scratch-hitachi-us8439995.md §9 재현 검증에서
-      실측 세리아 데이터(비=3.13~10.42, 5.00과 최대 60% 괴리)로 재현되지 않는 것으로
-      확인됐다 — 유도 경로의 핵심 상수 자체가 약하다. Showa Denko 상한 대조는 "초과하지
-      않는다"만 보증할 뿐 750nm이라는 값을 검증하지 않는다. 결론: 실측 부재 + 미검증
-      일반비 = estimated(E4/E5급)가 정직한 등급.
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
-    confidence: estimated
+      abrasive_size_nm(50 nm, Bielmann 1999 실측) × D99/D50 비율 5.00 = 250 nm.
+      옛 근거(Silco/Levitronix 2008 일반비, 세리아 실측으로 재현 안 됨)로
+      2026-09-14 EVIDENCE-RULES 판정#16이 estimated로 강등했었다.
+      [등급 판정 2026-09-14, 재승격] estimated→literature. 새 근거: US7344988B2(DuPont
+      Air Products Nanomaterials LLC, "Alumina abrasive for chemical mechanical
+      polishing") — 화학종(알루미나)·용도("especially preferred for … copper and/or
+      tungsten") 정확히 일치하는 1차 특허. post-milled D99.9 "more preferably less
+      than **5 times**" D50 명세가 이 팩의 비율(250/50=5.00)과 정확히 일치. 값은
+      바꾸지 않는다(항등적으로 동일 계산) — 근거만 알루미나 전용 1차 특허 스펙으로
+      교체. ⚠ D99.9→D99 상한 근사(D99≤D99.9), 단일 실측 로트가 아니라 설계 스펙
+      범위(cu_h2o2_bta와 동일 논거). Showa Denko US6770218B2 상한 0.5 µm, Remsen 2006
+      스크래치 임계 680 nm 대조는 그대로 유지(정합적).
+      상세: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §2, §4.1, §5.
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §2, §4.1, knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
+    confidence: literature
   abrasive_ref_d99_nm:
     value: 250.0
     unit: nm
     note: >
       기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
-      [2026-09-14 정정] abrasive_d99_nm 750→250 재계산과 같은 편집에서 동반 이동
-      (delta-damage-model-synthesis.md §3).
-      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
-      맞춘다(EVIDENCE-RULES 판정#16).
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: estimated
+      [2026-09-14 재승격] abrasive_d99_nm과 동일 사유로 confidence를 literature로
+      맞춘다(knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.1).
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.1
+    confidence: literature
   damage_exponent:
     value: 2.54
     unit: "-"

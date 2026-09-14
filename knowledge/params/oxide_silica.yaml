@@ -159,37 +159,37 @@ params:
   # ── Δ 손상 유발도 (스크래치 위험) ─────────────────────────
   # ⚠ Δ는 MRR에 곱해지지 않는 **진단 전용** 팩터다(sim/factors.py MRR_COUPLED에 delta 없음).
   #   이 값을 바꿔도 MRR 예측은 변하지 않는다.
-  # ⚠ 아래 D99는 **실측 스펙이 아니라 유도값**이다: abrasive_size_nm(50) × D99/D50 일반비 5.00.
+  # D99는 US10894906B2(Versum, 실리카 코어 CMP 복합입자) Table 1 실측값 그대로(2026-09-14).
   #   abrasive_d99_nm == abrasive_ref_d99_nm이므로 기준 조건에서 Δ=1.0이 정확히 성립한다.
   #   의미 있는 것은 절대값이 아니라 recipe pack_overrides로 D99를 흔들었을 때의 상대 배수다.
   abrasive_d99_nm:
-    value: 250.0
+    value: 287.5
     unit: nm
     note: >
-      abrasive_size_nm(50 nm) × D99/D50 일반비 5.00 유도값. 일반비 출처는 Silco/Levitronix
-      CMP Users Conference 2008 슬라이드 p.11(3세대 관측 4.29~5.00, 중앙값 5.00, 산업
-      컨퍼런스 2차 자료). 오더 대조: Fuso US2025/0059050A1이 콜로이달 실리카 LPC를 세는
-      bin이 0.20 µm로 이 값과 같은 대역. 실측 D99 아님.
-      [등급 판정 2026-09-14, EVIDENCE-RULES 판정#16] literature→estimated 하향.
-      사유: cu_h2o2_bta/w_fe_oxidizer와 동일한 약한 고리(일반비 5.00, 2차 컨퍼런스
-      슬라이드 출처)를 그대로 쓴다. abrasive-d99-scratch-hitachi-us8439995.md §9에서
-      이 5.00이 유일하게 확보된 실측 세리아 데이터로 재현되지 않음(3.13~10.42로
-      최대 60% 괴리)이 확인됐다 — 화학종이 실리카라고 해서 이 결함이 면제되지 않는다.
-      Fuso LPC bin(0.20µm)과의 오더 일치는 250nm이라는 *값*의 정합성 정황일 뿐,
-      **일반비 유도 방법 자체**를 검증하지 않는다(bin 경계값과 D99가 같은 물리량이라는
-      보증이 없다) — 세 팩(oxide_silica/cu_h2o2_bta/w_fe_oxidizer)의 D99 등급을
-      유도 방법 기준으로 통일한다.
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2, knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §9
-    confidence: estimated
+      [2026-09-14 재승격, estimated→literature] US10894906B2(Versum Materials US, LLC,
+      "Composite particles, method of refining and use thereof") Table 1 "No Treatment"
+      행 실측값을 그대로 채택(Disc Centrifuge, D50=152.3nm/D99=287.5nm). 화학종(실리카
+      코어)·용도(oxide/STI/ILD CMP)가 이 팩(콜로이달 실리카, 산화막 CMP)과 일치 —
+      sti_ceria가 Hitachi Ex.1의 D99=700nm을 baseline으로 그대로 이식한 것과 동일한
+      논거(E2: 화학종+용도 일치 1차 실측, 이 팩 고유 조성은 아님). 옛 값(250nm, D50×
+      일반비 5.00)은 폐기한다 — 실리카 코어의 실측 비율(287.5/152.3=1.887)이 알루미나용
+      일반비(5.00)와 100% 넘게 벌어져(§verify), 화학종 무관 비율을 실리카에 쓸 수
+      없음이 확인됐기 때문이다. 옛 값(250nm)과 신규 값(287.5nm)은 15% 차이로 같은
+      오더 — 갑자기 튄 값이 아니다. ⚠ 세리아 코팅 복합입자의 코어 실측이라 순수
+      콜로이달 실리카와 표면화학은 다르다(분포 폭은 코어 합성 단계에서 대부분
+      결정된다고 보나 분리 실측은 아님).
+      상세: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §3, §4.2, §5.
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §3, §4.2
+    confidence: literature
   abrasive_ref_d99_nm:
-    value: 250.0
+    value: 287.5
     unit: nm
     note: >
       기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지.
-      [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로
-      맞춘다(EVIDENCE-RULES 판정#16).
-    source: knowledge/cmp/delta-scratch-damage-d99-oversize-particle-model.md §4.2
-    confidence: estimated
+      [2026-09-14 재승격] abrasive_d99_nm 250→287.5 값 교체와 같은 편집에서 동반 이동
+      (knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.2).
+    source: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §4.2
+    confidence: literature
   damage_exponent:
     value: 1.44
     unit: "-"

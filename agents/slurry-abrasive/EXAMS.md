@@ -265,3 +265,37 @@ A. 안 된다 — 두 지수는 물리량 자체가 다르다. Yang 2010의 지�
 1.44) 모두 sim 기본값 damage_exponent=3.0보다 훨씬 완만하다는 **방향성 교차확증**(세
 번째 독립 문헌·측정법).
 출처: 상동 §4·§4.1 verify 블록.
+
+## 갭 해소 — 알루미나·콜로이달실리카 D99 estimated→literature — 2026-09-14
+
+**Q1. cu_h2o2_bta·w_fe_oxidizer의 abrasive_d99_nm 값(500/250 nm)을 이번 회차에 바꾸지 않고
+confidence만 literature로 올린 이유는 무엇인가?**
+A. US7344988B2(DuPont Air Products Nanomaterials LLC, "Alumina abrasive for chemical
+mechanical polishing")가 이 팩들의 화학종(알루미나)·용도(Cu/Al/W CMP, "especially
+preferred for … copper and/or tungsten")와 정확히 일치하면서, post-milled 알루미나의
+D99.9가 "more preferably less than 5 times" D50이어야 한다고 명시한다. 두 팩의 기존
+비율(500/100=5.00, 250/50=5.00)이 이 상한과 정확히 같다 — 계산값을 바꿀 이유가 없고,
+근거의 출처만 "화학종 무관 2차 컨퍼런스 슬라이드(Levitronix 2008)"에서 "알루미나 CMP
+전용 1차 특허"로 교체하면 된다. 값 불변 + confidence만 상승이 가장 안전한 편집이라는
+원칙(이중 계상·_ref 불일치 방지)도 지켰다.
+출처: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §2, §4.1.
+
+**Q2. oxide_silica의 abrasive_d99_nm은 왜 250nm에서 287.5nm로 값 자체를 바꿨는가? 이것이
+sti_ceria의 D99=700nm 이식과 같은 논리인 이유는?**
+A. 알루미나에는 딱 맞았던 D99/D50=5.00 비율이 실리카 코어 실측(US10894906B2 Table 1
+"No Treatment", D50=152.3nm/D99=287.5nm → 비율 1.887)과 100% 넘게 벌어진다 — 화학종마다
+꼬리 비율이 다르므로 알루미나용 5.00을 실리카에 강제할 수 없다. sti_ceria가 이미
+Hitachi Ex.1의 D99=700nm을 "화학종+용도 일치, 이 팩 고유 조성은 아님"이라는 조건으로
+그대로 이식했던 것과 같은 논리로, oxide_silica도 화학종(실리카 코어)+용도(oxide/STI/ILD
+CMP)가 일치하는 이 실측 절대값(287.5nm)을 baseline으로 그대로 채택했다. `abrasive_ref_d99_nm`도
+같은 편집에서 250→287.5로 동반 이동시켜 기준 조건 Δ=1.0 계약을 유지했다.
+출처: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §3, §4.2, §5.
+
+**Q3. 이번 근거가 "실측이 아니라 상한 스펙"이라는 한계를 어떻게 정직하게 표기했는가?**
+A. US7344988B2의 알루미나 스펙은 D99.9(99.9백분위, D99보다 큰 축)에 대한 "preferably/more
+preferably/example" 3단계 설계 상한이지, Hitachi 세리아처럼 특정 로트의 4점 실측표가
+아니다. D99≤D99.9 부등식에 기대 "안전한 방향의 상한 근사"라고 노트 §2·§6에 명시했고,
+damage_exponent(cu_h2o2_bta/w_fe_oxidizer=2.54, oxide_silica=1.44)는 이번 회차 범위 밖이라
+건드리지 않았다는 것도 §6에 남겼다. US10894906B2 쪽은 세리아 코팅 복합입자의 코어 실측이라
+순수 콜로이달 실리카와 표면화학이 다르다는 한계도 표기했다.
+출처: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §6.
