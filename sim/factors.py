@@ -423,6 +423,13 @@ def _f_theta(rr: "ResolvedRecipe") -> Factor:
     return f
 
 
+# Γ 하한사유(2) 조건부 톨러런스 — aging 배수 A=pcr_now/pcr_ref 가 1에서 이만큼 벗어날 때만
+# τ(2차 인용 앵커) 사유로 estimated 하한을 건다. 기준조건(t=t_ref)에서는 A≡1이라 τ와 무관함이
+# knowledge/equipment/gamma-conditioning-load-confidence-basis.md §3 verify로 증명됨(5팩, τ×10·×0.1).
+# 0.01은 "A가 1%만 벗어나도 τ가 결과를 지배한다"는 뜻의 문턱이지 문헌값이 아니다(추정 아님, 정의).
+GAMMA_AGING_CONF_TOL = 0.01
+
+
 def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     """Γ 컨디셔닝 부하 — 디스크가 패드에 가하는 단위시간 절삭일 (Preston형).
 
@@ -442,19 +449,31 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
     (회전 상대속도 vs 왕복수)을 이중 계상하는 것이었다(2026-09-11 정정, 이전
     버전은 force×sweep×duty로 sweep을 속도 대리항처럼 썼다).
 
-    confidence는 여전히 `estimated`로 하한한다 — 이유(문헌 근거 포함):
-    (1) 디스크 내 상대속도의 Rs 보정항은 무시할 수 없다(에지 peak-to-peak
-    14.4%, §7) — disk RPM 드라이버가 팩에 없어 정량 반영이 불가능하다.
-    (2) 컨디셔너 자체의 PCR 시간적 소진(50h에 초기값의 16%로 감쇠,
-    conditioner-disk-pad-cutting-model.md §3) — `cond_disk_usage_hours`가
-    팩에 있으면 sim/tier2_physics/conditioner_pcr_decay.py의
-    `pcr_decay()`(TAU_AGING_HOURS≈27.4h, Entegris 2차인용 앵커 50h→16% 역산)로
-    반영된다. 없으면 여전히 디스크가 신품(aging 배수=1.0)이라고 암묵 가정한다.
-    이 앵커 자체가 2차 인용(Palmgren 2004 원문 미확보)이므로 confidence 하한은
-    유지한다. (3) 임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는
-    비선형이 F 선형항에 미반영이다. (1)과 (3)은 완화 가능한 근사가 아니라
-    구조적 결측이므로, 개별 드라이버가 literature 등급이어도 모델 자체의
-    신뢰도는 그보다 낮게 유지한다.
+    confidence 하한 3사유 — 2026-09-14 판정(knowledge/equipment/
+    gamma-conditioning-load-confidence-basis.md, EVIDENCE-RULES 판정#22):
+    (1) **해소** — 디스크 내 상대속도의 Rs 보정은 총량 스칼라에 대해 폐형식
+    상계 ⟨|v|⟩/(ω_p r_cc) = 1 + μ²/8 + μ⁴/192 (면적 가중)로 묶이고, 확보한 문헌
+    범위(|1−Rs| ≤ 0.75, R_disk/r_cc ≤ 0.63) 전체에서 스윕평균 편차 <1%(산업 조건
+    <0.2%)다(노트 §2). 에지 peak-to-peak 14.4%(disk-rpm-load-radius-pcr.md §4)는
+    **반경별 분포**의 몫이지 Γ(스칼라)의 결측이 아니다. disk RPM 드라이버 부재는
+    등급을 제한하지 않는다.
+    (2) **조건부** — 컨디셔너 PCR 시간적 소진은 `cond_disk_usage_hours`가 있으면
+    sim/tier2_physics/conditioner_pcr_decay.py의 `pcr_decay()`(TAU_AGING_HOURS≈27.4h,
+    Entegris 2차인용 앵커 50h→16% 역산, 판정#14 미확보 종결)로 반영된다. 이 함수는
+    **비율** A = pcr_now/pcr_ref 만 쓰므로 t = t_ref 에서는 τ와 무관하게 A ≡ 1 —
+    5팩 기준조건(t=t_ref=0)의 Γ는 τ를 10배·1/10배로 바꿔도 불변임을 노트 §3 verify가
+    증명했다. 따라서 2차 인용 앵커는 |A−1| > GAMMA_AGING_CONF_TOL 일 때만 estimated
+    하한 사유가 되고, 그때 notes에 이유를 남긴다(판정#14를 뒤집는 것이 아니라
+    "그 앵커가 기준조건 등급을 제한하지 않는다"는 별개 사실).
+    (3) **미해소 — 이 하한이 남는 이유.** 임계하중(critical downforce) 아래에서는
+    절삭이 안 일어난다는 비선형이 F 선형항에 미반영이다. 구형 팁 Hertz+Tabor로
+    유도한 P_c = π³R²(1.65Y)³/(6E*²)에 IC1000 물성(Saka 2008: E_p 0.5 GPa,
+    H_p 0.05 GPa)을 넣으면, 중심 사례(R=15 µm 가정, 작동 그릿 10%)는 그릿당 하중이
+    P_c의 ~40배(임계 downforce ≈0.10 lbf)로 운전점 4 lbf에서 멀지만, 마모 팁 반경 R의
+    1차 문헌값이 없고(후보 3편 미확보) R을 기하 상한(D/2=90 µm)으로 밀면 1.1배,
+    작동 그릿 18,000개까지 겹치면 0.28배로 **부호까지 뒤집힌다**. 임계 downforce
+    범위(0.02~14 lbf)가 운전점을 가로지르므로 하한 유지(노트 §4). ⚠ 임계 아래에서는
+    선형 F항이 과대추정이다.
 
     **S(stab)와의 결합(2026-09-14)**: 같은 `aging(pcr_decay)` 배수 A(t_disk)가 S의 컨디셔닝 강도
     G = duty/100·A 에도 들어간다(knowledge/materials/pad-steady-state-glazing-conditioning-balance.md
@@ -507,25 +526,44 @@ def _f_gamma(rr: "ResolvedRecipe") -> Factor:
                "duty": duty / duty_ref if duty_ref else 1.0,
                "aging(pcr_decay)": pcr_now / pcr_ref if pcr_ref else 1.0}
     f.status = "modeled" if len(have) == len(needed) else "partial"
-    # 등급 하한 판정 (2026-09-13) — 이 하한은 **정당하다**. 근거를 남긴다.
-    #   가장 약한 고리는 드라이버가 아니라 **PCR 시간 감쇠 앵커**다. 그 수치는
-    #   공개 백서가 재인용한 학회 발표(원문 미확보)에서 왔다 — 즉 2차 인용이라
-    #   드라이버가 전부 문헌값이어도 aging 배수의 크기를 문헌이 보증하지 않는다.
-    #   원문을 확보하거나 앵커를 독립 재현하면 이 하한을 제거할 수 있다.
-    #   (_knowledge_audit/planarization.md 미확보 항목 #12)
-    f.confidence = _worst_conf(_pack_conf(pk, *have, "rpm_platen"), "estimated")
+    # 등급 판정 (2026-09-14, 노트 gamma-conditioning-load-confidence-basis.md §5) —
+    #   드라이버 등급 위에 두 종류의 하한을 건다. 값(f.value)은 건드리지 않는다.
+    #   · 사유(3) 임계하중 비선형: **미해소** → 무조건 estimated 하한. 해제 조건은
+    #     마모 그릿 팁 반경 실측 + IC1000 항복강도 직접값 확보(노트 §4.4).
+    #   · 사유(2) τ 2차 인용 앵커(판정#14): 기준조건에서는 A≡1이라 무관 → |A−1| >
+    #     GAMMA_AGING_CONF_TOL 일 때만 하한(조건부). 사유(3)이 해소되면 이 조건부
+    #     하한만 남도록 분리해 두었다.
+    #   · 사유(1) Rs 보정: 해소(총량 스칼라 한정) — 하한 사유에서 제외.
+    aging_ratio = f.terms["aging(pcr_decay)"]
+    driver_keys = [*have, "rpm_platen"]
+    if pk.has("cond_disk_usage_hours"):
+        driver_keys.append("cond_disk_usage_hours")
+    driver_conf = _pack_conf(pk, *driver_keys)
+    f.confidence = _worst_conf(driver_conf, "estimated")          # 사유(3) 미해소 하한
+    if abs(aging_ratio - 1.0) > GAMMA_AGING_CONF_TOL:
+        f.confidence = _worst_conf(f.confidence, "estimated")    # 사유(2) 조건부 하한
+        f.notes.append(
+            f"⚠ aging 배수 A={aging_ratio:.4f}(|A−1|>{GAMMA_AGING_CONF_TOL:g}) — 이 배수의 크기는 "
+            "TAU_AGING_HOURS≈27.4h(Entegris 백서가 재인용한 Palmgren 2004, 원문 미확보, "
+            "EVIDENCE-RULES 판정#14)에 걸려 있어 estimated 하한(조건부). 기준조건(t=t_ref)에서는 "
+            "A≡1이라 이 사유는 등급을 건드리지 않는다(gamma-conditioning-load-confidence-basis.md §3).")
     f.sources = ["knowledge/equipment/conditioner-disk-pad-cutting-model.md",
-                 "knowledge/equipment/disk-rpm-load-radius-pcr.md"]
+                 "knowledge/equipment/disk-rpm-load-radius-pcr.md",
+                 "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"]
     if f.status == "partial":
         missing = [k for k in needed if k not in have]
         f.notes.append(f"⚠ 부분 모델링 — 결측: {', '.join(missing)}")
     f.notes.append("⚠ force×velocity(rpm_platen)×duty 곱 형태는 절삭일률의 1차 근사다 — "
-                   "임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는 "
-                   "비선형이 미반영. disk-conditioner 노트 참조.")
-    f.notes.append("⚠ velocity 항은 rpm_platen(패드 RPM)만 쓴다 — 디스크 자전비(Rs) 보정은 "
-                   "disk-rpm-load-radius-pcr.md §7 기준 디스크 평균으로는 <0.1%지만 디스크 "
-                   "에지에서는 peak-to-peak 14.4%까지 벌어진다(cond_disk_rpm 드라이버 부재로 "
-                   "정량 반영 불가 — 반경별 분포는 별도 모듈의 몫).")
+                   "임계하중(critical downforce) 아래에서는 절삭이 안 일어난다는 비선형이 "
+                   "미반영(estimated 하한 사유, 미해소). Hertz+Tabor 유도 P_c는 마모 팁 반경 R²에 "
+                   "걸리는데 R의 1차 문헌값이 없어 임계 downforce가 0.02~14 lbf 범위로 운전점 4 lbf를 "
+                   "가로지른다 — 임계 아래에서는 선형 F항이 과대추정이다"
+                   "(gamma-conditioning-load-confidence-basis.md §4).")
+    f.notes.append("velocity 항은 rpm_platen(패드 RPM)만 쓴다 — 디스크 자전비(Rs) 보정은 총량 스칼라에 "
+                   "대해 1+μ²/8+μ⁴/192(면적 가중 폐형식)로 묶이고 문헌 범위(|1−Rs|≤0.75, "
+                   "R_disk/r_cc≤0.63)에서 스윕평균 <1%라 등급 사유에서 제외(해소, "
+                   "gamma-conditioning-load-confidence-basis.md §2). 디스크 에지 peak-to-peak 14.4%는 "
+                   "반경별 분포 모듈의 몫이다(disk-rpm-load-radius-pcr.md §4).")
     f.notes.append("⚠ cond_sweep_cpm은 Γ 크기에 곱하지 않는다 — 문헌(disk-rpm-load-radius-pcr.md, "
                    "conditioner-sweep-algorithm-trajectory-density.md)에 따르면 스윕 왕복수는 "
                    "v_rel 식에 없고 반경별 궤적밀도(공간분포)만 결정한다. 총 절삭 부하가 아니다.")
