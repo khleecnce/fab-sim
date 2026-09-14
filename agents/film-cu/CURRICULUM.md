@@ -8,7 +8,7 @@
 - [x] Lv2-1 Cu dishing·erosion 물리와 패턴밀도·선폭 의존성 (2026-09-09, knowledge/cmp/cu-dishing-erosion-density-step-height-model-tugbawa.md)
 - [x] Lv2-2 배리어(Ta/TaN/Co) CMP와 Cu:배리어:옥사이드 선택비 (2026-09-11, knowledge/cmp/film-cu-barrier-ta-tan-co-selectivity.md)
 - [x] Lv3-1 최신 리뷰: 저압 Cu CMP, 갈바닉 부식, 고종횡비 배선 (2026-09-12, knowledge/cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review.md — 게이트 도구는 python 미승인 세션이라 총괄 실행 필요)
-- [ ] Lv3-2 Cu 막질 Kp·화학 상수·dishing 커널 파라미터 + 문헌값 재현 (sim/tier2)
+- [x] Lv3-2 Cu 막질 Kp·화학 상수·dishing 커널 파라미터 + 문헌값 재현 (sim/tier2) (2026-09-15, knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 Cu 실데이터(NPW MRR·PTW dishing/erosion 맵) 스키마 + 패턴 의존 보정 파라미터 — PTW 보정의 대표 사례

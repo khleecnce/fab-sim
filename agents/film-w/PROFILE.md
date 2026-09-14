@@ -2,7 +2,7 @@
 
 ## 현재 레벨: Lv2 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1, Lv3-2
 - 다음 단원: Lv3-2 (W Kp·산화 속도 파라미터 + 문헌값 재현, sim/tier2)
 
 ## 역할
@@ -55,7 +55,27 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (3) 저결함 3축=입자(개질·ζ)×산화제/억제제(Fe³⁺/H₂O₂/글리신)×pH 완충(부산물 산성화 상쇄). verify_claims
   ✓(출처 7/코드 3블록) · check_knowledge ✓. EXAMS Lv3-1 3문항.
 
+- Lv3-2 (2026-09-15): W Kp 문헌 역산·산화제 농도-MRR 곡선·온도의존. 노트
+  `knowledge/cmp/w-cmp-preston-kp-oxidizer-rate-literature-reproduction.md`. 1차 원문 5건 —
+  Stojadinović 2016(J.Bio-Tribo-Corros. DOI 10.1007/s40735-016-0041-4, EPFL, 미러 사이트→미러 사이트
+  신규 확보)·lim2013(Appl.Surf.Sci. DOI 10.1016/j.apsusc.2013.06.003)·US8070843B2·Wang 2012(ECST DOI
+  10.1149/1.4717508)·Bouvet 2002(JVST B DOI 10.1116/1.1490393). 핵심 정량: (1) `Kp=ḣ/(P·V)` 3독립문헌
+  역산 중앙값 **1.1e-13 m²/N**(범위 5e-14~1.7e-13) — 팩 2.8e-13은 **~2.6배(밴드 1.8~3.4배) 계통과대**,
+  단 V=ω·R_cc의 R_cc 미보고라 confidence estimated 유지 권고. (2) Preston: Wang 선형실측(기계율속)
+  vs Bouvet 화학율속 포화(a→0) vs Stojadinović 모델 P^0.5 — 레짐분기, 팩 선형(1,1) 유지. (3) 산화제
+  포화농도: Fe(NO₃)₃ ~0.1 wt% / KIO₃ ~2 wt% / H₂O₂ >6.1 wt%(정점미도달) — 팩 산화제곡선(H₂O₂ 스케일)이
+  선언종(Fe(NO₃)₃)과 30~60배 불일치. (4) 온도: 양의 계수 방향만 1차(Ea kJ/mol 미확보). verify_claims
+  ✓(출처 7/코드 3블록) · check_knowledge ✓. EXAMS Lv3-2 3문항.
+
 ## 구현 요청 (software-lead용, 우선순위 순)
+
+- (P1) **W 산화제 곡선 축을 산화제 종별로 분리 + Kp 상단편차 반영**: 현재 `w_fe_oxidizer.yaml`은
+  oxidizer=Fe(NO₃)₃ 선언인데 산화제 곡선 파라미터(oxidizer_langmuir_K=0.549/wt%, 정점 H₂O₂ 3 wt%)는
+  H₂O₂ 스케일이다. 촉매 Fe(NO₃)₃ 포화는 ~0.1 wt%로 30~60배 낮으므로, 산화제 곡선을 **종별 축**으로
+  분기(Fe(NO₃)₃: 저농도포화 ~0.1 wt% / H₂O₂: 정점 >6.1 wt% / KIO₃: ~2 wt%). 근거노트 위 §5·§7.
+  검증 문헌값: lim2013 Fe 0/0.01/0.05 wt%→56/923/1177 Å/min; Stojadinović KIO₃(pH5) 0/0.1/0.5/2/4%→
+  40/140/750/1500/1600 Å/min; US8070843B2 H₂O₂ 0/2.03/4.06/6.1%→96/1508/2396/2965 Å/min. **우선순위
+  P1**(팩 선언종과 곡선 불일치는 Fe계 조건 시뮬레이션을 구조적으로 왜곡). sim/ 직접수정 금지 — 크론 판정.
 
 - (P2) **벌크·버프 2단계 W CMP MRR/선택비/침식 트레이드오프 모델**: 두 단계를 서로 다른 동작점으로
   태그. 벌크: 고 MRR(W ~318 nm/min)·고선택(W:oxide ~40–61:1), 출력=throughput·초기 EOE. 버프: 저 MRR

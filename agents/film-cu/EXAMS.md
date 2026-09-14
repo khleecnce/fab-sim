@@ -158,3 +158,42 @@ Gamagedara 2024, Han 2012)를 들어라. 저압 CMP의 MRR 문제에 대한 2021
 출처: [[../../knowledge/cmp/cu-cmp-low-pressure-galvanic-corrosion-advanced-interconnect-review]] (Lee et al. 2021 Sci Rep doi.org/10.1038/s41598-021-00689-6
 전문, Gamagedara & Roy 2024 Materials doi.org/10.3390/ma17194905 전문, Moon et al. 2023 Adv Sci doi.org/10.1002/advs.202207321 리뷰, Han et al. 2012
 NRL doi.org/10.1186/1556-276X-7-603 전문, Cabot KR101557514B1 전문, Tamilmani 2005 UA 학위논문 hdl 10150/280774 전문)
+
+---
+
+## Lv3-2 — Cu Kp(Preston 계수) 문헌 역산 + Preston 선형성·화학상수·dishing 커널 재대조
+
+**Q1.** 팩 `cu_h2o2_bta.yaml`의 `kp_m_per_pa=3.5e-13 m²/N`이 문헌으로 뒷받침되는지 판정하라. Preston식에서 Kp의 차원을 밝히고,
+Tugbawa(2002)의 블랭킷 Cu 제거율 r_cu를 Kp로 환산해 팩값과 대조하라. 왜 Guo(2004)의 Kp가 팩값보다 낮은 것이 오히려 물리적으로
+옳은가?
+**A1.** Preston `ḣ=Kp·P·V`에서 Kp = MRR[m/s]/(P[N/m²]·V[m/s]) = m²/N = Pa⁻¹. Tugbawa 2002 Table 3.3의 블랭킷 Cu r_cu=159 Å/s
+(=954 nm/min)를 4 psi(27579 Pa)·V=ω·r_cc=(75·2π/60)·0.2=1.571 m/s로 나누면 Kp=3.67e-13 m²/N — 팩값 3.5e-13과 5 % 이내 일치한다.
+r_cu 4점(120/159/239.6/249.5 Å/s)은 Kp 2.8~5.8e-13(팩 대비 0.79~1.65×)로 팩값을 감싼다. 산성/중성 H2O2·기계 계 전체 분포(Guo
+1.75e-13·wei2013 1.1~2.0e-13·Li&Babu 1.17e-13·Tugbawa 2.8~5.8e-13)는 1.1~5.8e-13(중앙 ≈1.9e-13)이고 팩값은 그 상단부에 놓여
+**반증되지 않고 뒷받침된다**. Guo(2004)는 화학 첨가제가 전혀 없는(원문 "No chemicals were added") 순수 기계 제거라 Kp=1.75e-13으로
+팩(H2O2 산화+glycine 착화로 연화된 Cu를 깎음)의 절반이다 — Kp_chem > Kp_mech, 즉 화학강화가 Kp를 기계 baseline의 약 2배로 올린다는
+방향이 옳다(Lv1-2의 MRR/SER 비 11.5와 정합). 단 rpm→V 환산의 r_cc(0.15~0.24 m) 가정이 Kp를 ±30~44 % 흔들어 절대값은 estimated
+유지가 정직하다.
+
+**Q2.** Guo & Subramanian(2004)이 한 문헌 안에서 P·V를 각각 스윕해 관측한 Preston 지수의 실측 거동을 세 구간으로 정리하고, 이것이
+팩의 순수 Preston(a=b=1) 가정에 주는 판정을 말하라.
+**A2.** ① **속도 스윕**: 저속에서 원점 통과 직선(b≈1, Preston 성립)이나 **V > ~0.7 m/s에서 포화**(b→0). 또 K_P가 3.6 psi와 6.8 psi에서
+(1.21±0.05)·(1.21±0.07)×10⁻⁹ psi⁻¹로 오차 내 동일 → Kp가 P·V 독립 상수임을 실측. ② **압력 스윕**: threshold 1~2 psi 아래는 MRR≈0
+(윤활막, 실접촉 소멸), P < 6 psi 선형(a≈1). ③ **P > 6 psi에서 MRR ∝ P^(1/6)**(a≈0.17로 급격히 꺾임). 판정: 팩의 순수 Preston은
+**저압(threshold~6 psi)·저속(≲0.7 m/s) 레짐에서만 유효**하다. 팩 운전점(2~3 psi, V~1 m/s)은 압력은 유효창 안이나 속도는 포화 초입
+이라, 팩 Kp는 "포화 문턱 근처의 유효 계수"이고 고속/고압 what-if의 선형 외삽은 MRR을 과대예측한다(6→12 psi에서 P¹ vs P^1/6이면 ~1.78배
+과대). 이는 Luo-Dornfeld(P^0.5)·Tseng-Wang(P^5/6 V^1/2) 등 비선형 확장의 실측 동기다. Guo는 알루미나·무첨가라 지수 절대값은 팩에
+이식하지 않고 방향·레짐만 채택(E4).
+
+**Q3.** H2O2 농도-MRR 정점 위치가 팩 `oxidizer_peak_wt_pct=3.0`을 확증하는 문헌 근거를 들고, 이것이 판정#20(chi 재파라미터화)의
+알칼리 단조감소 관측과 충돌하는지 EVIDENCE-RULES로 판정하라.
+**A3.** Seal et al.(Gopal 2007 인용): 170 nm 알루미나 + 0.1 M glycine, **pH 4**, H2O2 1~10 wt% 스윕에서 Cu 최고 제거율이 3.6 wt%
+H2O2에서 나오고(정적식각은 <10 nm/min로 H2O2 무감), Gopal 모델도 2~3.6 wt% 정점·1.4→3.6 wt%에서 MRR +150 %를 재현한다. 팩값 3.0
+wt%는 이 산성 정점(3.6 wt%)과 20 % 이내이고 Aksu(2003)의 산성 1~3 % 정점과 같은 방향이라 **독립 확증**된다. 판정#20의 US20110165777A1
+단조감소는 **알칼리 pH 10.3** 관측이고 Seal/팩은 **산성 pH 4**이다 — pH 레짐이 다르며, 판정#20 자신도 "계가 다르면 정점 위치가
+이동"함을 전제했다. 따라서 EVIDENCE-RULES §3(둘 다 맞되 레짐이 다름)에 따라 **평균내지 않고 레짐 분리**한다: 팩은 산성(slurry_ph=4.0)
+이므로 산성 정점형이 맞고, 알칼리 유래 `oxidizer_passivation_K` 경로와 산성 `oxidizer_peak_wt_pct`의 병존 정합화는 구현요청으로 남긴다.
+
+출처: [[../../knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation]] (Guo & Subramanian 2004 JES DOI 10.1149/1.1640632
+전문, Wei et al. 2013 Surf Coat Technol DOI 10.1016/j.surfcoat.2012.04.004 전문, Gopal & Talbot 2007 JES DOI 10.1149/1.2718474 전문,
+Li & Babu 2001 doi.org/10.1149/1.1342185, Tugbawa 2002 MIT thesis hdl 1721.1/8083, Lee et al. 2021 doi.org/10.1038/s41598-021-00689-6)

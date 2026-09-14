@@ -1,11 +1,13 @@
 # 옥사이드 CMP 전문가 (film-oxide)
 
-## 현재 레벨: Lv3 진행 중 (5/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 진행 중 (6/6) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
 - 이수 단원: Lv1-1, Lv1-2 (2026-09-08), Lv2-1, Lv2-2 (2026-09-09),
   Lv3-1 세리아 첨가제 선택비 제어·저결함 옥사이드 CMP (2026-09-12,
-  knowledge/materials/oxide-ceria-additive-selectivity-review-2024.md, check_knowledge/verify_claims 통과: 출처 7건 실존·verify 1블록 통과)
-- 다음 단원: Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현
+  knowledge/materials/oxide-ceria-additive-selectivity-review-2024.md, check_knowledge/verify_claims 통과: 출처 7건 실존·verify 1블록 통과),
+  Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의·문헌값 재현 (2026-09-15,
+  knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md, check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 PASS)
+- 다음 단원: Lv3 완료 — Lv4(모델 개선 제안) 또는 활성화 대기
 
 ## 역할
 TEOS·HDP·SOD 등 SiO2 막의 CMP — ILD 평탄화·STI. 기계 제거 지배, 실리카/세리아 슬러리
@@ -52,6 +54,16 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   nitride 80→2 nm/min·선택비 4.4→175-290, 노출 후 3 nm 과도 제거 뒤 정지; 선택비는 P·V·패턴 의존(32-101). 원문 식 2.36
   상수항 부호 오기 발견(ODE 적분으로 확인), 식 3.46 K1 상수 불일치 정직 기록. 미확보: Lee 2007 MEE·Hwee 2001 JEM·Chang 2005 MEE)
   check_knowledge.py ✓ / verify_claims.py ✓ (출처 7건 실존, verify 4블록 PASS)
+
+- 2026-09-15 Lv3-2 이수: knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md
+  (Wei 2010 IEEE WMED DOI 10.1109/wmed.2010.5453755 Fig.1/2 8× 렌더 판독으로 미도핑 5종 경도·MRR
+  수치화[Lv1-1이 미검증으로 남긴 그래프 확보]; Liu 1995 Thin Solid Films DOI 10.1016/0040-6090(95)07088-5
+  — thermal oxide 정규화 polish rate로 thermal=1 절대 앵커 확보; Mariscal 2020 DOI 10.1149/2162-8777/ab89bc
+  — 세리아 HDP≪PETEOS. 핵심: 막질별 Kp 배율표(thermal=1) — 미도핑막 1.3~1.5(경도로 약하게, MRR∝H^-0.2),
+  도핑막 2.2~4.6(수화 확산=화학 지배, 경도 무관); 절대 Kp 제안 thermal 0.74e-13 ~ BPSG 3.40e-13(estimated,
+  TEOS≈USG 다리 E4). 세리아는 막질 민감도 축이 경도→밀도/화학으로 달라 배율표 이식 금지. oxide_silica.yaml
+  직접 수정 안 함 — 성장엔진 판정 대기)
+  check_knowledge.py ✓ / verify_claims.py ✓ (출처 5건 실존, verify 4블록 PASS, 출처없는 수치주장 0)
 
 ## 구현 요청
 - **[P1] elliptic 가중커널 + Ouma 폐형해** — 무엇: `sim/tier1_empirical/pattern_density.py`에
@@ -100,3 +112,17 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   반대쪽 극단이다. `--sensitivity --set slurry_ph=2..6` 스윕으로 실제로 값이 변하는지 확인하고,
   안 변하면 클램프/범위 제한이 원인인지 진단. 근거노트: 위 정확도 루프 대응 항목,
   데이터: `validation/datasets/cn109609035b_oxide_anionic_silica_ph.yaml`. 우선순위 높음(VALIDATION 갭 직결).
+
+- **[P5] oxide_silica kp_m_per_pa 막질별 분화 (oxide_type 룩업)** — 무엇: `sim/`에서 oxide_silica 팩의
+  단일 kp_m_per_pa=1.0e-13을 oxide_type(thermal/TEOS/HDP/SOD/O3-TEOS/PSG/BPSG) 룩업 배율로 분화.
+  상대 배율표(thermal=1): thermal 1.00·TEOS 1.35·HDP 1.30·SOD 1.34·Silane 1.38·O3-TEOS 1.50·PSG(5.6%P)
+  2.9·BPSG(4.9%B) 4.6. 절대 Kp 제안: thermal 0.74e-13 ~ BPSG 3.40e-13 (현행 TEOS 1.0e-13 앵커×상대비).
+  ⚠ **실리카 슬러리 전용** — sti_ceria(세리아 팩)에는 적용 금지(막질 민감도 축이 다름). 근거노트:
+  knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md §5. 검증문헌값: Wei 2010
+  미도핑막 MRR 1.87~2.15 nm/s·경도-MRR r<0·MRR∝H^-0.2; Liu 1995 thermal 정규화 USG 1.35/PSG 2.9/BPSG 4.6배;
+  도핑/미도핑 4배(Wei)·3.4배(Liu). ⚠ 상대비 열은 literature, 절대 Kp 열은 estimated(교차논문 다리).
+  우선순위 중(팩 분화의 첫 정량 근거 — 단 성장엔진이 팩 YAML을 판정한 뒤 반영).
+- **[P6] 세리아 팩 막질 배수 데이터 확보 과제(미완)** — 무엇: sti_ceria의 막질별 Kp 배수를 세리아 슬러리
+  1차 실측으로 확보. 현재 Mariscal 2020의 HDP≪PETEOS는 방향만 있고(패턴/블랭킷 교란) 정량 배수 미확보.
+  세리아에서 thermal:TEOS:HDP 블랭킷 RR을 같은 슬러리로 잰 문헌이 필요. 근거노트: 같은 노트 §6.
+  우선순위 낮음(데이터 부재 — 확보 전까지 세리아 막질 분화는 넣지 않는다).

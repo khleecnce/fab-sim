@@ -2404,6 +2404,16 @@ completion 40/50(C2 Γ5·χ1·ψ3·Δ1 잔존 — 전부 Max워커 판정#22~24�
 ⚠ 코퍼스 fetch 9/60 — ECS/IOP/JJAP 계열 전면 봉쇄 지속. 소형 OA 저널만 통과. 미러 사이트 도메인은 봇차단, 미러 사이트 경로만 작동(2편 확보).
 다음 회차 후보: 4/6 잔여 없음 → 5/6 그룹 Lv3-2(sim/tier2 파라미터 단원)는 구현 성격이라 소프트웨어 부문 BACKLOG 연계 필요. 심야 학습은 Cal-1(G2 이후 허용) 또는 반려 부채 0이므로 종료 검토.
 
+## 2026-09-15 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — film-cu Lv3-2 · film-w Lv3-2 · film-oxide Lv3-2 (각 5/6→6/6 완주)
+QA루프 #110 PASS(유의 7/21 ρ=0.9537 불변, 격리 1: dandu2009 F2+F4, 3회차 연속 하락 없음). corpus fetch 7/60(ECS·IOP·JJAP 봉쇄 지속), extract 7(rates 0 — 소형 OA만), total 8960/with_fulltext 1526/queue fetch 7434·learn 1514.
+completion 40/50 불변(C2 Γ5·χ1·ψ3·Δ1). 대상 선정: 4/6 잔여 없음 → C2 미충족 팩(cu_h2o2_bta·w_fe_oxidizer·oxide_silica)의 Kp를 1차 문헌으로 근거화하는 film-* Lv3-2 3단원. Max워커(ψ sti_ceria, 03:56 병행 실행)·성장엔진과 팩 무충돌(sim/·params yaml 수정 금지 지시). claude -p opus 3병렬(--max-turns 80), ~25분.
+- film-cu Lv3-2: knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation.md (출처7·코드5블록). 1차 (P,V,MRR) 역산 Kp 분포 1.1~5.8e-13 m²/N(중앙 1.9e-13), Tugbawa 2002 블랭킷 r_cu=159 Å/s@4psi 역산 3.67e-13 ↔ 팩 3.5e-13 5% 이내 → "미재현" 딱지 종결(단 rpm→V 환산 r_cc ±30~44%라 estimated 유지 권고). Guo 2004 Preston 유효창(P≲6psi·V≲0.7m/s, 고압 P^1/6). Seal/Gopal 산성 pH4 H2O2 정점 3.6wt% ↔ 팩 3.0 확증, 판정#20 알칼리 단조감소와 pH 레짐 분리. dishing r_cu와 kp가 같은 Kp로 수렴 확인. 구현요청 2건(P2 Preston 유효창 플래그·P3 산화제 pH 레짐 분기). Gopal&Talbot 2007 papers 등록.
+- film-w Lv3-2: knowledge/cmp/w-cmp-preston-kp-oxidizer-rate-literature-reproduction.md (출처7·코드3블록). lim2013/US8070843B2/Stojadinović 2016 역산 Kp 중앙 1.1e-13(5e-14~1.7e-13) vs 팩 2.8e-13 **~2.6배 계통 과대**(어느 문헌도 V 미보고, R_cc=0.13m 가정이 지배 오차 → estimated 유지). Preston 지수: Wang 2012 선형 실측 채택, Bouvet 화학율속 포화·Stojadinović P^0.5(E4 모델)는 레짐 분기로 미채택. 산화제 포화농도 Fe(NO3)3 ~0.1wt%/KIO3 ~2wt%/H2O2 >6.1wt% — **팩이 Fe(NO3)3 선언인데 곡선은 H2O2 스케일(30~60배 불일치)** → 구현요청 P1. Ea 수치 미확보(방향만). Stojadinović 2016 미러 사이트 확보·Wang 2012 등록.
+- film-oxide Lv3-2: knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md (출처5·코드4블록). Liu 1995(wet thermal 정규화 앵커)+Lv1-1 미판독 Fig 8× 렌더 판독+Mariscal 2020. 상대 Kp(thermal=1): TEOS 1.35·HDP/SOD/O3-TEOS 1.30~1.50·PSG 2.9·BPSG 4.6(상대비 literature E3, 절대 Kp는 교차논문 다리라 estimated). 미도핑막 MRR∝H^-0.2 약상관, 도핑막은 경도 무관·수화 화학 지배. 세리아는 민감도 축이 경도→밀도/화학으로 달라 배율표 이식 금지(실리카 HDP/TEOS 0.964 vs 세리아 HDP≪PETEOS). 구현요청 P5(kp 막질 분화)·P6. liu1995 등록.
+품질게이트(check_knowledge --all 직접실행): **195/195 통과**. verify_claims 신규 3편 전원 PASS(DOI 19건 실존, 코드 12블록 0실패). 429 흔적 없음.
+체크박스 3개 [x], ORG §5 3행 갱신(film-cu·film-w·film-oxide 6/6). knowledge/params·sim 미변경 — 팩 갱신 제안표 3건은 성장엔진 판정 대기(특히 w_fe_oxidizer Kp 2.6배·산화제 스케일 불일치는 C2 Γ/ψ 칸과 직결).
+다음 회차 후보: 5/6 잔여 13명 중 Lv3-2가 파라미터 근거화 성격인 film-nitride·film-poly-si·slurry-abrasive(κ)·slurry-chemistry(χ/ψ 화학상수). 성장엔진에 팩 갱신 판정 3건 인계.
+
 ## 2026-09-14 10:00 [성장엔진] tau 이중계상 제거 + TR(턴오버비) 채널 신설 — 완성격자 27→32/50
 COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence 숫자만 올린 게 아니라 **tau의 결합 형식 자체를 교체**한 것이다.
 - 발견: tau가 쓰던 eta(슬러리 이용효율) 항과 이번에 넣으려던 MRT 항이 **종속**이다 — Mu 2016 정의를 풀면 eta*MRT = V_total/q_total이고 실측 6점에서 2% 이내 일치(최악 +1.83%).

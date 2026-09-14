@@ -180,3 +180,38 @@ Table 2에서 입경↑(68→160 nm)에 W RR↑(146→330 nm/min)이 보이지�
 따라서 EVIDENCE-RULES 판정#6("W MRR은 알루미나 입경과 무관")을 뒤집지 않으며, 입경-MRR 지수 추출은
 [[../../knowledge/cmp/w-cmp-abrasive-agglomeration-scratch-multiplier-egan-kim2019]](slurry-abrasive) 영역이라
 여기서 하지 않는다. 출처: Versum Materials, EP3597711B1·KR102732305B1; US20190211228A1(2019).
+
+## Lv3-2 — W Kp·산화 속도 파라미터 + 문헌값 재현
+
+**Q1.** `w_fe_oxidizer.yaml`의 `kp_m_per_pa=2.8e-13`이 1차 문헌 실측과 얼마나 맞는지 판정하라.
+어떤 (P,V,MRR) 문헌을 썼고, 왜 절대값이 아니라 "자릿수·계통편차"로만 말할 수밖에 없는가?
+**A1.** 세 독립 문헌에서 `Kp=ḣ/(P·V)`를 역산했다 — lim2013(6 psi/70 rpm/117.7 nm/min, Fe(NO₃)₃),
+US8070843B2(4 psi/79 rpm/296.5 nm/min, H₂O₂), Stojadinović 2016(5 psi/50 rpm/150 nm/min, KIO₃).
+역산 분포는 **중앙값 1.1e-13, 범위 5e-14~1.7e-13 m²/N**로, 팩값 2.8e-13은 중앙값의 **~2.6배**
+(R_cc 밴드 1.8~3.4배). 자릿수(10⁻¹³)는 맞지만 상단 계통과대다. 절대값을 못 박는 이유는 **모든
+문헌이 선속도(m/s)를 안 주고 rpm만 주기 때문** — V=ω·R_cc로 근사하되 중심간거리 R_cc가 미보고라
+0.13 m 가정이 지배 불확실도다. 단 §8 verify가 R_cc 0.09~0.17 밴드에서도 팩값에 도달하려면
+R_cc≈0.05 m(비현실적)이 필요함을 assert하므로 "계통 2배 과대"는 견고. confidence는 estimated 유지.
+근거: knowledge/cmp/w-cmp-preston-kp-oxidizer-rate-literature-reproduction.md §3·§8.
+
+**Q2.** W CMP는 Preston 선형(a=b=1)인가 산화-제거 순환 때문에 포화하는가? 세 문헌을 레짐으로
+나눠 답하고, 왜 팩의 선형식을 유지하기로 판정했는지 EVIDENCE-RULES 원칙과 함께 설명하라.
+**A2.** **평균 금지 — 레짐 분기가 정답이다.** ① 기계율속: Wang 2012이 Reflexion GT에서 Prestonian
+선형(MRR∝P·V)을 실측 검증(작업창 내). ② 화학율속(포화): Bouvet 2002은 W 제거율이 입경·실리카
+함량과 무관("chemical related") → 실효 Preston 지수 a→0. ③ 기구론 정밀화: Stojadinović 2016
+트라이보부식 모델이 RR∝P^0.5(Tseng·Luo-Dornfeld 계보). 셋은 충돌이 아니라 산화막 재형성 속도가
+기계제거를 따라잡는지에 따른 레짐 차이다. **팩은 선형 Kp·P·V를 쓰는데 이는 확보한 유일한 직접
+실험검증(Wang)과 정합**하므로 a=b=1 유지 — P^0.5는 모델 예측(E4)이라 미채택(1차 실측 W 지수
+회귀표 부재). 화학율속 포화는 Kp가 아니라 산화제 곡선(§5)이 담당한다.
+근거: 같은 노트 §4; EVIDENCE-RULES.md §3(스코프 분기)·금지(평균 금지).
+
+**Q3.** 팩이 산화제를 Fe(NO₃)₃로 선언하면서 산화제 곡선은 H₂O₂ 스케일로 캘리브레이션한 게 왜
+문제인가? 세 산화제의 포화 농도를 1차 수치로 들어 설명하라.
+**A3.** 세 산화제 모두 상승 후 포화하지만 **포화 농도가 100배 규모로 다르다**: Fe(NO₃)₃(촉매)는
+region I→II 전이가 **~0.1 wt%**(lim2013: 0.05 wt%에서 이미 1.0 wt% MRR의 91%), KIO₃는 pH5에서
+**~2 wt%**(Stojadinović: 2%→4% 증가율 6.7%로 포화), H₂O₂는 **6.1 wt%까지 단조상승(정점 미도달)**
+(US8070843B2). 팩은 oxidizer를 Fe(NO₃)₃로 선언했지만 `oxidizer_langmuir_K=0.549/wt%`·정점은
+H₂O₂ 3 wt% 스케일에서 나왔다 — 촉매 Fe의 포화(~0.1 wt%)보다 **30~60배 오른쪽**에 정점을 두는
+셈이라 Fe(NO₃)₃ 농도축에는 물리적으로 안 맞는다. 갱신 제안: 산화제 곡선을 **종별로 축 분리**하고
+현행 langmuir_K는 H₂O₂ 전용으로 명시. 또 H₂O₂ 정점(3 wt%)은 실측(6.1 wt%까지 상승)과 반대라
+정점을 6.1 wt% 우측으로 옮겨야 한다. 근거: 같은 노트 §5·§7; verify 블록2.

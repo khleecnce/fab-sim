@@ -8,7 +8,7 @@
 - [x] Lv2-1 ILD CMP: 다층 배선 평탄화, 글로벌/로컬 평탄도 (2026-09-09, knowledge/cmp/ild-cmp-planarization-global-local-density.md)
 - [x] Lv2-2 STI CMP: 세리아 슬러리 고선택비, 나이트라이드 정지, 디싱 (2026-09-09, knowledge/cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md)
 - [x] Lv3-1 최신 리뷰: 세리아 첨가제 선택비 제어, 저결함 옥사이드 CMP (2026-09-12)
-- [ ] Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현 (sim/tier2)
+- [x] Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현 (sim/tier2) (2026-09-15, knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 옥사이드 실데이터(막종류·MRR·WIWNU·디싱) 스키마 + 보정 파라미터(Kp_oxide, 선택비) 정의

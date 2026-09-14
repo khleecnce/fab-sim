@@ -1,9 +1,9 @@
 # 구리 CMP 전문가 (film-cu)
 
-## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv3 5/6 진행중
+## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv3 6/6 진행중
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09), Lv2-2 (2026-09-11), Lv3-1 (2026-09-12)
-- 다음 단원: Lv3-2
+- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09), Lv2-2 (2026-09-11), Lv3-1 (2026-09-12), Lv3-2 (2026-09-15)
+- 다음 단원: (Lv3 완료 — Lv4 대기)
 
 ## 역할
 Cu 배선 CMP — 전기화학 부식·패시베이션 제어, 배리어 CMP, dishing/erosion. 화학 지배
@@ -43,6 +43,17 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   갈바닉 직접 실측(마찰 중 500 vs 정지 <2 µA/cm², rpm 비례). verify 4블록 **수계산 통과** — ⚠ 이 세션은 네트워크·python 실행이 모두 미승인이라
   verify_claims/check_knowledge를 기계로 못 돌렸고 신규 원문 다운로드도 못 했다(로컬 코퍼스로 구성). 총괄이 두 도구를 실행해 확정할 것.
   미해결: Cu/Ru 마찰 중 갈바닉 실측 부재, ≤1 psi Cu MRR 실측 부재(Pandija 2009·Liu 2011 원문 미확보), Lee 2021 I_corr↑ vs R_p↑ 상반 이유 불명)
+- **Lv3-2 (2026-09-15)**: Cu Kp(Preston 계수) 문헌 역산 — `kp_m_per_pa=3.5e-13`을 1차 (P,V,MRR) 실측표로 재현. 다중 문헌 Kp 분포
+  (산성/중성 H2O2·기계 계 1.1~5.8e-13 m²/N, 중앙 ≈1.9e-13)에 팩값이 상단부로 포함되고, **Tugbawa 2002 블랭킷 Cu r_cu=159 Å/s@4psi
+  역산치 3.67e-13이 팩값과 5 % 이내 일치** → "미재현" 종결. Guo 2004 순수 기계 baseline 1.75e-13(팩의 0.5배, 화학강화 방향 정합).
+  Preston 선형성: Guo 실측으로 threshold~6 psi·V≲0.7 m/s 레짐에서만 a=b=1(고압 P^1/6·고속 포화). H2O2 정점 3.6 wt%(Seal/Gopal 산성)로
+  `oxidizer_peak_wt_pct=3.0` 확증(판정#20 알칼리 단조감소와는 레짐 분리).
+  노트: [[../../knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation]]
+  (신규 1차출처: Guo & Subramanian 2004 JES DOI 10.1149/1.1640632 전문(Preston 계수 직접 적합) + Wei et al. 2013 Surf Coat Technol
+  DOI 10.1016/j.surfcoat.2012.04.004 전문(H2O2+BTA+glycine) + Gopal & Talbot 2007 JES DOI 10.1149/1.2718474 전문; Li&Babu 2001·Tugbawa
+  2002·Lee 2021 형제노트 재인용. verify 5블록 통과, verify_claims 출처 7건 실존·check_knowledge 통과. 팩 갱신 제안: kp_m_per_pa
+  값 유지·근거를 일반범위→Tugbawa r_cu 역산으로 교체, confidence estimated 유지(r_cc 환산 ±30~44 % 불확실). 미해결: 팩 화학 정확일치
+  단일 (P,V,MRR) 문헌 부재(wei2013은 실리카 연마재), rpm 문헌의 r_cc 미보고)
 
 ## 구현 요청
 - **[P1] Cu-H₂O Pourbaix 경계 함수** ✅ 9/10 완료 — `sim/tier2_physics/cu_pourbaix.py`(S40, 커밋 495ed90).
@@ -78,3 +89,11 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   클리어 단계 r_b = 선택비 × r_cu로 연결(선택비 1이면 pre-dishing 0). 근거노트 §1·§5, verify 3·4. Ta/TaN 값(≥3–4:1)은 Lv2-2 노트가 정본.
 - **[P3] 저압 MRR 하한**: ≤1 psi에서 Preston 선형 외삽 대신 화학 하한(무연마 Cu 10 nm/min, 구연산 pH 8, Gamagedara 2024 역산)을 바닥값으로 두는
   옵션. ≤1 psi 실측이 없어 "미검증" 플래그 — Pandija 2009·Liu 2011 원문 확보 후 갱신. 근거노트 §6.
+- **[P2] Kp Preston 선형 유효창 플래그** (Lv3-2, 2026-09-15): `sim/tier1_empirical/preston.py`(구현은 소프트웨어 부문)에서 팩 Kp가
+  **저압(threshold~1.5 psi ~ 6 psi)·저속(V≲0.7 m/s) 레짐 밖에서 선형 외삽 시 과대예측**함을 경고 플래그로. 근거: Guo & Subramanian 2004
+  (DOI 10.1149/1.1640632) — P>6 psi에서 MRR∝P^(1/6), V>0.7 m/s에서 포화. 검증문헌값: 6→12 psi 순수 Preston(P¹) 대비 P^1/6이면 1.78배
+  과대(노트 §9 블록3). 근거노트 §4. Kp 절대값은 Tugbawa r_cu=159 Å/s@4psi 역산 3.67e-13(팩 3.5e-13과 5 % 이내, 노트 §6·verify 블록1).
+- **[P3] 산화제 항 pH 레짐 분기** (Lv3-2): 현재 팩은 산성 `oxidizer_peak_wt_pct=3.0`(정점형)과 알칼리 유래 `oxidizer_passivation_K`
+  (판정#20, 단조감소)를 동시 보유. Seal/Gopal 2007(산성 pH4 정점 3.6 wt%)과 US20110165777A1(알칼리 pH10.3 단조감소)은 pH 레짐이
+  달라 **평균 금지·레짐 분리**(노트 §5.1). 구현 시 두 경로를 pH로 분기하거나 우선순위를 명시할 것 — 현재 상호배타 우선순위(판정#20)가
+  산성 정점을 덮지 않는지 확인 필요. 근거노트 §5.1, [[../../knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization]].
