@@ -66,7 +66,7 @@ S = exp(−k_g (t − t_ref))        (G=0)     t_ref=1 min 에서 정확히 1.0 
 | 키(base.yaml) | 값 | 도출 | 등급 |
 |---|---|---|---|
 | `stab_glaze_rate_per_min` k_g | 0.02796 /min | Jeong et al. 2024 (doi:10.3390/ma17081817) Fig.9 pooled 로그회귀 a=1.1478, b=−0.1109 → 10 min 손실 22.25% → k_g=−ln(0.7775)/9. 압력별 개별 적합은 2 psi 0.0223, 5 psi 0.0392 /min(±40% 밴드, 압력 지수는 2점이라 항으로 만들지 않음, §6) | literature (실리카/IC1000) |
-| `stab_cond_recovery_rate_per_min` k_c | 4.08 /min | Jeong et al. 2022 ASPEN (doi:10.3850/978-981-18-6021-8_or-12-0224) §2.2 Table 1: 3 psi·10 min 연마 후 **30 s** 컨디셔닝으로 완전 회복. 회복 중(웨이퍼 없음) 식(1)은 dR/dt=k_c(1−R) → 잔여 결손 ε=exp(−k_c·0.5 min). ε는 Jeong 2024 Table 1의 컨디셔닝 복원 허용폭 **±13%**(N_cond/N_0 = 0.91~1.13, [[pad-glazing-mechanism-mrr-decay]] §4(A))로 두어 k_c=ln(1/0.13)/0.5 = 4.08 /min. 독립 하한: Jeong 2024 "1 min 컨디셔닝으로 N 0.51→1.0±0.13" → k_c ≥ ln(0.49/0.13)=1.33 /min — 4.08은 이 하한 위에 있다 | literature (IC1000, 디스크 0.7 psi·101 rpm·9 cpm) |
+| `stab_cond_recovery_rate_per_min` k_c | 4.08 /min | Jeong et al. 2022 ASPEN, ISBN 978-981-18-6021-8 paper OR-12-0224 (원문 PDF 확보, §6-2) §2.2: 3 psi·10 min 연마 후 **30 s** 컨디셔닝으로 완전 회복. ⚠ 이는 4점 압력 사다리(2/3/4/5 psi → 10/30/60/180 s) 중 3 psi 좌표이며 k_c는 상수가 아니다(§6-2). 회복 중(웨이퍼 없음) 식(1)은 dR/dt=k_c(1−R) → 잔여 결손 ε=exp(−k_c·0.5 min). ε는 Jeong 2024 Table 1의 컨디셔닝 복원 허용폭 **±13%**(N_cond/N_0 = 0.91~1.13, [[pad-glazing-mechanism-mrr-decay]] §4(A))로 두어 k_c=ln(1/0.13)/0.5 = 4.08 /min. 독립 하한: Jeong 2024 "1 min 컨디셔닝으로 N 0.51→1.0±0.13" → k_c ≥ ln(0.49/0.13)=1.33 /min — 4.08은 이 하한 위에 있다 | literature (IC1000, 디스크 0.7 psi·101 rpm·9 cpm) |
 | `stab_glaze_rate_uncertainty_x` | 5.0 | Lawing 2004 ex-situ 감쇠: fumed −35% vs colloidal −7%(4.7배, [[pad-glazing-mechanism-mrr-decay]] §4(E)) — 슬러리를 바꿀 때 k_g가 벗어날 수 있는 폭의 문헌 상한(§5의 등급 판정에 쓴다) | literature |
 | `stab_ref_time_s` | 60 s | Jeong 2024 Fig.9 첫 측정점(1 min) = 기존 S 기준 계약 그대로 | literature |
 | (기준점 재사용) `cond_ref_duty_pct`=100, `cond_ref_disk_usage_hours`=0 | — | Γ의 기준 조건과 동일 물리 조건(in-situ·신품) — 별도 키를 만들면 두 팩터의 기준이 갈라진다 | literature |
@@ -89,7 +89,7 @@ PCR(t)=PCR_0·exp(−t/τ), 50 h→16%로 τ=27.4 h. Γ(장비축)은 이 A(t)�
 복원 허용폭에서 재현되며, PHM2016 실장비 477 웨이퍼에서 S 순위는 MRR 순위와 저속군 ρ=+0.696(드레서 원변수 −0.696의
 부호 반전)로 대조된다.
 
-```python
+```python verify
 import json, math
 from pathlib import Path
 import numpy as np
@@ -213,10 +213,65 @@ PHM2016 저속군 ρ(S, MRR)=+0.696, 전체 +0.489 — 배율 0.02·0.05·0.1 �
 - ε=0.13(복원 허용폭)은 접촉점 수 기준이고 MRR 기준 허용폭은 별도 측정이 없다 — k_c의 자릿수(1.3~6 /min)만
   확실하고 4.08은 그 안의 한 점이다(추정 요소, 등급은 도출 문헌이 1차라 literature로 두되 note에 명시).
 
+## 6-2. [2026-09-14 부채상환] 1차 출처 확보 + k_c는 상수가 아니다
+
+이전 판은 k_c 근거를 이 프로시딩의 DOI(접두어 10‧3850 + ISBN + 논문ID 형태)로 적었는데 **Crossref 미등록(404)**이라
+`verify_claims.py`가 출처 실존 위반으로 반려해 왔다. 접두어 자체는 등록돼 있으나(Research Publishing
+Services) 개별 논문 DOI가 Crossref에 색인되지 않은 학회 프로시딩이다. 원문은 발행사 공개 PDF로 확보했다:
+
+> Jeong, Jin, Jeong, Park, Jeong (2022), "Ex-Situ Conditioning Based on Constant Material Removal Rate
+> for a Digital Twin CMP System", Proc. ASPEN 2022, pp.568–570, ISBN 978-981-18-6021-8, paper OR-12-0224.
+> Pusan National University. 확보 경로: `https://rpsonline.com.sg/proceedings/aspen2022/pdf/OR-12-0224.pdf`
+> (Referer 헤더 필요, 없으면 HTTP 406). 로컬 사본 `papers/jeong2022-aspen-exsitu-conditioning-constant-mrr.pdf`.
+> **DOI는 인용 형식으로만 쓰고 실존 검증은 ISBN+논문ID로 한다** — 해석기가 DOI를 조회하면 영구히 404다.
+
+원문 §2.2 대조 결과 **이전 판의 인용이 부정확**했다. 실제 서술은 Table 1이 아니라 Fig.3 본문이고,
+30 s는 **3 psi 한 조건의 값**이며 원문은 네 압력 전부를 보고한다:
+
+| 연마 압력 | 충분 회복에 필요한 컨디셔닝 시간 (원문 §2.2) |
+|---|---|
+| 2 psi | 10 s |
+| 3 psi | 30 s ← 이전 판이 쓴 유일한 점 |
+| 4 psi | 60 s |
+| 5 psi | 180 s |
+
+이 사다리를 이전 판과 **같은 변환**(잔여 결손 ε=0.13까지 1차 회복)으로 돌리면 k_c가 압력에 따라
+12.24 → 0.68 /min 으로 **18배** 퍼진다. 글레이징 깊이 차이를 감안한 절대 해석(결손 d₀에서 0.13까지)으로도
+7.3배다. 형상 상수 판정 기준은 "데이터셋별 최적값 퍼짐 2배 초과면 상수가 아니다"이므로 **k_c는 상수가 아니라
+연마 압력(정확히는 직전 글레이징 깊이)의 함수**다. 이전 판의 k_c=4.08은 틀린 값이 아니라 **3 psi 좌표**다.
+
+판정(EVIDENCE-RULES E1 동일계 통제실측): 사다리 4점이 단일 논문·단일 장비·단일 패드에서 나온 통제 실측이라
+등급이 가장 높다. 다만 **이번 회차에 항을 만들지 않는다** — 회복 시간은 원문이 "충분한가"의 이산 판정으로만
+주고(연속 회복 곡선이 아님) 네 점 모두 상한이지 등량점이 아니라, 멱함수를 적합하면 관측이 지지하지 않는
+형상을 창작하게 된다. 현 모델은 in-situ 정상상태 R_ss만 쓰고 그 안에서 k_c는 비의 분자·분모에 함께 들어가
+민감도가 낮으므로, **3 psi 좌표를 유지하되 압력 의존을 미모델링으로 신고**한다(아래 verify 블록이 이 상태를
+고정한다). 해소 조건: 회복 곡선(시간 연속)을 보고한 문헌 1건. 담당 R3-pad, 구현 요청 대상.
+
+```python verify
+import math
+# Jeong 2022 ASPEN OR-12-0224 §2.2 — 원문에 인쇄된 네 점(압력 psi → 충분 회복 컨디셔닝 시간 s)
+T_REQ_S = {2: 10.0, 3: 30.0, 4: 60.0, 5: 180.0}
+EPS = 0.13                      # Jeong 2024 Table 1 복원 허용폭(접촉점 수 기준)
+# 이전 판이 k_c=4.08을 뽑은 변환을 그대로 네 점에 적용한다
+kc = {p: math.log(1 / EPS) / (t / 60.0) for p, t in T_REQ_S.items()}
+assert abs(kc[3] - 4.08) < 0.01, f"3 psi 재현 실패: {kc[3]:.3f}"   # 기존 값은 3 psi 좌표
+spread = max(kc.values()) / min(kc.values())
+assert spread > 2.0, "퍼짐이 2배 이하면 상수로 둬도 된다"
+assert 17.0 < spread < 19.0, f"퍼짐 {spread:.1f}배 — 기대 18배"
+# 글레이징 깊이를 보정한 절대 해석으로도 상수가 아니다
+KG = {2: 0.0223, 5: 0.0392}     # §2 압력별 k_g 적합 (/min)
+kc_abs = {p: math.log((1 - math.exp(-KG[p] * 9.0)) / EPS) / (T_REQ_S[p] / 60.0) for p in KG}
+assert kc_abs[2] / kc_abs[5] > 2.0, "깊이 보정 후에도 2배를 넘어야 '상수 아님' 결론이 선다"
+# 단조성: 압력이 높을수록 회복이 느리다(원문 결론과 같은 방향)
+assert all(kc[p] > kc[q] for p, q in zip([2, 3, 4], [3, 4, 5])), "압력-회복속도 단조 감소가 깨짐"
+print(f"k_c(2..5 psi) = {[round(kc[p], 2) for p in (2,3,4,5)]} /min · 퍼짐 {spread:.1f}배")
+print("→ k_c는 상수가 아니다. 3 psi 좌표만 채택하고 압력 의존은 미모델링으로 신고한다.")
+```
+
 ## 7. 출처 요약
 
 - Jeong, Shin, Jeong, Jeong, Jeong (2024), Materials 17(8) 1817, doi:10.3390/ma17081817 (PMC11051262) — Table 1, Fig.9.
-- Jeong, Shin, Jeong, Park, Jeong (2022), ASPEN 2022 pp.568-570, doi:10.3850/978-981-18-6021-8_or-12-0224 — §2.2 Table 1.
+- Jeong, Jin, Jeong, Park, Jeong (2022), "Ex-Situ Conditioning Based on Constant Material Removal Rate for a Digital Twin CMP System", Proc. ASPEN 2022 pp.568-570, ISBN 978-981-18-6021-8, paper OR-12-0224 — §2.2. ⚠ 이 프로시딩의 DOI는 Crossref 미등록(404)이므로 인용에 쓰지 말고 ISBN+논문ID로 식별하라. 1차 원문: papers/jeong2022-aspen-exsitu-conditioning-constant-mrr.pdf
 - Lawing (2004), NCCAVS CMPUG, "Ex Situ Rate Decay" — fumed/colloidal 감쇠비.
 - Kwon, Ramachandran, Cho, Busnaina, Park (2013), Tribology International 67, 272, doi:10.1016/j.triboint.2013.08.008 — Fig.1.
 - Shi & Ring (2010), population balance with fluid load sharing — 정상상태 존재 (2차 서술, [[pad-wear-glazing-mrr-decay]]).
