@@ -1031,6 +1031,48 @@ def _ph_ceria_electrostatic_term(pack, notes: List[str]) -> Optional[float]:
     return cur / ref
 
 
+def _ph_w_acidic_term(pack, notes: List[str]) -> Optional[float]:
+    """pH → MRR, **금속 W 산성역**의 산화제 매개 로그선형 항.
+
+    근거 노트: knowledge/cmp/w-cmp-ph-acidic-oxidizer-mediated-stojadinovic.md
+    1차 출처: Stojadinović, Bouvet, Mischler (2016), J. Bio- Tribo-Corros. 2:8,
+              doi:10.1007/s40735-016-0041-4, Table 1.
+
+    왜 별도 항인가 — 실리카 산화막의 `_ph_peak_term`(정점형)이나 세리아의 IEP 창을
+    금속 W 에 빌려 쓰면 메커니즘이 달라 부호까지 틀린다. W 에서 pH 는 표면 연화도
+    정전 상호작용도 아니고 **산화(WO₃ 생성) 구동력**을 통해 들어온다:
+        W + 3H₂O → WO₃ + 6H⁺ + 6e⁻,  E_rev = −0.119 − 0.059·pH
+    pH 5→2 에서 구동 전위가 177 mV 커지고(논문 서술 180 mV), 그만큼 MRR 이 오른다.
+
+    형태: f(pH) = exp(−k·(pH − pH_ref)).  Nernst 로 구동력이 pH 에 선형이고
+    속도가 구동력에 지수적(Tafel)이라는 표준 구조를 따른 것이지 임의 곡선맞춤이 아니다.
+    k = 0.1163 /pH 는 Table 1 의 산화제 존재 3조건 비(1.429/1.533/1.300)를 로그평균해
+    Δ pH = 3 으로 나눈 값이다. 이 k 로 되돌린 예측 오차는 −0.8 % / −7.6 % / +9.0 %.
+
+    ⚠ 적용 게이트 — 팩이 `w_ph_acid_k` 를 선언할 때만 켜진다. **산화제가 없는 W 계는
+    부호가 반대다**(Table 1 0 % KIO₃: pH5 40 → pH2 25 Å/min, 비 0.625). 산화제 없는
+    레짐에 이 항을 적용하면 방향이 틀린다 — 그 레짐은 의도적으로 스코프 밖이다.
+    ⚠ 알칼리역(pH>7)은 용해 지배로 부호가 또 반대다(Xu 2022, doi:10.3390/mi13050762,
+    pH 7→12 에서 6.69→13.67 µm/h 증가) — 미모델링. 실무 W 슬러리는 산성이다.
+    ⚠ 2점 할선(pH 2, 5)이므로 그 밖은 외삽이다 — 벗어나면 notes 에 경고를 남긴다.
+    """
+    if not (pack.has("slurry_ph") and pack.has("w_ph_acid_k") and pack.has("ph_ref")):
+        return None
+    ph = float(pack.get("slurry_ph"))
+    ph_ref = float(pack.get("ph_ref"))
+    k = float(pack.get("w_ph_acid_k"))
+    val = math.exp(-k * (ph - ph_ref))
+    notes.append(
+        f"W 산성역 pH: pH {ph:g} (기준 {ph_ref:g}) → 상대 {val:.3f}. "
+        f"산화(WO₃) 구동력 경로 — Nernst dE/dpH=−59 mV, k={k:g}/pH "
+        "(Stojadinović 2016 Table 1, 산화제 존재 3조건 로그평균). "
+        "⚠ 개별 조건 재현오차 −0.8~+9.0 %, k 산포 ±22 % — 지수형 가정은 미검증.")
+    if not (2.0 <= ph <= 5.0):
+        notes.append(f"⚠ pH {ph:g}는 근거 구간(2~5) 밖이다 — 외삽이다. "
+                     "pH>7 은 용해 지배로 부호가 반대라 특히 신뢰할 수 없다.")
+    return val
+
+
 def _f_chi(rr: "ResolvedRecipe") -> Factor:
     """χ 화학 반응성 — 표면 연화·산화가 만드는 MRR 배수.
 
@@ -1054,6 +1096,10 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     #   dandu2009 백테스트에서 ρ=−0.525(음의 상관)로 드러난 결함이 바로 이것이다.
     if str(pk.get_or("abrasive", "")) == "ceria" and pk.has("abrasive_iep_ph"):
         ph_terms = [("ph_ceria_window", _ph_ceria_electrostatic_term)]
+    elif pk.has("w_ph_acid_k"):
+        # 금속 W 산성역 — 산화 구동력 경로(Stojadinović 2016). 세리아/실리카 항보다
+        # 먼저 확인한다: 메커니즘이 달라 다른 항을 빌려 쓰면 부호까지 틀린다.
+        ph_terms = [("ph_w_acidic", _ph_w_acidic_term)]
     elif pk.has("ph_peak") and pk.has("ph_ref"):
         ph_terms = [("ph_peak", _ph_peak_term)]
     else:
@@ -1098,7 +1144,8 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
         oxidizer_shape_keys = ("oxidizer_curve_n", "oxidizer_peak_wt_pct")
     f.confidence = _worst_conf(
         _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"),
-        _pack_conf(pk, *oxidizer_shape_keys, "ph_peak", "ceria_tooth_gain"))
+        _pack_conf(pk, *oxidizer_shape_keys, "ph_peak", "ceria_tooth_gain",
+                   "w_ph_acid_k"))
     f.sources = ["knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
                  "knowledge/cmp/particle-wafer-interaction-"
                  "mechanical-chemical-balance.md"]

@@ -1002,3 +1002,85 @@ def test_chi_ceria_tooth_defaults_to_linear_when_pack_is_silent():
     floor = 1.0 / 5.5
     assert v == pytest.approx(floor + (1 - floor) * (0.30 / 0.15), rel=1e-9)
     assert any("선형(p=1)" in n for n in notes)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# W 산성역 pH 항 (2026-09-15, χ PARTIAL 해소)
+# 근거: knowledge/cmp/w-cmp-ph-acidic-oxidizer-mediated-stojadinovic.md
+#       Stojadinović, Bouvet, Mischler (2016) doi:10.1007/s40735-016-0041-4 Table 1
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_chi_w_ph_term_is_unity_at_pack_reference():
+    """기준조건 1.0 계약 — 깨지면 Kp 와 이중 계상이다."""
+    from sim.params import load_pack
+    from sim.factors import _ph_w_acidic_term
+    pk = load_pack("w_fe_oxidizer")
+    assert _ph_w_acidic_term(pk, []) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_chi_w_ph_term_reproduces_stojadinovic_ratio():
+    """pH 5→2 에서 문헌 비(로그평균 1.417배)를 재현한다."""
+    import math
+    from sim.params import load_pack
+    from sim.factors import _ph_w_acidic_term
+
+    def f(ph):
+        pk = load_pack("w_fe_oxidizer")
+        pk.params["slurry_ph"].value = ph
+        return _ph_w_acidic_term(pk, [])
+
+    # Table 1 산화제 존재 3조건 비
+    lit = [200 / 140, 1150 / 750, 1950 / 1500]
+    lit_geo = math.exp(sum(math.log(r) for r in lit) / 3)
+    assert f(2.0) / f(5.0) == pytest.approx(lit_geo, rel=0.01)
+    # 개별 조건과는 ±10% 이내로만 맞는다 — 완벽하지 않음을 그대로 고정
+    for r in lit:
+        assert abs(f(2.0) / f(5.0) - r) / r < 0.10
+
+
+def test_chi_w_ph_term_direction_and_extrapolation_warning():
+    """산성일수록 빠르다 + 근거구간(2~5) 밖이면 경고를 남긴다."""
+    from sim.params import load_pack
+    from sim.factors import _ph_w_acidic_term
+
+    def f(ph, notes=None):
+        pk = load_pack("w_fe_oxidizer")
+        pk.params["slurry_ph"].value = ph
+        return _ph_w_acidic_term(pk, notes if notes is not None else [])
+
+    assert f(2.0) > f(2.5) > f(4.0) > f(5.0)
+    notes = []
+    f(9.0, notes)
+    assert any("외삽" in n for n in notes)
+    notes2 = []
+    f(3.0, notes2)
+    assert not any("외삽" in n for n in notes2)
+
+
+def test_chi_w_ph_term_gated_on_pack_declaration():
+    """`w_ph_acid_k` 를 선언하지 않은 팩에서는 항이 꺼진다 (산화제 없는 W 계 보호)."""
+    from sim.params import load_pack
+    from sim.factors import _ph_w_acidic_term
+    pk = load_pack("w_fe_oxidizer")
+    del pk.params["w_ph_acid_k"]
+    assert _ph_w_acidic_term(pk, []) is None
+    # 다른 막질 팩도 이 항을 잘못 주워가지 않는다
+    assert _ph_w_acidic_term(load_pack("oxide_silica"), []) is None
+    assert _ph_w_acidic_term(load_pack("sti_ceria"), []) is None
+
+
+def test_chi_w_pack_is_now_fully_modeled():
+    """w_fe_oxidizer 의 χ 가 partial → modeled 로 올라갔고, 기준조건 값은 1.0 이다."""
+    from sim.params import load_pack
+    from sim.engine import Recipe, ResolvedRecipe
+    from sim.factors import _f_chi
+    pk = load_pack("w_fe_oxidizer")
+    rr = ResolvedRecipe(base=Recipe(), pack=pk, used_keys=[], film="w",
+                        wafer_radius_m=0.15, pressure_psi=3.0, rpm_wafer=60,
+                        rpm_platen=60, center_offset_m=0.12,
+                        kp_m_per_pa=float(pk.get("kp_m_per_pa")),
+                        n_points=81, edge_exclusion_m=0.003)
+    f = _f_chi(rr)
+    assert f.status == "modeled", f.status
+    assert "ph_w_acidic" in f.terms
+    assert f.value == pytest.approx(1.0, abs=1e-9)
