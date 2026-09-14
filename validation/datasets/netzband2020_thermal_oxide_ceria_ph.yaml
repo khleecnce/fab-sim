@@ -32,6 +32,12 @@ pack: sti_ceria
 #    pH4=19.8, pH8=20.0, pH10=21.3, 상용=4.11 → 비율 4.8/4.9/5.2배로 서술과 정합.
 #    또 "At pH 6, the MRR is low"도 판독값 11.3 nm/min으로 재현된다.
 #
+# ⭐ 독립 재판독 감사(2026-09-14): PDF 벡터 rect 에서 y축 눈금(713.21pt=0, 559.15pt=30 nm/min,
+#    축척 5.1353 pt per nm/min)과 초록 막대 top 좌표를 직접 추출해 재환산한 결과
+#    pH4=19.79 / pH6=11.28 / pH8=19.98 / pH10=21.26 nm/min — 아래 값들과 전부 0.2% 이내 일치.
+#    수동 판독과 벡터 추출이라는 다른 경로가 같은 값을 주므로 판독 오류가 아니다.
+#    상세·verify 블록: knowledge/cmp/netzband2020-fig3a-revalidation-and-c2-root-causes.md §2
+#
 # 고정 조건(본문): 세리아 68 nm, 1.0 wt%, 다운포스 20 kPa = 2.9 psi,
 #   플래튼 40 rpm / 헤드 20 rpm, 폴리싱 1분, 열산화막 쿠폰(2.25 cm²),
 #   MRR은 분광타원계(J.A. Woollam RC-2)로 측정.

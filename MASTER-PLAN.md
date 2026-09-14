@@ -96,6 +96,7 @@
 - CMP 슬러리 최신논문 크론(기존)과 중복 학습 금지 — 시뮬레이션 관점 노트만 여기에.
 
 ## 진행 로그
+- 2026-09-14 12시 [성장엔진] Netzband&Dunn 2020 Fig.3a를 PDF 벡터 rect에서 독립 재판독 → 기존 데이터셋 4점 전부 0.2% 이내 재현(판독 오류 아님 확증), ceria_mechanical_floor 1/5.5를 다른 실험축에서 0.1905로 독립 확증(4.6% 차이). C2 잔여 18칸을 4개 근본원인(R1 PCR앵커 2차인용 / R2 χ 식별불가 / R3 ψ 반증된 형태 / R4 도메인 외삽)으로 분해 — R2·R3은 문헌으로 안 열리고 조성 DOE 데이터셋이 필요함을 문서화. papers/INDEX.json 등록 + .pdf.txt 추출로 QA 감사 F2 오탐 해소(netzband2020 → clean). pytest 644 pass, qa_loop #75 PASS ρ=0.9537 유지.
 <!-- 크론이 실행마다 추가 -->
 - **2026-09-11 18시** [성장엔진] COMPLETION-C4 sic_ceria_h2o2: Entegris US20220315802A1 알루미나 농도시리즈(n=5)에서 로그-로그 회귀로 abrasive_conc_exponent=-0.406 도출(압입지배 레짐, 기존 base oxide_silica +1/3과 부호반대 — EVIDENCE-RULES 계근접도 판정으로 팩별 분기). `sim/factors.py` κ 농도항 1.0 계약 유지 확인, 백테스트 ρ +0.946→+0.954(PASS), pytest 595 passed. 지식노트 `knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md`. 단 이 데이터셋이 지수 출처 자체라 held-out 개선은 제한적(F4 기존관행 준수) — 독립 SiC DOE 확보가 C4 완전해소의 다음 과제.
 - **2026-09-08** [소프트웨어] wafer-type 구현요청 `effective_pressure_ratio` 처리 —
