@@ -196,6 +196,54 @@ def check(verbose: bool = True) -> Dict[str, Any]:
     return result
 
 
+def _pack_desc(pack: str) -> str:
+    """팩 YAML의 description 필드 — 사용자 관점 공정 설명(내부 식별자 aka 아님)."""
+    p = ROOT / "knowledge" / "params" / f"{pack}.yaml"
+    try:
+        d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        return (d.get("description") or "").strip()
+    except Exception:
+        return ""
+
+
+def _pack_label(pack: str) -> str:
+    d = _pack_desc(pack)
+    return f"{pack} ({d})" if d else pack
+
+
+def _c2_classification() -> Dict[tuple, Dict[str, Any]]:
+    """validation/C2-RESIDUAL-CLASSIFICATION.md 의 판정 표를 (factor,pack)→{tag, judgments} 로 파싱.
+    사람이 쓴 분석 문서를 그대로 읽어 인용한다 — 여기서 새 판단을 만들지 않는다."""
+    f = ROOT / "validation" / "C2-RESIDUAL-CLASSIFICATION.md"
+    if not f.exists():
+        return {}
+    out: Dict[tuple, Dict[str, Any]] = {}
+    for line in f.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) < 3 or cells[0] == "팩터/팩" or set(cells[0]) <= {"-"}:
+            continue
+        key_cell, class_cell, basis_cell = cells[0], cells[1], cells[2]
+        tag_m = re.search(r"\[([^\]]+)\]", class_cell)
+        tag = tag_m.group(1) if tag_m else class_cell
+        raw_judg = re.findall(r"판정\s?#\d+[A-Za-z]?(?:-종결)?|#\d+[A-Za-z]?(?:-종결)?|\b\d{1,3}-종결\b", basis_cell)
+        norm_judg = []
+        for j in raw_judg:
+            if j.startswith("판정"):
+                norm_judg.append(j.replace(" ", ""))
+            elif j.startswith("#"):
+                norm_judg.append("판정" + j)
+            else:
+                norm_judg.append(f"판정#{j}")
+        judgments = sorted(set(norm_judg))
+        for entry in key_cell.split("<br>"):
+            m = re.match(r"^\S+\s+(\w+)\s*/\s*(\S+)$", entry.strip())
+            if m:
+                out[(m.group(1), m.group(2))] = {"tag": tag, "judgments": judgments}
+    return out
+
+
 def _param_basis(pack: str) -> List[Dict[str, Any]]:
     p = ROOT / "knowledge" / "params" / f"{pack}.yaml"
     d = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
@@ -229,13 +277,13 @@ def report() -> Path:
         L.append(f"\n## {sym} {name} (`{k}`) — 축: {axis} · 파트: {', '.join(parts)} · MRR 결합: {'예' if k in MRR_COUPLED else '아니오(진단)'}\n")
         L.append("### 모델 정의 근거 (코드 docstring 그대로)\n")
         L.append("```\n" + doc.strip() + "\n```\n")
-        L.append("### 팩별 상태\n\n| 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |\n|---|---|---|---|---|---|")
+        L.append("### 팩별 상태\n\n| 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |\n|---|---|---|---|---|---|")
         for p in packs:
             c = g[k][p]
             terms = ", ".join(f"{a}×{b:.3f}" for a, b in (c.get("terms") or {}).items()) or "—"
             drv = ", ".join((c.get("drivers") or {}).keys()) or "—"
             src = "; ".join(s.split("/")[-1][:40] for s in (c.get("sources") or [])) or "—"
-            L.append(f"| {p} | {c['status']} | {c.get('confidence','')} | {terms} | {drv} | {src} |")
+            L.append(f"| {_pack_label(p)} | {c['status']} | {c.get('confidence','')} | {terms} | {drv} | {src} |")
         notes = set()
         for p in packs:
             for n in (g[k][p].get("notes") or []):
@@ -248,18 +296,26 @@ def report() -> Path:
         L.append(f"\n근거 노트(verify 블록 보유): {', '.join(f'`{x}`' for x in c5) if c5 else '**없음** (C5 미충족)'}\n")
     L.append("\n## 파라미터 도출 근거 (팩 YAML의 source/note/confidence 그대로)\n")
     for p in packs:
-        L.append(f"\n### 팩 `{p}`\n\n| 키 | 값 | 단위 | confidence | 출처 | 도출 방법(note) |\n|---|---|---|---|---|---|")
+        L.append(f"\n### 팩 `{p}` — {_pack_desc(p) or '(설명 없음)'}\n\n| 키 | 값 | 단위 | confidence | 출처 | 도출 방법(note) |\n|---|---|---|---|---|---|")
         for r in _param_basis(p):
             note = r["note"].replace("\n", " ").replace("|", "/")[:160]
             src = str(r["source"]).replace("|", "/")[:60]
             L.append(f"| {r['key']} | {r['value']} | {r['unit']} | {r['confidence']} | {src} | {note} |")
-    L.append("\n## 검증 (특허·논문 held-out)\n\n| 팩 | 데이터셋 | 유의 | 유의 평균 ρ |\n|---|---|---|---|")
+    L.append("\n## 검증 (특허·논문 held-out)\n\n| 팩(공정) | 데이터셋 | 유의 | 유의 평균 ρ |\n|---|---|---|---|")
     for p in packs:
         o = res["heldout"].get(p, {})
-        L.append(f"| {p} | {o.get('n_total', 0)} | {o.get('n_sig', 0)} | {o.get('mean_rho', '—')} |")
+        L.append(f"| {_pack_label(p)} | {o.get('n_total', 0)} | {o.get('n_sig', 0)} | {o.get('mean_rho', '—')} |")
     L.append("\n## 미충족 항목\n")
+    c2map = _c2_classification()
     for f in res["fails"]:
-        L.append(f"- {f}")
+        extra = ""
+        if f.startswith("C2 "):
+            m = re.search(r"(\w+)/(\w+):", f)
+            info = c2map.get((m.group(1), m.group(2))) if m else None
+            if info:
+                judg = ", ".join(info["judgments"]) or "(판정번호 없음)"
+                extra = f" → **[{info['tag']}]** {judg} (상세: `validation/C2-RESIDUAL-CLASSIFICATION.md`)"
+        L.append(f"- {f}{extra}")
     if not res["fails"]:
         L.append("- 없음 — 완성 기준 전부 충족")
     out = ROOT / "validation" / "MODEL-BASIS.md"
