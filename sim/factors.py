@@ -111,6 +111,7 @@ LIMIT_ROLE: Dict[str, str] = {
     "oxidizer_wt_pct": "MODULATOR",      # C=0 에서도 기계적 바닥값이 남는 계가 있다
     "ce3_fraction": "MODULATOR",         # 활성점 0 이어도 입자는 단단한 산화물이다
     "dispersant_type": "MODULATOR",
+    "shield_additive_wt_pct": "MODULATOR",  # 첨가제 0 = 억제 없음(배수 1.0), 제거는 남는다
     "time_s": "MODULATOR",
 
     # ── INTENSIVE: 0 이 '없음'이 아닌 세기 변수 ─────────────────────
@@ -1032,13 +1033,16 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     f.status = "modeled" if len(terms) >= 2 else "partial"
     # 등급 하한 판정 (2026-09-13): κ 와 같은 규칙 — 화학 항의 형상 파라미터도
     # 팩에 등급과 함께 선언돼 있으므로 리터럴 대신 그것을 읽는다.
-    # 산화제 형상 파라미터 등급 소스 — 팩이 Langmuir 경로(oxidizer_langmuir_K)를
-    # 쓰면 그 키에서 등급을 읽는다. 레거시 (n, C_peak)는 판정#19로 비활성화됐으므로
-    # Langmuir 경로를 쓰는 팩에서는 등급 계산에서 제외한다(안 그러면 비활성 키의
-    # estimated 등급이 계속 발목을 잡는다). Langmuir 키가 없는 팩(cu_h2o2_bta 등)은
+    # 산화제 형상 파라미터 등급 소스 — 팩이 Langmuir 경로(oxidizer_langmuir_K
+    # 촉진형 또는 oxidizer_passivation_K 억제형, 판정#20)를 쓰면 그 키에서
+    # 등급을 읽는다. 레거시 (n, C_peak)는 판정#19로 비활성화됐으므로 Langmuir
+    # 경로를 쓰는 팩에서는 등급 계산에서 제외한다(안 그러면 비활성 키의
+    # estimated 등급이 계속 발목을 잡는다). 둘 다 없는 팩은
     # 기존 그대로 (n, C_peak)를 읽는다 — 하위호환, 동작 불변.
     if pk.has("oxidizer_langmuir_K"):
         oxidizer_shape_keys = ("oxidizer_langmuir_K",)
+    elif pk.has("oxidizer_passivation_K"):
+        oxidizer_shape_keys = ("oxidizer_passivation_K",)
     else:
         oxidizer_shape_keys = ("oxidizer_curve_n", "oxidizer_peak_wt_pct")
     f.confidence = _worst_conf(
@@ -1058,18 +1062,51 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
 
 
 def _f_psi(rr: "ResolvedRecipe") -> Factor:
-    """ψ 표면 보호도 — 표면 흡착 보호(억제제 피복 또는 분산제 흡착)가 만드는
-    제거 억제 배수 (≤1).
+    """ψ 표면 보호도 — 표면 흡착 보호(adsorption shield)가 만드는 제거 억제 배수 (≤1).
 
     χ와 분리한 이유: 사용자가 배합을 조정할 때 "촉진을 올릴까 억제를 낮출까"는
     서로 다른 결정이다. 하나의 화학 배수로 뭉치면 그 판단이 사라진다.
     디싱/에로전은 이 항이 지배한다.
 
-    ψ 정의 확장(COMPLETION.md): 원래는 Cu/W용 금속 부동태 억제제(BTA 등)만
-    모델링했다. 하지만 oxide_silica/sic_ceria_h2o2/sti_ceria 세 팩은 금속이
-    아니라 실리카/세리아 슬러리라 inhibitor_mM이 없다 — 그렇다고 표면 흡착
-    보호가 없는 게 아니라, 통로가 폴리머 분산제 흡착(PVA/PVP)으로 바뀐 것뿐이다.
-    그래서 억제제 항이 없을 때 분산제 흡착 항으로 폴백한다.
+    ψ 정의 (2026-09-14 확장, COMPLETION.md "축별 완성 경로"): "금속 부동태"가 아니라
+    **표면 흡착 보호** — 어떤 화학종이 (막 또는 입자) 표면에 흡착해 연마입자의 접근이나
+    표면 반응을 막는 모든 경로. 세 갈래를 같은 형식으로 다룬다:
+
+    ① 금속계 부식억제제 (Cu-BTA, W-피콜린산): `inhibitor_mM` + Langmuir K →
+       `chemistry._inhibitor_term` (기존 그대로, 이 함수의 앞 절반. 변경 없음).
+    ② 산화막/세리아계 **첨가제 농도축** — 이번 확장의 본체.
+       근거 노트: knowledge/cmp/psi-adsorption-shield-oxide-systems.md,
+                 knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md
+         θ(C) = (K·C)^n / (1 + (K·C)^n)             협동(Hill) 흡착 피복률; n=1이면 Langmuir
+         ψ    = exp(−k·[θ(C) − θ(C_ref)])            기준농도 정규화 → C=C_ref에서 항등적 1.0
+       파라미터(팩, 첨가제×막질 쌍 고유 → `has_own` 자기선언일 때만 활성):
+         shield_additive_wt_pct (드라이버), shield_ref_wt_pct, shield_langmuir_K,
+         shield_hill_n, shield_strength_k [+ shield_nitride_* 는 STI 선택비 진단용]
+       문헌 역산:
+         · sti_ceria — Park et al. 2003 JJAP 42, 5420 (doi:10.1143/jjap.42.5420) Fig.3
+           세리아 1 wt% + 음이온 계면활성제 0~0.8 wt% 9점: SiO₂ K=1.295/wt%, n=4.62, k=3.0
+           (0.8 wt%에서 산화막 RR 1/5 = 원문 텍스트 정박점 재현); Si₃N₄ K=14.02/wt%,
+           n=4.62, k=3.4 (임계농도 C₅₀=0.071 wt% ≈ 원문 0.08 wt%). 두 K의 비 10.8배가
+           선택비 창(0.08~0.4 wt%)의 기원 — S(C)/S(ref) = exp(−k_N·Δθ_N + k_O·Δθ_O).
+         · oxide_silica — **검증된 영(null)**: Penta et al. 2013 Appl. Surf. Sci. 283, 986
+           (doi:10.1016/j.apsusc.2013.07.057) "None of the surfactants studied adsorbs on an
+           oxide surface and, hence, does not suppress the oxide RR" (SDS·DBSA·DP·SLS, 10 wt%
+           콜로이달 실리카, pH 2~10); US10526508B2 Table 1·2 PEG 0~1.4 wt%에서 산화막 RR
+           30~50 Å/min 무단조(Spearman ρ=+0.45). → K_oxide=0 ⇒ θ≡0 ⇒ ψ≡1.0 을 **항으로
+           계상**한다(모름이 아니라 효과 없음). 양이온 폴리머(PDADMAC·poly(vinylimidazolium))는
+           반대로 2 ppm에서 이미 98% 억제(US9758697B2 Table 1: 6242→116 Å/min)라 K를 식별할
+           수 없는 스위치형 — 이 팩의 첨가제 클래스가 아니므로 미모델링을 notes로 신고.
+         · sic_ceria_h2o2 — **문헌 없음**. SiC 위 첨가제 농도-RR 스윕이 코퍼스·검색 어디에도
+           없다. 부모(sti_ceria)의 K는 첨가제×SiO₂ 쌍의 상수라 상속 사용 금지(`has_own`) →
+           항을 만들지 않고 status=partial + 사유.
+    ③ 분산제 종류 이산 룩업 (Li 2021 PVA/PVP): `chemistry._dispersant_protection_term`.
+       ②와 곱한다(독립 가정 — 커플링 미모델링을 notes에 명시).
+
+    한계 (보고서 그대로): (a) 산화막 쪽 k는 (K,n,k) 묶음으로만 식별된다 — 셋을 따로
+    옮기지 마라(노트 §5.5). 등급 estimated. (b) K는 화학종·pH·연마입자마다 다르다 —
+    Dandu 2009 pyridine계에 Park K를 대입하면 4배 어긋난다(부호·순서만 일치). (c) 아미노산
+    (proline 등)은 Prasad & Ramanathan 2006이 흡착량–억제 상관을 반증했으므로 이 폐형식
+    대상이 아니다(America 2004 Table I 이산 룩업만). (d) 온도 의존 K(T) 없음.
     """
     from sim.chemistry import _inhibitor_term, _dispersant_protection_term
     f = _new("psi")
@@ -1099,6 +1136,84 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
                            "기여하는데 통로가 없다.")
         return f
 
+    # ═══ 산화막/세리아 계 — 표면 흡착 보호 (2026-09-14) ═══════════════════
+    terms: Dict[str, float] = {}
+    confs: List[str] = []
+    srcs: List[str] = []
+    shield_declared_but_inactive = False
+
+    # ── ② 첨가제 농도축 (Hill 흡착 → 지수감쇠 잔여율, 기준농도 정규화) ──
+    def _theta(C: float, K: float, n: float) -> float:
+        """협동 흡착 피복률. K=0(흡착 안 함) 또는 C≤0 이면 0."""
+        if C <= 0.0 or K <= 0.0:
+            return 0.0
+        x = (K * C) ** n
+        return x / (1.0 + x)
+
+    if pk.has("shield_additive_wt_pct"):
+        try:
+            C_add = float(pk.get("shield_additive_wt_pct"))
+        except (TypeError, ValueError):
+            C_add = 0.0
+        if C_add < 0.0:
+            f.notes.append(f"⚠ shield_additive_wt_pct={C_add} < 0 — 0으로 절단")
+            C_add = 0.0
+        f.drivers["shield_additive_wt_pct"] = C_add
+        # 흡착상수는 첨가제×막질 쌍의 고유 물성 — 상속값이면 남의 재료로 계산한 숫자다.
+        if not pk.has_own("shield_langmuir_K"):
+            shield_declared_but_inactive = True
+            f.notes.append(
+                "⚠ ψ 흡착 보호 농도축 비활성: shield_langmuir_K 가 이 팩의 자기선언이 "
+                "아니다(상속). 흡착상수는 첨가제×막질 쌍 고유 물성이라 부모 값을 쓰지 않는다 — "
+                "이 막질에서 첨가제 농도-RR 스윕 문헌이 확보되면 자기선언으로 활성화된다. "
+                "그때까지 첨가제 농도는 결과에 영향을 주지 않는다(partial).")
+        elif not pk.has("shield_ref_wt_pct"):
+            shield_declared_but_inactive = True
+            f.notes.append(
+                "⚠ ψ 흡착 보호 농도축 비활성: shield_ref_wt_pct(기준 농도)가 없다 — "
+                "기준 없이 절대 잔여율을 곱하면 Kp 이중 계상이므로 항을 만들지 않는다.")
+        else:
+            K = float(pk.get("shield_langmuir_K"))
+            n_h = float(pk.get_or("shield_hill_n", 1.0))
+            k_s = float(pk.get_or("shield_strength_k", 1.0))
+            C_ref = float(pk.get("shield_ref_wt_pct"))
+            th_c, th_r = _theta(C_add, K, n_h), _theta(C_ref, K, n_h)
+            val = math.exp(-k_s * (th_c - th_r))
+            terms["adsorption_shield"] = val
+            confs.append(_pack_conf(pk, "shield_additive_wt_pct", "shield_ref_wt_pct"))
+            confs.append(_pack_conf(pk, "shield_langmuir_K", "shield_hill_n",
+                                    "shield_strength_k"))
+            srcs.append("knowledge/cmp/psi-adsorption-shield-oxide-systems.md")
+            srcs.append("knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md §5")
+            if K <= 0.0:
+                f.notes.append(
+                    "ψ 흡착 보호(농도축): 검증된 영 — 이 팩의 첨가제 클래스는 대상 막에 "
+                    "흡착하지 않아(K=0) 농도와 무관하게 배수 1.000. '모름'이 아니라 "
+                    "'효과 없음'(Penta 2013 doi:10.1016/j.apsusc.2013.07.057; US10526508B2 "
+                    "Table 2). 양이온 폴리머는 다른 클래스(스위치형 억제) — 미모델링.")
+            else:
+                f.notes.append(
+                    f"ψ 흡착 보호(농도축): C={C_add:g} wt% (기준 {C_ref:g}) → θ={th_c:.3f} "
+                    f"(기준 θ={th_r:.3f}), Hill K={K:g}/wt% n={n_h:g} k={k_s:g} → 배수 {val:.3f} "
+                    "(Park 2003 doi:10.1143/jjap.42.5420 Fig.3 역산)")
+                if th_c > 0.9:
+                    f.notes.append(
+                        f"⚠ θ={th_c:.3f} 포화 구간 — 순위는 유지되나(지수감쇠) 절대값은 "
+                        "Park 2003 관측 창(≤0.8 wt%) 밖 외삽.")
+            # STI 선택비 진단 — 질화막 쪽 상수가 자기선언일 때만
+            if pk.has_own("shield_nitride_langmuir_K") and K > 0.0:
+                K_n = float(pk.get("shield_nitride_langmuir_K"))
+                n_n = float(pk.get_or("shield_nitride_hill_n", n_h))
+                k_n = float(pk.get_or("shield_nitride_strength_k", k_s))
+                nit = math.exp(-k_n * (_theta(C_add, K_n, n_n) - _theta(C_ref, K_n, n_n)))
+                sel_ratio = val / nit if nit > 0 else float("inf")
+                f.notes.append(
+                    f"STI 선택비 진단: 질화막 배수 {nit:.3f} → oxide:nitride 선택비 "
+                    f"{sel_ratio:.2f}배(기준 대비). Park 2003 계(무첨가 S₀=4.8)라면 "
+                    f"S≈{4.8 * sel_ratio:.1f}. 질화막 임계농도 C₅₀={1.0 / K_n:.3f} wt%. "
+                    "(진단 출력 — 엔진 MRR에는 산화막 배수만 곱한다)")
+
+    # ── ③ 분산제 종류 이산 룩업 (Li 2021) ──
     dnotes: List[str] = []
     dv = _dispersant_protection_term(pk, dnotes)
     if pk.has("dispersant_type"):
@@ -1106,21 +1221,38 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
             f.drivers["dispersant_type"] = pk.get("dispersant_type")
         except (TypeError, ValueError):
             pass
-    if dv is None:
+    if dv is not None:
+        terms["dispersant"] = dv
+        confs.append(_pack_conf(pk, "dispersant_type"))
+        srcs.append("knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6")
+        f.notes.extend(dnotes)
+
+    if not terms:
         f.notes.append("⚠ ψ 미모델링: 억제제 파라미터(inhibitor_mM + 흡착상수)도, "
-                       "분산제 파라미터(dispersant_type)도 팩에 없다. 표면 흡착 보호를 "
-                       "시뮬레이션할 수 없다.")
+                       "첨가제 농도축(shield_*)도, 분산제 파라미터(dispersant_type)도 팩에 "
+                       "없다. 표면 흡착 보호를 시뮬레이션할 수 없다.")
         f.notes.extend(notes)
         f.notes.extend(dnotes)
         return f
-    f.value = dv
-    f.terms = {"dispersant": dv}
-    f.status = "modeled"
-    f.confidence = _pack_conf(pk, "dispersant_type")
-    f.sources = ["knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6"]
+
+    val_total = 1.0
+    for t in terms.values():
+        val_total *= t
+    f.value = val_total
+    f.terms = terms
+    # 농도축이 살아 있어야 modeled — 분산제 이산 룩업만으로는 "얼마나 넣느냐"에 답할 수
+    # 없으므로 partial. 문헌이 없어 항을 못 만든 팩(sic)이 여기에 해당한다.
+    f.status = "modeled" if "adsorption_shield" in terms else "partial"
+    f.confidence = _worst_conf(*confs)
+    f.sources = srcs
     f.notes.append("ψ 정의 확장: 표면 흡착 보호(passivation/adsorption shield) — "
-                   "이 팩은 금속 부동태가 아니라 폴리머 분산제 흡착 경로")
-    f.notes.extend(dnotes)
+                   "이 팩은 금속 부동태가 아니라 첨가제/분산제 흡착 경로")
+    if shield_declared_but_inactive and "adsorption_shield" not in terms:
+        f.notes.append("⚠ 첨가제 농도축 부재 사유: 이 막질·첨가제 쌍의 농도-RR 문헌 없음 "
+                       "(knowledge/cmp/psi-adsorption-shield-oxide-systems.md §6).")
+    if len(terms) > 1:
+        f.notes.append("⚠ 흡착 보호 항(농도축·분산제 종류)을 독립으로 보고 곱했다 — "
+                       "같은 표면 자리를 두 종이 경쟁하는 커플링은 미모델링.")
     return f
 
 

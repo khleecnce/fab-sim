@@ -737,3 +737,84 @@ def test_silica_pack_keeps_its_own_peak():
     """실리카 팩의 정점은 80nm 그대로여야 한다 — 세리아 수정이 부모를 오염시키면 안 된다."""
     from sim.params import load_pack
     assert float(load_pack("oxide_silica").get("abrasive_size_peak_nm")) == pytest.approx(80.0)
+
+
+
+# ═══════════════════════════════ psi(표면 흡착 보호) — 산화막 계 3팩 농도축 (2026-09-14)
+# 근거: knowledge/cmp/psi-adsorption-shield-oxide-systems.md,
+#       knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md (Park 2003 JJAP Fig.3)
+
+OXIDE_PSI_PACKS = ["oxide_silica", "sti_ceria", "sic_ceria_h2o2"]
+
+
+@pytest.mark.parametrize("pack", OXIDE_PSI_PACKS)
+def test_psi_oxide_packs_are_unity_at_reference(pack):
+    """기준 농도(shield_additive_wt_pct == shield_ref_wt_pct)에서 ψ는 정확히 1.0."""
+    from sim.params import load_pack
+    pk = load_pack(pack)
+    assert float(pk.get("shield_additive_wt_pct")) == pytest.approx(
+        float(pk.get("shield_ref_wt_pct"))), f"{pack}: 본값과 기준점이 어긋났다"
+    f = _factors(pack=pack)["psi"]
+    assert f.value == pytest.approx(1.0, abs=1e-12), f"{pack}: ψ={f.value}"
+    assert f.status in ("modeled", "partial")
+
+
+def test_psi_sti_ceria_surfactant_suppresses_monotonically():
+    """sti_ceria: 음이온 계면활성제 ↑ → ψ ↓ 엄격 단조 (Park 2003 Fig.3(a) 방향).
+
+    0.8 wt%에서 산화막 RR이 무첨가의 1/5 (원문 텍스트 정박점) — 배수 0.20 ± 0.01.
+    """
+    f = _factors(pack="sti_ceria")["psi"]
+    assert f.status == "modeled" and "adsorption_shield" in f.terms
+    vals = [_factors(pack="sti_ceria", shield_additive_wt_pct=C)["psi"].value
+            for C in (0.0, 0.08, 0.2, 0.4, 0.8, 1.6)]
+    assert all(a > b for a, b in zip(vals, vals[1:])), vals
+    assert vals[4] == pytest.approx(0.20, abs=0.01), vals[4]
+    # MRR 결합 확인 — 팩터가 살아 있어도 엔진에 안 곱히면 dead 다.
+    assert _mean_mrr(pack="sti_ceria", shield_additive_wt_pct=0.8) < \
+        0.3 * _mean_mrr(pack="sti_ceria")
+
+
+def test_psi_sti_ceria_nitride_stops_before_oxide():
+    """STI 선택비의 기원: 질화막 K(14.02)가 산화막 K(1.29)의 ~11배 → 질화막이 먼저 정지."""
+    from sim.params import load_pack
+    pk = load_pack("sti_ceria")
+    assert pk.has_own("shield_langmuir_K") and pk.has_own("shield_nitride_langmuir_K")
+    ratio = float(pk.get("shield_nitride_langmuir_K")) / float(pk.get("shield_langmuir_K"))
+    assert 10.0 < ratio < 12.0, ratio
+    f = _factors(pack="sti_ceria", shield_additive_wt_pct=0.1)["psi"]
+    assert f.value > 0.99                      # 산화막은 아직 온전
+    assert any("선택비" in n for n in f.notes)  # 질화막 진단이 나온다
+
+
+def test_psi_oxide_silica_is_verified_null():
+    """oxide_silica: 음이온 계면활성제/PEG는 산화막에 흡착하지 않는다(Penta 2013 §4.5,
+    US10526508B2 Table 2) — K=0 이므로 어떤 농도에서도 정확히 1.0. 단, 항은 계상돼야
+    한다('모름'이 아니라 '효과 없음')."""
+    f = _factors(pack="oxide_silica")["psi"]
+    assert "adsorption_shield" in f.terms and f.status == "modeled"
+    assert f.confidence in ("literature", "measured", "verified")
+    for C in (0.5, 1.4, 5.0):
+        assert _factors(pack="oxide_silica", shield_additive_wt_pct=C)["psi"].value == 1.0
+    assert any("검증된 영" in n for n in f.notes)
+
+
+def test_psi_sic_pack_does_not_inherit_surfactant_constant():
+    """sic_ceria_h2o2: SiC 위 첨가제 문헌이 없다. 부모 K를 상속해 쓰면 남의 재료 숫자다 —
+    항을 만들지 않고 partial + 사유. 농도를 올려도 결과 불변이어야 한다."""
+    from sim.params import load_pack
+    pk = load_pack("sic_ceria_h2o2")
+    assert not pk.has_own("shield_langmuir_K")
+    f = _factors(pack="sic_ceria_h2o2")["psi"]
+    assert f.status == "partial" and "adsorption_shield" not in f.terms
+    assert any("자기선언이 아니다" in n for n in f.notes)
+    assert _factors(pack="sic_ceria_h2o2", shield_additive_wt_pct=0.5)["psi"].value == 1.0
+
+
+@pytest.mark.parametrize("pack", ["cu_h2o2_bta", "w_fe_oxidizer"])
+def test_psi_metal_packs_unchanged_by_oxide_extension(pack):
+    """금속 팩은 기존 억제제 경로 그대로 — terms 키가 inhibitor 하나, 기준 1.0."""
+    f = _factors(pack=pack)["psi"]
+    assert set(f.terms) == {"inhibitor"}
+    assert f.value == pytest.approx(1.0, abs=1e-9)
+    assert "shield_additive_wt_pct" not in f.drivers

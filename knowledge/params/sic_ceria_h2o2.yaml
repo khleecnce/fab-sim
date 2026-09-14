@@ -140,6 +140,29 @@ params:
     source: knowledge/cmp/ceria-dispersant-eaa-oxide-mrr-direction-vs-silica.md (EVIDENCE-RULES 판정#15)
     confidence: literature
 
+  # ── ψ 표면 흡착 보호 — 첨가제 농도축: 문헌 없음 (2026-09-14) ──────────
+  # 부모(sti_ceria)의 shield_K_* 는 계면활성제×SiO₂/Si₃N₄ 쌍의 상수다. SiC 는
+  # Si–C 공유결합 세라믹이라 실란올 표면화학이 없고, SiC 위 첨가제 농도-RR 스윕
+  # 문헌이 코퍼스(1510건)·웹 검색 어디에도 없다. K 를 자기선언하지 않으므로
+  # factors._f_psi 의 has_own 게이트가 농도축을 비활성(partial)으로 둔다 —
+  # 지어낸 숫자보다 정직한 부재가 낫다. 드라이버만 선언해 사유를 기록한다.
+  shield_additive_wt_pct:
+    value: 0.0
+    unit: wt%
+    note: >
+      SiC 팩의 첨가제 농도. ⚠ 흡착상수(shield_langmuir_K) 미선언 → 이 값을 바꿔도
+      결과가 변하지 않는다(partial, notes 에 신고). 검색 흔적: Zhou 2015 6H-SiC Triton X-100
+      (doi:10.1016/j.apsusc.2015.10.158)은 초록만 확보(0.5 wt% 단일 최적점, 스윕 표 미확인)
+      — 원문 확보 시 그 표로 K 를 역산해 자기선언하면 자동 활성화된다.
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §6
+    confidence: literature
+  shield_ref_wt_pct:
+    value: 0.0
+    unit: wt%
+    note: 기준 농도(무첨가 DOE, Wang et al. ACS SI Table S3). 활성화 시 그대로 사용.
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §6
+    confidence: literature
+
   # -- tau slurry transport (viscosity) ------------------------
   slurry_viscosity_pa_s:
     value: 1.4e-3

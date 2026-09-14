@@ -249,6 +249,53 @@ params:
     source: knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6
     confidence: literature
 
+  # ── ψ 표면 흡착 보호 — 첨가제 농도축 (2026-09-14, 검증된 영) ──────────
+  # 실리카 슬러리 + 음이온 계면활성제/PEG 는 산화막에 흡착하지 않는다 →
+  # K=0 ⇒ θ≡0 ⇒ ψ≡1.0. "모름"이 아니라 "효과 없음"을 항으로 계상한다
+  # (AGENTS.md: 검증된 null 을 unmodeled 로 남기지 마라).
+  shield_additive_wt_pct:
+    value: 0.0
+    unit: wt%
+    note: >
+      이 팩의 첨가제(음이온 계면활성제·PEG 클래스) 농도. 기본값 0 = 무첨가 —
+      kp_m_per_pa 역산 조건(무첨가 Preston 캘리브레이션점)과 일치. 사용자가 올려도
+      아래 K=0 이라 산화막 MRR 은 변하지 않는다(문헌이 그렇게 말한다).
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §4
+    confidence: literature
+  shield_ref_wt_pct:
+    value: 0.0
+    unit: wt%
+    note: 기준 농도 = kp 역산 조성(무첨가). shield_additive_wt_pct 와 짝으로 옮길 것.
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §4
+    confidence: literature
+  shield_langmuir_K:
+    value: 0.0
+    unit: 1/wt%
+    note: >
+      **검증된 영.** Penta, Amanapu, Peethala, Babu 2013 Appl. Surf. Sci. 283, 986–992
+      (doi:10.1016/j.apsusc.2013.07.057) §4.5 원문: "None of the surfactants studied
+      adsorbs on an oxide surface and, hence, does not suppress the oxide RR"
+      (SDS 0.25 wt%·DBSA/DP/SLS 0.15 wt%, 10 wt% 콜로이달 실리카 50 nm, pH 2~10,
+      Fig.2 산화막 RR 유지 또는 소폭 상승). 독립 확증: US10526508B2 (KC Tech) Table 1·2 —
+      PEG 0~1.4 wt% 10수준에서 산화막 RR 30~50 Å/min, Spearman ρ=+0.45(억제 방향 아님).
+      따라서 이 첨가제 클래스의 산화막 흡착상수는 0. 양이온 폴리머(PDADMAC·
+      poly(vinylimidazolium))는 반대로 2 ppm 에서 98% 억제(US9758697B2 Table 1)인
+      스위치형 — 별개 클래스라 이 K 로 다루지 않는다(미모델링, notes 신고).
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §4
+    confidence: literature
+  shield_hill_n:
+    value: 1.0
+    unit: "-"
+    note: K=0 이라 무효(θ≡0). Langmuir 형식 유지용 형상 파라미터.
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §4
+    confidence: literature
+  shield_strength_k:
+    value: 1.0
+    unit: "-"
+    note: K=0 이라 무효(exp(0)=1). 형식 유지용.
+    source: knowledge/cmp/psi-adsorption-shield-oxide-systems.md §4
+    confidence: literature
+
   film_bulk_hardness_pa:
     value: 9e+09
     unit: Pa
