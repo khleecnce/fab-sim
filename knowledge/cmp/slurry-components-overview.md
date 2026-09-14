@@ -113,5 +113,78 @@ Slurry", 리뷰성 2차 인용):
   (c) 세리아 "화학적 이빨"·Ce³⁺/Ce⁴⁺ 산화환원 메커니즘은 Lv3-1에서 심화, 여기선 개요만.
   (d) 산화 화학의 pH·전위 지도(Pourbaix)와 passivation 동역학은 Lv2-1에서 정량화 예정.
 
-## 9. 자기시험
+## 9. 검증 코드 — §7 재현 + 이 노트를 인용하는 팩 키 감사 (2026-09-15 부채상환)
+
+이 노트는 `check_knowledge.py`는 통과했으나 `verify_claims.py`에서 **검증 코드 블록 없음**으로
+반려 상태였다 — §7이 "self-test 12/12 PASS"라는 **서술**만 갖고 있었기 때문이다. 서술은
+증거가 아니므로(assert가 증거다) 아래에 실제로 실행되는 블록을 넣는다.
+
+**감사 결과(신고)**: `knowledge/params/cu_h2o2_bta.yaml`의 네 키가 이 노트를 `source:`로
+지목한다. 그중 `oxidizer_peak_wt_pct: 3.0`이 `confidence: verified`인데, **이 노트 §3·§8(b)는
+Cu 정점 위치(1%/3%)의 근거를 §3·§8(b)에서 스스로 약하다고 표시**하고 있다 — 노트가 갖고 있지 않은
+확신을 팩이 갖고 있는 **등급 역전**이다. 다만 같은 팩의 `oxidizer_curve_n` 주석은 "C_peak=3.0은
+Aksu 2003(Electrochimica Acta)이 독립 확증한다"고 적고 있어, 실제 근거는 이 노트가 아니라
+그쪽일 가능성이 높다. 즉 고칠 곳은 **등급이 아니라 `source:` 지목**일 수 있다. 값·등급을
+이 회차에 임의로 내리지 않고(근거가 다른 문헌에 있을 수 있으므로) 아래 assert로 불일치를
+사실로 고정해 담당(slurry-chemist)에게 이관한다. `oxidizer_wt_pct`·`inhibitor_mM`의 verified는
+정당하다 — 이 둘은 문헌 물성이 아니라 **사용자가 이번 런에 정하는 운전 조건**이다.
+
+```python verify
+import math, re, pathlib
+
+# ── (A) BTA Langmuir 재현 — §7(A)의 세 수치 ──
+R, T = 8.314, 298.15
+dG = -35.4e3                                  # J/mol — 절대값 근거는 §4에 적힌 그대로다
+K = math.exp(-dG / (R * T)) / 55.5            # ΔG = −RT ln(55.5K)
+assert abs(K - 2.87e4) / 2.87e4 < 0.02, f"K={K:.3e} — 본문 2.87e4와 2% 밖"
+
+C_half = 1.0 / K                              # mol/L
+assert abs(C_half * 1e6 - 34.9) < 0.5, f"반포화 {C_half*1e6:.1f} µM — 본문 34.9와 불일치"
+
+theta = lambda C: K * C / (1.0 + K * C)
+assert abs(theta(C_half) - 0.5) < 1e-12, "반포화 정의상 θ=0.5"
+th_1mM = theta(1e-3)
+assert abs(th_1mM - 0.966) < 0.002, f"1 mM θ={th_1mM:.4f} — 본문 0.966과 불일치"
+assert theta(1e-4) < theta(1e-3) < theta(1e-2) < 1.0, "θ는 농도에 단조증가·1로 포화"
+
+# ── (B) 산화제 단봉곡선 — 정점 조건이 실제로 만족되는지 ──
+# §7(B)의 현상론 단봉함수. C_peak에서 최대이고 그 뒤 완만 감소해야 한다.
+def mrr(C, C_peak, n=2.0):
+    return (C / C_peak) ** 1.0 * math.exp(-((C / C_peak) ** n - 1.0) / n)
+for C_peak in (1.0, 3.0):                      # 착화제 무/유 → 정점 이동
+    grid = [i * 0.01 for i in range(1, 1201)]
+    top = max(grid, key=lambda c: mrr(c, C_peak))
+    assert abs(top - C_peak) < 0.02, f"C_peak={C_peak}인데 최대가 {top}"
+# 정점 이동의 귀결: 3 wt%에서 착화제 계(정점 3%)가 무착화제 계(정점 1%)보다 높아야 한다(역전)
+assert mrr(3.0, 3.0) > mrr(3.0, 1.0), "정점 이동 시 고농도에서 역전이 일어나야 한다"
+assert mrr(4.0, 3.0) < mrr(3.0, 3.0), "정점 이후 감소"
+
+# ── (C) 이 노트를 근거로 인용하는 팩 키 감사 ──
+y = pathlib.Path("knowledge/params/cu_h2o2_bta.yaml").read_text()
+cites = re.findall(
+    r"^  (\w+):\n((?:    .*\n|\s*\n)*?)    source: knowledge/cmp/slurry-components-overview\.md\n"
+    r"(?:    confidence: (\w+))?", y, re.M)
+grades = {k: (g or "미선언") for k, _, g in cites}
+print("이 노트를 인용하는 cu_h2o2_bta 키:", grades)
+
+note = pathlib.Path("knowledge/cmp/slurry-components-overview.md").read_text()
+weak_tokens = ("2차 " + "인용", "미" + "검증")   # 리터럴로 쓰면 이 노트 자신의 집계를 오염시킨다
+assert all(w in note for w in weak_tokens), "본문이 스스로 근거 강도를 표시하고 있어야 한다"
+
+# verified 가 정당한 두 부류 — 둘 다 "문헌이 보증하는 물성"이 아니라서 이 노트의 등급과 무관하다.
+#   ① 운전 조건: 사용자가 이번 런에 정하는 값.
+#   ② 기준 좌표(_ref): Kp를 어느 조성에서 역산했는지 가리키는 좌표. 본값과 함께 움직이며
+#      예측을 바꾸지 않는다(과적합 감시가 자유도로 세지 않는 것과 같은 이유).
+RUN_CONDITION = {"oxidizer_wt_pct", "inhibitor_mM", "oxidizer_ref_wt_pct"}
+inversions = [k for k, g in grades.items()
+              if g == "verified" and k not in RUN_CONDITION]
+for k in inversions:
+    print(f"⚠ 등급 역전: {k}=verified 인데 근거 노트는 스스로 약한 근거라 표시 "
+          f"→ source 재지정 또는 등급 하향 필요(slurry-chemist 이관)")
+assert inversions == ["oxidizer_peak_wt_pct"], \
+    f"감사 기대와 다름: {inversions} — 해소됐다면 이 절의 기록을 갱신하라"
+print("재현 A 3건 · B 4건 · 인용감사 1건 신고 완료")
+```
+
+## 10. 자기시험
 → [[../../agents/slurry-chemist/EXAMS.md]] Lv1-2 문항 참조.

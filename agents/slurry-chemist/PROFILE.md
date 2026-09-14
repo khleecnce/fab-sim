@@ -16,6 +16,7 @@
 | 2026-09-06 | Lv2-2 입자-웨이퍼 상호작용: 기계적 제거 vs 화학적 용해 균형 | [[../../knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance]] | EXAMS Lv2-2 3문항 |
 | 2026-09-06 | Lv3-1 세리아 슬러리 Ce³⁺/Ce⁴⁺ 메커니즘·Si-O-Ce 화학결합·oxide:nitride 선택비 제어 | [[../../knowledge/cmp/ceria-slurry-ce-redox-selectivity]] | EXAMS Lv3-1 3문항 |
 | 2026-09-08 | Lv3-2 슬러리 5파라미터(pH·입자크기·농도·K⁺·분산제)→oxide MRR 정량모델, Li et al.(2021) OA 원문 정량 재현 | [[../../knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative]] | EXAMS Lv3-2 3문항 |
+| 2026-09-15 | Lv2 부록 — ψ 흡착보호 3상수(K/n/k) 1차 출처(Park 2003) 재대조·Hill n=4.62 반증 시도, confidence=estimated 유지 판정 | [[../../knowledge/cmp/psi-shield-hill-constants-ceria-primary-source]] | EXAMS Lv2 부록 3문항 |
 
 ## 구현 기여
 <!-- sim/ 모듈 기여 기록 -->
@@ -38,6 +39,15 @@
   (`sim/tier2_physics/ceria_redox_selectivity.py`, 노트 §7 A~E 5개 값 그대로 재현).
   **잔여 요청**: 아미노산 선택비 정량모델(35–70, 조건의존 캘리브레이션 대상), Ce³⁺ vs Ce⁴⁺ 최적방향
   (상충 보고 존재, 미검증)은 여전히 미구현 — 노트로 명확히 정리되면 소프트웨어 부문이 재개한다.
+- **ψ 산화막 흡착보호 n 파라미터의 물리적 의미 재검토** (근거:
+  knowledge/cmp/psi-shield-hill-constants-ceria-primary-source.md §4·§5): `shield_hill_n`은
+  산화막 데이터 단독으로는 비식별(n=4~20에서 SSE 변화 <15%)임이 확인됐다. 현재 값(4.62)은
+  질화막 브랜치(shield_nitride_hill_n)와의 공유-n 결합회귀에서 나온 것으로, "두 막질이
+  독립적으로 같은 협동성에 도달"이라는 물리적 해석은 반증됐다. sim/chemistry.py나 향후
+  모델에서 이 n을 "흡착 협동성의 물리 상수"로 취급하지 말고 곡선-형태 파라미터로만
+  쓸 것 — 소프트웨어 부문에 특별한 구현 변경을 요청하지는 않으나(현재 엔진 사용 방식이
+  이미 배수 계산용이라 문제 없음), 향후 n을 다른 계로 전이하거나 "협동성"을 해석적으로
+  사용하는 확장을 설계할 경우 이 캐비어트를 반드시 검토할 것.
 - **BTA 억제항 K_eff 파라미터 분리** (근거: EVIDENCE-RULES 판정#17,
   knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md): 산성 H₂O₂+BTA 계에서
   BTA 농도-제거율 직접 스윕 실측이 확보되면, `sim/chemistry.py::_inhibitor_term`에 `inhibitor_K_eff_L_per_mol`

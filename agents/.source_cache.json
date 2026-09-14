@@ -1998,5 +1998,13 @@
  "doi:10.1149/1.4717508": {
   "ok": true,
   "msg": "Removal Mechanism of Tungsten CMP Process: Effect of Slurry Abrasive Concentration and Pro"
+ },
+ "doi:10.1143/JJAP.42.5420": {
+  "ok": true,
+  "msg": "Surfactant Effect on Oxide-to-Nitride Removal Selectivity of Nano-abrasive Ceria Slurry fo"
+ },
+ "doi:10.1149/1.2931519": {
+  "ok": true,
+  "msg": "Diffusion-Limited Agglomeration and Defect Generation during Chemical Mechanical Planariza"
  }
 }

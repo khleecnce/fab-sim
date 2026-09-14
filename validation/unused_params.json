@@ -1,0 +1,290 @@
+{
+ "tier1.preston_radial": {
+  "used": 51,
+  "unused": 39,
+  "orphan": 8,
+  "per_pack": {
+   "oxide_silica": {
+    "unused": [
+     "abrasive_iep_ph",
+     "abrasive_saturation_wt_pct",
+     "damage_exponent",
+     "hamaker_j",
+     "pad_ra_m",
+     "ph_mrr_at_peak_rel",
+     "shield_hill_n",
+     "shield_strength_k",
+     "slurry_viscosity_pa_s"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_size_nm",
+     "abrasive_ref_wt_pct",
+     "abrasive_size_exp_above_peak",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "abrasive_wt_pct",
+     "film_bulk_hardness_pa",
+     "kp_m_per_pa",
+     "ph_peak",
+     "slurry_ph"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "sti_ceria": {
+    "unused": [
+     "abrasive_size_exp_above_peak",
+     "ceria_tooth_exponent",
+     "damage_exponent",
+     "oxide_nitride_selectivity",
+     "shield_hill_n",
+     "shield_langmuir_K",
+     "shield_nitride_hill_n",
+     "shield_nitride_langmuir_K",
+     "shield_nitride_strength_k",
+     "shield_strength_k",
+     "slurry_viscosity_pa_s",
+     "wafer_iep_ph"
+    ],
+    "used": [
+     "abrasive_iep_ph",
+     "abrasive_ref_size_nm",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "ce3_fraction",
+     "ceria_tooth_gain",
+     "kp_m_per_pa",
+     "slurry_ph"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "cu_h2o2_bta": {
+    "unused": [
+     "abrasive_size_nm",
+     "damage_exponent",
+     "dishing_sensitivity",
+     "film_bulk_hardness_pa",
+     "oxidizer_curve_n",
+     "oxidizer_peak_wt_pct",
+     "slurry_ph"
+    ],
+    "used": [
+     "inhibitor_dG_ads_kJ",
+     "inhibitor_mM",
+     "inhibitor_ref_mM",
+     "inhibitor_strength_k",
+     "kp_m_per_pa",
+     "oxidizer_passivation_K",
+     "oxidizer_ref_wt_pct",
+     "oxidizer_wt_pct"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "w_fe_oxidizer": {
+    "unused": [
+     "abrasive_ref_size_nm",
+     "abrasive_size_nm",
+     "damage_exponent",
+     "oxidizer_curve_n",
+     "oxidizer_peak_wt_pct",
+     "slurry_ph"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_wt_pct",
+     "abrasive_wt_pct",
+     "film_bulk_hardness_pa",
+     "inhibitor_K_L_per_mol",
+     "inhibitor_mM",
+     "inhibitor_ref_mM",
+     "inhibitor_strength_k",
+     "kp_m_per_pa",
+     "oxidizer_langmuir_K",
+     "oxidizer_mech_floor",
+     "oxidizer_ref_wt_pct",
+     "oxidizer_wt_pct"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "sic_ceria_h2o2": {
+    "unused": [
+     "film_bulk_hardness_pa",
+     "oxidizer_ref_wt_pct",
+     "ph_softening_per_unit",
+     "slurry_viscosity_pa_s",
+     "wafer_iep_ph"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_size_nm",
+     "abrasive_ref_wt_pct",
+     "abrasive_size_exp_above_peak",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "abrasive_wt_pct",
+     "slurry_ph"
+    ],
+    "orphan": []
+   }
+  }
+ },
+ "tier2.gw_physical_kp": {
+  "used": 51,
+  "unused": 39,
+  "orphan": 8,
+  "per_pack": {
+   "oxide_silica": {
+    "unused": [
+     "abrasive_iep_ph",
+     "abrasive_saturation_wt_pct",
+     "damage_exponent",
+     "hamaker_j",
+     "pad_ra_m",
+     "ph_mrr_at_peak_rel",
+     "shield_hill_n",
+     "shield_strength_k",
+     "slurry_viscosity_pa_s"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_size_nm",
+     "abrasive_ref_wt_pct",
+     "abrasive_size_exp_above_peak",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "abrasive_wt_pct",
+     "film_bulk_hardness_pa",
+     "kp_m_per_pa",
+     "ph_peak",
+     "slurry_ph"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "sti_ceria": {
+    "unused": [
+     "abrasive_size_exp_above_peak",
+     "ceria_tooth_exponent",
+     "damage_exponent",
+     "oxide_nitride_selectivity",
+     "shield_hill_n",
+     "shield_langmuir_K",
+     "shield_nitride_hill_n",
+     "shield_nitride_langmuir_K",
+     "shield_nitride_strength_k",
+     "shield_strength_k",
+     "slurry_viscosity_pa_s",
+     "wafer_iep_ph"
+    ],
+    "used": [
+     "abrasive_iep_ph",
+     "abrasive_ref_size_nm",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "ce3_fraction",
+     "ceria_tooth_gain",
+     "kp_m_per_pa",
+     "slurry_ph"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "cu_h2o2_bta": {
+    "unused": [
+     "abrasive_size_nm",
+     "damage_exponent",
+     "dishing_sensitivity",
+     "film_bulk_hardness_pa",
+     "oxidizer_curve_n",
+     "oxidizer_peak_wt_pct",
+     "slurry_ph"
+    ],
+    "used": [
+     "inhibitor_dG_ads_kJ",
+     "inhibitor_mM",
+     "inhibitor_ref_mM",
+     "inhibitor_strength_k",
+     "kp_m_per_pa",
+     "oxidizer_passivation_K",
+     "oxidizer_ref_wt_pct",
+     "oxidizer_wt_pct"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "w_fe_oxidizer": {
+    "unused": [
+     "abrasive_ref_size_nm",
+     "abrasive_size_nm",
+     "damage_exponent",
+     "oxidizer_curve_n",
+     "oxidizer_peak_wt_pct",
+     "slurry_ph"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_wt_pct",
+     "abrasive_wt_pct",
+     "film_bulk_hardness_pa",
+     "inhibitor_K_L_per_mol",
+     "inhibitor_mM",
+     "inhibitor_ref_mM",
+     "inhibitor_strength_k",
+     "kp_m_per_pa",
+     "oxidizer_langmuir_K",
+     "oxidizer_mech_floor",
+     "oxidizer_ref_wt_pct",
+     "oxidizer_wt_pct"
+    ],
+    "orphan": [
+     "abrasive_d99_nm",
+     "abrasive_ref_d99_nm"
+    ]
+   },
+   "sic_ceria_h2o2": {
+    "unused": [
+     "film_bulk_hardness_pa",
+     "oxidizer_ref_wt_pct",
+     "ph_softening_per_unit",
+     "slurry_viscosity_pa_s",
+     "wafer_iep_ph"
+    ],
+    "used": [
+     "abrasive_conc_exponent",
+     "abrasive_ref_size_nm",
+     "abrasive_ref_wt_pct",
+     "abrasive_size_exp_above_peak",
+     "abrasive_size_exp_below_peak",
+     "abrasive_size_nm",
+     "abrasive_size_peak_nm",
+     "abrasive_wt_pct",
+     "slurry_ph"
+    ],
+    "orphan": []
+   }
+  }
+ }
+}

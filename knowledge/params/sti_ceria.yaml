@@ -227,17 +227,29 @@ params:
     value: 1.2949
     unit: 1/wt%
     note: >
-      산화막(SiO₂) 협동 흡착 역-임계농도(C₅₀=0.772 wt%). Park, Kim et al. 2003 JJAP 42(9A)
-      5420 (doi:10.1143/jjap.42.5420) Fig.3(a) 9점 상대오차 가중 회귀(최대 오차 6.6%);
-      텍스트 정박점 "0.8 wt%에서 무첨가의 1/5" 재현(잔여율 0.198). ⚠ (K, n, k)는 한 묶음
-      — 산화막 쪽 k 는 SSE 프로파일이 평평해 단독 식별되지 않는다(노트 §5.5).
+      산화막(SiO₂) 협동 흡착 역-임계농도(C₅₀=0.772 wt%). Park, Katoh, Lee, Jeon, Paik 2003
+      JJAP 42(9A) 5420 (DOI: 10.1143/JJAP.42.5420) Fig.3(a) 9점 상대오차 가중 회귀(최대 오차
+      6.6%); 텍스트 정박점 "0.8 wt%에서 무첨가의 1/5" 재현(잔여율 0.198). ⚠ (K, n, k)는 한
+      묶음 — K는 n과 강하게 얽혀 있다(n=4→K≈0.97, n=20→K≈2.21, 독립 재현 확인).
       그림 판독 + 비식별 → estimated.
+      [2026-09-15 1차 출처 재대조] `papers/kim2003-jjap-surfactant-oxide-nitride-selectivity-ceria.pdf`
+      가 실제로 이 문헌임을 원문 텍스트에서 확인, Fig.3 9점을 독립 재판독해 기존 값과
+      전 구간 일치 확인. 등급은 estimated 유지(승격 근거 없음) — 상세:
+      knowledge/cmp/psi-shield-hill-constants-ceria-primary-source.md §2·§3·§5.
     source: knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md §5.4
     confidence: estimated
   shield_hill_n:
     value: 4.62
     unit: "-"
-    note: Hill 협동성 지수(hemimicelle 문턱). 산화막·질화막 동일(4.620 vs 4.623). Park 2003 Fig.3 회귀.
+    note: >
+      Hill 협동성 지수(hemimicelle 문턱). Park 2003 Fig.3 회귀.
+      ⚠ [2026-09-15 반증 시도] 이 값은 산화막 단독 데이터로는 식별되지 않는다 — 산화막
+      SSE 프로파일이 n=4~20 구간에서 15% 이내로 평평하다(비식별). 실제로 n≈4.6에 진짜
+      최소를 갖는 쪽은 질화막(shield_nitride_hill_n) 데이터이고, 이 값은 공유-n 결합회귀에서
+      질화막에 이끌려 나온 것이다(결합회귀 총 SSE의 90% 이상이 질화막 몫). "산화막·질화막이
+      독립적으로 같은 n에 도달 = 같은 흡착 기구"라는 해석은 반증됨 — n은 곡선-형태
+      파라미터로만 취급할 것(물리적 의미 부여 금지). confidence는 estimated 유지(승격도
+      추가 하향도 없음). 상세: knowledge/cmp/psi-shield-hill-constants-ceria-primary-source.md §4·§5·§6.
     source: knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md §5.4
     confidence: estimated
   shield_strength_k:
@@ -246,6 +258,9 @@ params:
     note: >
       피복→잔여율 지수감쇠 강도(exp(−k·θ)). 하한 k≥1.62(0.8 wt% 잔여율 1/5 제약).
       3.0 선택 근거: θ_max=0.54 로 포화 구간을 피해 고농도 구분이 살아 있다(노트 §5.5).
+      [2026-09-15 독립 재현] 산화막 SSE 프로파일이 평평하다는 비식별 자백을 독립
+      재현(k 하한만 확인 가능, 점추정 불가) — confidence estimated 유지가 정당함을 재확인.
+      상세: knowledge/cmp/psi-shield-hill-constants-ceria-primary-source.md §4·§5.
     source: knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md §5.5
     confidence: estimated
   shield_nitride_langmuir_K:

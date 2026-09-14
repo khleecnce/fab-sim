@@ -54,6 +54,20 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   2002·Lee 2021 형제노트 재인용. verify 5블록 통과, verify_claims 출처 7건 실존·check_knowledge 통과. 팩 갱신 제안: kp_m_per_pa
   값 유지·근거를 일반범위→Tugbawa r_cu 역산으로 교체, confidence estimated 유지(r_cc 환산 ±30~44 % 불확실). 미해결: 팩 화학 정확일치
   단일 (P,V,MRR) 문헌 부재(wei2013은 실리카 연마재), rpm 문헌의 r_cc 미보고)
+- **Δ damage_exponent 1차 문헌 재탐색 (2026-09-15)**: `cu_h2o2_bta.yaml::damage_exponent=2.54`
+  (텅스텐 전이, E4)를 Cu 직접 실측으로 승격 가능한지 판정 — **estimated 유지, 승격 안 함**.
+  Cu 직접 문헌 3편 확보(Teo 2003 정성적 로컬 기확보, Li et al. 2018 ECS JSS 신규 fetch —
+  Cu 배리어 CMP EDA 분산제 스윕에서 그래프 판독으로 LPC-스크래치 5점 재구성해 `scratch~LPC^3.22`
+  R²=0.974 회귀, Saka et al. 2009 신규 fetch — Cu 단일입자 스크래치 폭=지름/2 선형모델). 셋 다
+  damage_exponent가 정의하는 "D99→스크래치 **개수**" 축과 다른 물리량(LPC=임계초과 **개수**축은
+  D99로 환산 불가·폭 모델은 **크기**축)이라 대입 불가 — 방향성 확신은 커졌으나(m=3.22가 기존
+  W 관측 범위 1.73~3.73 안) 등급은 그대로. `find_open_access.py --title`은 두 신규 논문 모두
+  IOP 링크만 반환(직접 fetch 403 Radware) → `미러 사이트()` 함수 직접 호출로 미러 사이트→미러 사이트
+  미러 URL 확보 후 `curl -e referer`로 우회 다운로드.
+  노트: [[../../knowledge/cmp/delta-damage-exponent-cu-primary-source]]
+  (신규 1차출처: Li et al. 2018 ECS JSS DOI 10.1149/2.0101806jss 전문(그래프 판독 verify 포함)
+  + Saka et al. 2009 DOI 10.1149/1.3121964 전문; Teo et al. 2003 SPIE 5041 로컬 코퍼스 재검토.
+  YAML 미수정 — 판정 규칙상 승격 근거 미달을 정직하게 기록.)
 
 ## 구현 요청
 - **[P1] Cu-H₂O Pourbaix 경계 함수** ✅ 9/10 완료 — `sim/tier2_physics/cu_pourbaix.py`(S40, 커밋 495ed90).
