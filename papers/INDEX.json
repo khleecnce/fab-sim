@@ -1,4 +1,49 @@
 {
+ "doddabasanagouda2004-isu-ms-thesis-cmp-pad-multiscale-response": {
+  "src": "CORE API v3 search (works?q=quantitative analysis multi-scale response CMP pad quasi-static dynamic characterization dry wet pad) → core.ac.uk/download/595616917.pdf — 2026-09-14 2회차 재탐색",
+  "pdf_local": "papers/doddabasanagouda2004-isu-ms-thesis-cmp-pad-multiscale-mechanical-response.pdf",
+  "doi": "10.31274/rtd-20201023-76",
+  "title": "A quantitative analysis of multi-scale response of CMP pad: quasi-static and dynamic characterization of dry and wet pad",
+  "authors": "Doddabasanagouda S (advisors: Chandra A, Bastawros A)",
+  "venue": "MS thesis, Iowa State University (2004)",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.6 — Bastawros 2019 JSS의 원 데이터원. 항복강도/plateau stress 수치 없음(E_pad=1.7 GPa만 보고), 값 B 부적격"
+ },
+ "baisie2012-ncat-phd-diamond-disc-pad-conditioning-modeling": {
+  "src": "CORE API v3 search (works?q=\"radius of curvature\" worn diamond grit conditioning disk pad CMP) → core.ac.uk/download/322523806.pdf — 2026-09-14 2회차 재탐색",
+  "pdf_local": "papers/baisie2012-ncat-phd-diamond-disc-pad-conditioning-modeling.pdf",
+  "doi": null,
+  "title": "Modeling, Simulation, And Optimization Of Diamond Disc Pad Conditioning In Chemical Mechanical Polishing",
+  "authors": "Baisie EA",
+  "venue": "PhD dissertation, North Carolina A&T State University (2012)",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.6 — 다이아몬드 형상 가정만(수치 없음), 팁 곡률반경 R 수치 없음, 값 A 부적격"
+ },
+ "kim2013-mit-phd-thesis-microscale-scratching-soft-pad-asperities": {
+  "src": "CORE API v3 search (works?q=Bozkaya pad-abrasive-wafer contact chemical mechanical polishing, 연관 검색 결과) → core.ac.uk/download/19880193.pdf — 2026-09-14 2회차 재탐색",
+  "pdf_local": "papers/kim2013-mit-phd-thesis-microscale-scratching-soft-pad-asperities.pdf",
+  "doi": null,
+  "title": "Micro-Scale Scratching by Soft Pad Asperities in Chemical-Mechanical Polishing",
+  "authors": "Kim S (advisors: Chun JH, Saka N)",
+  "venue": "PhD thesis, Massachusetts Institute of Technology (2013)",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.6 — Kim2014 JSS(§1 item13)와 동일 계열 나노압입 경도 데이터(Ha,max=915 MPa IC1000). 팁 반경은 패드 애스퍼리티(값 A 부적격), 항복강도는 경도뿐(값 B 부적격)"
+ },
+ "roberts2011-mit-bs-thesis-scratching-pad-asperities": {
+  "src": "CORE API v3 search (works?q=Ponte pad scratching chemical mechanical planarization thesis) → core.ac.uk/download/4433256.pdf — 2026-09-14 2회차 재탐색",
+  "pdf_local": "papers/roberts2011-mit-bs-thesis-scratching-pad-asperities.pdf",
+  "doi": null,
+  "title": "Scratching by Pad Asperities in Chemical Mechanical Polishing",
+  "authors": "Roberts MP",
+  "venue": "BS thesis, Massachusetts Institute of Technology (2011)",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.6 — 패드 애스퍼리티 곡률반경·경도(GPa) 표뿐, 다이아몬드 그릿·항복강도 직접값 없음(값 A·B 둘 다 부적격)"
+ },
+ "ponte2015-jmse-energy-dissipation-constitutive-modeling-pad-scratching": {
+  "src": "Semantic Scholar Graph API(DOI 조회) → CORE 검색 재확인 → core.ac.uk/download/56700522.pdf(URI DigitalCommons 원문, Cloudflare 우회) — 2026-09-14 2회차 재탐색",
+  "pdf_local": "papers/ponte2015-jmse-energy-dissipation-constitutive-modeling-pad-scratching.pdf",
+  "doi": "10.1007/s10854-015-3949-4",
+  "title": "Energy Dissipation and Constitutive Modeling for a Mechanistic Description of Pad Scratching in Chemical-Mechanical Planarization",
+  "authors": "Ponte D, Meyer DML",
+  "venue": "J. Mater. Sci.: Mater. Electron. (2015, author manuscript, URI Faculty Publications)",
+  "note": "equipment/gamma-conditioning-load-confidence-basis.md §4.6 — Ponte 2015 URI 학위논문의 저자 본인 후속 논문(차단된 학위논문의 대체 경로). IC1000 압축/인장 응력완화 시험은 27.6~170 kPa 범위(항복 미도달), von Mises 항복기준은 웨이퍼에만 적용 — 값 B 부적격"
+ },
  "lee2021-scirep-cu-ru-galvanic-corrosion-nicotinic-acid": {
   "src": "PMC OA (CC-BY), 로컬 코퍼스 papers/PMC8551296.xml — 2026-09-12 세션 네트워크 미승인으로 기존 확보본 사용",
   "pdf_local": "papers/PMC8551296.xml",

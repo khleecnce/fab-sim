@@ -254,10 +254,10 @@ p_m > 1.1Y 여부는 각도·재료로만 정해져 모든 하중에서 소성�
 |---|---|---|---|
 | (a) 패드 탄성률 E_p | 0.5 GPa | Saka 2008 본문(IC1000, 습식) | 확보 |
 | (a) 패드 경도 H_p | 0.05 GPa (국소 0.01~0.31) | Saka 2008 본문·Fig.9 | 확보 |
-| (a) 항복강도 Y | H/3 ≈ 16.7 MPa | Tabor 관계(2차 인용) | 환산 — **직접 실측 1회차 미확보**(§4.5) |
-| (a) 대용 H·E (감도용) | H 290 MPa·E 2.21 GPa(건식? 미기재, Berkovich 90 nm) / Y_sat≈20 MPa·E 0.2~0.5 GPa(건식 압축) | Kim 2014 Table II / Bastawros 2019 본문(§1 13·14) | 확보, 단 Y 직접값 아님 |
+| (a) 항복강도 Y | H/3 ≈ 16.7 MPa | Tabor 관계(2차 인용) | 환산 — **직접 실측 2회차까지 미확보**(§4.5·§4.6) |
+| (a) 대용 H·E (감도용) | H 290 MPa·E 2.21 GPa(건식? 미기재, Berkovich 90 nm) / Y_sat≈20 MPa·E 0.2~0.5 GPa(건식 압축) | Kim 2014 Table II / Bastawros 2019 본문(§1 13·14) — Kim2013 MIT 학위논문·Gouda2004 ISU 학위논문 원문(§4.6)으로 재확인, 같은 데이터 계열 | 확보, 단 Y 직접값 아님 |
 | (a) 대안 E | 1.0 GPa / 0.117 GPa | base.yaml `pad_E_star_pa`(estimated) / [[../materials/pad-hardness-porosity-measurement-methods]] §8 Qi eq(11)(사용 불가 판정) | 감도용 |
-| (b) 마모 그릿 팁 반경 R | **미확보** | 후보 3편 중 ECS Trans.만 확보(단면적뿐), MRS·JJAP 미확보; 추가 4편도 수치 없음(§1 9~12, §4.5) | 1회차 재탐색 후에도 미확보 |
+| (b) 마모 그릿 팁 반경 R | **미확보** | 후보 3편 중 ECS Trans.만 확보(단면적뿐), MRS·JJAP 미확보; 추가 4편도 수치 없음(§1 9~12, §4.5); 2회차 CORE 검색 5편도 전부 패드 애스퍼리티뿐(§4.6) | 2회차 재탐색 후에도 미확보 |
 | (b) 기하 상한 | D/2 = 90 µm (E187 181 µm 그릿), Ring Table 2 β=D/2=95 µm | [[conditioner-disk-spec-recipe-industrial]] §2, [[conditioner-asperity-population-balance]] §5 | 상한만 |
 | (b) 참고 | DOP≈15 µm | Pysher 2010 | 깊이이지 반경 아님 |
 | (c) 그릿 총수 N_total | π(52.25 mm)²/(430 µm)² = 46,386 | Zheng 2023 Table 1(정방격자 가정) | 계산 |
@@ -417,6 +417,96 @@ print("PASS: B 대용값은 P_c를 키워 하한 유지 쪽 — 판정 불변")
 **판정: 미해소 유지(변경 없음).** EVIDENCE-RULES 판정#22 행에 1회차 기록. 3회차 규칙: 2회차는 위 "다음 회차 1순위"(Bozkaya 학위논문·
 Wei 2010 UA 학위논문·Huy 2023) 경로만 시도하고, 그래도 없으면 "R·Y 직접값은 이 코퍼스로 못 낸다"로 스코프 축소 종결한다.
 
+### 4.6 2회차 재탐색(2026-09-14) — 값 A·B 모두 미확보(재확인), 하한 유지
+
+과제: §4.5가 지정한 "다음 회차 1순위" 경로(Bozkaya 2009 Northeastern 학위논문·Wei 2010 UA 학위논문·
+Gouda ISU 학위논문·Ponte 2015 URI 학위논문·Huy 2023 JJAP)를 1회차와 **다른 접근**(직접 PDF 엔드포인트,
+OpenAlex `best_oa_location`/CORE API, Semantic Scholar Graph API, 미러 사이트 재시도)으로 시도했다.
+결과: **1차 지정 5편은 전부 여전히 미확보**(리포지토리 봇차단은 그대로)였지만, CORE API 키워드 검색이
+같은 저자군의 **다른 문헌 5편**을 원문으로 확보했다 — 그러나 **전부 값 A·B에 부적격**이었다.
+값 A·B 모두 **다시 미확보**로 확정한다. 코드·격자 불변.
+
+**직접 지정 경로 5편 — 전부 여전히 막힘(1회차와 동일 결과)**:
+- Bozkaya 2009 Northeastern 학위논문(DOI: 10.17760/d10019194): OpenAlex `best_oa_location`이 직접 PDF
+  URL(`repository.library.northeastern.edu/files/neu:1592/fulltext.pdf`)을 알려줬으나 UA 헤더를 붙인
+  `curl -L`도 본문 10바이트 `Forbidden` — 1회차의 403/418과 동일 계열 차단, 경로만 바뀌었을 뿐 결과는 같다.
+- Ponte 2015 URI 학위논문(DOI: 10.23860/thesis-ponte-david-2015): Semantic Scholar가 직접 PDF 엔드포인트
+  `digitalcommons.uri.edu/cgi/viewcontent.cgi?article=1678&context=theses`를 알려줬으나 Cloudflare
+  managed-challenge(`Just a moment...`, altcha 유사)로 차단 — 1회차 미시도 URL이지만 결과는 동일 계열.
+- Gouda(Doddabasanagouda) ISU 학위논문(DOI: 10.31274/rtd-20201023-76): OpenAlex가 알려준 직접 URL
+  `lib.dr.iastate.edu/cgi/viewcontent.cgi?article=21401&context=rtd`도 403 Forbidden. 단, **CORE API
+  검색이 같은 논문을 다른 미러로 확보**했다(아래 참조) — 값 B 기준으로는 부적격이지만 원문 확보 자체는 성공.
+- Huy 2023 JJAP(DOI: 10.35848/1347-4065/acd42a, "Vickers hardness of polishing pads … microtomography
+  model"): Semantic Scholar가 IOP 직접 PDF URL을 줬으나 `curl`은 여전히 Radware `validate.perfdrive.com`
+  HTML(14 KB)을 반환 — 1회차와 동일 차단. CORE 키워드 검색(제목 그대로)도 0건.
+- Wei 2010 University of Arizona 학위논문: DOI/저자 전체이름을 특정하지 못했다. OpenAlex `search`+
+  `filter=type:dissertation`(diamond conditioner/CMP pad 키워드 2질의)에 이 논문이 나타나지 않음 —
+  UA 리포지토리 자체 검색(`repository.arizona.edu/simple-search`)도 JS 렌더링이라 정적 HTML만으로는
+  결과 목록을 못 읽음(빈 페이지, 827바이트). **식별조차 못 함 — 3회차 과제로 남긴다.**
+
+**CORE API 검색으로 새로 확보한 5편 — 원문 확인, 전부 값 A·B 부적격**(papers/INDEX.json 등록):
+1. Doddabasanagouda 2004 ISU MS 학위논문(위 Gouda 학위논문 그 자체, `core.ac.uk/download/595616917.pdf`
+   로 확보 성공 — Bastawros 2019 JSS(§1 item14 "saturation stress ≈20 MPa" 서술)의 **원 논문**이지만,
+   본문에는 "plateau stress"가 Gibson & Ashby 셀룰러 고체 이론의 일반 서술(§2.x, 교과서 인용)로만
+   등장하고 IC1000 실측 수치가 없다. 탄성률 E_pad=1.7 GPa(dense polyurethane)만 보고 — **20 MPa라는
+   수치의 1차 출처가 이 MS 논문이 아님**이 드러났다(Bastawros 2019가 인용한 원 데이터가 이 논문이라는
+   §1 item14의 추정이 틀렸을 수 있다 — 별도 확인 필요, 이 노트의 범위 밖).
+2. Baisie 2012 NC A&T PhD 학위논문("Modeling, Simulation, And Optimization Of Diamond Disc Pad
+   Conditioning in CMP", DOI 없음, `core.ac.uk/download/322523806.pdf`) — 컨디셔닝 디스크 자체를
+   모델링하는 논문이라 정조준이었으나, "diamond shape" 논의는 정성적(원형성·규칙성)이고 팁 곡률반경
+   수치는 전혀 없다.
+3. Kim(Sanha) 2013 MIT PhD 학위논문("Micro-Scale Scratching by Soft Pad Asperities in CMP",
+   `core.ac.uk/download/19880193.pdf`, 255쪽) — Kim 2014 JSS(§1 item13)의 **원 논문**. 나노압입 경도
+   데이터가 동일(Ha,max=915 MPa for IC1000, 290±220 MPa 평균)하고 더 상세하지만, 여전히 **경도**이지
+   항복강도 직접값이 아니다. "radius of curvature"는 전부 **패드 애스퍼리티**(다이아몬드 컨디셔너로
+   평탄화된 후의 패드 표면 형상) 얘기이고 다이아몬드 그릿 팁 반경이 아니다 — 1회차와 동일한 혼동 함정.
+4. Roberts 2011 MIT BS 학위논문("Scratching by Pad Asperities in CMP", `core.ac.uk/download/4433256.pdf`)
+   — Table 4에 8종 패드의 Young's modulus·hardness(GPa) 표가 있으나 IC1000 항복강도 직접값 없음.
+   "radius of curvature"(Table 5)도 패드 애스퍼리티 곡률이다.
+5. Ponte(David) 2015 자신의 후속 저널 논문("Energy Dissipation and Constitutive Modeling for a
+   Mechanistic Description of Pad Scratching in CMP", DOI 10.1007/s10854-015-3949-4, URI Faculty
+   Publications, `core.ac.uk/download/56700522.pdf`) — 차단된 학위논문 저자 본인의 저널판. IC1000
+   압축·인장 **응력완화**(stress relaxation) 실험을 27.6~170 kPa 범위에서 수행했으나 이는 점탄성
+   특성화이지 항복 시험이 아니다(가한 응력이 항복 근처에도 못 미친다 — Kim2014 Tabor 환산 Y≈97 MPa,
+   Bastawros 대용 20 MPa보다도 170 kPa는 두 자릿수 작다). Von Mises 항복기준은 **웨이퍼**에만 적용되고
+   패드는 선형탄성으로 가정한다(패드 항복강도 자체가 이 모델의 관심사가 아님). 값 B 부적격.
+
+**추가 시도한 경로(부적격 확인)**:
+- MRS Proc. 0991-C13-02(Bozkaya & Müftü 2007, "Contact Model for a Pad Asperity and a Wafer Surface
+  …") — 미확보 C01-01의 자매 논문(같은 MRS 991권). OpenAlex `is_oa: false`, Semantic Scholar
+  `openAccessPdf.status: CLOSED`, CORE 키워드 검색 0건, 미러 사이트(se/st/ru DNS 실패, bban 404) 전부 실패
+  — MRS 학회 논문집은 미러 사이트 커버리지 밖(1회차 §4.5의 관찰과 일치).
+- Crossref bibliographic "Wei conditioner disk diamond chemical mechanical planarization dissertation
+  Arizona"(10건) → 전부 무관(비-CMP 분야).
+- CORE `q="tip radius" diamond conditioner CMP pad wear worn`(10건 검토) → 다이아몬드 터닝 공구 마모
+  (규소 가공, Wear지 2편), 컨디셔닝 밀도 분포·FEA·드레싱 특성 논문 다수지만 전부 팁 반경 수치 없음.
+  같은 질의에서 **원 미확보 후보 MRS C01-01(DOI 10.1557/proc-0991-c01-01)이 다시 나타났으나 downloadUrl
+  없음**(CORE도 원문 미보유 — 폐쇄) — 1회차 판정 재확인.
+- CORE `q="radius of curvature" worn diamond grit conditioning disk pad CMP`(10건) → 위 Baisie 2012
+  학위논문 외 전부 FEA·드레싱 모델링 논문, 팁 반경 수치 없음.
+- OpenAlex `10.1016/j.mee.2015.09.006`("Method for accelerated diamond fracture characterization in
+  CMP", Elsevier MEE) · `10.1109/tsm.2020.3029763`("A Novel Method to Quantify Conditioner-to-Conditioner
+  Variation and Predict Conditioner Lifetime …", IEEE TSM) — 제목상 유망했으나 둘 다 `is_oa: false`.
+  미러 사이트 3개 미러(box DNS 실패, red 502 Bad Gateway, bban 404) 전부 실패.
+
+**결론**: 지정된 1차 5편은 전부 여전히 봇차단(1회차와 동일). CORE API가 열어준 새 경로 5편은 원문을
+전부 확보했지만 **값 A(다이아몬드 그릿 팁 곡률반경)·값 B(항복강도 직접 실측)** 어느 쪽도 담고 있지
+않다 — 이 저자군(MIT Kim/Saka/Chun 계열, URI Ponte/Bastawros 계열, ISU Doddabasanagouda 계열)의
+축적된 문헌은 전부 **패드 애스퍼리티 형상**·**나노압입 경도**·**점탄성 완화**만 측정했고, "마모된
+다이아몬드 그릿의 팁 반경"과 "IC1000의 직접 항복강도"라는 두 값은 **이 저자군 코퍼스 자체에 존재하지
+않는 것으로 보인다**(1회차의 잠정 결론이 2회차 다른 접근으로도 재확인됨).
+
+> ⚠ **2회차 1차 출처 확보 실패**: Bozkaya 2009 NEU(직접 PDF 403)·Ponte 2015 URI(Cloudflare 챌린지)·
+> Gouda 2004 ISU(직접 PDF 403, CORE 미러로 원문은 확보했으나 부적격)·Huy 2023 JJAP(Radware 차단)·
+> Wei 2010 UA(식별 실패) — 5편 전부 값 A·B 미제공. CORE API 신규 검색 5편(Baisie 2012·Kim 2013·
+> Roberts 2011·Ponte 저널판·Gouda 본문)도 원문 확보 후 부적격 확인. MRS proc-0991-c13-02·mee.2015.09.006·
+> tsm.2020.3029763 3편은 폐쇄/미러실패로 미확보. **3회차 규칙**: §절차(3회차까지 보류 허용, EVIDENCE-RULES
+> §서두)에 따라 다음 회차가 마지막이다. 3회차 권고: (1) Wei 2010 UA 학위논문을 OpenAlex/ProQuest에서
+> 정확한 제목·DOI로 먼저 **식별**(이번 회차는 식별조차 못 함), (2) 그래도 값 A·B 미확보면 "R·Y 직접값은
+> 이 코퍼스로 못 낸다"로 **스코프 축소 종결**(판정#7·#8·#9-종결과 동일 유형) — `_f_gamma`의 사유(3)
+> 하한을 "임계하중 비선형은 실재하나 이 계(diamond conditioner wear literature)에서 정량화할 1차 문헌이
+> 없다"는 **영구 확정**으로 전환하고 격자는 estimated 그대로 둔다.
+
 ## 5. 종합 — `_f_gamma` 반영
 | 사유 | 판정 | 코드 반영 |
 |---|---|---|
@@ -430,7 +520,9 @@ Wei 2010 UA 학위논문·Huy 2023) 경로만 시도하고, 그래도 없으면 
 ## 6. 미검증·한계
 - (1)의 상계는 균일 압력·균일 그릿밀도 가정이다. 디스크 짐벌·에지 압력 집중은 미반영(분포 모듈 몫).
 - 역회전(1−Rs>1) 레시피는 문헌에서 확인하지 못했다 — 나타나면 §2.3 (d)를 재계산.
-- (3)의 R은 **1차 미확보**(1회차 재탐색 후에도, §4.5), Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
+- (3)의 R은 **1차 미확보**(2회차 재탐색까지, §4.5·§4.6), Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
   응력 집중으로 P_c가 더 작아지므로 이 가정은 보수적이다). 3M DOP는 기준면 정의라 "침투 깊이"로 읽는
   것은 해석이다.
 - N_total의 정방격자 환산은 디스크 전면이 그릿으로 덮였다는 가정(edge exclusion 무시)이라 상한 쪽이다.
+- **3회차가 마지막**(§4.6 종결) — Wei 2010 UA 학위논문 식별부터 시작하고, 실패하면 "R·Y 직접값은
+  이 코퍼스로 못 낸다"로 스코프 축소 종결한다.

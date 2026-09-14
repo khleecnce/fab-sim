@@ -8,7 +8,7 @@ Greenwood-Williamson(GW) 통계적 asperity 접촉모델 + Hertz 단일접촉 �
     "Rough Surface Contact Modelling—A Review" (Lubricants/MDPI, 2022) — 선형 A_r-W 관계.
 
 이 모듈은 아직 preston.py/kinematics.py에 연결하지 않는다 (Lv2-2에서 K_p 물리적 분해 예정).
-목적: 지수분포 GW 모델의 해석적 결과(A_r ∝ W, 계수 = 3π/(4E*)·sqrt(R/beta))를
+목적: 지수분포 GW 모델의 해석적 결과(A_r ∝ W, 계수 = sqrt(π·R·β)/E*)를
 수치 적분으로 재현해 문헌 주장("실접촉면적은 하중에 선형 비례하며 분리거리 d와 무관")을
 sanity check 한다.
 
@@ -66,12 +66,21 @@ def gw_analytic_ratio(beta, E_star, R):
       ∫(z-d)^1.5 phi dz = Gamma(2.5)/beta^1.5 * e^{-beta d}
       => A_r = pi*R*eta*A_n*(1/beta)*e^{-beta d}
          W   = (4/3)E*sqrt(R)*eta*A_n*Gamma(2.5)/beta^1.5 * e^{-beta d}
-      => A_r/W = pi*R/beta / [ (4/3)E*sqrt(R)*Gamma(2.5)/beta^1.5 ]
+      => A_r/W = (pi*R/beta) / [ (4/3)E*sqrt(R)*Gamma(2.5)/beta^1.5 ]
                = (3*pi/(4*E*)) * sqrt(R) * beta^0.5 / Gamma(2.5)
       Gamma(2.5) = 3*sqrt(pi)/4  (표준값)
-      => A_r/W = (3*pi/(4E*)) * sqrt(R*beta) / (3*sqrt(pi)/4)
-               = (pi/E*) * sqrt(pi*R*beta) ... 정리:
-      A_r/W = (3*sqrt(pi)/(4*E*)) * sqrt(R/beta)   [beta=1/sigma_z 로 다시 쓰면 sqrt(R*sigma_z)]
+      => A_r/W = (3*pi/(4*E*)) * sqrt(R*beta) / (3*sqrt(pi)/4)
+               = (pi/(E*)) * sqrt(R*beta) / sqrt(pi)
+      A_r/W = sqrt(pi*R*beta) / E*
+
+    ⚠ 2026-09-14 수정: 이전 독스트링 최종행이 (3*sqrt(pi)/(4*E*))*sqrt(R/beta) 로
+      적혀 있었으나 **차원이 틀렸다**. A_r/W는 m^2/N = 1/Pa 여야 하는데
+      sqrt(R/beta) = sqrt(m*m) = m 이라 m/Pa 가 된다. 올바른 형태는
+      sqrt(pi*R*beta) 로, beta[1/m]가 곱해져 무차원이 되어야 1/Pa 가 맞는다.
+      기본 파라미터(E*=1e9, R=5e-6, beta=1/0.3e-6)에서 구식은 1.63e-15,
+      정식은 7.24e-09 로 **6자릿수 차이**가 난다.
+      코드 gw_analytic_ratio() 구현과 그 위 유도 단계는 처음부터 올바랐고,
+      최종 정리행만 오기였다 (수치검증이 통과해 온 이유).
 
     아래 수치검증에서 이 폐형식과 gw_numeric() 결과의 A_r/W을 비교한다.
     """
