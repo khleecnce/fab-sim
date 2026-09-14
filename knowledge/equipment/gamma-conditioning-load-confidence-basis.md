@@ -39,9 +39,30 @@
 질의한 후보 3편: "Aggressive Diamond Characterization and Wear Analysis during CMP"(ECS Trans., DOI:
 10.1149/05201.0597ecst), "CMP Active Diamond Characterization and Conditioner Wear"(MRS Proc., DOI:
 10.1557/proc-0991-c01-01), "Diamond Conditioner Microwear Effect on Pad Surface Height Distribution in W CMP"
-(JJAP, DOI: 10.7567/jjap.50.05ec05). 셋 다 OA 사본 없음 → **1차 미확보**. Tabor 관계(H≈3Y, 소성개시
+(JJAP, DOI: 10.7567/jjap.50.05ec05). 초판(판정#22)에서는 셋 다 OA 사본 없음 → **1차 미확보**. Tabor 관계(H≈3Y, 소성개시
 p_m≈1.1Y)와 원뿔 압입의 자기상사성은 교과서 지식(Johnson 1985 *Contact Mechanics*, Tabor 1951)으로
 **2차 인용**이며 원문은 확보하지 않았다 — 단 §4 verify가 Saka(2008) 식(3)과 수치로 대조한다.
+
+**1회차 재탐색(2026-09-14, §4.5)에서 원문을 확보했으나 값 A·B에 부적격으로 판정한 문헌** — 모두 `papers/`·`INDEX.json` 등록.
+9. Philipossian et al. (2013), *ECS Trans.* 52(1) 597–603, DOI: 10.1149/05201.0597ecst — 후보 3편 중 1편 **확보**.
+   3M A3700 디스크·CMC D100 패드 30 h; 폴리카보네이트 드래그 테스트의 furrow **단면적**(원 top-20 합 1,242/1,223 µm²
+   (Orientation 1/7)가 15 h 후 45/48 % 감소)만 보고. 폭·깊이 프로파일도 팁 반경도 없어 R 역산 불가. `papers/philipossian2013-ecst-aggressive-diamond-wear-analysis.pdf`.
+10. Meled et al. (2010), *J. Electrochem. Soc.* 157(3) H250–H255, DOI: 10.1149/1.3273077 — 24 h 마모시험(44.5 N,
+    IC1000, iCue 600Y75/PL-7103, 25·50 °C) 전후 aggressive 다이아몬드 SEM(스케일바 50 µm). "microwear on the cutting
+    edges" 정성 서술뿐, 팁 반경 수치 없음. `papers/meled2010-jes-diamond-disk-substrate-wear-microwear.pdf`.
+11. Borucki et al. (2007), *Trans. Electr. Electron. Mater.* 8(1) 15–20, DOI: 10.4313/teem.2007.8.1.015 — 미확보 MRS
+    C01-01의 자매 논문(KoreaScience OA, 스캔본). PTFE 코팅 디스크의 간섭계·COF·MRR 30 h 추이만, 팁 형상 수치 없음.
+    `papers/borucki2007-teem-diamond-conditioner-wear-cu-cmp.pdf`.
+12. Yamada et al. (2010), *J. Electrochem. Soc.* 157(6) H617–H623, DOI: 10.1149/1.3368700 — JJAP 2011 저자들의 W CMP
+    논문. **에머리지로 인위 마모**시킨 다이아몬드 SEM(Fig. 8, "flat tops with rounded edges", 스케일바 없음). CMP
+    실사용 마모가 아니고 수치도 없음. `papers/yamada2010-jes-pad-wear-response-w-cmp.pdf`.
+13. Kim, Saka & Chun (2014), *ECS J. Solid State Sci. Technol.* 3(5) P169–P178, DOI: 10.1149/2.027405jss (CC-BY) —
+    Table II IC1000 Berkovich 90 nm 압입: **H 290 ± 220 MPa, E 2.21 ± 1.59 GPa**, 실측 최대 H 915 MPa(n>100). 경도이지
+    항복강도 직접값이 아니다(값 B 부적격, §4.5 감도 대용). `papers/kim2014-jss-pad-scratching-mechanical-tribological.pdf`.
+14. Bastawros, Chandra & Gouda (2019), *ECS J. Solid State Sci. Technol.* 8(5) P3145–P3153, DOI: 10.1149/2.0201905jss —
+    **건식** IC1000 벌크 E 200–500 MPa, "saturation stress of about 20 MPa"(다공 압축 플래토, 본문 서술·시험조건 미기재),
+    치밀 PU 가정 E_pad 1.7 GPa. 항복강도 직접 실측이 아니다(값 B 부적격, §4.5 감도 대용).
+    `papers/bastawros2019-jss-multiscale-pad-response.pdf`.
 
 ## 2. 사유(1) 디스크 자전비 Rs 보정 — μ에 대한 폐형식 상계
 
@@ -233,9 +254,10 @@ p_m > 1.1Y 여부는 각도·재료로만 정해져 모든 하중에서 소성�
 |---|---|---|---|
 | (a) 패드 탄성률 E_p | 0.5 GPa | Saka 2008 본문(IC1000, 습식) | 확보 |
 | (a) 패드 경도 H_p | 0.05 GPa (국소 0.01~0.31) | Saka 2008 본문·Fig.9 | 확보 |
-| (a) 항복강도 Y | H/3 ≈ 16.7 MPa | Tabor 관계(2차 인용) | 환산 |
+| (a) 항복강도 Y | H/3 ≈ 16.7 MPa | Tabor 관계(2차 인용) | 환산 — **직접 실측 1회차 미확보**(§4.5) |
+| (a) 대용 H·E (감도용) | H 290 MPa·E 2.21 GPa(건식? 미기재, Berkovich 90 nm) / Y_sat≈20 MPa·E 0.2~0.5 GPa(건식 압축) | Kim 2014 Table II / Bastawros 2019 본문(§1 13·14) | 확보, 단 Y 직접값 아님 |
 | (a) 대안 E | 1.0 GPa / 0.117 GPa | base.yaml `pad_E_star_pa`(estimated) / [[../materials/pad-hardness-porosity-measurement-methods]] §8 Qi eq(11)(사용 불가 판정) | 감도용 |
-| (b) 마모 그릿 팁 반경 R | **미확보** | 후보 3편 OA 없음(§1) | 1차 미확보 |
+| (b) 마모 그릿 팁 반경 R | **미확보** | 후보 3편 중 ECS Trans.만 확보(단면적뿐), MRS·JJAP 미확보; 추가 4편도 수치 없음(§1 9~12, §4.5) | 1회차 재탐색 후에도 미확보 |
 | (b) 기하 상한 | D/2 = 90 µm (E187 181 µm 그릿), Ring Table 2 β=D/2=95 µm | [[conditioner-disk-spec-recipe-industrial]] §2, [[conditioner-asperity-population-balance]] §5 | 상한만 |
 | (b) 참고 | DOP≈15 µm | Pysher 2010 | 깊이이지 반경 아님 |
 | (c) 그릿 총수 N_total | π(52.25 mm)²/(430 µm)² = 46,386 | Zheng 2023 Table 1(정방격자 가정) | 계산 |
@@ -321,6 +343,80 @@ print("PASS: 임계하중 판정 — 입력 불확실성이 결론을 뒤집는�
   상단 무릎이지 절삭 개시 문턱이 아니다([[conditioning-mechanism-asperity-regeneration]] §3). Γ(부하 스칼라)의
   정의 밖이며, Γ를 소비하는 S 쪽 과제로 남긴다.
 
+### 4.5 1회차 재탐색(2026-09-14) — 값 A·B 모두 미확보, 하한 유지
+과제: §4.4의 해제 조건 두 값(A: 마모 그릿 팁 곡률반경 R ≤ 30 µm 실측, B: IC1000급 항복강도 직접 실측 Y/E* ≥ 0.03)의
+1차 문헌 확보. 결과 **(다) 둘 다 미확보** — 코드·격자 불변. 아래는 다음 회차가 반복하지 않도록 남기는 질의 이력이다.
+
+**저장소 내부(1순위)** — `knowledge/`·`_knowledge_audit/`·`papers/INDEX.json` 전수 grep(항복/yield strength, 팁 반경/tip radius/
+radius of curvature/worn/blunt) + 로컬 코퍼스 `data/corpus/corpus.sqlite` 전문 1,510건 정규식 스캔 + 로컬 PDF 24편 fitz 스캔.
+팁 반경은 전부 **패드 애스퍼리티**(β=D_grit/2 규칙, Kim 2014 Ra 23.9 µm) 또는 AFM 프로브 얘기였고, 항복강도는 전부
+Saka 2008 경도의 Tabor 환산(본 노트와 동일) 또는 일반 서술이었다. 새 값 0건.
+
+**값 A(마모 팁 반경) 외부 탐색** — 확보 6편·미확보 3편, 전부 부적격:
+- 확보(§1 9~12): ECS Trans. 2013(furrow 단면적만), Meled 2010 JES(SEM 정성, 50 µm 스케일에서 절삭날 microwear가
+  식별될 뿐 반경 판독 불가), Borucki 2007 TEEM(간섭계 코팅 마모만), Yamada 2010 JES(에머리지 인위 마모·스케일바 없음).
+  추가로 Tan & Cheng 2007 *Wear* 262 693(DOI: 10.1016/j.wear.2006.08.001, 무게감량·부식만), Tsai & Chen 2010 IJAMT 55 253
+  (DOI: 10.1007/s00170-010-3055-y, 신품 형상 3종 비교·"sharp edges rounded off" 2차 서술만), Sun 2010 MEE 87 553(DOI:
+  10.1016/j.mee.2009.08.007, 패드 애스퍼리티 곡률만)도 원문 확인 후 부적격.
+- 미확보: MRS Proc. 991 C01-01(미러 사이트 404, 미러 사이트/.st 무응답), JJAP 50 05EC05·JJAP 47 6282(IOP `/pdf`·landing 모두
+  Radware validate.perfdrive.com 리다이렉트; 미러 사이트은 200을 주지만 **전혀 다른 논문**(J. Phys. E 1968, J. Phys. A 2000)을
+  내줌 — 1쪽 제목 확인으로 폐기), Sung 2021 *Handbook of Industrial Diamonds* ch.8(bban 404), Oh 2018 ECS MA(초록만).
+- 질의 문자열: Crossref `query.bibliographic` "diamond conditioner wear tip radius CMP pad"(10건)·"worn diamond grit tip radius pad
+  conditioner"(10)·"diamond disk conditioner wear SEM tip rounding CMP"(10)·"diamond grit tip radius wear conditioner SEM measurement
+  pad conditioning lifetime"(10)·"conditioner diamond wear flat area attrition CMP pad cut rate decay"(10)·"Borucki diamond conditioner
+  active diamonds wear characterization"(10); OpenAlex `search`+`is_oa:true` 4질의(174/3/4/1건)·`fulltext.search` "diamond conditioner"
+  "tip radius"(3건: CBN 연삭·Cu CMP 학위논문·GaTech 학위논문, 전부 AFM/연삭 맥락)·"pad conditioner" diamond "radius of curvature"
+  worn(3건, 패드 애스퍼리티)·"conditioner" diamond "wear flat"(1건, 무관)·"dresser" diamond "tip radius"(1건, 리뷰). 결론: **CMP 실사용
+  마모 그릿의 팁 곡률반경 수치는 OA·미러 접근 범위에 존재하지 않는다.** 남은 길은 MRS C01-01·JJAP 2편의 **다른 경로**(UA 리포지토리
+  Wei 2010 학위논문 — API가 이번 세션엔 403, Hitachi 저자 기관 리포지토리)뿐이다.
+
+**값 B(IC1000 항복강도 직접값) 외부 탐색** — 확보 9편·미확보 5편, 직접 실측 0건:
+- 확보: Kim 2014 JSS(경도, §1 13), Bastawros 2019 JSS(다공 플래토 20 MPa 서술, §1 14), Kim/Saka/Chun 2013 ECS Trans. 50(39) 35
+  (DOI: 10.1149/05039.0035ecst, 같은 Berkovich 데이터), He 2017 JSS 6 P178(DOI: 10.1149/2.0321704jss, 압축 E 29±4 MPa·ν 0.17,
+  항복 없음), Bajaj 1994 MRS 337 637(DOI: 10.1557/proc-337-637, 전단탄성률·밀도만), Tregub 2002 MRS 732 I5.4(DOI:
+  10.1557/proc-732-i5.4, DMA만), Wang 1997 JES 144 1121(DOI: 10.1149/1.1837542, FEM 입력 탄성률만), Ronay 2004 JES 151 G847
+  (DOI: 10.1149/1.1812738, 2차 수직력), Yeruva 2009 JES(DOI: 10.1149/1.3186032, 접촉면적), Bozkaya 2009 JES 156 H890
+  (DOI: 10.1149/1.3231691, 모델 입력 E만), Kim 2014 Procedia CIRP 14 42(DOI: 10.1016/j.procir.2014.03.014, E/H=7.6 가정).
+- 미확보(리포지토리 봇차단): Bozkaya 2009 Northeastern 학위논문(DOI: 10.17760/d10019194, 403/418 — OpenAlex 전문검색에
+  "IC1000"+"stress-strain curve"+"uniaxial" 히트, **다음 회차 1순위**), USF 2005 학위논문(403), Doddabasanagouda ISU 학위논문
+  (DOI: 10.31274/rtd-20201023-76, Bastawros 2019의 원 데이터, ISU DR 403), Ponte 2015 URI 학위논문(DOI:
+  10.23860/thesis-ponte-david-2015, bepress 403), Huy 2023 JJAP(DOI: 10.35848/1347-4065/acd42a, IOP 차단·HAL Anubis·bban 404;
+  전문검색에 "IC1000"+"stress-strain curve"+"tensile test"+"yield" 히트), Lu 2002 Mater. Charact. 49 177(DOI:
+  10.1016/s1044-5803(03)00004-4, DMA, bban 404).
+- 질의 문자열: Crossref "polyurethane CMP pad yield strength tensile test IC1000"·"mechanical properties polishing pad IC1000 stress
+  strain compression yield"·"strain rate dependent mechanical behavior polyurethane CMP pad"·"uniaxial tensile properties chemical
+  mechanical polishing pad polyurethane yield"·"CMP pad mechanical characterization tensile compression modulus yield stress wet dry
+  soaking"·"nanoindentation polishing pad polyurethane yield stress elastic modulus CMP"(각 10건); OpenAlex `fulltext.search`
+  "IC1000" "yield strength"(7)·"IC1000" "yield stress"(4)·"IC1000" tensile "elongation"(2)·"IC1000" "uniaxial"(4)·"IC1000"
+  "stress-strain curve"(2)·"polishing pad" polyurethane "tensile test" "yield"(9)·"CMP pad" "stress-strain" tensile polyurethane yield(2).
+
+**대용값으로 본 감도(판정 근거 보강, 채택 아님)** — 확보한 두 경도·플래토 대용값을 Y로 쓰면 P_c는 기준(Y 16.7 MPa·E 0.5 GPa)보다
+**커진다**(아래 verify: Kim 2014 ×10.0, Bastawros 2019 ×1.7~×10.8). 즉 B의 후보 수치들은 하한 해제 쪽이 아니라 **유지 쪽**을
+가리킨다. 중심 사례(R=15 µm, f=10 %)의 하중/P_c 40배가 3.7~23배로 줄고, R=30 µm이면 1배 이하로 떨어져 부호가 뒤집힌다.
+
+```python verify
+import math
+LBF = 4.4482216152605; F_pack = 4.0*LBF; N_total = math.pi*(52.25e-3)**2/(430e-6)**2
+per_grit = F_pack/(N_total*0.10)                     # §4.3 중심 사례 그릿당 하중 3.835 mN
+def P_c(R, Y, E): return math.pi**3*R**2*(1.65*Y)**3/(6*E**2)
+base = P_c(15e-6, 0.05e9/3, 0.5e9)
+# Kim 2014 Table II: H 290 MPa → Y=H/3, E 2.21 GPa (Berkovich 90 nm, 경도 대용)
+kim = P_c(15e-6, 290e6/3, 2.21e9)
+# Bastawros 2019: saturation stress 20 MPa, 벌크 E 200~500 MPa (건식 압축 플래토 대용)
+bas_lo, bas_hi = P_c(15e-6, 20e6, 0.5e9), P_c(15e-6, 20e6, 0.2e9)
+print(f"P_c 배율 — Kim 2014: {kim/base:.1f}x, Bastawros 2019: {bas_lo/base:.1f}x~{bas_hi/base:.1f}x")
+assert abs(kim/base - 10.0) < 0.1 and abs(bas_lo/base - 1.73) < 0.02 and abs(bas_hi/base - 10.8) < 0.1
+r15 = [per_grit/P for P in (kim, bas_lo, bas_hi)]
+print("R=15 µm 하중/P_c:", [round(x, 1) for x in r15])
+assert min(r15) > 3.6 and max(r15) < 24
+r30 = [per_grit/P_c(30e-6, Y, E) for (Y, E) in ((290e6/3, 2.21e9), (20e6, 0.2e9))]
+assert all(x < 1.05 for x in r30), r30                # R=30 µm에서 부호 반전 — 하한 유지
+print("PASS: B 대용값은 P_c를 키워 하한 유지 쪽 — 판정 불변")
+```
+
+**판정: 미해소 유지(변경 없음).** EVIDENCE-RULES 판정#22 행에 1회차 기록. 3회차 규칙: 2회차는 위 "다음 회차 1순위"(Bozkaya 학위논문·
+Wei 2010 UA 학위논문·Huy 2023) 경로만 시도하고, 그래도 없으면 "R·Y 직접값은 이 코퍼스로 못 낸다"로 스코프 축소 종결한다.
+
 ## 5. 종합 — `_f_gamma` 반영
 | 사유 | 판정 | 코드 반영 |
 |---|---|---|
@@ -334,7 +430,7 @@ print("PASS: 임계하중 판정 — 입력 불확실성이 결론을 뒤집는�
 ## 6. 미검증·한계
 - (1)의 상계는 균일 압력·균일 그릿밀도 가정이다. 디스크 짐벌·에지 압력 집중은 미반영(분포 모듈 몫).
 - 역회전(1−Rs>1) 레시피는 문헌에서 확인하지 못했다 — 나타나면 §2.3 (d)를 재계산.
-- (3)의 R은 **1차 미확보**, Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
+- (3)의 R은 **1차 미확보**(1회차 재탐색 후에도, §4.5), Y는 H/3 환산(2차 인용), 패드는 평탄 반무한체 가정(애스퍼리티 위 접촉이면
   응력 집중으로 P_c가 더 작아지므로 이 가정은 보수적이다). 3M DOP는 기준면 정의라 "침투 깊이"로 읽는
   것은 해석이다.
 - N_total의 정방격자 환산은 디스크 전면이 그릿으로 덮였다는 가정(edge exclusion 무시)이라 상한 쪽이다.

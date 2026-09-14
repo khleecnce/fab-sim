@@ -1334,5 +1334,89 @@
   "year": 2020,
   "journal": "ECS J. Solid State Sci. Technol. 9, 044001",
   "note": "Fig.3a(pH-MRR) 벡터 재판독 근거. Fig.1a(H2O2 스윕)는 축 최대값 확정 불가로 미판독. 부록 판독값이 .pdf.txt 말미에 있다."
+ },
+ "philipossian2013-ecst-aggressive-diamond-wear-analysis": {
+  "pdf_local": "papers/philipossian2013-ecst-aggressive-diamond-wear-analysis.pdf",
+  "doi": "10.1149/05201.0597ecst",
+  "title": "Aggressive Diamond Characterization and Wear Analysis during Chemical Mechanical Planarization",
+  "authors": "A. Philipossian, C. Wu, Y. Zhuang, X. Liao, Y. Jiao, Y. Sampurno, S. Theng, F. Sun, A. Naman",
+  "year": 2013,
+  "venue": "ECS Trans. 52(1) 597-603",
+  "source": "미러 사이트 -> 미러 사이트 (2026-09-14, 1쪽 제목 fitz 확인)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "3M A3700·CMC D100 30 h. 폴리카보네이트 드래그 테스트의 furrow 단면적(µm²)만 보고 — 팁 곡률반경·폭/깊이 프로파일 없음(값 A 부적격)"
+ },
+ "meled2010-jes-diamond-disk-substrate-wear-microwear": {
+  "pdf_local": "papers/meled2010-jes-diamond-disk-substrate-wear-microwear.pdf",
+  "doi": "10.1149/1.3273077",
+  "title": "Analyses of Diamond Disk Substrate Wear and Diamond Microwear in Copper Chemical Mechanical Planarization Process",
+  "authors": "A. Meled, Y. Zhuang, X. Wei, J. Cheng, Y. A. Sampurno, L. Borucki, M. Moinpour, D. Hooper, A. Philipossian",
+  "year": 2010,
+  "venue": "J. Electrochem. Soc. 157(3) H250-H255",
+  "source": "미러 사이트 -> 미러 사이트 (2026-09-14, 1쪽 제목 fitz 확인)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "24 h 마모시험 전후 aggressive/inactive 다이아몬드 SEM(스케일바 50 µm). 절삭날 microwear 정성 관찰만, 팁 반경 수치 없음(값 A 부적격)"
+ },
+ "borucki2007-teem-diamond-conditioner-wear-cu-cmp": {
+  "pdf_local": "papers/borucki2007-teem-diamond-conditioner-wear-cu-cmp.pdf",
+  "doi": "10.4313/teem.2007.8.1.015",
+  "title": "Diamond Conditioner Wear Characterization for a Copper CMP Process",
+  "authors": "L. Borucki, Y. Zhuang, R. Kikuma, N. Rikita, T. Yamashita, K. Nagasawa, H. Lee, T. Sun, D. Rosales-Yeomans, A. Philipossian, T. Stout",
+  "year": 2007,
+  "venue": "Trans. Electr. Electron. Mater. 8(1) 15-20",
+  "source": "koreascience.kr/article/JAKO200712242512920.pdf (OA, 스캔본 — fitz 렌더 후 판독)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "MRS Proc. 991 C01-01(미확보)의 자매 논문. PTFE 코팅 디스크 간섭계·COF·MRR 30 h — 다이아몬드 팁 형상 수치 없음(값 A 부적격)"
+ },
+ "yamada2010-jes-pad-wear-response-w-cmp": {
+  "pdf_local": "papers/yamada2010-jes-pad-wear-response-w-cmp.pdf",
+  "doi": "10.1149/1.3368700",
+  "title": "Experimental Analysis of Pad Wear Response Effect on Removal Rate Variations in Tungsten Chemical Mechanical Polishing",
+  "authors": "Y. Yamada, M. Kawakubo, K. Kadomura, T. Sugaya, O. Hirai, K. Tsugane",
+  "year": 2010,
+  "venue": "J. Electrochem. Soc. 157(6) H617-H623",
+  "source": "미러 사이트 -> 미러 사이트 (2026-09-14, 1쪽 제목 fitz 확인)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "에머리지 인위 마모 시험 — 'flat tops with rounded edges' SEM(Fig.8, 스케일바 없음). CMP 실사용 마모 아님·팁 반경 수치 없음(값 A 부적격)"
+ },
+ "kim2014-jss-pad-scratching-mechanical-tribological": {
+  "pdf_local": "papers/kim2014-jss-pad-scratching-mechanical-tribological.pdf",
+  "doi": "10.1149/2.027405jss",
+  "title": "Pad Scratching in Chemical-Mechanical Polishing: The Effects of Mechanical and Tribological Properties",
+  "authors": "S. Kim, N. Saka, J.-H. Chun",
+  "year": 2014,
+  "venue": "ECS J. Solid State Sci. Technol. 3(5) P169-P178 (CC-BY)",
+  "source": "미러 사이트 -> 미러 사이트 (IOP /pdf는 Radware 봇차단; 2026-09-14, 1쪽 제목 fitz 확인)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "Table II IC1000 Berkovich 90 nm: H 290±220 MPa, E 2.21±1.59 GPa, H_max 915 MPa. 경도이지 항복강도 직접값 아님(값 B 부적격, 대용 감도용)"
+ },
+ "bastawros2019-jss-multiscale-pad-response": {
+  "pdf_local": "papers/bastawros2019-jss-multiscale-pad-response.pdf",
+  "doi": "10.1149/2.0201905jss",
+  "title": "A Quantitative Analysis of Multi-Scale Response of CMP Pad and Implication to Process Assessments",
+  "authors": "A.-F. Bastawros, A. Chandra, S. D. Gouda",
+  "year": 2019,
+  "venue": "ECS J. Solid State Sci. Technol. 8(5) P3145-P3153",
+  "source": "미러 사이트 -> 미러 사이트 (2026-09-14, 1쪽 제목 fitz 확인)",
+  "added": "2026-09-14",
+  "used_by": [
+   "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
+  ],
+  "note": "건식 IC1000: 벌크 E 200~500 MPa, 'saturation stress ≈20 MPa'(다공 압축 플래토, 본문 서술), 치밀 PU E_pad 1.7 GPa 가정. 항복강도 직접 실측·조건(변형률속도·온도) 미기재(값 B 부적격, 대용 감도용)"
  }
 }
