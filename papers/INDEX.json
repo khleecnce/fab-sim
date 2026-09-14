@@ -1418,5 +1418,18 @@
    "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
   ],
   "note": "건식 IC1000: 벌크 E 200~500 MPa, 'saturation stress ≈20 MPa'(다공 압축 플래토, 본문 서술), 치밀 PU E_pad 1.7 GPa 가정. 항복강도 직접 실측·조건(변형률속도·온도) 미기재(값 B 부적격, 대용 감도용)"
+ },
+ "netzband2019-ecs-xps-ce3-slurry-chemicals": {
+  "src": "미러 사이트 미러(미러 사이트 -> 미러 사이트) — 사용자 지시 2026-09-05 블록에 따라 유료 논문 확보",
+  "pdf_local": "papers/netzband2019-ecs-xps-ce3-slurry-chemicals.pdf",
+  "doi": "10.1149/2.0311910jss",
+  "title": "Investigation into the Effect of CMP Slurry Chemicals on Ceria Abrasive Oxidation State using XPS",
+  "authors": "Netzband C M, Dunn K",
+  "year": 2019,
+  "venue": "ECS Journal of Solid State Science and Technology 8(10) P629-P633",
+  "used_by": [
+   "knowledge/cmp/ceria-tooth-ce3-mrr-exponent-netzband-pair.md"
+  ],
+  "note": "Table I(as-received Ce3+%: 58nm 12%, 15nm 25%, 6nm 31%) + Fig.4(H2O2 0~5wt% -> Ce3+%, 벡터 판독). EVIDENCE-RULES 판정#23의 A측 1차 출처."
  }
 }

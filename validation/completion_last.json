@@ -1,7 +1,7 @@
 {
-  "ts": 1789349341.561514,
+  "ts": 1789384549.26559,
   "complete": false,
-  "cells_done": 32,
+  "cells_done": 40,
   "cells_total": 50,
   "fails": [
     "C2 Γ gamma/cu_h2o2_bta: confidence=estimated",
@@ -9,19 +9,11 @@
     "C2 Γ gamma/sic_ceria_h2o2: confidence=estimated",
     "C2 Γ gamma/sti_ceria: confidence=estimated",
     "C2 Γ gamma/w_fe_oxidizer: confidence=estimated",
-    "C2 χ chi/cu_h2o2_bta: confidence=unverified",
-    "C2 χ chi/sic_ceria_h2o2: confidence=unverified",
-    "C2 χ chi/sti_ceria: confidence=unverified",
-    "C2 χ chi/w_fe_oxidizer: confidence=estimated",
+    "C2 χ chi/cu_h2o2_bta: confidence=estimated",
     "C2 ψ psi/cu_h2o2_bta: confidence=unverified",
+    "C2 ψ psi/sti_ceria: confidence=estimated",
     "C2 ψ psi/w_fe_oxidizer: confidence=unverified",
-    "C2 Δ delta/cu_h2o2_bta: confidence=estimated",
-    "C2 Δ delta/oxide_silica: confidence=estimated",
-    "C2 Δ delta/w_fe_oxidizer: confidence=estimated",
-    "C2 S stab/cu_h2o2_bta: confidence=estimated",
-    "C2 S stab/sic_ceria_h2o2: confidence=estimated",
-    "C2 S stab/sti_ceria: confidence=estimated",
-    "C2 S stab/w_fe_oxidizer: confidence=estimated"
+    "C2 Δ delta/cu_h2o2_bta: confidence=estimated"
   ],
   "sensitivity": {
     "chi": true,
@@ -36,7 +28,7 @@
         1.0,
         0.9920948616600791
       ],
-      "n_total": 6,
+      "n_total": 7,
       "mean_rho": 0.996
     },
     "sti_ceria": {
@@ -91,7 +83,8 @@
     ],
     "gamma": [
       "knowledge/equipment/conditioner-disk-pad-cutting-model.md",
-      "knowledge/equipment/disk-rpm-load-radius-pcr.md"
+      "knowledge/equipment/disk-rpm-load-radius-pcr.md",
+      "knowledge/equipment/gamma-conditioning-load-confidence-basis.md"
     ],
     "kappa": [
       "knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md",
@@ -106,7 +99,9 @@
     "psi": [
       "knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md",
       "knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
-      "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"
+      "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md",
+      "knowledge/cmp/psi-adsorption-shield-oxide-systems.md",
+      "knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md"
     ],
     "tau": [
       "knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md",
@@ -114,11 +109,15 @@
     ],
     "delta": [
       "knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md",
+      "knowledge/cmp/delta-damage-model-synthesis.md",
       "knowledge/cmp/lpc-scratch-density-tail-correlation.md",
       "knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md"
     ],
     "stab": [
-      "knowledge/materials/pad-glazing-mechanism-mrr-decay.md"
+      "knowledge/equipment/conditioner-disk-pad-cutting-model.md",
+      "knowledge/equipment/disk-insitu-exsitu-conditioning-mrr-stability.md",
+      "knowledge/materials/pad-glazing-mechanism-mrr-decay.md",
+      "knowledge/materials/pad-steady-state-glazing-conditioning-balance.md"
     ]
   }
 }

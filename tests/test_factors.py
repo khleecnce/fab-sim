@@ -520,11 +520,18 @@ def test_delta_synthesis_exponent_provenance_per_pack():
 
 
 def test_delta_synthesis_derived_d99_matches_d50_times_generic_ratio():
-    """D99 없는 3팩의 D99 = D50 × 5.00(Levitronix 2008) 유도 절차가 팩값과 일치한다(estimated 유지)."""
-    for pack in ("cu_h2o2_bta", "oxide_silica", "w_fe_oxidizer"):
+    """알루미나 2팩(cu_h2o2_bta/w_fe_oxidizer)의 D99=D50×5.00은 US7344988B2(DuPont, 알루미나
+    CMP 1차 특허) 'more preferably <5x D50' 상한과 일치해 literature. oxide_silica는 같은
+    일반비가 실리카 실측(US10894906B2, 비율 1.887)과 안 맞아 폐기하고 실측 절대값(287.5nm)을
+    쓴다 — 세 팩 모두 [[abrasive-particle-size-distribution-d99-tail]] 근거로 literature."""
+    for pack in ("cu_h2o2_bta", "w_fe_oxidizer"):
         pk = Recipe(pack=pack).resolve().pack
         assert float(pk.get("abrasive_d99_nm")) == pytest.approx(5.00 * float(pk.get("abrasive_size_nm"))), pack
-        assert pk.param("abrasive_d99_nm").confidence == "estimated", "유도값을 literature로 부풀리지 않는다"
+        assert pk.param("abrasive_d99_nm").confidence == "literature", pack
+
+    pk = Recipe(pack="oxide_silica").resolve().pack
+    assert float(pk.get("abrasive_d99_nm")) == pytest.approx(287.5)
+    assert pk.param("abrasive_d99_nm").confidence == "literature"
 
 
 def test_delta_synthesis_diagnostics_do_not_touch_value_or_status():
@@ -937,3 +944,61 @@ def test_psi_metal_packs_unchanged_by_oxide_extension(pack):
     assert set(f.terms) == {"inhibitor"}
     assert f.value == pytest.approx(1.0, abs=1e-9)
     assert "shield_additive_wt_pct" not in f.drivers
+
+
+# ═══════════════════════════════ χ 세리아 chemical tooth 지수 (판정#23)
+
+@pytest.mark.parametrize("pack", ["sti_ceria", "sic_ceria_h2o2"])
+def test_chi_ceria_tooth_reference_is_unity_regardless_of_exponent(pack):
+    """기준 조건(ce3_fraction == ce3_fraction_ref)에서는 지수와 무관하게 정확히 1.0.
+
+    (θ/θ_ref)^p 는 θ=θ_ref 에서 어떤 p 에 대해서도 1 이므로 이중계상이 생기지 않는다.
+    이 계약이 깨지면 Kp 가 이미 흡수한 화학 효과를 두 번 세게 된다.
+    """
+    from sim.params import load_pack
+    from sim.chemistry import _ceria_term
+    pk = load_pack(pack)
+    assert pk.get("ceria_tooth_exponent") != 1.0, "지수가 선언돼 있어야 이 테스트가 의미 있다"
+    assert _ceria_term(pk, []) == pytest.approx(1.0, abs=1e-12)
+
+
+def test_chi_ceria_tooth_exponent_reproduces_netzband_pair():
+    """Netzband 쌍 재현: θ 12.55%→25.71% 일 때 MRR 비 2.75배 (문헌 S2 본문).
+
+    근거: knowledge/cmp/ceria-tooth-ce3-mrr-exponent-netzband-pair.md §4
+      - Netzband & Dunn 2019 (doi:10.1149/2.0311910jss) Fig.4+Table I → θ
+      - Netzband & Dunn 2020 (doi:10.1149/2162-8777/ab8393) 본문 → MRR 2.0배/5.5배
+    선형(p=1)은 이 비를 구조적으로 만들 수 없다(상한 = θ 비 2.05배)는 점도 함께 고정한다.
+    """
+    from sim.params import load_pack
+    from sim.chemistry import _ceria_term
+    LIT_MRR_RATIO = 5.5 / 2.0   # = 2.75, 같은 슬러리 내부 비 (상용 기준 약분)
+
+    def tooth(theta, exponent=None):
+        pk = load_pack("sti_ceria")
+        pk.params["ce3_fraction"].value = theta
+        if exponent is not None:
+            pk.params["ceria_tooth_exponent"].value = exponent
+        return _ceria_term(pk, [])
+
+    ratio = tooth(0.2571) / tooth(0.1255)
+    assert ratio == pytest.approx(LIT_MRR_RATIO, rel=0.01), ratio
+
+    # 선형이면 문헌 비를 못 만든다 — 함수형 문제였지 gain 튜닝 문제가 아니다.
+    linear = tooth(0.2571, exponent=1.0) / tooth(0.1255, exponent=1.0)
+    assert linear < LIT_MRR_RATIO
+    assert linear == pytest.approx(1.829, rel=0.01), linear
+
+
+def test_chi_ceria_tooth_defaults_to_linear_when_pack_is_silent():
+    """지수를 선언하지 않은 팩은 p=1.0 (기존 동작) — 하위호환 계약."""
+    from sim.params import load_pack
+    from sim.chemistry import _ceria_term
+    pk = load_pack("sti_ceria")
+    del pk.params["ceria_tooth_exponent"]
+    pk.params["ce3_fraction"].value = 0.30
+    notes = []
+    v = _ceria_term(pk, notes)
+    floor = 1.0 / 5.5
+    assert v == pytest.approx(floor + (1 - floor) * (0.30 / 0.15), rel=1e-9)
+    assert any("선형(p=1)" in n for n in notes)

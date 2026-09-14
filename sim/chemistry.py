@@ -100,9 +100,13 @@ class ChemistryEffect:
 def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
     """산화제 농도 → 기준 농도 대비 상대 MRR.
 
-    두 경로:
-      - Langmuir 피복 (`oxidizer_langmuir_K` 있음) — 판정#19 이후 권장 경로.
-        θ(C)=K·C/(1+K·C), 자유 파라미터 K 하나뿐이라 식별 가능.
+    세 경로:
+      - Langmuir 피복-촉진 (`oxidizer_langmuir_K` 있음) — 판정#19 이후 권장 경로.
+        θ(C)=K·C/(1+K·C), 자유 파라미터 K 하나뿐이라 식별 가능. 산화제가 많을수록
+        MRR이 오르는(포화) 계용(w_fe_oxidizer 등).
+      - Langmuir 피복-억제 (`oxidizer_passivation_K` 있음) — 판정#20. 위와 같은
+        θ(C)를 쓰되 (1-θ)로 뒤집는다 — 산화제가 많을수록 부동태막이 두꺼워져
+        MRR이 낮아지는 계용(cu_h2o2_bta). 자유 파라미터는 여전히 K 하나뿐.
       - 레거시 Kaufman 단봉 (`oxidizer_curve_n`+`oxidizer_peak_wt_pct`) — 하위호환.
         정점 아래 관측만으로는 (n, C_peak)가 완전축퇴한다(식별 불가, EVIDENCE-RULES
         판정#19, knowledge/cmp/chi-oxidizer-curve-exponent-identifiability.md).
@@ -169,6 +173,22 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
         if floor > 0 and not pack.has("oxidizer_mech_floor"):
             notes.append(floor_default_note)
         return floor + (1.0 - floor) * (theta / theta_ref)
+
+    if pack.has("oxidizer_passivation_K"):
+        # Langmuir 피복-억제 경로 — 판정#20(cu_h2o2_bta 재파라미터화).
+        # 폐형식: f(C) = φ + (1-φ)·(1-θ(C))/(1-θ(C_ref)).
+        # θ(C)는 부동태막 피복률(C와 함께 단조 증가), (1-θ)는 남은 활성(비피복)
+        # 표면 분율(C와 함께 단조 감소) — 위 촉진 경로의 θ/θ_ref를
+        # (1-θ)/(1-θ_ref)로 뒤집었을 뿐, 자유 파라미터는 여전히 K 하나다.
+        # f(C_ref)=1은 항등적으로 성립(분자·분모가 같은 값이 되는 지점).
+        K = float(pack.get("oxidizer_passivation_K"))
+        theta = float(SC.oxidizer_coverage_langmuir(C, K))
+        theta_ref = float(SC.oxidizer_coverage_langmuir(C_ref, K))
+        if theta_ref >= 1.0:
+            return None
+        if floor > 0 and not pack.has("oxidizer_mech_floor"):
+            notes.append(floor_default_note)
+        return floor + (1.0 - floor) * (1.0 - theta) / (1.0 - theta_ref)
 
     if not pack.has("oxidizer_peak_wt_pct"):
         return None
@@ -340,6 +360,33 @@ def _ceria_term(pack, notes: List[str]) -> Optional[float]:
 
       ⚠ 이 분해 자체가 문헌의 폐형식이 아니라 5.5배 관측에서 역산한 가정이다.
       다만 극한에서 물리적으로 옳다는 점이 이전 형태와 다르다.
+
+    지수 p — 왜 선형(p=1)이 아닌가 (2026-09-14, EVIDENCE-RULES 판정#23):
+      위 형태는 θ 의존을 **선형**으로 놓았다. 그 가정은 "문헌에 폐형식이 없다"는
+      이유로 남아 있었을 뿐 검증된 적이 없었다. 이제 검증 가능한 쌍이 생겼다.
+
+      같은 저자·같은 입자(Ce1, 58~68 nm)·같은 실험계에서 두 논문이 한 축(H₂O₂ 첨가량)만
+      바꿔 각각 θ 와 MRR 을 보고한다 — **교란이 통제된 대응쌍**이다(근거등급 E2):
+        - Netzband & Dunn 2019 (ECS JSS 8, P629, doi:10.1149/2.0311910jss) Fig.4 + Table I:
+          Ce1 의 Ce³⁺% 가 H₂O₂ 0 wt% 에서 12%(Table I 명시값; Fig.4 벡터 판독 12.55%),
+          0.5 wt% 에서 최대 25.7%(판독) → **θ 비 2.05배**.
+        - Netzband & Dunn 2020 (ECS JSS 9, 044001, doi:10.1149/2162-8777/ab8393) 본문:
+          같은 슬러리가 H₂O₂ 무첨가에서 상용 대비 2.0배, 0.5 wt% 에서 5.5배
+          → **MRR 비 2.75배**(상용 기준이 약분되므로 슬러리 내부 비율로 유효).
+      선형이면 MRR 비는 θ 비를 넘을 수 없다(floor 가 0 이어도 상한이 정확히 2.05배,
+      floor>0 이면 그보다 작아진다). 관측된 2.75배는 그 상한 밖이다 → **선형 반증.**
+
+      멱형 f(θ) = floor + a·(θ/θ_ref)^p 로 역산하면
+        floor=0     → p = ln2.75/ln2.05 = 1.41
+        floor=1/5.5 → p = 1.65
+      기본 floor(1/5.5)에서 p ≈ 1.65 다. 세리아 팩은 이 값을 선언해 쓴다.
+
+      ⚠ 한계(정직하게): (a) 2019 의 θ 와 2020 의 MRR 은 같은 논문의 같은 표가 아니라
+      같은 그룹의 연속 두 논문이다 — 동일 입자 로트라는 보장은 본문 서술("as described
+      previously", 같은 Ce1 명명)에 의존한다. (b) 쌍이 2점이므로 p 는 할선이지
+      국소 기울기가 아니다. (c) 2019 논문 자체는 "Ce³⁺ 자리 수는 반응속도를 직접
+      정하지 않고 반응이 일어날 확률을 높인다"고 서술한다 — p>1 은 그 확률 해석과
+      모순되지 않지만, 초선형의 메커니즘(활성점 군집·협동 효과)은 미확인이다.
     """
     if str(pack.get_or("abrasive", "")) != "ceria":
         return None
@@ -354,13 +401,24 @@ def _ceria_term(pack, notes: List[str]) -> Optional[float]:
     floor = float(pack.get_or("ceria_mechanical_floor", 1.0 / 5.5))
     floor = min(max(floor, 0.0), 1.0)
     a = (1.0 - floor) * gain
+    # 활성점 지수 p — 2026-09-14 판정#23 이전에는 암묵적으로 1.0(선형)이었다.
+    # 같은 슬러리 내 (θ, MRR) 쌍으로 선형 가정이 반증됐다(아래 docstring §"지수").
+    # 팩이 ceria_tooth_exponent 를 선언하지 않으면 1.0 = 기존 동작 그대로(하위호환).
+    p_exp = float(pack.get_or("ceria_tooth_exponent", 1.0))
+    u = (f / f_ref) ** p_exp
+    if abs(p_exp - 1.0) < 1e-9:
+        shape = ("⚠ Ce³⁺–MRR 함수형을 선형(p=1)으로 두었다 — 이 팩은 "
+                 "ceria_tooth_exponent 를 선언하지 않았다. Netzband 쌍에서는 선형이 "
+                 "반증됐으므로(판정#23) 세리아 팩이라면 지수를 선언하라. 미검증.")
+    else:
+        shape = (f"활성점 지수 p={p_exp:g} — Netzband & Dunn 2019 Fig.4(Ce1 58 nm) × "
+                 "2020 Fig.1a 의 **같은 슬러리 내** (Ce³⁺%, MRR) 쌍에서 역산. "
+                 "θ 2.05배 → MRR 2.75배이므로 선형(p=1)으로는 재현 불가.")
     notes.append(
         f"세리아 chemical tooth: Ce³⁺ 분율 {f:.3f} (기준 {f_ref:.3f}). "
         f"화학 경로 {a * 100:.0f}% + 기계 경로 {floor * 100:.0f}% 로 분해 — "
-        "활성점이 0 이어도 입자는 단단한 산화물이라 기계적 제거가 남는다. "
-        "⚠ Ce³⁺–MRR 함수형은 문헌에 폐형식이 없어 활성점 수에 선형으로 가정했고, "
-        "분해 비율은 Netzband & Dunn 2020 의 5.5배 관측에서 역산했다 — 미검증.")
-    return floor + a * (f / f_ref)
+        "활성점이 0 이어도 입자는 단단한 산화물이라 기계적 제거가 남는다. " + shape)
+    return floor + a * u
 
 
 def _ph_softening_term(pack, notes: List[str]) -> Optional[float]:
