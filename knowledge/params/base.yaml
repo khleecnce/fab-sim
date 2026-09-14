@@ -497,6 +497,36 @@ params:
       기하평균)으로 이 값을 덮어쓴다.
     source: knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3
     confidence: literature
+  # ── Δ 진단 전용 상수 (드라이버 아님 — 기준 대비 배수를 만들지 않고 notes로만 나간다) ──
+  scratch_threshold_nm:
+    value: 680.0
+    unit: nm
+    note: >
+      스크래치 임계 직경(실리카 등가). Remsen et al. 2006(J. Electrochem. Soc. 153(5)
+      G453, doi:10.1149/1.2184036) LPC-스크래치 선형상관의 Y절편을 0으로 만드는 최소
+      직경 0.68 µm. 독립 교차: Kwon 2023 세리아 0.7 µm, Eusner 2009 Cu를 긁은 응집체
+      역산 직경 610/762 nm — 3출처·3화학종이 0.6~0.8 µm에 수렴
+      (knowledge/cmp/delta-damage-model-synthesis.md §2 ③, §5-D). 배수 항이 아니라
+      "D99가 임계의 어느 쪽에 있는가" 위치 진단에만 쓴다 — 임계 아래에서도 스크래치는
+      0이 아니고 5팩 중 다수가 임계 아래라 계단 항은 기준 1.0 계약과 충돌한다.
+      ⚠ 실리카 등가 직경이라 세리아·알루미나는 밀도·형상 보정이 필요할 수 있다(오더 수준
+      공통값, 추정).
+    source: knowledge/cmp/delta-damage-model-synthesis.md §2, knowledge/cmp/lpc-scratch-density-tail-correlation.md §2.2
+    confidence: literature
+  pad_asperity_hardness_max_pa:
+    value: 3.1e+8
+    unit: Pa
+    note: >
+      패드 애스퍼리티 국소 경도의 **최대값**(IC1000 습윤, Berkovich 압입 36회: 평균 0.05 GPa·
+      표준편차 0.06·최대 0.31 GPa — Eusner et al. 2009 J. Electrochem. Soc. 156(7) H528,
+      doi:10.1149/1.3121964 Fig.15). 스크래치 치수 상한 a_c/R ≤ √(H_p,max/H_film),
+      δ_c/R ≤ H_p,max/H_film (Saka 2008 식(14)(15) / Eusner 2009 식(10)(11))은 압력·패드
+      토포그래피에 무관하고 **최대** 경도가 정한다 — pad_hardness_shore_d(벌크 Shore D)와
+      다른 물성이다. Δ에서 film_bulk_hardness_pa와 함께 팩별 2a_max·δ_max 진단 출력에만
+      쓴다(knowledge/cmp/delta-damage-model-synthesis.md §2 ④, §5-E).
+      ⚠ 단일 패드 1종 측정 — 다른 패드로의 이식은 추정.
+    source: knowledge/cmp/scratch-physics-source-signatures.md §2.1, §3
+    confidence: literature
 
   # ── 레짐 판정 물성 (sim/regime_adapter.py) ──────────────────────
   # 이 값들은 특정 슬러리의 성질이 아니라 **패드-웨이퍼 접촉계의 성질**이다.

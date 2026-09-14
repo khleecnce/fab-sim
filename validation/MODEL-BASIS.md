@@ -1,6 +1,6 @@
 # FabSim 모델 근거 보고서 (MODEL-BASIS)
 
-생성: 2026-09-14 16:37 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
+생성: 2026-09-14 17:07 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
 
 완성 판정: **미완** (32/50칸). 미충족 18건은 끝에.
 
@@ -408,42 +408,74 @@ Prasad III.D.2: 기공 2 µm 패드는 중심이 슬러리 기아로 처지고 �
 ### 모델 정의 근거 (코드 docstring 그대로)
 
 ```
-Δ 손상 유발도 — 스크래치·결함 발생 경향.
+Δ 손상 유발도 — 스크래치·결함 발생 경향 (진단 전용, MRR에 곱하지 않는다).
 
-대입자 tail(D99)이 지배한다. 평균 입경이 아니라 **꼬리**가 스크래치를 만든다.
+종합 노트: knowledge/cmp/delta-damage-model-synthesis.md (2026-09-14, 기확보 노트 8편 종합).
 
-⚠ 2026-09-13 추가: `aggregate_ratio`(콜로이드 불안정화 정도, 0~1) 항을 곱셈으로
-추가했다. 근거: Basim & Moudgil 2002 (J. Colloid Interface Sci. 256(1) 137-142,
-doi:10.1006/jcis.2002.8352) — NaCl 0.2M(이 계의 CCC=0.25M 미달, 벌크 광산란
-입도계로는 **평균 입경이 전혀 안 바뀜**)인데도 AFM 최대표면변형(Rmax)이
-25nm→50nm로 **2배** 증가했다(원문 Table 1). 즉 d99가 포착 못 하는 "일시적
-(transient) 응집체"에 의한 손상 경로가 d99 경로와 독립적으로 존재한다는 것이
-실측으로 확인됐다(knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md
-§3, §6). `aggregate_ratio=1.0`을 "이 논문의 NaCl 0.2M 불안정화 정도"로 정의하고
-그 조건에서 관측된 배수(2.0)로 계수를 고정했다: `1 + aggregate_ratio`.
-⚠⚠ 이 계수는 **n=1(단일 데이터점)**에서 나온 값이다 — 화학종(실리카 학술
-모델계)·조건(7.0 psi, IC1000/Suba IV) 특유의 값이며 다른 화학종·조건으로의
-일반화는 미검증이다. 순위(불안정화가 클수록 손상↑)만 신뢰하라. 팩 기본값은
-`aggregate_ratio=0.0`(무영향, 항×1.0)이라 기존 팩·기준 조건의 Δ 계약은 안 깨진다.
+관계식
+    Δ = (D99 / D99_ref)^n × (1 + a)         기준 조건(D99 = D99_ref, a = 0)에서 정확히 1.0
+    ① 꼬리 항  — 스크래치는 평균 입경이 아니라 **대입자 꼬리(D99)** 가 만든다. 임계 초과
+       입자 개수축에서는 선형(Remsen 2006 Table V, doi:10.1149/1.2184036)이고, 대표 직경
+       D99 축으로 옮기면 완만한 거듭제곱이 된다. n = 팩의 `damage_exponent`:
+       세리아 1.44(Hitachi US8439995B2 4점 로그-로그 회귀, R²=0.997, literature) /
+       텅스텐 2.54(Egan & Kim 2019 doi:10.1149/2.0311905jss 배수 2점 기하평균, literature) /
+       구리 2.54(텅스텐→구리 전이, estimated) / 실리카 1.44(세리아→실리카 입자 전이, literature).
+    ② 응집 항  — Basim & Moudgil 2002(doi:10.1006/jcis.2002.8352) Table 1: NaCl 0.2 M(CCC
+       미달)에서 **평균 입경 불변**인데 AFM Rmax 25→50 nm(×2). D99가 못 잡는 일시적 응집
+       경로가 D99 항과 독립으로 존재한다 → `1 + aggregate_ratio`, a=1이 그 논문의 불안정화
+       정도. 단일점(n=1) 기반이라 계수 2.0의 화학종 외삽은 미검증. 팩에 선언될 때만 항으로
+       계상(미선언 = 이 경로 미조사, 0 = 무영향).
+진단 출력(배수 아님, notes로만 — status/confidence/value에 영향 없음)
+    ③ 임계 위치  D99 / d_c, d_c = `scratch_threshold_nm`(680 nm, Remsen 2006; Kwon 2023 700 nm;
+       Eusner 2009 응집체 610/762 nm 수렴). 계단 항으로 넣지 않는 이유: 임계 아래에서도
+       카운트가 0이 아니고 5팩 다수가 임계 아래라 기준 1.0 계약과 충돌한다.
+    ④ 치수 상한  2a_max = D99·√(H_p,max/H_film), δ_max = (D99/2)·(H_p,max/H_film)
+       (Saka 2008 doi:10.1016/j.cirp.2008.03.098 식(14)(15) / Eusner 2009 doi:10.1149/1.3121964
+       식(10)(11), Table IV 6칸 재현). 압력·패드 토포그래피에 무관하고 패드 **최대** 경도
+       `pad_asperity_hardness_max_pa`(0.31 GPa)와 막 경도 `film_bulk_hardness_pa`가 정한다.
+       한 팩 안에서 막 경도는 상수라 기준 대비 비가 항상 1 — 드라이버가 될 수 없다.
+넣지 않은 항
+    · 입자/막 경도비 배수 — 개수와 입자 경도의 정량 관계를 준 문헌이 없고, 실리카 입자(7.3 GPa)는
+      SiO₂ 막(≈9~10 GPa)보다 무르므로 단조 배수는 실리카 팩에서 틀린 방향을 가리킨다.
+    · 제타전위·이온강도 → 응집도 유도 — 팩에 실측 입력이 없어(oxide_silica.yaml "지어내지 않음")
+      aggregate_ratio는 선언 입력으로만 둔다.
+    · LPC 개수축(Fujifilm US10907074 800,000/wt% @0.2 µm) — 입력 축 미신설.
+D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/D50 일반비 5.00**
+(Levitronix/Silco 2008, 2차 자료) 유도값이며 직접 측정값이 아니다 → estimated(EVIDENCE-RULES
+판정#16: 일반비가 Hitachi 실측 대응쌍에서 30~60% 괴리로 재현되지 않음). what-if를 D50 배수로
+넣으면 Δ는 일반비 선택에 불변이다.
+한계
+    · 절대 스크래치 개수는 예측하지 않는다(문헌 slope가 계마다 자릿수 차이). 팩 간 Δ 비교 금지 —
+      같은 Δ라도 손상의 절대 심각도는 ④가 보이듯 막 경도가 정한다(Cu δ_max 65 nm vs W 3 nm).
+    · n은 재료 상수가 아니라 "D99가 d_c의 어느 쪽에 있는가"의 함수다(종합 노트 §6-1: 로그정규
+      꼬리의 국소 지수가 Hitachi 3점에서 8.4→4.6→0.7로 단조 감소, 문헌 상수 n은 그 할선). D99를
+      임계를 가로질러 크게 흔들면 상수 n은 임계 아래 과소·위 과대 예측한다.
+    · 2026-09-13 스코프 축소: abrasive_size_nm(평균 입경)은 드라이버가 아니다 — 평균 입경(50~150 nm)은
+      임계(680 nm)보다 훨씬 작아 그 자체로는 무의미(Remsen 2006 §2.2).
 ```
 
 ### 팩별 상태
 
 | 팩 | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| oxide_silica | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| sic_ceria_h2o2 | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| sti_ceria | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
-| w_fe_oxidizer | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec |
+| cu_h2o2_bta | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
+| oxide_silica | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
+| sic_ceria_h2o2 | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
+| sti_ceria | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
+| w_fe_oxidizer | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
 
 엔진이 스스로 보고하는 한계:
 
-- 손상 지수 n=1.44(등급=literature) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
-- 손상 지수 n=2.54(등급=estimated) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
-- 손상 지수 n=2.54(등급=literature) — 2026-09-14 판정(EVIDENCE-RULES #12): 이전 코드 기본값 n=3.0은 출처 없는 가정값(E6, 채택 금지)이었다. US8439995B2(Hitachi, 세리아 D99-스크래치 4점 실측) 로그-로그 회귀 n≈1.44(R²=0.997, E3)로 교체했다 — knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md §3. 교차확증: lpc-scratch-density-tail-correlation.md(Remsen 2006, fumed silica)도 선형(n≈1 근방)을 지지해 같은 방향(n=3.0보다 훨씬 완만)으로 수렴한다. 순위(큰 입자가 더 긁는다)는 물론 절대 배수도 이제 문헌 근거가 있으나, 표본이 작아(세리아 1개 화학종, 실질 독립 3점) confidence 상한은 literature — verified로는 올리지 않는다.
+- Δ 진단③ D99/d_c = 0.37 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
+- Δ 진단③ D99/d_c = 0.74 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
+- Δ 진단③ D99/d_c = 1.03 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 근처(가장 민감한 위치). 배수에는 안 들어간다(위치 진단).
+- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈130 nm, 깊이 δ_max≈12.1 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=9.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
+- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈254 nm, 깊이 δ_max≈64.6 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=1.2 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
+- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈40 nm, 깊이 δ_max≈3.2 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=12.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
+- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈46 nm, 깊이 δ_max≈4.3 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=9.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
+- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈76 nm, 깊이 δ_max≈4.2 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=26.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
 
-근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md`, `knowledge/cmp/lpc-scratch-density-tail-correlation.md`, `knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md`
+근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md`, `knowledge/cmp/delta-damage-model-synthesis.md`, `knowledge/cmp/lpc-scratch-density-tail-correlation.md`, `knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md`
 
 
 ## S 시간 안정성 (`stab`) — 축: consumable · 파트: slurry, pad, disk · MRR 결합: 아니오(진단)
@@ -664,8 +696,8 @@ time_s 4칸(cu/sic/sti/w_fe stab)은 이 사유로 estimated 확정.
 | abrasive_wt_pct | 10.0 | wt% | literature | knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielm | Bielmann et al. 1999(같은 논문·같은 문장, 위 abrasive_size_nm과 동일 출처) — "The polishing slurries contained 10 wt % γ-alumina particles". 입경과 농도를 같은 실험·같은 문장에서 동시 확보해 내적 정 |
 | abrasive_ref_wt_pct | 10.0 | wt% | literature | knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielm | κ 농도항 기준점 — 이 실험 조건 자체(Bielmann 1999)를 기준으로 잡아 κ=1.0 계약 유지 |
 | abrasive_conc_exponent | 0.3333 | - | literature | knowledge/cmp/kappa-abrasive-concentration-cu-w-cooper-bielm | Wang et al. 2012(ECS Trans. 41(43) 103-111, DOI:10.1149/1.4717508, Applied Materials Reflexion GT 실제 W CMP 실험)이 W 계에서 **직접** "the removal rate was observed to s |
-| abrasive_d99_nm | 750.0 | nm | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | abrasive_size_nm(150 nm) × D99/D50 일반비 5.00 유도값(Silco/Levitronix 2008). Showa Denko US6770218B2(알루미나 + 질산철 3.5wt% 텅스텐 CMP) 절대 상한 1.0 µm 이내, 단 선호 상한 0.5 µm는 초과 ⚠ |
-| abrasive_ref_d99_nm | 750.0 | nm | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지. [2026-09-14] abrasive_d99_nm과 동일 사유로 confidence를 estimated로 맞춘다(EVIDENCE-RULES 판정#16). |
+| abrasive_d99_nm | 250.0 | nm | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | [2026-09-14 정정, delta-damage-model-synthesis.md §3] abrasive_size_nm(50 nm, Bielmann 1999 실측) × D99/D50 일반비 5.00 = 250 nm 유도값(Silco/Levitronix 2008). **D50×일반비  |
+| abrasive_ref_d99_nm | 250.0 | nm | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지. [2026-09-14 정정] abrasive_d99_nm 750→250 재계산과 같은 편집에서 동반 이동 (delta-damage-model-synthesis.md §3). [2026-09-1 |
 | damage_exponent | 2.54 | - | literature | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | Egan & Kim 2019(ECS JSS 8(5) P3206) 두 관측의 기하평균 √(3.73×1.73). 막질·공정 완전 일치(텅스텐 벌크 CMP, 300mm 양산 라인 defect inspection 실측). ⚠ 각 관측이 n=1 단일 대응쌍이고 저자 서술이 반올림("sixty t |
 | inhibitor | picolinic_acid |  | literature | knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissol |  |
 | inhibitor_mM | 121.8 | mM | literature | knowledge/cmp/w-cmp-picolinic-acid-inhibitor-langmuir-dissol | 1.5 wt% 피콜린산(포화 농도, 밀도 1 g/mL 근사)에 해당하는 몰농도. 원문 Lee & Seo(2022) 3.3절에서 정지식각 90->11 A/min(8.2배 감소), CMP 제거율 120->85 A/min(1.41배 감소)의 실측 포인트. [등급 판정 2026-09-14, E |

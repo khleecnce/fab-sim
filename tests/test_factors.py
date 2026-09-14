@@ -425,6 +425,79 @@ def test_delta_excluded_from_mrr_multiplier():
         "Δ 변화가 MRR에 새어 들어갔다 -- delta는 MRR_COUPLED 밖에 있어야 한다.")
 
 
+# ── Δ 종합 모델 (knowledge/cmp/delta-damage-model-synthesis.md, 2026-09-14) ──
+
+_DELTA_PACKS = ["cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe_oxidizer"]
+
+
+@pytest.mark.parametrize("pack", _DELTA_PACKS)
+def test_delta_synthesis_unity_and_modeled_in_all_five_packs(pack):
+    """5팩 전부: 기준 조건 Δ=1.0 정확히, status가 unmodeled가 아니고, D99 항이 계상된다.
+
+    D99 없는 팩은 D50×일반비(Levitronix 2008) 유도값이라 estimated로 남지만 모델링은 완결이다.
+    w_fe_oxidizer는 유도 입력(D50 150→50 nm) 승격에 맞춰 D99·_ref 짝을 750→250으로 함께 옮겼다
+    — 기준 1.0이 깨지지 않았음을 여기서 잠근다.
+    """
+    f = _factors(pack=pack)["delta"]
+    assert f.status in ("modeled", "partial"), f.status
+    assert f.value == pytest.approx(1.0, abs=1e-12), (pack, f.value)
+    assert f.terms["d99"] == pytest.approx(1.0, abs=1e-12)
+    assert "knowledge/cmp/delta-damage-model-synthesis.md" in f.sources
+
+
+@pytest.mark.parametrize("pack", _DELTA_PACKS)
+def test_delta_synthesis_monotone_in_d99_and_aggregation(pack):
+    """D99↑ → Δ↑ (지수 n>0, 팩별 damage_exponent 정확 재현), 응집↑ → Δ↑ (1+a), 두 항은 곱셈 독립."""
+    pk = Recipe(pack=pack).resolve().pack
+    d0 = float(pk.get("abrasive_d99_nm")); n = float(pk.get("damage_exponent"))
+    f_ref = _factors(pack=pack)["delta"]
+    f_big = _factors(pack=pack, abrasive_d99_nm=2.0 * d0)["delta"]
+    f_small = _factors(pack=pack, abrasive_d99_nm=0.5 * d0)["delta"]
+    assert f_small.value < f_ref.value < f_big.value
+    assert f_big.value == pytest.approx(2.0 ** n, rel=1e-9)
+    assert f_small.value == pytest.approx(0.5 ** n, rel=1e-9)
+    f_agg = _factors(pack=pack, aggregate_ratio=1.0)["delta"]          # Basim&Moudgil 0.2M NaCl 조건
+    assert f_agg.value == pytest.approx(2.0, rel=1e-9)
+    f_both = _factors(pack=pack, abrasive_d99_nm=2.0 * d0, aggregate_ratio=1.0)["delta"]
+    assert f_both.value == pytest.approx(2.0 ** n * 2.0, rel=1e-9), "꼬리 항과 응집 항은 곱셈 독립"
+
+
+def test_delta_synthesis_exponent_provenance_per_pack():
+    """팩별 지수가 종합 노트 §3 표와 같다 — 세리아·실리카 1.44(Hitachi), 텅스텐·구리 2.54(Egan&Kim 기하평균)."""
+    expect = {"sti_ceria": 1.44, "sic_ceria_h2o2": 1.44, "oxide_silica": 1.44,
+              "w_fe_oxidizer": 2.54, "cu_h2o2_bta": 2.54}
+    for pack, n in expect.items():
+        pk = Recipe(pack=pack).resolve().pack
+        assert float(pk.get("damage_exponent")) == pytest.approx(n)
+        assert float(pk.get("abrasive_d99_nm")) == float(pk.get("abrasive_ref_d99_nm")), pack
+    assert math.sqrt((math.log(60) / math.log(3)) * (math.log(1 / 0.15) / math.log(3))) == pytest.approx(2.54, abs=0.01)
+
+
+def test_delta_synthesis_derived_d99_matches_d50_times_generic_ratio():
+    """D99 없는 3팩의 D99 = D50 × 5.00(Levitronix 2008) 유도 절차가 팩값과 일치한다(estimated 유지)."""
+    for pack in ("cu_h2o2_bta", "oxide_silica", "w_fe_oxidizer"):
+        pk = Recipe(pack=pack).resolve().pack
+        assert float(pk.get("abrasive_d99_nm")) == pytest.approx(5.00 * float(pk.get("abrasive_size_nm"))), pack
+        assert pk.param("abrasive_d99_nm").confidence == "estimated", "유도값을 literature로 부풀리지 않는다"
+
+
+def test_delta_synthesis_diagnostics_do_not_touch_value_or_status():
+    """③ 임계 위치·④ 치수 상한은 notes에만 나가고 value/terms/status/confidence는 불변.
+
+    ④는 Eusner 2009 식(10)(11): 2a_max = D99·√(H_p,max/H_film). sti_ceria(D99 700, H_film 9 GPa,
+    H_p,max 0.31 GPa) → 2a_max ≈ 130 nm, δ_max ≈ 12.1 nm (종합 노트 §5-E 재현값).
+    """
+    f = _factors(pack="sti_ceria")["delta"]
+    diag = [n for n in f.notes if n.startswith("Δ 진단")]
+    assert len(diag) == 2, f.notes
+    assert "D99/d_c = 1.03" in diag[0] and "근처" in diag[0]
+    assert "2a_max≈130 nm" in diag[1] and "δ_max≈12.1 nm" in diag[1]
+    assert set(f.terms) == {"d99"} and f.value == 1.0
+    g = _factors(pack="sti_ceria", scratch_threshold_nm=0.0)["delta"]     # 상수 없으면 그 줄만 빠진다
+    assert len([n for n in g.notes if n.startswith("Δ 진단③")]) == 0
+    assert g.value == f.value and g.status == f.status and g.confidence == f.confidence
+
+
 def test_equipment_and_consumable_axes_do_not_mix():
     """장비 팩터의 driver 파트에 소모품이 섞이면 안 되고, 그 역도 안 된다.
 

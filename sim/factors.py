@@ -1496,23 +1496,50 @@ def _f_tau(rr: "ResolvedRecipe") -> Factor:
 
 
 def _f_delta(rr: "ResolvedRecipe") -> Factor:
-    """Δ 손상 유발도 — 스크래치·결함 발생 경향.
+    """Δ 손상 유발도 — 스크래치·결함 발생 경향 (진단 전용, MRR에 곱하지 않는다).
 
-    대입자 tail(D99)이 지배한다. 평균 입경이 아니라 **꼬리**가 스크래치를 만든다.
+    종합 노트: knowledge/cmp/delta-damage-model-synthesis.md (2026-09-14, 기확보 노트 8편 종합).
 
-    ⚠ 2026-09-13 추가: `aggregate_ratio`(콜로이드 불안정화 정도, 0~1) 항을 곱셈으로
-    추가했다. 근거: Basim & Moudgil 2002 (J. Colloid Interface Sci. 256(1) 137-142,
-    doi:10.1006/jcis.2002.8352) — NaCl 0.2M(이 계의 CCC=0.25M 미달, 벌크 광산란
-    입도계로는 **평균 입경이 전혀 안 바뀜**)인데도 AFM 최대표면변형(Rmax)이
-    25nm→50nm로 **2배** 증가했다(원문 Table 1). 즉 d99가 포착 못 하는 "일시적
-    (transient) 응집체"에 의한 손상 경로가 d99 경로와 독립적으로 존재한다는 것이
-    실측으로 확인됐다(knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md
-    §3, §6). `aggregate_ratio=1.0`을 "이 논문의 NaCl 0.2M 불안정화 정도"로 정의하고
-    그 조건에서 관측된 배수(2.0)로 계수를 고정했다: `1 + aggregate_ratio`.
-    ⚠⚠ 이 계수는 **n=1(단일 데이터점)**에서 나온 값이다 — 화학종(실리카 학술
-    모델계)·조건(7.0 psi, IC1000/Suba IV) 특유의 값이며 다른 화학종·조건으로의
-    일반화는 미검증이다. 순위(불안정화가 클수록 손상↑)만 신뢰하라. 팩 기본값은
-    `aggregate_ratio=0.0`(무영향, 항×1.0)이라 기존 팩·기준 조건의 Δ 계약은 안 깨진다.
+    관계식
+        Δ = (D99 / D99_ref)^n × (1 + a)         기준 조건(D99 = D99_ref, a = 0)에서 정확히 1.0
+        ① 꼬리 항  — 스크래치는 평균 입경이 아니라 **대입자 꼬리(D99)** 가 만든다. 임계 초과
+           입자 개수축에서는 선형(Remsen 2006 Table V, doi:10.1149/1.2184036)이고, 대표 직경
+           D99 축으로 옮기면 완만한 거듭제곱이 된다. n = 팩의 `damage_exponent`:
+           세리아 1.44(Hitachi US8439995B2 4점 로그-로그 회귀, R²=0.997, literature) /
+           텅스텐 2.54(Egan & Kim 2019 doi:10.1149/2.0311905jss 배수 2점 기하평균, literature) /
+           구리 2.54(텅스텐→구리 전이, estimated) / 실리카 1.44(세리아→실리카 입자 전이, literature).
+        ② 응집 항  — Basim & Moudgil 2002(doi:10.1006/jcis.2002.8352) Table 1: NaCl 0.2 M(CCC
+           미달)에서 **평균 입경 불변**인데 AFM Rmax 25→50 nm(×2). D99가 못 잡는 일시적 응집
+           경로가 D99 항과 독립으로 존재한다 → `1 + aggregate_ratio`, a=1이 그 논문의 불안정화
+           정도. 단일점(n=1) 기반이라 계수 2.0의 화학종 외삽은 미검증. 팩에 선언될 때만 항으로
+           계상(미선언 = 이 경로 미조사, 0 = 무영향).
+    진단 출력(배수 아님, notes로만 — status/confidence/value에 영향 없음)
+        ③ 임계 위치  D99 / d_c, d_c = `scratch_threshold_nm`(680 nm, Remsen 2006; Kwon 2023 700 nm;
+           Eusner 2009 응집체 610/762 nm 수렴). 계단 항으로 넣지 않는 이유: 임계 아래에서도
+           카운트가 0이 아니고 5팩 다수가 임계 아래라 기준 1.0 계약과 충돌한다.
+        ④ 치수 상한  2a_max = D99·√(H_p,max/H_film), δ_max = (D99/2)·(H_p,max/H_film)
+           (Saka 2008 doi:10.1016/j.cirp.2008.03.098 식(14)(15) / Eusner 2009 doi:10.1149/1.3121964
+           식(10)(11), Table IV 6칸 재현). 압력·패드 토포그래피에 무관하고 패드 **최대** 경도
+           `pad_asperity_hardness_max_pa`(0.31 GPa)와 막 경도 `film_bulk_hardness_pa`가 정한다.
+           한 팩 안에서 막 경도는 상수라 기준 대비 비가 항상 1 — 드라이버가 될 수 없다.
+    넣지 않은 항
+        · 입자/막 경도비 배수 — 개수와 입자 경도의 정량 관계를 준 문헌이 없고, 실리카 입자(7.3 GPa)는
+          SiO₂ 막(≈9~10 GPa)보다 무르므로 단조 배수는 실리카 팩에서 틀린 방향을 가리킨다.
+        · 제타전위·이온강도 → 응집도 유도 — 팩에 실측 입력이 없어(oxide_silica.yaml "지어내지 않음")
+          aggregate_ratio는 선언 입력으로만 둔다.
+        · LPC 개수축(Fujifilm US10907074 800,000/wt% @0.2 µm) — 입력 축 미신설.
+    D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/D50 일반비 5.00**
+    (Levitronix/Silco 2008, 2차 자료) 유도값이며 직접 측정값이 아니다 → estimated(EVIDENCE-RULES
+    판정#16: 일반비가 Hitachi 실측 대응쌍에서 30~60% 괴리로 재현되지 않음). what-if를 D50 배수로
+    넣으면 Δ는 일반비 선택에 불변이다.
+    한계
+        · 절대 스크래치 개수는 예측하지 않는다(문헌 slope가 계마다 자릿수 차이). 팩 간 Δ 비교 금지 —
+          같은 Δ라도 손상의 절대 심각도는 ④가 보이듯 막 경도가 정한다(Cu δ_max 65 nm vs W 3 nm).
+        · n은 재료 상수가 아니라 "D99가 d_c의 어느 쪽에 있는가"의 함수다(종합 노트 §6-1: 로그정규
+          꼬리의 국소 지수가 Hitachi 3점에서 8.4→4.6→0.7로 단조 감소, 문헌 상수 n은 그 할선). D99를
+          임계를 가로질러 크게 흔들면 상수 n은 임계 아래 과소·위 과대 예측한다.
+        · 2026-09-13 스코프 축소: abrasive_size_nm(평균 입경)은 드라이버가 아니다 — 평균 입경(50~150 nm)은
+          임계(680 nm)보다 훨씬 작아 그 자체로는 무의미(Remsen 2006 §2.2).
     """
     f = _new("delta")
     pk = rr.pack
@@ -1586,7 +1613,42 @@ def _f_delta(rr: "ResolvedRecipe") -> Factor:
                        "Basim&Moudgil 2002 NaCl 0.2M 단일 데이터점(n=1) 기반, 화학종/조건 "
                        "외삽 미검증. knowledge/slurry/colloidal-destabilization-lpc-"
                        "defect-mechanism.md §3.")
+    f.sources.append("knowledge/cmp/delta-damage-model-synthesis.md")
+    f.notes.extend(_delta_diagnostics(pk, d99))
     return f
+
+
+def _delta_diagnostics(pk, d99_nm: float) -> List[str]:
+    """Δ 진단 출력 ③④ — 배수가 아니라 절대 위치·치수. value/terms/status/confidence를 건드리지 않는다.
+
+    ③ 임계 위치: D99 / scratch_threshold_nm (Remsen 2006 680 nm, 실리카 등가).
+    ④ 치수 상한: 2a_max = D99·√(H_p,max/H_film), δ_max = (D99/2)·(H_p,max/H_film)
+       (Eusner 2009 식(10)(11); Saka 2008 식(14)(15)). 압력 무관 — 패드 최대 경도와 막 경도만.
+    상수가 팩에 없으면 그 줄을 내지 않는다(조용한 기본값 금지 — 진단이 빠졌음이 곧 신호).
+    """
+    out: List[str] = []
+    try:
+        d_c = float(pk.get("scratch_threshold_nm"))
+    except Exception:
+        d_c = 0.0
+    if d_c > 0:
+        pos = d99_nm / d_c
+        where = "아래" if pos < 0.9 else ("근처(가장 민감한 위치)" if pos <= 1.1 else "위")
+        out.append(f"Δ 진단③ D99/d_c = {pos:.2f} — 꼬리가 스크래치 임계 {d_c:g} nm(Remsen 2006, "
+                   f"Kwon 2023·Eusner 2009 교차) {where}. 배수에는 안 들어간다(위치 진단).")
+    try:
+        h_p = float(pk.get("pad_asperity_hardness_max_pa"))
+        h_f = float(pk.get("film_bulk_hardness_pa"))
+    except Exception:
+        h_p = h_f = 0.0
+    if h_p > 0 and h_f > 0:
+        r = d99_nm / 2.0
+        a_max = r * math.sqrt(h_p / h_f)
+        d_max = r * (h_p / h_f)
+        out.append(f"Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈{2*a_max:.0f} nm, "
+                   f"깊이 δ_max≈{d_max:.1f} nm — Eusner 2009 식(10)(11), H_p,max={h_p/1e9:.2f} GPa, "
+                   f"H_film={h_f/1e9:.1f} GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.")
+    return out
 
 
 def _f_stab(rr: "ResolvedRecipe") -> Factor:
