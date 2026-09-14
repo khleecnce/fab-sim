@@ -307,3 +307,21 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   뒤집힘) → **하한 유지, Γ 5칸 안 오름**. 격자 38/50(+2는 같은 시각 학습총괄 f8b8c9b의
   D99 승격분이지 이 작업분이 아님). pytest 694 passed, qa_loop --strict PASS ρ=0.9537 불변.
   Γ 해제 조건: 마모 그릿 팁 곡률반경 실측 1편 + IC1000 항복강도 직접값(경도÷3 환산 대신).
+- 2026-09-14 [Max워커] 판정#24 ψ inhibitor_strength_k 등급 감사 — w_fe: Lee&Seo 2022 Fig.4b
+  픽셀 재추출로 0.5wt% 실측(잔여율 0.621) 신규 확보(기존 "정량값 없음" 기록 정정). K=1108 고정은
+  물론 K를 0까지 자유롭게 풀어도(이론적 하한 0.512) 1.5wt% 앵커와 동시 재현 불가 → 약한 고리가
+  k가 아니라 Langmuir(n=1)+exp(-kθ) **함수형 자체**임을 전수 스윕으로 증명, unverified **유지**
+  (승격 안 함 = 정답). cu: 산성 BTA 농도스윕 1회차 미확보(유력후보 Kim 2008 JJAP
+  doi:10.1143/jjap.47.108 = pH 2/4/6 Cu etch vs BTA, IOP 페이월+미러 사이트 봇차단). 부수로
+  inhibitor_ref_mM의 "Kp가 이 조성에서 역산됐다"는 근거가 **양 팩 모두 성립 안 함**을 발견 →
+  cu verified→estimated 하향해 w_fe와 정합(판정#16과 반대 방향의 등급 역전 교정). 커밋 a1e5dfd
+- 2026-09-14 [Max워커] Γ 임계하중 2회차 재탐색(3회차 규칙, 다음이 마지막) — 1순위 5편은 새 경로
+  (OpenAlex best_oa_location 직접 PDF·Semantic Scholar Graph API·CORE API v3)로도 전부 봇차단.
+  단 CORE API가 같은 저자군 5편을 신규 원문 확보(Doddabasanagouda 2004 ISU·Baisie 2012 NCAT·
+  Kim 2013 MIT·Roberts 2011 MIT·Ponte 2015 후속저널) — 전부 값 A(그릿 팁반경)·B(항복강도 직접값)
+  부적격으로 하한 유지, 격자 불변. **부수 성과: sim/tier2_physics/gw_contact.py 독스트링의
+  GW 폐형식 최종행이 차원 오류**(A_r/W가 m/Pa로 나옴, 정식 대비 6자릿수 괴리)임을 발견·수정 —
+  구현 코드와 유도 단계는 처음부터 옳아서 수치검증이 통과해 왔다(실행 코드 0줄 변경). 커밋 81d9c36
+- 2026-09-14 현재 격자 **40/50**(두 회차 모두 칸 수 불변 — 올릴 근거가 없었고 부풀리지 않았다).
+  남은 10칸: Γ×5(2회차 미해소, 3회차가 마지막) · ψ×3(cu unverified=함수형 한계, sti/w_fe) ·
+  χ/cu×1 · Δ/cu×1. ⚠ 기한 2026-09-21까지 7일.
