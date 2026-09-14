@@ -277,3 +277,14 @@ unmodeled 6칸, confidence<literature 49/50칸. 유의 held-out 6개(67조건) �
   하락 요인이나 psi 셀 confidence는 애초에 inhibitor_strength_k가 병목이라 무변화).
   노트: knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md. verify_claims
   1/1 통과, check_knowledge 1/1 통과, pytest 645 passed, qa_loop --strict PASS ρ=0.9537 불변.
+- 2026-09-14 [Max워커] χ oxidizer_curve_n 식별불가 종결(판정#19, 커밋 b90890e). 격자 27/50 불변 —
+  **이번 건은 '미확보'가 아니라 '구조적으로 확정 불가'임을 수치로 증명한 것**이라 재시도 대상에서 제외한다.
+  정점 아래 관측만으로 (n, C_peak)가 완전축퇴: n=0.5→C_peak=22.1 / n=2→41.1 / n=6→83.0 wt%가
+  전부 문헌 상대비를 잔차 0으로 재현. cu팩은 C=C_ref=C_peak라 n이 항등적으로 무영향.
+  후속은 문헌탐색이 아니라 **재파라미터화(식별 가능한 조합 1개만 노출)** — 소프트웨어 부문 소관.
+  ⚠ 부수 발견: w_fe의 저장값 (n=3, C_peak=6.0)은 잔차 최소해가 아님(1wt% 예측 0.6373 vs 관측 0.63,
+  +1.16%). 근거 없는 변경을 피해 값은 유지하고 YAML note에 기록만 했다.
+  ⚠ 남은 C2 23칸의 성격 재평가 필요: Γ(5칸)·τ(5칸)·χ세리아(2칸)는 각각 판정#14·#11·#13에서
+  이미 '미확보 종결'됐고 이번 χ금속 2칸까지 더하면 **23칸 중 14칸이 이미 종결된 항목**이다.
+  기한(09-21) 내 C2 전칸 충족은 현실적으로 불가 — 남은 회차는 C5(verify 노트)·C4로 배분하는 것이 낫다.
+
