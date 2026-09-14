@@ -416,4 +416,14 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   실제로 전진 가능한 칸은 ψ/sti_ceria·Δ/cu 2칸뿐이며, 09-21 기한 내 50/50 달성은
   **문헌으로는 불가능**하다. 남은 회차는 C5 verify 노트(전진 가능) 또는 완성 정의 수정
   제안에 배분하는 것이 합리적이다.
+- 2026-09-15 [Max워커] **C5 게이트 감사 — 이미 충족 확인(우선순위 표가 낡았던 것)**.
+  `tools/completion.py`의 `notes_with_verify()`(115-144행)를 직접 읽고 실행한 결과 C5는
+  **10축 전부 통과, fails 0건**이며 `check()` 출력에 C5 카테고리가 아예 등장하지 않는다.
+  가짜 통과 여부를 확인하려 C5가 인용하는 노트 16편에 `verify_claims.py --offline`을 전수
+  실행 → **16/16 통과, 검증코드 28블록 실패 0, 출처없는 수치주장 0**.
+  원인: 위 "우선순위 4번(C5 5축)"은 2026-09-11 작성인데 근거 노트들이 그 이후 회차에
+  추가됐다(psi-adsorption-shield-oxide-systems 09-14, slurry-turnover-ratio-mrt-preston-constant
+  09-14, delta-damage-model-synthesis 09-14, pad-steady-state-glazing-conditioning-balance 09-14).
+  → **우선순위 4번(C5 부분)은 완료로 간주한다.** 남은 것은 C8 MODEL-BASIS.md 뿐.
+  ⚠ 따라서 잔여 미완은 **C2 10칸(그중 7칸은 문헌부재 종결) + C4 sic팩**으로 좁혀졌다.
 
