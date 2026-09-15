@@ -324,6 +324,18 @@ class WaferResult:
     recipe_work_function: Optional[float] = None
     recipe_wf_vs_ild_ref: Optional[float] = None
     recipe_conversion_note: Optional[str] = None
+    # Cu dishing에 의한 선저항 증가율 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # electrical_thickness_extraction.py::dishing_delta_R_fraction(원본 무수정), Chang,
+    # Cao, Spanos, IEEE TED 51(10) 1577-1583 (2004), doi.org/10.1109/TED.2004.834898 표I·
+    # Fig.6. film=="cu"(데이터 필드 판별, 판정#34) + linewidth_um(meta,
+    # _cu_dishing_erosion_tugbawa_diagnostic과 동일 스키마) + remaining_nm(initial_thickness_nm
+    # 설정 시에만 존재) 전부 있어야 값을 낸다 — 현재 5팩 기본 실행은 linewidth_um을 선언하지
+    # 않아 항상 None이 정상이다. R_dish_um=40.0은 이 공정의 실측이 아니라 Chang et al. 2004
+    # 문헌 테스트구조 최소제곱 추출값(note에 항상 경고). cu_thickness_from_resistance·liner_*
+    # (실측 R·라이너 두께 필요)는 호출하지 않는다.
+    electrical_dishing_delta_r_pct: Optional[float] = None
+    electrical_dishing_r_dish_um: Optional[float] = None
+    electrical_resistance_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1352,6 +1364,81 @@ def _recipe_conversion_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _electrical_resistance_diagnostic(rr: "ResolvedRecipe",
+                                       remaining_nm: Optional[np.ndarray]) -> Dict[str, object]:
+    """Cu dishing에 의한 선저항 증가율(%) 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/electrical_thickness_extraction.py::dishing_delta_R_fraction
+    (원본 무수정), Chang, Cao, Spanos, "Modeling the Electrical Effects of Metal Dishing
+    Due to CMP for On-Chip Interconnect Optimization," IEEE TED 51(10) 1577-1583 (2004),
+    doi.org/10.1109/TED.2004.834898 — 표 I, Fig.6 segment 모델.
+
+    이 진단이 등록 가능해진 이유: 모듈 docstring의 "engine.py에 미등록"은
+    cu_thickness_from_resistance(실측 선저항 R -> 두께 역산, 역방향)에 대해서만 사실이다 —
+    실측 R이 여전히 없다. 반면 dishing_delta_R_fraction(w, R_dish, t)은 실측 R이 필요 없는
+    순방향 예측(dishing이 선저항을 몇 % 올리는가)이고, 입력이 이미 엔진에 있다:
+    - linewidth_um: _cu_dishing_erosion_tugbawa_diagnostic이 이미 요구·사용하는 meta 필드
+      (스키마가 이미 존재). cu_dishing_tugbawa_nm(같은 진단이 내는 dishing 깊이)은 여기서
+      쓰지 않는다 — dishing_delta_R_fraction은 Chang 2004의 독립적인 R_dish 곡률반경
+      세그먼트 모델이지 Tugbawa dishing 깊이를 재료로 삼는 합성이 아니다(다른 모델, 섞지 않음).
+    - t_um(배선 두께): remaining_nm(= initial_thickness_nm - removed, 이 런이 simulate()
+      안에서 실제로 낸 잔막. remaining/remaining_nm 지역변수를 그대로 전달받는다)의 반경
+      평균을 um로 환산해 쓴다 — 모듈 기본값 0.5 um를 쓰지 않는다. initial_thickness_nm이
+      Recipe에 없으면(현재 5팩 기본 실행이 그렇다) remaining_nm이 None이라 스킵한다.
+
+    ⚠ R_dish_um=40.0은 이 공정의 dishing 곡률 실측이 아니라 Chang et al. 2004 표 I에서 그
+    논문 자신의 테스트 구조로부터 최소제곱 추출한 값이다(문헌 상수) — note에 항상 경고로
+    명시한다. 팩/meta가 R_dish_um을 선언하는 스키마는 없다(현재도, 앞으로도 지어내지 않음).
+
+    cu_thickness_from_resistance·liner_parallel_resistance_ratio·liner_neglect_error_fraction·
+    is_liner_negligible은 호출하지 않는다 — 실측 R·라이너 두께가 필요해 값을 지어내야 하고,
+    모듈 docstring이 미등록이라 선언한 부분은 이 함수들에 대해 여전히 유효하다.
+
+    Cu 계 판별은 팩 이름이 아니라 데이터 필드 rr.film == "cu"로 한다(판정#34: 메커니즘/
+    데이터로 판단, 이름 하드코딩 금지 — _cu_pourbaix_diagnostic과 동일 관례). 선저항 모델
+    자체가 금속 배선(Cu) 전용이라 film != "cu"면(산화막·SiC 등 절연/비도전 막) 조용히 None.
+    """
+    out: Dict[str, object] = {"electrical_dishing_delta_r_pct": None,
+                              "electrical_dishing_r_dish_um": None,
+                              "electrical_resistance_note": None}
+    if rr.film != "cu":
+        out["electrical_resistance_note"] = (
+            f"film='{rr.film}' != 'cu' — 선저항 모델은 금속(Cu) 배선 전용, 스킵")
+        return out
+    linewidth_um = rr.meta.get("linewidth_um")
+    if linewidth_um is None:
+        out["electrical_resistance_note"] = (
+            "PTW 패턴 레이아웃 선폭(linewidth_um) meta 미지정 — dishing 선저항 영향 계산 스킵")
+        return out
+    if remaining_nm is None:
+        out["electrical_resistance_note"] = (
+            "initial_thickness_nm 미지정 — 잔막(remaining_nm) 없음, 배선두께 t_um을 이 런의 "
+            "실측 없이 지어낼 수 없어 스킵")
+        return out
+    try:
+        import electrical_thickness_extraction as ETE   # sim/tier2_physics (1바이트도 수정 안 함)
+        w_um = float(linewidth_um)
+        t_um = float(np.mean(remaining_nm)) / 1000.0
+        if t_um <= 0:
+            out["electrical_resistance_note"] = (
+                f"잔막 반경평균 t_um={t_um:.4f} <= 0(오버폴리시) — dishing 선저항 영향 계산 스킵")
+            return out
+        R_dish_um = 40.0
+        delta_r_pct = ETE.dishing_delta_R_fraction(w_um, R_dish_um=R_dish_um, t_um=t_um)
+    except Exception as e:
+        out["electrical_resistance_note"] = f"dishing 선저항 영향 계산 실패({e}) — None으로 둠"
+        return out
+    out["electrical_dishing_delta_r_pct"] = float(delta_r_pct)
+    out["electrical_dishing_r_dish_um"] = R_dish_um
+    out["electrical_resistance_note"] = (
+        f"pack='{rr.pack.name}'. w={w_um:g} um, t={t_um:.4f} um(remaining_nm 반경평균), "
+        f"R_dish={R_dish_um:g} um(⚠ 이 공정 실측이 아니라 Chang et al. 2004 표I 최소제곱 "
+        "추출값, 문헌 테스트구조 곡률이며 이 레시피의 dishing 곡률이 아님) -> dishing에 의한 "
+        f"선저항 증가 {delta_r_pct:.2f}% (Chang et al. 2004 doi.org/10.1109/TED.2004.834898 "
+        "Fig.6 segment 모델). 실측 R 기반 두께 역산·라이너 보정은 호출하지 않음(입력 없음).")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1738,6 +1825,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     recipe_conv = _recipe_conversion_diagnostic(rr)
     if recipe_conv["recipe_conversion_note"]:
         notes.append(recipe_conv["recipe_conversion_note"])
+    # Cu dishing 선저항 증가율 진단 — MRR 경로와 완전히 독립. linewidth_um(meta)·
+    # remaining_nm(initial_thickness_nm 설정 시에만) 둘 다 없으면 조용히 None
+    # (현재 5팩 기본 실행은 linewidth_um 미선언이라 항상 None이 정상).
+    elec_r = _electrical_resistance_diagnostic(rr, remaining)
+    if elec_r["electrical_resistance_note"]:
+        notes.append(elec_r["electrical_resistance_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1817,6 +1910,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        recipe_work_function=recipe_conv["recipe_work_function"],
                        recipe_wf_vs_ild_ref=recipe_conv["recipe_wf_vs_ild_ref"],
                        recipe_conversion_note=recipe_conv["recipe_conversion_note"],
+                       electrical_dishing_delta_r_pct=elec_r["electrical_dishing_delta_r_pct"],
+                       electrical_dishing_r_dish_um=elec_r["electrical_dishing_r_dish_um"],
+                       electrical_resistance_note=elec_r["electrical_resistance_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
