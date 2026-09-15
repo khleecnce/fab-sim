@@ -151,7 +151,13 @@ assert scratch_count_abrasiveA == scratch_count_abrasiveB == 0, (
 )
 
 # ── Basim 2000: 화학종 불일치 확인 (grep 결과 재현) ──
-basim2000_text = open("papers/basim2000-jes-particle-size-cmp-defects.pdf.txt").read()
+# ⚠ papers/*.txt 는 .gitignore 대상이라 새 clone·정리된 기계에는 없다.
+#   open() 으로 직접 열면 사본 부재가 "검증 코드 실패"로 보고돼, 주장이 틀린 것과
+#   구분되지 않는다(실제로 그렇게 오독될 뻔했다). 헬퍼가 PDF 에서 재추출한다.
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path.cwd()))
+from tools.paper_text import paper_text as _paper_text
+basim2000_text = _paper_text("basim2000-jes-particle-size-cmp-defects.pdf")
 assert "copper" not in basim2000_text.lower(), (
     "Basim2000 본문에 'copper' 언급이 있으면 화학종 불일치 판정을 재검토해야 한다"
 )
@@ -175,7 +181,7 @@ print("Eusner2009 Table II/III: 개별 스크래치 표본 특성 표(카운트/
 #  AFM 스캔 영역 5x5/30x30µm, 배선폭 5µm 등. 전부 "연마입자 크기"가 아니다.
 #  아래는 그 각 숫자가 입자 크기 맥락이 아님을 원문 문맥으로 재확인한다.)
 import re
-teo2003_text = open("papers/teo2003-spie-cu-cmp-scratch-characterization.pdf.txt").read()
+teo2003_text = _paper_text("teo2003-spie-cu-cmp-scratch-characterization.pdf")
 size_numbers = re.findall(r"\b\d+(?:\.\d+)?\s*(?:nm|µm|um|mm)\b", teo2003_text)
 print(f"Teo2003 본문에서 발견된 크기 단위 숫자(입경 아님): {size_numbers}")
 non_particle_context = ["wafer", "microscratch", "AFM image", "linewidth", "long"]
@@ -332,7 +338,11 @@ Colloidal Behavior of Alumina Abrasives"(2006, JES, doi:10.1149/1.2335982) — �
 
 ```python verify
 # ── Ihnfeldt 2008 박사논문 Chapter 3 = doi:10.1149/1.2335982 그 자체임을 재현 ──
-text = open("papers/ihnfeldt2008-ucsd-dissertation-cu-cmp-alumina-colloidal.pdf.txt").read()
+# ⚠ papers/*.txt 는 .gitignore 대상 — 사본이 없으면 PDF 에서 재추출한다(위 §1.5 주석 참조).
+import sys as _sys, pathlib as _pl
+_sys.path.insert(0, str(_pl.Path.cwd()))
+from tools.paper_text import paper_text as _paper_text
+text = _paper_text("ihnfeldt2008-ucsd-dissertation-cu-cmp-alumina-colloidal.pdf")
 idx_toc_ch3 = text.find("CHAPTER 3")
 idx_body_ch3 = text.find("CHAPTER 3", idx_toc_ch3 + 10)
 idx_ch4 = text.find("CHAPTER 4", idx_body_ch3 + 10)
