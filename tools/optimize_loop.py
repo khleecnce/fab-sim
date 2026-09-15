@@ -168,6 +168,35 @@ def grid_cells() -> Dict[str, object]:
     return {"done": int(m.group(1)), "total": int(m.group(2))}
 
 
+def calibration_gain() -> Dict[str, object]:
+    """데이터를 넣으면 절대값이 좋아지는가 — 개정 완료 기준의 핵심 지표.
+
+    절대값 3 % 를 목표에서 내린 대신(docs/COMPLETION-CRITERIA.md),
+    "고객이 자기 데이터를 k 점 넣으면 오차가 얼마가 되는가"를 잰다.
+    반드시 held-out 으로 잰다 — 배율을 뽑은 점에서 재면 자기 채점이다.
+
+    세 판정이 나온다:
+      개선 = 축척 학습이 작동
+      평평 = 남은 오차가 형상이다 → **구조를 고칠 지점**
+      악화 = 한 계열에 다른 물리가 섞임 → 계열 분할 필요
+    """
+    r = _run([PY, str(ROOT / "tools" / "calibration_curve.py")], timeout=1200)
+    out = r.stdout
+    m = re.search(r"계열\s+(\d+)개\s*—\s*개선\s+(\d+)\s*·\s*평평\s+(\d+)\s*·\s*악화\s+(\d+)", out)
+    if not m:
+        return {"ok": False, "error": "학습곡선 요약을 읽지 못했다"}
+    res: Dict[str, object] = {
+        "series": int(m.group(1)), "improved": int(m.group(2)),
+        "flat": int(m.group(3)), "worse": int(m.group(4)),
+    }
+    for k, pat in (("at1", r"1점 투입 →\s*([\d.]+)%"),
+                   ("at5", r"5점 투입 →\s*([\d.]+)%")):
+        mm = re.search(pat, out)
+        if mm:
+            res[k] = float(mm.group(1))
+    return res
+
+
 def snapshot() -> Dict[str, object]:
     print("  · 물리 위생 검사…")
     ph = physics_health()
@@ -181,11 +210,13 @@ def snapshot() -> Dict[str, object]:
     of = overfit()
     print("  · 정확도 백테스트…")
     ac = accuracy()
+    print("  · 축척 학습곡선…")
+    cg = calibration_gain()
     return {
         "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "commit": _run(["git", "rev-parse", "--short", "HEAD"]).stdout.strip(),
         "physics": ph, "tests": ts, "overfit": of, "accuracy": ac,
-        "caps": cc, "grid": gc,
+        "caps": cc, "grid": gc, "calib": cg,
     }
 
 
@@ -215,6 +246,30 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
 
     if not (cur.get("tests") or {}).get("passed", False):  # type: ignore[union-attr]
         v.append("🔴 회귀 테스트 실패 — 과거에 확정한 사실이 깨졌다.")
+
+    # ── 축척 학습 — 개정 완료 기준 ──────────────────────────────
+    # 절대값 3 % 를 목표에서 내린 대신(측정으로 원리적 불가 확인),
+    # "데이터를 넣으면 좋아지는가"를 잰다. 이것이 제품 기능의 직접 측정이다.
+    cal = cur.get("calib") or {}
+    if isinstance(cal, dict):
+        if cal.get("ok") is False:
+            v.append(f"🔴 축척 학습곡선을 읽지 못했다 ({cal.get('error')}) — "
+                     "모르는 상태는 '정상'이 아니다.")
+        else:
+            worse = int(cal.get("worse", 0) or 0)
+            flat = int(cal.get("flat", 0) or 0)
+            total = int(cal.get("series", 0) or 0)
+            if worse:
+                v.append(f"🔴 데이터를 넣을수록 나빠지는 계열 {worse}개 — "
+                         "한 계열 안에 서로 다른 물리가 섞여 있다. 계열을 갈라라.")
+            if total and flat > total / 2:
+                v.append(f"🟡 평평한 계열 {flat}/{total} — 남은 오차가 축척이 "
+                         "아니라 **형상**이다. 데이터를 더 넣어도 줄지 않는다. "
+                         "다음에 고칠 것은 그 축의 물리다.")
+            a5 = cal.get("at5")
+            if isinstance(a5, (int, float)) and a5 > 15.0:
+                v.append(f"🟡 5점 투입 후 절대오차 {a5:.0f}% (기준 ≤15%) — "
+                         "축척 보정만으로 닿지 않는다.")
 
     of = cur.get("overfit") or {}
     if int(of.get("risk_count", 0) or 0):  # type: ignore[union-attr]

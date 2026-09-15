@@ -309,3 +309,26 @@ params:
       (sim/regime_adapter.py::alpha_from_bulk_bound).
     source: "Nanoindentation of thermal/TEOS SiO2 films — 표준 보고 범위 8~10 GPa (예: Oliver & Pharr 법 기반 박막 경도 측정 문헌 다수)"
     confidence: literature
+  oxidizer_wt_pct:
+    value: 0.0
+    unit: "wt%"
+    note: >
+      이 팩의 기준 조성에는 산화제가 없다(산화막 CMP 는 기계·화학 마모가
+      지배하고 산화제를 쓰지 않는 것이 표준이다).
+      WARN 값을 0 으로 **명시**하는 것과 키가 아예 없는 것은 다르다.
+      키가 없으면 검증 데이터가 산화제를 흔들어도 모델이 반응하지 못하고
+      (0/3/6 wt% 에서 전부 142.9863), 그 사실이 조용히 묻힌다.
+      0 으로 선언하면 '이 계는 산화제를 쓰지 않는다'가 모델의 주장이 되고,
+      산화제를 넣은 조건은 기준점 대비 상대값으로 계산된다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature
+  oxidizer_ref_wt_pct:
+    value: 0.0
+    unit: "wt%"
+    note: >
+      산화제 항의 기준점. 본값과 같게 둔다.
+      WARN 기준이 0 이면 상대비 C/C_ref 가 정의되지 않는다 — 산화제 항은
+      이 경우 '해당 없음'으로 비활성화되어야 하며, 억지로 나누면 발산한다.
+      산화제를 쓰는 계로 이 팩을 확장하려면 두 값을 함께 옮겨야 한다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature

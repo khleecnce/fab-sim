@@ -289,3 +289,13 @@ params:
       ⚠ 항을 **활성화**할 때도 기준점 동반 이동이 필요하다. 비활성 상태에서는
       기준점이 틀려도 증상이 없어 조용히 남는다.
     confidence: literature
+  oxidizer_wt_pct:
+    value: 3.0
+    unit: "wt%"
+    note: >
+      이 팩의 기준 조성 산화제 농도. oxidizer_ref_wt_pct 와 짝을 이룬다.
+      WARN 기준점(ref)은 있는데 본값이 없어서 산화제 항이 침묵했다 —
+      0/3/6 wt% 에서 예측 MRR 이 완전히 동일했다(314.5698).
+      override 로만 주입되는 축은 팩이 본값을 모르므로 상대항을 만들 수 없다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature

@@ -334,3 +334,15 @@ params:
       WARN 본값을 옮기면 이 기준점도 함께 검토해야 한다.
     source: knowledge/cmp/cu-cmp-ph-mechanism.md
     confidence: literature
+  abrasive_ref_size_nm:
+    value: 100.0
+    unit: "nm"
+    note: >
+      입경 항의 기준점. 이 팩의 abrasive_size_nm(100 nm)과 같게 두어
+      기준 조건에서 배수가 정확히 1.0 이 되도록 한다.
+      WARN 기준점이 없어서 입경 항이 침묵했다 — 50/100/200 nm 에서 예측
+      MRR 이 완전히 동일했다(500.4519). 상대항 (d/d_ref)^n 은 d_ref 없이
+      계산될 수 없다.
+      검증 데이터 tw202115224a(입경 스윕)가 이 축을 흔든다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature
