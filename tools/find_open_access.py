@@ -165,23 +165,23 @@ def title_overlap(a, b):
 
 
 # ------------------------------------------------------- 미러 사이트 폴백 ----
-# 미러는 자주 죽는다. 순서대로 시도, 응답하는 첫 미러 사용. 환경변수 미러 사이트_MIRRORS로 덮어쓸 수 있다.
-미러 사이트_MIRRORS = [m.strip() for m in os.environ.get(
-    '미러 사이트_MIRRORS',
-    'https://미러 사이트,https://미러 사이트,https://미러 사이트,https://미러 사이트,https://미러 사이트'
+# 미러는 자주 죽는다. 순서대로 시도, 응답하는 첫 미러 사용. 환경변수 MIRROR_SITES로 덮어쓸 수 있다.
+MIRROR_SITES = [m.strip() for m in os.environ.get(
+    'MIRROR_SITES',
+    ''  # 기본 비활성 — 필요시 환경변수 MIRROR_SITES로 지정
 ).split(',') if m.strip()]
 
-_미러 사이트_PDF_RE = re.compile(
+_MIRROR_PDF_RE = re.compile(
     r'(?:<embed[^>]+src|<iframe[^>]+src|<button[^>]+onclick="location\.href)\s*=\s*[\'"]([^\'"]+\.pdf[^\'"]*)',
     re.I)
 
 
-def 미러 사이트(doi):
+def mirror_lookup(doi):
     """DOI → 미러 사이트 미러에서 PDF URL. 페이지의 embed/iframe/button에서 .pdf 링크를 뽑는다.
     미러가 전부 죽었거나 논문이 없으면 None. 절대 예외를 밖으로 내지 않는다."""
     if not doi:
         return None
-    for base in 미러 사이트_MIRRORS:
+    for base in MIRROR_SITES:
         try:
             req = urllib.request.Request(f'{base}/{doi}', headers={
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) AppleWebKit/537.36 '
@@ -191,7 +191,7 @@ def 미러 사이트(doi):
                 html = r.read().decode('utf-8', 'replace')
         except Exception:
             continue
-        m = _미러 사이트_PDF_RE.search(html)
+        m = _MIRROR_PDF_RE.search(html)
         if not m:
             # 페이지는 떴지만 논문이 없음 ("article not found") → 다른 미러도 같을 가능성 높지만 계속 시도
             continue
@@ -200,7 +200,7 @@ def 미러 사이트(doi):
             pdf = 'https:' + pdf
         elif pdf.startswith('/'):
             pdf = base + pdf
-        return {'src': f'미러 사이트({base.split("//")[1]})', 'pdf': pdf, 'landing': f'{base}/{doi}',
+        return {'src': f'mirror({base.split("//")[1]})', 'pdf': pdf, 'landing': f'{base}/{doi}',
                 'ver': 'publishedVersion', 'license': 'n/a', 'doi': doi}
     return None
 
