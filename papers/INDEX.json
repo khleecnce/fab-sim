@@ -1684,5 +1684,11 @@
     "authors": "Gowda A, Seo J, Ranaweera CK, Babu SV",
     "venue": "ECS J. Solid State Sci. Technol. 9, 044013 (2020)",
     "note": "knowledge/cmp/psi-sti-ceria-additive-sweep-parameter-identification.md §3.1 — 세정(입자제거) 논문, 본문 전수검색에서 자체 RR-농도 스윕 데이터 0건(removal rate 언급 3건 전부 타문헌 인용 배경서술). 부적격."
+  },
+  "su2011-procengr-6hsic-alumina-abrasive-content": {
+    "src": "로컬 papers/ 기존 보유(2026-09-11 확보). 2026-09-15 Max워커가 §3.3 본문 문장(6g→45, 8g→69.5, 10g→56.2 nm/h)을 fitz 텍스트 추출로 직접 대조 확인, Crossref API로 DOI·제목·저자(SU Jianxiu, 2011) 실존 확인",
+    "pdf_local": "papers/proeng-2011-11-2673-alumina-6h-sic.pdf.txt",
+    "doi": "10.1016/j.proeng.2011.11.2673",
+    "title": "Research on Material Removal Rate of CMP 6H-SiC Crystal Substrate (0001) Si Surface Based on Abrasive Alumina (Al2O3)"
   }
 }
