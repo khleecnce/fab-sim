@@ -13,7 +13,7 @@
              데이터셋이 유의하지 않게 되면 FAIL. 크론은 FAIL이면 그 커밋을 되돌린다.
              (테스트 통과는 계약이 안 깨졌다는 뜻이지 예측이 나아졌다는 뜻이 아니다.)
 3. AUDIT   — 데이터셋의 **실측값이 출처에 실제로 있는지** 대조한다. 확보한 논문 원문
-             (papers/*.xml, *.txt)에서 각 mrr 값(또는 그 원단위)을 찾는다. 못 찾는 값이 많은
+             (papers/*.xml, *.txt, papers/patents/*.html 등 하위 포함)에서 각 mrr 값(또는 그 원단위)을 찾는다. 못 찾는 값이 많은
              데이터셋은 QUARANTINE(격리) 후보다. 루프가 일정 횟수 이상 돈 뒤(기본 20회차,
              즉 데이터셋이 충분히 쌓인 뒤)에는 격리 데이터셋을 집계에서 자동 제외한다.
 
@@ -149,15 +149,44 @@ def gate(cur: Dict, prev: Optional[Dict]) -> Dict:
 
 
 # ───────────────────────────────────────────────── 감사 (가짜 데이터)
+# papers/ 하위에서 원문으로 취급하지 않는 디렉터리(그림 스캔·광학상수 표 등)
+_PAPER_SKIP_DIRS = {"img", "optical_constants"}
+
+
+def _paper_files() -> List[Path]:
+    """papers/ **및 그 하위 디렉터리**의 파일 목록.
+
+    2026-09-15 수정: 종전 `PAPERS.glob("*")`는 최상위만 봤다. 특허 원문 HTML은
+    `papers/patents/` 아래에 475건 있는데 감사기가 이를 전혀 보지 못해
+    F2(출처 원문 미확보)가 실제보다 과다 집계됐다(10→20건 관측, 모델 변경 아님).
+    `img/`·`optical_constants/`는 본문 텍스트가 아니므로 제외한다.
+    """
+    out: List[Path] = []
+    for f in PAPERS.rglob("*"):
+        if not f.is_file():
+            continue
+        rel = f.relative_to(PAPERS)
+        if rel.parts and rel.parts[0] in _PAPER_SKIP_DIRS:
+            continue
+        out.append(f)
+    return out
+
+
 def _paper_texts() -> Dict[str, str]:
-    """papers/ 안의 원문 텍스트를 (파일명→텍스트)로. 큰 파일은 앞 2MB만."""
-    out = {}
-    for f in PAPERS.glob("*"):
-        if f.suffix.lower() in (".xml", ".txt", ".md", ".html"):
-            try:
-                out[f.name] = f.read_text(encoding="utf-8", errors="ignore")[:2_000_000]
-            except Exception:
-                pass
+    """papers/(하위 포함) 안의 원문 텍스트를 (파일명→텍스트)로. 큰 파일은 앞 2MB만.
+
+    최상위 파일이 같은 이름의 하위 파일보다 우선한다(중복 시 결정적 동작).
+    """
+    out: Dict[str, str] = {}
+    for f in sorted(_paper_files(), key=lambda x: (len(x.relative_to(PAPERS).parts), str(x))):
+        if f.suffix.lower() not in (".xml", ".txt", ".md", ".html"):
+            continue
+        if f.name in out:
+            continue
+        try:
+            out[f.name] = f.read_text(encoding="utf-8", errors="ignore")[:2_000_000]
+        except Exception:
+            pass
     return out
 
 
@@ -180,8 +209,8 @@ def _source_ids(src: str) -> List[str]:
 
 
 def _all_paper_names() -> List[str]:
-    """papers/ 안의 모든 파일명(텍스트 추출 여부 무관) — 파일명 토큰 폴백용."""
-    return [f.name for f in PAPERS.glob("*") if f.is_file()]
+    """papers/(하위 포함) 안의 모든 파일명(텍스트 추출 여부 무관) — 파일명 토큰 폴백용."""
+    return [f.name for f in _paper_files()]
 
 
 def _find_source_file(src: str, papers: Dict[str, str], index: Dict,
