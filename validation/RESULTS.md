@@ -3,8 +3,8 @@
 
 # 백테스트 결과
 
-- 측정 시각: 2026-09-15 18:11 KST
-- 코드 리비전: `5396ace`
+- 측정 시각: 2026-09-15 18:59 KST
+- 코드 리비전: `7412672`
 
 ```
 ====================================================================================================
@@ -18,6 +18,9 @@ dandu2009_sio2_ceria_ph_sweep      n=  9  ρ=+0.933  τ=+0.833    p=0.000  MAPE=
     · ⚠ 계통 편향 3.20배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
     · 9/9 조건이 그래프 판독값(digitized) — 오차 포함
 entegris2022_us20220315802a1_sic_alumina_conc n=  5  ρ=+1.000  τ=+1.000    p=0.008  MAPE=  19.7%  스크리닝 사용 가능
+jani2025_cu_h2o2_acidic_chelator   n=  3  ρ=-1.000  τ=-1.000    p=1.000  MAPE= 249.5%  범위밖(팩이 이 재료계를 안 다룸)
+    · ⚠ 이 데이터셋은 팩 'cu_h2o2_bta'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
+    · ⚠ 계통 편향 0.29배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 kenchappa2021_softpad_hdp_oxide    n=  3  ρ=+1.000  τ=+1.000    p=0.167  MAPE= 195.8%  유의하지 않음(p=0.167, n=3) — 우연과 구분 불가
     · ⚠ 계통 편향 0.37배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
     · 3/3 조건이 그래프 판독값(digitized) — 오차 포함
@@ -29,7 +32,7 @@ li2021_oxide_silica_ph             n=  3  ρ=+1.000  τ=+1.000    p=0.167  MAPE=
     · 3/3 조건이 그래프 판독값(digitized) — 오차 포함
 mariscal2020_peteos_ceria_pressure_velocity_3x3 n=  9  ρ=+0.967  τ=+0.889    p=0.000  MAPE=  77.8%  스크리닝 사용 가능
     · 9/9 조건이 그래프 판독값(digitized) — 오차 포함
-mo2026_double_sided_L16            n= 16  ρ=+0.522  τ=+0.474    p=0.019  MAPE= 172.3%  범위밖(팩이 이 재료계를 안 다룸)
+mo2026_double_sided_L16            n= 12  ρ=+0.179  τ=+0.138    p=0.283  MAPE=  84.9%  범위밖(팩이 이 재료계를 안 다룸)
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
 netzband2020_thermal_oxide_ceria_ph n=  4  ρ=-0.800  τ=-0.667    p=0.958  MAPE= 143.8%  유의하지 않음(p=0.958, n=4) — 우연과 구분 불가
     · 4/4 조건이 그래프 판독값(digitized) — 오차 포함
@@ -80,6 +83,6 @@ held-out 12개 전체 평균: ρ=+0.692, 쌍별 적중률 85.4%
      n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. 조건 수를 늘리거나 여러 데이터셋을 합쳐야 한다.
   └ ⚠ 계통 편향 2배 초과 7/12개 — **절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.
 
-범위 밖 6개(참고용, 집계 제외): carbide2023_slurry_composition_L9, lee2021_cu_nicotinic_inhibitor, mo2026_double_sided_L16, phm2016_dresser_usage_mrr, sic2023_shear_rheological_L9, yang2023_quartz_ceria_L25
+범위 밖 7개(참고용, 집계 제외): carbide2023_slurry_composition_L9, jani2025_cu_h2o2_acidic_chelator, lee2021_cu_nicotinic_inhibitor, mo2026_double_sided_L16, phm2016_dresser_usage_mrr, sic2023_shear_rheological_L9, yang2023_quartz_ceria_L25
 → 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. 실리콘 반도체 CMP 데이터가 필요하다.
 ```
