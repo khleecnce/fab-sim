@@ -160,7 +160,8 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
         "φ 는 재료보다 기계 조건(연마재 경도·압력·속도)이 정하는 양이다. "
         "⚠ 이 계의 직접 관측이 아니므로 절대값은 신뢰하지 말 것.")
 
-    # ── 레짐 게이트: 산성 × 착화제 존재 (EVIDENCE-RULES 판정#41, 2026-09-15) ──
+    # ── 레짐 게이트: 산성 × 착화제 존재, 착화제 종 특이적 (EVIDENCE-RULES
+    # 판정#41 → 판정#47, 2026-09-15 → 2026-09-16) ──────────────────────────
     # cu_h2o2_bta 의 실제 운전점(pH 4.0 + 글리신/BTA)은 oxidizer_passivation_K
     # 가 역산된 알칼리 × 무착화제 계와 다른 레짐이다(판정#38) — 같은 H2O2
     # 스윕에서 부호가 반대로 관측된다(Jani 2025 Expt 30/31/32, 산성 pH3 ×
@@ -168,27 +169,66 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
     # 예측은 -35.3%). 조건은 slurry_ph<6 AND chelator_M>0 — 팩 이름이 아니라
     # 데이터 필드로만 분기한다(판정#34 원칙). 둘 중 하나라도 팩에 선언이
     # 없으면 지어내지 않고 기존 경로로 폴백한다.
+    #
+    # ⚠ 판정#41의 게이트는 "착화제가 아무거나 있으면" 촉진-포화형을 켰는데,
+    # `oxidizer_acid_chelator_K`(=0.7935)는 **옥살산** 데이터로만 적합됐다
+    # (Jani 2025). 판정#43이 **글리신** 1차 데이터(US5,575,885)로 이를
+    # 시험하자 부호가 반대(단조 감소 vs 이 가지의 단조 증가)로 반증됐고,
+    # 판정#45가 "옥살산·글리신을 하나의 레짐으로 묶은 것 자체가 과도한
+    # 일반화"라고 이미 기록했다 — 판정#47은 그 기록을 코드에 반영한다.
+    # 그래서 이 가지는 **이 계수가 적합된 착화제 종**(oxidizer_acid_chelator_species)
+    # 과 팩이 선언한 착화제 종(chelator_species)이 일치할 때만 켠다.
     if pack.has("oxidizer_acid_chelator_K"):
         if pack.has("slurry_ph") and pack.has("chelator_M"):
             ph = float(pack.get("slurry_ph"))
             chelator_M = float(pack.get("chelator_M"))
             if ph < 6.0 and chelator_M > 0.0:
-                K = float(pack.get("oxidizer_acid_chelator_K"))
-                theta = float(SC.oxidizer_coverage_langmuir(C, K))
-                theta_ref = float(SC.oxidizer_coverage_langmuir(C_ref, K))
-                if theta_ref <= 0:
-                    return None
-                if floor > 0 and not pack.has("oxidizer_mech_floor"):
-                    notes.append(floor_default_note)
+                species_gate_ok = True
+                fitted_species_note = ""
+                if pack.has("oxidizer_acid_chelator_species"):
+                    fitted_species = pack.get("oxidizer_acid_chelator_species")
+                    if pack.has("chelator_species"):
+                        declared_species = pack.get("chelator_species")
+                        if declared_species != fitted_species:
+                            species_gate_ok = False
+                            notes.append(
+                                f"⚠ oxidizer_acid_chelator_K는 {fitted_species}로 "
+                                f"적합됐는데 팩 착화제는 {declared_species} — 판정#43이 "
+                                "두 종의 부호 반전(옥살산 증가/글리신 감소)을 실측했으므로 "
+                                "전이하지 않는다(판정#47). 기존 산화제 경로로 폴백한다.")
+                        else:
+                            fitted_species_note = (
+                                f"{fitted_species} 데이터로 적합됐고 이 팩의 착화제와 "
+                                "종이 일치한다 — ")
+                    else:
+                        species_gate_ok = False
+                        notes.append(
+                            "⚠ oxidizer_acid_chelator_species가 선언됐으나 팩에 "
+                            "chelator_species가 없어 착화제 종 일치를 확인할 수 없다 "
+                            "— 지어내지 않고 기존 산화제 경로로 폴백한다.")
+                else:
+                    fitted_species_note = (
+                        "⚠ oxidizer_acid_chelator_K에 적합 착화제 종 선언"
+                        "(oxidizer_acid_chelator_species)이 없는 구버전 팩이라 종 "
+                        "일치를 검증할 수 없다 — 판정#41 이전 동작대로 발동한다. ")
+
+                if species_gate_ok:
+                    K = float(pack.get("oxidizer_acid_chelator_K"))
+                    theta = float(SC.oxidizer_coverage_langmuir(C, K))
+                    theta_ref = float(SC.oxidizer_coverage_langmuir(C_ref, K))
+                    if theta_ref <= 0:
+                        return None
+                    if floor > 0 and not pack.has("oxidizer_mech_floor"):
+                        notes.append(floor_default_note)
+                    notes.append(
+                        f"산성(pH={ph:.2f}<6)×착화제({chelator_M:.4g} M) 레짐 — "
+                        "촉진-포화형 경로(판정#41). " + fitted_species_note +
+                        "confidence 상한은 estimated.")
+                    return floor + (1.0 - floor) * (theta / theta_ref)
+            else:
                 notes.append(
-                    f"산성(pH={ph:.2f}<6)×착화제({chelator_M:.4g} M) 레짐 — "
-                    "촉진-포화형 경로(판정#41) 사용. 옥살산 데이터로 적합됐고 "
-                    "이 팩의 실제 착화제(글리신)로는 직접 검증되지 않았다 — "
-                    "confidence 상한은 estimated.")
-                return floor + (1.0 - floor) * (theta / theta_ref)
-            notes.append(
-                f"산성×착화제 게이트 미충족(pH={ph:.2f}, chelator={chelator_M:.4g} M) "
-                "— 기존 산화제 경로로 폴백한다.")
+                    f"산성×착화제 게이트 미충족(pH={ph:.2f}, chelator={chelator_M:.4g} M) "
+                    "— 기존 산화제 경로로 폴백한다.")
         else:
             notes.append(
                 "⚠ oxidizer_acid_chelator_K 가 선언됐으나 slurry_ph 또는 "

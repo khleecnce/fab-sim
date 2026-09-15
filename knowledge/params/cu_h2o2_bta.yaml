@@ -482,3 +482,18 @@ params:
       abrasive_wt_pct 기준(3.0wt%)과 Jani 적합 조건(6wt%)이 다르다는 점도
       정직히 남긴다 — 두 축이 완전히 통제된 데이터가 아니다.
       상세: knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9
+  oxidizer_acid_chelator_species:
+    value: oxalic_acid
+    confidence: verified
+    source: knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9
+    note: >
+      [EVIDENCE-RULES 판정#47, 2026-09-16] `oxidizer_acid_chelator_K`(=0.7935)가
+      실제로 적합된 착화제 종 — Jani 2025 Expt 30/31/32는 글리신 0M, 옥살산
+      0.08M 조건이다(위 note). 이 팩의 `chelator_species`(글리신)와 다르다.
+      `sim/chemistry.py::_oxidizer_term`이 이 값과 `chelator_species`가 일치할
+      때만 촉진-포화형 가지를 켠다 — 불일치(이 팩의 경우)면 발동하지 않고
+      `oxidizer_passivation_K` 경로로 폴백한다. 판정#43이 옥살산(증가)과
+      글리신(감소)의 부호 반전을 실측으로 확인했고 판정#45가 "둘을 하나의
+      레짐으로 묶은 것이 과도한 일반화"라고 이미 판정했다 — 이 키는 그
+      판정을 코드에 반영하는 스위치다. 지어낸 값이 아니라 판정#41이 실제로
+      쓴 착화제 이름을 그대로 옮긴 것이라 confidence=verified.

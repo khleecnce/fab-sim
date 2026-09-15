@@ -1,7 +1,8 @@
 """χ/cu_h2o2_bta 산화제 항 — 산성×착화제 레짐 게이트 계약 테스트.
 
-EVIDENCE-RULES 판정#41(knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9).
-격자 C2 마지막 칸(χ/cu_h2o2_bta)의 BIAS 해소 구현 — 값 재추정이 아니라 레짐 분리.
+EVIDENCE-RULES 판정#41(knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9),
+판정#47(knowledge/cmp/chi-oxidizer-gate-chelator-species-specificity.md)로 착화제
+종 특이성 게이트 추가.
 
 지키는 계약:
   ① 다른 4팩의 산화제 항 출력은 이 변경으로 비트 단위로 불변이어야 한다
@@ -9,6 +10,10 @@ EVIDENCE-RULES 판정#41(knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md �
   ② cu_h2o2_bta도 기준 조건(C=C_ref)에서는 배수가 항등적으로 1.0이어야 한다.
   ③ 팩 이름 하드코딩 금지 — slurry_ph/chelator_M 필드로만 분기한다(판정#34).
   ④ 게이트 미충족(착화제·pH 미선언, 또는 pH>=6)이면 기존 경로로 조용히 폴백한다.
+  ⑤ [판정#47] `oxidizer_acid_chelator_species`가 팩의 `chelator_species`와 일치할
+     때만 촉진-포화형이 발동한다. 불일치면 기존(억제형) 경로로 폴백한다.
+  ⑥ [판정#47] 종 선언이 아예 없는 구버전 팩은 판정#41 이전 동작(항상 발동)을
+     유지하되 검증 못 했다는 경고를 남긴다 — 지어내지 않는다.
 """
 import sys
 from pathlib import Path
@@ -140,3 +145,102 @@ def test_jani_2025_reproduction_error_within_tolerance():
         pred = _oxidizer_term(FakePack(**d), [])
         err = abs(pred - obs) / obs
         assert err < 0.05, f"C={C}: 예측 {pred:.4f} vs 실측 {obs:.4f}, 오차 {err:.1%}"
+
+
+# ══════════════════════════════════════════════════════════════════
+# 판정#47 — 착화제 종 특이성 게이트
+# ══════════════════════════════════════════════════════════════════
+
+ACID_CHELATOR_OXALIC = dict(ACID_CHELATOR)
+ACID_CHELATOR_OXALIC.update(
+    oxidizer_acid_chelator_species="oxalic_acid",
+    chelator_species="oxalic_acid",
+)
+
+ACID_CHELATOR_GLYCINE = dict(ACID_CHELATOR)
+ACID_CHELATOR_GLYCINE.update(
+    oxidizer_acid_chelator_species="oxalic_acid",
+    chelator_species="glycine",
+)
+
+
+# ── ⑦ 종 일치 시 발동(촉진-포화형, 방향=증가) ──────────────────────
+def test_species_match_fires_promotion_branch():
+    vals = []
+    for C in (3.0, 4.0, 6.0):
+        d = dict(ACID_CHELATOR_OXALIC)
+        d["oxidizer_wt_pct"] = C
+        notes = []
+        v = _oxidizer_term(FakePack(**d), notes)
+        assert any("판정#41" in n for n in notes), f"종 일치인데 게이트가 안 켜졌다: {notes}"
+        vals.append(v)
+    assert vals[0] == pytest.approx(1.0, abs=1e-9)
+    assert vals[1] > vals[0] and vals[2] > vals[1], f"촉진형은 증가여야 한다: {vals}"
+
+
+# ── ⑧ 종 불일치 시 폴백(억제형, 방향=감소) ─────────────────────────
+def test_species_mismatch_falls_back_to_passivation_branch():
+    d = dict(ACID_CHELATOR_GLYCINE)
+    d["oxidizer_wt_pct"] = 6.0
+    notes = []
+    v = _oxidizer_term(FakePack(**d), notes)
+    assert any("적합됐는데 팩 착화제는" in n and "전이하지 않는다" in n for n in notes), notes
+    assert not any("판정#41" in n and "촉진-포화형" in n for n in notes)
+    # 촉진 가지가 아니라 기존 oxidizer_passivation_K(K=0.8232) 경로와 값이 같아야 한다
+    d_legacy = dict(d)
+    del d_legacy["oxidizer_acid_chelator_K"]
+    del d_legacy["oxidizer_acid_chelator_species"]
+    v_legacy = _oxidizer_term(FakePack(**d_legacy), [])
+    assert v == pytest.approx(v_legacy, rel=1e-12)
+    assert v < 1.0, "억제형 경로는 3->6wt%에서 배수가 1 미만(감소)이어야 한다"
+
+
+# ── ⑨ 종 미선언(구버전 팩) 시 폴백 대신 경고와 함께 기존(판정#41 이전) 동작 유지 ──
+def test_species_undeclared_on_coefficient_keeps_legacy_behavior_with_warning():
+    """oxidizer_acid_chelator_species 자체가 없으면 판정#41 이전 동작(항상 발동)을
+    유지하되 검증 못 했다는 경고를 남긴다 — 종 일치를 지어내지 않는다."""
+    d = dict(ACID_CHELATOR)  # species 필드 전혀 없음
+    d["oxidizer_wt_pct"] = 4.0
+    notes = []
+    v = _oxidizer_term(FakePack(**d), notes)
+    assert any("구버전 팩" in n for n in notes), notes
+    assert v > 1.0, "구버전 동작(촉진형)이 유지돼야 한다"
+
+
+def test_species_declared_on_coefficient_but_pack_missing_chelator_species_falls_back():
+    """계수엔 적합 종 선언이 있는데 팩에 chelator_species가 없으면(모순 상태) 지어내지
+    않고 폴백한다."""
+    d = dict(ACID_CHELATOR)
+    d["oxidizer_acid_chelator_species"] = "oxalic_acid"
+    d["oxidizer_wt_pct"] = 6.0
+    notes = []
+    v = _oxidizer_term(FakePack(**d), notes)
+    assert any("chelator_species가 없어" in n for n in notes), notes
+    d_legacy = dict(d)
+    del d_legacy["oxidizer_acid_chelator_K"]
+    del d_legacy["oxidizer_acid_chelator_species"]
+    v_legacy = _oxidizer_term(FakePack(**d_legacy), [])
+    assert v == pytest.approx(v_legacy, rel=1e-12)
+
+
+# ── ⑩ 실제 cu_h2o2_bta 팩 — 이제는 억제형(글리신 자기 레짐)이어야 한다 ──
+def test_real_cu_h2o2_bta_pack_now_uses_passivation_branch():
+    """[판정#47] 실팩은 chelator_species=glycine, oxidizer_acid_chelator_species=
+    oxalic_acid로 불일치 — 촉진형이 아니라 자기 레짐인 억제형을 타야 한다."""
+    pack = load_pack("cu_h2o2_bta")
+    assert pack.has("oxidizer_acid_chelator_species"), "판정#47로 이 키가 선언돼 있어야 한다"
+    assert pack.get("oxidizer_acid_chelator_species") != pack.get("chelator_species")
+    vals = []
+    for C in (1.0, 3.0, 6.0):
+        notes = []
+        d_dict = dict(oxidizer_wt_pct=C, oxidizer_ref_wt_pct=3.0,
+                       oxidizer_acid_chelator_K=pack.get("oxidizer_acid_chelator_K"),
+                       oxidizer_acid_chelator_species=pack.get("oxidizer_acid_chelator_species"),
+                       oxidizer_passivation_K=pack.get("oxidizer_passivation_K"),
+                       slurry_ph=pack.get("slurry_ph"),
+                       chelator_M=pack.get("chelator_M"),
+                       chelator_species=pack.get("chelator_species"))
+        v = _oxidizer_term(FakePack(**d_dict), notes)
+        assert not any("촉진-포화형" in n for n in notes), notes
+        vals.append(v)
+    assert vals[0] > vals[1] > vals[2], f"억제형은 산화제가 늘수록 감소해야 한다: {vals}"
