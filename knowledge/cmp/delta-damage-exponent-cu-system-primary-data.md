@@ -1,5 +1,5 @@
 <!-- V2-SECTION: R2-slurry | 작성 2026-09-15 | 정본: ARCHITECTURE-V2.md §3 -->
-# damage_exponent(Δ, cu_h2o2_bta) — Cu 계 1차 데이터 탐색 (2회차, 미확보 종결)
+# damage_exponent(Δ, cu_h2o2_bta) — Cu 계 1차 데이터 탐색 (3회차, R1 소거로 최종 종결)
 
 > 에이전트: slurry-abrasive | 작성일: 2026-09-15
 > 선행: [[delta-scratch-damage-d99-oversize-particle-model]] §4.3 (damage_exponent=2.54를
@@ -25,8 +25,14 @@
 > 바뀐 것 자체가 진전이다. 나머지 한 DOI(Li 2018)는 5개 신규 경로(§2.4) 모두 실패,
 > 구조적으로 리포지토리 사본이 없음을 확인했다.
 > §4에서 EVIDENCE-RULES 절차에 따라 **estimated를 유지**하는 판정을 내린다(YAML 변경 없음).
-> 이 갭은 판정#27(1회차)·판정#30(2회차, 이 노트) 두 번의 실패를 거쳤다 — **3회차가 마지막**
-> (§5).
+> 이 갭은 판정#27(1회차)·판정#30(2회차) 두 번의 문헌탐색 실패를 거쳤다.
+>
+> **3회차(최종, 이 노트 최신 절)는 문헌 탐색이 아니라 `sim/unknown_router.py`의 탈출 경로
+> 판정을 적용했다** — `damage_exponent`가 실제로 쓰이는 곳(Δ, MRR 비결합 진단 전용 팩터)에서
+> R1(소거)이 성립함을 `cancellation_test` 실행으로 확인했고, 옵션 C(로그정규 꼬리 국소지수
+> 재환산)도 실행했으나 §6-1 자체의 "절대값 대체 금지" 봉인 때문에 등급을 올리지 못했다.
+> **결론: `damage_exponent=2.54 (estimated)` 값·등급 불변, YAML 변경 없음, 4회차 없이 종결.**
+> 상세: "## 3회차 (2026-09-15)" 절.
 
 ## 1. 시도한 경로 (누적 기록 — 이 회차에 실제로 확인한 것만)
 
@@ -385,6 +391,214 @@ print(f"Chapter 3(43,789자 중 발췌 {len(chap3)}자) 재확인: scratch={scra
 4. **3회차에도 실패하면**: EVIDENCE-RULES 3회차 규칙에 따라 이 갭을 **영구 종결**하고
    `damage_exponent=2.54 (estimated)`를 최종 확정, 코드·YAML 변경 없이 노트에 종결 사유만
    기록한다(판정#25·#26과 같은 패턴).
+
+## 3회차 (2026-09-15) — 문헌 탐색이 아니라 탈출 경로 적용
+
+> 1·2회차가 "다른 화학종의 문헌을 더 찾는다"였다면, 3회차는 **찾은 문헌으로도 못 메우는
+> 갭을 "값을 몰라도 되는가"로 재질문**한다(`sim/unknown_router.py` R1~R8). 결론을 먼저 말하면:
+> **R1(소거)이 성립한다** — Δ가 MRR에 곱해지지 않는 **진단 전용** 팩터이고, 그 진단의 계약이
+> "경향성(순위)"이므로 `damage_exponent`는 **이 용도에 한해 알 필요가 없는 값**이다. 옵션 C
+> (로그정규 꼬리 국소지수 재환산)도 실행했으나 등급을 올리지 못했다(§3.2). 아래 (가)로 종결.
+
+### 3.1 1단계 — R1 소거 판정: `cancellation_test` 실제 실행
+
+**전제 확인(코드 근거, 추측 아님)**: `sim/factors.py:62`
+
+```python
+MRR_COUPLED = {"chi", "psi", "kappa", "tau"}
+```
+
+`"delta"`가 이 집합에 없다 — `mrr_multiplier()`(`sim/factors.py:1939`)는 `sorted(MRR_COUPLED)`만
+순회해 곱하므로 Δ는 **코드상 MRR 배수 계산에 전혀 들어가지 않는다**. 저장소 전체에서
+`factors["delta"]`/`.get("delta")`류 접근을 검색해도 `sim/factors.py`(정의)와
+`tests/test_factors.py`(테스트) 밖에는 아무 데도 없다 — 보고서·경고·정렬 등 어떤 의사결정
+경로도 Δ의 절대값을 읽지 않는다. 즉 Δ는 **notes 문자열로만 사람에게 보여주는 진단**이고,
+그 존재 이유(docstring `_f_delta` 첫 줄)도 "손상 유발도 — 스크래치·결함 발생 경향"이다.
+"경향"이 계약이면 R1의 순위 기준이 정확히 이 팩터의 용도와 일치한다.
+
+**실행 (0) 기준조건 단독 탐침** — 과제가 예고한 대로 `미사용` 경고가 뜨는지 먼저 확인:
+
+```
+predict(n) = Δ(abrasive_d99_nm=500, abrasive_ref_d99_nm=500, damage_exponent=n)  # 팩 기본값 그대로
+probe n = [0.5, 1.44, 2.54, 5.0, 10.0]
+
+cancels = False
+  순위불변: True
+  절대값 로그편차: 0.0
+  미사용: True
+  판정: ❌ 소거가 아니라 미사용 — 값을 자릿수로 흔들어도 출력이 완전히 동일하다.
+```
+
+예상대로다 — cu 팩은 `abrasive_d99_nm == abrasive_ref_d99_nm == 500`이라 `(D99/D99_ref)^n ≡ 1`이고
+n이 계산 경로에 들어가지도 않는다. `cancellation_test`가 이것을 **소거가 아니라 모델 결함
+경고**(`미사용: True`)로 정확히 구분해 냈다 — 이 신호를 R1 성립 근거로 오독하지 않는다.
+
+**실행 (1) what-if D99 스윕 × n 스윕** — 진짜 질문. D99 = [250, 350, 500, 700, 1000] nm 레시피
+벡터에 대해 n = [0.5, 1.44, 2.54, 5.0, 10.0] 각각으로 Δ 5점을 계산(`sim.factors.compute_factors`를
+실제로 호출, 공식을 재구현하지 않음):
+
+```
+cancels = True
+  순위불변: True
+  절대값 로그편차: 6.584898
+  미사용: False
+  판정: 순위에 영향 없음 — 이 값은 몰라도 된다(소거)
+```
+
+`route_unknown("damage_exponent", cancels=True, ...)` → `Verdict(damage_exponent → R1: 순위 출력에서
+약분된다)`, action = "값을 확보할 필요 없음 — 모델식을 비/도함수 형태로 유지하라".
+
+**정직한 구분 — 순위 결론과 절대 배수 결론은 다르다.** `(D99/D99_ref)^n`은 n>0에서 D99에 대해
+언제나 단조증가이므로 순위가 보존되는 것은 수학적으로 당연하다(그래서 절대값 로그편차가 6.58처럼
+커도 `순위불변=True`가 나온다). n을 몰라서 **못 하는 것**은 절대 배수다 — D99가 500→1000 nm(2배)로
+커질 때 Δ의 배수는 n에 강하게 의존한다:
+
+```
+D99 500→1000 (2배)일 때 Δ 배수, n별:
+  n=0.50 : 1.414배
+  n=1.44 : 2.713배   ← 과제 예시 "2.7배"와 일치
+  n=2.54 : 5.816배   ← 과제 예시 "5.8배"와 일치, 현재 팩값
+  n=5.00 : 32.000배
+  n=10.00: 1024.000배
+```
+
+이 표가 R1의 한계다: "D99가 커지면 손상 경향이 커진다"는 n을 몰라도 말할 수 있지만, "몇 배나
+커지는가"는 n 없이는 전혀 말할 수 없다 — 1.4배부터 1024배까지 4자릿수를 오간다.
+
+**Δ가 진단 전용이라는 사실이 이 한계를 무력화한다.** Δ의 유일한 소비처가 "notes 문자열로
+사람이 읽는 경향 표시"(위 코드 근거)이고 어떤 의사결정도 절대값을 읽지 않으므로, 순위만
+보존되면 Δ의 실제 계약을 만족한다 — 절대 배수를 모른다는 한계는 **이 팩터가 쓰이는 범위
+안에서는** 무해하다. 만약 Δ가 MRR_COUPLED에 있었다면(=절대 배수가 산출물에 직접 반영됐다면)
+같은 절대값 편차가 R1을 무효화했을 것이다.
+
+```python verify
+import sys
+sys.path.insert(0, ".")
+from sim.engine import Recipe
+from sim.factors import compute_factors, MRR_COUPLED
+from sim.unknown_router import cancellation_test, route_unknown
+
+assert "delta" not in MRR_COUPLED, "Δ가 MRR_COUPLED에 들어가면 이 노트의 R1 판정 전제가 깨진다"
+
+def factors(pack="cu_h2o2_bta", **overrides):
+    return compute_factors(Recipe(pack=pack, pack_overrides=overrides).resolve())
+
+# (0) 기준조건 단독 탐침 — 미사용 경고 재현
+def predict_baseline(n):
+    return [factors(damage_exponent=n)["delta"].value]
+
+ok0, ev0 = cancellation_test(predict_baseline, [0.5, 1.44, 2.54, 5.0, 10.0])
+assert ok0 is False and ev0["미사용"] is True, "기준조건 단독 탐침은 R1이 아니라 미사용 경고여야 한다"
+
+# (1) what-if D99 스윕 × n 스윕 — 순위 소거 재현
+D99_SWEEP = [250.0, 350.0, 500.0, 700.0, 1000.0]
+
+def predict_sweep(n):
+    return [factors(abrasive_d99_nm=d, damage_exponent=n)["delta"].value for d in D99_SWEEP]
+
+probe_n = [0.5, 1.44, 2.54, 5.0, 10.0]
+ok1, ev1 = cancellation_test(predict_sweep, probe_n)
+assert ok1 is True and ev1["미사용"] is False
+assert abs(ev1["절대값 로그편차"] - 6.584898) < 1e-4, ev1["절대값 로그편차"]
+
+verdict = route_unknown("damage_exponent", cancels=ok1)
+assert verdict.route == "R1"
+
+# 절대 배수는 n에 강하게 의존(과제 예시 2.7배/5.8배 재현)
+v500 = factors(abrasive_d99_nm=500.0, damage_exponent=1.44)["delta"].value
+v1000 = factors(abrasive_d99_nm=1000.0, damage_exponent=1.44)["delta"].value
+assert abs(v1000 / v500 - 2.713) < 0.001
+v500b = factors(abrasive_d99_nm=500.0, damage_exponent=2.54)["delta"].value
+v1000b = factors(abrasive_d99_nm=1000.0, damage_exponent=2.54)["delta"].value
+assert abs(v1000b / v500b - 5.816) < 0.001
+
+print("R1 판정 재현 완료: 기준조건=미사용(경고), what-if 스윕=순위불변(R1 성립),",
+      f"절대값 로그편차={ev1['절대값 로그편차']}, 절대배수 n=1.44→2.713배/n=2.54→5.816배")
+```
+
+### 3.2 2단계 — 옵션 C: 로그정규 꼬리 국소지수로 간접 재환산
+
+[[delta-damage-model-synthesis]] §6-1의 `n_local(d50, d99, dc)` 함수를 그대로 가져와
+(재구현하지 않음) cu 팩 위치(D50=100 nm, D99=500 nm, d_c=680 nm — 전부 팩·base.yaml 기존값)에
+대입했다:
+
+```
+cu_h2o2_bta 국소 지수 (D50=100, D99=500, d_c=680): 5.285
+팩값(2.54, estimated, W→Cu 전이) 대비 배율: 2.081배
+```
+
+즉 옵션 C는 2.54가 아니라 **5.285**를 내놓는다 — 현재값의 2배 이상. 그러나 이 숫자를 채택
+후보로 쓸 수 없다:
+
+1. **모델 자체가 이미 "절대값 대체 금지"로 봉인돼 있다.** §6-1은 같은 모델을 Hitachi 3점
+   (D50/D99 = 160/500, 190/700, 240/2500)에 대입한 할선(secant) n=2.61이 실측 회귀 1.44보다
+   **1.8배 과대**임을 이미 검증 코드로 보였고, 그 결론을 "⚠ 미검증: … 할선 절대값(2.61)은
+   실측(1.44)보다 1.8배 크다 — 절대 지수를 이 모델로 대체하지 않는다(팩값 유지)"로 명시했다.
+   cu 위치의 5.285도 같은 모델·같은 구조적 과대추정 편향을 물려받으므로 액면가로 쓸 수 없다.
+2. **편향을 보정하려면 새 자유 파라미터가 필요하다.** "Hitachi에서 1.8배 과대였으니 5.285를
+   1.8로 나눈다"는 방식은 Hitachi(세리아/SiO₂)에서 얻은 교정계수를 cu(알루미나/Cu)로 **다시
+   전이**하는 것이라 이 갭이 원래 풀려던 문제(텅스텐→구리 화학종 전이)를 형태만 바꿔
+   재도입한다 — COMPLETION.md가 금지하는 "물리적 근거 없는 보정항"에 해당해 시도하지 않았다.
+3. 보정 없이 5.285를 그대로 쓰면 현재값(2.54, estimated)보다 **등급이 낮다** — 5.285는
+   "형상 설명용으로 검증된 모델을 절대값 용도로 오용한 것"이라 E4(텅스텐→구리 계 전이,
+   현행)보다 서열이 낮은 E5~E6에 해당한다(모델 저자 스스로 "미검증·대체 금지"라고 적어 둔
+   용도 외 사용).
+
+**새 자유 파라미터 미도입 확인**: 위 계산은 `n_local`에 cu 팩의 기존 3값(D50, D99, d_c)만
+대입했을 뿐 새 상수를 추가하지 않았다 — 그 자체는 규칙을 지켰지만, **결과를 쓰려면** 1.8배
+보정이라는 새 자유도가 필요해지므로 그 지점에서 채택을 멈췄다.
+
+```python verify
+import sys
+sys.path.insert(0, ".")
+from math import erf, sqrt, exp, pi, log
+
+Phi = lambda z: 0.5 * (1 + erf(z / sqrt(2)))
+phi = lambda z: exp(-z * z / 2) / sqrt(2 * pi)
+
+def n_local(d50, d99, dc=680.0):
+    """[[delta-damage-model-synthesis]] §6-1과 동일 함수 — 재구현이 아니라 그대로 이식."""
+    u = log(d99 / d50); s = u / 2.326; z = log(dc / d50) / s
+    return phi(z) / (1 - Phi(z)) * z / u
+
+# Hitachi 3점 재현(§6-1과 동일해야 이 함수를 그대로 가져왔다는 근거가 선다)
+hitachi = {d: n_local(d50, d) for d50, d in [(160, 500), (190, 700), (240, 2500)]}
+assert abs(hitachi[500] - 8.4) < 0.05 and abs(hitachi[700] - 4.6) < 0.05 and abs(hitachi[2500] - 0.7) < 0.05, hitachi
+
+# cu 팩 위치 — 옵션 C의 원값
+n_cu = n_local(100.0, 500.0, 680.0)
+assert abs(n_cu - 5.285) < 0.001, n_cu
+assert n_cu / 2.54 > 2.0, "옵션 C 원값이 현재 팩값의 2배를 넘는다 — 액면가로 못 쓰는 크기임을 확인"
+print(f"옵션 C 국소지수(cu, D50=100/D99=500/d_c=680) = {n_cu:.3f} (현재값 2.54의 {n_cu/2.54:.2f}배)")
+print("§6-1의 봉인(할선 절대값은 실측보다 1.8배 과대, 대체 금지)이 cu 위치에도 적용되므로 채택하지 않는다.")
+```
+
+### 3.3 결론 — (가) 채택, `damage_exponent`는 Δ 진단 용도에 대해 "알 필요 없는 값"
+
+1단계 R1이 성립하고(§3.1), 2단계 옵션 C는 등급을 올리지 못했다(§3.2) — 과제가 준 3개 종결
+경로 중 **(가)**에 해당한다:
+
+- **판정**: `damage_exponent`는 Δ가 실제로 쓰이는 방식(진단 전용 경향 표시, MRR 비결합,
+  절대값을 읽는 소비처 없음)에 한해 값을 몰라도 결론(경향)이 바뀌지 않는다. 이것은
+  "damage_exponent의 참값을 알아냈다"가 아니다 — Δ 자체가 순위/방향 용도로만 설계됐다는
+  사실이 이 미지량을 그 설계 안에서 무해하게 만든다는 뜻이다.
+- **YAML 변경 없음** — `damage_exponent=2.54 (estimated)` 값·등급 그대로 유지한다(값을 바꿀
+  근거가 생긴 게 아니라 "이 값을 안 써도 되는 용도"를 확인했을 뿐이다). 팩·코드의 다른 소비처가
+  생기면(예: Δ가 MRR_COUPLED로 승격되거나 별도 결함 예산 계산에 절대값이 쓰이면) 이 R1 판정은
+  **자동으로 무효화**된다 — 그 시점에는 4단계가 아니라 새로운 미지량 판정으로 재시작해야 한다.
+- **`tools/completion.py` C2 판정에 대한 제안(적용은 하지 않음, 승인 필요)**: 현재 `check()`의
+  C2 루프(`tools/completion.py:151-159`)는 `FACTOR_SPEC`의 모든 팩터·팩 조합을 confidence
+  하한으로 균일하게 검사한다. 반면 C3(`sensitivity_alive`)는 이미 `MRR_COUPLED`만 검사하도록
+  분리돼 있다(예: `sim/factors.py:151` `self.key in MRR_COUPLED`). Δ처럼 MRR에 곱해지지 않는
+  진단 전용 팩터에 대해서도 C2가 같은 confidence 하한을 요구하는 것이 타당한지 재검토를
+  제안한다 — 두 가지 대안이 있다: (i) C2를 C3처럼 MRR_COUPLED 팩터에만 적용하고 진단 전용
+  팩터는 별도(더 낮은) 하한을 쓰거나, (ii) 현행 유지(진단값도 문헌 근거 품질을 요구하는 것
+  자체는 정당 — "몰라도 순위는 안 바뀐다"가 "아무 근거 없이 아무 값이나 써도 된다"는
+  뜻은 아니다). 이 노트는 **판단하지 않고 선택지만 기록**한다 — `tools/completion.py`는
+  사용자 승인 없이 바꾸지 않는다(과제 지시).
+
+**4회차 없음** — 이 갭은 R1 판정으로 종결됐다. R1 판정이 무효화되는 조건(위 YAML 변경 없음
+문단)이 발생하기 전까지 이 노트는 재오픈하지 않는다.
 
 ## 6. 출처
 
