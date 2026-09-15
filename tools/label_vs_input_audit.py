@@ -33,7 +33,7 @@ from __future__ import annotations
 import pathlib
 import re
 import sys
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -62,9 +62,41 @@ LABEL_TO_KEY: Dict[str, str] = {
 # 라벨에서 "이름 숫자(단위)" 를 뽑는다. 이름은 한글·영숫자 모두 허용.
 _TOKEN = re.compile(
     r"([A-Za-z가-힣][A-Za-z0-9가-힣_]*)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)\s*"
-    r"(wt%|%|mM|nm|psi|ml/min)?",
+    r"(wt%|%|mM|mL/min|ml/min|mL|ml|L|nm|µm|um|psi|kPa)?",
     re.IGNORECASE,
 )
+
+# 키가 요구하는 차원. 라벨의 단위가 여기와 **양립 불가**하면 그 토큰은 이 키의
+# 값이 아니다 — 신고하면 거짓 경보가 되고, 거짓 경보가 나면 감사기는 곧 무시당한다.
+# (실측: "분산제 2mL/500mL" 라는 부피 서술이 dispersant_wt_pct 미전달로 신고됐다.
+#  원문이 밀도를 안 줘서 wt% 로 환산할 수 없는 값이고, 지어내면 안 되는 값이다.)
+KEY_UNITS: Dict[str, Set[str]] = {
+    "oxidizer_wt_pct": {"wt%", "%"},
+    "dispersant_wt_pct": {"wt%", "%"},
+    "abrasive_wt_pct": {"wt%", "%"},
+    "inhibitor_mM": {"mm"},
+    "abrasive_size_nm": {"nm", "µm", "um"},
+    "pressure_psi": {"psi", "kpa"},
+    "sfr_ml_min": {"ml/min"},
+    "slurry_ph": set(),          # pH 는 단위가 없다 — 어떤 단위 토큰도 붙지 않는다
+}
+
+
+def _unit_ok(key: str, unit: Optional[str]) -> bool:
+    """라벨의 단위가 그 키의 차원과 양립하는가.
+
+    단위가 아예 없으면 판정하지 않고 통과시킨다(라벨은 자주 단위를 생략한다).
+    있는데 어긋나면 그 토큰은 그 키의 값이 아니다.
+    """
+    if not unit:
+        return True
+    u = unit.strip().lower()
+    allowed = KEY_UNITS.get(key)
+    if allowed is None:
+        return True
+    if key == "slurry_ph":
+        return False             # pH 뒤에 단위가 붙었으면 그것은 pH 가 아니다
+    return u in {a.lower() for a in allowed}
 
 
 def _flat(cond: dict) -> dict:
@@ -101,7 +133,7 @@ def scan(path: pathlib.Path) -> List[str]:
         lab = str(c.get("label", ""))
         for name, num, _unit in _TOKEN.findall(lab):
             key = LABEL_TO_KEY.get(name.lower())
-            if key:
+            if key and _unit_ok(key, _unit):
                 label_axes.setdefault(key, set()).add(float(num))
 
     # ⚠ 라벨만 보면 놓치는 결함이 있다: 축이 **헤더 주석**에만 적혀 있고
@@ -112,7 +144,7 @@ def scan(path: pathlib.Path) -> List[str]:
     for line in txt_lines_before_conditions(raw_text):
         for name, _num, _unit in _TOKEN.findall(line):
             key = LABEL_TO_KEY.get(name.lower())
-            if key and key not in label_axes:
+            if key and key not in label_axes and _unit_ok(key, _unit):
                 header_axes.add(key)
 
     problems = []

@@ -19,6 +19,7 @@ conditions:
     mrr_nm_per_min: 9.6
     read_method: table
     overrides:
+      sfr_ml_min: 150
       oxidizer_wt_pct: 0.0
   - label: "H2O2 2.03 wt% (Example 3, Fe 60 ppm)"
     pressure_psi: 4.0
@@ -27,6 +28,7 @@ conditions:
     mrr_nm_per_min: 150.8
     read_method: table
     overrides:
+      sfr_ml_min: 150
       oxidizer_wt_pct: 2.03
   - label: "H2O2 4.06 wt% (Example 2, Fe 5 ppm)"
     pressure_psi: 4.0
@@ -35,6 +37,7 @@ conditions:
     mrr_nm_per_min: 239.6
     read_method: table
     overrides:
+      sfr_ml_min: 150
       oxidizer_wt_pct: 4.06
   - label: "H2O2 4.07 wt% (Example 1, Fe 1180 ppm)"
     pressure_psi: 4.0
@@ -43,6 +46,7 @@ conditions:
     mrr_nm_per_min: 241.0
     read_method: table
     overrides:
+      sfr_ml_min: 150
       oxidizer_wt_pct: 4.07
   - label: "H2O2 6.10 wt% (Example 4, Fe 60 ppm)"
     pressure_psi: 4.0
@@ -51,6 +55,7 @@ conditions:
     mrr_nm_per_min: 296.5
     read_method: table
     overrides:
+      sfr_ml_min: 150
       oxidizer_wt_pct: 6.10
 notes: >
   변수 = H2O2 농도(0 → 2.03 → 4.06 → 4.07 → 6.10 wt%). 압력·회전수·패드·시간은 전부 동일.

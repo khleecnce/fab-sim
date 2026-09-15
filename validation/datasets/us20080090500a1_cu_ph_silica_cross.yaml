@@ -28,55 +28,55 @@ pack: cu_h2o2_bta
 conditions:
   # ── 실리카 2 wt% ──────────────────────────────────────────
   - label: "2 wt% 실리카, pH 3"
-    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 59.7
     read_method: table
   - label: "2 wt% 실리카, pH 4 (기준점)"
-    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 53.7
     read_method: table
   - label: "2 wt% 실리카, pH 5"
-    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 48.3
     read_method: table
   - label: "2 wt% 실리카, pH 6"
-    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 2.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 39.3
     read_method: table
 
   # ── 실리카 3 wt% ──────────────────────────────────────────
   - label: "3 wt% 실리카, pH 3"
-    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 70.5
     read_method: table
   - label: "3 wt% 실리카, pH 4"
-    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 61.7
     read_method: table
   - label: "3 wt% 실리카, pH 5"
-    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 52.8
     read_method: table
   - label: "3 wt% 실리카, pH 6"
-    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 3.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 45.1
     read_method: table
 
   # ── 실리카 4 wt% ──────────────────────────────────────────
   - label: "4 wt% 실리카, pH 3"
-    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 3.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 80.1
     read_method: table
   - label: "4 wt% 실리카, pH 4"
-    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 4.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 64.4
     read_method: table
   - label: "4 wt% 실리카, pH 5"
-    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 5.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 56.5
     read_method: table
   - label: "4 wt% 실리카, pH 6"
-    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0}
+    overrides: {slurry_ph: 6.0, abrasive_wt_pct: 4.0, oxidizer_wt_pct: 3.0, inhibitor_mM: 1.0, sfr_ml_min: 60}
     mrr_nm_per_min: 52.0
     read_method: table
 

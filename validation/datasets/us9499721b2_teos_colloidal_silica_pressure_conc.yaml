@@ -39,6 +39,7 @@ conditions:
     mrr_nm_per_min: 94
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 0.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -48,6 +49,7 @@ conditions:
     mrr_nm_per_min: 140
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 0.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -57,6 +59,7 @@ conditions:
     mrr_nm_per_min: 135
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 0.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -66,6 +69,7 @@ conditions:
     mrr_nm_per_min: 110
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -75,6 +79,7 @@ conditions:
     mrr_nm_per_min: 207
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -84,6 +89,7 @@ conditions:
     mrr_nm_per_min: 256
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -93,6 +99,7 @@ conditions:
     mrr_nm_per_min: 269
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -102,6 +109,7 @@ conditions:
     mrr_nm_per_min: 113
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -111,6 +119,7 @@ conditions:
     mrr_nm_per_min: 226
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -120,6 +129,7 @@ conditions:
     mrr_nm_per_min: 294
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -129,6 +139,7 @@ conditions:
     mrr_nm_per_min: 348
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 1.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -138,6 +149,7 @@ conditions:
     mrr_nm_per_min: 117
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -147,6 +159,7 @@ conditions:
     mrr_nm_per_min: 229
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -156,6 +169,7 @@ conditions:
     mrr_nm_per_min: 314
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -165,6 +179,7 @@ conditions:
     mrr_nm_per_min: 363
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -174,6 +189,7 @@ conditions:
     mrr_nm_per_min: 120
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -183,6 +199,7 @@ conditions:
     mrr_nm_per_min: 243
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -192,6 +209,7 @@ conditions:
     mrr_nm_per_min: 319
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -201,6 +219,7 @@ conditions:
     mrr_nm_per_min: 386
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 2.5
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -210,6 +229,7 @@ conditions:
     mrr_nm_per_min: 124
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 3.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -219,6 +239,7 @@ conditions:
     mrr_nm_per_min: 248
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 3.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7
@@ -228,6 +249,7 @@ conditions:
     mrr_nm_per_min: 403
     read_method: table
     overrides:
+      sfr_ml_min: 150
       abrasive_wt_pct: 3.0
       abrasive_size_nm: 54.0
       slurry_ph: 4.7

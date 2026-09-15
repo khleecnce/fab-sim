@@ -27,6 +27,7 @@ conditions:
       oxidizer_wt_pct: 6
       slurry_ph: 11
       abrasive_wt_pct: 10
+      dispersant_wt_pct: 4
   - label: "No.2: 연마제10wt% 산화제8wt% 분산제3wt% pH9.5"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -37,6 +38,7 @@ conditions:
       oxidizer_wt_pct: 8
       slurry_ph: 9.5
       abrasive_wt_pct: 10
+      dispersant_wt_pct: 3
   - label: "No.3: 연마제10wt% 산화제10wt% 분산제2wt% pH8"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -47,6 +49,7 @@ conditions:
       oxidizer_wt_pct: 10
       slurry_ph: 8
       abrasive_wt_pct: 10
+      dispersant_wt_pct: 2
   - label: "No.4: 연마제8wt% 산화제6wt% 분산제3wt% pH8"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -57,6 +60,7 @@ conditions:
       oxidizer_wt_pct: 6
       slurry_ph: 8
       abrasive_wt_pct: 8
+      dispersant_wt_pct: 3
   - label: "No.5: 연마제8wt% 산화제8wt% 분산제2wt% pH11"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -67,6 +71,7 @@ conditions:
       oxidizer_wt_pct: 8
       slurry_ph: 11
       abrasive_wt_pct: 8
+      dispersant_wt_pct: 2
   - label: "No.6: 연마제8wt% 산화제10wt% 분산제4wt% pH9.5"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -77,6 +82,7 @@ conditions:
       oxidizer_wt_pct: 10
       slurry_ph: 9.5
       abrasive_wt_pct: 8
+      dispersant_wt_pct: 4
   - label: "No.7: 연마제6wt% 산화제6wt% 분산제2wt% pH9.5"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -87,6 +93,7 @@ conditions:
       oxidizer_wt_pct: 6
       slurry_ph: 9.5
       abrasive_wt_pct: 6
+      dispersant_wt_pct: 2
   - label: "No.8: 연마제6wt% 산화제8wt% 분산제4wt% pH8"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -97,6 +104,7 @@ conditions:
       oxidizer_wt_pct: 8
       slurry_ph: 8
       abrasive_wt_pct: 6
+      dispersant_wt_pct: 4
   - label: "No.9: 연마제6wt% 산화제10wt% 분산제3wt% pH11"
     pressure_psi: 13.7771
     rpm_wafer: 70
@@ -107,6 +115,7 @@ conditions:
       oxidizer_wt_pct: 10
       slurry_ph: 11
       abrasive_wt_pct: 6
+      dispersant_wt_pct: 3
 
 notes: >
   **의도적 대조군(negative control)이다.** 압력 94.99 kPa·회전수 70 rpm이 9조건 모두 동일하고

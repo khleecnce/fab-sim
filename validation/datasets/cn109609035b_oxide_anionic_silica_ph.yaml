@@ -31,6 +31,7 @@ conditions:
     mrr_nm_per_min: 10.9
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 2.0
       abrasive_wt_pct: 1.0
   - label: "pH 2.5"
@@ -40,6 +41,7 @@ conditions:
     mrr_nm_per_min: 3.2
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 2.5
       abrasive_wt_pct: 1.0
   - label: "pH 3.0"
@@ -49,6 +51,7 @@ conditions:
     mrr_nm_per_min: 1.6
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 3.0
       abrasive_wt_pct: 1.0
   - label: "pH 3.5"
@@ -58,6 +61,7 @@ conditions:
     mrr_nm_per_min: 1.5
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 3.5
       abrasive_wt_pct: 1.0
   - label: "pH 4.0"
@@ -67,6 +71,7 @@ conditions:
     mrr_nm_per_min: 1.1
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 4.0
       abrasive_wt_pct: 1.0
   - label: "pH 5.0"
@@ -76,6 +81,7 @@ conditions:
     mrr_nm_per_min: 0.5
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 5.0
       abrasive_wt_pct: 1.0
   - label: "pH 6.0 (소폭 반등)"
@@ -85,6 +91,7 @@ conditions:
     mrr_nm_per_min: 1.2
     read_method: table
     overrides:
+      sfr_ml_min: 175
       slurry_ph: 6.0
       abrasive_wt_pct: 1.0
 
