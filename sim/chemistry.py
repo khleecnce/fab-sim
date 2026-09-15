@@ -235,11 +235,39 @@ def _inhibitor_term(pack, notes: List[str]) -> Optional[float]:
     if not pack.has("inhibitor_mM"):
         return None
     C_molar = float(pack.get("inhibitor_mM")) * 1e-3
-    if pack.has("inhibitor_dG_ads_kJ"):
+
+    # ── 1순위: (억제제 × 기질) 쌍 조회 ─────────────────────────
+    # ΔG_ads 는 억제제 단독의 성질이 아니라 **쌍**의 성질이다.
+    # 같은 논문·같은 방법인데 BTA/Cu −30.02 vs BTA/Fe −21.89 로 갈린다.
+    # 쌍을 키로 갖지 않으면 새 억제제마다 같은 실패가 반복된다 —
+    # 실제로 한 억제제용 K 가 다른 억제제에 쓰여 5,700 배 어긋났다.
+    K: Optional[float] = None
+    inhib = pack.get_or("inhibitor_species", None)
+    subst = pack.get_or("substrate_species", None)
+    if inhib and subst:
+        from sim.inhibitor_pairs import lookup_dG, K_from_dG, measurement_spec
+        pair = lookup_dG(str(inhib), str(subst))
+        if pair is not None:
+            K = K_from_dG(pair.dG_kJ_per_mol)
+            notes.append(f"흡착상수를 **쌍**({inhib} × {subst})에서 조회: "
+                         f"ΔG={pair.dG_kJ_per_mol:.2f} kJ/mol → K={K:.4g} L/mol "
+                         f"· {pair.method} · {pair.source} [{pair.confidence}]")
+        else:
+            # 유사 값으로 대체하지 않는다 — 그것이 지금까지의 실패 원인이다.
+            notes.append(f"🔴 ({inhib} × {subst}) 쌍의 ΔG 가 표에 없다. "
+                         "다른 기질·다른 분자 값으로 대체하지 않는다.")
+            notes.extend(measurement_spec(str(inhib), str(subst))[:3])
+            notes.append("→ 이 조건에서 억제제 **순위**는 예측하되 "
+                         "절대값은 주장하지 않는다.")
+
+    if K is None and pack.has("inhibitor_dG_ads_kJ"):
         K = SC.K_from_dG_ads(float(pack.get("inhibitor_dG_ads_kJ")) * 1000.0)
-    elif pack.has("inhibitor_K_L_per_mol"):
+        if inhib and subst:
+            notes.append(f"⚠ 팩의 단일 ΔG 로 폴백했다 — 이 값이 ({inhib} × "
+                         f"{subst}) 쌍에서 측정된 것인지 확인되지 않았다.")
+    elif K is None and pack.has("inhibitor_K_L_per_mol"):
         K = float(pack.get("inhibitor_K_L_per_mol"))
-    else:
+    elif K is None:
         notes.append("⚠ inhibitor_mM은 있으나 흡착상수(dG 또는 K)가 없어 억제 항 건너뜀")
         return None
     k_inhib = float(pack.get_or("inhibitor_strength_k", 3.0))

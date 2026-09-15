@@ -121,6 +121,11 @@ class BacktestResult:
     # 요약 지표만 남기면 "배율을 맞춘 뒤에도 남는 어긋남"을 사후에 잴 수 없다.
     observed: List[float] = field(default_factory=list)
     predicted: List[float] = field(default_factory=list)
+    # 이상치 판정(tools/outlier_rules.py)이 **규칙으로** 판정하려면 조건 입력이
+    # 필요하다. 이게 없으면 "정의역 밖(C2)"을 전혀 가릴 수 없고, 모든 점이
+    # "설명 불가(C5)"로 떨어져 규칙이 작동하는 척만 하게 된다 — 실제로 그랬다.
+    pack: str = ""
+    rows: List[dict] = field(default_factory=list)
 
     #: 유의 판정 기준. n=3은 최소 p가 0.167이라 **구조적으로** 이 문턱을 넘을 수 없다.
     P_THRESHOLD = 0.05
@@ -268,7 +273,9 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
                           has_contact, raw.get("source", ""), notes,
                           p_value=perm_p_value(rho, len(obs)),
                           observed=[float(x) for x in obs],
-                          predicted=[float(x) for x in pred])
+                          predicted=[float(x) for x in pred],
+                          pack=str(raw.get("pack", "")),
+                          rows=[dict(c) for c in conds])
 
 
 def run_all(model: str = "tier2.gw_physical_kp") -> List[BacktestResult]:
