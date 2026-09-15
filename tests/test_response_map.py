@@ -85,3 +85,50 @@ def test_real_datasets_produce_usable_evidence():
     assert any(e.usable() for e in ev)
     keys = {e.key for e in ev if e.usable()}
     assert "slurry_ph" in keys
+
+
+# ── 2026-09-15 판정#42: 교란 탐지가 FACTORS 키만 보던 결함 ────────────────
+def test_confound_detection_sees_non_factor_inputs():
+    """교란 판정은 '모델이 아는 축'이 아니라 '실험에서 변한 축' 기준이어야 한다.
+
+    US9200180B2 TABLE 3은 실리카 0.5→20 wt%(abrasive_wt_pct — FACTORS에 없는 키)와
+    pH 9.2→10.0을 **동시에** 움직인 표다. 이전 구현은 FACTORS 키만 훑어서 pH가
+    단독 변화한 것으로 오인했고, 그 결과 cu_h2o2_bta/pH에 존재하지 않는
+    DEAD 갭이 4회차 연속 최상위(score 95)로 올라왔다.
+    """
+    ev = {(e.dataset, e.key): e for e in literature_evidence()}
+    e = ev.get(("us9200180b2_cu_abrasive_series", "slurry_ph"))
+    assert e is not None
+    assert e.confounded, "실리카 농도가 같이 변하는데 단독 증거로 잡혔다"
+    assert not e.usable()
+
+
+def test_quarantined_datasets_are_not_evidence():
+    """qa_loop가 격리한 데이터셋이 응답 판정에서만 살아 있으면 안 된다.
+
+    backtest.py는 quarantine.json을 적용하는데 response_map은 안 봤다 —
+    같은 데이터가 한 도구에는 부적격, 다른 도구에는 적격이면 랭킹 전체를 못 믿는다.
+    """
+    import json as _json
+    qf = ROOT / "validation" / "quarantine.json"
+    if not qf.exists():
+        return
+    q = set(_json.loads(qf.read_text(encoding="utf-8")).keys())
+    if not q:
+        return
+    for e in literature_evidence():
+        if e.dataset in q:
+            assert e.quarantined and not e.usable()
+
+
+def test_full_cross_doe_yields_controlled_strata():
+    """완전교차 DOE는 통째로 버리지 말고 '나머지 고정' 층에서 단독 증거를 뽑아야 한다.
+
+    US9499721B2는 실리카 6수준 × 압력 4수준이다. 층(실리카 고정) 안에서 압력은
+    단독으로 변하므로 통제된 증거다 — 이전 구현은 이걸 교란으로 버렸다.
+    """
+    ev = {(e.dataset, e.key): e for e in literature_evidence()}
+    e = ev.get(("us9499721b2_teos_colloidal_silica_pressure_conc", "pressure_psi"))
+    assert e is not None
+    assert not e.confounded and e.usable()
+    assert e.shape == "up"

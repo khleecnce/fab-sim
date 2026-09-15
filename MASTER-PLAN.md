@@ -2565,3 +2565,18 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
   `sim/sensitivity.py` E* 스캔 범위 (3e8,3e9) 는 새 기본값을 포함조차 안 해 문헌 대역으로 교체.
 - 검증: pytest 778 passed · qa_loop --strict PASS · 유의 평균 ρ 0.9442 **불변**(tier2 진단 경로라 정상).
   노트: knowledge/pad/pad-gw-parameter-literature-adoption-derived-recompute.md
+
+### 2026-09-15 22:00 [성장엔진] 응답 판정기 결함 수리 — cu/pH DEAD 갭은 실재하지 않았다 (판정#42)
+- 4회차 연속 최상위였던 `RESPONSE_DEAD cu_h2o2_bta/pH`(score 95)를 원문으로 역추적한 결과
+  **갭이 아니라 `tools/response_map.py`의 결함**이었다. 근거 데이터셋(US9200180B2 T3)은
+  실리카 0.5→20 wt%와 pH 9.2→10.0을 동시에 움직인 교란 표이고, 게다가 qa_loop가 F4로
+  이미 격리한 데이터였다.
+- 수리 3건: (1) 교란 탐지를 `FACTORS` 키 → **실험에서 변한 입력 전부**(`_drivers()`)로 확대,
+  (2) `quarantine.json`을 응답 판정에도 적용(`QUARANTINED`), (3) 완전교차 DOE를 버리지 않고
+  **층화**(`_strata()`)해 통제증거로 사용.
+- 효과: 가짜 DEAD 1건 소멸(최우선 갭 score 95→50 BIAS), 새 통제증거 확보로
+  `oxide_silica/다운포스`(n=22)·`sti_ceria/다운포스`(n=9) AGREE 신규, 교란 오분류 5건 정정.
+- **모델 코드·팩 파라미터는 한 줄도 바꾸지 않았다** — 근거 없는 `ph_softening_per_unit`를
+  만들지 않은 것이 결론이다.
+- 검증(직접 실행): **pytest 808→811 passed**(계약 테스트 3건 추가) / `qa_loop run --strict`
+  **PASS**, 유의 평균 ρ=0.9442 불변(판정기 수리라 예측 경로 불변이 정상) / 완성 격자 49/50 불변.

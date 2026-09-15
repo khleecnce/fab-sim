@@ -58,6 +58,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -199,6 +200,27 @@ def why_flat(f) -> str:
 
 
 # ── 문헌 증거 ────────────────────────────────────────────────
+def _quarantined() -> set:
+    """qa_loop 가 격리한 데이터셋 — 응답 판정에서도 빼야 한다.
+
+    ⚠ 왜 필요하냐면, 백테스트(validation/backtest.py)는 quarantine.json 을 적용하는데
+    이 도구는 안 봐서 **격리된 데이터가 여기서만 증거로 살아 있었다**(2026-09-15 발견:
+    us9200180b2_cu_abrasive_series 가 F4 캘리브레이션 오염으로 격리된 상태에서
+    cu_h2o2_bta/pH 판정의 유일한 근거였다). 한 저장소 안에서 같은 데이터가 한 도구에는
+    부적격이고 다른 도구에는 적격이면, 갭 랭킹 전체를 못 믿는다.
+    """
+    f = ROOT / "validation" / "quarantine.json"
+    if not f.exists():
+        return set()
+    try:
+        return set(json.loads(f.read_text(encoding="utf-8")).keys())
+    except Exception:
+        return set()
+
+
+QUARANTINED = _quarantined()
+
+
 @dataclass
 class Evidence:
     key: str
@@ -217,9 +239,11 @@ class Evidence:
     calib: bool
     read: str
 
+    quarantined: bool = False
+
     def usable(self) -> bool:
         return (not self.confounded and self.in_scope and not self.calib
-                and self.n >= MIN_LIT_N)
+                and not self.quarantined and self.n >= MIN_LIT_N)
 
 
 def _cond_value(cond: Dict, key: str) -> Optional[float]:
@@ -231,6 +255,61 @@ def _cond_value(cond: Dict, key: str) -> Optional[float]:
         return float(src[key])
     except (TypeError, ValueError):
         return None
+
+
+# 데이터셋 조건 딕셔너리에서 '입력'이 아닌 키(출력·메타)를 걸러내는 패턴.
+# 이걸 안 걸면 measured_mrr_* 같은 결과 컬럼이 교란요인으로 잡혀 정상 데이터셋이
+# 통째로 판정에서 빠진다.
+_NON_DRIVER_KEYS = {"label", "overrides", "notes", "note", "read_method",
+                    "mrr_nm_per_min", "source", "comment"}
+_OUTPUT_LIKE = re.compile(
+    r"(^measured_|mrr|removal_rate|roughness|defect|dishing|erosion|"
+    r"ttv|wiwnu|nonuniform|selectivity|_out$)", re.I)
+
+
+def _drivers(conds: List[Dict]) -> List[str]:
+    """이 데이터셋에서 **실제로 움직인 입력** 전부.
+
+    ⚠ 왜 FACTORS 키로 한정하면 안 되나 — 교란 판정은 "모델이 아는 축"이 아니라
+    "실험에서 변한 축" 기준이어야 한다. abrasive_wt_pct 처럼 FACTORS 에 없는
+    입력이 같이 움직이는데 그걸 못 보면, 교란 데이터셋을 '단독 변화'로 착각해
+    판정에 쓴다(2026-09-15 발견: us9200180b2_cu_abrasive_series 가 실리카
+    0.5→20 wt% 와 pH 9.2→10.0 을 동시에 움직였는데 pH 단독 증거로 채점돼
+    cu_h2o2_bta/pH 에 DEAD 를 찍고 있었다).
+    """
+    cand = set()
+    for c in conds:
+        for k in list(c.keys()) + list((c.get("overrides") or {}).keys()):
+            if k in _NON_DRIVER_KEYS or _OUTPUT_LIKE.search(k):
+                continue
+            cand.add(k)
+    out = []
+    for k in sorted(cand):
+        vals = [_cond_value(c, k) for c in conds]
+        if any(v is None for v in vals):
+            continue          # 일부 조건에만 있는 키는 축으로 못 쓴다
+        if len({round(v, 9) for v in vals}) >= 2:
+            out.append(k)
+    return out
+
+
+def _strata(conds: List[Dict], key: str, others: List[str]) -> List[List[Dict]]:
+    """나머지 입력을 전부 고정한 부분집합(층)으로 쪼갠다.
+
+    완전교차 DOE(예: pH 4수준 × 실리카 5수준)는 통째로 보면 '2인자 동시변화'라
+    판정에서 빠지지만, 실리카를 고정한 층 안에서는 pH 가 **단독으로** 변한다.
+    그 층이 곧 통제된 증거다. 버리지 말고 층별로 쓴다.
+    """
+    groups: Dict[Tuple, List[Dict]] = {}
+    for c in conds:
+        sig = tuple(round(_cond_value(c, o), 9) for o in others)
+        groups.setdefault(sig, []).append(c)
+    ok = []
+    for g in groups.values():
+        xs = {round(_cond_value(g_i, key), 9) for g_i in g}
+        if len(xs) >= MIN_LIT_N:
+            ok.append(g)
+    return ok
 
 
 def literature_evidence() -> List[Evidence]:
@@ -247,28 +326,45 @@ def literature_evidence() -> List[Evidence]:
         pack = d.get("pack")
         in_scope = d.get("in_scope") is not False
         calib = bool(d.get("used_for_calibration"))
-        varying = []
+        drivers = _drivers(conds)
+        reads = {c.get("read_method", "?") for c in conds}
+        read = "digitized" if "digitized" in reads else "table"
         for k in keys:
             vals = [_cond_value(c, k) for c in conds]
             if any(v is None for v in vals):
                 continue
-            if len({round(v, 9) for v in vals}) >= 3:
-                varying.append(k)
-        med = float(np.median([float(c["mrr_nm_per_min"]) for c in conds])) or 1.0
-        for k in varying:
-            pts = sorted((_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
-                         for c in conds)
+            if len({round(v, 9) for v in vals}) < MIN_LIT_N:
+                continue
+            others = [o for o in drivers if o != k]
+            strata = _strata(conds, k, others) if others else [conds]
+            if strata:
+                # 통제된 층이 있다 → 층마다 자기 중앙값으로 정규화해 합친다.
+                # (층끼리 절대 스케일이 다르므로 정규화 없이 합치면 형상이 뭉갠다.)
+                pts = []
+                for g in strata:
+                    med = float(np.median([float(c["mrr_nm_per_min"]) for c in g])) or 1.0
+                    pts += [(_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
+                            for c in g]
+                pts.sort()
+                confounded = False
+                n_varying = 1
+            else:
+                # 통제된 층이 없다 → 종전대로 전체를 쓰되 교란으로 표시해 판정에서 뺀다.
+                med = float(np.median([float(c["mrr_nm_per_min"]) for c in conds])) or 1.0
+                pts = sorted((_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
+                             for c in conds)
+                confounded = True
+                n_varying = len(drivers)
             xs = [p[0] for p in pts]
             ys = [p[1] for p in pts]
             if min(ys) <= 0:
                 continue
             shape, span = classify(xs, ys)
-            reads = {c.get("read_method", "?") for c in conds}
             out.append(Evidence(
                 k, path.stem, pack, len(pts), shape, span, xs[0], xs[-1], xs, ys,
-                confounded=len(varying) > 1, n_varying=len(varying),
-                in_scope=in_scope, calib=calib,
-                read="digitized" if "digitized" in reads else "table"))
+                confounded=confounded, n_varying=n_varying,
+                in_scope=in_scope, calib=calib, read=read,
+                quarantined=path.stem in QUARANTINED))
     return out
 
 
@@ -457,6 +553,8 @@ def print_evidence(rep: Dict) -> None:
             tags.append("범위밖")
         if e["calib"]:
             tags.append("캘리브레이션출처(자기채점 — 판정제외)")
+        if e.get("quarantined"):
+            tags.append("🔒qa_loop 격리(판정제외)")
         if e["read"] == "digitized":
             tags.append("그래프판독")
         print(f"  {e['key']:20s} {e['dataset']:46s} {str(e['pack']):16s} "
