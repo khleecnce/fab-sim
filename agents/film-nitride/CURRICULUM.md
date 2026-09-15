@@ -8,7 +8,7 @@
 - [x] Lv2-1 STI 나이트라이드 손실·디싱과 공정 윈도우 (2026-09-11, knowledge/cmp/sti-nitride-loss-erosion-overpolish-window.md)
 - [x] Lv2-2 나이트라이드 직접 CMP: 하드마스크·게이트 응용 (2026-09-11, knowledge/materials/film-nitride-direct-cmp-hardmask-gate.md)
 - [x] Lv3-1 최신 리뷰: 나이트라이드 선택비 첨가제, 3D NAND 응용 (2026-09-14, knowledge/materials/film-nitride-additive-selectivity-3dnand-review.md)
-- [ ] Lv3-2 나이트라이드 Kp·선택비 파라미터 + 문헌값 재현 (sim/tier2)
+- [x] Lv3-2 나이트라이드 Kp·선택비 파라미터 + 문헌값 재현 (2026-09-15, knowledge/cmp/psi-sti-shield-adsorption-primary-source-verification.md — ψ/sti_ceria 흡착 보호 상수, confidence=estimated 유지 판정)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 나이트라이드 실데이터 스키마 + 정지층 손실 보정 파라미터

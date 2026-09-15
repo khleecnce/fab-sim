@@ -71,6 +71,21 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (c) 3D NAND: 요구 SiO₂:Si₃N₄ ≈30:1(STI 블랭킷 100–290보다 낮음), Zhao 2025 초록 SiO₂ 3606.1·Si₃N₄ 101.6 Å/min→35.49 —
   적층당 두꺼운 SiN이 큰 손실예산을 줘 자기정지 아닌 "예산관리형" 레짐.
 
+- **Lv3-2** ψ(표면 흡착 보호) STI 세리아 상수 — 1차 출처(특허 인쇄표) 탐색 + Hill n 특이성 교차검증 — 2026-09-15
+  노트: [[../../knowledge/cmp/psi-sti-shield-adsorption-primary-source-verification]]
+  출처 3건 신규 인용(1차): Kang 2005 JJAP DOI 10.1143/JJAP.44.4752(페이월, 본문 미확보)·
+  Kang 2008 ECS DOI 10.1149/ma2008-01/17/693(로컬 캐시, 그래프만)·Penta/Babu 2015 ECS JSS
+  DOI 10.1149/2.0061511jss(CC-BY 전문 확보, 독립 저자). verify_claims ✓(출처 12건 실존·코드
+  1블록 PASS)·check_knowledge ✓.
+  핵심: `shield_langmuir_K`(1.2949)/`shield_hill_n`(4.62)/`shield_strength_k`(3.0)의 대체
+  1차 출처(특허 실시예 인쇄표)를 찾으려 했으나 **실패**했다 — 유력 후보 CN107353833A(세리아+
+  폴리메타크릴레이트)는 이 세션 네트워크에서 Google Patents 전면 차단으로 접근 불가, 접근된
+  특허(US6616514B1 mannitol·US9828528B2 질화막데이터 없음)는 화학종/측정항목 불일치로 탈락.
+  대신 독립 그룹(Dandu/Babu 2015, CC-BY) 소르비톨 흡착 데이터에 Park의 n=4.62를 강제 대입
+  하면 SSE 993.4로 순수 선형(630.2)보다도 나빠 재현 실패 — n=4.62는 Park의 특정 화학종
+  (PAA 계면활성제, hemimicelle 협동흡착)에 국한된 값이라는 선행 노트 경고를 독립 문헌으로
+  재확인. confidence=`estimated` 유지, 승격 근거 없음(정직한 실패 보고).
+
 ## 구현 요청
 - **[Tier2] 첨가제 억제항에 pKa 기반 pH 게이트 추가**
   - 무엇을: 기존 [Tier2] 첨가제 포화-스위치 모델(Langmuir θ=Kc/(1+Kc))에 **양성자화 게이트 f_prot=1/(1+10^(pH−pKa))** 를
@@ -119,3 +134,16 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   - 검증 문헌값(Dandu 2009, DOI 10.1149/1.3230624): 나이트라이드 흡착 0.1 wt% 이상에서 2.4 mg/g로 포화,
     실리카는 0.05→1 wt%에서 1.3→8.2 mg/g로 비포화 증가. 선택비 4.4:1(무첨가)→117–290:1(0.05% 첨가제).
   - 우선순위: 낮음 (Lv2-1 STI 오버폴리시 창 모델과 결합 시 필요. 흡착등온 계수(K)는 문헌에 명시 안 돼 추가 조사 필요).
+
+- **[정보용, 승격 요청 아님] sti_ceria / 키: shield_langmuir_K · shield_hill_n · shield_strength_k**
+  - 현재 1.2949 / 4.62 / 3.0 (estimated) → 제안값 없음, 등급 변경도 없음 — **현상 유지 권고**.
+  - 근거: knowledge/cmp/psi-sti-shield-adsorption-primary-source-verification.md §2·§3·§5.
+    특허 실시예 인쇄표(1순위 후보 CN107353833A)는 이 세션 네트워크에서 Google Patents가
+    전면 차단돼 확보하지 못했다(다음 세션에서 Lens.org/Espacenet 등 다른 경로로 재시도
+    가치 있음). 접근된 대체 특허·후속 논문은 화학종 불일치 또는 페이월로 사용 불가했다.
+    독립 문헌(Dandu/Babu 2015, DOI 10.1149/2.0061511jss) 교차검증은 오히려 "n=4.62를
+    다른 첨가제에 전이하면 안 된다"는 기존 제약만 강화했다(§4 SSE 대조).
+  - ⚠ _ref 짝: 옮길 대상이 없으므로 `shield_ref_wt_pct` 이관 여부는 해당 없음.
+  - 다음 시도자를 위한 메모: Kang 2005 JJAP(DOI 10.1143/JJAP.44.4752, 같은 저자그룹 후속·
+    농도범위 0.1–0.3 wt% 겹침)이 확보되면 가장 직접적인 검증이 될 것 — 이 세션은 IOPscience
+    페이월 + 미러 사이트 전면 DNS 차단으로 막혔다.
