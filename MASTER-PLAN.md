@@ -2602,3 +2602,4 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
   만들지 않은 것이 결론이다.
 - 검증(직접 실행): **pytest 808→811 passed**(계약 테스트 3건 추가) / `qa_loop run --strict`
   **PASS**, 유의 평균 ρ=0.9442 불변(판정기 수리라 예측 경로 불변이 정상) / 완성 격자 49/50 불변.
+- 2026-09-16 (성장엔진/정확도루프): 판정#48 — sti_ceria 팩이 κ 농도항 3키를 실리카 부모(20 wt%)에서 상속하던 하이진 결함 정정. Dandu 2009 Fig.2a 벡터좌표 추출로 0.25 wt%·n=−0.4295 확보(자기검증 1.4%). dandu2009 계통편향 3.20→0.74배, 순위 ρ 불변. pytest 856 passed, qa_loop PASS(ρ=0.9442 불변), 갭 26→25.

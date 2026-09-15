@@ -341,3 +341,112 @@ print(f"[D] Dandu: 무첨가 {ox/ni:.1f} → 피리딘 {sel_pyr:.0f}/{sel_180:.0
 
 ## 11. 자기시험
 → [[../../agents/film-oxide/EXAMS.md]] Lv2-2 문항 참조.
+
+## 12. κ 농도항 — sti_ceria 팩의 실리카 상속 결함 정정 (2026-09-16, 판정#48)
+
+### 12.1 무엇이 틀려 있었나
+`knowledge/params/sti_ceria.yaml`은 `abrasive_wt_pct`·`abrasive_ref_wt_pct`·`abrasive_conc_exponent`
+세 키를 선언하지 않아 부모 팩 `oxide_silica`에서 상속받고 있었다. 부모 값은 **콜로이달 실리카
+20 wt% 고형분**(US9499721B2 TEOS 계) 기준인데, 세리아 STI 슬러리의 실사용 농도는 0.25~1 wt% 대다.
+그래서 `κ`의 농도항이 기준조건에서 1.0이 아니라 `(0.25/20)^(1/3) = 0.232` 로 눌려 있었다 —
+**4.31배 계통 과소** 이며, 이것이 백테스트가 4회차 연속 최상위 갭으로 지목한
+`dandu2009_sio2_ceria_ph_sweep: 절대값 3.20배 계통편향`의 직접 원인이다.
+
+판정#16(`abrasive_ref_size_nm`이 실리카 부모의 50 nm를 상속해 κ=1.275였던 건)과 **같은 유형**의
+하이진 결함이다. 그때 입경 기준점만 고치고 농도 기준점은 남겨뒀다.
+
+### 12.2 값을 어디서 가져왔나 (Dandu 2009 Figure 2a, 1차 원문 벡터좌표)
+`papers/dandu2009-jes-selective-sio2-sin-ceria-sti.pdf` p.3의 Figure 2a는 **60 nm 세리아, pH 4**에서
+입자 loading 0.25 / 0.50 / 1.0 wt%의 oxide·nitride RR을 준 막대그래프다. PyMuPDF `get_drawings()`로
+막대 사각형의 상단 y좌표를 뽑아 축 눈금 라벨(0 nm/min ↔ y=236.4, 400 nm/min ↔ y=110.3)에
+선형사상했다(눈대중 아님).
+
+| loading (wt%) | 막대 상단 y | oxide RR (nm/min) |
+|---|---|---|
+| 0.25 | 125.4 | **352.1** |
+| 0.50 | 169.8 | **211.3** |
+| 1.00 | 175.2 | **194.1** |
+
+본문 서술이 같은 방향을 독립적으로 뒷받침한다 — *"The oxide RR at pH 4 was higher with 0.25%
+ceria particle loading, as shown in Fig. 2a, compared to 0.5 and 1%."*
+
+### 12.3 이 계에서 농도 지수는 **음수**다 — 그리고 입경에 따라 부호가 갈린다
+로그-로그 회귀 결과 **n = −0.4295**(최대잔차 15.3%). 부모의 +1/3(표면적 극한)과 부호가 반대다.
+
+그런데 **같은 논문 Figure 2b(180 nm Ferro 소성 세리아)는 부호가 반대다**: 같은 방법으로 읽으면
+390.0 / 505.0 / 627.8 / 495.0 nm/min(0.25/0.5/1/2 wt%)이고 0.25~1.0 구간 지수는 **+0.343**이다.
+즉 농도 지수는 재료 상수가 아니라 **입자 크기·소성 이력에 따라 부호가 갈리는 양**이다.
+이 팩의 입자는 Fig.2a의 60 nm이므로 EVIDENCE-RULES §서열(등급 동률 시 계 근접도)에 따라
+Fig.2a를 채택했다. 입경 분기 파라미터 신설은 **제안만 하고 구현하지 않는다** — 데이터 2점으로
+분기축을 만들면 과적합이다.
+
+### 12.4 검증 — 판독·회귀·자기일관
+
+```python verify
+import math
+
+# ── (A) Figure 2a 벡터좌표 → nm/min 선형사상 (축 눈금 0↔y=236.4, 400↔y=110.3) ──
+def to_rr(y, y0=236.4, v0=0.0, y1=110.3, v1=400.0):
+    return v0 + (y - y0) * (v1 - v0) / (y1 - y0)
+
+BAR_TOP_2A = {0.25: 125.4, 0.50: 169.8, 1.00: 175.2}   # get_drawings() 실측 y
+A = {c: to_rr(y) for c, y in BAR_TOP_2A.items()}
+assert abs(A[0.25] - 352.1) < 0.5, A
+assert abs(A[0.50] - 211.3) < 0.5, A
+assert abs(A[1.00] - 194.1) < 0.5, A
+# 본문 서술("0.25%가 0.5·1%보다 높다")과 판독이 일치하는가
+assert A[0.25] > A[0.50] > A[1.00]
+
+# ── (B) 자기검증: Fig.2a의 0.25%와 Fig.3(다른 그림)의 pH4 독립 판독값 대조 ──
+FIG3_PH4 = 347.4      # validation/datasets/dandu2009_sio2_ceria_ph_sweep.yaml (기존 등록값)
+dev = abs(A[0.25] - FIG3_PH4) / FIG3_PH4 * 100
+assert dev < 2.0, f"독립 판독 불일치 {dev:.1f}%"
+
+# ── (C) 로그-로그 회귀로 농도 지수 ──
+def loglog_exponent(d):
+    xs = [math.log(c) for c in d]; ys = [math.log(v) for v in d.values()]
+    n = len(xs); mx = sum(xs)/n; my = sum(ys)/n
+    num = sum((x-mx)*(y-my) for x, y in zip(xs, ys))
+    den = sum((x-mx)**2 for x in xs)
+    slope = num/den; a0 = my - slope*mx
+    resid = [abs(math.exp(a0+slope*x)-v)/v*100 for x, v in zip(xs, d.values())]
+    return slope, max(resid)
+
+n_a, res_a = loglog_exponent(A)
+assert abs(n_a - (-0.4295)) < 0.002, n_a          # 팩에 넣은 값 그대로
+assert n_a < 0                                     # 음수 = 더 넣으면 덜 깎인다
+assert res_a < 16.0, res_a                         # n=3 그래프 판독의 정직한 잔차
+
+# ── (D) Figure 2b(180 nm 세리아)는 부호가 반대 — 일반화 금지 근거 ──
+BAR_TOP_2B = {0.25: 337.2, 0.50: 316.5, 1.00: 294.4, 2.00: 318.3}
+B = {c: to_rr(y, 407.4, 0.0, 281.4, 700.0) for c, y in BAR_TOP_2B.items()}
+n_b, _ = loglog_exponent({c: v for c, v in B.items() if c <= 1.0})
+assert n_b > 0, n_b                                # 60nm과 부호 반대
+assert n_a * n_b < 0                               # 명시적으로 '갈린다'
+
+# ── (E) 결함의 크기: 기준점 상속이 만들던 계통 과소 배수 ──
+inherited_ref, inherited_n = 20.0, 1/3.0           # oxide_silica 부모값
+term_before = (0.25 / inherited_ref) ** inherited_n
+assert abs(term_before - 0.2321) < 0.001, term_before
+assert abs(1.0/term_before - 4.308) < 0.01         # 4.31배 과소 — 관측 편향 3.20배와 같은 자릿수
+# 고친 뒤 기준조건 배수는 항등적으로 1.0
+assert (0.25/0.25) ** n_a == 1.0
+
+print(f"(A) Fig2a 판독 {[round(v,1) for v in A.values()]} nm/min — 본문 서술과 순서 일치")
+print(f"(B) 자기검증: Fig2a 0.25%={A[0.25]:.1f} vs Fig3 pH4={FIG3_PH4} → {dev:.1f}% 차")
+print(f"(C) 농도 지수 n={n_a:+.4f} (최대잔차 {res_a:.1f}%)")
+print(f"(D) Fig2b(180nm) n={n_b:+.4f} — 부호 반대, 입경 의존 확인")
+print(f"(E) 상속 결함 크기 = {1.0/term_before:.2f}배 과소 (관측 편향 3.20배)")
+```
+
+### 12.5 효과와 한계 (실행 확인)
+`validation/backtest.py` 실측: `dandu2009_sio2_ceria_ph_sweep` 계통편향 **3.20배 → 0.74배**
+(±2배 경고창 안으로 복귀, 순위 ρ=+0.933 불변 — 농도가 전 조건 고정이라 순위는 원래 안 움직인다).
+같은 팩의 `netzband2020_thermal_oxide_ceria_ph`도 0.749→0.500으로 이동했다(1 wt% 조건이라 농도항이
+같이 바뀜) — **개선이라고 주장하지 않는다.** 그 데이터셋은 ρ=−0.800·p=0.958로 애초에 비유의라
+스케일 논의의 대상이 아니다. `mariscal2020`·`kenchappa2021`은 농도 override가 없어 비트 단위 불변.
+
+한계: (1) n=3 그래프 판독이라 잔차 15.3%가 남는다. (2) §12.3의 입경 부호 반전 때문에 이 지수는
+**60 nm급 세리아에만** 적용된다 — 180 nm급으로 외삽하면 방향이 틀린다. (3) 이 파라미터는
+`dandu2009` 데이터셋과 같은 논문에서 왔으므로 그 데이터셋 YAML에 `calibration_contact`로 신고했다
+(qa_loop 감사에서 F4→C4로 전환 확인).
