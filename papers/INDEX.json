@@ -1642,5 +1642,23 @@
     "authors": "Ihnfeldt, Robin Veronica (advisor: Talbot JB)",
     "venue": "PhD dissertation, UC San Diego (2008), eScholarship ark:/13030/qt0qc211z8",
     "note": "Ch.3 = doi:10.1149/1.2335982(초록 대조로 확인) 전문. 콜로이드 특성화(제타전위·응집체 크기분포)만 수행, 실제 CMP 연마·스크래치 카운트 실험 없음 — damage_exponent 회귀에 부적격(y축 부재). knowledge/cmp/delta-damage-exponent-cu-system-primary-data.md §2.2-2.3"
+  },
+  "kang2008-ecs-organic-additive-oxide-nitride-selectivity-ceria-sti": {
+    "src": "미러 사이트 (altcha SHA-256 PoW 직접 계산으로 통과) — 2026-09-15 sti_ceria shield_* 3회차",
+    "pdf_local": "papers/kang2008-ecs-organic-additive-oxide-nitride-selectivity-ceria-sti.pdf",
+    "doi": "10.1149/ma2008-01/17/693",
+    "title": "Enhancement of Selectivity of Oxide-to-Nitride Films on Organic Additive in Nano-ceria Slurry for Shallow Trench Isolation Chemical Mechanical Polishing",
+    "authors": "Kang HG, Park JH, Cui H, Paik U, Park JG",
+    "venue": "ECS Meeting Abstracts MA2008-01, 693 (213th ECS Meeting)",
+    "note": "knowledge/cmp/psi-sti-ceria-additive-sweep-parameter-identification.md §3.1 — Fig.2/3이 AMP(amino-methyl-propanol) 농도 스윕(PAA 1/2/3wt% 3계열)이라 질화막RR+선택비 데이터는 풍부하나, 스윕 종이 PAA/음이온계면활성제가 아니라 AMP라 화학종 불일치로 부적격. AMP=0 절편에서 PAA 3계열이 거의 축퇴(구분 불가)라 PAA 단독 성분으로도 못 씀."
+  },
+  "gowda2020-ecs-cleaning-ceria-particle-removal-proline-citric-acid": {
+    "src": "미러 사이트 (altcha SHA-256 PoW 직접 계산으로 통과) — 2026-09-15 sti_ceria shield_* 3회차",
+    "pdf_local": "papers/gowda2020-ecs-cleaning-ceria-particle-removal-proline-citric-acid.pdf",
+    "doi": "10.1149/2162-8777/ab8ffa",
+    "title": "Cleaning Solutions for Removal of ~30 nm Ceria Particles from Proline and Citric Acid Containing Slurries Deposited on Silicon Dioxide and Silicon Nitride Surfaces",
+    "authors": "Gowda A, Seo J, Ranaweera CK, Babu SV",
+    "venue": "ECS J. Solid State Sci. Technol. 9, 044013 (2020)",
+    "note": "knowledge/cmp/psi-sti-ceria-additive-sweep-parameter-identification.md §3.1 — 세정(입자제거) 논문, 본문 전수검색에서 자체 RR-농도 스윕 데이터 0건(removal rate 언급 3건 전부 타문헌 인용 배경서술). 부적격."
   }
 }

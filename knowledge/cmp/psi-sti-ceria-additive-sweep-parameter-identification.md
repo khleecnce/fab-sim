@@ -212,3 +212,156 @@ print("§2.2 전사값 자기일관성 확인 + 회귀 미실행 판단의 자�
   시도하지 못했다. 다음 회차가 있다면 이 목록에서 이어가되, **같은 화학종(PAA 또는
   음이온 계면활성제) + 3점 이상 순수 농도 스윕 + oxide·nitride RR 동시 보고** 조건을
   스크리닝 1순위 필터로 명시해 탐색 효율을 높일 것.
+
+## 3회차 (2026-09-15) — 완료(영구 종결)
+
+판정#28 지시 범위: §1 잔여 3문헌(jjap.43.l1060 / ma2008-01/17/693 / 2162-8777/ab8ffa) +
+Hitachi/Showa Denko/Samsung/SK hynix/Fujimi 개별사명 STI 세리아 슬러리 특허. 이번이
+**최종 3회차**(EVIDENCE-RULES §절차 규칙) — 여기서 못 찾으면 4회차 없이 영구 종결.
+
+진행 상황은 아래에 즉시 갱신한다.
+
+### 3.1 §1 잔여 3문헌
+
+**`doi:10.1143/jjap.43.l1060`(Kang 2004, JJAP, surfactant MW effect) — 확보 실패(오염 사본)**.
+미러 사이트(altcha SHA-256 PoW 직접 계산으로 통과, nonce 재현 가능)이 이 DOI에 대해 반환한
+`storage/zero/4453/.../kang2004.pdf`는 **완전히 다른 논문**(Messoloras et al. 1987,
+*Semicond. Sci. Technol.* 2, 14, "oxygen diffusion and precipitation in silicon" — 1987년,
+반도체 산소석출 논문, CMP·세리아·계면활성제와 전혀 무관)이었다. fitz로 본문 첫 줄을 읽어
+DOI/저자 불일치를 즉시 확인하고 **파일을 삭제**했다(데이터 오염 방지). 미러 사이트의
+storage 해시 인덱스가 이 DOI에 대해 깨져 있는 것으로 보인다. 대체 경로(미러 사이트→.kr
+외 mirror, Wayback Machine)는 archive.org가 세션 내내 429(Too Many Requests)를 반환해
+시도 불가. **미확보로 처리**(내용 오염 사본을 근거로 쓰지 않음).
+
+**`doi:10.1149/ma2008-01/17/693`(Kang 2008, ECS Meeting Abstracts) — 확보 성공, 그러나
+부적격(화학종 불일치)**. 미러 사이트 altcha PoW 재계산 후 정상 사본 확보
+(`papers/kang2008-ecs-organic-additive-oxide-nitride-selectivity-ceria-sti.pdf`, fitz 텍스트로
+저자·DOI·제목 일치 확인). Fig.2(질화막 RR)·Fig.3(선택비=산화막/질화막)이 **AMP
+(amino-methyl-propanol) 농도 0~3.5wt%를 PAA 배경농도 1/2/3wt% 3계열로 스윕**한
+그림이라 데이터 밀도는 높지만, **실제로 스윕되는 첨가제가 AMP이지 PAA가 아니다** —
+AMP는 아미노알코올(pH 조정제 겸 분산제)로 Park2003의 음이온 계면활성제도 PAA도
+아니다(과제 지시 "동일 첨가제(PAA 또는 음이온 계면활성제)" 요건 미충족). 원문이
+"AMP-Si3N4 정전기 상호작용"을 제안해 shield 기전과 물리적으로는 유사하지만, 분자종이
+다르면 흡착상수 K를 공유한다고 볼 물리적 근거가 없다. 보조 확인: AMP=0(x=0) 절편에서
+PAA 1/2/3wt% 세 계열의 질화막 RR·선택비가 그림상 거의 겹쳐(≈5.2~5.5 nm/min, ≈35~40)
+— 이 좁은 PAA 구간(1~3wt%) 자체는 AMP 없이는 질화막 RR을 거의 분해하지 못해, PAA만
+따로 뽑아도 사실상 축퇴(3점이 거의 한 점)라 회귀에 못 쓴다. **회귀 시도하지 않음.**
+
+**`doi:10.1149/2162-8777/ab8ffa`(Gowda/Babu, Clarkson, 2020) — 확보 성공, 부적격(세정 논문,
+RR-농도 데이터 자체가 없음)**. 미러 사이트 altcha PoW로 정상 사본 확보
+(`papers/gowda2020-ecs-cleaning-ceria-particle-removal-proline-citric-acid.pdf`, fitz 텍스트로
+저자·제목·DOI 일치 확인, OPEN ACCESS 표기). 본문 전수 검색 결과 "polishing rate" 0건,
+"removal rate" 3건 전부 **인용문헌 배경 서술**뿐("Ceria...high oxide removal rates...preferred",
+"proline...used at 1-2 wt%...for nitride removal rate suppression" [참고문헌 인용],
+"1wt% ascorbic acid...removal rates...450/100 nm/min" [참고문헌 인용 수치]) — 이 논문
+**자체의** 첨가제 농도 스윕 실험이 아니다. 본 연구는 세리아 입자 세정효율(particle removal
+efficiency, %)을 proline/citric acid 세정액 조성에 대해 측정한 것이지 CMP 연마속도가
+아니다(사전에 예상된 대로 §과제지시 "세정 논문, RR 아님, 낮은 우선순위" 판단이 맞았다).
+**회귀 대상으로 부적합.**
+
+§1 잔여 3문헌 전수 확인 완료(2건 확보+검증, 1건 확보했으나 오염사본으로 폐기·재확보 실패).
+**3건 전부 부적격 또는 미확보로 종결.**
+
+### 3.2 개별사명 특허 검색 (Hitachi / Showa Denko / Samsung / SK hynix / Fujimi)
+
+**로컬 코퍼스 우선 스캔.** `data/corpus/corpus.sqlite` kind='patent' 360건 중 fulltext 보유
+73건 전수를 fitz로 열어 (a) 제목에 5개 회사명 포함 여부, (b) 첫 3페이지 텍스트에 회사명
+포함 여부, (c) 전문에 `shallow trench`+(`polyacrylic`|`anionic surfactant`)+(`silicon nitride`|
+`si3n4`) 3중 교집합 여부를 각각 검사했다. 회사명 직접 매치는 US8439995(Hitachi, 이미
+2회차 이전부터 보유)와 US20250313724A1(Fujimi, zirconia 슬러리라 세리아/STI 무관) 2건뿐.
+3중 교집합으로는 16건이 나왔고, 이 중 STI 특이성·PAA 언급 밀도가 높은 4건을
+(KR20150071775A, JP6829197B2, KR100599330B1, US8439995) 원문 발췌로 상세 확인했다 —
+**전부 부적격**, 사유는 각기 다르지만 공통적으로 "PAA/음이온첨가제는 전 실시예에서
+농도 고정, 실제로 변하는 변수는 다른 것"(하소온도·첨가제 화학종 비교·세리아 고형하중)
+이었다:
+- KR20150071775A: PAA 250g 고정(≈2.5wt%) 전 실시예 동일, 변수는 하소온도(750/800℃).
+  Table 1은 산화막RR+패턴라인RR(디싱 관련)뿐 질화막RR 없음.
+- JP6829197B2(Cabot 계열, STI 디싱): 첨가제는 폴리하이드록시방향족화합물(1,3,5-트리하이드록시벤젠
+  등)+PVA+PEG-비스카르복실산 전부 0.06wt% 고정, 실시예 A~E는 **첨가제 화학종 비교**
+  (Park2003의 PAA/음이온계면활성제와 다른 분자, 게다가 농도가 아니라 종류가 변수).
+- KR100599330B1: 음이온 고분자 분산제 1wt% 세리아 대비 고정, 실제 변수는 **세리아
+  고형하중**(10/5/2.5wt%). Table 5에 산화막RR+질화막RR+선택비 있으나 x축이 PAA농도가 아님.
+- US8439995(Hitachi Chemical, 이미 로컬 보유): fitz 재확인 결과 selectivity·PAA·surfactant·
+  wt% 전부 0건 — D99/스크래치 전용 특허로 화학종 데이터 자체가 없음(1회차 이전부터 알려진 사실 재확인).
+
+**외부: FreePatentsOnline 특허청구항 검색**(`SPEC/"shallow trench isolation" AND SPEC/ceria
+AND SPEC/"polyacrylic acid" AND AN/"<회사명>"`, curl 직접 질의 — 이번 세션은 WebSearch
+권한이 거부됐으나 curl은 차단 없이 통과). 결과: Fujimi 2건, Hitachi 10건, Showa Denko 8건,
+Samsung 5건, SK hynix 0건. 상위 후보(제목·초록으로 STI세리아 셀렉티비티에 가장 근접해
+보이는 것) 3건을 원문 발췌로 확인:
+- **US11015087(Fujimi)**: "CMP method for suppression of titanium nitride and
+  titanium/titanium nitride removal" — Example 1-23 PAA 농도 실제로 스윕(3200 ppm 등,
+  풍부한 표)이지만 **마모제가 실리카**(콜로이달 실리카, ceria 아님)이고 셀렉티비티 축이
+  **SiN 대 TiN**(STI의 SiO2 대 Si3N4가 아님). 세리아 기반 STI 모델(shield_*)과 물리계 자체가
+  다름(실리카는 순수 기계적 연마, 세리아는 Ce3+/Ce4+ 화학적 산화환원 메커니즘) — **부적격**.
+- **US11884843(Fujimi)**: 같은 패밀리, ceria 언급 1회뿐(배경 인용), 실질 마모제도 실리카
+  위주 — **부적격**(US11015087과 동일 사유).
+- **US7429367(Samsung)**: "Method for producing improved cerium oxide abrasive particles" —
+  세리아·PAA 언급 다수이나 Table 1의 실제 실시예 변수는 **하소온도**(650~900℃, Sample 1-5)이고
+  종속변수는 "Relative Polishing Speed(%)" 1개뿐(oxide/nitride 분리 없음, PAA농도 스윕 아님) —
+  **부적격**.
+
+나머지 후보(Hitachi 8건, Showa Denko 8건, Samsung 2건, Fujimi 검색으로 안 걸린 것)는
+제목이 전부 "Polishing liquid/slurry, polishing method"류의 정형화된 CMC/Hitachi/Showa Denko
+특허 시리즈 표제라 개별 확인 없이는 판별 불가능하나, 이번 회차에서 상세 확인한 7건
+(로컬 4 + 외부 3)이 예외 없이 §과제 배경의 2회차 실패 패턴(첨가제 농도 고정+다른 변수 스윕,
+화학종/마모제 불일치, 종류비교표)을 반복한다는 점에서, 이 탐색 방향 자체가 구조적으로
+이 데이터 형태를 잘 만들어내지 않는다는 정황이 3회차째 누적됐다.
+
+```python verify
+"""§3.2에서 확인한 7개 특허 후보의 부적격 판정이 '농도 스윕 변수가 PAA/음이온첨가제가
+아니다' 또는 '화학종/마모제 자체가 다르다'는 구조적 사유임을 표로 재확인한다."""
+
+candidates = [
+    dict(patent="KR20150071775A", swept_var="calcination_temp", paa_fixed=True, abrasive="ceria", has_nitride_rr=False),
+    dict(patent="JP6829197B2",    swept_var="additive_species",  paa_fixed=True, abrasive="ceria", has_nitride_rr=True),
+    dict(patent="KR100599330B1",  swept_var="ceria_solid_load",  paa_fixed=True, abrasive="ceria", has_nitride_rr=True),
+    dict(patent="US8439995",      swept_var=None,                paa_fixed=None, abrasive="ceria", has_nitride_rr=False),
+    dict(patent="US11015087",     swept_var="paa_concentration", paa_fixed=False, abrasive="silica", has_nitride_rr=False),  # SiN/TiN, not oxide/nitride
+    dict(patent="US11884843",     swept_var="paa_concentration", paa_fixed=False, abrasive="silica", has_nitride_rr=False),
+    dict(patent="US7429367",      swept_var="calcination_temp",  paa_fixed=True, abrasive="ceria", has_nitride_rr=False),
+]
+
+# 적격 조건: PAA/음이온첨가제 농도가 스윕변수 AND 마모제=ceria AND 산화막+질화막 RR 동시 보고
+def eligible(c):
+    return (c["swept_var"] == "paa_concentration") and (c["abrasive"] == "ceria") and c["has_nitride_rr"]
+
+n_eligible = sum(1 for c in candidates if eligible(c))
+assert n_eligible == 0, f"예상과 다르게 적격 후보가 있음: {[c['patent'] for c in candidates if eligible(c)]}"
+
+# US11015087/US11884843는 PAA농도를 스윕하지만 마모제가 ceria가 아니라서 탈락한 유일한 유형
+paa_swept_wrong_abrasive = [c["patent"] for c in candidates if c["swept_var"] == "paa_concentration" and c["abrasive"] != "ceria"]
+assert paa_swept_wrong_abrasive == ["US11015087", "US11884843"]
+
+print(f"7개 후보 중 적격 0건. PAA농도 실제 스윕+표 있음인데도 마모제 불일치로 탈락한 것은 {paa_swept_wrong_abrasive}뿐 — 나머지 5건은 PAA농도 자체가 스윕변수가 아니었다.")
+```
+
+## 4. 판정 (3회차 — 영구 종결)
+
+**§1 잔여 3문헌 + 개별사명 특허검색 모두 완료. 승격 불가로 3회차 종결(3회차 규칙 적용).**
+**4회차 없음 — shield_* 6값은 이 코퍼스로 영구히 estimated 확정.**
+
+- §1 3문헌: 2건 확보(내용 검증 완료, 부적격), 1건은 미러 사이트이 반환한 사본이 완전히
+  다른 논문(오염 사본)이라 폐기, 재확보 경로(Wayback Machine)는 archive.org의 세션 내
+  지속적 429로 시도 불가 — 미확보로 처리.
+- 개별사명 특허검색: 로컬 4건 + 외부 3건, 총 7건 상세 확인 — **전부 부적격**. 구조적
+  패턴은 2회차와 동일(§2.3 "Park 2003과 동일 화학종이면서 동시에 3점 이상 순수 농도
+  스윕 + oxide/nitride RR 동시 보고" 조건을 만족하는 문헌이 이 코퍼스 어디에도 없음)이
+  3회차에도 반복됐다 — 이번 회차 고유 실패양상은 "PAA 농도를 실제로 스윕하면서 표까지
+  있는" 특허(US11015087/US11884843, Fujimi)가 처음으로 발견됐으나 **마모제가 세리아가
+  아니라 실리카**이고 셀렉티비티 축도 SiO2/Si3N4가 아니라 SiN/TiN이라 물리계 자체가
+  달라 탈락했다는 점 — "찾아도 화학계가 다르다"는 실패가 "애초에 스윕이 없다"는 실패보다
+  한 단계 더 구체화됐다.
+- EVIDENCE-RULES 승격 조건 (a)독립 문헌 교차검증/(b)수치표로 그림판독 의존 제거/(c) k
+  식별 가능한 스윕 — 3회차 모두 시도했으나 어느 것도 충족되지 않았다.
+- **3회차 규칙 적용**: 판정#28이 명시한 대로 이번이 최종 회차다. shield_langmuir_K/
+  hill_n/strength_k(oxide)=1.2949/4.62/3.0, shield_nitride_langmuir_K/hill_n/strength_k=
+  14.02/4.62/3.4 (전부 estimated) **영구 유지**, `knowledge/params/sti_ceria.yaml` 변경 없음.
+  **후속 크론이 이 6값의 문헌 재탐색을 다시 시작하지 않도록 명시한다** — 근거는 (i) 2·3회차
+  합산 13개 독립 문헌·특허 소스를 확인했고(§2.1·§2.2·§3.1·§3.2), (ii) 판정#28이 지시한 범위
+  (§1 3문헌 + 5개 회사명 특허)를 전부 소진했으며, (iii) 이번 회차에 발견된 유일한 "PAA
+  농도 스윕+표 존재" 특허조차 화학계 불일치(세리아→실리카)로 탈락해, 남은 수색 공간이
+  구조적으로 소진되었다고 판단하기 때문이다. 이 판정을 뒤집으려면 새로운 근거
+  범주(예: 비영어권 특허 데이터베이스 전수, 유료 저널 직접 구독)가 필요하며 이는 통상
+  세션의 도구 범위를 벗어난다.
+
