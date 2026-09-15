@@ -8,7 +8,7 @@
 - [x] Lv2-1 Poly:oxide 선택비 설계와 게이트 CMP 공정 윈도우 — 2026-09-11, knowledge/materials/film-poly-si-oxide-selectivity-gate-cmp-window.md
 - [x] Lv2-2 3D NAND 응용: 고종횡비 구조 위 Poly CMP, 디싱 — 2026-09-12, knowledge/materials/film-poly-si-3dnand-har-poly-cmp-dishing.md (총괄 게이트 PASS 확인)
 - [x] Lv3-1 최신 리뷰: 고선택비 Poly 슬러리, 무결함 Poly CMP — 2026-09-13, knowledge/materials/film-poly-si-high-selectivity-lowdefect-slurry.md
-- [ ] Lv3-2 Poly-Si Kp·화학 용해율 파라미터 + 문헌값 재현 (sim/tier2)
+- [x] Lv3-2 Poly-Si Kp·화학 용해율 파라미터 + 문헌값 재현 (sim/tier2) — 2026-09-16, knowledge/materials/film-poly-si-kp-preston-dissolution-rate-literature-reproduction.md
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 Poly-Si 실데이터 스키마 + 도핑 의존 보정 파라미터

@@ -109,17 +109,17 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | disk-kinematics | 활성 (G4 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | film-oxide | 활성 (G1 개방 2026-09-08) | 6/6 ✓ 완주 (Lv3-2 완료: 막질별 Kp 배율 thermal=1 기준 TEOS 1.35·HDP/SOD 1.30~1.50·PSG 2.9·BPSG 4.6(Liu 1995 앵커, 상대비 literature·절대 Kp estimated), 세리아는 경도→밀도/화학 축이라 배율 이식 금지) | 2026-09-15 |
 | film-cu | 활성 (G1 개방 2026-09-08) | 6/6 ✓ 완주 (Lv3-2 완료: 1차 (P,V,MRR) 역산 Kp 1.1~5.8e-13 중앙 1.9e-13, Tugbawa r_cu=159Å/s@4psi 역산 3.67e-13이 팩 3.5e-13과 5% 내 일치·Guo 2004 Preston 유효창 P≲6psi·V≲0.7m/s) | 2026-09-15 |
-| slurry-abrasive | 활성 (G2 개방 2026-09-09) | 5/6 (Lv3-1 완료: 세리아 chemical tooth 입자기하·개수축 — 패싯별 Ce면밀도(111)7.89/(100)6.83nm⁻² Brugnoli2023 일치, 입자당 23.3배, 팩버그 ce3_fraction·sti_ceria abrasive_wt_pct 지적) | 2026-09-13 |
+| slurry-abrasive | 활성 (G2 개방 2026-09-09) | 6/6 (Lv3-2 완료: 입자 파라미터→Kp 정량모델 — 농도항 US9499721B2 E1 재현(멱함수 SSE 926 vs 포아송 포화 135, ΔAIC>10 포화형 우세), 입경 정점 실리카 80/세리아 163 레짐분할, 입자경도는 κ 승수가 아니라 리지드 인덴터 게이트, D99→Δ 귀속, 알루미나 배율 미확보) | 2026-09-16 |
 | slurry-chemistry | 활성 (G2 개방 2026-09-09) | 5/6 (Lv3-1 완료: Co·Ru 착화제·무산화제 슬러리 — EDA가 산화제와 곱셈형 게이트(Xu2022 RSC Adv. 10.1039/d1ra08243d), 시트르산 포화형 반응·무산화제 기계하한(Popuri2017 10.1149/2.0111709jss)으로 χ의 "산화제 외" 드라이버를 별도 축(착화제 농도)으로 특정) | 2026-09-14 |
 | film-w | 활성 (G2 개방 2026-09-09) | 6/6 ✓ 완주 (Lv3-2 완료: 3문헌 역산 Kp 중앙 1.1e-13(5e-14~1.7e-13) vs 팩 2.8e-13 ~2.6배 과대(R_cc 가정 지배), 산화제 포화농도 Fe(NO3)3 0.1wt%/KIO3 2wt%/H2O2>6.1wt% 100배 규모 차이→팩 산화제 스케일 불일치 P1 구현요청) | 2026-09-15 |
 | cmp-data-engineer | 활성 (G2 개방 2026-09-09) | 4/6 (Lv2-2 완료: 합성데이터 생성기 — RBF/Zernike 가산노이즈(McLoone/Susto 2018), 실측 CMP VM 잔차 8.317nm/min 바닥(Li 2019), CV% 5~14% 가이드, spike/drift 탐지 역할분리) | 2026-09-11 |
 | film-nitride | 활성 (G3 개방 2026-09-09) | 5/6 (Lv3-1 완료: SiN 억제 첨가제 — 아미노산/폴리카복실산 정량·Langmuir 재현, Praveen2014 La 도핑 세리아서 프롤린 무력화, 3D NAND 요구 SiO₂:Si₃N₄≈30:1(Zhao2025 실측 35.5)) | 2026-09-14 |
-| film-poly-si | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: 고선택비·무결함 Poly 슬러리 리뷰 — 고분자양이온 전하밀도 선택비제어(Penta 2011), 기계화학 선택연마, abrasive-free 버핑. 심야병렬 2노트) | 2026-09-13 |
+| film-poly-si | 활성 (G3 개방 2026-09-10) | 6/6 (Lv3-2 완료: Poly-Si Kp 역산 중앙 2.3e-13 m²/N(estimated, r_cc 미확인), Preston a≈b≈1(Bae 2022)·고속 포화, 정적식각 0.115 nm/min ≪ MRR(1/5000)→기계형 Kp, 도핑 배율 undoped 1.0/p⁻ 0.60/p⁺ 0.20(Pirayesh 2014), poly_si_silica.yaml 신설 제안 [P7]) | 2026-09-16 |
 | tool-endpoint | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: ML/통계 EPD — 웨이블릿+SPRT·PCA-T² 조기검출(BenZakour2012), AE가 마찰보다 10s 조기·오버폴리시 5% 방지(Helu2014), AMAT US10478937B2 AE 다중센서, fPCA 압력 대리모델(Rothe2025 E5); 투명·다층막 물리 한계는 ML로 못 넘음) | 2026-09-15 |
 | slurry-colloid | 활성 (G3 개방 2026-09-12) | 6/6 ✓ 완주 (Lv3-2 완료: 이력→유효 PSD 배율표 H1~H9 — t_eq(Q₁₀=2.00, US20250304827A1), M_d50=(1+t_eq/τ)^(1/3) τ 95~110일(Granström 2015), 꼬리(d99/LPC)는 별도 상태량(×87 vs ×0.9), 세리아 온도 가역(Seo 2021 E1), 희석 문턱 h=65nm; Cal-1은 G2 대기) | 2026-09-16 |
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
-| film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 1/6 (Lv1-1 완료: Co 부동태 창이 CMP pH 밖(Huang 2019 Pourbaix), Cu/Co 갈바닉 ΔE_corr 필요≠충분(말론산 반례, Gamagedara 2025), BTA 유도체 Langmuir K_ads·ΔG°(Cheng 2024) EIS 33배 vs PDP 12배 불일치, 판정#17 θ≠MRR Co서 독립 재현; Co/Ru 실측 ΔE_corr 미확보) | 2026-09-16 |
+| film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 2/6 (Lv1-2 완료: Ru Pourbaix RuO₂ 1.12V/RuO₄ 1.04V, 연마율 정점은 E°≈1.6V NaIO₄·NaClO(Cui 2013), RuO₄ 억제창 pH≳9(Peethala 2011), Mo는 MoO₃ 부동태 有·RR/SER 41배, Ru/Cu ΔE_corr 540→20mV, Mo/KIO₃ Hill n≈4.2가 Langmuir 대비 SSE 52배 우수; Co/Ru 실측 ΔE_corr 전수탐색 후 부재로 종결) | 2026-09-16 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

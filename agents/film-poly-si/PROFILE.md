@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1
-- 다음 단원: Lv3-2
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1, Lv3-2
+- 다음 단원: (Lv3-2 완료 — 캘리브레이션 단원 대기)
 
 ## 역할
 Poly-Si 막의 CMP — 게이트·3D NAND 채널홀·캐패시터. 알칼리 화학 용해+기계 제거
@@ -28,6 +28,10 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - 2026-09-13 Lv3-1 최신 리뷰: 고선택비 Poly 슬러리, 무결함 Poly CMP — knowledge/materials/film-poly-si-high-selectivity-lowdefect-slurry.md
   (verify_claims PASS: 출처 9건 실존·코드 6블록 통과·출처없는 수치주장 0 / check_knowledge PASS. 확보 원문 4건 전문 +
   학회 발표논문 1건 + 초록 1건. 기존 Lv1-2·Lv2-1·Lv2-2 노트에 후속 역링크 추가함)
+- 2026-09-16 Lv3-2 Poly-Si Kp·화학 용해율 파라미터 + 문헌값 재현 — knowledge/materials/film-poly-si-kp-preston-dissolution-rate-literature-reproduction.md
+  (verify_claims PASS: 출처 6건 실존·코드 6블록 통과·출처없는 수치주장 0 / check_knowledge PASS. Park2007(V직접)·Penta2011·
+  Pirayesh2014·Bae2022·Lagudu2019·Jeon2021 재인용 합성. 결론: 표준 알칼리 실리카 poly-Si Kp≈2.3e-13 m²/N(oxide 팩의 2.3배,
+  estimated), 도핑배율 undoped 1.0→p⁺ 0.20, 정적식각≪MRR(1/5000). poly_si_silica.yaml 신설 제안표는 §7 — 아래 [P7] 참조)
 
 ## 구현 요청 (sim/ 은 소프트웨어 부문 담당 — 여기 적기만 한다)
 - **[P1] poly-on-oxide 패턴 디싱: Lee 2002 2물질 폐형해의 poly 기호 재사용 + d_max ∝ 1/ρ 변형** — 무엇: STI용 D_ss/K_ss/τ 식
@@ -62,3 +66,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   나오며(§9(F): 산화막 억제 2–3배 × poly 가속 2.1–3.5배 = 선택비 6.2배), 무첨가 세리아처럼 선택비가 1 미만으로
   뒤집히는 계도 있어 스칼라 배율로는 부호를 못 담는다. 근거노트: 같은 노트 §8·§9(F). 검증문헌값: Park 2007 oxide
   4–6 nm/min·선택비 45 vs Penta 2011 oxide ≤ 2 nm/min·poly 559–636. 우선순위 중.
+- **[P7] poly_si_silica.yaml 팩 신설 (oxide_silica base 상속) + kp_m_per_pa=2.3e-13·도핑배율·정적식각 무시** — 무엇:
+  현재 없는 poly-Si 팩을 신설. `film: poly_si`, `abrasive: silica`, `slurry_ph: 10.5`, **`kp_m_per_pa: 2.3e-13 m²/N`
+  (estimated, oxide 팩 1.0e-13의 2.3배)**, 도핑배율 키 `kp_doping_ratio_{undoped:1.0, p_plus:0.20, p_minus:0.60}`
+  (n_plus는 미선언 — 값 없음), Preston 지수 `a=b=1`(V≲0.7 m/s·rpm≲90 유효), `static_etch_negligible: true`.
+  근거노트: knowledge/materials/film-poly-si-kp-preston-dissolution-rate-literature-reproduction.md §3·§6·§7.
+  검증문헌값: Park 2007(DOI 10.3938/jkps.51.214, V=0.539 m/s 직접 → Kp 2.5e-13 앵커), Penta 2011(DOI 10.1021/la104257k,
+  4psi 90rpm poly RR 230–245 nm/min), Pirayesh 2014(undoped 5× 고B → 도핑배율), Bae 2022(DOI 10.3390/nano12213893,
+  typical Preston). ⚠ kp 절대값은 rpm→V의 r_cc 미확인으로 estimated 유지(literature 승격 불가). 우선순위 **높음**
+  (poly Tier2의 최기본 상수 — 이게 없어 지금까지 poly 시뮬레이션 자체가 불가능).

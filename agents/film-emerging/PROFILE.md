@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv1 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1
-- 다음 단원: Lv1-2 (Ru·Mo CMP: 난용해 금속의 산화제 화학)
+- 이수 단원: Lv1-1, Lv1-2
+- 다음 단원: Lv1-3 (CURRICULUM.md 참조)
 
 ## 역할
 Co·Ru·Mo 배선, GST(PCM), 고유전체 등 차세대 막질의 CMP — Phase 2
@@ -39,7 +39,55 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   5. 판정 #17(평형 θ ≠ 정상상태 MRR)이 **Co라는 세 번째 막질**에서 독립 재현.
   6. **미확보(빈칸)**: Co/Ru 커플의 실측 ΔE_corr — Lv1-2 최우선 과제.
 
+### Lv1-2 — Ru·Mo CMP: 난용해 금속의 산화제 화학, RuO₄ 생성창, 갈바닉 (2026-09-16)
+- 노트: `knowledge/materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md`
+- 게이트: `verify_claims.py` **PASS**(출처 8건 실존 · 검증코드 6블록 전부 실행 통과 · 출처없는 수치주장 0),
+  `check_knowledge.py` **PASS**
+- 자기시험: `EXAMS.md` Lv1-2 3문항 + 모범답안
+- 확보 문헌 6건(4건 papers/ + INDEX.json, 1건 OA HTML, +CRC·[R26] 교차링크):
+  `cui2013-jsst-ru-oxidizers-colloidal-silica.pdf`(10.1149/2.030301jss),
+  `cui2012-jes-ru-oxide-species-periodate-ph.pdf`(10.1149/2.103203jes),
+  `peethala2011-esl-cu-ru-galvanic-kio4.pdf`(10.1149/1.3589308),
+  `cheng2017-jss-cu-ru-galvanic-ig-inhibitors.pdf`(10.1149/2.0181701jss),
+  `he2018-jss-mo-kio3-acidic-passivation.pdf`(10.1149/2.0061806jss),
+  Xu 2022 RSC Adv(10.1039/d1ra08243d, OA HTML·PDF 미확보)
+- 핵심 획득:
+  1. **Ru 산화제 적합성은 E° 스칼라로 못 정한다** — 연마율 정점은 최강 산화제가 아니라 E°≈1.6 V의 NaIO₄·NaClO
+     (Ru를 비고체 RuO₄ 영역으로 미는 것). K₂S₂O₈(1.96 V)은 정점의 3%.
+  2. **RuO₄(휘발·독성, 융점 25.4 °C) 억제창 = 알칼리 pH ≳ 9**(이온화로 휘발성 상실). Ru 팩에 pH 하한 제약 필요.
+  3. **Mo는 W형(MoO₃/Mo₂O₅ 부동태 있음)** — Ru·Co와 갈림. MoO₄²⁻ 용해의 산성부동태/알칼리용해 pH 스위치.
+  4. **갈바닉 양극이 커플마다 다르다**: Co/Cu→Co, Ru/Cu→Cu(540→20 mV, i_g KIO₄>H₂O₂), Mo/Cu→Mo(116/270 mV).
+  5. **연마의 ΔE_corr 부호가 금속마다 반대**: Co/Cu −72%(축소) vs Mo/Cu +133%(확대) → 축소계수 금속별로.
+  6. **Mo/KIO₃ 산화제–MRR은 Hill n≈4 협동형**(C₅₀≈0.044 M) — 판정#20 Langmuir(n=1) 이식하면 SSE 52배 악화.
+  7. **Co/Ru 실측 ΔE_corr는 전수 탐색 후 부재**(Lv1-1 빈칸 종결) — Cu/Ru·Cu/Co·Ru/TiN만 존재. 열역학 상한
+     0.735 V는 공정 예측값 아님.
+
 ## 구현 요청 (소프트웨어 부문 — sim/ 은 이 에이전트가 건드리지 않는다)
+
+### [P5] Ru 산화제항 — E° 스칼라 금지, "Pourbaix 목적영역" 게이트로 (Lv1-2 §3)
+- **무엇을**: Ru 팩(신설 시)의 산화제 적합성을 산화제 E° 하나가 아니라, **Ru를 RuO₄/RuO₄⁻ 비고체역으로 미는
+  산화제만 활성**으로 판정하는 이산 게이트(oxidizer∈{NaIO₄, NaClO}=활성, 그 외=저연마)로 넣을 것. 추가로 **pH ≳ 9
+  알칼리 제약**(RuO₄ 휘발 회피)을 필수 필드로.
+- **근거노트**: `film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md` §3. **검증문헌값**(노트 §3.2 verify 블록):
+  NaIO₄ ~1290 vs K₂S₂O₈ ~40 Å/min(E° 단조 반증), 정점 E°≈1.6 V. **회귀 테스트**: E° 최대 산화제에 최대 MRR을
+  배정하는 구현은 여기서 자동 실패해야 한다.
+- **우선순위**: 중간(Ru 팩 신설 시점). 단 산화제–농도 스윕 1차 데이터가 없어 Ru의 연속 농도곡선은 미확보.
+
+### [P6] Mo 팩 — W 팩 원형 + Hill 산화제항(n 자유) + pH 스위치 (Lv1-2 §4·§6)
+- **무엇을**: Mo 팩을 W 팩([[../../knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation]]) 원형으로 하되,
+  산화제–MRR을 판정#20의 Langmuir(n=1)가 아니라 **Hill θ=(KC)ⁿ/(1+(KC)ⁿ), n 자유파라미터**로 둘 것.
+  MoO₄²⁻ 용해의 pH 의존(산성 부동태/알칼리 용해)을 산화제항과 결합.
+- **근거·검증문헌값**(노트 §6 verify): Hill n≈4.2(SSE 1.5) vs Langmuir n=1(SSE 79) → **52배 차**, C₅₀≈0.044 M,
+  RR_max≈54 nm/min, 0.05/0.03 M 비 1.58. Mo Ecorr/icorr(§4.2 Table): pH2·0.1M RR90.2/SER2.2(41배).
+  **회귀 테스트**: Langmuir(n=1) 단독 구현은 Mo/KIO₃ 5점에서 SSE가 Hill 대비 10배 이상 나빠야(정상).
+- **우선순위**: 중간. n의 정확값(4.2)은 5점 적합이라 미검증 — status=modeled, confidence=estimated로.
+
+### [P7] 갈바닉 커플 방향·연마 부호를 금속별 부호표로 (Lv1-2 §5)
+- **무엇을**: 갈바닉 입력에 커플별 **양극 지정**(Co/Cu→Co, Ru/Cu→Cu, Mo/Cu→Mo)과 **연마 축소계수 부호**를
+  금속별로 둘 것. [P2](Lv1-1)의 "hold→polish 축소계수"를 금속 무관 상수로 두면 Mo에서 부호가 틀린다.
+- **근거·검증문헌값**(노트 §5.1·5.3): Ru/Cu ΔE_corr 540→20 mV, i_g KIO₄ 8.48>H₂O₂ 4.16 µA/cm²([Che17] 직접측정);
+  Mo/Cu ΔE_corr hold116→polish270 mV(+133%, Co/Cu −72%와 반대).
+- **우선순위**: 높음(갈바닉 결함 예측의 부호 오류 방지). [P1](Lv1-1)의 i_g 폐형식과 짝.
 
 > 근거노트는 전부 `knowledge/materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md`.
 

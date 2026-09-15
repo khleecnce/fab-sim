@@ -8,7 +8,7 @@
 - [x] Lv2-1 입자 경도·형상과 기계적 제거: Hertz 압입, 입자당 제거 체적 (완료 2026-09-11)
 - [x] Lv2-2 입자 농도-MRR 포화 곡선과 접촉 확률 모델 (2026-09-12, knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md — 총괄 게이트 PASS 확인)
 - [x] Lv3-1 세리아 화학적 톱니(chemical tooth) 메커니즘과 옥사이드 선택비 (2026-09-13, knowledge/cmp/ceria-chemical-tooth-particle-site-density-facet.md — verify_claims·check_knowledge 둘 다 통과)
-- [ ] Lv3-2 입자 파라미터 → Kp 기여 정량모델 구현 (sim/tier2)
+- [x] Lv3-2 입자 파라미터 → Kp 기여 정량모델 (2026-09-16, knowledge/cmp/abrasive-parameters-to-kp-contribution-quantitative-model.md — verify_claims·check_knowledge 둘 다 통과. 산출물은 항별 1차 회귀 감사·함수형 AIC 비교·3입자 배율표·D99→Δ 귀속 + 팩 갱신 제안표 + sim/tier2 구현 요청서. sim/·YAML 미수정)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 스펙시트(입도·농도·제타) → 모델 입력 변환 규칙 정의 + 공개 데이터로 검증
