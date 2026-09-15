@@ -5,7 +5,7 @@
 
 > **결론 먼저: 3개 쌍 모두 1차 공개 문헌에서 ΔG_ads 수치를 확보하지 못했다.**
 > 지어내지 않았다. 아래에 무엇을 어떻게 찾았는지, 그리고 값을 얻기 위한 대체 경로를 남긴다.
-> 배경 규칙은 `inhibitor-beyond-monolayer.md` 및 `sim/inhibitor_pairs.py` 주석과 동일하게 적용했다:
+> 배경 규칙은 [[inhibitor-beyond-monolayer]] 및 `sim/inhibitor_pairs.py` 주석과 동일하게 적용했다:
 > **ΔG_ads 는 (분자 × 기질) 쌍의 성질이다. 다른 기질/다른 분자에서 옮겨 적지 않는다.**
 
 ---
@@ -270,3 +270,39 @@ J. Serb./Chil. Chem. Soc., Europe PMC 전체.
   (예: `dG=None, status="unmeasured"` → MRR 예측 시 신뢰도 캡을 걸거나 예측 거부)
 - BTA × Ta/TaN 은 수치 대신 **"barrier 선택비 근거의 정성 경계(억제항 ≈ 0)"** 로만 반영하고
   근거 주석을 남긴다.
+
+---
+
+## 6. 기계 검증 — "미확보"가 코드에서도 미확보인가
+
+이 노트의 유일한 정량 주장은 **"이 세 쌍은 표에 없다"** 이다. 서술로 남기면
+다음 회차가 확인할 방법이 없으므로, 아래 블록이 실제로 조회해 확인한다.
+(값을 지어내 등록하면 이 assert 가 깨진다 — 그것이 의도다.)
+
+```python verify
+import sys, pathlib
+sys.path.insert(0, str(pathlib.Path("sim").resolve().parent))
+from sim.inhibitor_pairs import lookup_dG, measurement_spec, K_from_dG
+
+PENDING = [("benzenesulfonic acid", "Cu"), ("malonic acid", "W"),
+           ("benzotriazole", "Ta"), ("benzotriazole", "TaN")]
+
+# (1) 세 쌍 모두 미등록 — 유사 분자/유사 기질 값으로 대체되지 않았다
+for inh, sub in PENDING:
+    assert lookup_dG(inh, sub) is None, f"{inh}x{sub} 가 근거 없이 등록됐다"
+
+# (2) 미등록 쌍은 침묵하지 않고 R8 측정 명세를 발행한다
+for inh, sub in PENDING:
+    spec = measurement_spec(inh, sub)
+    assert spec and any("R8" in s for s in spec), f"{inh}x{sub} 측정명세 없음"
+
+# (3) 환산식 검산: ΔG = -40 kJ/mol → K = exp(40000/RT)/55.34
+import math
+K = K_from_dG(-40.0)
+expected = math.exp(40000.0 / (8.314462618 * 298.15)) / 55.34
+assert abs(K - expected) / expected < 1e-9, (K, expected)
+# 물 몰농도 인자를 빼면 55.34 배 커진다 — 노트 §5 서술의 수치 확인
+assert abs(K * 55.34 - math.exp(40000.0 / (8.314462618 * 298.15))) / \
+       math.exp(40000.0 / (8.314462618 * 298.15)) < 1e-9
+print("PASS: 4쌍 미등록 확인 · R8 명세 발행 확인 · K 환산 재현")
+```
