@@ -38,6 +38,24 @@
     "title": "Optimized CMP conditioner design for next generation oxide/metal CMP",
     "venue": "US Patent, granted 2014-02-25"
   },
+  "aksu2003-electrochimica-bta-glycine-cu-cmp": {
+    "authors": "Ein-Eli Y, Abelev E, Starosvetsky D",
+    "doi": "10.1016/j.electacta.2003.11.019",
+    "note": "cmp/chi-cu-h2o2-glycine-acidic-sweep.md",
+    "pdf_local": "papers/aksu2003-electrochimica-bta-glycine-cu-cmp.pdf",
+    "src": "기존 확보본(전자화학 OCP/potentiodynamic, CMP MRR 데이터 없음 — 부적격 기록용)",
+    "title": "Electrochemical aspects of copper chemical mechanical planarization (CMP) in peroxide based slurries containing BTA and glycine",
+    "venue": "Electrochimica Acta 49 (2004) 1499-1503"
+  },
+  "aksudoyle2002-jes-role-glycine-cu-cmp": {
+    "authors": "Aksu S, Doyle F M",
+    "doi": "10.1149/1.1474436",
+    "note": "cmp/chi-cu-h2o2-glycine-acidic-sweep.md",
+    "pdf_local": "papers/aksudoyle2002-jes-role-glycine-cu-cmp.pdf",
+    "src": "sci-hub.kr -> sci-hub.red/storage (제목/저자/DOI 첫페이지 대조 확인)",
+    "title": "The Role of Glycine in the Chemical Mechanical Planarization of Copper",
+    "venue": "J. Electrochem. Soc. 149 (6) G352-G361 (2002)"
+  },
   "america2004-jes-slurry-additive-suppression-sin": {
     "authors": "America WG, Babu SV",
     "doi": "10.1149/1.1817870",
@@ -444,6 +462,24 @@
     "src": "PMC OA (CC-BY 2.0), 로컬 코퍼스 data/corpus/fulltext/doi_10.1186_1556-276x-7-603.xml 복사",
     "title": "A flexible nanobrush pad for the chemical mechanical planarization of Cu/ultra-low-k materials",
     "venue": "Nanoscale Res. Lett. 7, 603 (2012) — 가설 논문(MRR 실측 없음)"
+  },
+  "hariharaputhiran2000-jes-hydroxyl-radical-amino-acid-cu-cmp": {
+    "authors": "Hariharaputhiran M, Zhang J, Ramarajan S, Keleher J J, Li Y, Babu S V",
+    "doi": "10.1149/1.1393979",
+    "note": "cmp/chi-cu-h2o2-glycine-acidic-sweep.md",
+    "pdf_local": "papers/hariharaputhiran2000-jes-hydroxyl-radical-amino-acid-cu-cmp.pdf",
+    "src": "sci-hub.kr -> sci-hub.red/storage (제목/저자/DOI 첫페이지 대조 확인)",
+    "title": "Hydroxyl Radical Formation in H2O2-Amino Acid Mixtures and Chemical Mechanical Polishing of Copper",
+    "venue": "J. Electrochem. Soc. 147 (10) 3820-3826 (2000)"
+  },
+  "hirabayashi1996-us5575885-cu-polishing-aminoacetic-acid": {
+    "authors": "Hirabayashi H, Kinoshita M, Kaneko H, Hayasaka N, Higuchi M, Mase K, Oshima J (Kabushiki Kaisha Toshiba)",
+    "doi": null,
+    "note": "cmp/chi-cu-h2o2-glycine-acidic-sweep.md",
+    "pdf_local": "papers/hirabayashi1996-us5575885-cu-polishing-aminoacetic-acid.pdf",
+    "src": "patentimages.storage.googleapis.com/pdfs/US5575885.pdf (원문 이미지 PDF, 도면 포함)",
+    "title": "Copper-based metal polishing solution and method for manufacturing semiconductor device",
+    "venue": "US Patent 5,575,885 (1996-11-19)"
   },
   "hou2017-us9752057-tin-suppression-cmp": {
     "assignee": "Cabot Microelectronics Corporation",
