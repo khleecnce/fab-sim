@@ -283,6 +283,15 @@ class WaferResult:
     conditioner_pcr_tau_hours: Optional[float] = None
     conditioner_disk_usage_hours: Optional[float] = None
     conditioner_pcr_note: Optional[str] = None
+    # 패드 유효 탄성률 E'(T) 온도의존 연화 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # pad_viscoelastic_temperature.py::e_pad_from_table(원본 무수정), Cabot US20170087688A1
+    # Table 1B. T_op = platen_coolant_temp_c + theta_steady_state_delta_T_k. 팩이 pad_dma_id를
+    # 선언하지 않으면(현재 5팩 전부 미선언) 조용히 None — 패드 ID를 지어내지 않는다.
+    # Kp_eff(T) 훅은 넣지 않는다(모듈 docstring: 실측 대조 전까지 OFF).
+    pad_modulus_at_temp_mpa: Optional[float] = None
+    pad_modulus_ref_25c_mpa: Optional[float] = None
+    pad_modulus_softening_ratio: Optional[float] = None
+    pad_viscoelastic_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -970,6 +979,89 @@ def _thermal_chemical_diagnostic(rr: "ResolvedRecipe",
     return out
 
 
+def _pad_viscoelastic_diagnostic(rr: "ResolvedRecipe",
+                                  theta_ss: Dict[str, object]) -> Dict[str, object]:
+    """패드 유효 탄성률 E'(T) 온도의존 연화 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/pad_viscoelastic_temperature.py::e_pad_from_table (원본 무수정),
+    CABOT_TABLE_1B = Cabot US20170087688A1 Table 1B(freepatentsonline 원문 확인, 25/50/80 °C
+    앵커 6개 패드), knowledge/materials/pad-viscoelasticity-temp-frequency-dma.md §2,§3.1,§6.
+
+    이 진단이 등록 가능해진 이유: 모듈 docstring은 "Recipe에 온도 필드가 없다"를 미등록
+    사유로 들었지만, 그 전제는 _theta_steady_state_diagnostic()이 이미 ΔT_ss(theta_ss 진단
+    결과, 공통 싱크 대비 정상상태 온도상승)를 산출하면서 깨졌다. T_op = T_coolant + ΔT_ss로
+    공정온도를 근사해 입력으로 쓴다. T_coolant는 새 상수를 만들지 않고 _thermal_chemical_
+    diagnostic()과 동일하게 base.yaml의 platen_coolant_temp_c(literature)를 재사용한다.
+
+    ⚠ **Kp_eff(T) 훅은 넣지 않는다.** 모듈 docstring이 "이번 범위 밖, 실측 대조 전까지 OFF"
+    라고 명시했다 — 이 진단은 순수 가시화이고 MRR에 어떤 영향도 주지 않는다.
+
+    **패드 ID를 지어내지 않는다.** CABOT_TABLE_1B의 1A~1E·D100이 FabSim 팩의 실제 패드
+    (IC1000류 등)와 동일 제품이라는 근거가 없다. 팩이 `pad_dma_id`를 명시 선언할 때만
+    계산한다 — 현재 5팩 전부 미선언이라 항상 None이 정상이다(pad_groove_eol과 동일 지위).
+
+    **범위 밖 외삽 금지**: e_pad_loglinear는 25/50/80 °C 범위 밖을 최근접 앵커로 clamp한다
+    (모듈 자체 동작, 고치지 않는다). clamp가 실제로 일어났으면 note에 반드시 그 사실을
+    남긴다 — 조용한 clamp 값 출력 금지.
+
+    ΔT_ss가 None(theta_ss 입력 미비)이거나 platen_coolant_temp_c가 팩에 없으면 조용히 None.
+
+    한계(모듈 docstring·노트 §5 그대로 전파, 지어내지 않음): Cabot Table 1B는 1 Hz DMA
+    인장모드 값이고, CMP는 압축모드·asperity 스케일 고주파(노트 §5 추정 ~2e4 Hz)라 이 값을
+    CMP 하중조건에 그대로 쓰는 것은 검증되지 않았다. 80 °C E'=5 MPa 같은 값은 Tg를 지난
+    고무상이라 CMP 실제 운전온도(보통 <60 °C)와 맞는지도 확인되지 않았다.
+    """
+    out: Dict[str, object] = {"pad_modulus_at_temp_mpa": None,
+                              "pad_modulus_ref_25c_mpa": None,
+                              "pad_modulus_softening_ratio": None,
+                              "pad_viscoelastic_note": None}
+    if not rr.pack.has("pad_dma_id"):
+        out["pad_viscoelastic_note"] = (
+            "pad_dma_id 미선언 — Cabot Table 1B(1A~1E/D100)가 이 팩의 실제 패드와 동일 "
+            "제품이라는 근거가 없어 계산 스킵(현재 5팩 전부 미선언이라 항상 None이 정상)")
+        return out
+    delta_t = theta_ss.get("theta_steady_state_delta_T_k")
+    if delta_t is None:
+        out["pad_viscoelastic_note"] = (
+            "theta_steady_state_delta_T_k가 None(Θ 정상상태 열수지 입력 미비) — 공정온도 T_op를 "
+            "지어낼 수 없어 패드 연화 진단도 스킵")
+        return out
+    if not rr.pack.has("platen_coolant_temp_c"):
+        out["pad_viscoelastic_note"] = (
+            "platen_coolant_temp_c 팩에 없음 — 기준온도 T_coolant를 지어낼 수 없어 스킵")
+        return out
+    try:
+        import pad_viscoelastic_temperature as PVT   # sim/tier2_physics (1바이트도 수정 안 함)
+        pad_id = rr.p("pad_dma_id")
+        T_coolant = float(rr.p("platen_coolant_temp_c"))
+        T_op = T_coolant + float(delta_t)
+        row = PVT.CABOT_TABLE_1B[pad_id]
+        t_min, t_max = row["T_C"][0], row["T_C"][-1]
+        e_op = PVT.e_pad_from_table(T_op, pad_id)
+        e_ref = PVT.e_pad_from_table(25.0, pad_id)
+        ratio = e_op / e_ref
+    except Exception as e:
+        out["pad_viscoelastic_note"] = f"패드 연화 진단 실패({e}) — None으로 둠"
+        return out
+    out["pad_modulus_at_temp_mpa"] = float(e_op)
+    out["pad_modulus_ref_25c_mpa"] = float(e_ref)
+    out["pad_modulus_softening_ratio"] = float(ratio)
+    clamp_note = ""
+    if T_op < t_min or T_op > t_max:
+        clamp_note = (f" ⚠ T_op={T_op:.1f}°C가 Cabot Table 1B 앵커범위[{t_min:g},{t_max:g}]°C "
+                      f"밖 — e_pad_loglinear가 최근접 앵커({t_min if T_op < t_min else t_max:g}°C)"
+                      f"로 clamp했다(외삽 아님, 근사 저하).")
+    out["pad_viscoelastic_note"] = (
+        f"pad_dma_id='{pad_id}', T_op=T_coolant+ΔT_ss={T_coolant:.1f}+{delta_t:.1f}="
+        f"{T_op:.1f}°C. E'(T_op)={e_op:.1f} MPa, E'(25°C)={e_ref:.1f} MPa, "
+        f"softening_ratio={ratio:.4f}.{clamp_note} "
+        "⚠ 진단 전용, MRR에 영향 없음(Kp_eff(T) 훅은 이번 범위 밖, OFF 유지). "
+        "Cabot Table 1B는 1 Hz DMA 인장모드 값 — CMP 압축모드·asperity 고주파(~2e4 Hz, "
+        "노트 §5 추정) 하중조건으로의 적용은 검증되지 않았다. 80°C E'=5 MPa 같은 Tg 이후 "
+        "고무상 값이 CMP 실제 운전온도(보통 <60°C)와 맞는지도 확인되지 않았다.")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1335,6 +1427,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     cond_pcr = _conditioner_pcr_aging_diagnostic(rr)
     if cond_pcr["conditioner_pcr_note"]:
         notes.append(cond_pcr["conditioner_pcr_note"])
+    # 패드 유효 탄성률 E'(T) 온도의존 연화 진단 — MRR 경로와 완전히 독립(진단 전용).
+    # pad_dma_id 팩 미선언이면 조용히 None(현재 5팩 전부 미선언이라 항상 None이 정상).
+    pad_visco = _pad_viscoelastic_diagnostic(rr, theta_ss)
+    if pad_visco["pad_viscoelastic_note"]:
+        notes.append(pad_visco["pad_viscoelastic_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1399,6 +1496,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        conditioner_pcr_tau_hours=cond_pcr["conditioner_pcr_tau_hours"],
                        conditioner_disk_usage_hours=cond_pcr["conditioner_disk_usage_hours"],
                        conditioner_pcr_note=cond_pcr["conditioner_pcr_note"],
+                       pad_modulus_at_temp_mpa=pad_visco["pad_modulus_at_temp_mpa"],
+                       pad_modulus_ref_25c_mpa=pad_visco["pad_modulus_ref_25c_mpa"],
+                       pad_modulus_softening_ratio=pad_visco["pad_modulus_softening_ratio"],
+                       pad_viscoelastic_note=pad_visco["pad_viscoelastic_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
