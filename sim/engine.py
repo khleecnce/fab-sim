@@ -240,6 +240,14 @@ class WaferResult:
     hydroxide_transition_ph: Optional[float] = None
     hydroxide_precipitation_expected: Optional[bool] = None
     galvanic_hydroxide_note: Optional[str] = None
+    # 컨디셔너 스윕 궤적 PCR(r) 상대 프로파일 요약 진단 — MRR과 무관. sim/tier2_physics/
+    # conditioner_sweep_kinematics.py(Zheng, Zhao & Lu 2023, PMC10536193, Eq.1-9 재현).
+    # 기구 고정 치수(R_p·R_a·disk_radius·n_d·beta_s·beta_max)를 어떤 팩도 선언하지 않아
+    # (Zheng et al. Table 1은 RPM·하중·스윕범위(mm)만 보고) 현재 5팩 전부 미선언이라
+    # 항상 None이 정상이다 — 하드코딩으로 채우지 않는다.
+    conditioner_sweep_profile_uniformity: Optional[float] = None   # CV=sigma/mu, 낮을수록 균일
+    conditioner_sweep_edge_center_ratio: Optional[float] = None    # 바깥링평균/안쪽링평균
+    conditioner_sweep_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -769,6 +777,91 @@ def _galvanic_hydroxide_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _conditioner_sweep_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """컨디셔너 스윕 궤적 PCR(r) 상대 프로파일 요약 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/conditioner_sweep_kinematics.py (Zheng, Zhao & Lu 2023,
+    Micromachines 14(9) 1683, PMC10536193, Eq.1-9 재현), knowledge/equipment/
+    conditioner-sweep-kinematics-pcr-profile.md. 반경별 누적 스크래치 거리 히스토그램은
+    Preston형(k·P가 반경에 무관하다는 가정 하에) PCR(r)의 **상대적 형상**만 준다(절대값
+    아님 — 모듈 docstring 명시). 이 진단은 그 형상을 두 스칼라로 요약한다: 변동계수
+    CV=sigma/mu(낮을수록 패드가 반경에 걸쳐 균일하게 깎임), 바깥쪽 링 평균/안쪽 링 평균.
+
+    비용 측정(2026-09-15, .venv python, 아래와 동일 인자로 timeit): duration_s=20.0,
+    dt=0.01(2000 스텝) × n_particles=12 × r_bins=20 → 약 3.8ms/call
+    (conditioner_sweep_kinematics.pcr_radial_profile 직접 호출, 로컬 측정치). 100ms 미만이라
+    opt-in 플래그 없이 항상 계산한다 — 테스트 스위트 전체 실행시간에 미치는 영향은 무시할
+    수준(회귀 실측: 이 진단이 실행되는 유일한 경로는 신규 테스트가 pack_overrides로 주입하는
+    경우뿐이고, 실제 팩 5종은 전부 필수 입력 미선언이라 스킵 분기만 탄다). 수치해석 파라미터
+    (duration_s·dt·n_particles·r_bins)는 문헌값이 아니라 이 함수의 기본 인자다 — YAML에
+    넣지 않는다.
+
+    필요 입력 R_p(패드 기준 팔 중심 궤도 반경)·R_a(팔 길이)·disk_radius(디스크 반경)·
+    n_d(디스크 자전 RPM)·beta_s(스윕 시작각)·beta_max(스윕 범위, 라디안)는 어떤 팩도
+    선언하지 않는다 — Zheng et al. Table 1은 RPM·하중·스윕범위(mm)만 보고하고, 이 모델이
+    요구하는 기구 고정 치수(R_p·R_a·disk_radius)와 각도(beta_s·beta_max)는 지식노트에
+    옮겨진 적이 없다. 지어내지 않고 스킵한다(현재 5팩 전부 미선언이라 항상 None이 정상).
+    n_p(패드 RPM)는 rr.rpm_platen, n_a(스윕 속도)는 팩의 cond_sweep_cpm을 그대로 쓴다
+    (둘 다 base.yaml에 이미 선언됨). cond_sweep_cpm 자체의 한계(노트 원문 경고: "스윕
+    왕복수를 독립변수로 스윕해 PCR/MRR을 측정한 논문은 없다", 범위 9~19·2.1배)가 이
+    진단에도 그대로 전파된다.
+
+    모듈 한계(docstring §7 그대로): 실제 다이아몬드 전기도금 배치 패턴 대신 디스크 반경
+    균등분포 샘플로 근사, self-test는 정성적 특징만 확인(정량 검증 아님).
+    """
+    out: Dict[str, object] = {"conditioner_sweep_profile_uniformity": None,
+                              "conditioner_sweep_edge_center_ratio": None,
+                              "conditioner_sweep_note": None}
+    required = ["cond_arm_pivot_radius_m", "cond_arm_length_m", "cond_disk_radius_m",
+                "cond_disk_rpm", "cond_sweep_beta_start_rad", "cond_sweep_beta_range_rad"]
+    missing = [k for k in required if not rr.pack.has(k)]
+    if missing:
+        out["conditioner_sweep_note"] = (
+            f"{', '.join(missing)} 팩에 없음 — 컨디셔너 스윕 PCR 프로파일 진단 스킵 "
+            f"(Zheng et al. Table 1은 RPM·하중·스윕범위(mm)만 보고, 이 기구 고정 치수·각도는 "
+            f"어떤 팩도 선언하지 않음)")
+        return out
+    try:
+        import conditioner_sweep_kinematics as CSK   # sim/tier2_physics (1바이트도 수정 안 함)
+        R_p = rr.p("cond_arm_pivot_radius_m")
+        R_a = rr.p("cond_arm_length_m")
+        disk_radius = rr.p("cond_disk_radius_m")
+        n_d = rr.p("cond_disk_rpm")
+        beta_s = rr.p("cond_sweep_beta_start_rad")
+        beta_max = rr.p("cond_sweep_beta_range_rad")
+        n_p = rr.rpm_platen
+        n_a = rr.p("cond_sweep_cpm")
+        duration_s, dt, n_particles, r_bins = 20.0, 0.01, 12, 20
+        bin_centers, pca = CSK.pcr_radial_profile(
+            duration_s=duration_s, dt=dt, R_p=R_p, R_a=R_a, disk_radius=disk_radius,
+            n_p=n_p, n_a=n_a, n_d=n_d, beta_s=beta_s, beta_max=beta_max,
+            n_particles=n_particles, r_bins=r_bins)
+        mu = float(np.mean(pca))
+        sigma = float(np.std(pca))
+        cv = sigma / mu if mu > 0 else None
+        half = len(pca) // 2
+        inner_mean = float(np.mean(pca[:half])) if half > 0 else None
+        outer_mean = float(np.mean(pca[half:])) if half > 0 else None
+        ratio = (outer_mean / inner_mean) if (inner_mean is not None and inner_mean > 0) else None
+    except Exception as e:
+        out["conditioner_sweep_note"] = f"컨디셔너 스윕 PCR 진단 실패({e}) — None으로 둠"
+        return out
+    cv_str = f"{cv:.4f}" if cv is not None else "N/A(mu<=0)"
+    ratio_str = f", edge/center={ratio:.4f}" if ratio is not None else ""
+    out["conditioner_sweep_profile_uniformity"] = cv
+    out["conditioner_sweep_edge_center_ratio"] = ratio
+    out["conditioner_sweep_note"] = (
+        f"PCR(r) 상대 프로파일(절대값 아님, k·P 반경무관 가정) 요약. "
+        f"n_p={n_p:g} RPM(rpm_platen), n_a={n_a:g} cpm(cond_sweep_cpm, ⚠ 스윕 왕복수 독립변수 "
+        f"스윕 문헌 없음, 범위 9~19), n_d={n_d:g} RPM, R_p={R_p:g}/R_a={R_a:g}/"
+        f"disk_radius={disk_radius:g}m. 수치해석: duration_s={duration_s:g}, dt={dt:g}"
+        f"({int(duration_s / dt)}스텝), n_particles={n_particles}, r_bins={r_bins}"
+        f"(전부 재현용 함수 기본값, 문헌값 아님 — 비용 측정 약 3.8ms/call이라 opt-in 없이 "
+        f"항상 계산). CV={cv_str}{ratio_str}. 한계: 실제 다이아몬드 배치 패턴 미반영"
+        f"(균등분포 근사), self-test는 정성적 특징만 확인(정량 검증 아님).")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -869,6 +962,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     galvanic_hydroxide = _galvanic_hydroxide_diagnostic(rr)
     if galvanic_hydroxide["galvanic_hydroxide_note"]:
         notes.append(galvanic_hydroxide["galvanic_hydroxide_note"])
+    # 컨디셔너 스윕 PCR(r) 프로파일 요약 진단 — MRR 경로와 완전히 독립. 기구 고정 치수
+    # (R_p·R_a·disk_radius·n_d·beta_s·beta_max) 팩 미선언이면 조용히 None(현재 5팩 전부 미선언).
+    cond_sweep = _conditioner_sweep_diagnostic(rr)
+    if cond_sweep["conditioner_sweep_note"]:
+        notes.append(cond_sweep["conditioner_sweep_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -915,6 +1013,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        hydroxide_transition_ph=galvanic_hydroxide["hydroxide_transition_ph"],
                        hydroxide_precipitation_expected=galvanic_hydroxide["hydroxide_precipitation_expected"],
                        galvanic_hydroxide_note=galvanic_hydroxide["galvanic_hydroxide_note"],
+                       conditioner_sweep_profile_uniformity=cond_sweep["conditioner_sweep_profile_uniformity"],
+                       conditioner_sweep_edge_center_ratio=cond_sweep["conditioner_sweep_edge_center_ratio"],
+                       conditioner_sweep_note=cond_sweep["conditioner_sweep_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
