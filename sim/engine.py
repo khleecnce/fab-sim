@@ -231,6 +231,15 @@ class WaferResult:
     pad_groove_eol_hours: Optional[float] = None
     pad_groove_exhausted: Optional[bool] = None
     pad_groove_note: Optional[str] = None
+    # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR과 무관. sim/tier2_physics/galvanic_hydroxide_ph.py.
+    # 접촉 상대 금속 필드가 Recipe/팩에 없어(현재 5팩 전부 미선언) 갈바닉 필드는 항상 None이
+    # 정상이다 — Co/Ru 등을 임의로 골라 넣지 않는다. 수산화물 전이 pH는 rr.film == "cu"이고
+    # slurry_ph가 있을 때만 채워진다(log_a_cu 관례는 cu_pourbaix_note와 동일).
+    galvanic_anode_metal: Optional[str] = None
+    galvanic_delta_e0_v: Optional[float] = None
+    hydroxide_transition_ph: Optional[float] = None
+    hydroxide_precipitation_expected: Optional[bool] = None
+    galvanic_hydroxide_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -681,6 +690,85 @@ def _pad_groove_eol_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _galvanic_hydroxide_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/galvanic_hydroxide_ph.py, knowledge/cmp/
+    low-level-metal-cobalt-ruthenium-cross-contamination.md §3.1(표준환원전위)·
+    §3.3(수산화물 전이 pH)·§7(한계).
+
+    (1) 수산화물 전이 pH: Cu 계 판별은 팩 이름이 아니라 데이터 필드 rr.film == "cu"로
+    한다(판정#34). 용존 Cu 농도는 _cu_pourbaix_diagnostic()과 완전히 같은 관례를
+    쓴다 — 팩이 log_a_cu를 선언하면 C=10**log_a_cu, 미선언이면 모듈 기본값 -4.0을
+    가정한다(note에 명시, YAML에 새로 넣지 않는다). 같은 문서 안에서 두 진단이 다른
+    가정을 쓰면 숫자가 모순되므로 관례를 통일했다.
+    (2) 갈바닉 쌍 방향: 접촉 상대 금속 필드가 Recipe/팩 어디에도 없다. 팩이
+    contact_metal을 선언할 때만 계산하고(현재 5팩 전부 미선언이라 항상 None이 정상),
+    Co나 Ru를 '보통 그렇다'며 임의로 골라 넣지 않는다.
+    한계(모듈 docstring): ΔE_corr 실제 크기는 표준전위로 예측 불가(Lee 2021 4배,
+    Seo 2019 1/15) — 방향(anode/cathode)만 신뢰할 것. 금속 가수분해·박막 실제 IEP는
+    미반영.
+    """
+    out: Dict[str, object] = {"galvanic_anode_metal": None,
+                              "galvanic_delta_e0_v": None,
+                              "hydroxide_transition_ph": None,
+                              "hydroxide_precipitation_expected": None,
+                              "galvanic_hydroxide_note": None}
+    try:
+        import galvanic_hydroxide_ph as GHP   # sim/tier2_physics (1바이트도 수정 안 함)
+    except Exception as e:
+        out["galvanic_hydroxide_note"] = f"갈바닉/수산화물 진단 실패({e}) — None으로 둠"
+        return out
+
+    notes: List[str] = []
+    if rr.film != "cu":
+        notes.append(f"Cu 계 아님(film='{rr.film}') — 수산화물 전이 pH 스킵")
+    elif not rr.pack.has("slurry_ph"):
+        notes.append("slurry_ph 팩에 없음 — 수산화물 전이 pH 스킵")
+    else:
+        try:
+            ph = rr.p("slurry_ph")
+            if rr.pack.has("log_a_cu"):
+                log_a_cu = rr.p("log_a_cu")
+                log_a_note = f"log_a_cu={log_a_cu} 팩 선언값 사용"
+            else:
+                log_a_cu = -4.0
+                log_a_note = "log_a_cu=-4.0 기본값 가정, 팩 미선언"
+            trans_ph = GHP.hydroxide_transition_pH("Cu", 10 ** log_a_cu)
+            out["hydroxide_transition_ph"] = trans_ph
+            out["hydroxide_precipitation_expected"] = ph > trans_ph
+            notes.append(
+                f"{log_a_note}. Cu(OH)2 전이 pH={trans_ph:.2f}, slurry_ph={ph:.2f} → "
+                f"{'전이 pH 위(수산화물 침전 영역)' if ph > trans_ph else '전이 pH 아래(용존 영역)'}.")
+        except Exception as e:
+            notes.append(f"수산화물 전이 pH 계산 실패({e}) — None으로 둠")
+
+    if not rr.pack.has("contact_metal"):
+        notes.append("접촉 상대 금속 미선언 — 갈바닉 쌍 판정 스킵")
+    else:
+        film_to_metal = {"cu": "Cu"}
+        film_metal = film_to_metal.get(rr.film)
+        if film_metal is None:
+            notes.append(f"film='{rr.film}'에 대응하는 금속명 매핑 없음 — 갈바닉 쌍 판정 스킵")
+        else:
+            try:
+                contact_metal = rr.p("contact_metal")
+                pair = GHP.galvanic_pair_direction(film_metal, contact_metal)
+                out["galvanic_anode_metal"] = pair["anode"]
+                out["galvanic_delta_e0_v"] = pair["delta_E0_V"]
+                notes.append(
+                    f"갈바닉 쌍({film_metal}-{contact_metal}): 양극={pair['anode']}, "
+                    f"ΔE0={pair['delta_E0_V']:.4f} V(방향만 신뢰, 실제 크기 아님).")
+            except Exception as e:
+                notes.append(f"갈바닉 쌍 판정 실패({e}) — None으로 둠")
+
+    notes.append(
+        "한계: ΔE_corr 실제 크기는 표준전위로 예측 불가(Lee 2021 4배, Seo 2019 1/15) — "
+        "방향만 신뢰할 것. 금속 가수분해·박막 실제 IEP는 미반영.")
+    out["galvanic_hydroxide_note"] = " ".join(notes)
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -776,6 +864,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_groove = _pad_groove_eol_diagnostic(rr)
     if pad_groove["pad_groove_note"]:
         notes.append(pad_groove["pad_groove_note"])
+    # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR 경로와 완전히 독립. 접촉 상대
+    # 금속(contact_metal) 팩 미선언이면 갈바닉 필드는 조용히 None(현재 5팩 전부 미선언).
+    galvanic_hydroxide = _galvanic_hydroxide_diagnostic(rr)
+    if galvanic_hydroxide["galvanic_hydroxide_note"]:
+        notes.append(galvanic_hydroxide["galvanic_hydroxide_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -817,6 +910,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pad_groove_eol_hours=pad_groove["pad_groove_eol_hours"],
                        pad_groove_exhausted=pad_groove["pad_groove_exhausted"],
                        pad_groove_note=pad_groove["pad_groove_note"],
+                       galvanic_anode_metal=galvanic_hydroxide["galvanic_anode_metal"],
+                       galvanic_delta_e0_v=galvanic_hydroxide["galvanic_delta_e0_v"],
+                       hydroxide_transition_ph=galvanic_hydroxide["hydroxide_transition_ph"],
+                       hydroxide_precipitation_expected=galvanic_hydroxide["hydroxide_precipitation_expected"],
+                       galvanic_hydroxide_note=galvanic_hydroxide["galvanic_hydroxide_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
