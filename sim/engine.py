@@ -20,6 +20,7 @@ FabSim 통합 엔진 — 입력(Recipe) → 시뮬레이션 → 출력(WaferResu
 from __future__ import annotations
 
 import math
+import re
 import sys
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -255,6 +256,11 @@ class WaferResult:
     pad_glazing_radius_growth_ratio: Optional[float] = None  # μR(t)/μR(0)
     pad_glazing_relative_mrr_proxy: Optional[float] = None   # 거친 근사, 방향성만
     pad_glazing_note: Optional[str] = None
+    # 금속막 표면 산화막 반응의 Pourbaix 경계선 Nernst pH 기울기 진단 — MRR과 무관.
+    # 금속막(cu/w)일 때만 채워진다. 산화막·SiC 팩은 대응 반응식이 없어 None.
+    pourbaix_nernst_slope_mv_per_ph: Optional[float] = None
+    pourbaix_self_limiting_reactions: Optional[int] = None
+    pourbaix_nernst_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -784,6 +790,89 @@ def _galvanic_hydroxide_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _pourbaix_nernst_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """금속막 표면 산화막 반응의 Pourbaix 경계선 Nernst pH 기울기 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/pourbaix_nernst_slope.py (원본 무수정),
+    knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md (slurry-chemist Lv2-1).
+    반응 a·Ox + m·H+ + n·e- = b·Red 의 Nernst 식에서 전위-pH 경계선 기울기는
+    dE/dpH = -(RT/F)·ln10·(m/n) = -59.16·(m/n) mV/pH (25 degC). 이 관계 자체는
+    Pourbaix Atlas 원저 없이도 Nernst 식에서 독립 유도되므로 유료벽과 무관하다.
+
+    **이 진단이 무엇을 말해주는가**: m==n인 반응(H+ 1개당 전자 1개)은 표준 -59.16 mV/pH
+    계열이고, 화학양론적으로 치밀한 산화막(WO3·Cu(OH)2)을 만드는 전형적 passivation
+    반응이다. 즉 "이 막질의 부동태는 pH를 1 올릴 때 전위 창이 몇 mV 내려가는가"를 준다.
+    ψ(표면 흡착 보호) 팩터의 물리적 배경을 읽는 용도이지, ψ 값을 계산하는 경로가 아니다.
+
+    **적용 범위**: 금속막일 때만 계산한다. 판정#34 원칙에 따라 팩 이름이 아니라 데이터
+    필드 rr.film로 판별한다(현재 cu·w). 산화막(oxide)·SiC(sic_4h)는 모듈의
+    CMP_SURFACE_REACTIONS에 대응 반응식이 없어 조용히 None + 스킵사유를 낸다 —
+    세리아-실리카 Si-O-Ce "chemical tooth"는 산화환원 반응이 아니라 애초에 Nernst
+    기울기가 정의되지 않는다(전자 이동이 없으면 pH축 위 수직선).
+
+    **n==0 반응은 제외한다**: 모듈의 반응 목록에는 Cu(OH)2 -> CuO + H2O(탈수, 산-염기형)이
+    참고용으로 들어 있는데 전자가 오가지 않아 Nernst 기울기가 미정의다(모듈 자신도
+    nernst_ph_slope에서 n==0에 ValueError를 던진다). 이 진단은 n>0인 산화환원 반응만
+    집계한다. ⚠ 원본 모듈의 is_self_limiting_type()은 m==n을 보므로 m=n=0인 그 탈수
+    반응에도 True를 돌려준다 — 원본을 고치지 않는 대신 여기서 n>0 필터를 먼저 적용해
+    그 사례가 집계에 섞이지 않게 한다.
+
+    한계(노트 그대로 전파): 반응식의 m·n 계수는 Gamagedara & Roy 2024
+    (Materials 17(19) 4905, PMC11477894, CC BY)와 Krishnan et al. Chem.Rev.2010의
+    **2차 인용 정리**다. 기울기 공식 자체는 1차 유도지만 어떤 반응이 이 계에서 실제
+    지배적인지는 슬러리 조성·전위에 달려 있고, 이 진단은 그것을 판정하지 않는다.
+    """
+    out: Dict[str, object] = {"pourbaix_nernst_slope_mv_per_ph": None,
+                              "pourbaix_self_limiting_reactions": None,
+                              "pourbaix_nernst_note": None}
+    film_to_reaction_key = {"cu": "Cu", "w": "W"}
+    key = film_to_reaction_key.get(rr.film)
+    if key is None:
+        out["pourbaix_nernst_note"] = (
+            f"film='{rr.film}' — 금속막이 아니라 Pourbaix 표면 반응식이 없어 Nernst "
+            f"기울기 진단 스킵(전자 이동이 없는 계는 pH축 위 수직선이라 dE/dpH 미정의)")
+        return out
+    try:
+        import pourbaix_nernst_slope as PNS   # sim/tier2_physics (1바이트도 수정 안 함)
+        # 반응식 좌변(->  앞)의 화학종 토큰에 대상 금속이 있는지로 고른다.
+        # startswith는 "2Cu + 2OH- -> Cu2O ..."처럼 계량계수가 앞에 붙은 반응식을
+        # 놓친다(실측: Cu가 2건 중 1건만 잡혔다). 좌변만 보는 이유는 Cu(OH)2 ->
+        # CuO 같은 생성물 쪽 등장으로 오매칭되는 것을 막기 위해서다.
+        def _lhs_has_metal(name: str) -> bool:
+            lhs = name.split("->")[0]
+            return re.search(rf"(?<![A-Za-z]){re.escape(key)}(?![a-z])", lhs) is not None
+        rxns = [r for r in PNS.CMP_SURFACE_REACTIONS
+                if r.n > 0 and _lhs_has_metal(r.name)]
+        if not rxns:
+            out["pourbaix_nernst_note"] = (
+                f"film='{rr.film}'에 대응하는 산화환원 반응식이 모듈 목록에 없음 — 스킵")
+            return out
+        slopes = [r.slope_mV_per_pH() for r in rxns]
+        n_self_lim = sum(1 for r in rxns if r.is_self_limiting_type())
+    except Exception as e:
+        out["pourbaix_nernst_note"] = f"Nernst 기울기 진단 실패({e}) — None으로 둠"
+        return out
+    # 모든 반응이 같은 기울기면 그 값을, 갈리면 대표값을 내지 않고 None으로 둔다
+    # (평균은 어느 문헌도 지지하지 않는 창작이다 — EVIDENCE-RULES "두 지수를 평균내지 마라").
+    uniq = sorted(set(round(x, 6) for x in slopes))
+    detail = "; ".join(f"{r.name.split(' (')[0]}: m={r.m}, n={r.n}, "
+                       f"{r.slope_mV_per_pH():.2f} mV/pH" for r in rxns)
+    if len(uniq) == 1:
+        out["pourbaix_nernst_slope_mv_per_ph"] = float(uniq[0])
+        rep = f"전 반응 동일 기울기 {uniq[0]:.2f} mV/pH"
+    else:
+        rep = (f"반응마다 기울기가 갈림({uniq}) — 어느 반응이 지배적인지 이 진단은 "
+               f"판정하지 않으므로 대표값을 내지 않는다(평균 금지)")
+    out["pourbaix_self_limiting_reactions"] = n_self_lim
+    out["pourbaix_nernst_note"] = (
+        f"film='{rr.film}' 금속막 Pourbaix 경계선 dE/dpH = -59.16·(m/n) mV/pH (25 degC). "
+        f"{rep}. m==n(치밀 산화막 passivation 계열) 반응 {n_self_lim}/{len(rxns)}건. {detail}. "
+        f"⚠ 반응식 m·n 계수는 2차 인용(Gamagedara & Roy 2024 PMC11477894, "
+        f"Krishnan et al. 2010) — 기울기 공식은 Nernst 식 1차 유도지만 이 계에서 어느 "
+        f"반응이 지배적인지는 판정하지 않는다. ψ 팩터 계산 경로가 아니라 배경 진단이다.")
+    return out
+
+
 def _pad_glazing_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """패드 글레이징에 의한 접촉점 감소·asperity 반경 증가 진단 — MRR 경로와 완전히 독립.
 
@@ -1071,6 +1160,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_glaze = _pad_glazing_diagnostic(rr)
     if pad_glaze["pad_glazing_note"]:
         notes.append(pad_glaze["pad_glazing_note"])
+    # 금속막 Pourbaix 경계선 Nernst pH 기울기 진단 — MRR 경로와 완전히 독립.
+    # 금속막(cu/w)이 아니면 조용히 None + 스킵사유.
+    pourbaix_nernst = _pourbaix_nernst_diagnostic(rr)
+    if pourbaix_nernst["pourbaix_nernst_note"]:
+        notes.append(pourbaix_nernst["pourbaix_nernst_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1124,6 +1218,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pad_glazing_radius_growth_ratio=pad_glaze["pad_glazing_radius_growth_ratio"],
                        pad_glazing_relative_mrr_proxy=pad_glaze["pad_glazing_relative_mrr_proxy"],
                        pad_glazing_note=pad_glaze["pad_glazing_note"],
+                       pourbaix_nernst_slope_mv_per_ph=pourbaix_nernst["pourbaix_nernst_slope_mv_per_ph"],
+                       pourbaix_self_limiting_reactions=pourbaix_nernst["pourbaix_self_limiting_reactions"],
+                       pourbaix_nernst_note=pourbaix_nernst["pourbaix_nernst_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
