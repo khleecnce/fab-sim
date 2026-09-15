@@ -5,7 +5,7 @@
 
 - [x] Lv1-1 Co 배선 CMP: 부식 민감성, 갈바닉, 억제제 화학 — 2026-09-16 이수 (knowledge/materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md, verify/check 둘 다 PASS)
 - [x] Lv1-2 Ru·Mo CMP: 난용해 금속의 산화제 화학(RuO4 독성 포함) (2026-09-16, knowledge/materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md)
-- [ ] Lv2-1 GST·칼코게나이드 CMP: 연질막 결함 제어
+- [x] Lv2-1 GST·칼코게나이드 CMP: 연질막 결함 제어 — 2026-09-16 이수 (knowledge/cmp/gst-chalcogenide-cmp-soft-film-defect-control.md, verify/check 둘 다 PASS)
 - [ ] Lv2-2 고유전체·2D 소재 CMP 동향
 - [ ] Lv3-1 최신 리뷰: 3nm 이하 배선 소재 로드맵과 CMP 요구
 - [ ] Lv3-2 신소재 파라미터 세트 골격 정의 (sim/tier2)
