@@ -509,3 +509,25 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   (5팩 분기 고정·sic own 선택·나머지 4팩 불변·pH 9→11 민감도 회복, 수정 전 코드로
   대조하면 3/4 실패 확인). sic의 confidence·YAML 값은 미변경. 노트:
   validation/C4-SIC-PACK-DIAGNOSIS.md "## 4단계", EVIDENCE-RULES.md 판정#34.
+
+- 2026-09-15 [Max워커] **sic_ceria_h2o2 산화제(H2O2) 항 — 문헌 유도 시도, 방향만 확정하고
+  계수·코드는 미도입(판정#35)**. `sic_ceria_h2o2` 팩엔 `oxidizer_*` 형상 파라미터가
+  전혀 없어(판정#34 §4.5의 경고가 신고하던 그 갭) H2O2 농도가 모델에 연결돼 있지 않다.
+  sic2026(calibration 데이터)에서 계수를 역산하면 이중학습이라 금지된 상태에서, 순수
+  문헌으로 함수형부터 판정했다. **1차 문헌 2편 신규 확보**: Wei et al. 2026(Crystals,
+  doi:10.3390/cryst16030179, CC-BY) — 4H-SiC+실리카+**Fe3O4 촉매** Fenton계에서 H2O2
+  5wt% 정점의 **단봉**(·OH 자기소모 반증)을 직접 보고. Nitta et al. 2011(JJAP,
+  doi:10.1143/JJAP.50.046501) — 4H-SiC+실리카, **무촉매**, pH 10.0 알칼리계에서 XPS로
+  SiC→SiO2 산화-제거 연쇄를 직접 확인하고 H2O2 0→5.0wt%까지 **단조 증가**(정점 없음)를
+  보고. `sic_ceria_h2o2`는 세리아이고 Fe 촉매가 없어 Wei형(단봉)보다 Nitta형(촉진,
+  무촉매)에 물리적으로 더 가깝다는 결론. Nitta Fig.3의 벡터 드로잉을 `get_drawings()`로
+  직접 좌표추출(눈대중 아님)해 4점을 확보했고, 이를 기존 `oxidizer_langmuir_K`(촉진-
+  포화형)에 대입하면 중간 2점이 요구하는 K가 **둘 다 음수이고 서로 7배 어긋나** —
+  기존 세 함수형 중 어느 것도 이 데이터에 맞지 않음을 수치로 반증했다. 대안(선형/약볼록
+  멱함수, n≈1.0~1.3)은 타재료(실리카)·4점 디지타이즈 데이터 안에서 지수 자체가 축퇴돼
+  계수를 못 넣는다(`sim/unknown_router.py::identifiability`는 개수상 식별 가능(2>1)
+  이라고 답하지만 모델적합 자체가 불안정함을 별도 확인). **코드·YAML 전부 미변경**
+  (`sim/chemistry.py::_oxidizer_term`, `knowledge/params/sic_ceria_h2o2.yaml` 무변경),
+  sic2026 ρ는 판정#34 종료값(0.393/p=0.002)에서 불변 — 함수형 미확정을 null 결과로
+  그대로 기록했다. `papers/INDEX.json`에 두 문헌 등록. 노트:
+  knowledge/cmp/sic-h2o2-oxidation-removal-mechanism.md, EVIDENCE-RULES.md 판정#35.

@@ -716,6 +716,21 @@
     "year": 2026,
     "venue": "Crystals 16(3) 179"
   },
+  "nitta2011-jjap-sic-high-removal-rate-oxidizer": {
+    "src": "local (기존 확보 PDF, 이번 회차 INDEX 미등록 발견 — sic H2O2 산화제 기전 조사 중 사용)",
+    "pdf": null,
+    "landing": "https://doi.org/10.1143/JJAP.50.046501",
+    "ver": "publishedVersion",
+    "host": "IOPscience",
+    "license": "unknown",
+    "doi": "10.1143/JJAP.50.046501",
+    "file": "papers/jjap50-046501-sic-high-removal-rate.pdf",
+    "title": "Research on Reaction Method of High Removal Rate Chemical Mechanical Polishing Slurry for 4H-SiC Substrate",
+    "authors": "Hiroshi Nitta, Akira Isobe, Park Jae Hong, Takashi Hirao",
+    "year": 2011,
+    "venue": "Jpn. J. Appl. Phys. 50, 046501",
+    "note": "knowledge/cmp/sic-h2o2-oxidation-removal-mechanism.md — 4H-SiC Si-face + 콜로이달 실리카(무 Fe 촉매) + H2O2, pH 10.0. Fig.3(H2O2 0~1.47 mol/L vs RR) 벡터경로(get_drawings) 직접 좌표추출로 디지타이즈: (0,12),(0.35,21),(0.879,42),(1.468,63) [mol/L, nm/h]. XPS(Fig.2)로 SiC->SiO2 산화층 형성 직접 확인."
+  },
   "antonijevic2008-ijes-copper-corrosion-inhibitors-review": {
     "src": "OA — Int. J. Electrochem. Sci. 무료 PDF(electrochemsci.org/papers/vol3/3010001.pdf)",
     "pdf_local": "papers/antonijevic2008-ijes-copper-corrosion-inhibitors-review.pdf",
