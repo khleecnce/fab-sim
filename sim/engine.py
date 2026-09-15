@@ -217,6 +217,13 @@ class WaferResult:
     theta_steady_state_delta_T_k: Optional[float] = None
     theta_heat_partition: Optional[Dict[str, float]] = None   # {"slurry","pad","air"} 합=1
     theta_steady_state_note: Optional[str] = None
+    # Cu-H2O Pourbaix E-무관(수직·pH축) 진단 — MRR과 무관. sim/tier2_physics/cu_pourbaix.py.
+    # Recipe에 전극전위 필드가 없어 stable_phase()는 호출하지 않고, E와 무관한 수직선/삼중점
+    # pH만 낸다. slurry_ph가 없거나 rr.film != "cu"이면 조용히 None.
+    cu_pourbaix_vertical_ph: Optional[float] = None
+    cu_pourbaix_triple_point_ph: Optional[float] = None
+    cu_pourbaix_soluble_domain: Optional[bool] = None
+    cu_pourbaix_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -570,6 +577,53 @@ def _gw_contact_linearity_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _cu_pourbaix_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """Cu-H2O Pourbaix E-무관(수직·pH축) 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/cu_pourbaix.py (self-test 10/10 PASS),
+    knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md.
+    stable_phase()는 전극전위 E_V를 요구하지만 Recipe에 전극전위 필드가 없고
+    산화제 농도에서 E를 환산할 1차 근거도 없다 — 그래서 E를 지어내 stable_phase()를
+    부르지 않고, E와 무관한 수직선(Cu2+/Cu(OH)2 대용 경계) pH와 삼중점 pH만 낸다.
+    log_a_cu(용존 Cu 활동도 로그)는 어떤 팩도 선언하지 않아 모듈 기본값 -4.0을 쓴다
+    (note에 명시, YAML에 새로 넣지 않는다). Cu 계 판별은 팩 이름이 아니라 데이터
+    필드 rr.film == "cu"로 한다(판정#34: 메커니즘/데이터로 판단, 이름 하드코딩 금지).
+    slurry_ph가 없거나 film != "cu"면 조용히 None.
+    """
+    out: Dict[str, object] = {"cu_pourbaix_vertical_ph": None,
+                              "cu_pourbaix_triple_point_ph": None,
+                              "cu_pourbaix_soluble_domain": None,
+                              "cu_pourbaix_note": None}
+    if not rr.pack.has("slurry_ph"):
+        out["cu_pourbaix_note"] = "slurry_ph 팩에 없음 — Cu Pourbaix 진단 스킵"
+        return out
+    if rr.film != "cu":
+        out["cu_pourbaix_note"] = f"Cu 계 아님(film='{rr.film}') — Cu Pourbaix 진단 스킵"
+        return out
+    try:
+        import cu_pourbaix as CUP   # sim/tier2_physics (1바이트도 수정 안 함)
+        ph = rr.p("slurry_ph")
+        if rr.pack.has("log_a_cu"):
+            log_a_cu = rr.p("log_a_cu")
+            log_a_note = f"log_a_cu={log_a_cu} 팩 선언값 사용"
+        else:
+            log_a_cu = -4.0
+            log_a_note = "log_a_cu=-4.0 기본값 가정, 팩 미선언"
+        vert_ph = CUP.cu2_cuoh2_vertical_pH(log_a_cu)
+        triple_ph = CUP.triple_point_pH(log_a_cu)
+    except Exception as e:
+        out["cu_pourbaix_note"] = f"Cu Pourbaix 진단 실패({e}) — None으로 둠"
+        return out
+    out["cu_pourbaix_vertical_ph"] = vert_ph
+    out["cu_pourbaix_triple_point_ph"] = triple_ph
+    out["cu_pourbaix_soluble_domain"] = ph < vert_ph
+    out["cu_pourbaix_note"] = (
+        f"{log_a_note}. 전극전위 E 무관 수직선/삼중점 pH만 계산(Recipe에 전극전위 필드 없음, "
+        f"산화제 농도→E 환산 1차 근거 없어 stable_phase() 미호출) — 수직선 pH={vert_ph:.2f}, "
+        f"삼중점 pH={triple_ph:.2f}. Cu(OH)2는 CuO 자리 대용, 미검증(CRC 표에 CuO 반쪽반응 없음).")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -655,6 +709,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     theta_ss = _theta_steady_state_diagnostic(rr)
     if theta_ss["theta_steady_state_note"]:
         notes.append(theta_ss["theta_steady_state_note"])
+    # Cu-H2O Pourbaix E-무관 진단 — MRR 경로와 완전히 독립. slurry_ph 없거나
+    # film != "cu"면 조용히 None.
+    cu_pourbaix = _cu_pourbaix_diagnostic(rr)
+    if cu_pourbaix["cu_pourbaix_note"]:
+        notes.append(cu_pourbaix["cu_pourbaix_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -688,6 +747,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        theta_steady_state_delta_T_k=theta_ss["theta_steady_state_delta_T_k"],
                        theta_heat_partition=theta_ss["theta_heat_partition"],
                        theta_steady_state_note=theta_ss["theta_steady_state_note"],
+                       cu_pourbaix_vertical_ph=cu_pourbaix["cu_pourbaix_vertical_ph"],
+                       cu_pourbaix_triple_point_ph=cu_pourbaix["cu_pourbaix_triple_point_ph"],
+                       cu_pourbaix_soluble_domain=cu_pourbaix["cu_pourbaix_soluble_domain"],
+                       cu_pourbaix_note=cu_pourbaix["cu_pourbaix_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
