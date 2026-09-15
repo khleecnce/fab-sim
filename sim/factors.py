@@ -1031,6 +1031,86 @@ def _ph_ceria_electrostatic_term(pack, notes: List[str]) -> Optional[float]:
     return cur / ref
 
 
+def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
+    """pH → MRR, **금속 Cu 산성역**의 산화제 매개 로그선형 항.
+
+    근거 노트: knowledge/cmp/cu-cmp-ph-mechanism.md
+    1차 출처: US20080090500A1 (PPG Industries Ohio; Hellring·Li·Auger,
+              우선일 2002-08-05) TABLE 4.
+
+    왜 텅스텐 항을 빌려 쓰면 안 되는가 — 메커니즘이 다르다.
+      W 는 금속 자신의 산화 반쪽반응이 H⁺ 를 포함해 Nernst 로 pH 가 직접 들어온다.
+      Cu 는 다르다: Cu → Cu²⁺ + 2e⁻ 에 H⁺ 가 없어 dE/dpH = 0 이다
+      (Pourbaix 에서 Cu²⁺/Cu 경계가 수평선). 따라서 pH 는 **산화제 쪽**으로만
+      들어온다:
+          H₂O₂ + 2H⁺ + 2e⁻ → 2H₂O,  dE/dpH = −59 mV
+      즉 셀 전위의 pH 기울기는 전부 산화제에서 나온다. 산화제가 없으면
+      이 경로 자체가 없다.
+
+    형태: f(pH) = exp(−k·(pH − pH_ref)).
+      함수형의 근거는 (a) 산화제 Nernst 가 pH 에 선형이고 (b) 속도가 전위에
+      지수 반응(Tafel)한다는 표준 구조다.
+      ⚠ 그러나 Tafel 로 k 를 **독립 유도하면** b ≈ 0.954 V/decade 가 나와
+        전형값(0.06~0.12)의 약 10배로 어긋난다. 즉 **함수형은 물리이고
+        계수 크기는 경험값**이다. 이 사실을 숨기지 않는다 —
+        confidence 는 literature 이며 verified 가 아니다.
+
+    k = 0.1428 /pH : 실리카 2/3/4 wt% 세 계열을 각자 pH 4 값으로 정규화한
+      12점 pooled 최소자승. 계열별 k = 0.1360 / 0.1496 / 0.1427
+      (R² = 0.968 / 0.999 / 0.956), 산포 ±4.8 %.
+      pooled R² = 0.9537, 12점 최대 재현오차 7.26 %.
+      검산: f(3)=1.1535, f(4)=1.0000, f(5)=0.8669, f(6)=0.7516.
+
+    ⚠ 적용 게이트 — 팩이 `cu_ph_acid_k` 를 선언할 때만 켜진다. 깨지는 지점:
+      · pH > 6  : 전체 곡선은 정점형이 아니라 **V자**다. pH 6~6.5 에서 최소이고
+                  알칼리에서 재증가한다(Du & Desai 2003 DOI 10.1557/PROC-767-F6.6
+                  '최소 pH 6'; Ilie & Ipate 2017 DOI 10.3390/lubricants5020015
+                  '최소 pH 6.5'). 골을 넘으면 부호가 뒤집히므로 외삽 금지.
+      · pH < 3  : 최저 관측점이 pH 3. 삼중점 pH 4.14 아래는 완전 용해영역.
+      · 연마입자 < 2 wt% : 0 wt% 행이 비단조(259/106/176/151), 1 wt% 는 R²=0.594.
+                  pH 는 부동태막 성질을 바꿀 뿐 **그 막을 벗길 기계력이 없으면**
+                  MRR 로 번역되지 않는다. 항을 켜지 않는다.
+      · BTA 없음 : k 가 2.33배(US9200180B2 TABLE 4, k=0.3329, R²=0.9971).
+                  별도 레짐이다. 두 값을 평균내지 않았다 —
+                  ⚠ BTA 유무와 pH 구간이 얽혀 어느 쪽이 주원인인지 이 데이터로
+                    분리 불가(식별 불가로 기록).
+      · 산화제 없음 : 대응쌍 미확보 → 미확인. 기본값 '적용 안 함'.
+    """
+    if not (pack.has("slurry_ph") and pack.has("cu_ph_acid_k")
+            and pack.has("ph_ref")):
+        return None
+
+    # 기계 경로 게이트 — pH 는 막을 바꿀 뿐, 벗길 입자가 있어야 MRR 이 된다.
+    if pack.has("abrasive_wt_pct"):
+        try:
+            wt = float(pack.get("abrasive_wt_pct"))
+        except (TypeError, ValueError):
+            wt = None
+        if wt is not None and wt < 2.0:
+            notes.append(
+                f"Cu 산성역 pH 항 미적용: 연마입자 {wt:g} wt% < 2 wt%. "
+                "근거 표에서 저농도 행은 비단조(0 wt%)이거나 설명력이 낮다"
+                "(1 wt%, R²=0.594) — pH 가 바꾼 막을 벗길 기계 경로가 부족하다.")
+            return None
+
+    ph = float(pack.get("slurry_ph"))
+    ph_ref = float(pack.get("ph_ref"))
+    k = float(pack.get("cu_ph_acid_k"))
+    val = math.exp(-k * (ph - ph_ref))
+    notes.append(
+        f"Cu 산성역 pH: pH {ph:g} (기준 {ph_ref:g}) → 상대 {val:.3f}. "
+        f"산화제(H₂O₂) 환원 전위 경로 — dE/dpH=−59 mV, k={k:g}/pH "
+        "(US20080090500A1 TABLE 4, 3계열 12점 pooled, R²=0.954, 산포 ±4.8%). "
+        "⚠ 함수형은 물리(Nernst+Tafel)이나 계수 크기는 경험값 — "
+        "Tafel 독립 유도 시 b≈0.954 V/dec 로 전형값의 10배라 어긋난다.")
+    if not (3.0 <= ph <= 6.0):
+        notes.append(
+            f"⚠ pH {ph:g}는 근거 구간(3~6) 밖이다 — 외삽이다. "
+            "Cu 의 pH-MRR 은 V자이고 pH 6~6.5 에서 골을 지나 알칼리에서 "
+            "재증가하므로, 골 너머는 **부호가 반대**라 특히 신뢰할 수 없다.")
+    return val
+
+
 def _ph_w_acidic_term(pack, notes: List[str]) -> Optional[float]:
     """pH → MRR, **금속 W 산성역**의 산화제 매개 로그선형 항.
 
@@ -1115,6 +1195,8 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
          is_ceria and pk.has("abrasive_iep_ph"), "abrasive_iep_ph"),
         ("ph_w_acidic", _ph_w_acidic_term,
          pk.has("w_ph_acid_k"), "w_ph_acid_k"),
+        ("ph_cu_acidic", _ph_cu_acidic_term,
+         pk.has("cu_ph_acid_k"), "cu_ph_acid_k"),
         ("ph_peak", _ph_peak_term,
          pk.has("ph_peak") and pk.has("ph_ref"), "ph_peak"),
         ("ph_softening", _ph_softening_term,
@@ -1264,6 +1346,26 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
             except (TypeError, ValueError):
                 pass
     if v is not None:
+        # ── 정의 위반 검사 ────────────────────────────────────────
+        # ψ 는 "표면 보호가 만드는 제거 **억제** 배수"로 정의된다 — 즉 ≤ 1.
+        # 1을 넘으면 "억제제를 넣었더니 더 깎인다"는 뜻이라 정의와 모순이다.
+        #
+        # 어떻게 1을 넘는가: 이 항은 기준 농도 대비 **상대값**이다
+        # (Kp 가 이미 기준 슬러리에서 역산됐으므로 절대값을 곱하면 이중 계상).
+        # 그런데 검증 조건이 기준보다 **낮은** 농도(예: 억제제 0)면
+        # 상대값이 1을 넘는다. 이것은 억제제를 뺀 만큼 덜 보호받는다는
+        # 뜻이라 물리적으로 옳지만, ψ 라는 **이름과 정의**에는 맞지 않는다.
+        #
+        # 조용히 통과시키면 ψ=18 같은 값이 MRR 을 18배 부풀린다
+        # (실측: 억제제 0 조건에서 예측 9085 vs 실측 19.2).
+        # 값을 자르지 않는다 — 자르면 물리를 숨기는 것이다. 대신 **신고**한다.
+        if v > 1.0 + 1e-9:
+            notes.append(
+                f"⚠ ψ={v:.3f} > 1 — 정의(표면 보호 ≤1) 위반. 기준 농도보다 "
+                "억제제가 적은 조건이라 상대값이 1을 넘었다. 이 팩의 "
+                "inhibitor_ref_mM 이 검증 조건 범위의 하단이 아니라 중간에 "
+                "있다는 뜻이다. 기준점을 범위 하단(보통 0)으로 옮기거나, "
+                "억제 항을 ψ 가 아니라 별도 팩터로 분리해야 한다.")
         f.value = v
         f.terms = {"inhibitor": v}
         f.status = "modeled"

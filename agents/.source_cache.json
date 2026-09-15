@@ -2006,5 +2006,73 @@
  "doi:10.1149/1.2931519": {
   "ok": true,
   "msg": "Diffusion-Limited Agglomeration and Defect Generation during Chemical Mechanical Planariza"
+ },
+ "doi:10.3390/mi13050762": {
+  "ok": true,
+  "msg": "Effects of pH Values and H2O2 Concentrations on the Chemical Enhanced Shear Dilatancy Poli"
+ },
+ "doi:10.1143/JJAP.50.046501": {
+  "ok": true,
+  "msg": "Research on Reaction Method of High Removal Rate Chemical Mechanical Polishing Slurry for "
+ },
+ "doi:10.3390/cryst16030179": {
+  "ok": true,
+  "msg": "Influences of Polishing Slurry Components on Material Removal and Surface Morphology of 4H"
+ },
+ "doi:10.1038/s41529-020-00139-0": {
+  "ok": true,
+  "msg": "Corrosion inhibition of copper in ferric chloride solutions with organic inhibitors"
+ },
+ "doi:10.1038/s41529-020-00139-0(CC-BY": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.1143/jjap.39.6216": {
+  "ok": true,
+  "msg": "Slurry Chemical Corrosion and Galvanic Corrosion  during Copper Chemical Mechanical Polish"
+ },
+ "doi:10.1149/1.2953583": {
+  "ok": true,
+  "msg": "Relationship Between Molecular Structure and Removal Rates during Chemical Mechanical Plan"
+ },
+ "doi:10.1149/1.3499217": {
+  "ok": true,
+  "msg": "Copper CMP Modeling: Millisecond Scale Adsorption Kinetics of BTA in Glycine-Containing So"
+ },
+ "doi:10.5006/1.3280782": {
+  "ok": true,
+  "msg": "Adsorption of Benzotriazole on Copper Electrode Surfaces in Citric Acid Media"
+ },
+ "doi:10.1016/j.proeng.2011.11.2673": {
+  "ok": true,
+  "msg": "Research on Material Removal Rate of CMP 6H-SiC Crystal Substrate (0001) Si Surface Based "
+ },
+ "doi:10.4028/.../msf.600-603.831": {
+  "ok": false,
+  "msg": "Crossref 미등록 (HTTP 404)"
+ },
+ "doi:10.4028/www.scientific.net/msf.600-603.831": {
+  "ok": true,
+  "msg": "Effect of Process Parameters on Material Removal Rate in Chemical Mechanical Polishing of "
+ },
+ "doi:10.1143/JJAP.44.4752": {
+  "ok": true,
+  "msg": "Dependence of pH, Molecular Weight, and Concentration of Surfactant in Ceria Slurry on Sat"
+ },
+ "doi:10.3938/jkps.53.1337": {
+  "ok": true,
+  "msg": "Selectivity Enhancement in the Removal of SiO2 and Si3N4 Films with Addition of Triethanol"
+ },
+ "doi:10.3390/ma16072550": {
+  "ok": true,
+  "msg": "The Effects of Friction and Temperature in the Chemical–Mechanical Planarization Process"
+ },
+ "doi:10.3390/mi12080910": {
+  "ok": true,
+  "msg": "Optimisation of Lapping Process Parameters for Single-Crystal 4H–SiC Using Orthogonal Expe"
+ },
+ "pmc:8400076": {
+  "ok": true,
+  "msg": "Optimisation of Lapping Process Parameters for Single-Crystal 4H-SiC Using Orthogonal Expe"
  }
 }

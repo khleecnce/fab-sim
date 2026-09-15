@@ -281,3 +281,35 @@ params:
       (sim/regime_adapter.py::alpha_from_bulk_bound).
     source: "Nanoindentation of electroplated Cu films — 결정립 크기에 따라 1.0~1.5 GPa"
     confidence: literature
+  cu_ph_acid_k:
+    value: 0.1428
+    unit: "1/pH"
+    note: >
+      Cu 산성역 pH 항의 감쇠 계수. f(pH) = exp(-k*(pH - ph_ref)).
+      US20080090500A1 (PPG Industries Ohio; Hellring/Li/Auger, 우선일 2002-08-05)
+      TABLE 4 에서 실리카 2/3/4 wt% 세 계열을 각자 pH 4 값으로 정규화한 12점
+      pooled 최소자승. 계열별 k = 0.1360 / 0.1496 / 0.1427
+      (R^2 = 0.968 / 0.999 / 0.956), 산포 +-4.8%.
+      pooled R^2 = 0.9537, 12점 최대 재현오차 7.26%.
+      검산: f(3)=1.1535 f(4)=1.0000 f(5)=0.8669 f(6)=0.7516.
+      메커니즘: Cu 자신의 산화 반쪽반응에는 H+ 가 없어 dE/dpH=0 이다
+      (Pourbaix 수평선). pH 는 산화제 H2O2 + 2H+ + 2e- -> 2H2O 의 환원 전위
+      (dE/dpH = -59 mV)로만 들어온다 — 텅스텐과 경로가 다르므로 W 항을
+      빌려 쓸 수 없다.
+      WARN 함수형은 물리(Nernst+Tafel)이나 계수 크기는 경험값이다.
+      Tafel 로 k 를 독립 유도하면 b ~ 0.954 V/decade 로 전형값(0.06~0.12)의
+      약 10배라 어긋난다. 그래서 verified 가 아니라 literature 로 둔다.
+      적용 구간: pH 3~6, 산화제 존재, BTA 존재, 연마입자 >= 2 wt%.
+      BTA 가 없으면 k 가 2.33배(US9200180B2 TABLE 4, k=0.3329) — 별도 레짐이며
+      두 값을 평균내지 않았다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature
+  ph_ref:
+    value: 4.0
+    unit: pH
+    note: >
+      cu_ph_acid_k 의 기준점. 이 팩의 운전 pH 와 같게 두어 기준 조건에서
+      pH 항 배수가 정확히 1.0 이 되도록 한다(Kp 이중 계상 방지).
+      WARN 본값(slurry_ph)을 옮기면 이 기준점도 함께 검토해야 한다.
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md
+    confidence: literature

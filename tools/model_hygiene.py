@@ -459,6 +459,108 @@ def check_limits(packs: List[str]) -> List[Issue]:
 # ══════════════════════════════════════════════════════════════════════
 # [I] 식별 가능성 — 곱해지는 팩터끼리 드라이버를 공유하면 이중 계상
 # ══════════════════════════════════════════════════════════════════════
+# 팩터 정의 위반을 드러내는 탐침 — 드라이버를 기준점 **아래/위**로 민다.
+# 특히 0(= 그 성분을 아예 빼는 조건)이 중요하다: 상대항의 기준점이 범위
+# 중간에 있으면 0 에서 배수가 1을 크게 넘는다.
+_RANGE_PROBE_DRIVERS = {
+    "inhibitor_mM":     lambda x: [("zero", 0.0), ("hi", x * 10)],
+    "surfactant_ppm":   lambda x: [("zero", 0.0), ("hi", x * 10)],
+    "oxidizer_wt_pct":  lambda x: [("zero", 0.0), ("hi", x * 3)],
+    "abrasive_wt_pct":  lambda x: [("lo", x * 0.1), ("hi", x * 5)],
+    "shield_additive_wt_pct": lambda x: [("zero", 0.0), ("hi", x * 5)],
+}
+
+
+def check_factor_ranges(packs: List[str]) -> List[Issue]:
+    """각 팩터가 **자기 정의가 허용하는 범위** 안에 있는가.
+
+    왜 필요한가
+    ───────────
+    팩터는 이름에 정의가 박혀 있다. ψ 는 "표면 보호가 만드는 제거 **억제**
+    배수"이므로 ≤ 1 이어야 한다. 그런데 실측에서 ψ = 18.15 가 나왔고
+    (억제제 0 조건), 그 값이 MRR 을 18배 부풀려 예측 9085 vs 실측 19.2 라는
+    형상오차 117.8 % 를 만들었다.
+
+    이 종류의 결함은 조용하다 — 예외도 NaN 도 아니고 그냥 큰 수다.
+    이름이 약속한 범위를 검사기가 들고 있어야 잡힌다.
+
+    ⚠ 값을 자르지 않는다. clamp 는 물리를 숨기는 것이다.
+      범위를 벗어났다는 **사실을 신고**하고, 왜 벗어났는지는 모델이 답한다.
+    """
+    # 팩터 이름 → (하한, 상한, 그 범위가 무슨 뜻인가)
+    # 물질명 없음 — 팩터의 정의에서만 나온다.
+    RANGES: Dict[str, Tuple[float, float, str]] = {
+        "psi": (0.0, 1.0, "표면 보호는 제거를 억제한다 — 촉진할 수 없다"),
+        "delta": (0.0, float("inf"), "결함 밀도는 음수일 수 없다"),
+        "stab": (0.0, float("inf"), "안정도는 음수일 수 없다"),
+        "chi": (0.0, float("inf"), "화학 반응성은 음수일 수 없다"),
+        "kappa": (0.0, float("inf"), "접촉 강도는 음수일 수 없다"),
+        "tau": (0.0, float("inf"), "전달 효율은 음수일 수 없다"),
+        "theta": (0.0, float("inf"), "열 항은 음수일 수 없다"),
+        "gamma": (0.0, float("inf"), "컨디셔닝 항은 음수일 수 없다"),
+        "lambda": (0.0, float("inf"), "기계 부하는 음수일 수 없다"),
+        "pi": (0.0, float("inf"), "하중 분포는 음수일 수 없다"),
+    }
+
+    import warnings
+    warnings.filterwarnings("ignore")
+    from sim.engine import Recipe, simulate
+    from sim.params import load_pack
+    import sim.models  # noqa: F401  (모델 등록)
+
+    out: List[Issue] = []
+    for pack in packs:
+        # ⚠ 기본 조건만 보면 놓친다.
+        #   상대항은 기준점에서 정확히 1.0 이므로 범위를 벗어날 수 없다.
+        #   정의 위반은 **검증 조건**(기준점 밖)에서 드러난다 —
+        #   실제로 ψ=18.15 는 억제제 0 조건에서만 나왔고 기본 조건에서는
+        #   1.000 이었다. 기본 조건만 검사하면 검사기가 거짓 안심을 준다.
+        #   그래서 각 드라이버를 기준점 아래/위로 밀어 보며 함께 본다.
+        probes: List[Tuple[str, Dict[str, float]]] = [("기준", {})]
+        try:
+            pk = load_pack(pack)
+        except Exception:
+            pk = None
+        if pk is not None:
+            for key, lo_hi in _RANGE_PROBE_DRIVERS.items():
+                if not pk.has(key):
+                    continue
+                try:
+                    x0 = float(pk.get(key))
+                except (TypeError, ValueError):
+                    continue
+                for tag, v in lo_hi(x0):
+                    probes.append((f"{key}={v:g}", {key: v}))
+
+        for tag, ov in probes:
+            try:
+                rr = simulate(Recipe(pack=pack, pack_overrides=ov))
+            except Exception as e:  # noqa: BLE001
+                if tag == "기준":
+                    out.append(Issue("R", "error",
+                                     f"[{pack}] 팩터 산출 실패: {e}",
+                                     "엔진이 이 팩을 실행하지 못합니다."))
+                continue
+            for key, fac in rr.factors.items():
+                val = getattr(fac, "value", None)
+                if not isinstance(val, (int, float)) or key not in RANGES:
+                    continue
+                val = float(val)
+                if val != val:          # NaN
+                    continue
+                lo, hi, why = RANGES[key]
+                if not (lo - 1e-9 <= val <= hi + 1e-9):
+                    out.append(Issue(
+                        "R", "error",
+                        f"[{pack}] {key} = {val:.4g} 가 정의 범위 "
+                        f"[{lo:g}, {hi:g}] 밖 (조건: {tag})",
+                        f"{why}. 값을 자르지 말고 **왜 벗어났는지**를 "
+                        "고치십시오 — 보통 상대값의 기준점이 검증 조건 "
+                        "범위의 하단이 아니라 중간에 있을 때 생깁니다."))
+                    break          # 팩·팩터당 한 번만 신고
+    return out
+
+
 def check_identifiability(packs: List[str]) -> List[Issue]:
     import warnings
     warnings.filterwarnings("ignore")
@@ -514,6 +616,7 @@ def main() -> int:
 
     issues: List[Issue] = []
     issues += check_dimensions()
+    issues += check_factor_ranges(packs)
     issues += check_identifiability(packs)
     if not a.skip_limits:
         issues += check_limits(packs)
@@ -524,9 +627,10 @@ def main() -> int:
     if a.json:
         print(json.dumps([asdict(i) for i in issues], ensure_ascii=False, indent=2))
     else:
-        names = {"D": "차원", "L": "극한", "I": "식별"}
+        names = {"D": "차원", "L": "극한", "I": "식별", "R": "범위"}
         if not issues:
-            print(f"✅ 모델식 위생 검사 통과 — 팩 {len(packs)}개, 차원·극한·식별 위반 없음")
+            print(f"✅ 모델식 위생 검사 통과 — 팩 {len(packs)}개, "
+                  "차원·범위·극한·식별 위반 없음")
         for i in issues:
             mark = {"error": "🔴", "warn": "🟡", "info": "⚪"}[i.severity]
             print(f"{mark} [{names[i.check]}] {i.title}")

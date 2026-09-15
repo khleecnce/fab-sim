@@ -142,10 +142,29 @@ def join_tables(patent: str, tables: List[Table]) -> Optional[JoinedSeries]:
     if not axes:
         return None
 
+    # ── 진짜 스윕 축인가 ────────────────────────────────────
+    # "값이 두 종류 이상"만으로는 부족하다. 특허 실시예는 조성을 바꾸면서
+    # pH 를 미세하게 흔들기도 하는데(2.63 / 2.66 / 2.70), 그것을 'pH 스윕'
+    # 으로 읽으면 실제로는 조성 효과인 것을 pH 효과로 귀속시킨다.
+    # 스윕으로 인정하려면 **의미 있는 범위**를 덮어야 한다.
+    #   · 값이 3종류 이상
+    #   · 상대 범위(max-min)/|중앙값| 가 충분히 크다
+    #     (pH 처럼 로그 스케일인 양은 절대차로 본다)
+    ABS_SPAN = {"ph": 1.0}          # pH 는 1 단위 이상 움직여야 스윕
+    REL_SPAN = 0.25                 # 나머지는 25 % 이상
     varying = []
     for name, vals in axes.items():
-        seen = {v for v in vals if not math.isnan(v)}
-        if len(seen) > 1:
+        role = name.split("|")[-1]
+        seen = sorted({v for v in vals if not math.isnan(v)})
+        if len(seen) < 3:
+            continue
+        span = seen[-1] - seen[0]
+        if role in ABS_SPAN:
+            ok = span >= ABS_SPAN[role]
+        else:
+            mid = abs(seen[len(seen) // 2]) or 1e-9
+            ok = (span / mid) >= REL_SPAN
+        if ok:
             varying.append(name)
 
     return JoinedSeries(patent=patent, labels=labels, axes=axes,

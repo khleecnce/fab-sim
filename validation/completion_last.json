@@ -1,19 +1,21 @@
 {
-  "ts": 1789439143.409441,
+  "ts": 1789449305.102519,
   "complete": false,
-  "cells_done": 40,
+  "cells_done": 49,
   "cells_total": 50,
   "fails": [
-    "C2 Γ gamma/cu_h2o2_bta: confidence=estimated",
-    "C2 Γ gamma/oxide_silica: confidence=estimated",
-    "C2 Γ gamma/sic_ceria_h2o2: confidence=estimated",
-    "C2 Γ gamma/sti_ceria: confidence=estimated",
-    "C2 Γ gamma/w_fe_oxidizer: confidence=estimated",
-    "C2 χ chi/cu_h2o2_bta: confidence=estimated",
-    "C2 ψ psi/cu_h2o2_bta: confidence=unverified",
-    "C2 ψ psi/sti_ceria: confidence=estimated",
-    "C2 ψ psi/w_fe_oxidizer: confidence=unverified",
-    "C2 Δ delta/cu_h2o2_bta: confidence=estimated"
+    "C2 χ chi/cu_h2o2_bta: confidence=estimated"
+  ],
+  "closed": [
+    "Γ gamma/cu_h2o2_bta: estimated(종결 판정#22·판정#22-종결)",
+    "Γ gamma/oxide_silica: estimated(종결 판정#22·판정#22-종결)",
+    "Γ gamma/sic_ceria_h2o2: estimated(종결 판정#22·판정#22-종결)",
+    "Γ gamma/sti_ceria: estimated(종결 판정#22·판정#22-종결)",
+    "Γ gamma/w_fe_oxidizer: estimated(종결 판정#22·판정#22-종결)",
+    "ψ psi/cu_h2o2_bta: unverified(종결 판정#24B·판정#24C·판정#26·판정#25)",
+    "ψ psi/sti_ceria: estimated(종결 판정#28·판정#32)",
+    "ψ psi/w_fe_oxidizer: unverified(종결 판정#24A·판정#25)",
+    "Δ delta/cu_h2o2_bta: estimated(종결 판정#27·판정#30·판정#31)"
   ],
   "sensitivity": {
     "chi": true,
@@ -45,7 +47,7 @@
       "rhos": [
         1.0
       ],
-      "n_total": 2,
+      "n_total": 3,
       "mean_rho": 1.0
     },
     "cu_h2o2_bta": {
