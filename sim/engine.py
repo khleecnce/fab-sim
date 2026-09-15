@@ -224,6 +224,13 @@ class WaferResult:
     cu_pourbaix_triple_point_ph: Optional[float] = None
     cu_pourbaix_soluble_domain: Optional[bool] = None
     cu_pourbaix_note: Optional[str] = None
+    # 패드 그루브 깊이 소진 EOL 진단 — MRR과 무관. sim/tier2_physics/pad_groove_eol.py.
+    # 팩이 pad_cut_rate_um_per_h를 선언하지 않으면(현재 5팩 전부 미선언) 조용히 None —
+    # 43.4(풀컨택트)/22.2(분할컨택트) μm/h 중 어느 쪽인지 하드코딩으로 고르지 않는다.
+    pad_groove_cumulative_wear_um: Optional[float] = None
+    pad_groove_eol_hours: Optional[float] = None
+    pad_groove_exhausted: Optional[bool] = None
+    pad_groove_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -624,6 +631,56 @@ def _cu_pourbaix_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _pad_groove_eol_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """패드 그루브 깊이 소진 EOL 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/pad_groove_eol.py (self-test 9/9 PASS),
+    knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md
+    (Son & Lee 2021, Appl. Sci. 11(8) 3521, doi:10.3390/app11083521) §2.
+    누적 컨디셔닝 시간 t는 recipe.meta의 pad_hours를 쓴다(sim/models.py의
+    tier2.wear_aware, sim/slots.py가 이미 같은 값을 쓴다) — 컨디셔닝 시간과
+    연마 시간이 동일하다고 가정한다(Recipe에 컨디셔닝 전용 시간 필드가 없다).
+    컷레이트 c는 절대 하드코딩하지 않는다 — 팩이 pad_cut_rate_um_per_h를
+    선언할 때만 계산하고, 없으면 스킵한다(풀컨택트 43.4 μm/h vs 분할컨택트
+    22.2 μm/h 중 어느 쪽인지 팩이 정하지 않았으므로 임의로 고르지 않는다 —
+    현재 5팩 전부 미선언이라 항상 None이 정상이다). 초기 그루브 깊이 D0는
+    base.yaml의 groove_depth_mm(0.76mm=760um, confidence literature)을
+    mm->um 환산만 해서 쓴다 — 새 값을 YAML에 넣지 않는다. glazing EOL 시각을
+    내는 로직이 엔진에 없어(factors.py의 S 팩터는 정상상태 두께/포화도만 내고
+    EOL 시각을 내지 않는다) OR 결합(replacement_time_hours)은 호출하지 않고
+    그루브 EOL만 낸다.
+    """
+    out: Dict[str, object] = {"pad_groove_cumulative_wear_um": None,
+                              "pad_groove_eol_hours": None,
+                              "pad_groove_exhausted": None,
+                              "pad_groove_note": None}
+    if not rr.pack.has("pad_cut_rate_um_per_h"):
+        out["pad_groove_note"] = (
+            "pad_cut_rate_um_per_h 미선언 — 43.4(풀컨택트)/22.2(분할) 중 어느 "
+            "컨디셔닝 방식인지 팩이 정하지 않아 스킵")
+        return out
+    try:
+        import pad_groove_eol as PGE   # sim/tier2_physics (1바이트도 수정 안 함)
+        c = rr.p("pad_cut_rate_um_per_h")
+        hours = float(rr.meta.get("pad_hours", 0) or 0)
+        d0_um = rr.pack.param("groove_depth_mm").value * 1000.0  # mm -> um
+        cum = PGE.cumulative_wear_um(c, hours)
+        eol_h = PGE.groove_eol_hours(c, d0_um)
+        exhausted = PGE.groove_exhausted(cum, d0_um)
+    except Exception as e:
+        out["pad_groove_note"] = f"패드 그루브 EOL 진단 실패({e}) — None으로 둠"
+        return out
+    out["pad_groove_cumulative_wear_um"] = cum
+    out["pad_groove_eol_hours"] = eol_h
+    out["pad_groove_exhausted"] = exhausted
+    out["pad_groove_note"] = (
+        f"컨디셔닝 시간과 연마 시간이 동일하다고 가정(meta.pad_hours={hours:g}h 사용). "
+        f"c={c:g} μm/h, D0={d0_um:g} μm(groove_depth_mm={d0_um / 1000.0:g}mm). "
+        f"누적마모={cum:.1f} μm, 그루브 EOL={eol_h:.2f} h. "
+        f"glazing EOL 미산출이라 OR 결합 미수행.")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -714,6 +771,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     cu_pourbaix = _cu_pourbaix_diagnostic(rr)
     if cu_pourbaix["cu_pourbaix_note"]:
         notes.append(cu_pourbaix["cu_pourbaix_note"])
+    # 패드 그루브 깊이 소진 EOL 진단 — MRR 경로와 완전히 독립. pad_cut_rate_um_per_h
+    # 팩 미선언이면 조용히 None(현재 5팩 전부 미선언이라 항상 None이 정상).
+    pad_groove = _pad_groove_eol_diagnostic(rr)
+    if pad_groove["pad_groove_note"]:
+        notes.append(pad_groove["pad_groove_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -751,6 +813,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        cu_pourbaix_triple_point_ph=cu_pourbaix["cu_pourbaix_triple_point_ph"],
                        cu_pourbaix_soluble_domain=cu_pourbaix["cu_pourbaix_soluble_domain"],
                        cu_pourbaix_note=cu_pourbaix["cu_pourbaix_note"],
+                       pad_groove_cumulative_wear_um=pad_groove["pad_groove_cumulative_wear_um"],
+                       pad_groove_eol_hours=pad_groove["pad_groove_eol_hours"],
+                       pad_groove_exhausted=pad_groove["pad_groove_exhausted"],
+                       pad_groove_note=pad_groove["pad_groove_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
