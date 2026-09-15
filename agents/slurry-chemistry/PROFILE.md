@@ -75,6 +75,26 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   - 근거노트: 같은 노트 §3 verify1·§5
   - 검증문헌값: Xu 2022 Fig.1–2(48·67·116 Å/min), 기존 W값 US20110186542A1(0.117~0.189, 평균 0.142).
   - 우선순위: P2 (Ru 전용 파라미터 팩이 아직 없다면 이 항목은 팩 신설 시점까지 대기 — 우선순위는 팩 신설 여부에 종속).
+- **[변경 없음] psi/cu_h2o2_bta·psi/w_fe_oxidizer — `inhibitor_strength_k` 승격 근거 미확보(3회차 종결)**:
+  - 팩: cu_h2o2_bta / 키: inhibitor_strength_k
+    현재 3.0 (unverified) → 제안 없음 (등급 변경 불가)
+    근거: 산성 H₂O₂+BTA 계 농도 스윕 1차 문헌(Kim 2008 DOI:10.1143/jjap.47.108, Kondo 2000
+    DOI:10.1143/jjap.39.6216)이 IOP 구매페이지+미러 사이트 차단으로 구조적 접근불가(1·2·3회차 공통 확인),
+    로컬 특허 코퍼스 73건 전문에도 BTA 농도 스윕 실시예 0건 +
+    knowledge/cmp/psi-inhibitor-strength-k-primary-source-verification.md §2
+    ⚠ _ref 짝: 해당 없음(값 자체를 못 바꿔서 함께 옮길 것도 없음).
+  - 팩: w_fe_oxidizer / 키: inhibitor_strength_k
+    현재 2.117 (unverified) → 제안 없음 (등급 변경 불가 — 오히려 반증이 강화됨)
+    근거: Lee & Seo 2022(DOI:10.3390/app12031227) Fig.4b 3점으로 (K,k) 전 파라미터 공간을
+    스윕해도 실측을 못 재현(함수형 자체 반증, psi-inhibitor-strength-k-grade-ruling.md §A.3) +
+    대체 폐형식(Frumkin 등온식 등) 1차 문헌도 미확보 +
+    knowledge/cmp/psi-inhibitor-strength-k-primary-source-verification.md §3
+    ⚠ _ref 짝: 해당 없음.
+  - 다음 회차 지침: 위 두 팩 모두 **동일 경로 재시도 금지**(psi-inhibitor-strength-k-primary-source-verification.md
+    §5 반복 금지 목록). 남은 방향은 (a) `corpus.py harvest patents`로 Rohm and Haas/Air Products/
+    Hitachi Chemical 특허를 신규 수확 후 재검색, (b) CMP 범위를 벗어난 일반 부식과학 Frumkin
+    협동흡착 문헌 탐색(스코프 확인 필요), (c) 비자동 경로(저자 직접 연락) — 모두 자동화된 질의
+    검색으로는 소진됐다.
 
 ## 이수 기록
 - 2026-09-10 Lv1-1 산화제 화학 완료 — knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md
@@ -108,4 +128,14 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   하나만 항으로 산다는 기존 관측의 원인 규명), 착화제는 가법이 아니라 산화제 항에 곱하는 게이트여야 하며(oxidizer=0에서
   EDA 스윕해도 RR 요동만·단조증가 없음, floor_frac 0.41~0.58), `oxidizer_mech_floor` φ=0.14(W계 단일출처)는 Ru계에서
   자릿수가 다른 값(0.41~0.58)이 나와 재료별 분리가 필요함을 신규 1차 근거로 확립.
+- 2026-09-15 Lv3-2 화학 조성 → 용해율·패시베이션 상수 정량모델(ψ `inhibitor_strength_k`, 3회차 종결) —
+  knowledge/cmp/psi-inhibitor-strength-k-primary-source-verification.md (verify_claims ✓ 출처12·코드1블록,
+  check_knowledge ✓). 신규: Kondo et al. 2000(DOI:10.1143/jjap.39.6216, JJAP — IOP 구매페이지로
+  Kim 2008과 동형 접근불가 확인), 로컬 특허 코퍼스 73건 전문 전수 확인(BTA 언급 15건, 농도 스윕
+  실시예 0건, US20110165777A1은 BTA=100ppm 고정 확인), npj Mater. Degrad. 2020(DOI:10.1038/s41529-020-00139-0,
+  CC-BY 확보 — FeCl₃ PCB 에칭계라 부적격 확인). 핵심: 선행 두 노트([[../../knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification]],
+  [[../../knowledge/cmp/psi-inhibitor-strength-k-grade-ruling]])가 남긴 두 좁은 표적(특허 실시예·대체
+  폐형식)을 각각 소진 확인 — cu_h2o2_bta·w_fe_oxidizer 모두 `inhibitor_strength_k=unverified` 불변,
+  값도 불변. 이번 회차의 산출은 "확보"가 아니라 "3회차에 걸친 탐색 공간 소진의 정직한 확인"이다
+  (반복 금지 목록을 노트 §5에 남김).
 (이후 크론이 갱신)
