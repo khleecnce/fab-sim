@@ -117,6 +117,10 @@ class BacktestResult:
     source: str = ""
     notes: List[str] = field(default_factory=list)
     p_value: Optional[float] = None   # 순열검정 — 우연히 이만큼 맞을 확률
+    # 원자료 — 오차 분해(계통편향 vs 형상오차)에 필요하다.
+    # 요약 지표만 남기면 "배율을 맞춘 뒤에도 남는 어긋남"을 사후에 잴 수 없다.
+    observed: List[float] = field(default_factory=list)
+    predicted: List[float] = field(default_factory=list)
 
     #: 유의 판정 기준. n=3은 최소 p가 0.167이라 **구조적으로** 이 문턱을 넘을 수 없다.
     P_THRESHOLD = 0.05
@@ -262,7 +266,9 @@ def run_dataset(path: Path, model: str = "tier2.gw_physical_kp") -> BacktestResu
                           mape, scale, in_scope,
                           bool(raw.get("used_for_calibration", False)),
                           has_contact, raw.get("source", ""), notes,
-                          p_value=perm_p_value(rho, len(obs)))
+                          p_value=perm_p_value(rho, len(obs)),
+                          observed=[float(x) for x in obs],
+                          predicted=[float(x) for x in pred])
 
 
 def run_all(model: str = "tier2.gw_physical_kp") -> List[BacktestResult]:
