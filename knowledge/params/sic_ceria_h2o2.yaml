@@ -75,6 +75,11 @@ params:
       문헌 중 계 근접도(SiC vs oxide)로 이 값을 채택. 화학(알루미나 vs 세리아)이
       다르므로 기계적 κ 농도항에만 적용, χ(pH 화학항)는 무관.
       ⚠ n=5 회귀라 지수 정밀도는 미검증 — 방향(음수)·자릿수(-0.5 근방)만 신뢰.
+      판정#37(2026-09-15): 같은 특허 Table 1은 "Example 1 (Comparative)"로 자칭되고
+      Table 9(발명 공정 S-I1계열)는 동일 저농도 구간에서 부호가 반대(단조증가)임을
+      확인했으나, Table 9의 유효 관측 구간(0.1~1.0wt%)이 이 팩의 c_ref=4.0wt%를
+      전혀 포함하지 않아(4배 외삽) Table 1(0.1~5.0wt%, c_ref 포함) 유지로 재확정.
+      값·신뢰도 불변. 상세: knowledge/cmp/sic-abrasive-conc-exponent-table-provenance.md
     source: knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md §3, §5
     confidence: literature
 
