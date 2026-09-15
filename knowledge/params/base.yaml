@@ -655,5 +655,18 @@ params:
       **접촉 자리는 줄고 자리당 면적은 커진다** — 자리 수 1/4, 실접촉비 9.3배.
       ⚠ 이 가정은 간극/입경 비가 1 부근일 때만 성립한다. 간극이 입자보다 훨씬
       크면 여러 겹이 들어가 유효 참여 분율이 낮아진다(regime_adapter 가 판정).
+      [2026-09-16 재판정] sim/engine.py::_particle_contact_diagnostic 등록 후 입자당 하중
+      F=P/η 계산에서 5팩 전부 δ_p(소성 압입깊이) ≥ R(입자반경)로 plowing 근사가 깨지는
+      현상이 드러나 단층 가정을 재검증했다. Luo(NSF/UC SMART 프리프린트, [1]=Luo&Dornfeld
+      2001 doi:10.1109/66.920723 직접 인용·확장, papers/luo-dornfeld-material-removal-
+      regions-part1.pdf)의 포화 활성입자식 N/A'=4/(π·d²)(입자가 접촉영역을 자기 투영면적으로
+      빈틈없이 채우는 밀도, d=abrasive_size_nm)와 대조하면, η를 real_contact_area_ratio로
+      접촉영역 기준으로 환산해도(η/1.393e-3=3.18e9 /m²) 문헌값(팩별 d=50~120nm에서
+      8.8e13~5.1e14 /m²)보다 4~5자릿수 작다 — "패드 돌기 접촉 자리"(간격 수십 µm, GW 패드
+      3키에서 유래)와 "슬러리 입자"(간격 수백 nm 이하)는 애초에 3자릿수 다른 길이스케일이라
+      단층 가정 자체가 부적절함을 시사한다. F=P/η 유도식 자체는 η의 정의와 정합적임(오류
+      아님)도 함께 확인했다. 값은 교체하지 않았다(Luo식은 포화 레짐 상한이고 팩마다 다른
+      상수가 나와 팩 공통 단일값 구조와 맞지 않음 — 상세: knowledge/cmp/active-particle-
+      density-load-per-particle-audit.md §3).
     source: "sim/tier2_physics/gw_contact.py 수치적분 n_contacts @ 3 psi"
     confidence: estimated

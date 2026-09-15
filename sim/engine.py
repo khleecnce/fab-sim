@@ -1194,6 +1194,11 @@ def _particle_contact_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     ⚠ **η(active_particle_density_per_m2)는 confidence=estimated**다(GW 수치적분, 3 psi
     부근에서만 유효 — base.yaml 주석). 이 진단이 그 confidence를 올리지 않는다. F는 η에
     선형 반비례이므로 F도 η의 추정 성격을 그대로 물려받는다.
+    2026-09-16 재판정(knowledge/cmp/active-particle-density-load-per-particle-audit.md):
+    F=P/η 유도 자체는 η의 정의(GW 접촉 자리 수/명목면적)와 정합적임을 확인했다 — 유도 오류가
+    아니다. 대신 η가 "패드 돌기 접촉 자리"를 "활성입자"로 등치하는 단층 가정이 Luo(2001,
+    doi:10.1109/66.920723)를 직접 인용·확장한 동일 저자 폐형식과 4~5자릿수 어긋남을 정량
+    확인했다(위 노트 §2.3) — δ_p≥R 경고가 그 근거를 인용한다.
 
     ⚠ **chemomechanical_amplification()은 호출하지 않는다.** H_soft(화학연화 후 경도)가
     5팩 어디에도 없고, 노트 §6이 스스로 "실제 연화 정도는 슬러리별 미검증"이라 못박았다 —
@@ -1246,7 +1251,13 @@ def _particle_contact_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     if delta_p >= R:
         warn = (f" ⚠ 압입깊이 δ_p({delta_p*1e9:.3f} nm)가 입자반경 R({R*1e9:.3f} nm) 이상 — "
                 "소성 plowing 근사(δ<<R 가정)가 깨진 영역이다. 값을 감추지 않고 그대로 내되 "
-                "이 결과의 물리적 신뢰도는 낮다.")
+                "이 결과의 물리적 신뢰도는 낮다. 원인은 η(GW 접촉 자리 밀도)를 활성입자 밀도로 "
+                "등치하는 단층 가정 — Luo(NSF/UC SMART 프리프린트, [1]=Luo&Dornfeld 2001 "
+                "doi:10.1109/66.920723 직접 인용·확장)의 포화 활성입자식 N/A'=4/(π·d²)(입자 자체 "
+                "투영면적으로 접촉영역을 채우는 밀도)과 대조하면 이 팩의 η가 접촉영역 기준으로 "
+                "환산해도 4~5자릿수 작다(knowledge/cmp/active-particle-density-load-per-particle-"
+                "audit.md §2.3) — '패드 돌기 자리'(간격 ~수십 µm)와 '슬러리 입자'(간격 수백 nm)를 "
+                "동일시한 것 자체가 문헌과 어긋난다는 뜻이다.")
     out["particle_contact_note"] = (
         f"film='{rr.film}', H={H/1e9:.2f} GPa, R={R*1e9:.1f} nm(abrasive_size_nm/2), "
         f"P_nominal={rr.pressure_psi:g} psi. F=P/η={F*1e9:.3f} nN "
