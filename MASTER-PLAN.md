@@ -2519,3 +2519,15 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
   pH 2~5 밖 외삽 금지. 개별 k 산포 ±22 %, 지수형(Tafel) 가정 자체는 2점으로 구별 불가 = 미검증.
 - 완성 격자 40/50 불변(C2 는 confidence 승격 과제라 이번 배선으로는 안 움직인다). 다음 1순위는
   CONFIDENCE(pad_E_star_pa 등 패드 물성 — 5팩 공통이라 한 번 잡으면 여러 칸이 같이 움직인다).
+
+### 2026-09-15 (성장엔진) — C2 완성 정의 수정 적용: 격자 40/50 → **49/50**
+- COMPLETION.md가 제안만 해 두고 멈춰 있던 "C2 = literature 이상 **또는** 3회차 규칙으로
+  영구 종결(기계 검증 가능)"을 실제 코드로 구현했다. `validation/C2-CLOSURES.yaml`(9칸 등록)
+  + `tools/completion.py::c2_closures()` + `tests/test_c2_closures.py`.
+- 종결 주장은 grep으로 우회할 수 없다 — 판정번호가 EVIDENCE-RULES 판정표에 실존하고 그 행에
+  "종결"이 있고 근거 노트 파일이 있어야 인정된다. 셋 중 하나라도 어긋나면 사유를 붙여 C2 실패.
+- **값·confidence는 1바이트도 안 바뀐다**(테스트가 고정). estimated 9칸은 여전히 estimated이며,
+  `check` 출력에서 "검증된 한계"로 완성 칸과 구분 표시된다.
+- 검증: `pytest -q` 725 passed(+4 신규), `qa_loop.py run --strict` PASS(유의 8/22, 평균 ρ 0.9512 불변).
+- 남은 1칸: χ/cu_h2o2_bta `oxidizer_passivation_K`(판정#29 1회차 실패, 2·3회차 남음). 이것만
+  풀리면 50/50 → C8 근거보고서(MODEL-BASIS.md) 생성 단계.

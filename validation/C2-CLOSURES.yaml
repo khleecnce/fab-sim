@@ -1,0 +1,78 @@
+# C2 종결 원장 — confidence < literature 인 칸 중 "문헌 부재가 3회차 규칙으로 영구 종결된" 것만 등록.
+#
+# 이 파일은 값도 confidence 도 바꾸지 않는다. estimated/unverified 는 그대로 남는다.
+# 바꾸는 것은 완성 판정의 기준이다 — "안 했다"(미조사)와 "못 한다"(3회차 소진, 구조적 문헌 부재)를
+# 구분하되, 후자를 주장하려면 **기계로 검증 가능한 증거**를 대야 한다:
+#   (1) judgments 의 각 판정 번호가 EVIDENCE-RULES.md 판정표에 실존하고,
+#   (2) 그 행에 "종결" 문구가 있으며,
+#   (3) note 경로의 노트 파일이 실제로 존재한다.
+# 셋 중 하나라도 어긋나면 그 칸은 종결로 인정되지 않고 그냥 C2 미충족으로 돌아간다.
+# 근거 서술 원본: validation/C2-RESIDUAL-CLASSIFICATION.md (2026-09-15)
+#
+# ⚠ 재오픈: 각 항목 reopen_if 에 적힌 새 근거가 나타나면 종결은 무효다. 그때는 이 파일에서
+#    해당 항목을 지우고 정상 재판정 절차(EVIDENCE-RULES §절차)를 다시 밟는다.
+
+closures:
+  # ── Γ ×5팩 — 사유(3) 임계하중 비선형 (판정#22 → #22-종결) ──────────────────
+  # sim/factors.py:548 이 5팩 공통으로 estimated 하한을 건다. 원인은 마모 그릿 팁 반경 R 과
+  # IC1000 항복강도 Y 의 **직접 실측 1차값**이 이 코퍼스에 없다는 것(3회차 소진).
+  - factor: gamma
+    pack: cu_h2o2_bta
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처(그때 factors.py:548 리터럴도 함께 제거)
+  - factor: gamma
+    pack: oxide_silica
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+  - factor: gamma
+    pack: sic_ceria_h2o2
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+  - factor: gamma
+    pack: sti_ceria
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+  - factor: gamma
+    pack: w_fe_oxidizer
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+
+  # ── ψ ×2팩 — inhibitor_strength_k 값경로·함수형경로 양쪽 소진 ────────────────
+  - factor: psi
+    pack: cu_h2o2_bta
+    judgments: ["판정#24B", "판정#24C", "판정#26", "판정#25"]
+    note: knowledge/cmp/psi-inhibitor-strength-k-primary-source-verification.md
+    reason: 산성 Cu 계 BTA 농도 스윕 1차출처 3회차 소진(#26) + Frumkin 대체 함수형 물리근거 미확보(#25)
+    reopen_if: CN107109135A 원본 PDF(현재 이미지 표만) 확보 또는 웹 승인 세션의 신규 특허검색 성공
+  - factor: psi
+    pack: w_fe_oxidizer
+    judgments: ["판정#24A", "판정#25"]
+    note: knowledge/cmp/psi-inhibitor-strength-k-grade-ruling.md
+    reason: 값경로는 전 파라미터공간 반증(#24A), 함수형경로(Frumkin)는 원문 구조적 미확보(#25)
+    reopen_if: Langmuir/Frumkin 이 아닌 제3 등온식(임계피복률 문턱 등)의 1차 근거
+
+  # ── ψ/sti_ceria — shield_* 6값 (판정#28 2회차 → #32 3회차 종결) ──────────────
+  - factor: psi
+    pack: sti_ceria
+    judgments: ["판정#28", "판정#32"]
+    note: knowledge/cmp/psi-sti-ceria-additive-sweep-parameter-identification.md
+    reason: Park 2003 그림판독 의존 + (K,n,k) 산화막 비식별. 교차검증용 동일화학종 농도스윕 문헌이 13개 소스 확인 끝에 부재 확정(3회차)
+    reopen_if: 비영어권 특허DB 전수 또는 유료저널 직접구독 등 새 근거 범주
+
+  # ── Δ/cu_h2o2_bta — damage_exponent (판정#27 → #30 → #31 3회차 종결) ─────────
+  - factor: delta
+    pack: cu_h2o2_bta
+    judgments: ["판정#27", "판정#30", "판정#31"]
+    note: knowledge/cmp/delta-damage-exponent-cu-system-primary-data.md
+    reason: Cu 계 입경-스크래치 대응쌍 1차데이터 부재(1·2회차) + R1(소거) 성립으로 3회차 종결 — Δ는 MRR 비결합 진단 전용이라 이 값의 절대치가 필요 없다
+    reopen_if: Cu 막질 직접 D99-스크래치 밀도 대응쌍 실측 문헌 출현

@@ -144,11 +144,68 @@ def notes_with_verify(factor: str, g: Optional[Dict] = None) -> List[str]:
     return sorted(set(hits))
 
 
+# ── C2 종결 원장 (2026-09-15) ────────────────────────────────────────────────
+# COMPLETION.md "완성 정의 수정 제안"의 구현. C2 는 이제 다음 중 하나면 충족이다:
+#   (a) confidence >= literature, 또는
+#   (b) 그 칸이 validation/C2-CLOSURES.yaml 에 등록돼 있고, 등록된 판정 번호가
+#       EVIDENCE-RULES.md 판정표에 **실존**하며 그 행이 **종결**을 선언하고, 근거 노트가
+#       실제 파일로 존재한다.
+# (b)는 느슨해지는 게 아니라 다른 축으로 더 엄격하다 — 근거 없이 "종결했다"고 주장하면
+# 파싱 단계에서 걸린다. 값·confidence 는 이 경로로 단 1바이트도 바뀌지 않는다.
+
+def _evidence_rule_rows() -> Dict[str, str]:
+    """EVIDENCE-RULES.md 판정표 → {"판정#22": "그 행 전체 텍스트"}"""
+    f = ROOT / "EVIDENCE-RULES.md"
+    rows: Dict[str, str] = {}
+    if not f.exists():
+        return rows
+    for line in f.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^\|\s*(\d{1,3}[A-Za-z]?(?:-종결)?)\s*\|", line)
+        if m:
+            rows["판정#" + m.group(1)] = line
+    return rows
+
+
+def c2_closures() -> Dict[tuple, Dict[str, Any]]:
+    """검증을 통과한 종결 칸만 {(factor,pack): {...}} 로 돌려준다.
+
+    검증에 실패한 항목은 조용히 빠지지 않고 'invalid' 사유를 달아 돌려준다 —
+    check() 가 그걸 그대로 C2 실패로 출력한다."""
+    f = ROOT / "validation" / "C2-CLOSURES.yaml"
+    out: Dict[tuple, Dict[str, Any]] = {}
+    if not f.exists():
+        return out
+    try:
+        doc = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+    except Exception as e:
+        return {}
+    rows = _evidence_rule_rows()
+    for item in (doc.get("closures") or []):
+        k = (str(item.get("factor")), str(item.get("pack")))
+        judg = [str(j) for j in (item.get("judgments") or [])]
+        bad: List[str] = []
+        if not judg:
+            bad.append("판정 번호 없음")
+        missing = [j for j in judg if j not in rows]
+        if missing:
+            bad.append("EVIDENCE-RULES 에 없는 판정: " + ",".join(missing))
+        if judg and not missing and not any("종결" in rows[j] for j in judg):
+            bad.append("어느 판정행에도 '종결' 선언이 없음")
+        note = str(item.get("note") or "")
+        if not note or not (ROOT / note).exists():
+            bad.append(f"근거 노트 없음: {note}")
+        out[k] = {"judgments": judg, "note": note, "reason": item.get("reason", ""),
+                  "reopen_if": item.get("reopen_if", ""), "valid": not bad, "invalid": bad}
+    return out
+
+
 def check(verbose: bool = True) -> Dict[str, Any]:
     from sim.factors import FACTOR_SPEC, MRR_COUPLED
     g = grid()
     packs = _packs()
     fails: List[str] = []
+    closed: List[str] = []           # C2 (b) 경로로 충족된 칸 — "검증된 한계"
+    closures = c2_closures()
     # C1/C2
     for k in FACTOR_SPEC:
         for p in packs:
@@ -156,7 +213,13 @@ def check(verbose: bool = True) -> Dict[str, Any]:
             if c["status"] not in OK_STATUS:
                 fails.append(f"C1 {FACTOR_SPEC[k][0]} {k}/{p}: status={c['status']}")
             elif CONF_RANK.get(c.get("confidence", ""), 0) < CONF_RANK[MIN_CONF]:
-                fails.append(f"C2 {FACTOR_SPEC[k][0]} {k}/{p}: confidence={c.get('confidence')}")
+                cl = closures.get((k, p))
+                if cl and cl["valid"]:
+                    closed.append(f"{FACTOR_SPEC[k][0]} {k}/{p}: {c.get('confidence')}"
+                                  f"(종결 {'·'.join(cl['judgments'])})")
+                else:
+                    extra = f" — 종결 등록 무효: {'; '.join(cl['invalid'])}" if cl else ""
+                    fails.append(f"C2 {FACTOR_SPEC[k][0]} {k}/{p}: confidence={c.get('confidence')}{extra}")
     # C3
     alive = sensitivity_alive()
     for k, ok in alive.items():
@@ -177,12 +240,24 @@ def check(verbose: bool = True) -> Dict[str, Any]:
         if not c5[k]:
             fails.append(f"C5 {FACTOR_SPEC[k][0]} {k}: verify 블록 있는 근거 노트 없음")
     total_cells = len(FACTOR_SPEC) * len(packs)
-    done_cells = sum(1 for k in FACTOR_SPEC for p in packs
-                     if g[k][p]["status"] in OK_STATUS and CONF_RANK.get(g[k][p].get("confidence", ""), 0) >= CONF_RANK[MIN_CONF])
+    def _cell_ok(k: str, p: str) -> bool:
+        c = g[k][p]
+        if c["status"] not in OK_STATUS:
+            return False
+        if CONF_RANK.get(c.get("confidence", ""), 0) >= CONF_RANK[MIN_CONF]:
+            return True
+        cl = closures.get((k, p))
+        return bool(cl and cl["valid"])
+
+    done_cells = sum(1 for k in FACTOR_SPEC for p in packs if _cell_ok(k, p))
     result = {"ts": time.time(), "complete": not fails, "cells_done": done_cells, "cells_total": total_cells,
-              "fails": fails, "sensitivity": alive, "heldout": ho, "c5_notes": c5}
+              "fails": fails, "closed": closed, "sensitivity": alive, "heldout": ho, "c5_notes": c5}
     if verbose:
         print(f"완성 판정: {'✅ 완성' if not fails else '❌ 미완'}  — 격자 {done_cells}/{total_cells}칸 충족")
+        if closed:
+            print(f"  ※ 그 중 {len(closed)}칸은 '검증된 한계'(문헌 부재 3회차 종결, 값·등급 불변):")
+            for c in closed:
+                print("     ", c)
         by = defaultdict(list)
         for f in fails:
             by[f[:2]].append(f)
