@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11), Lv2-2 (2026-09-11), Lv3-1 (2026-09-14)
-- 다음 단원: Lv3-2
+- 이수 단원: Lv1-1 (2026-09-09), Lv1-2 (2026-09-10), Lv2-1 (2026-09-11), Lv2-2 (2026-09-11), Lv3-1 (2026-09-14), Lv3-2 (2026-09-15)
+- 다음 단원: (Lv3 완료 — Cal-1 활성화는 ORG.md §7.3 게이트에 따름)
 
 ## 역할
 실데이터 통합 스키마, 입력 검증, 단위 통일, 이상치, 익명화, 합성 데이터 생성. 캘리브레이션 층의 기반
@@ -23,6 +23,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 - 2026-09-11 Lv2-1 좌표계·단위 통일·결측/이상치 클리닝 — knowledge/data/wafer-coordinate-units-outlier-cleaning.md (check_knowledge/verify_claims 통과: 출처 3건 실존·verify 5블록 통과)
 - 2026-09-11 Lv2-2 합성 데이터 생성기(Tier1/2+노이즈) — knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 통과)
 - 2026-09-14 Lv3-1 데이터 품질 게이트와 익명화 — knowledge/data/cmp-data-quality-gate-and-anonymization.md (check_knowledge/verify_claims 통과: 출처 6건 실존·verify 3블록 통과). 핵심: ①폐루프(R2R EWMA) 제어 하에서 레시피-결과 상관 0은 물리의 반증이 아님을 동일 물리게인 고정 시뮬레이션으로 재현(앵커 Sachs 1995 공정변동 2.7배 감소) ②drift 게이트는 원시출력이 아니라 컨트롤러 보정항에 걸어야 함 ③k-익명성(Sweeney 2002, DOI:10.1142/S0218488502001648) Definition 3 + 1990 US Census 87% 재식별 수치를 코드로 대조, ToolID/타임스탬프/(ToolID,RecipeID,Shift) 조합을 QI로 지정. ⚠ 제안 임계 k≥5는 미검증 초안. SEMI E89 원문(Cloudflare 봉쇄)·AIAG MSA %GRR 룰(교과서 스코프 제외)로 P/T 임계값은 공란
+- 2026-09-15 Lv3-2 ingest 파이프라인: 스키마 검증→표준화→컬럼형 저장 — knowledge/data/cmp-measurement-ingest-schema-standardization.md (check_knowledge/verify_claims 통과: 출처 4건 실존·verify 1블록(4개 하위검증 a~d) 통과). 핵심: ①최소 스키마=조건·응답·불확도·출처 4범주, 불확도는 `tools/ingest_measurement.py`에 현재 없는 필드임을 코드로 직접 확인하고 GUM(JCGM 100:2008, DOI:10.59161/jcgm100-2008e, 원문 PDF 직접 열람) §2.2.3 정의·§6.3.1 k∈[2,3]·§7.2.3 보고요건으로 근거 세움 ②결측≠물리적 불가능값(≤0) 분리, 인위주입 불량행 4종 100% 검출 재현 ③Parquet 왕복 무손실(부동소수점 완전일치) ④컬럼형 저장 근거: 합성표 20,000행 자체 벤치마크로 Parquet이 SQLite 대비 크기 78%↓·쿼리 3.5배, CSV 대비 46배(문헌 수치 아님, 직접 실측). ⚠ C-Store 논문(Stonebraker, DOI:10.1145/3226595.3226638) 본문 미확보로 수치 인용 안 함, DuckDB `.venv` 미설치 확인되어 엔진 자체 성능은 미검증, 유럽식 소수점쉼표 파싱 한계는 해결 못 함
 
 ## 구현 요청 (소프트웨어 부문 몫 — cmp-data-engineer는 설계·근거만, 코드는 넘김)
 
@@ -58,3 +59,12 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     - 전부 "clean 값·주입 노이즈 파라미터·seed"를 메타데이터로 반환(가역·재현) — 캘리브레이션이 원래 파라미터를 복원하는지 채점 가능해야 함.
   - **검증문헌값**: eps~N(0,0.02)(McLoone/Susto 2018, DOI:10.1109/TASE.2017.2786213), 잔차 8.317 nm/min·R²=0.917(Li et al. 2019, DOI:10.1115/1.4042051), 실측 CV 5.3~13.8%(JP4508514B2). MAD 점탐지는 spike는 잡되 gradual drift는 못 잡음(§4.4 assert) — drift 검증에는 추세상관 등 별도 탐지기 필요.
   - **우선순위**: 중 — Lv1-2 스키마·Lv2-1 normalize.py 확정 후, Lv3-2 ingest 파이프라인의 회귀테스트 데이터 공급원으로 착수.
+
+- **무엇을**: `tools/ingest_measurement.py` 확장(불확도·출처 필드) + `sim/calibration/ingest.py`(신설, CURRICULUM.md 지정 경로) — 검증된 행을 Parquet으로 내보내는 단계.
+  - **근거노트**: knowledge/data/cmp-measurement-ingest-schema-standardization.md §1(최소 스키마 4범주)·§2(검증 규칙)·§4(컬럼형 저장 근거)·§5(verify 블록 전체를 회귀테스트로 승격).
+  - **함수/필드 스펙**:
+    - `points` 각 항목에 `uncertainty`(값과 같은 단위의 결합표준불확도 u_c) + `coverage_k`(기본 2, GUM §6.3.1 범위 2~3) 필드 추가. 둘 다 없으면 `warnings`(강제 아님 — 기존 데이터 호환)로만 신고, 문헌 추출 레코드는 `source`(DOI+표 번호) **필수(NOT NULL)** — [[cmp-integration-schema-keys-semi-standards]] Measurement.SOURCE 제약과 동일.
+    - `validate_row()`류 물리적 불가능값 검사(`removed_nm<0`, `pressure_psi<=0`, `time_s<=0`)를 `blockers`에 추가 — 현재 코드는 결측만 보고 부호를 안 본다. 단위 의심(`thickness_post_nm>3000` 류 자릿수 이탈)은 `warnings`.
+    - `to_parquet(records, path)` — pyarrow(이미 `.venv`에 21.0.0 설치 확인)로 검증 통과 레코드를 컬럼형 저장. DuckDB는 `.venv` 미설치이므로 1단계는 pyarrow만, DuckDB 도입은 별도 의존성 추가 결정 필요.
+  - **검증문헌값**: GUM(JCGM 100:2008, DOI:10.59161/jcgm100-2008e) §2.2.3·§6.3.1·§7.2.3, psi→kPa 6.894757(NIST SP811, [[wafer-coordinate-units-outlier-cleaning]] 재사용), Parquet 왕복 무손실·집계쿼리 SQLite 대비 3.5배·CSV 대비 46배(자체 벤치마크, §5(d)). 전부 노트 §5 assert.
+  - **우선순위**: 중 — Lv3-2가 이 단원의 마지막이므로 Cal-1(캘리브레이션 층 통합) 착수 전에 확정 필요.

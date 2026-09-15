@@ -13,7 +13,8 @@
       → knowledge/data/synthetic-data-generation-tier1-tier2-noise-model.md (2026-09-11)
 - [x] Lv3-1 데이터 품질 게이트와 익명화(고객 식별 정보 제거) 규칙
       → knowledge/data/cmp-data-quality-gate-and-anonymization.md (2026-09-14)
-- [ ] Lv3-2 ingest 파이프라인 구현: 스키마 검증 → 표준화 → 파케이/DuckDB (sim/calibration/ingest.py)
+- [x] Lv3-2 ingest 파이프라인 구현: 스키마 검증 → 표준화 → 파케이/DuckDB (sim/calibration/ingest.py)
+      → knowledge/data/cmp-measurement-ingest-schema-standardization.md (2026-09-15)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 이 에이전트 자체가 캘리브레이션 층의 데이터 기반. 각 서브에이전트가 정의한 스키마를 통합·검증한다
