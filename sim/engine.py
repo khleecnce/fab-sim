@@ -304,6 +304,15 @@ class WaferResult:
     disk_gw_rpk_relative: Optional[float] = None
     disk_gw_lambda_relative: Optional[float] = None
     disk_gw_scaling_note: Optional[str] = None
+    # 단일 연마입자 소성 접촉(plowing) 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # particle_chemomechanical_synergy.py::plastic_plowing(원본 무수정). F=P_nominal/η
+    # (η=active_particle_density_per_m2, confidence=estimated), R=abrasive_size_nm/2,
+    # H=film_bulk_hardness_pa. film_bulk_hardness_pa 미선언(현재 sti_ceria)이면 조용히
+    # None. chemomechanical_amplification()(H_soft 필요, 팩에 없음)은 호출하지 않는다.
+    particle_load_n: Optional[float] = None
+    particle_indent_depth_nm: Optional[float] = None
+    particle_plow_area_nm2: Optional[float] = None
+    particle_contact_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1162,6 +1171,95 @@ def _disk_gw_scaling_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _particle_contact_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """단일 연마입자 소성 접촉(plowing) 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/particle_chemomechanical_synergy.py::plastic_plowing
+    (원본 무수정, self-test 5/5 PASS), knowledge/cmp/particle-wafer-interaction-mechanical-
+    chemical-balance.md §2·§3·§4.
+
+    이 진단이 등록 가능해진 이유: 모듈 docstring이 "미등록"이라 선언한 것은 Preston Kp로의
+    **정량 연결식**이 없다는 뜻이다(chemomechanical_amplification, 즉 화학연화 전후 H 비율에
+    따른 증폭비 — 아래 참조). 단일입자 소성 압입/plowing 자체를 진단 필드로 내는 것은 그와
+    별개이고, 필요한 입력이 base.yaml에 이미 있다: active_particle_density_per_m2(GW 수치적분
+    유래, 3 psi 대표값), abrasive_size_nm(팩별 실측 평균 입경), film_bulk_hardness_pa(팩별
+    나노압입 벌크경도, sti_ceria만 미선언).
+
+    입자당 하중 F: 명목압력 P를 활성입자 면밀도 η로 나눈다.
+      F = (P·A_n) / (η·A_n) = P/η [Pa / m^-2 = Pa·m^2 = N]
+    A_n(pad_nominal_area_m2)은 분자·분모에서 소거된다 — "명목압력이 누르는 명목면적 내
+    활성입자 전체가 그 하중을 나눠 받는다"는 GW 활성입자 정의(η 자체의 유래) 그대로다.
+    입자 반경 R = abrasive_size_nm/2(직경→반경, 팩 note가 "mean diameter"/"diam"으로 명시).
+
+    ⚠ **η(active_particle_density_per_m2)는 confidence=estimated**다(GW 수치적분, 3 psi
+    부근에서만 유효 — base.yaml 주석). 이 진단이 그 confidence를 올리지 않는다. F는 η에
+    선형 반비례이므로 F도 η의 추정 성격을 그대로 물려받는다.
+
+    ⚠ **chemomechanical_amplification()은 호출하지 않는다.** H_soft(화학연화 후 경도)가
+    5팩 어디에도 없고, 노트 §6이 스스로 "실제 연화 정도는 슬러리별 미검증"이라 못박았다 —
+    지어내면 근거 없는 수치가 제품 출력이 된다(tests/test_particle_contact_diagnostic.py가
+    이 경계를 grep으로 기계 고정한다).
+
+    탄성 레짐 판정(single_particle_elastic_contact의 p_max vs H)은 내지 않는다 — 입자-막
+    등가탄성계수 E*를 구하려면 두 재료의 영률·포아송비가 필요한데 어느 팩에도 없다(입자는
+    실리카/알루미나/세리아, 막은 산화막/Cu/SiC/W로 재료쌍마다 다르고 지어낼 수 없다).
+
+    film_bulk_hardness_pa 미선언(현재 sti_ceria만 해당) 또는 rr.pressure_psi 없음(Recipe
+    필수 필드라 항상 있음)이면 조용히 None + 사유.
+
+    물리적으로 말이 안 되는 결과(압입깊이 ≥ 입자반경)가 나와도 값을 감추지 않고 note에
+    경고를 명시한다(조용한 clamp 금지, 판정 지침).
+    """
+    out: Dict[str, object] = {"particle_load_n": None,
+                              "particle_indent_depth_nm": None,
+                              "particle_plow_area_nm2": None,
+                              "particle_contact_note": None}
+    if not rr.pack.has("film_bulk_hardness_pa"):
+        out["particle_contact_note"] = (
+            f"film_bulk_hardness_pa 팩 '{rr.pack.name}'에 없음 — 소성 압입 계산에 필요한 "
+            "벌크경도 H를 지어낼 수 없어 스킵(현재 sti_ceria만 미선언이 정상)")
+        return out
+    if not rr.pack.has("abrasive_size_nm"):
+        out["particle_contact_note"] = (
+            f"abrasive_size_nm 팩 '{rr.pack.name}'에 없음 — 입자 반경 R을 지어낼 수 없어 스킵")
+        return out
+    if not rr.pack.has("active_particle_density_per_m2"):
+        out["particle_contact_note"] = (
+            "active_particle_density_per_m2 base.yaml에 없음 — 입자당 하중 F를 지어낼 "
+            "수 없어 스킵")
+        return out
+    try:
+        import particle_chemomechanical_synergy as PCS   # sim/tier2_physics (1바이트도 수정 안 함)
+        H = float(rr.p("film_bulk_hardness_pa"))
+        R = float(rr.p("abrasive_size_nm")) / 2.0 * 1e-9
+        eta = float(rr.p("active_particle_density_per_m2"))
+        P_nominal = rr.pressure_psi * PSI_TO_PA
+        F = P_nominal / eta
+        delta_p, A_f = PCS.plastic_plowing(F, R, H)
+    except Exception as e:
+        out["particle_contact_note"] = f"입자 접촉 진단 계산 실패({e}) — None으로 둠"
+        return out
+    out["particle_load_n"] = float(F)
+    out["particle_indent_depth_nm"] = float(delta_p) * 1e9
+    out["particle_plow_area_nm2"] = float(A_f) * 1e18
+    warn = ""
+    if delta_p >= R:
+        warn = (f" ⚠ 압입깊이 δ_p({delta_p*1e9:.3f} nm)가 입자반경 R({R*1e9:.3f} nm) 이상 — "
+                "소성 plowing 근사(δ<<R 가정)가 깨진 영역이다. 값을 감추지 않고 그대로 내되 "
+                "이 결과의 물리적 신뢰도는 낮다.")
+    out["particle_contact_note"] = (
+        f"film='{rr.film}', H={H/1e9:.2f} GPa, R={R*1e9:.1f} nm(abrasive_size_nm/2), "
+        f"P_nominal={rr.pressure_psi:g} psi. F=P/η={F*1e9:.3f} nN "
+        f"(η=active_particle_density_per_m2={eta:.3e} /m², confidence=estimated — GW 수치적분 "
+        "유래, 3 psi 부근 대표값. pad_nominal_area_m2는 F=P·A_n/(η·A_n) 계산에서 소거됨). "
+        f"δ_p={delta_p*1e9:.3f} nm, A_f={A_f*1e18:.3f} nm².{warn} "
+        "⚠ 진단 전용, MRR에 영향 없음(Preston Kp 연결식 없음 — 모듈 docstring 그대로). "
+        "chemomechanical_amplification()(화학연화 H_soft 필요)은 호출하지 않음 — H_soft가 "
+        "5팩 어디에도 없고 슬러리별 미검증(노트 §6). 탄성 레짐 판정은 입자-막 E*(영률·"
+        "포아송비 필요, 팩에 없음)가 없어 내지 않음.")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1538,6 +1636,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     disk_gw = _disk_gw_scaling_diagnostic(rr)
     if disk_gw["disk_gw_scaling_note"]:
         notes.append(disk_gw["disk_gw_scaling_note"])
+    # 단일 연마입자 소성 접촉(plowing) 진단 — MRR 경로와 완전히 독립.
+    # film_bulk_hardness_pa 팩 미선언(현재 sti_ceria만 해당)이면 조용히 None.
+    particle_contact = _particle_contact_diagnostic(rr)
+    if particle_contact["particle_contact_note"]:
+        notes.append(particle_contact["particle_contact_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1610,6 +1713,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        disk_gw_rpk_relative=disk_gw["disk_gw_rpk_relative"],
                        disk_gw_lambda_relative=disk_gw["disk_gw_lambda_relative"],
                        disk_gw_scaling_note=disk_gw["disk_gw_scaling_note"],
+                       particle_load_n=particle_contact["particle_load_n"],
+                       particle_indent_depth_nm=particle_contact["particle_indent_depth_nm"],
+                       particle_plow_area_nm2=particle_contact["particle_plow_area_nm2"],
+                       particle_contact_note=particle_contact["particle_contact_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
