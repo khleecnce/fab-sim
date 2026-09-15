@@ -29,56 +29,56 @@ conditions:
     rpm_wafer: 112
     mrr_nm_per_min: 16.0
     read_method: table
-    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 1%, FSN 250 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 15.4
     read_method: table
-    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 3%, FSN 0 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 15.8
     read_method: table
-    overrides: {oxidizer_wt_pct: 3.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 3.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 3%, FSN 250 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 14.6
     read_method: table
-    overrides: {oxidizer_wt_pct: 3.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 3.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 5%, FSN 0 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 15.4
     read_method: table
-    overrides: {oxidizer_wt_pct: 5.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 5.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 5%, FSN 250 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 15.5
     read_method: table
-    overrides: {oxidizer_wt_pct: 5.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 5.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 7%, FSN 0 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 15.7
     read_method: table
-    overrides: {oxidizer_wt_pct: 7.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 7.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 7%, FSN 250 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 18.2
     read_method: table
-    overrides: {oxidizer_wt_pct: 7.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 7.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
 
   # ── TABLE 2 (KOH 0.41 wt%, pH before H2O2 = 10.3) ──
   - label: "H2O2 0%, FSN 500 ppm"
@@ -87,28 +87,28 @@ conditions:
     rpm_wafer: 112
     mrr_nm_per_min: 18.7
     read_method: table
-    overrides: {oxidizer_wt_pct: 0.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 0.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 0.25%, FSN 500 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 14.0
     read_method: table
-    overrides: {oxidizer_wt_pct: 0.25, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 0.25, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 0.5%, FSN 500 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 12.9
     read_method: table
-    overrides: {oxidizer_wt_pct: 0.5, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 0.5, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
   - label: "H2O2 1%, FSN 500 ppm"
     pressure_psi: 2.0
     rpm_platen: 123
     rpm_wafer: 112
     mrr_nm_per_min: 12.1
     read_method: table
-    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1}
+    overrides: {oxidizer_wt_pct: 1.0, abrasive_wt_pct: 5.0, abrasive_ref_wt_pct: 5.0, sfr_ml_min: 200.0, slurry_ph: 11.1, inhibitor_mM: 0.8395}
 
 notes: >
   DOE 축: H2O2 0 / 0.25 / 0.5 / 1 / 3 / 5 / 7 wt%(모델에 전달됨) + Zonyl FSN 계면활성제

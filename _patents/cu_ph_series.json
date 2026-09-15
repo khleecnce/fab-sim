@@ -1,1 +1,25 @@
-[]
+[
+ {
+  "patent": "10787592",
+  "title": "Chemical mechanical polishing compositions and methods having en",
+  "cell": "혼합",
+  "inhibitor": true,
+  "ph": [
+   8.0,
+   10.5,
+   3.5,
+   5.0
+  ],
+  "rate": {
+   "(Å/min)|rate": [
+    2.0,
+    3.0,
+    1.0,
+    1.0
+   ]
+  },
+  "n": 4,
+  "span": 7.0,
+  "is_cu": true
+ }
+]

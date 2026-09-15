@@ -1095,12 +1095,78 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
 
     ph = float(pack.get("slurry_ph"))
     ph_ref = float(pack.get("ph_ref"))
+
+    # ── 레짐 좌표 판정 (2026-09-15) ────────────────────────────
+    # k 가 계열마다 2.33배 갈리는데, 얽힌 두 축(pH 구간 × 억제제 유무)을
+    # 데이터로 분리할 수 없다(대각선 2칸만 관측). 그래서 **평균내지 않고**
+    # 레짐 좌표로 둔다 — 각 레짐이 자기 데이터에서만 계수를 갖는다.
+    #
+    #   레짐 1 (산성 · 억제제 유) k=0.1428  US20080090500A1 T4, 12점 R²=0.954
+    #   레짐 2 (알칼리 · 억제제 무) k=0.3329  US9200180B2 T4,     5점 R²=0.997
+    #   레짐 3 (산성 · 억제제 무)  관측 없음 → **항을 켜지 않는다**
+    #   레짐 4 (알칼리 · 억제제 유) 관측 없음 → **항을 켜지 않는다**
+    #
+    # ⚠ 빈 레짐에 이웃 계수를 넣지 않는다. 그 순간 두 효과가 한 계수에
+    #   뭉쳐 그 데이터셋의 지문이 되고, 겉보기 성능은 오히려 좋아져서
+    #   들키지 않는다. 관측이 없으면 **신고하고 비활성화**한다.
+    #
+    # ⚠ 자유도를 늘리지 않는다: 계수 2개는 각각 12점·5점에서 나왔고,
+    #   레짐 판정은 데이터가 아니라 **조건**(골 위치, 억제제 선언)이 한다.
+    #
+    # 부등식 근거(R2, tools/route_cu_alkaline.py): pH 는 산화제 경로(A)와
+    # 부동태 경로(B)로 들어오는데, 억제제가 이미 표면을 덮고 있으면 B 의
+    # 한계효과가 작아진다 → k(억제제 무) > k(억제제 유). 관측이 이와 모순되지
+    # 않는다(0.3329 > 0.1428). 다만 이는 **부호만** 확정할 뿐 원인 분리는 아니다.
+    VALLEY_PH = 6.25          # 골 위치: 문헌 두 값(6.0, 6.5)의 중간
+    alkaline = ph > VALLEY_PH
+    has_inhibitor = False
+    if pack.has("inhibitor_mM"):
+        try:
+            has_inhibitor = float(pack.get("inhibitor_mM")) > 0.0
+        except (TypeError, ValueError):
+            has_inhibitor = False
+
+    if alkaline and not has_inhibitor:
+        if not pack.has("cu_ph_alkaline_k"):
+            notes.append(
+                f"⚠ pH {ph:g}는 알칼리 가지(골 {VALLEY_PH} 초과)이고 억제제가 "
+                "없는 레짐인데 `cu_ph_alkaline_k`가 팩에 없다 — 항을 켜지 "
+                "않는다. 산성역 계수를 빌려 쓰면 부호가 반대다.")
+            return None
+        k = float(pack.get("cu_ph_alkaline_k"))
+        k_ref = float(pack.get_or("cu_ph_alkaline_ref", VALLEY_PH))
+        val = math.exp(-k * (ph - k_ref))
+        notes.append(
+            f"Cu 알칼리역 pH: pH {ph:g} (기준 {k_ref:g}) → 상대 {val:.3f}. "
+            f"k={k:g}/pH — US9200180B2 TABLE 4 Ex.15~19, 5점 R²=0.9971. "
+            "레짐: 알칼리 × 억제제 없음. ⚠ 이 계열은 V자의 재상승을 보이지 "
+            "않고 pH 9.9 까지 단조 감소한다 — 조성마다 재상승 지점이 다르다.")
+        return val
+
+    if alkaline and has_inhibitor:
+        notes.append(
+            f"⚠ pH {ph:g} 알칼리 + 억제제 존재 레짐은 **관측이 없다**. "
+            "산성역 계수(k=0.1428)도 억제제 없는 알칼리 계수(k=0.3329)도 "
+            "이 조건에서 검증된 적이 없으므로 항을 켜지 않는다. "
+            "이 레짐을 채우려면: 같은 조성에서 억제제 농도를 두 수준으로 두고 "
+            "pH 를 골 양쪽으로 3점 이상 스윕한 제거율 표가 필요하다(R8).")
+        return None
+
+    if not alkaline and not has_inhibitor:
+        notes.append(
+            f"⚠ pH {ph:g} 산성 + 억제제 없음 레짐은 **관측이 없다**. "
+            "산성역 계수는 억제제가 있는 계열(BTA 1 mM)에서 나왔다. "
+            "항을 켜지 않는다 — 억제제 유무는 pH 민감도를 바꾼다(R2 부등식).")
+        return None
+
+    # 레짐 1 — 산성 × 억제제 유 (원 관측)
     k = float(pack.get("cu_ph_acid_k"))
     val = math.exp(-k * (ph - ph_ref))
     notes.append(
         f"Cu 산성역 pH: pH {ph:g} (기준 {ph_ref:g}) → 상대 {val:.3f}. "
         f"산화제(H₂O₂) 환원 전위 경로 — dE/dpH=−59 mV, k={k:g}/pH "
         "(US20080090500A1 TABLE 4, 3계열 12점 pooled, R²=0.954, 산포 ±4.8%). "
+        "레짐: 산성 × 억제제 존재. "
         "⚠ 함수형은 물리(Nernst+Tafel)이나 계수 크기는 경험값 — "
         "Tafel 독립 유도 시 b≈0.954 V/dec 로 전형값의 10배라 어긋난다.")
     if not (3.0 <= ph <= 6.0):

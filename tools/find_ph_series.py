@@ -56,8 +56,14 @@ def main() -> int:
             continue
         if s is None:
             continue
+        # ⚠ 축 키는 '원래 열이름|역할' 형식이다 (예: 'pH|ph', '(wt %)|wt_pct').
+        #   키를 통째로 비교하면 영영 안 맞는다 — **역할 접미사**로 찾는다.
         axes = getattr(s, "axes", None) or {}
-        ph = axes.get("ph") or axes.get("slurry_ph")
+        ph = None
+        for k, v in axes.items():
+            if str(k).rsplit("|", 1)[-1].strip().lower() in ("ph", "slurry_ph"):
+                ph = v
+                break
         if not ph or len(set(ph)) < 3:
             continue
         span = max(ph) - min(ph)
