@@ -202,3 +202,157 @@ print("=> 같은 함수형이 알칼리 레짐에서는 식별되고 산성-착�
 2. 그러므로 "Cu 산화제 항"을 팩 하나에 단일 함수형으로 두는 것은 구조적으로 불가능하다 —
    K 를 아무리 잘 적합해도 부호를 못 바꾼다(§6 블록3이 assert 로 고정).
 3. 착화제끼리도 묶을 수 없다: 같은 회귀에서 옥살산 +536.63, 글리신 −440.91 로 부호가 갈린다.
+
+## 9. 구현 결과 (판정#41)
+
+### 9.0 0단계 — 글리신 레짐 데이터 직접 확인 (전수탐색 결과)
+
+로컬 원문(`papers/jani2025-revisiting-roles-cu-cmp.html`)의 Table I(조성, 실험 1~35)
+× Table II(Cu RR)를 파이썬으로 전량 파싱해, (실리카, 옥살산, 글리신, DOSS) 4축을
+고정하고 H₂O₂ 만 바뀌는 실험군을 전수탐색했다(코드: 아래 §9.4 verify 블록에 고정).
+
+**결과: 글리신 > 0 인 조건에서 H₂O₂ 만 바뀌는 실험쌍은 35개 실험 전체에 걸쳐**
+**단 하나도 없다.** H₂O₂ 만 단독으로 바뀌는 그룹은 정확히 둘뿐이고 **둘 다 글리신=0**
+(옥살산 단독계)이다:
+
+| 고정 조건 (실리카,옥살산,글리신,DOSS) | 실험# → H2O2(wt%) → Cu RR(nm/min) |
+|---|---|
+| (6, 0.08, 0, 0.001) | 30→3→2282, 31→4→2533, 32→6→2578 (기존 §3 표, **증가**) |
+| (0, 0.08, 0, 0.001) | 33→6→2326, 16→7→2070 (신규 발견, **감소**) |
+
+둘째 행은 이번 전수탐색에서 새로 드러난 사실이다: 같은 옥살산-단독(글리신=0) 계라도
+**실리카 농도(0 vs 6 wt%)에 따라 H₂O₂ 방향성 자체가 갈린다** — 실리카 6에서는 증가,
+실리카 0에서는 감소. 즉 §3에서 이미 "산성×착화제=증가"로 일반화한 서술도 실리카 조건을
+붙여야 정확하다(실리카 ≥6 wt%, 옥살산 착화제). 이 사실을 §5 한계에 추가한다(§9.5).
+
+**판단(과제 지시 §0 분기)**: 글리신 데이터가 없으므로 **"없으면" 분기**를 따른다 —
+옥살산 데이터(실리카 6 조건, Expt 30/31/32)로 산성×착화제 가지를 세우되,
+**confidence 는 literature 로 승격하지 않는다.** 글리신 방향은 미검증 상태로 남긴다
+(아래 §9.1~§9.3 구현 및 §9.5 정직한 한계 서술 참조).
+
+### 9.1 착화제 선언 축 (선결조건)
+
+`knowledge/params/cu_h2o2_bta.yaml`에 `chelator_species`(=`glycine`, verified — 이미
+`abrasive_wt_pct` note에 있던 "글리신 1 wt%"의 조회 키 승격)와 `chelator_M`(=0.1332
+mol/L, estimated)을 신설했다. 글리신 MW=75.07 g/mol, **밀도 1.0 g/mL 근사**(슬러리
+실측 밀도 미확보, 희박 수용액 가정)로 1 wt% → 10 g/L → 0.1332 mol/L. 다른 4팩에는
+선언하지 않는다 — 미선언은 "착화제 없음"으로 취급되지 지어낸 기본값을 넣지 않는다.
+
+### 9.2 `_oxidizer_term` 레짐 게이트
+
+`sim/chemistry.py::_oxidizer_term`에 기존 `oxidizer_langmuir_K`/`oxidizer_passivation_K`
+분기 **앞에** 상호배타 게이트를 신설했다: 팩이 `oxidizer_acid_chelator_K`를 선언하고
+`slurry_ph`·`chelator_M`이 모두 있고 `slurry_ph < 6 AND chelator_M > 0`이면 촉진-포화형
+`f(C) = φ + (1-φ)·θ(C)/θ(C_ref)`(θ는 기존 `oxidizer_coverage_langmuir` 재사용)를 쓴다.
+분기 조건은 팩 이름이 아니라 `slurry_ph`/`chelator_M` 필드값으로만 판정한다(판정#34
+원칙). 게이트를 안 만족하면(착화제·pH 미선언, 또는 pH≥6) notes에 사유를 남기고 조용히
+기존 경로로 폴백한다 — 이 경로가 다른 4팩(oxide_silica/sic_ceria_h2o2/sti_ceria/
+w_fe_oxidizer)이 `oxidizer_acid_chelator_K`를 선언하지 않으므로 비트 단위로 불변임을
+보장한다(§9.4 계약테스트 + `tests/test_oxidizer_acid_chelator_gate.py`).
+
+`oxidizer_acid_chelator_K=0.7935`는 §9.0의 Expt 30/31/32 3점에 φ=0.15 고정, K 1개만
+최소자승 적합(잔차 최대 3.8%@4wt%) — `oxidizer_passivation_K=0.8232`를 적합했던 것과
+동일한 방법론(1자유도, 항상 φ 고정)이다.
+
+### 9.3 검증 — 백테스트 부호 정합 & qa_loop
+
+`validation/datasets/jani2025_cu_h2o2_acidic_chelator.yaml`을 `in_scope: false` →
+**`in_scope: true` + `used_for_calibration: true`**로 바꿨다. `used_for_calibration:
+true`인 이유: 이 3점이 바로 `oxidizer_acid_chelator_K`를 적합한 데이터라서, held-out
+ρ로 세면 자기 채점이 된다(F4 자기채점 검사와 동일 원칙) — 그래서 qa_loop의 "유의
+평균 ρ" 계산에서 제외되도록 표시했다. 이 데이터셋의 역할은 "모델이 맞혔다"는 held-out
+증거가 아니라 "부호가 반증(ρ=-1.000)에서 정합으로 바뀌었다"를 보여주는 재현 확인이다.
+
+실행 결과:
+- `pytest -q`: 788 passed(추가 6/1 = 신규 7건 포함). 기존 실패 1건
+  (`tests/test_sensitivity.py::test_oxidizer_sensitivity_sign_follows_passivation`)은
+  판정#20 시절 "cu_h2o2_bta는 전 구간 음수(억제)"라는, 바로 이 판정이 반증한 가정을
+  검사하고 있었다 — 회귀가 아니라 이 판정이 고치는 대상이므로 테스트를 갱신했다
+  (양수/촉진 방향으로, 근거 이 노트 §9 인용).
+- `tools/completion.py check`: 격자 49/50 **불변**. χ/cu_h2o2_bta confidence는 여전히
+  `estimated`다 — 글리신 미검증이라 승격 근거가 없다(§9.0). 격자를 50/50으로 채우려고
+  등급을 올리지 않는다(과제 지시 최우선 금지 사항).
+- `tools/qa_loop.py run --strict`: PASS, 유의 평균 ρ **0.9442로 불변**(신규 데이터셋이
+  `used_for_calibration`으로 유의 집계에서 빠지므로 예상대로). 격리·플래그 목록에
+  `jani2025_cu_h2o2_acidic_chelator` 관련 신규 이슈 없음.
+
+### 9.4 계약테스트
+
+`tests/test_oxidizer_acid_chelator_gate.py` 신설(10 테스트, 요구된 6건 이상):
+① 다른 4팩 `_oxidizer_term` 비트불변(notes에 판정#41 문구 없음) ② cu_h2o2_bta 실팩
+기준조건(C=C_ref=3.0wt%) 배수 항등 1.0 ③ 산성×착화제 가지 3→4→6wt% 단조 증가
+④ `chelator_M` 미선언 시 기존(`oxidizer_passivation_K`) 경로와 완전히 같은 값으로
+폴백 ⑤ `slurry_ph` 미선언 시 폴백 ⑥ pH≥6(알칼리)이면 착화제가 있어도 게이트 미충족
+→ 억제형 경로(배수<1) ⑦ Jani 2025 Expt 30/31/32 재현오차 5% 이내.
+
+```python verify
+# Jani 2025 Expt 30/31/32 재현 — 노트 §9.2의 K=0.7935가 실측 배수를 재현하는가
+import sys
+sys.path.insert(0, ".")
+from sim.chemistry import _oxidizer_term
+
+class FakePack:
+    def __init__(self, **kw):
+        self.d = kw
+    def has(self, k): return k in self.d
+    def get(self, k): return self.d[k]
+    def get_or(self, k, dv): return self.d.get(k, dv)
+
+BASE = dict(oxidizer_ref_wt_pct=3.0, oxidizer_acid_chelator_K=0.7935,
+            oxidizer_passivation_K=0.8232, slurry_ph=3.0, chelator_M=0.08)
+OBS = {3.0: 2282.0, 4.0: 2533.0, 6.0: 2578.0}
+obs_ratio = {C: v / OBS[3.0] for C, v in OBS.items()}
+
+preds = {}
+for C in (3.0, 4.0, 6.0):
+    d = dict(BASE); d["oxidizer_wt_pct"] = C
+    notes = []
+    preds[C] = _oxidizer_term(FakePack(**d), notes)
+    assert any("판정#41" in n for n in notes), f"C={C}: 게이트가 안 켜졌다"
+
+assert abs(preds[3.0] - 1.0) < 1e-9, "기준조건 배수는 항등적으로 1.0"
+for C in (4.0, 6.0):
+    err = abs(preds[C] - obs_ratio[C]) / obs_ratio[C]
+    print(f"C={C}: 예측 {preds[C]:.4f} vs 실측 {obs_ratio[C]:.4f} (오차 {err:.1%})")
+    assert err < 0.05, f"C={C}: 재현오차 {err:.1%}가 5%를 넘는다"
+assert preds[6.0] > preds[4.0] > preds[3.0], "부호가 바로잡혔다 — 단조 증가"
+print("=> Jani 2025 3점 재현 PASS, 부호 반증(ρ=-1.0)이 정합으로 바뀌었다")
+```
+
+### 9.5 한계 (정직한 부기, §5 갱신)
+
+- §5의 "착화제 종 미검증(옥살산≠글리신)" 한계는 §9.0 전수탐색으로 **여전히 해소되지
+  않았다** — 글리신 존재 조건의 H2O2 단독 스윕 데이터가 원문에 구조적으로 없다.
+  `oxidizer_acid_chelator_K`는 옥살산 데이터의 **방향 대리(proxy)**이지 글리신 실측이
+  아니다. confidence를 `estimated`로 고정한 이유가 이것이다.
+- **신규 발견(§9.0)**: 옥살산-단독(글리신=0) 계 안에서도 실리카 농도에 따라 방향이
+  갈린다(실리카 6wt%: 증가, 실리카 0wt%: 감소, Expt 16/33). 즉 "산성×착화제 = 증가"
+  일반화는 최소한 "실리카 ≥6wt%" 조건이 붙어야 하는데, 이 팩의 `abrasive_wt_pct` 기준은
+  3.0wt%다 — 적합에 쓴 실리카 조건(6wt%)과 팩의 실사용 실리카 조건이 다르다는 뜻이고,
+  이 축은 게이트에 넣지 않았다(미검증 축을 하나 더 얹으면 과적합이다).
+- n=3, 단일 실험실 — §5의 기존 한계(BTA 부재, 곡률 미확인)는 그대로 유효하다.
+- `validation/…jani2025…yaml`을 `used_for_calibration: true`로 표시했으므로 held-out
+  ρ 0.9442는 이 판정으로 **움직이지 않는다** — "정확도가 좋아졌다"가 아니라 "구조적
+  반증이 사라졌다(부호 정합)"는 것이 이 판정이 주장하는 전부다.
+
+### 9.6 게이트가 드러낸 기존 데이터셋 결함 (부수 발견, 수정함)
+
+게이트를 넣고 qa_loop을 처음 돌렸을 때 `us9200180b2_cu_h2o2_series`의 ρ가 조용히
+**1.0 → −1.0**으로 뒤집였다(격리 대상이라 게이트 PASS/FAIL엔 안 걸렸지만 방향이
+틀렸다). 원인: 이 데이터셋(및 `us9200180b2_cu_abrasive_series`)은 실제로 **pH
+8.5~10 알칼리·벤젠술폰산계**(노트 프로즈에 이미 그렇게 적혀 있었다)인데 `overrides`에
+`slurry_ph`를 넣지 않았다 — 게이트가 없던 시절엔 pH가 산화제 항에 전혀 안 쓰여
+무해했지만, 이제 오버라이드가 없으면 팩 기본값(slurry_ph=4.0, chelator_M=0.1332,
+둘 다 게이트 조건을 만족)으로 조용히 새 산성×착화제 경로를 잘못 탄다.
+
+원문 특허(`papers/patents/US9200180B2.html`) TABLE 1-b/TABLE 3에서 Example별
+정밀 pH를 직접 파싱해 옮겼다(9.5/9.1/8.5 및 9.2/9.8/9.8/10.0 — 기존 노트의
+"8.5~9.5" 근사보다 정밀), 착화제 미해당을 `chelator_M: 0.0`으로 명시했다. 수정 후
+두 데이터셋 모두 ρ·mape·scale이 이 판정 이전 값으로 정확히 복원됐다(qa_loop
+run_index #163, `validation/ledger.jsonl` 확인). 다른 `cu_h2o2_bta` 데이터셋
+전수 점검 결과 — `oxidizer_wt_pct`가 조건마다 고정값이거나(C=C_ref 또는 상수) `slurry_ph`
+오버라이드가 이미 있어(≥6 또는 독립적으로 게이트를 걸러냄) 추가 결함은 없었다.
+
+교훈: 레짐 게이트를 넣으면 "이전엔 안 쓰이던 필드"가 갑자기 의미를 가진다 —
+새 게이트가 참조하는 필드는 그 필드를 프로즈로만 언급하고 오버라이드하지 않은
+기존 데이터셋 전체를 감사해야 한다.

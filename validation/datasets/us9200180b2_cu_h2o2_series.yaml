@@ -21,6 +21,8 @@ conditions:
       oxidizer_wt_pct: 1.0
       abrasive_wt_pct: 3.0
       abrasive_ref_wt_pct: 3.0
+      slurry_ph: 9.5
+      chelator_M: 0.0
   - label: "H2O2 2.5wt% (Example 6)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -31,6 +33,8 @@ conditions:
       oxidizer_wt_pct: 2.5
       abrasive_wt_pct: 3.0
       abrasive_ref_wt_pct: 3.0
+      slurry_ph: 9.1
+      chelator_M: 0.0
   - label: "H2O2 5wt% (Example 7)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -41,6 +45,8 @@ conditions:
       oxidizer_wt_pct: 5.0
       abrasive_wt_pct: 3.0
       abrasive_ref_wt_pct: 3.0
+      slurry_ph: 8.5
+      chelator_M: 0.0
 notes: >
   변수 = H2O2 농도(1 → 2.5 → 5 wt%) 단 하나. 고정 = 실리카 3 wt%, 벤젠술폰산 2 wt%,
   압력 2.0 psi, platen/head 90/84 rpm.
@@ -60,3 +66,12 @@ notes: >
   피연마재는 실리콘 웨이퍼 위 ECD Cu 박막이라 in_scope: true. 절대 MRR은 팩 기준보다
   한 자릿수 낮으므로 순위 지표만 근거로 쓸 것. 벤젠술폰산 농도는 모델 통로가 없어 생략.
   n=3으로 순위 지표의 최소 요건을 겨우 만족한다 — ρ의 통계적 신뢰구간은 넓다.
+  [EVIDENCE-RULES 판정#41, 2026-09-15] slurry_ph/chelator_M 오버라이드 추가. 이전에는
+  pH가 산화제 항 어디에도 안 쓰여 프로즈 서술("pH 8.5~9.5")뿐이었는데, 판정#41이
+  slurry_ph<6 AND chelator_M>0 게이트를 신설하면서 오버라이드가 없으면 팩 기본값
+  (slurry_ph=4.0, chelator_M=0.1332, 둘 다 게이트 조건을 만족)으로 조용히 새 산성×
+  착화제 경로를 타 버린다 — 이 표는 실제로는 알칼리·벤젠술폰산계(착화제 아님)라
+  잘못된 경로다. 원문 TABLE 1-b에서 Example 5/6/7의 정확한 pH(9.5/9.1/8.5)를 그대로
+  옮겼다(chi-cu-h2o2-independent-refit-us9200180b2.md의 "8.5~9.5" 근사 대신 정밀값).
+  chelator_M=0.0은 벤젠술폰산이 이 팩이 선언한 착화제(글리신)가 아니라는 사실의
+  명시이지 추정이 아니다.

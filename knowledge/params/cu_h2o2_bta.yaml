@@ -432,3 +432,53 @@ params:
     confidence: literature
     source: >
       비정질 실리카(colloidal SiO2) 2.20 g/cm3 — CRC Handbook. 이 팩의 연마입자는 콜로이달 실리카다.
+
+  # ── 착화제 선언 축 (2026-09-15, EVIDENCE-RULES 판정#41 선결조건) ─────
+  # 산화제 항 레짐 게이트(slurry_ph<6 AND chelator_M>0)가 이 두 키로 분기한다.
+  # 없는 팩은 "착화제 없음"으로 취급되지, 기본값을 추정하지 않는다.
+  chelator_species:
+    value: glycine
+    confidence: verified
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md (US20080090500A1 TABLE 4)
+    note: >
+      기준 조성의 착화제. abrasive_wt_pct note 에 이미 있던 "글리신 1 wt%"를
+      조회 키로 승격했다. 다른 착화제로 바꾸려면 이 값과 chelator_M을 함께
+      바꿔야 한다 — 조용히 재사용하지 않는다(inhibitor_species와 동일 설계).
+  chelator_M:
+    value: 0.1332
+    unit: mol/L
+    confidence: estimated
+    source: knowledge/cmp/cu-cmp-ph-mechanism.md (US20080090500A1 TABLE 4, 글리신 1 wt%)
+    note: >
+      글리신 1 wt% -> 몰농도 환산. 글리신 MW=75.07 g/mol, **밀도 1.0 g/mL 근사**
+      (슬러리 실측 밀도 미확보 — 수용액 희박 조성이라 물 밀도로 근사, 오차는
+      수 % 이내로 추정되나 검증되지 않았다). 10 g/L / 75.07 g/mol = 0.1332 mol/L.
+      confidence=estimated인 이유: 몰농도 자체가 밀도 가정을 거친 환산값이라
+      직접 측정치가 아니다(wt% 원값은 verified).
+  oxidizer_acid_chelator_K:
+    value: 0.7935
+    unit: "1/wt%"
+    confidence: estimated
+    source: knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9
+    note: >
+      산성×착화제 레짐(slurry_ph<6 AND chelator_M>0)의 촉진-포화형 Langmuir
+      상수. f(C) = phi + (1-phi)*theta(C)/theta(C_ref), theta(C)=K*C/(1+K*C).
+      [EVIDENCE-RULES 판정#41, 2026-09-15] 값의 출처: Jani 2025(doi:10.1149/
+      2162-8777/adc59e) Table I x Table II, Expt 30/31/32(실리카 6wt%, 옥살산
+      0.08M, 글리신 0M, DOSS 0.001M, pH 3.0 고정, H2O2 만 3/4/6 wt%로 스윕,
+      Cu RR 2282/2533/2578 nm/min)에 phi=0.15 고정하고 K 1개만 최소자승 적합
+      (최적 K=0.7935, 잔차 최대 3.8%@4wt%).
+      ⚠ confidence=estimated 로 묶고 literature 로 올리지 않는 이유(판정#41
+      §9.0): 0단계에서 Table I x II 35실험 전수탐색 결과, **글리신이 존재하는
+      조건에서 H2O2 만 바뀌는 실험쌍은 하나도 없다**. 이 계의 착화제는
+      옥살산(팩 기준은 글리신)이고, 같은 논문 회귀에서 옥살산 +536.63 /
+      글리신 -440.91 로 부호가 갈린다(노트 §5) — 착화제 종에 따른 차이가
+      미검증이므로 옥살산 데이터를 글리신 레짐의 **방향 대리(proxy)**로만
+      쓴다. 값을 교체할 근거가 생기면 즉시 갱신하되, 격자를 채우려고 등급을
+      올리지 않는다.
+      ⚠ 추가 한계: 같은 전수탐색에서 실리카 0wt%·옥살산-단독 조건(Expt 16/33,
+      글리신 0)은 반대로 **감소**(H2O2 6->7wt%: 2326->2070)를 보였다 — 즉
+      "산성×착화제=증가"도 실리카 농도(>=6wt%)를 붙여야 정확하다. 이 팩의
+      abrasive_wt_pct 기준(3.0wt%)과 Jani 적합 조건(6wt%)이 다르다는 점도
+      정직히 남긴다 — 두 축이 완전히 통제된 데이터가 아니다.
+      상세: knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9

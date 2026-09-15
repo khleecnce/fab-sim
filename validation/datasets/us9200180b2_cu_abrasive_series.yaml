@@ -23,6 +23,8 @@ conditions:
       abrasive_wt_pct: 0.5
       abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
+      slurry_ph: 9.2
+      chelator_M: 0.0
   - label: "silica 1.5wt%, H2O2 1wt% (Example 12)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -33,6 +35,8 @@ conditions:
       abrasive_wt_pct: 1.5
       abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
+      slurry_ph: 9.8
+      chelator_M: 0.0
   - label: "silica 10wt%, H2O2 1wt% (Example 13)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -43,6 +47,8 @@ conditions:
       abrasive_wt_pct: 10.0
       abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
+      slurry_ph: 9.8
+      chelator_M: 0.0
   - label: "silica 20wt%, H2O2 1wt% (Example 14)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -53,6 +59,8 @@ conditions:
       abrasive_wt_pct: 20.0
       abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
+      slurry_ph: 10.0
+      chelator_M: 0.0
 notes: >
   변수 = 실리카 연마입자 함량(0.5→20 wt%) 단 하나. 고정 = 벤젠술폰산 1 wt%,
   H2O2 1 wt%, 압력 2.0 psi, platen/head 90/84 rpm, 폴리시 60 s.
@@ -70,3 +78,9 @@ notes: >
   abrasive_ref_wt_pct는 원문에 없다. 팩에 abrasive_wt_pct 자체가 없어 기준값이
   필요했고, 같은 특허의 다른 표에서 표준으로 쓰인 3.0 wt%를 전 조건 공통 상수로 넣었다.
   전 조건 동일 상수이므로 순위에는 영향이 없고 절대 배수만 이동시킨다.
+  [EVIDENCE-RULES 판정#41, 2026-09-15] slurry_ph/chelator_M 오버라이드 추가 — 이유는
+  us9200180b2_cu_h2o2_series.yaml과 동일(새 산성×착화제 게이트가 오버라이드 없이는
+  팩 기본값으로 잘못 라우팅한다). 원문 TABLE 3에서 Example 11/12/13/14의 정확한
+  pH(9.2/9.8/9.8/10.0)를 옮겼다. 이 데이터셋은 oxidizer_wt_pct가 전 조건 1.0wt%로
+  고정돼 산화제 항이 상수 배수라 순위(ρ)에는 영향이 없다 — 절대 배수(mape/scale)만
+  이동한다. chelator_M=0.0은 벤젠술폰산이 이 팩의 착화제(글리신)가 아니라는 사실.

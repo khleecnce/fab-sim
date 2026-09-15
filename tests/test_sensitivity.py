@@ -91,23 +91,26 @@ def test_optimum_is_not_confused_with_no_effect():
 
 
 def test_oxidizer_sensitivity_sign_follows_passivation():
-    """cu_h2o2_bta 산화제 탄성도는 전 구간 음수여야 한다(부동태 억제 지배).
+    """cu_h2o2_bta 산화제 탄성도는 전 구간 양수여야 한다(산성×착화제 촉진-포화 지배).
 
-    2026-09-14 EVIDENCE-RULES 판정#20으로 함수형이 바뀌었다. 이전 버전은
-    Kaufman 단봉을 전제해 "정점 아래면 양수, 위면 음수"를 요구했는데, 그 전제는
-    대상계 통제 실측(US20110165777A1 TABLE 2: H2O2 0→1 wt%에서 Cu RR
-    18.7→12.1 nm/min, 단조 **감소**)과 부호가 반대였다.
-    지금은 Langmuir 부동태 피복 억제항이라 관측 구간 전체가 감소 가지다.
-    근거: knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md
+    [EVIDENCE-RULES 판정#41, 2026-09-15] 판정#20 이후 이 테스트는 "전 구간
+    음수(부동태 억제)"를 요구했으나, 판정#38이 그 K(=0.8232)가 **알칼리×무착화제**
+    계(US20110165777A1)에서 역산됐는데 이 팩의 실제 운전점은 pH 4.0 + 글리신
+    = **산성×착화제**임을 밝혔다 — 같은 H2O2 스윕에서 Jani 2025(Expt 30/31/32,
+    doi:10.1149/2162-8777/adc59e)는 오히려 **증가**를 보인다(2282→2578 nm/min).
+    `sim/chemistry.py::_oxidizer_term`에 산성(pH<6)×착화제(chelator_M>0) 레짐
+    게이트를 신설해 이 팩을 촉진-포화형(`oxidizer_acid_chelator_K`) 경로로
+    옮겼다 — 부호가 뒤집힌 것은 회귀가 아니라 BIAS 수정이다.
+    근거: knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9
     """
     for C in (1.0, 3.0, 6.0):
         r = Recipe(pack="cu_h2o2_bta", time_s=60,
                    pack_overrides={"oxidizer_wt_pct": C})
         s = elasticity(r, BY_KEY["oxidizer_wt_pct"], metric="mrr")
         assert s is not None
-        assert s.elasticity < -0.05, (
-            f"C={C} wt%: 산화제를 더 넣으면 MRR이 낮아져야 한다"
-            f"(부동태 억제) — got {s.elasticity:.4f}")
+        assert s.elasticity > 0.05, (
+            f"C={C} wt%: 산성×착화제 레짐에서는 산화제를 더 넣으면 MRR이 높아져야 한다"
+            f"(촉진-포화) — got {s.elasticity:.4f}")
 
     # 민감도가 살아 있는가 — '미모델링'과 구분되어야 한다(산화제 오진 회귀 방어)
     s_mid = elasticity(Recipe(pack="cu_h2o2_bta", time_s=60,

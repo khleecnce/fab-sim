@@ -160,6 +160,41 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
         "φ 는 재료보다 기계 조건(연마재 경도·압력·속도)이 정하는 양이다. "
         "⚠ 이 계의 직접 관측이 아니므로 절대값은 신뢰하지 말 것.")
 
+    # ── 레짐 게이트: 산성 × 착화제 존재 (EVIDENCE-RULES 판정#41, 2026-09-15) ──
+    # cu_h2o2_bta 의 실제 운전점(pH 4.0 + 글리신/BTA)은 oxidizer_passivation_K
+    # 가 역산된 알칼리 × 무착화제 계와 다른 레짐이다(판정#38) — 같은 H2O2
+    # 스윕에서 부호가 반대로 관측된다(Jani 2025 Expt 30/31/32, 산성 pH3 ×
+    # 옥살산 0.08M, 실리카 6wt%: 3->6 wt% 에서 MRR +13.0%인데 현행 억제형
+    # 예측은 -35.3%). 조건은 slurry_ph<6 AND chelator_M>0 — 팩 이름이 아니라
+    # 데이터 필드로만 분기한다(판정#34 원칙). 둘 중 하나라도 팩에 선언이
+    # 없으면 지어내지 않고 기존 경로로 폴백한다.
+    if pack.has("oxidizer_acid_chelator_K"):
+        if pack.has("slurry_ph") and pack.has("chelator_M"):
+            ph = float(pack.get("slurry_ph"))
+            chelator_M = float(pack.get("chelator_M"))
+            if ph < 6.0 and chelator_M > 0.0:
+                K = float(pack.get("oxidizer_acid_chelator_K"))
+                theta = float(SC.oxidizer_coverage_langmuir(C, K))
+                theta_ref = float(SC.oxidizer_coverage_langmuir(C_ref, K))
+                if theta_ref <= 0:
+                    return None
+                if floor > 0 and not pack.has("oxidizer_mech_floor"):
+                    notes.append(floor_default_note)
+                notes.append(
+                    f"산성(pH={ph:.2f}<6)×착화제({chelator_M:.4g} M) 레짐 — "
+                    "촉진-포화형 경로(판정#41) 사용. 옥살산 데이터로 적합됐고 "
+                    "이 팩의 실제 착화제(글리신)로는 직접 검증되지 않았다 — "
+                    "confidence 상한은 estimated.")
+                return floor + (1.0 - floor) * (theta / theta_ref)
+            notes.append(
+                f"산성×착화제 게이트 미충족(pH={ph:.2f}, chelator={chelator_M:.4g} M) "
+                "— 기존 산화제 경로로 폴백한다.")
+        else:
+            notes.append(
+                "⚠ oxidizer_acid_chelator_K 가 선언됐으나 slurry_ph 또는 "
+                "chelator_M 이 없어 레짐을 판별할 수 없다 — 지어내지 않고 "
+                "기존 경로로 폴백한다.")
+
     if pack.has("oxidizer_langmuir_K"):
         # Langmuir 경로 — 폐형식: f(C) = φ + (1-φ)·θ(C)/θ(C_ref).
         # (레거시 경로처럼 φ를 분자·분모 양쪽에 넣고 나누는 게 아니다 — 그러면
