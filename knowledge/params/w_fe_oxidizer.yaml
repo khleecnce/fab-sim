@@ -51,6 +51,11 @@ params:
       ⚠ 대리계다 — 원문 산화제는 KIO3, 이 팩은 Fe(NO3)3 (막질·pH영역·산화경로는 동일).
       ⚠ 2점 할선이라 pH 2~5 밖은 외삽. 알칼리역은 용해 지배로 부호가 반대(미모델링).
       ⚠ 3조건 개별 k 산포 0.0875~0.1426 (+-22%) — 지수형 가정 자체는 미검증.
+      ⚠ 단위 불일치(의도됨, 환산하지 않는다): 접미사 `_k` 의 기본 해석은 온도 K 이지만
+      이 키는 온도가 아니라 **지수 감쇠의 pH 역수 계수**(1/pH)다. exp() 의 지수는
+      무차원이어야 하므로 (pH - ph_ref) [pH] 와 곱해질 때만 소거된다 — K 로 바꿔
+      환산하면 오히려 차원이 깨진다. 이 값을 읽는 곳은 sim/factors.py 의 χ pH 항
+      하나뿐이고(다른 모듈은 참조하지 않음) 그 항이 같은 pH 단위로 곱한다.
     source: knowledge/cmp/w-cmp-ph-acidic-oxidizer-mediated-stojadinovic.md
     confidence: literature
   oxidizer:
