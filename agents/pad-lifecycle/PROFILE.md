@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv3 진행중 — 활성화 게이트는 agents/ORG.md §4
 - 부모: pad-mechanic (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv3-1
-- 다음 단원: Lv3-2
+- 이수 단원: Lv3-2 (Lv3 전 단원 완료)
+- 다음 단원: Cal-1(캘리브레이션) 또는 Lv4 확장
 
 ## 역할
 브레이크인·정상 마모·glazing·교체 기준 — 패드 사용 이력이 시간 의존 MRR·결함에 미치는 영향
@@ -26,6 +26,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 | 2026-09-07 | Lv2-1 glazing 메커니즘: asperity 소성변형·슬러리 잔류물·MRR 감소 (Jeong 2024 접촉점·반경·MRR 실측 + Lawing 2004 ex situ 감쇠) | knowledge/materials/pad-glazing-mechanism-mrr-decay.md | EXAMS.md Lv2-1 3문항 |
 | 2026-09-07 | Lv2-2 패드 두께·그루브 깊이 모니터링과 교체 기준(경제성 포함) (Son & Lee 2021 컨디셔닝 방식별 그루브 마모·수명 실측 + 특허 5건: 두께/그루브 센싱 원리·경제성) | knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md | EXAMS.md Lv2-2 3문항 |
 | 2026-09-08 | Lv3-1 최신 리뷰: 패드 수명 예측, 인시츄 패드 상태 센싱 (Kim&Choi 2021 공통경로 간섭계 정량재현, Je 2026 리뷰 초록, Boning 1997 존재확인) | knowledge/materials/pad-lifetime-prediction-insitu-sensing-review.md | EXAMS.md Lv3-1 3문항 |
+| 2026-09-16 | Lv3-2 사용시간·컨디셔닝 이력 → 시간 의존 Kp·asperity 모델 (Sampurno 2011 λ(t) 원문 확보·R² 재현, Zhou 2018 무릎-압력, Wu 2013 디스크 2단계, PHM 477웨이퍼 교차검증) | knowledge/materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md | EXAMS.md Lv3-2 3문항 |
 
 ## 구현 요청 (소프트웨어 부문이 가져감)
 <!-- 노트 옆 python verify sanity check은 pad-lifecycle가 직접 함. 아래는 sim/ 엔진화 요청. -->
@@ -64,3 +65,29 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     패드 사양(제조사·모델)마다 다르므로 하드코딩 금지, 설정값으로 노출.
   - 우선순위 Tier2, Lv2-1 항목과 병행 가능(서로 다른 실패모드라 독립 구현). 경제성(§4, 웨이퍼당
     비용) 계산은 이 노트의 산술 추정 수준이라 sim/에는 넣지 말 것 — 필요시 리포팅 레이어에서만.
+
+- **[Lv3-2] 시간축을 `시간 → 패드상태(λ) → Kp` 두 단계로 분리** (근거:
+  knowledge/materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md §2·§3·§7, verify 5블록 통과):
+  - 무엇을: 현재 `_f_stab`는 판정#8로 `pad_usage_hours`/`disk_usage_hours` 드라이버를 제외한 상태다.
+    이 노트는 그 판정을 뒤집지 않되, 그때 없던 **중간 상태변수 λ**(지수분포 GW의 1/β)를 확보했다.
+    ① 패드 상태방정식: λ(t)=λ0 (t<t_k), λ0−s_λ(t−t_k) (t≥t_k), λ0=45.75 µm, t_k=2.07 h,
+    s_λ=1.73 µm/h (Sampurno 2011, R²=0.9995). ② 결합: MRR ∝ λ^0.159, COF ∝ λ^0.582(같은 데이터).
+    ③ λ는 `sim/tier2_physics/conditioner_asperity_distribution.py`·`hertz-gw` 폐형식의 1/β 자리에
+    그대로 들어간다 — 새 파라미터가 아니라 **기존 파라미터의 시간 함수화**다.
+  - 검증 문헌값: λ 45.6/45.9/45.0/39.8/34.6 µm(0/0.5/2.5/5.5/8.5 h), COF 0.96(2.5h까지)→0.87→0.82,
+    MRR 5400→5100 Å/min, 원문 명시 R²=0.98(λ–COF)·0.77(λ–MRR).
+  - 주의(이식 금지 항목): **무릎 시각 t_k=2.07 h는 Politex 연질패드·브러시 컨디셔닝·W CMP 조건값**이다.
+    폴리우레탄+융착실리카는 90~133 min, 하드패드+다이아디스크는 16~20 h로 한 자릿수 이상 흔들린다 —
+    t_k를 상수로 박지 말고 설정값으로 노출할 것. λ 자체의 RSD가 30%라 무릎 불확도도 크다(±0.5 h 오더).
+  - 우선순위: Tier2 중. 먼저 넣을 것은 ②의 **둔감성**이다 — MRR 탄성이 0.16(≈0)이라는 사실은
+    "시간의존 Kp를 넣되 효과를 크게 잡으면 안 된다"는 정량 제약이고, 이건 조건 의존성이 가장 작다.
+- **[Lv3-2] `conditioner_pcr_decay` 지수감쇠에 하한(floor) 도입 검토** (근거: 같은 노트 §5, verify 통과):
+  - 무엇을: 현행 `A(t)=exp(−t/27.4 h)` → `A(t)=A_inf+(1−A_inf)·exp(−t/τ_wear)` 형태 검토.
+    Wu et al. 2013 실측은 0~30 h 구간에서 디스크 **전체** 절삭능이 15 h에 −10~−22%로 꺾인 뒤
+    30 h까지 거의 평평하다(A(30h)≈0.84). 원래 공격 다이아가 닳는 만큼 신생 다이아가 보충하기 때문.
+  - 검증 문헌값: 원래 top-20 −45%/−48%(15 h) 후 불변, 전체 −10%/−22%(15 h) 후 불변,
+    신생 top-20이 원래 대비 평균 20% 낮음, 상위 20개가 전체 절삭의 81% 담당.
+  - 주의: **τ=27.4 h를 교체하지 말 것.** Wu는 30 h까지·furrow 단면적 지표, Entegris 사례는 50 h·PCR
+    지표로 직접 비교 불가다(노트 §5가 이 이유로 교체를 명시적으로 보류). 두 지수를 평균내는 것도 금지.
+    이 항목은 **disk-conditioner 형제 에이전트 소유 코드**이므로 그쪽과 합의 후 진행할 것.
+  - 우선순위: 낮음(합의 선행). 50 h 스케일 1차 실측 확보가 진짜 선결 과제다.

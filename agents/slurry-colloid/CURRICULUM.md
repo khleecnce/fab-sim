@@ -8,7 +8,7 @@
 - [x] Lv2-1 POU 필터(깊이/막)·재순환·펌프 전단이 입자에 미치는 영향
 - [x] Lv2-2 쉘프라이프·희석·혼합(2액형) 안정성과 현장 QC 항목
 - [x] Lv3-1 최신 리뷰: 응집 억제 첨가제, 실시간 입도 모니터링 — 2026-09-14, `knowledge/slurry/aggregation-inhibitor-additives-inline-psd-monitoring.md`
-- [ ] Lv3-2 저장·이송 이력 → 유효 입도 분포 변화 모델 (sim/tier2)
+- [x] Lv3-2 저장·이송 이력 → 유효 입도 분포 변화 모델 (sim/tier2) — 2026-09-16, `knowledge/slurry/slurry-storage-transport-history-effective-psd-model.md`
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 슬러리 로트·보관 이력 데이터 → LPC·결함 예측 잔차 정의

@@ -16,6 +16,15 @@
     "src": "Google Patents 텍스트(한/영 병기), 로컬 코퍼스 data/corpus/fulltext/patent_KR101557514B1.txt 복사 — 표 2·3 수치는 추출 누락",
     "title": "Compositions and methods for ruthenium and tantalum barrier CMP"
   },
+  "US20250304827A1-fujimi-slurry-storage-concentration": {
+    "assignee": "Fujimi Incorporated",
+    "authors": "Tsuzuki A, Abe M",
+    "note": "slurry/slurry-storage-transport-history-effective-psd-model.md",
+    "patent": "US20250304827A1",
+    "pdf_local": "papers/US20250304827A1-fujimi-slurry-storage-concentration.txt",
+    "src": "Google Patents 본문 텍스트(r.jina.ai 경유) — Table 1 7행 전체 및 '80 °C 7일 ≡ 25 °C 317일' Arrhenius 환산 문장 포함. 공개일 2025-10-02",
+    "title": "Slurry composition, method for storing slurry composition, method for producing CMP slurry, and polishing method"
+  },
   "US6258137-nano-alumina-cmp": {
     "confidence": "patent",
     "doi": null,
@@ -223,6 +232,15 @@
     "title": "The role of interactions between abrasive particles and the substrate surface in chemical-mechanical planarization of Si-face 6H-SiC",
     "venue": "RSC Adv. 7, 16938-16952 (2017)"
   },
+  "cheng2024-apsusc-bta-derivatives-cobalt-cmp": {
+    "authors": "Cheng J, Lv Y, Zhang F, Han P, Miao Q, Huang Z",
+    "doi": "10.1016/j.apsusc.2024.161684",
+    "note": "materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md",
+    "pdf_local": "papers/cheng2024-apsusc-bta-derivatives-cobalt-cmp.pdf",
+    "src": "green OA 저자최종본(figshare 29924552, ndownloader files/57592765)",
+    "title": "Understanding the adsorption mechanism of benzotriazole and its derivatives as effective corrosion inhibitors for cobalt in chemical mechanical polishing",
+    "venue": "Appl. Surf. Sci. 682, 161684 (2025)"
+  },
   "choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4": {
     "authors": "Choi S, Tripathi S, Dornfeld DA, Doyle FM",
     "doi": "10.1149/1.3499217",
@@ -399,6 +417,24 @@
     "title": "Mechanisms of Chemically Promoted Material Removal Examined for Molybdenum and Copper CMP in Weakly Alkaline Citrate-Based Slurries",
     "venue": "Materials 17(19), 4905 (2024)"
   },
+  "gamagedara2025-electrochem-cu-co-galvanic-tribo": {
+    "authors": "Gamagedara KU, Roy D",
+    "doi": "10.3390/electrochem6020015",
+    "note": "materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md",
+    "pdf_local": "papers/gamagedara2025-electrochem-cu-co-galvanic-tribo.pdf",
+    "src": "MDPI CC-BY (mdpi-res.com CDN 직링크)",
+    "title": "Tribo-Electrochemical Considerations for Assessing Galvanic Corrosion Characteristics of Metals in Chemical Mechanical Planarization",
+    "venue": "Electrochem 6(2), 15 (2025)"
+  },
+  "gamagedara2026-electrochem-mo-imidazole-galvanic": {
+    "authors": "Gamagedara KU, Roy D",
+    "doi": "10.3390/electrochem7010006",
+    "note": "materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md",
+    "pdf_local": "papers/gamagedara2026-electrochem-mo-imidazole-galvanic.pdf",
+    "src": "MDPI CC-BY (mdpi-res.com CDN 직링크)",
+    "title": "Mitigating Galvanic Corrosion of Molybdenum Diffusion Barriers in Chemical Mechanical Planarization of Copper Interconnects: A Case Study Using Imidazole in a Citrate Slurry of Neutral pH",
+    "venue": "Electrochem 7(1), 6 (2026)"
+  },
   "gan2018-surfaces-pecvd-sinx-mechanical": {
     "doi": "10.3390/surfaces1010006",
     "host": "repository",
@@ -429,6 +465,15 @@
     "src": "미러 사이트 (altcha SHA-256 PoW 직접 계산으로 통과) — 2026-09-15 sti_ceria shield_* 3회차",
     "title": "Cleaning Solutions for Removal of ~30 nm Ceria Particles from Proline and Citric Acid Containing Slurries Deposited on Silicon Dioxide and Silicon Nitride Surfaces",
     "venue": "ECS J. Solid State Sci. Technol. 9, 044013 (2020)"
+  },
+  "granstrom2015-icpt-psd-shift-slurry-stability": {
+    "authors": "Granstrom J, Oonishi S, Tada M, Takeda H",
+    "doi": "",
+    "note": "slurry/slurry-storage-transport-history-effective-psd-model.md",
+    "pdf_local": "papers/granstrom2015-icpt-psd-shift-slurry-stability.pdf",
+    "src": "fujimico.com 원 URL 접속 불가 → Wayback Machine 2020-03-21 스냅샷(https://web.archive.org/web/20200321025739if_/http://www.fujimico.com/uploads/GranstromTakedaFujimiICPTpaper2015.pdf) 4쪽 전문. DOI 없음(학회 발표논문)",
+    "title": "Particle size distribution shift as a predictor of slurry stability",
+    "venue": "ICPT 2015 (Int. Conf. on Planarization/CMP Technology) 발표논문, Fujimi Corporation/Fujimi Incorporated"
   },
   "guo2004-mechanical-removal-copper-alumina": {
     "confidence": "doi",
@@ -498,6 +543,15 @@
     "src": "OpenAlex fulltext.search(polishing pad polyurethane compressive yield) → doi 10.3390/ma17112759 → mdpi-res.com CDN 직링크(landing page 403) — 2026-09-15 3회차 재탐색",
     "title": "Effect of Secondary Foaming on the Structural Properties of Polyurethane Polishing Pad",
     "venue": "Materials 17(11) 2759 (2024), MDPI, CC-BY"
+  },
+  "huang2019-npjmatdeg-pourbaix-magnetic-transition-metals": {
+    "authors": "Huang L-F, Rondinelli JM",
+    "doi": "10.1038/s41529-019-0088-z",
+    "note": "materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md",
+    "pdf_local": "papers/huang2019-npjmatdeg-pourbaix-magnetic-transition-metals.pdf",
+    "src": "npj Materials Degradation (Nature, CC-BY) 직링크",
+    "title": "Reliable electrochemical phase diagrams of magnetic transition metals and related compounds from high-throughput ab initio calculations",
+    "venue": "npj Mater. Degrad. 3, 14 (2019)"
   },
   "hwang2026-polymers-paa-ceria-sti-slurry": {
     "authors": "Sohee Hwang, Tao Lyu, Woonjung Kim",
@@ -621,6 +675,15 @@
     "src": "미러 사이트 -> 미러 사이트 (ECS paywall 폴백), 2026-09-13",
     "title": "Study of Agglomeration Behavior of Chemical Mechanical Polishing Slurry under Controlled Shear Environments",
     "venue": "ECS J. Solid State Sci. Technol. 7(5), P238-P242 (2018)"
+  },
+  "khanna2019-jvstb-hard-soft-shear-agglomerates": {
+    "authors": "Khanna AJ, Chang F-C, Gupta S, Kumar P, Singh RK",
+    "doi": "10.1116/1.5065516",
+    "note": "slurry/slurry-storage-transport-history-effective-psd-model.md",
+    "pdf_local": "papers/khanna2019-jvstb-hard-soft-shear-agglomerates.pdf",
+    "src": "AVS 유료 → 미러 사이트 폴백으로 확보. 정량 데이터는 Fig.2~8 그래프에만 있어 본문 서술·결론만 인용",
+    "title": "Characterization of the nature of shear-induced agglomerates as hard and soft in chemical mechanical polishing slurries",
+    "venue": "J. Vac. Sci. Technol. B 37(1), 011207 (2019)"
   },
   "khanna2019-mee-shear-agglomeration-cmp": {
     "authors": "Khanna AJ, Gupta S, Kumar P, Chang FC, Singh RK",
@@ -1275,6 +1338,15 @@
     "title": "Scratching by pad asperities in chemical-mechanical polishing",
     "venue": "CIRP Annals 59(1), 329-332 (2010)"
   },
+  "sampurno2011-ecst-pad-abruptness-tungsten-cmp": {
+    "authors": "Sampurno Y, Rice A, Zhuang Y, Philipossian A",
+    "doi": "10.1149/1.3567648",
+    "note": "materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md",
+    "pdf_local": "papers/sampurno2011-ecst-pad-abruptness-tungsten-cmp.pdf",
+    "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
+    "title": "Correlation of Pad Topography, Friction Force and Removal Rate during Tungsten Chemical Mechanical Planarization",
+    "venue": "ECS Transactions 34(1), 621-626 (2011)"
+  },
   "seidel1990-anisotropic-etching-si-alkaline-part1": {
     "authors": "Seidel, Csepregi, Heuberger, Baumgaertel",
     "doi": "10.1149/1.2086277",
@@ -1661,6 +1733,23 @@
     "title": "The Benefits of Multi-Stage Filtration for Improved CMP Slurry Large Particle Retention",
     "venue": "2019 30th Annual SEMI ASMC, 194-197"
   },
+  "wu2012-jss-aggressive-diamond-wear": {
+    "authors": "Wu C, Zhuang Y, Liao X, Jiao Y, Sampurno YA, Theng S, Sun F, Naman A, Philipossian A",
+    "doi": "10.1149/2.036301jss",
+    "note": "materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md",
+    "pdf_local": "papers/wu2012-jss-aggressive-diamond-wear.pdf",
+    "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
+    "title": "Aggressive Diamond Characterization and Wear Analysis during Chemical Mechanical Planarization",
+    "venue": "ECS J. Solid State Sci. Technol. 2(1), P36-P41 (2013; online 2012-12-05)"
+  },
+  "wu2015-ua-thesis-slurry-temperature-aggressive-diamonds-cmp": {
+    "authors": "Wu, Changhong",
+    "note": "materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md",
+    "pdf_local": "papers/wu2015-ua-thesis-slurry-temperature-aggressive-diamonds-cmp.pdf",
+    "src": "University of Arizona Repository (DSpace REST API, 공개 학위논문)",
+    "title": "Control of Slurry Flow, Temperature and Aggressive Diamonds in Chemical Mechanical Planarization",
+    "venue": "PhD thesis, University of Arizona (2015), Ch.6 = ECS JSS 2(1) P36 (2013) 동일 데이터"
+  },
   "xu2020-mee-tungsten-filling-seam": {
     "doi": "10.1016/j.mee.2020.111285",
     "file": "papers/xu2020-mee-tungsten-filling-seam.pdf",
@@ -1682,6 +1771,15 @@
     ],
     "venue": "J. Electrochem. Soc. 157(6) H617-H623",
     "year": 2010
+  },
+  "yan2023-ecsjss-5mbta-cobalt-copper-cmp-preprint": {
+    "authors": "Yan H, Niu X, Luo F, Qu M, Wang J, Zhan N, Liu J, Zou Y",
+    "doi": "10.1149/2162-8777/accd99",
+    "note": "materials/film-co-interconnect-cmp-corrosion-galvanic-inhibitor.md",
+    "pdf_local": "papers/yan2023-ecsjss-5mbta-cobalt-copper-cmp-preprint.pdf",
+    "src": "Research Square 프리프린트 CC-BY(researchsquare.com/article/rs-1909550) — IOP 본지는 Cloudflare 봉쇄. 표 번호는 프리프린트 기준",
+    "title": "Surface Corrosion Inhibition Effect and Action Mechanism Analysis of 5-Methyl-Benzotriazole on Cobalt-Based Copper Film CMP for GLSI",
+    "venue": "ECS J. Solid State Sci. Technol. 12, 044007 (2023)"
   },
   "yang2010-ijmt-solid-pad-microholes-conditioner": {
     "authors": "J.C. Yang, J.H. Choi, T. Hwang, C.-G. Lee, T. Kim",
@@ -1735,5 +1833,14 @@
     "pdf": null,
     "src": "EuropePMC fullTextXML",
     "ver": "publishedVersion"
+  },
+  "zhou2018-jss-pad-performance-deterioration-fused-silica": {
+    "authors": "Zhou Y, Luo H, Pan G, Zou C, Luo G, Chen G, Kang C",
+    "doi": "10.1149/2.0011806jss",
+    "note": "materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md",
+    "pdf_local": "papers/zhou2018-jss-pad-performance-deterioration-fused-silica.pdf",
+    "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
+    "title": "Study on Pad Performance Deterioration in Chemical Mechanical Polishing (CMP) of Fused Silica",
+    "venue": "ECS J. Solid State Sci. Technol. 7(6), P295-P298 (2018)"
   }
 }

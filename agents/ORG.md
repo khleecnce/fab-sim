@@ -102,7 +102,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | wafer-type | 활성 (G1 개방 2026-09-06) | 6/6 ✓ 완주 (Cal-1은 G2 대기) | 2026-09-09 |
 | surface-contamination | 활성 (G1) | 6/6 ✓ 완주 (Cal-1은 G2 대기) | 2026-09-09 |
 | pad-material | 활성 (G2 개방 2026-09-06) | 5/6 (Lv3-1 완료) | 2026-09-08 |
-| pad-lifecycle | 활성 (G3 개방 2026-09-06) | 5/6 (Lv3-1 완료) | 2026-09-08 |
+| pad-lifecycle | 활성 (G3 개방 2026-09-06) | 6/6 ✓ 완주 (Lv3-2 완료: 시간축을 시간→패드상태(λ)→Kp 2단계로 분리, Sampurno 2011 λ(t) 재현·Zhou 2018 무릎압력·Wu 2013 디스크 2단계·PHM 477웨이퍼 교차검증; Cal-1은 G2 대기) | 2026-09-16 |
 | disk-design | 활성 (G3 개방 2026-09-06) | 6/6 ✓ 완주 | 2026-09-08 |
 | tool-platen-head | 활성 (G2 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | pad-structure | 활성 (G3 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
@@ -116,10 +116,10 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | film-nitride | 활성 (G3 개방 2026-09-09) | 5/6 (Lv3-1 완료: SiN 억제 첨가제 — 아미노산/폴리카복실산 정량·Langmuir 재현, Praveen2014 La 도핑 세리아서 프롤린 무력화, 3D NAND 요구 SiO₂:Si₃N₄≈30:1(Zhao2025 실측 35.5)) | 2026-09-14 |
 | film-poly-si | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: 고선택비·무결함 Poly 슬러리 리뷰 — 고분자양이온 전하밀도 선택비제어(Penta 2011), 기계화학 선택연마, abrasive-free 버핑. 심야병렬 2노트) | 2026-09-13 |
 | tool-endpoint | 활성 (G3 개방 2026-09-10) | 5/6 (Lv3-1 완료: ML/통계 EPD — 웨이블릿+SPRT·PCA-T² 조기검출(BenZakour2012), AE가 마찰보다 10s 조기·오버폴리시 5% 방지(Helu2014), AMAT US10478937B2 AE 다중센서, fPCA 압력 대리모델(Rothe2025 E5); 투명·다층막 물리 한계는 ML로 못 넘음) | 2026-09-15 |
-| slurry-colloid | 활성 (G3 개방 2026-09-12) | 4/6 (Lv3-1 완료: 응집억제 첨가제 — 고분자분산제(EAA) 단조안정화 vs 전해질형(SHMP) ∩형 최적점, DLVO+Smoluchowski W 재현; 인라인 LPC Poisson 계수바닥 E=z/√(nλ). Hwang2024·Mei2024·Lee2020) | 2026-09-14 |
+| slurry-colloid | 활성 (G3 개방 2026-09-12) | 6/6 ✓ 완주 (Lv3-2 완료: 이력→유효 PSD 배율표 H1~H9 — t_eq(Q₁₀=2.00, US20250304827A1), M_d50=(1+t_eq/τ)^(1/3) τ 95~110일(Granström 2015), 꼬리(d99/LPC)는 별도 상태량(×87 vs ×0.9), 세리아 온도 가역(Seo 2021 E1), 희석 문턱 h=65nm; Cal-1은 G2 대기) | 2026-09-16 |
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
-| film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 0/6 | 2026-09-15 |
+| film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 1/6 (Lv1-1 완료: Co 부동태 창이 CMP pH 밖(Huang 2019 Pourbaix), Cu/Co 갈바닉 ΔE_corr 필요≠충분(말론산 반례, Gamagedara 2025), BTA 유도체 Langmuir K_ads·ΔG°(Cheng 2024) EIS 33배 vs PDP 12배 불일치, 판정#17 θ≠MRR Co서 독립 재현; Co/Ru 실측 ΔE_corr 미확보) | 2026-09-16 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
