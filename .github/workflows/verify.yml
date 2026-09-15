@@ -1,5 +1,20 @@
 name: verify
-on: [push, pull_request]
+
+# 이 저장소는 private이라 Actions 분(minute)이 과금 대상이다.
+# 에이전트 크론이 하루 수십 커밋을 밀어 넣는데, 그 중 대부분은
+# knowledge/·papers/·agents/ 같은 문서·데이터 변경이라 pytest 결과에
+# 영향이 없다. 무료 2000분이 그렇게 소진돼 2026-09 결제 차단이 걸렸다.
+# → push 빌드는 코드/테스트/의존성 변경으로만 한정한다.
+#   전체 스위트를 강제로 돌리고 싶으면 Actions 탭에서 수동 실행.
+on:
+  push:
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/**'
+  pull_request:
+  workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
