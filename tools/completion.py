@@ -144,6 +144,76 @@ def notes_with_verify(factor: str, g: Optional[Dict] = None) -> List[str]:
     return sorted(set(hits))
 
 
+# ── 서두 요약 (사용자용, 2026-09-15) ─────────────────────────────────────────
+# 팩터 기호마다 영어 전문용어를 병기한다 — 사용자가 기호·한국어명만으로는
+# 문헌·업계 자료와 대응시킬 수 없다. 여기 외 정의는 새로 만들지 않고
+# FACTOR_SPEC/docstring 이 말하는 것만 번역해 붙인다.
+FACTOR_EN_TERM = {
+    "lambda": "Preston product P·V",
+    "pi": "radial pressure profile",
+    "theta": "thermal-flow load",
+    "gamma": "pad conditioning load",
+    "kappa": "contact intensity",
+    "chi": "chemical reactivity",
+    "psi": "surface passivation",
+    "tau": "slurry delivery/replenishment",
+    "delta": "defect/scratch propensity",
+    "stab": "steady-state pad stability",
+}
+
+
+def _summary_section(g: Dict[str, Dict[str, Any]], res: Dict[str, Any], packs: List[str]) -> List[str]:
+    """맨 앞 사용자용 요약 — CMP 슬러리 실무자가 기호·팩 식별자 없이도 읽을 수 있어야 한다."""
+    import inspect
+    import sim.factors as F
+    from sim.factors import FACTOR_SPEC, AXIS_EQUIPMENT
+
+    L: List[str] = ["## 요약 — 이 문서를 처음 읽는 사람에게\n"]
+    L.append(
+        "**이 시뮬레이터가 하는 일**: CMP(화학기계연마) 레시피 — 압력·웨이퍼/플래튼 회전수, "
+        "슬러리 조성(연마입자·산화제·억제제 등)과 pH, 패드/디스크 조건 — 을 입력하면, "
+        "웨이퍼 반경 위치별 제거율(MRR, nm/min)과 그로부터 계산되는 균일도 지표(WIWNU·TTV·CV 등), "
+        "그리고 손상·안정성 같은 진단값을 출력한다. 실측 레시피를 그대로 재현하는 것이 아니라, "
+        "문헌에 보고된 관계식·수치를 근거로 그 공정이 어떻게 반응할지 계산한다.\n"
+    )
+    L.append("### 10개 팩터 — 각각 공정에서 무엇을 뜻하는가\n")
+    L.append("| 기호 | 이름(한글) | 영어 전문용어 | 공정상 의미 | 축 |\n|---|---|---|---|---|")
+    axis_kr = {AXIS_EQUIPMENT: "장비축(설비가 결정)", "consumable": "소모품축(슬러리·패드·디스크가 결정)"}
+    for k, (sym, name, axis, _parts) in FACTOR_SPEC.items():
+        fn = getattr(F, f"_f_{k}", None)
+        doc = (inspect.getdoc(fn) or "").strip().splitlines()
+        meaning = doc[0] if doc else "(docstring 없음)"
+        # 첫 줄 맨 앞의 "Λ 기계 부하 강도 = " 같은 기호·이름 반복은 표에서 중복이니 잘라낸다.
+        # docstring 표기가 FACTOR_SPEC 이름과 완전히 같지 않을 수 있어(예: stab은
+        # "S 안정성" vs "시간 안정성") 이름을 그대로 찾지 않고 첫 구분자(=/—)까지를 자른다.
+        meaning = re.sub(r"^[^=—]*[=—]\s*", "", meaning) or meaning
+        en = FACTOR_EN_TERM.get(k, "")
+        L.append(f"| {sym} | {name} | {en} | {meaning} | {axis_kr.get(axis, axis)} |")
+    L.append("\n### 5개 공정 — 각 팩이 어떤 실제 CMP 공정인가\n")
+    L.append("| 팩(내부 식별자) | 공정 |\n|---|---|")
+    for p in packs:
+        L.append(f"| `{p}` | {_pack_desc(p) or '(설명 없음)'} |")
+    L.append(
+        f"\n### 현재 완성도\n\n격자(10개 팩터 × {len(packs)}개 공정 = {res['cells_total']}칸) 중 "
+        f"**{res['cells_done']}/{res['cells_total']}칸** 충족. 남은 미충족은 "
+        f"**χ(화학 반응성)/`cu_h2o2_bta`(Cu CMP, H2O2 산화제) 1칸**뿐이며, Cu 표면에서 H2O2가 만드는 "
+        f"산화막 반응성의 정량 관계를 그 조성·pH 조건에서 보고한 1차 문헌을 아직 찾지 못해 "
+        f"confidence가 literature 등급에 못 미친다(estimated).\n"
+    )
+    n_closed = len(res.get("closed") or [])
+    L.append(
+        "### '종결 판정'이란 무엇인가\n\n"
+        "아래 팩터별 표에서 confidence가 낮은데도 완성 판정에 포함된 칸이 있다. 이건 "
+        "**\"아직 안 했다\"가 아니라 \"확인했지만 없다\"는 뜻이다.** 해당 수치를 뒷받침할 만한 "
+        "1차 문헌(논문·특허)이 공개 문헌에 존재하지 않는다는 것을 서로 다른 시점에 3회에 걸쳐 "
+        "재확인한 뒤, 그 결과를 `validation/C2-CLOSURES.yaml`에 판정 번호와 근거 노트로 등록해 "
+        "**구조적 한계로 종결**한 것이다. 종결은 숫자나 등급을 바꾸지 않는다 — 다음에 새 문헌이 "
+        "나오면 그때 재검토한다(각 칸의 재개 조건은 `reopen_if`에 있다). 지금 "
+        f"**{n_closed}개 칸이 이 방식으로 종결**되어 있다.\n"
+    )
+    return L
+
+
 # ── C2 종결 원장 (2026-09-15) ────────────────────────────────────────────────
 # COMPLETION.md "완성 정의 수정 제안"의 구현. C2 는 이제 다음 중 하나면 충족이다:
 #   (a) confidence >= literature, 또는
@@ -341,8 +411,9 @@ def report() -> Path:
     packs = _packs()
     L = [f"# FabSim 모델 근거 보고서 (MODEL-BASIS)\n\n생성: {time.strftime('%Y-%m-%d %H:%M')} · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.\n",
          f"완성 판정: **{'완성' if res['complete'] else '미완'}** ({res['cells_done']}/{res['cells_total']}칸). "
-         f"미충족 {len(res['fails'])}건은 끝에.\n",
-         "## 0. 결합식\n", "```\nMRR(r) = Kp · P(r) · V(r) · κ · χ · ψ · τ        (기준 조건에서 κ=χ=ψ=τ=1)\n"
+         f"미충족 {len(res['fails'])}건은 끝에.\n"]
+    L += _summary_section(g, res, packs)
+    L += ["## 0. 결합식\n", "```\nMRR(r) = Kp · P(r) · V(r) · κ · χ · ψ · τ        (기준 조건에서 κ=χ=ψ=τ=1)\n"
          "Λ, Π 는 P·V 자체의 분해(장비축), Θ·Γ·Δ·S 는 출력·진단 축 — MRR에 곱하지 않는다.\n```\n",
          "Kp는 팩마다 문헌 한 점에서 역산한 값이라 절대값은 그 조성·조건에 묶인다. 팩터는 전부 **기준 대비 배수**이므로 "
          "Kp와 이중 계상되지 않는다(`tests/test_factors.py`가 기준 1.0 계약을 강제).\n"]
@@ -382,10 +453,15 @@ def report() -> Path:
         L.append(f"| {_pack_label(p)} | {o.get('n_total', 0)} | {o.get('n_sig', 0)} | {o.get('mean_rho', '—')} |")
     L.append("\n## 미충족 항목\n")
     c2map = _c2_classification()
+    pack_set = set(packs)
     for f in res["fails"]:
         extra = ""
+        m = re.search(r"(\w+)/(\w+):", f)
+        if m and m.group(2) in pack_set:
+            d = _pack_desc(m.group(2))
+            if d:
+                f = f.replace(f"/{m.group(2)}:", f"/{m.group(2)}({d}):")
         if f.startswith("C2 "):
-            m = re.search(r"(\w+)/(\w+):", f)
             info = c2map.get((m.group(1), m.group(2))) if m else None
             if info:
                 judg = ", ".join(info["judgments"]) or "(판정번호 없음)"
