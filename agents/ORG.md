@@ -37,7 +37,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │   ├─ film-poly-si                    [활성, G3 2026-09-10]  Poly-Si — 게이트·3D NAND
 │   │   ├─ film-cu                         [활성, G1 2026-09-08]  Cu — 배선, dishing/erosion, 부식
 │   │   ├─ film-w                          [활성, G2 2026-09-09]  W — 플러그·contact, 산화제 화학
-│   │   └─ film-emerging                   [대기]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
+│   │   └─ film-emerging                   [활성]  Co·Ru·Mo·GST — 미래 배선/PCM (Phase 2)
 │   │
 │   ├─ 장비 (Equipment)
 │   │   ├─ tool-platen-head                [활성, G2 2026-09-07]  플래튼·헤드·존압력·리테이너링
@@ -119,6 +119,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | slurry-colloid | 활성 (G3 개방 2026-09-12) | 4/6 (Lv3-1 완료: 응집억제 첨가제 — 고분자분산제(EAA) 단조안정화 vs 전해질형(SHMP) ∩형 최적점, DLVO+Smoluchowski W 재현; 인라인 LPC Poisson 계수바닥 E=z/√(nλ). Hwang2024·Mei2024·Lee2020) | 2026-09-14 |
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
+| film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 0/6 | 2026-09-15 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)
