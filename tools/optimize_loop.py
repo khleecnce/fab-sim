@@ -168,6 +168,25 @@ def grid_cells() -> Dict[str, object]:
     return {"done": int(m.group(1)), "total": int(m.group(2))}
 
 
+def label_input_match() -> Dict[str, object]:
+    """라벨에만 있고 모델에 전달되지 않는 축이 있는가.
+
+    이 결함은 조용하다: 모델은 같은 입력에 같은 값을 예측하고(예외 없음),
+    검증은 "모델이 그 축을 못 맞춘다"고 오진한다. 실제로 이 오진 때문에
+    산화제 floor 를 문헌 조사하려던 참이었고, 축을 전달하자 ρ 가
+    +0.961 로 올라 결함이 데이터 쪽이었음이 드러났다.
+
+    ⚠ 물리 결함을 쫓기 전에 이것을 먼저 봐야 한다.
+    """
+    r = _run([PY, str(ROOT / "tools" / "label_vs_input_audit.py")], timeout=300)
+    m = re.search(r"결함\s+(\d+)건", r.stdout)
+    if m:
+        return {"defects": int(m.group(1))}
+    if "라벨과 전달값이 일치한다" in r.stdout:
+        return {"defects": 0}
+    return {"ok": False, "error": "감사 결과를 읽지 못했다"}
+
+
 def calibration_gain() -> Dict[str, object]:
     """데이터를 넣으면 절대값이 좋아지는가 — 개정 완료 기준의 핵심 지표.
 
@@ -210,13 +229,15 @@ def snapshot() -> Dict[str, object]:
     of = overfit()
     print("  · 정확도 백테스트…")
     ac = accuracy()
+    print("  · 라벨↔전달값 일치…")
+    li = label_input_match()
     print("  · 축척 학습곡선…")
     cg = calibration_gain()
     return {
         "ts": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "commit": _run(["git", "rev-parse", "--short", "HEAD"]).stdout.strip(),
         "physics": ph, "tests": ts, "overfit": of, "accuracy": ac,
-        "caps": cc, "grid": gc, "calib": cg,
+        "caps": cc, "grid": gc, "calib": cg, "label_input": li,
     }
 
 
@@ -246,6 +267,17 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
 
     if not (cur.get("tests") or {}).get("passed", False):  # type: ignore[union-attr]
         v.append("🔴 회귀 테스트 실패 — 과거에 확정한 사실이 깨졌다.")
+
+    # ── 라벨↔전달값 — 물리를 의심하기 **전에** 본다 ─────────────
+    li = cur.get("label_input") or {}
+    if isinstance(li, dict):
+        if li.get("ok") is False:
+            v.append(f"🔴 라벨↔전달값 감사를 읽지 못했다 ({li.get('error')})")
+        elif int(li.get("defects", 0) or 0):
+            n = int(li["defects"])
+            v.append(f"🔴 라벨에만 있고 모델에 전달되지 않는 축 {n}건 — "
+                     "그 축의 검증 결과는 무의미하다. **물리를 고치기 전에 "
+                     "이것을 먼저 고쳐라** (없는 결함을 쫓게 된다).")
 
     # ── 축척 학습 — 개정 완료 기준 ──────────────────────────────
     # 절대값 3 % 를 목표에서 내린 대신(측정으로 원리적 불가 확인),

@@ -21,42 +21,42 @@ conditions:
     rpm_wafer: 65
     mrr_nm_per_min: 28.9
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 0.0, slurry_ph: 3.0}
   - label: "pH3 다이아몬드 0.01wt%, H2O2 1%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 110.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 1.0, slurry_ph: 3.0}
   - label: "pH3 다이아몬드 0.01wt%, H2O2 3%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 227.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 3.0, slurry_ph: 3.0}
   - label: "pH3 다이아몬드 0.02wt%, H2O2 0%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 36.3
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 0.0, slurry_ph: 3.0}
   - label: "pH3 다이아몬드 0.02wt%, H2O2 1%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 165.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 1.0, slurry_ph: 3.0}
   - label: "pH3 다이아몬드 0.02wt%, H2O2 3%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 243.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 3.0, slurry_ph: 3.0}
 
   # ── TABLE 3.2 : pH 6, 2% KPS ──
   - label: "pH6 다이아몬드 0.01wt%, H2O2 0%"
@@ -65,63 +65,63 @@ conditions:
     rpm_wafer: 65
     mrr_nm_per_min: 24.6
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 0.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.01wt%, H2O2 1%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 132.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 1.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.01wt%, H2O2 3%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 211.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.01, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 3.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.02wt%, H2O2 0%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 29.8
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 0.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.02wt%, H2O2 1%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 161.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 1.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.02wt%, H2O2 3%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 236.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.02, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 3.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.04wt%, H2O2 0%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 50.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 0.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.04wt%, H2O2 1%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 182.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 1.0, slurry_ph: 6.0}
   - label: "pH6 다이아몬드 0.04wt%, H2O2 3%"
     pressure_psi: 3.0
     rpm_platen: 75
     rpm_wafer: 65
     mrr_nm_per_min: 265.0
     read_method: table
-    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0}
+    overrides: {abrasive_wt_pct: 0.04, abrasive_ref_wt_pct: 0.02, sfr_ml_min: 200.0, oxidizer_wt_pct: 3.0, slurry_ph: 6.0}
 
 notes: >
   DOE 축은 세 개다: 다이아몬드 입자 0.01/0.02/0.04 wt%, H2O2 0/1/3 wt%, pH 3/6.
