@@ -292,6 +292,18 @@ class WaferResult:
     pad_modulus_ref_25c_mpa: Optional[float] = None
     pad_modulus_softening_ratio: Optional[float] = None
     pad_viscoelastic_note: Optional[str] = None
+    # 디스크 설계 스펙(그릿 개수 N·그릿 크기 D) 변경의 GW 파라미터(Ra, Rpk, λ) 상대 배율
+    # 진단 — MRR과 무관. sim/tier2_physics/disk_gw_relative_scaling.py::ra_relative/
+    # rpk_relative/lambda_relative(원본 무수정). Kwon 2013(doi:10.1016/j.triboint.2013.08.008)
+    # Ra∝N^-0.23·Rpk∝N^-0.62, Sun 2009(hdl:10150/194898) λ∝D^0.35(고하중 작업가설 중간값,
+    # 저하중 λ_rel=1). disk_gw_ref_grit_count/size·disk_gw_target_grit_count/size 네 키가
+    # 팩에 전부 선언될 때만 계산한다(현재 5팩 전부 미선언이라 항상 None이 정상 — "기준
+    # 디스크"를 지어내지 않는다). disk_gw_high_load 미선언이면 λ_relative는 하중 레짐을
+    # 임의로 고르지 않고 None으로 두며, note에 고하중/저하중 두 값만 병기한다.
+    disk_gw_ra_relative: Optional[float] = None
+    disk_gw_rpk_relative: Optional[float] = None
+    disk_gw_lambda_relative: Optional[float] = None
+    disk_gw_scaling_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1062,6 +1074,94 @@ def _pad_viscoelastic_diagnostic(rr: "ResolvedRecipe",
     return out
 
 
+def _disk_gw_scaling_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """디스크 설계 스펙(그릿 개수 N, 그릿 크기 D) 변경이 GW 접촉모델 파라미터
+    (Ra, Rpk, λ)에 미치는 상대 배율 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/disk_gw_relative_scaling.py::ra_relative/rpk_relative/
+    lambda_relative(원본 무수정). Kwon et al. (2013), Tribology International 67, 272-277,
+    doi.org/10.1016/j.triboint.2013.08.008 — Ra∝N^-0.23, Rpk∝N^-0.62(Fig.2 3점 회귀).
+    Sun (2009) PhD dissertation, Univ. of Arizona, http://hdl.handle.net/10150/194898 —
+    λ∝D^0.35(고하중 ≈8 lb 근방, §4 종합 0.3~0.4 작업가설의 중간값), λ_rel≈1(저하중
+    ≈3.6 lb 이하, 그릿 크기 무관).
+
+    ⚠ **절대값 아님, 배율뿐.** 이 모듈은 (N_ref, D_ref) -> (N_target, D_target) 상대
+    배율만 계산한다 — 절대 Ra/Rpk/λ(µm 실측치)는 모듈 docstring이 명시적으로
+    캘리브레이션 파라미터로 남긴 것이라 여기서도 만들어내지 않는다.
+
+    **"기준 디스크"를 지어내지 않는다.** disk_gw_ref_grit_count/disk_gw_ref_grit_size와
+    disk_gw_target_grit_count/disk_gw_target_grit_size 네 키를 팩이 전부 선언할 때만
+    계산한다(현재 5팩 전부 미선언이라 항상 None이 정상 — pad_groove_eol·
+    pad_viscoelastic과 동일 지위). 어느 팩에도 이 키를 새로 박아 넣지 않는다.
+
+    **λ 하중 레짐을 임의로 고르지 않는다.** disk_gw_high_load(bool)가 팩에 선언돼
+    있으면 그 레짐 하나로 λ_rel을 낸다. 미선언이면 고하중(λ∝D^0.35)·저하중(그릿
+    크기 무관, λ_rel=1) 두 값을 note에 병기만 하고 disk_gw_lambda_relative는
+    None으로 둔다(평균 내거나 하나를 임의로 고르지 않는다 — Sun 2009 §3.3은 하중별로
+    물리 자체가 달라진다고 서술한다).
+
+    ⚠ **disk_preston_contact_decomposition의 Kp 스케일링 훅은 끌어오지 않는다** — 그
+    모듈은 스스로 PROVISIONAL·"캘리브레이션 없이 정량예측 금지"라고 선언했다. 이
+    진단은 그 모듈과 완전히 무관하다.
+
+    **grade는 다루지 않는다** — 이 진단은 grade 필드를 아예 입력받지 않는다(Kwon 2013
+    §2.1은 grade 625/640/925 3점 관찰만 있고 회귀하지 않아 모듈 자체가 grade의 수치
+    변환을 하지 않는다).
+
+    한계(모듈 docstring 그대로 전파): λ의 0.35는 Sun 2009 §4가 명시한 0.3~0.4
+    작업가설 범위의 중간값이지 회귀값이 아니다. surface finish(D 구간분기 0.71/0.23
+    포화, leveled 배율)는 이 진단이 다루는 3개 GW 파라미터(Ra, Rpk, λ)에 포함되지
+    않아 노출하지 않는다.
+    """
+    out: Dict[str, object] = {"disk_gw_ra_relative": None,
+                              "disk_gw_rpk_relative": None,
+                              "disk_gw_lambda_relative": None,
+                              "disk_gw_scaling_note": None}
+    need = ("disk_gw_ref_grit_count", "disk_gw_ref_grit_size",
+            "disk_gw_target_grit_count", "disk_gw_target_grit_size")
+    missing = [k for k in need if not rr.pack.has(k)]
+    if missing:
+        out["disk_gw_scaling_note"] = (
+            f"⚠ 디스크 GW 상대 배율 진단 스킵 — 팩에 없음: {', '.join(missing)} "
+            "(기준/대상 디스크 스펙을 지어낼 수 없음, 현재 5팩 전부 미선언이라 항상 "
+            "None이 정상)")
+        return out
+    try:
+        import disk_gw_relative_scaling as DGW   # sim/tier2_physics (1바이트도 수정 안 함)
+        N_ref = float(rr.pack.get("disk_gw_ref_grit_count"))
+        D_ref = float(rr.pack.get("disk_gw_ref_grit_size"))
+        N_target = float(rr.pack.get("disk_gw_target_grit_count"))
+        D_target = float(rr.pack.get("disk_gw_target_grit_size"))
+        ra_rel = DGW.ra_relative(N_ref, N_target)
+        rpk_rel = DGW.rpk_relative(N_ref, N_target)
+        lam_hi = DGW.lambda_relative(D_ref, D_target, high_load=True)
+        lam_lo = DGW.lambda_relative(D_ref, D_target, high_load=False)
+    except Exception as e:
+        out["disk_gw_scaling_note"] = f"⚠ 디스크 GW 상대 배율 계산 실패({e}) — None으로 둠"
+        return out
+    out["disk_gw_ra_relative"] = float(ra_rel)
+    out["disk_gw_rpk_relative"] = float(rpk_rel)
+    if rr.pack.has("disk_gw_high_load"):
+        high_load = bool(rr.pack.get("disk_gw_high_load"))
+        lam_rel = lam_hi if high_load else lam_lo
+        out["disk_gw_lambda_relative"] = float(lam_rel)
+        load_note = f"disk_gw_high_load={high_load} 선언값 사용, λ_rel={lam_rel:.4f}."
+    else:
+        load_note = (
+            f"disk_gw_high_load 미선언 — 하중 레짐을 임의로 고르지 않음: "
+            f"고하중(λ∝D^0.35) λ_rel={lam_hi:.4f}, 저하중(그릿 크기 무관) λ_rel={lam_lo:.4f} "
+            "두 값만 병기, 대표값 없음(평균 금지).")
+    out["disk_gw_scaling_note"] = (
+        f"N_ref={N_ref:g}->N_target={N_target:g}, D_ref={D_ref:g}->D_target={D_target:g}. "
+        f"Ra_rel={ra_rel:.4f}(Kwon 2013 Ra∝N^-0.23), Rpk_rel={rpk_rel:.4f}"
+        f"(Kwon 2013 Rpk∝N^-0.62). {load_note} "
+        "⚠ 진단 전용, MRR에 영향 없음(disk_preston_contact_decomposition의 Kp 스케일링 훅과 "
+        "무관 — 그 모듈은 PROVISIONAL, 캘리브레이션 없이 정량예측 금지를 선언했다). "
+        "grade(sharp/blunt)는 수치 변환하지 않음(Kwon 2013 §2.1 3점 관찰, 회귀 없음). "
+        "λ 지수 0.35는 Sun 2009 §4의 0.3~0.4 작업가설 범위 중간값(회귀값 아님).")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1432,6 +1532,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_visco = _pad_viscoelastic_diagnostic(rr, theta_ss)
     if pad_visco["pad_viscoelastic_note"]:
         notes.append(pad_visco["pad_viscoelastic_note"])
+    # 디스크 설계 스펙(N, D) 상대 배율 -> GW 파라미터(Ra, Rpk, λ) 진단 — MRR 경로와
+    # 완전히 독립. 기준/대상 디스크 스펙(disk_gw_ref_*/disk_gw_target_*) 팩 미선언이면
+    # 조용히 None(현재 5팩 전부 미선언이라 항상 None이 정상).
+    disk_gw = _disk_gw_scaling_diagnostic(rr)
+    if disk_gw["disk_gw_scaling_note"]:
+        notes.append(disk_gw["disk_gw_scaling_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1500,6 +1606,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pad_modulus_ref_25c_mpa=pad_visco["pad_modulus_ref_25c_mpa"],
                        pad_modulus_softening_ratio=pad_visco["pad_modulus_softening_ratio"],
                        pad_viscoelastic_note=pad_visco["pad_viscoelastic_note"],
+                       disk_gw_ra_relative=disk_gw["disk_gw_ra_relative"],
+                       disk_gw_rpk_relative=disk_gw["disk_gw_rpk_relative"],
+                       disk_gw_lambda_relative=disk_gw["disk_gw_lambda_relative"],
+                       disk_gw_scaling_note=disk_gw["disk_gw_scaling_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
