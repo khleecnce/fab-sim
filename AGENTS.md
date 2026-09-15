@@ -22,9 +22,13 @@
    전체 스위트를 수동으로 돌리고 싶으면 Actions 탭의
    `workflow_dispatch`를 쓴다.
 
-2. **push 전에 로컬에서 검증한다.** `.git/hooks/pre-push`가 코드 변경이
-   있을 때만 pytest를 돌린다(약 3분). git hook은 clone으로 따라오지
-   않으므로, 새 환경을 만들면 훅을 다시 깔아야 한다.
+2. **push 전 검증은 이미 자동이다.** `core.hooksPath = .githooks`로 설정돼
+   있어 `.githooks/pre-push`가 **HEAD를 임시 디렉토리에 export해서**(=CI와
+   같은 클린 트리) pytest를 돌린다. 워킹트리가 아니라 HEAD를 보는 이유는,
+   크론이 `git add <명시 경로>`로 커밋할 때 동반 변경이 빠져 로컬만 녹색이
+   되는 사고가 있었기 때문이다. 새 clone에서는
+   `git config core.hooksPath .githooks`를 다시 걸어야 한다.
+   우회는 `FABSIM_SKIP_PREPUSH=1 git push`(급할 때만).
 
 3. **빨간 CI를 원격에 밀지 마라.** 실패하는 run도 분을 소모한다.
 
