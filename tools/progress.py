@@ -41,14 +41,20 @@ GATES = {
     "G3": {
         "opens": ["slurry-colloid", "pad-structure", "pad-lifecycle",
                   "disk-design", "film-nitride", "film-poly-si",
-                  "tool-endpoint", "defect-scientist"],
+                  "tool-endpoint", "defect-scientist", "cmp-calibrator"],
         "need": "MILESTONES M2 달성 + G2 개방자 전원 Lv2 이상(3/6)",
         "test": lambda p: milestone_done("M2")
         and all(p[a]["done"] >= 3 for a in GATES["G2"]["opens"] if a in p),
     },
+    # ⚠ cmp-calibrator 는 G4 가 아니라 G3 다 (2026-09-16 정정).
+    #   정본은 agents/ORG.md §4 표이고 거기서 줄곧 G3 였는데 이 파일만 G4 로
+    #   적혀 있었다. 그대로 두면 **자기참조 데드락**이다 — G4 의 조건은
+    #   "M3(결합 모델 v1 + 캘리브레이션 골격) 달성"이고, 그 캘리브레이션
+    #   골격을 소유할 에이전트가 바로 cmp-calibrator 이기 때문이다.
+    #   조건이 산출물이고 산출물의 주인이 조건에 갇히면 영원히 안 열린다.
+    #   게이트 목록을 옮길 때는 두 파일을 같은 커밋에서 맞춰라.
     "G4": {
-        "opens": ["disk-kinematics", "film-emerging", "tool-post-clean",
-                  "cmp-calibrator"],
+        "opens": ["disk-kinematics", "film-emerging", "tool-post-clean"],
         "need": "MILESTONES M3(결합 모델 v1 + 캘리브레이션 골격) 달성",
         "test": lambda p: milestone_done("M3"),
     },

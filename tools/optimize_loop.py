@@ -79,7 +79,15 @@ def physics_health() -> Dict[str, object]:
                 "error": f"심각도 키를 못 찾았다: {sorted(issues[0])}"}
     sev = sum(1 for i in issues
               if str(i.get(sev_key, "")).lower() in ("error", "severe", "risk"))
-    return {"severe": sev, "total": len(issues)}
+    # 판정으로 종결돼 **의도적으로 남겨 둔** 위반은 따로 센다.
+    # 합쳐서 세면 매 회차 "이것부터 고쳐라"가 뜨고, 다음 회차가 같은 판정을
+    # 다시 하거나 검사기를 침묵시키려 형상 파라미터를 만지게 된다.
+    # ⚠ 빼는 게 아니라 **가르는** 것이다 — 총계는 그대로 보고한다.
+    adj = sum(1 for i in issues
+              if str(i.get(sev_key, "")).lower() in ("error", "severe", "risk")
+              and str(i.get("adjudicated", "")).strip())
+    return {"severe": sev, "total": len(issues),
+            "adjudicated": adj, "severe_new": sev - adj}
 
 
 def accuracy() -> Dict[str, object]:
@@ -261,9 +269,15 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
         v.append(f"🔴 물리 위생 검사를 읽지 못했다 ({phys.get('error')}) — "
                  "검사 결과를 모르는 상태는 '위반 없음'이 아니다.")
     p_sev = int((phys or {}).get("severe", 0) or 0)  # type: ignore[union-attr]
-    if p_sev:
-        v.append(f"🔴 물리 위반 {p_sev}건 — 다른 지표가 좋아도 이것이 먼저다. "
+    p_adj = int((phys or {}).get("adjudicated", 0) or 0)  # type: ignore[union-attr]
+    p_new = p_sev - p_adj
+    if p_new:
+        v.append(f"🔴 물리 위반 {p_new}건(신규) — 다른 지표가 좋아도 이것이 먼저다. "
                  "극한에서 틀린 모델은 범위 밖에서 반드시 틀린다.")
+    if p_adj:
+        v.append(f"⏹ 물리 위반 {p_adj}건은 판정으로 종결돼 **의도적으로 남겨 둔** 것이다 "
+                 "(validation/adjudicated_violations.yaml). 여기서 형상 파라미터를 "
+                 "만지면 물리가 아니라 검사기를 튜닝하는 것이다 — 재오픈 조건을 읽어라.")
 
     if not (cur.get("tests") or {}).get("passed", False):  # type: ignore[union-attr]
         v.append("🔴 회귀 테스트 실패 — 과거에 확정한 사실이 깨졌다.")
@@ -408,7 +422,10 @@ def main() -> int:
                           cur["overfit"], cur["accuracy"])
         print()
         print(f"커밋 {cur['commit']} · {time.time()-t0:.0f}s")
-        print(f"  물리 위반  : 심각 {ph.get('severe','?')}건")       # type: ignore[union-attr]
+        print(f"  물리 위반  : 심각 {ph.get('severe','?')}건"       # type: ignore[union-attr]
+              + (f" (신규 {ph.get('severe_new')} · "                # type: ignore[union-attr]
+                 f"판정종결 {ph.get('adjudicated')})"               # type: ignore[union-attr]
+                 if ph.get("adjudicated") else ""))                 # type: ignore[union-attr]
         print(f"  회귀 테스트: {ts.get('summary','?')}")             # type: ignore[union-attr]
         print(f"  정확도     : 유의 {ac.get('significant_n','?')}개 "  # type: ignore[union-attr]
               f"ρ={ac.get('rho_significant','?')} "                   # type: ignore[union-attr]

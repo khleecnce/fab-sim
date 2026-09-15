@@ -54,7 +54,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 │   │
 │   └─ 데이터 (Data) — ★ 제품 핵심층 (§7 참조)
 │       ├─ cmp-data-engineer               [활성, G2 2026-09-09]  공개·합성 데이터, 스키마, 파이프라인
-│       └─ cmp-calibrator                  [대기]  고객 실데이터 → 모델 보정 (Tier3). NPW/PTW 분리 학습
+│       └─ cmp-calibrator                  [활성, G3 2026-09-16]  고객 실데이터 → 모델 보정 (Tier3). NPW/PTW 분리 학습
 │
 ├─ L3-ETCH    etch-integrator              [자리]  Phase 2
 ├─ L3-DEPO    depo-integrator              [자리]  Phase 2 — CVD/ALD/PVD
@@ -88,6 +88,11 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 - 크론은 **[활성] 중 진도가 가장 낮은 에이전트**를 고른다. 동률이면 이 표의 우선순위(위→아래, 왼→오른).
 - 게이트 조건 충족을 크론이 확인하면 이 파일의 상태 열을 `[대기]→[활성]`으로 바꾸고 텔레그램에 "🌱 G# 개방: <에이전트들>"을 보고한다.
 - 유지보수 모드 = 커리큘럼 이수 후. 주 1회 이하 최신논문 1편 추적만.
+- ⚠ **이 표와 `tools/progress.py`의 `GATES` 는 같은 커밋에서만 바꾼다.**
+  2026-09-16 에 `cmp-calibrator` 가 이 표에서는 G3 인데 코드에서만 G4 로 적혀 있었고,
+  G4 의 조건이 "M3(결합 모델 v1 + **캘리브레이션 골격**) 달성"이라 **자기참조 데드락**이
+  됐다 — 그 골격을 소유할 에이전트가 자기 산출물을 조건으로 갇혀 영원히 안 열린다.
+  게이트 조건이 어떤 에이전트의 산출물이면 그 에이전트를 그 게이트에 두지 마라.
 
 ## 5. 상태 (크론이 갱신)
 
@@ -120,6 +125,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
 | film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 2/6 (Lv1-2 완료: Ru Pourbaix RuO₂ 1.12V/RuO₄ 1.04V, 연마율 정점은 E°≈1.6V NaIO₄·NaClO(Cui 2013), RuO₄ 억제창 pH≳9(Peethala 2011), Mo는 MoO₃ 부동태 有·RR/SER 41배, Ru/Cu ΔE_corr 540→20mV, Mo/KIO₃ Hill n≈4.2가 Langmuir 대비 SSE 52배 우수; Co/Ru 실측 ΔE_corr 전수탐색 후 부재로 종결) | 2026-09-16 |
+| cmp-calibrator | 활성 (G3 개방 2026-09-16, 선수충족) | 0/6 | 2026-09-16 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

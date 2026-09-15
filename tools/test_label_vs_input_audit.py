@@ -114,3 +114,98 @@ def test_audit_does_not_fire_when_axis_is_passed():
         p.write_text(body, encoding="utf-8")
         probs = scan(p)
     assert not probs, f"정상 데이터셋에 거짓 경보: {probs}"
+
+
+def _write(tmpdir, body: str):
+    import pathlib as _p
+    p = _p.Path(tmpdir) / "x.yaml"
+    p.write_text(body, encoding="utf-8")
+    return p
+
+
+def test_declared_exclusion_silences_header_only_mention():
+    """같은 논문의 **다른 실험** 축을 헤더에 설명한 것은 결함이 아니다.
+
+    단, 산문이 아니라 `excluded_axes:` 필드 + 사유로 선언했을 때만 면제한다.
+    """
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: sti_ceria
+        excluded_axes:
+          oxidizer_wt_pct: 같은 논문의 다른 Figure 변수이고 이 실험 슬러리에는 없다.
+        # 헤더 설명: 같은 논문 Fig.1a 는 H2O2 0 wt% ~ 5 wt% 를 다룬다.
+        conditions:
+          - label: "pH 4"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 10.0
+            overrides: {slurry_ph: 4.0}
+          - label: "pH 8"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 20.0
+            overrides: {slurry_ph: 8.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert not probs, f"선언된 제외축인데 신고했다: {probs}"
+
+
+def test_exclusion_cannot_silence_a_varying_label_axis():
+    """면제가 진짜 결함까지 덮으면 감사기를 무력화하는 도구가 된다.
+
+    라벨에서 값이 **변하는데** 전달되지 않는 경우(🔴)는 어떤 선언으로도
+    면제되지 않아야 한다 — 그 축의 검증 결과가 실제로 무의미해지기 때문이다.
+    """
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: w_fe_oxidizer
+        excluded_axes:
+          oxidizer_wt_pct: 면제해 달라는 그럴듯한 사유
+        conditions:
+          - label: "H2O2 0%"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 10.0
+            overrides: {sfr_ml_min: 200.0}
+          - label: "H2O2 3%"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 200.0
+            overrides: {sfr_ml_min: 200.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert probs, "라벨에서 변하는 축의 미전달이 선언으로 덮였다 — 면제 범위 초과"
+    assert any(s.startswith("🔴") for s in probs)
+
+
+def test_exclusion_without_reason_is_not_an_exclusion():
+    """사유 없는 선언은 면제가 아니다 — 사유를 못 쓰면 면제 대상이 아니다."""
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: sti_ceria
+        excluded_axes:
+          oxidizer_wt_pct: ""
+        # 헤더 설명: H2O2 5 wt% 실험도 같은 논문에 있다.
+        conditions:
+          - label: "pH 4"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 10.0
+            overrides: {slurry_ph: 4.0}
+          - label: "pH 8"
+            pressure_psi: 3.0
+            mrr_nm_per_min: 20.0
+            overrides: {slurry_ph: 8.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert probs, "빈 사유로도 면제됐다 — 선언만으로 감사기를 끌 수 있다"

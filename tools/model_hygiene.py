@@ -60,6 +60,61 @@ class Issue:
     title: str
     detail: str
     fix: str = ""
+    adjudicated: str = ""   # 판정으로 종결돼 남겨 둔 위반이면 그 판정 번호
+
+
+# ══════════════════════════════════════════════════════════════════════
+# 판정 원장 — 위반을 **끄지 않고** 표시만 한다
+#
+# 왜 끄지 않는가: 끄면 그 위반이 정말 사라졌는지 아무도 모르게 된다.
+# 표시만 하면 "매 회차 같은 판정을 반복"과 "새 결함 발견"을 구분할 수 있고,
+# 수치가 움직이면 표시가 자동으로 풀려 다시 새 결함으로 올라온다.
+# ══════════════════════════════════════════════════════════════════════
+ADJUDICATED = ROOT / "validation" / "adjudicated_violations.yaml"
+
+
+def _adjudications() -> List[dict]:
+    if not ADJUDICATED.exists():
+        return []
+    try:
+        import yaml
+        raw = yaml.safe_load(ADJUDICATED.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return []
+    out = []
+    for v in (raw.get("violations") or []):
+        # 사유를 못 쓰면 종결이 아니다 — 셋 다 있어야 유효한 등록이다.
+        if all(str(v.get(k, "")).strip() for k in ("match", "ruling", "reason", "reopen")):
+            out.append(v)
+    return out
+
+
+def _mark_adjudicated(issues: List[Issue]) -> List[Issue]:
+    """판정으로 종결된 위반에 표시를 단다. severity 는 건드리지 않는다."""
+    import re as _re
+    rules = _adjudications()
+    for i in issues:
+        for r in rules:
+            if str(r["match"]) not in i.title:
+                continue
+            # 수치가 바뀌었으면 옛 판정이 더는 이 위반을 설명하지 못한다.
+            want = r.get("value")
+            if isinstance(want, (int, float)):
+                m = _re.search(r"=\s*(-?[0-9]+(?:\.[0-9]+)?)", i.title)
+                if not m:
+                    continue
+                if abs(float(m.group(1)) - float(want)) > float(r.get("tol", 0.0)):
+                    i.detail += (
+                        f"\n     ⚠ {r['ruling']} 이 이 위반을 종결 처리했으나 "
+                        f"수치가 {want} → {m.group(1)} 로 달라졌다. 판정이 더는 "
+                        "이 값을 설명하지 못하므로 **새 결함으로 다룬다.**")
+                    continue
+            i.adjudicated = str(r["ruling"])
+            i.detail += (f"\n     ⏹ {r['ruling']} 으로 종결돼 **의도적으로 남겨 둔** "
+                         f"위반이다. {str(r['reason']).strip()} "
+                         f"재오픈 조건: {str(r['reopen']).strip()}")
+            break
+    return issues
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -639,6 +694,7 @@ def main() -> int:
         issues += check_limits(packs)
 
     order = {"error": 0, "warn": 1, "info": 2}
+    issues = _mark_adjudicated(issues)
     issues.sort(key=lambda i: (order.get(i.severity, 9), i.check, i.title))
 
     if a.json:
@@ -650,12 +706,16 @@ def main() -> int:
                   "차원·범위·극한·식별 위반 없음")
         for i in issues:
             mark = {"error": "🔴", "warn": "🟡", "info": "⚪"}[i.severity]
-            print(f"{mark} [{names[i.check]}] {i.title}")
+            flag = " [판정종결]" if i.adjudicated else ""
+            print(f"{mark}{flag} [{names[i.check]}] {i.title}")
             print(f"     {i.detail}")
             if i.fix:
                 print(f"     조치: {i.fix}")
         n_err = sum(1 for i in issues if i.severity == "error")
-        print(f"\n팩 {len(packs)}개 검사 · 총 {len(issues)}건 (심각 {n_err})")
+        n_adj = sum(1 for i in issues if i.severity == "error" and i.adjudicated)
+        extra = (f" · 그 중 판정종결 {n_adj}건 = 신규 {n_err - n_adj}건"
+                 if n_adj else "")
+        print(f"\n팩 {len(packs)}개 검사 · 총 {len(issues)}건 (심각 {n_err}){extra}")
     return 1 if any(i.severity == "error" for i in issues) else 0
 
 

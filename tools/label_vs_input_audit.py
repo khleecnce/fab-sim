@@ -120,12 +120,41 @@ def txt_lines_before_conditions(text: str) -> List[str]:
     return out
 
 
+def declared_exclusions(raw: dict) -> Dict[str, str]:
+    """데이터셋이 **구조화된 필드로** 선언한 '의도적 미전달 축'.
+
+    왜 산문이 아니라 필드인가
+    ─────────────────────────
+    같은 논문의 **다른 실험**(다른 Figure)을 노트에 설명해 두면 그 축 이름이
+    헤더 주석에 등장한다. 그것은 데이터셋 결함이 아니라 성실한 기록인데,
+    헤더 스캔(🟠)은 그것을 결함으로 신고한다 — 거짓 경보다.
+
+    그렇다고 헤더 스캔을 느슨하게 만들면 진짜 결함(축이 어디에도 전달되지
+    않는 경우)까지 통과한다. 그래서 **산문으로는 절대 면제되지 않고**,
+    `excluded_axes:` 라는 기계가 읽는 필드에 축 키와 사유를 함께 적었을
+    때만 면제한다. 사유를 못 쓰면 그것은 면제 대상이 아니다.
+
+    ⚠ 이 면제는 🟠(헤더에만 언급) 한 종류에만 적용된다. 라벨에서 값이
+    **변하는데** 전달되지 않는 🔴 은 어떤 선언으로도 면제되지 않는다 —
+    그 경우 그 축의 검증 결과가 실제로 무의미해지기 때문이다.
+    """
+    decl = raw.get("excluded_axes")
+    if not isinstance(decl, dict):
+        return {}
+    out: Dict[str, str] = {}
+    for key, reason in decl.items():
+        if isinstance(reason, str) and reason.strip():
+            out[str(key)] = reason.strip()
+    return out
+
+
 def scan(path: pathlib.Path) -> List[str]:
     raw_text = path.read_text(encoding="utf-8")
     raw = yaml.safe_load(raw_text) or {}
     conds = raw.get("conditions") or []
     if len(conds) < 2:
         return []
+    excluded = declared_exclusions(raw)
 
     # 라벨에서 축별 값을 모은다
     label_axes: Dict[str, Set[float]] = {}
@@ -171,10 +200,13 @@ def scan(path: pathlib.Path) -> List[str]:
     for key in sorted(header_axes):
         passed = [k for c in conds for k in _flat(c) if k == key]
         if not passed:
+            if key in excluded:
+                continue          # 구조화된 사유와 함께 선언된 의도적 제외
             problems.append(
                 f"🟠 {key}: 문서 상단 설명에는 나오는데 조건에 **전혀** 전달되지 "
                 f"않는다. 라벨에도 없어 조용히 넘어간다 — 모델은 이 축을 "
-                f"팩 기본값으로 계산한다."
+                f"팩 기본값으로 계산한다. 의도적 제외라면 `excluded_axes: "
+                f"{{{key}: <사유>}}` 로 선언하라(산문으로는 면제되지 않는다)."
             )
     return problems
 
