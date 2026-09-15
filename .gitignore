@@ -6,8 +6,16 @@ __pycache__/
 .night_locks/
 .night_logs/
 .night_prompts/
-# 다운로드한 논문 PDF — 저작권상 저장소에 넣지 않는다 (INDEX.json은 유지)
+# ⛔ 저작권 논문 전문 — 저장소가 public이다. 절대 커밋하지 마라.
+#    (2026-09-15에 히스토리에서 전부 제거했다. INDEX.json·메타데이터만 남긴다.)
 papers/*.pdf
+papers/*.txt
+papers/*.xml
+papers/*.html
+papers/*.xlsx
+papers/img/
+.paper_txt_cache/
+_knowledge_audit/_raw/
 # 데모 실행 잔재
 *.png
 .streamlit/

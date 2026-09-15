@@ -75,8 +75,22 @@ def _flat(cond: dict) -> dict:
     return out
 
 
+def txt_lines_before_conditions(text: str) -> List[str]:
+    """conditions: 이전의 주석·설명 줄만 돌려준다.
+
+    조건 블록 안의 label 은 위에서 이미 처리했으므로 중복을 피한다.
+    """
+    out = []
+    for ln in text.split("\n"):
+        if ln.startswith("conditions:"):
+            break
+        out.append(ln)
+    return out
+
+
 def scan(path: pathlib.Path) -> List[str]:
-    raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    raw_text = path.read_text(encoding="utf-8")
+    raw = yaml.safe_load(raw_text) or {}
     conds = raw.get("conditions") or []
     if len(conds) < 2:
         return []
@@ -89,6 +103,17 @@ def scan(path: pathlib.Path) -> List[str]:
             key = LABEL_TO_KEY.get(name.lower())
             if key:
                 label_axes.setdefault(key, set()).add(float(num))
+
+    # ⚠ 라벨만 보면 놓치는 결함이 있다: 축이 **헤더 주석**에만 적혀 있고
+    #   라벨에도 조건에도 없는 경우다. 그러면 위 루프가 0건을 돌려주고
+    #   감사기는 '깨끗함'을 보고한다 — 실제로 구리 4계열이 이렇게 침묵했다.
+    #   주석에 그 축이 언급되는데 조건에 전혀 전달되지 않으면 신고한다.
+    header_axes: Set[str] = set()
+    for line in txt_lines_before_conditions(raw_text):
+        for name, _num, _unit in _TOKEN.findall(line):
+            key = LABEL_TO_KEY.get(name.lower())
+            if key and key not in label_axes:
+                header_axes.add(key)
 
     problems = []
     for key, vals in sorted(label_axes.items()):
@@ -109,6 +134,16 @@ def scan(path: pathlib.Path) -> List[str]:
                     f"🟡 {key}: 라벨은 {sorted(vals)} 로 변하는데 전달값은 "
                     f"{sorted(passed_vals)} 로 고정이다."
                 )
+
+    # 헤더 주석에만 있고 조건에 전혀 없는 축
+    for key in sorted(header_axes):
+        passed = [k for c in conds for k in _flat(c) if k == key]
+        if not passed:
+            problems.append(
+                f"🟠 {key}: 문서 상단 설명에는 나오는데 조건에 **전혀** 전달되지 "
+                f"않는다. 라벨에도 없어 조용히 넘어간다 — 모델은 이 축을 "
+                f"팩 기본값으로 계산한다."
+            )
     return problems
 
 

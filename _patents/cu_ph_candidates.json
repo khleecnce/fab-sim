@@ -1,0 +1,903 @@
+[
+ {
+  "patent": "10170335 Chemical mechanical polishing method for",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   6.0,
+   7.0,
+   7.5,
+   8.0,
+   13.5
+  ],
+  "span": 12.5
+ },
+ {
+  "patent": "10181408 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   3.0,
+   4.0,
+   5.0,
+   6.0,
+   8.0,
+   10.0
+  ],
+  "span": 9.0
+ },
+ {
+  "patent": "10217645 Chemical mechanical polishing (CMP) of c",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   3.5,
+   4.0,
+   5.0,
+   6.0,
+   7.0,
+   7.7,
+   7.9,
+   8.0,
+   10.0,
+   11.0
+  ],
+  "span": 10.0
+ },
+ {
+  "patent": "10286518 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   5.0,
+   7.0
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "10294399 Composition and method for polishing sil",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   2.5,
+   3.0,
+   3.5,
+   4.5,
+   5.0,
+   6.0
+  ],
+  "span": 4.0
+ },
+ {
+  "patent": "10597558 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "span": 1.0
+ },
+ {
+  "patent": "10600655 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   2.5,
+   4.0
+  ],
+  "span": 3.0
+ },
+ {
+  "patent": "10604678 Chemical mechanical polishing of tungste",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   3.0,
+   4.0,
+   5.0,
+   10.0
+  ],
+  "span": 9.0
+ },
+ {
+  "patent": "10619075 Self-stopping polishing composition and ",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   3.5,
+   4.2,
+   6.0,
+   6.1,
+   6.5,
+   7.0,
+   7.6,
+   7.7,
+   10.0,
+   10.5,
+   11.0,
+   12.0,
+   13.0,
+   13.5,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "10619076 Self-stopping polishing composition and ",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   3.5,
+   4.2,
+   6.1,
+   6.5,
+   7.0,
+   7.6,
+   7.7,
+   10.0,
+   10.5,
+   11.0,
+   12.0,
+   13.0,
+   13.5,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "10633557 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   3.0,
+   6.0
+  ],
+  "span": 5.0
+ },
+ {
+  "patent": "10633558 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "span": 1.0
+ },
+ {
+  "patent": "10640681 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   3.0
+  ],
+  "span": 2.0
+ },
+ {
+  "patent": "10787592 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   2.0,
+   3.5,
+   5.0
+  ],
+  "span": 3.0
+ },
+ {
+  "patent": "10815392 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   4.0,
+   6.0
+  ],
+  "span": 5.0
+ },
+ {
+  "patent": "10920107 Self-stopping polishing composition and ",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   3.5,
+   4.2,
+   6.0,
+   6.1,
+   6.5,
+   7.0,
+   7.6,
+   7.7,
+   10.0,
+   10.5,
+   11.0,
+   12.0,
+   13.0,
+   13.5,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "10947415 Chemical mechanical polishing of tungste",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0,
+   3.0,
+   4.0,
+   5.0,
+   10.0
+  ],
+  "span": 9.0
+ },
+ {
+  "patent": "10954411 Chemical mechanical polishing compositio",
+  "cell": "혼합",
+  "inhibitor": true,
+  "ph": [
+   3.5,
+   5.0,
+   9.0
+  ],
+  "span": 5.5
+ },
+ {
+  "patent": "11254839 Low oxide trench dishing shallow trench ",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   3.5,
+   4.0,
+   5.0,
+   6.0,
+   8.0,
+   11.0
+  ],
+  "span": 9.0
+ },
+ {
+  "patent": "11591495 Neutral to alkaline chemical mechanical ",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   3.0,
+   4.0,
+   5.0,
+   6.0,
+   7.0,
+   8.0,
+   9.0,
+   11.0,
+   12.0
+  ],
+  "span": 11.0
+ },
+ {
+  "patent": "11746257 Chemical mechanical polishing solution -",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   0.5,
+   3.0,
+   4.0
+  ],
+  "span": 3.5
+ },
+ {
+  "patent": "12338369 Nitride inhibitors for high selectivity ",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   6.5,
+   7.0
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "12351737 Chemical mechanical polishing of substra",
+  "cell": "혼합",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   6.0,
+   8.0,
+   9.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "12655322 Functionalized carbon particle CMP slurr",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   0.5,
+   1.0,
+   2.0,
+   2.5,
+   3.0,
+   3.5,
+   4.0,
+   6.8
+  ],
+  "span": 6.3
+ },
+ {
+  "patent": "12679998 Soluble metal oxide anion CMP slurry - D",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   0.5,
+   1.0,
+   2.0,
+   2.5,
+   3.0,
+   3.5,
+   4.0,
+   6.8
+  ],
+  "span": 6.3
+ },
+ {
+  "patent": "5759917 Composition for oxide CMP - Cabot Corpor",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.5,
+   1.8,
+   3.0,
+   3.5,
+   3.8,
+   4.0,
+   4.2,
+   4.5,
+   4.7,
+   7.5
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "5783489 Multi-oxidizer slurry for chemical mecha",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   3.5,
+   5.0,
+   8.0
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "6033596 Multi-oxidizer slurry for chemical mecha",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   3.0,
+   3.5,
+   4.0,
+   5.0,
+   8.0
+  ],
+  "span": 5.0
+ },
+ {
+  "patent": "6039891 Multi-oxidizer precursor for chemical me",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   3.0,
+   3.5,
+   4.0,
+   5.0,
+   8.0
+  ],
+  "span": 5.0
+ },
+ {
+  "patent": "6316366 Method of polishing using multi-oxidizer",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   3.5,
+   4.0,
+   5.0,
+   8.0
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "6409781 Polishing slurries for copper and associ",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   9.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "6527819 Polishing slurries for copper and associ",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   9.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "6692546 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   2.5,
+   4.0,
+   6.8,
+   8.0
+  ],
+  "span": 7.0
+ },
+ {
+  "patent": "6786944 Aqueous dispersion for chemical mechanic",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   4.0,
+   7.0,
+   7.5
+  ],
+  "span": 5.5
+ },
+ {
+  "patent": "6913634 Abrasives for copper CMP and methods for",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   4.0,
+   4.5,
+   4.8,
+   5.0,
+   5.4,
+   6.5,
+   7.0,
+   7.3,
+   7.8
+  ],
+  "span": 6.8
+ },
+ {
+  "patent": "6936542 Polishing slurries for copper and associ",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   9.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "7005382 Aqueous dispersion for chemical mechanic",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   7.0,
+   10.0,
+   13.0
+  ],
+  "span": 12.0
+ },
+ {
+  "patent": "7029373 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   2.5,
+   4.0,
+   6.8,
+   8.0
+  ],
+  "span": 7.0
+ },
+ {
+  "patent": "7087530 Aqueous dispersion for chemical mechanic",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   7.0,
+   9.0,
+   10.0,
+   12.0
+  ],
+  "span": 10.0
+ },
+ {
+  "patent": "7247256 CMP slurry for forming aluminum film, CM",
+  "cell": "혼합",
+  "inhibitor": true,
+  "ph": [
+   3.0,
+   4.0,
+   7.0,
+   7.7
+  ],
+  "span": 4.7
+ },
+ {
+  "patent": "7427567 Polishing slurries for copper and associ",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   9.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "7452816 Semiconductor processing method and chem",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.5,
+   2.9,
+   3.5,
+   4.0
+  ],
+  "span": 3.0
+ },
+ {
+  "patent": "7455791 Abrasives for copper CMP and methods for",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   4.0,
+   4.5,
+   4.8,
+   5.0,
+   5.4,
+   6.5,
+   7.0,
+   7.3,
+   7.8
+  ],
+  "span": 6.8
+ },
+ {
+  "patent": "7901474 Polishing composition and polishing meth",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   2.6,
+   4.0,
+   5.0,
+   7.0,
+   8.0,
+   8.5,
+   9.3
+  ],
+  "span": 8.3
+ },
+ {
+  "patent": "8071479 Chemical mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   2.0,
+   3.0,
+   5.0
+  ],
+  "span": 3.0
+ },
+ {
+  "patent": "8101093 Chemical-mechanical polishing compositio",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0
+  ],
+  "span": 2.0
+ },
+ {
+  "patent": "8119529 Method for chemical mechanical polishing",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   3.0
+  ],
+  "span": 2.0
+ },
+ {
+  "patent": "8491808 Method of polishing a substrate comprisi",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   5.0,
+   7.0,
+   12.0
+  ],
+  "span": 10.0
+ },
+ {
+  "patent": "8492277 Method of polishing a substrate comprisi",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   5.0,
+   7.0,
+   11.0
+  ],
+  "span": 9.0
+ },
+ {
+  "patent": "8496843 Method of polishing a substrate comprisi",
+  "cell": "알칼리",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   5.0,
+   7.0,
+   11.0,
+   12.0
+  ],
+  "span": 10.0
+ },
+ {
+  "patent": "8513126 Slurry composition having tunable dielec",
+  "cell": "혼합",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   7.0
+  ],
+  "span": 6.0
+ },
+ {
+  "patent": "8545715 Chemical mechanical polishing compositio",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   8.0,
+   9.0,
+   10.0,
+   10.4
+  ],
+  "span": 9.4
+ },
+ {
+  "patent": "8592314 Polishing composition and polishing meth",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   8.0,
+   9.7
+  ],
+  "span": 8.7
+ },
+ {
+  "patent": "8641920 Polishing composition for planarizing me",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   5.0,
+   7.0,
+   7.3,
+   8.0,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "8697576 Composition and method for polishing pol",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   4.0,
+   7.0,
+   8.5,
+   10.0,
+   10.5,
+   11.0
+  ],
+  "span": 7.0
+ },
+ {
+  "patent": "8840798 Chemical mechanical polishing slurry com",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   3.0,
+   3.4,
+   5.0
+  ],
+  "span": 4.0
+ },
+ {
+  "patent": "8865013 Method for chemical mechanical polishing",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   2.0,
+   2.4
+  ],
+  "span": 1.4
+ },
+ {
+  "patent": "9275899 Chemical mechanical polishing compositio",
+  "cell": "혼합",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   12.0,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "9505952 Polishing composition containing ceria a",
+  "cell": "알칼리",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   2.0,
+   2.5,
+   3.0,
+   3.5,
+   4.0,
+   4.5,
+   5.0,
+   5.5,
+   6.0,
+   7.0,
+   8.0,
+   10.0,
+   10.5,
+   11.0,
+   12.0,
+   13.0,
+   13.5,
+   14.0
+  ],
+  "span": 13.0
+ },
+ {
+  "patent": "9548211 Method to selectively polish silicon car",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   2.5,
+   3.0,
+   3.5,
+   4.0,
+   4.5
+  ],
+  "span": 2.5
+ },
+ {
+  "patent": "9758697 Polishing composition containing cationi",
+  "cell": "산성",
+  "inhibitor": true,
+  "ph": [
+   1.0,
+   3.0,
+   3.5,
+   4.0,
+   4.5,
+   5.0,
+   5.5,
+   6.0,
+   13.0
+  ],
+  "span": 12.0
+ },
+ {
+  "patent": "9803109 CMP composition for silicon nitride remo",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   2.0,
+   3.0,
+   3.5,
+   4.0,
+   9.0,
+   10.0
+  ],
+  "span": 8.0
+ },
+ {
+  "patent": "9984895 Chemical mechanical polishing method for",
+  "cell": "산성",
+  "inhibitor": false,
+  "ph": [
+   1.0,
+   1.5,
+   2.0
+  ],
+  "span": 1.0
+ }
+]
