@@ -261,6 +261,16 @@ class WaferResult:
     pourbaix_nernst_slope_mv_per_ph: Optional[float] = None
     pourbaix_self_limiting_reactions: Optional[int] = None
     pourbaix_nernst_note: Optional[str] = None
+    # 마찰열 ΔT_ss → Arrhenius 화학반응속도 배율 진단 — MRR과 무관. sim/tier2_physics/
+    # frictional_heating_arrhenius.py::arrhenius_rate_ratio + Shin et al. 2025(Materials
+    # 18(19) 4461, DOI 10.3390/ma18194461) §4 표 겉보기 Ea(재료별: SiO2 8.75 / Cu 151.7
+    # kJ/mol — Ta 29.9는 팩에 대응 막질이 없어 미사용). Ea 미보고 막질(sic_4h·w)이거나
+    # theta_steady_state_delta_T_k·platen_coolant_temp_c 중 하나라도 없으면 조용히 None.
+    # ⚠ MRR에 곱하지 않는다 — Kp가 이미 특정 공정온도에서 역산된 값이라 곱하면 이중 계상.
+    thermal_chemical_rate_ratio: Optional[float] = None
+    thermal_chemical_ea_kj_mol: Optional[float] = None
+    thermal_chemical_film: Optional[str] = None
+    thermal_chemical_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -873,6 +883,81 @@ def _pourbaix_nernst_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _thermal_chemical_diagnostic(rr: "ResolvedRecipe",
+                                  theta_ss: Dict[str, object]) -> Dict[str, object]:
+    """마찰열 ΔT_ss → Arrhenius 화학반응속도 배율 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/frictional_heating_arrhenius.py::arrhenius_rate_ratio (원본 무수정),
+    knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md §4 — Shin et al. 2025,
+    *Materials* 18(19) 4461, DOI 10.3390/ma18194461("Process Temperature Control for Low Dishing
+    in CMP", Crossref로 실존 확인) 실측 겉보기 활성화에너지 표(SiO2 8.75 / Ta 29.9 / Cu
+    151.7 kJ/mol). Ea·lnA 상수는 이 진단이 새로 선언하지 않고 원본 모듈의
+    SHIN2025_EA_J_MOL dict를 그대로 읽는다(단일 출처 — 값을 두 곳에 중복 하드코딩하면
+    나중에 한쪽만 고쳐 어긋나는 사고가 난다).
+
+    **Ea는 재료(막질)별이다**(rr.film로 분기 — 판정#34: 팩 이름이 아니라 데이터 필드).
+    Shin 2025 표에 값이 없는 막질(sic_4h·w — Ta는 팩에 대응 막질이 없어 애초에 미사용)은
+    지어내지 않고 None + 스킵사유.
+
+    **기준온도 T1**은 절대온도를 지어내지 않는다. base.yaml의 platen_coolant_temp_c
+    (literature, Shin 2025 균형점 30 ℃)를 쓴다 — 이 값이 정확히 _theta_steady_state_
+    diagnostic()이 이미 가정하는 "공급 슬러리·플래튼·주변 공기가 같은 온도"라는 공통 싱크
+    T0와 같은 근거·같은 조건이다(노트 §8.2). T2 = T1 + ΔT_ss(theta_ss 진단 결과). 팩이
+    platen_coolant_temp_c를 선언하지 않거나 theta_ss가 입력 미비로 None이면 이 진단도
+    조용히 None — 임의 상온 25 ℃ 등을 기본값으로 넣지 않는다.
+
+    ⚠ **이 배율을 MRR에 곱하지 않는다.** Kp가 이미 특정 공정온도에서 역산된 값이므로
+    곱하면 이중 계상이다(2026-09-06 Cu MRR 20배 붕괴와 같은 사고 패턴 — factors.py
+    결합 지점 주석 참조). 진단 필드로만 낸다.
+
+    confidence 판단: Shin 2025의 Ea는 노트 §7이 경고하듯 특정 슬러리(barrier)·특정 툴
+    (POLI-500) 조건값이다 — 슬러리 화학·산화제가 바뀌면 달라진다. literature 상한이고
+    verified는 아니다(note에 항상 이 한계를 실어 보낸다).
+    """
+    out: Dict[str, object] = {"thermal_chemical_rate_ratio": None,
+                              "thermal_chemical_ea_kj_mol": None,
+                              "thermal_chemical_film": None,
+                              "thermal_chemical_note": None}
+    film_to_shin_key = {"cu": "Cu", "oxide": "SiO2"}
+    key = film_to_shin_key.get(rr.film)
+    if key is None:
+        out["thermal_chemical_note"] = (
+            f"film='{rr.film}' — Shin et al. 2025(DOI 10.3390/ma18194461) 겉보기 활성화에너지 "
+            f"표에 이 막질의 1차값이 없음(SiO2/Ta/Cu만 보고) — 지어내지 않고 스킵")
+        return out
+    delta_t = theta_ss.get("theta_steady_state_delta_T_k")
+    if delta_t is None:
+        out["thermal_chemical_note"] = (
+            "theta_steady_state_delta_T_k가 None(Θ 정상상태 열수지 입력 미비) — T2를 지어낼 "
+            "수 없어 열-화학 반응속도 배율 진단도 스킵")
+        return out
+    if not rr.pack.has("platen_coolant_temp_c"):
+        out["thermal_chemical_note"] = (
+            "platen_coolant_temp_c 팩에 없음 — 기준온도 T1(공급 슬러리·플래튼 공통 싱크)을 "
+            "지어낼 수 없어 스킵")
+        return out
+    try:
+        import frictional_heating_arrhenius as FHA   # sim/tier2_physics (1바이트도 수정 안 함)
+        Ea = FHA.SHIN2025_EA_J_MOL[key]
+        T1 = float(rr.p("platen_coolant_temp_c")) + 273.15
+        T2 = T1 + float(delta_t)
+        ratio = FHA.arrhenius_rate_ratio(Ea, T1, T2)
+    except Exception as e:
+        out["thermal_chemical_note"] = f"열-화학 Arrhenius 배율 계산 실패({e}) — None으로 둠"
+        return out
+    out["thermal_chemical_rate_ratio"] = float(ratio)
+    out["thermal_chemical_ea_kj_mol"] = Ea / 1e3
+    out["thermal_chemical_film"] = rr.film
+    out["thermal_chemical_note"] = (
+        f"film='{rr.film}' Ea={Ea / 1e3:.2f} kJ/mol(Shin et al. 2025, Materials 18(19) 4461, "
+        f"DOI 10.3390/ma18194461 §4 표 — barrier 슬러리·POLI-500 툴 조건값, 슬러리 화학·산화제가 "
+        f"바뀌면 달라짐, 노트 §7). T1={T1:.2f} K(platen_coolant_temp_c, 공통 싱크 가정), "
+        f"T2=T1+ΔT_ss={T2:.2f} K. 반응속도 배율={ratio:.3f}x. "
+        f"⚠ MRR에 곱하지 않음(진단 전용) — Kp가 이미 특정 공정온도에서 역산된 값이라 곱하면 "
+        f"이중 계상.")
+    return out
+
+
 def _pad_glazing_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """패드 글레이징에 의한 접촉점 감소·asperity 반경 증가 진단 — MRR 경로와 완전히 독립.
 
@@ -1165,6 +1250,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pourbaix_nernst = _pourbaix_nernst_diagnostic(rr)
     if pourbaix_nernst["pourbaix_nernst_note"]:
         notes.append(pourbaix_nernst["pourbaix_nernst_note"])
+    # 마찰열 ΔT_ss → Arrhenius 화학반응속도 배율 진단 — MRR 경로와 완전히 독립. Ea 미보고
+    # 막질(sic_4h·w)이거나 theta_ss·platen_coolant_temp_c 중 하나라도 없으면 조용히 None.
+    thermal_chem = _thermal_chemical_diagnostic(rr, theta_ss)
+    if thermal_chem["thermal_chemical_note"]:
+        notes.append(thermal_chem["thermal_chemical_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1221,6 +1311,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pourbaix_nernst_slope_mv_per_ph=pourbaix_nernst["pourbaix_nernst_slope_mv_per_ph"],
                        pourbaix_self_limiting_reactions=pourbaix_nernst["pourbaix_self_limiting_reactions"],
                        pourbaix_nernst_note=pourbaix_nernst["pourbaix_nernst_note"],
+                       thermal_chemical_rate_ratio=thermal_chem["thermal_chemical_rate_ratio"],
+                       thermal_chemical_ea_kj_mol=thermal_chem["thermal_chemical_ea_kj_mol"],
+                       thermal_chemical_film=thermal_chem["thermal_chemical_film"],
+                       thermal_chemical_note=thermal_chem["thermal_chemical_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
