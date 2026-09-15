@@ -1,5 +1,14 @@
 # 6H-SiC CMP -- 알루미나(백강옥) 연마입자 농도 vs MRR (독립 held-out, Entegris와 무관)
 #
+# ⚠ 판정#36(2026-09-15, EVIDENCE-RULES.md, knowledge/cmp/sic-abrasive-concentration-
+#   regime-ruling.md): 이 데이터셋의 비단조(6g->8g 증가, 8g->10g 감소)가
+#   sic_ceria_h2o2.yaml의 abrasive_conc_exponent(-0.406, 단조감소)와 정성 불일치하는
+#   것은 코드 결함이 아니라 **레짐 분리**로 판정됨 — 이 논문의 연마입자는 백강옥
+#   (white corundum, alpha-Al2O3, Mohs~9, 마이크론 W1.5급)인 반면 sic_ceria_h2o2의
+#   실제 연마입자는 세리아(나노, Mohs<6)다. Entegris 특허(US20220315802A1) 원문이
+#   Mohs<6(나노 산화물)과 Mohs>6(alpha-alumina 계열)를 스스로 별개 거동 레짐으로
+#   명시([0043]/[0057]) — 이 축이 레짐 경계. abrasive_conc_exponent는 -0.406으로 불변.
+#
 # source: SU Jianxiu, DU Jiaxia, LIU Haina, LIU Xinglong, "Research on Material Removal
 #   Rate of CMP 6H-SiC Crystal Substrate (0001) Si Surface Based on Abrasive Alumina
 #   (Al2O3)", Procedia Engineering 24 (2011) 441-446. doi:10.1016/j.proeng.2011.11.2673
