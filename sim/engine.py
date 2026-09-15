@@ -248,6 +248,13 @@ class WaferResult:
     conditioner_sweep_profile_uniformity: Optional[float] = None   # CV=sigma/mu, 낮을수록 균일
     conditioner_sweep_edge_center_ratio: Optional[float] = None    # 바깥링평균/안쪽링평균
     conditioner_sweep_note: Optional[str] = None
+    # 패드 글레이징(컨디셔닝 없는 연마)에 의한 접촉점 감소·asperity 반경 증가 진단 —
+    # MRR과 무관. Jeong et al. 2024 Table 1/Eq.4. 적용범위가 좁다: Table 1에 있는
+    # 압력(2/3/4/5 psi) + 컨디셔닝 없음(cond_duty_pct==0) + t<=측정상한일 때만 채워진다.
+    pad_glazing_contact_ratio: Optional[float] = None       # N(t)/N0
+    pad_glazing_radius_growth_ratio: Optional[float] = None  # μR(t)/μR(0)
+    pad_glazing_relative_mrr_proxy: Optional[float] = None   # 거친 근사, 방향성만
+    pad_glazing_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -777,6 +784,97 @@ def _galvanic_hydroxide_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _pad_glazing_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """패드 글레이징에 의한 접촉점 감소·asperity 반경 증가 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/pad_glazing_jeong2024.py (self-test 6/6 PASS, 원본 무수정),
+    knowledge/materials/pad-glazing-mechanism-mrr-decay.md (Jeong et al. 2024,
+    Materials 17, 1817, doi:10.3390/ma17081817) Table 1 · Eq.4.
+
+    **적용 범위를 좁게 잡은 이유** — 이 모듈은 다른 진단보다 전제가 훨씬 까다롭다.
+    세 관문을 전부 통과할 때만 계산하고, 하나라도 어긋나면 지어내지 않고 스킵한다:
+
+    (1) 컨디셔닝이 없어야 한다. Jeong 2024의 Table 1/Fig.9는 **컨디셔닝 없이** 연마한
+        패드를 측정한 것이다(Table 1의 N_cond 열이 보여주듯 1분만 컨디셔닝해도 접촉점
+        수가 초기값 수준으로 회복된다: 2psi에서 56 -> 114). in-situ 컨디셔닝이 도는
+        공정에 이 감쇠곡선을 그대로 씌우면 근거 없는 외삽이다. 팩의 cond_duty_pct가
+        0일 때만 계산한다(base.yaml 기본값은 100 = in-situ 연속이므로 **현재 5팩은
+        전부 스킵이 정상**이다).
+    (2) 압력이 Table 1에 있어야 한다(2·3·4·5 psi). tau는 표 데이터 최소자승 피팅으로
+        압력마다 따로 나오며 모듈이 그 외 압력에 ValueError를 던진다 — 보간하지 않는다
+        (특히 5 psi의 tau=6.0 min은 2~4 psi의 13.6~13.8 min에서 급락해, 사이 값을
+        선형보간할 근거가 없다).
+    (3) 시간이 측정 구간 안이어야 한다. Table 1의 측정 상한은 2~4 psi에서 10분,
+        5 psi에서 5분이다. 그 너머는 지수감쇠 외삽이라 계산하지 않는다.
+
+    시간 축으로는 **이번 런의 연마시간 rr.time_s**를 쓴다 — meta의 pad_hours가 아니다.
+    S13 판정(~/software/BACKLOG.md)이 이미 지적했듯 pad_hours는 컨디셔닝 사이클을 포함한
+    패드 **누적 사용 시간(h)**이고, Jeong 2024의 t는 컨디셔닝 없는 **단일 연마의 경과
+    분(min)**이라 척도가 다르다. 두 축을 잇는 매핑은 문헌에 없다.
+
+    한계(원본 모듈 docstring의 "정직 기록" 그대로 전파): relative_mrr_proxy는
+    contact_ratio x radius_growth_ratio라는 가장 거친 근사이고, 실제 압입깊이·유효
+    탄성계수·Jeong 2024 §4.2의 3-모드 MRR 공식(Eq.20)은 들어 있지 않다. self-test에서
+    피크 시점(t≈7분)과 t=10분 상대값(1.21 > 1.0)이 Fig.9 실측과 어긋난다는 것이 이미
+    확인돼 있다. **정량 캘리브레이션에 쓰지 말 것** — 비단조성 존재라는 방향성까지만
+    사용 가치가 있다. note에 이 경고를 항상 실어 보낸다.
+    """
+    out: Dict[str, object] = {"pad_glazing_contact_ratio": None,
+                              "pad_glazing_radius_growth_ratio": None,
+                              "pad_glazing_relative_mrr_proxy": None,
+                              "pad_glazing_note": None}
+    if not rr.pack.has("cond_duty_pct"):
+        out["pad_glazing_note"] = (
+            "cond_duty_pct 팩 미선언 — 컨디셔닝 유무를 알 수 없어 글레이징 진단 스킵 "
+            "(Jeong 2024는 컨디셔닝 없는 연마 실측이라 in-situ 공정에 그대로 쓸 수 없다)")
+        return out
+    duty = rr.p("cond_duty_pct")
+    if duty != 0:
+        out["pad_glazing_note"] = (
+            f"cond_duty_pct={duty:g}% (컨디셔닝 있음) — 글레이징 감쇠 진단 스킵. "
+            f"Jeong 2024 Table 1은 컨디셔닝 없는 연마 실측이고, 같은 표가 1분 컨디셔닝만으로 "
+            f"접촉점 수가 초기 수준으로 회복됨을 보인다(2psi: 56→114). 외삽하지 않는다.")
+        return out
+    try:
+        import pad_glazing_jeong2024 as PGJ   # sim/tier2_physics (1바이트도 수정 안 함)
+        t_tab, _n_tab, _n_cond = PGJ.contact_count_table()
+    except Exception as e:
+        out["pad_glazing_note"] = f"패드 글레이징 진단 로드 실패({e}) — None으로 둠"
+        return out
+    p_psi = rr.pressure_psi
+    p_key = int(round(p_psi))
+    if abs(p_psi - p_key) > 1e-9 or p_key not in t_tab:
+        out["pad_glazing_note"] = (
+            f"pressure_psi={p_psi:g} — Jeong 2024 Table 1에 없는 압력(있는 값: "
+            f"{sorted(t_tab)} psi)이라 스킵. tau가 압력마다 표 피팅으로 따로 나오고 "
+            f"5 psi에서 6.0 min으로 급락(2~4 psi는 13.6~13.8 min)해 보간 근거가 없다.")
+        return out
+    t_min = rr.time_s / 60.0
+    t_max = max(t_tab[p_key])
+    if t_min > t_max:
+        out["pad_glazing_note"] = (
+            f"연마시간 {t_min:.2f} min > Table 1의 {p_key} psi 측정 상한 {t_max:g} min "
+            f"— 지수감쇠 외삽이라 계산하지 않는다.")
+        return out
+    try:
+        cr = float(PGJ.contact_ratio(p_key, t_min))
+        rg = float(PGJ.radius_growth_ratio(p_key, t_min))
+        proxy = float(PGJ.relative_mrr_proxy(p_key, t_min))
+    except Exception as e:
+        out["pad_glazing_note"] = f"패드 글레이징 진단 실패({e}) — None으로 둠"
+        return out
+    out["pad_glazing_contact_ratio"] = cr
+    out["pad_glazing_radius_growth_ratio"] = rg
+    out["pad_glazing_relative_mrr_proxy"] = proxy
+    out["pad_glazing_note"] = (
+        f"컨디셔닝 없음(cond_duty_pct=0), {p_key} psi, 연마 {t_min:.2f} min 기준: "
+        f"접촉점비 N/N0={cr:.4f}, 반경증가배율={rg:.4f}, relative_mrr_proxy={proxy:.4f}. "
+        f"⚠ proxy는 '접촉당 힘x개수'의 가장 거친 근사(반경만으로 접촉력 근사)이며 "
+        f"Jeong 2024 §4.2 3-모드 MRR 공식 미구현 — self-test에서 피크시점·t=10 상대값이 "
+        f"Fig.9 실측과 어긋남이 확인됐다. 정량 캘리브레이션 금지, 방향성(비단조성)만 볼 것.")
+    return out
+
+
 def _conditioner_sweep_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 스윕 궤적 PCR(r) 상대 프로파일 요약 진단 — MRR 경로와 완전히 독립적인 진단 계산.
 
@@ -967,6 +1065,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     cond_sweep = _conditioner_sweep_diagnostic(rr)
     if cond_sweep["conditioner_sweep_note"]:
         notes.append(cond_sweep["conditioner_sweep_note"])
+    # 패드 글레이징(컨디셔닝 없는 연마) 접촉점 감쇠 진단 — MRR 경로와 완전히 독립.
+    # cond_duty_pct!=0(컨디셔닝 있음)·Table 1 밖 압력·측정상한 초과 시 조용히 None
+    # (현재 5팩 전부 cond_duty_pct=100이라 항상 None이 정상).
+    pad_glaze = _pad_glazing_diagnostic(rr)
+    if pad_glaze["pad_glazing_note"]:
+        notes.append(pad_glaze["pad_glazing_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1016,6 +1120,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        conditioner_sweep_profile_uniformity=cond_sweep["conditioner_sweep_profile_uniformity"],
                        conditioner_sweep_edge_center_ratio=cond_sweep["conditioner_sweep_edge_center_ratio"],
                        conditioner_sweep_note=cond_sweep["conditioner_sweep_note"],
+                       pad_glazing_contact_ratio=pad_glaze["pad_glazing_contact_ratio"],
+                       pad_glazing_radius_growth_ratio=pad_glaze["pad_glazing_radius_growth_ratio"],
+                       pad_glazing_relative_mrr_proxy=pad_glaze["pad_glazing_relative_mrr_proxy"],
+                       pad_glazing_note=pad_glaze["pad_glazing_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
