@@ -313,6 +313,17 @@ class WaferResult:
     particle_indent_depth_nm: Optional[float] = None
     particle_plow_area_nm2: Optional[float] = None
     particle_contact_note: Optional[str] = None
+    # 레시피 전이 work function 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # recipe_conversion_factor.py::work_function/RECIPE_TABLE(원본 무수정), US20060116785A1
+    # 식(1)·표 1·표 2. F(X,Y,Z) = f(다운포스 rr.pressure_psi, 슬러리유량 sfr_ml_min, 플래튼
+    # rpm rr.rpm_platen)는 런 하나만으로 계산 가능 — 모듈 docstring이 "미등록"이라 선언한
+    # 것은 "레시피 간 전이"(두 레시피 비교) 개념이 Recipe 스키마에 없다는 뜻이지, 현재 런의
+    # F(X,Y,Z) 자체를 못 낸다는 뜻이 아니다. sfr_ml_min이 팩에 없으면(현재 5팩 전부 base.yaml
+    # 상속으로 있음) 조용히 None. 특허 표 1(ILD/STI/IMD)의 X/Y/Z 범위를 벗어나면 clamp하지
+    # 않고 note에 외삽 경고만 붙인다.
+    recipe_work_function: Optional[float] = None
+    recipe_wf_vs_ild_ref: Optional[float] = None
+    recipe_conversion_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1271,6 +1282,76 @@ def _particle_contact_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _recipe_conversion_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """레시피 전이 work function F(X,Y,Z) 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/recipe_conversion_factor.py::work_function/RECIPE_TABLE
+    (원본 무수정), knowledge/cmp/product-wafer-proxy-metrics-virtual-metrology.md §2.2·
+    §6 verify (A). 1차 문헌: US20060116785A1 식(1)·표 1·표 2·청구항 6.
+
+    이 진단이 등록 가능해진 이유: 모듈 docstring이 "미등록"이라 선언한 것은 Recipe 스키마에
+    **"레시피 간 전이"** — 즉 두 레시피를 나란히 놓고 비교하는 개념 — 자체가 없다는 뜻이다
+    (recipe_conversion_factor(recipe_from, recipe_to)는 그래서 조립 못 함). 하지만 work
+    function F(X,Y,Z) = f(다운포스, 슬러리유량, 플래튼rpm) 자체는 **현재 런 하나**의 X,Y,Z만
+    있으면 계산된다 — X=rr.pressure_psi(Recipe 필수 필드), Z=rr.rpm_platen(Recipe/팩,
+    base.yaml=55.0), Y=sfr_ml_min(팩, 현재 5팩 전부 base.yaml 상속 150.0 mL/min, literature).
+    Y가 팩에 없으면(가정: 향후 팩이 sfr_ml_min을 지우는 경우) 지어내지 않고 스킵한다.
+
+    recipe_wf_vs_ild_ref = F(now)/F(ILD 표1 기준)은 특허 표 2의 "레시피 A→B 변환계수"와
+    **같은 종류의 수치이지만 다른 비교**다 — 표 2는 표 1의 이산 레시피끼리(ILD→STI, ILD→IMD)
+    비이고, 여기는 "현재 런 vs 표 1의 ILD"다. 이 구분을 note에 명시한다(혼동 방지).
+
+    ⚠ **외삽 경고**: 식(1)은 표 1(ILD/STI/IMD)의 X∈[4.0,4.6] psi, Y∈[100,200] ml/min,
+    Z∈[63,108] rpm 범위에서 적합된 경험식이다(RECIPE_TABLE에서 직접 min/max를 읽는다 —
+    범위를 새 상수로 박지 않는다). 현재 5팩의 rpm_platen=55(범위 밖)·pressure_psi=3.0
+    (범위 밖)이라 사실상 항상 경고가 붙는다 — clamp하지 않고 값은 그대로 내되 note에
+    범위 밖임을 명시한다.
+    """
+    out: Dict[str, object] = {"recipe_work_function": None,
+                              "recipe_wf_vs_ild_ref": None,
+                              "recipe_conversion_note": None}
+    if not rr.pack.has("sfr_ml_min"):
+        out["recipe_conversion_note"] = (
+            f"sfr_ml_min 팩 '{rr.pack.name}'에 없음 — 슬러리 유량 Y를 지어낼 수 없어 스킵")
+        return out
+    try:
+        import recipe_conversion_factor as RCF   # sim/tier2_physics (1바이트도 수정 안 함)
+        X = float(rr.pressure_psi)
+        Y = float(rr.p("sfr_ml_min"))
+        Z = float(rr.rpm_platen)
+        F = RCF.work_function(X, Y, Z)
+        ild = RCF.RECIPE_TABLE["ILD"]
+        F_ild = RCF.work_function(ild["downforce_psi"], ild["slurry_flow_ml_min"],
+                                   ild["platen_rpm"])
+        ratio = F / F_ild
+    except Exception as e:
+        out["recipe_conversion_note"] = f"레시피 전이 work function 계산 실패({e}) — None으로 둠"
+        return out
+    out["recipe_work_function"] = float(F)
+    out["recipe_wf_vs_ild_ref"] = float(ratio)
+    xs = [v["downforce_psi"] for v in RCF.RECIPE_TABLE.values()]
+    ys = [v["slurry_flow_ml_min"] for v in RCF.RECIPE_TABLE.values()]
+    zs = [v["platen_rpm"] for v in RCF.RECIPE_TABLE.values()]
+    warn_parts = []
+    if not (min(xs) <= X <= max(xs)):
+        warn_parts.append(f"X(다운포스)={X:g} psi가 표1 범위[{min(xs):g},{max(xs):g}] 밖")
+    if not (min(ys) <= Y <= max(ys)):
+        warn_parts.append(f"Y(슬러리유량)={Y:g} ml/min가 표1 범위[{min(ys):g},{max(ys):g}] 밖")
+    if not (min(zs) <= Z <= max(zs)):
+        warn_parts.append(f"Z(플래튼rpm)={Z:g}가 표1 범위[{min(zs):g},{max(zs):g}] 밖")
+    warn = (" ⚠ 외삽 경고(식(1)은 표1 범위 안에서 적합된 경험식, clamp 없이 값 그대로): "
+            + "; ".join(warn_parts)) if warn_parts else ""
+    out["recipe_conversion_note"] = (
+        f"pack='{rr.pack.name}'. F(X={X:g} psi, Y={Y:g} ml/min, Z={Z:g} rpm)={F:.4f} "
+        f"(US20060116785A1 식(1)). F(ILD 기준, X={ild['downforce_psi']:g}, "
+        f"Y={ild['slurry_flow_ml_min']:g}, Z={ild['platen_rpm']:g})={F_ild:.4f}. "
+        f"recipe_wf_vs_ild_ref=F(now)/F(ILD)={ratio:.4f} — 표 2의 ILD→STI/ILD→IMD 변환계수"
+        "(1.12/1.41)와 같은 종류지만 다른 비교(표 2는 표 1의 이산 레시피끼리의 비, 이건 현재 "
+        f"런 대 표1-ILD의 비)다.{warn} ⚠ 진단 전용, MRR에 영향 없음. sfr_ml_min은 현재 5팩 "
+        "전부 base.yaml 상속(150 mL/min, literature) — 팩별 실측 차이 미확보.")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1652,6 +1733,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     particle_contact = _particle_contact_diagnostic(rr)
     if particle_contact["particle_contact_note"]:
         notes.append(particle_contact["particle_contact_note"])
+    # 레시피 전이 work function 진단 — MRR 경로와 완전히 독립.
+    # sfr_ml_min 팩 미선언이면 조용히 None(현재 5팩 전부 base.yaml 상속이라 항상 값을 낸다).
+    recipe_conv = _recipe_conversion_diagnostic(rr)
+    if recipe_conv["recipe_conversion_note"]:
+        notes.append(recipe_conv["recipe_conversion_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1728,6 +1814,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        particle_indent_depth_nm=particle_contact["particle_indent_depth_nm"],
                        particle_plow_area_nm2=particle_contact["particle_plow_area_nm2"],
                        particle_contact_note=particle_contact["particle_contact_note"],
+                       recipe_work_function=recipe_conv["recipe_work_function"],
+                       recipe_wf_vs_ild_ref=recipe_conv["recipe_wf_vs_ild_ref"],
+                       recipe_conversion_note=recipe_conv["recipe_conversion_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
