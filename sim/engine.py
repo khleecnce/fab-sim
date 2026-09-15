@@ -271,6 +271,18 @@ class WaferResult:
     thermal_chemical_ea_kj_mol: Optional[float] = None
     thermal_chemical_film: Optional[str] = None
     thermal_chemical_note: Optional[str] = None
+    # 컨디셔너 디스크 노화 → PCR(t) 감쇠 진단 — MRR과 무관, 새 물리 아님. sim/tier2_physics/
+    # conditioner_pcr_decay.py::pcr_decay(원본 무수정). ⚠ sim/factors.py::_f_gamma가 이미
+    # 같은 함수로 이 PCR 노화 배수를 MRR 경로(Γ)에 반영 중이다 — 이 필드는 그 내부값을
+    # 밖으로 드러내는 가시화이며 MRR에 다시 곱하지 않는다. cond_disk_usage_hours·
+    # pad_pcr_anchor_hours·pad_pcr_anchor_ratio가 팩에 전부 있을 때만 채워진다(현재 5팩은
+    # usage=0이라 배수가 항상 1.0이 정상). τ(≈27.4h)는 Entegris 백서가 재인용한 Palmgren
+    # 2004(원문 미확보, 2차 인용) 역산값. simulate_conditioned_wear()(재생항 계수는
+    # fab-sim 자체 최소확장 가정, 정량 미보증)는 등록하지 않는다.
+    conditioner_pcr_aging_ratio: Optional[float] = None
+    conditioner_pcr_tau_hours: Optional[float] = None
+    conditioner_disk_usage_hours: Optional[float] = None
+    conditioner_pcr_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -958,6 +970,68 @@ def _thermal_chemical_diagnostic(rr: "ResolvedRecipe",
     return out
 
 
+def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/conditioner_pcr_decay.py::pcr_decay·calibrate_tau_from_anchor
+    (원본 무수정). 앵커는 Entegris Inc. application note(4435-7548ENT-1213)가 서술하는
+    "50시간 사용된 디스크의 PCR이 초기값의 16%로 하락"인데, 이 문서 자체는 그 수치를
+    **Palmgren 2004(CMP-MIC Conf. Proc.)를 재인용한 것이고 원문은 미확보**다(모듈
+    docstring·EVIDENCE-RULES 판정#14). 이 2차 인용 성격을 note에 항상 명시한다.
+
+    ⚠ **여기서 내보내는 것은 `pcr_decay` 하나뿐이다.** 같은 모듈의
+    `simulate_conditioned_wear()`(패드 asperity 재생항 C1_cond*sqrt(z0-z))는 등록하지
+    않는다 — 그 함수형·계수는 문헌식이 아니라 fab-sim이 세운 최소 확장 가정이고, 모듈
+    self-test 스스로 "방향(정성적 순위)만 검증, 정량 미보증"이라 자백한다. 근거 없는
+    수치를 제품 출력으로 내보내지 않는다.
+
+    ⚠ **이중 계상 아님, 가시화임.** sim/factors.py::_f_gamma가 이미 `cond_disk_usage_hours`가
+    있을 때 이 모듈의 `pcr_decay`를 호출해 PCR aging 배수 A=pcr_now/pcr_ref를 Γ(컨디셔닝
+    부하, MRR 경로)에 곱하고 있다(gamma-conditioning-load-confidence-basis.md §3). 이 진단
+    필드는 Γ가 내부적으로 이미 소비 중인 그 값을 사용자에게 보여주는 것이지 새 물리가
+    아니다 — **MRR에 다시 곱하지 않는다.**
+
+    입력: `cond_disk_usage_hours`(디스크 사용시간) + `pad_pcr_anchor_hours`/
+    `pad_pcr_anchor_ratio`(팩에 선언된 앵커점 — 모듈 하드코딩 ENTEGRIS_ANCHOR_* 상수 대신
+    팩 값으로 tau를 역산해, 이 진단이 팩이 선언한 값과 항상 정합되게 한다). 셋 중 하나라도
+    팩에 없으면 지어내지 않고 스킵(현재 5팩은 세 키 모두 선언돼 있어 항상 계산되지만,
+    `cond_disk_usage_hours=0.0`이 기준값이라 배수는 항상 1.0 — 감쇠 없음이 정상이다.
+    사용자가 이 값을 올렸을 때만 진단이 살아난다).
+    """
+    out: Dict[str, object] = {"conditioner_pcr_aging_ratio": None,
+                              "conditioner_pcr_tau_hours": None,
+                              "conditioner_disk_usage_hours": None,
+                              "conditioner_pcr_note": None}
+    need = ("cond_disk_usage_hours", "pad_pcr_anchor_hours", "pad_pcr_anchor_ratio")
+    missing = [k for k in need if not rr.pack.has(k)]
+    if missing:
+        out["conditioner_pcr_note"] = (
+            f"⚠ 컨디셔너 PCR 노화 진단 스킵 — 팩에 없음: {', '.join(missing)}")
+        return out
+    try:
+        import conditioner_pcr_decay as CPD   # sim/tier2_physics (1바이트도 수정 안 함)
+        t_hours = float(rr.pack.get("cond_disk_usage_hours"))
+        anchor_hours = float(rr.pack.get("pad_pcr_anchor_hours"))
+        anchor_ratio = float(rr.pack.get("pad_pcr_anchor_ratio"))
+        tau = CPD.calibrate_tau_from_anchor(anchor_hours, anchor_ratio)
+        ratio = CPD.pcr_decay(t_hours, 1.0, tau)
+    except Exception as e:
+        out["conditioner_pcr_note"] = f"⚠ 컨디셔너 PCR 노화 계산 실패({e}) — None으로 둠"
+        return out
+    out["conditioner_pcr_aging_ratio"] = float(ratio)
+    out["conditioner_pcr_tau_hours"] = float(tau)
+    out["conditioner_disk_usage_hours"] = t_hours
+    out["conditioner_pcr_note"] = (
+        f"컨디셔너 디스크 사용시간 t={t_hours:.2f}h → PCR/PCR0={ratio:.4f}(τ={tau:.2f}h, "
+        f"앵커 {anchor_hours:.0f}h→{anchor_ratio:.2f} 역산). τ는 Entegris 백서가 재인용한 "
+        f"Palmgren 2004(원문 미확보, 2차 인용, EVIDENCE-RULES 판정#14) 기반 — 정량 신뢰도가 "
+        f"원문 미확보만큼 낮다. sim/factors.py::_f_gamma가 이미 같은 함수로 이 배수를 MRR "
+        f"경로(Γ)에 반영 중이다 — 이 필드는 그 내부값의 가시화이며 새 물리가 아니다. "
+        f"MRR에 다시 곱하지 않는다. t=0(신품)에서는 배수=1.0(감쇠 없음)이 기준조건이고 "
+        f"정상이다.")
+    return out
+
+
 def _pad_glazing_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """패드 글레이징에 의한 접촉점 감소·asperity 반경 증가 진단 — MRR 경로와 완전히 독립.
 
@@ -1255,6 +1329,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     thermal_chem = _thermal_chemical_diagnostic(rr, theta_ss)
     if thermal_chem["thermal_chemical_note"]:
         notes.append(thermal_chem["thermal_chemical_note"])
+    # 컨디셔너 디스크 노화 PCR(t) 감쇠 진단 — MRR 경로와 완전히 독립(가시화, 새 물리 아님).
+    # cond_disk_usage_hours·pad_pcr_anchor_hours·pad_pcr_anchor_ratio 중 하나라도 팩에
+    # 없으면 조용히 None(현재 5팩은 전부 선언돼 있어 usage=0 -> 배수=1.0으로 항상 계산됨).
+    cond_pcr = _conditioner_pcr_aging_diagnostic(rr)
+    if cond_pcr["conditioner_pcr_note"]:
+        notes.append(cond_pcr["conditioner_pcr_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -1315,6 +1395,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        thermal_chemical_ea_kj_mol=thermal_chem["thermal_chemical_ea_kj_mol"],
                        thermal_chemical_film=thermal_chem["thermal_chemical_film"],
                        thermal_chemical_note=thermal_chem["thermal_chemical_note"],
+                       conditioner_pcr_aging_ratio=cond_pcr["conditioner_pcr_aging_ratio"],
+                       conditioner_pcr_tau_hours=cond_pcr["conditioner_pcr_tau_hours"],
+                       conditioner_disk_usage_hours=cond_pcr["conditioner_disk_usage_hours"],
+                       conditioner_pcr_note=cond_pcr["conditioner_pcr_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
