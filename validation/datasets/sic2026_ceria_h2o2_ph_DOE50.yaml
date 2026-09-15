@@ -22,7 +22,7 @@
 #   원문값은 measured_mrr_nm_per_hour에 함께 남긴다(추적 가능하게).
 
 doi: "figshare:31056549 (ACS SI Table S3)"
-source: "Wang et al., ACS SI Table S3 — SiC CMP 50-run DOE"
+source: "Wang et al., figshare:31056549, ACS SI Table S3 — SiC CMP 50-run DOE"
 read_method: table
 pack: sic_ceria_h2o2
 in_scope: true

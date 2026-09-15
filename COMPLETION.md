@@ -461,3 +461,28 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   `tests/test_oxidizer_legacy_shape_inert.py`(3건)로 기계 고정했다. ③ 경로 자체는 **제거하지
   않았다** — Langmuir 계수가 없는 팩의 하위호환 경로로 살아 있고, 그 경우 peak가 실제로 출력을
   바꾼다는 것도 같은 테스트가 함께 검증한다(코드·YAML 값 변경 0줄).
+- 2026-09-15 [Max워커] **C4 sic_ceria_h2o2 팩 진단 — "미완" 서술이 낡았음을 실측으로 정정,
+  진짜 결함은 따로 있었다**. 97·428행의 "C4 sic팩 1건 남음"을 `tools/completion.py
+  heldout_by_pack()`·`check()` 실행으로 재확인한 결과 **fails에 C4 항목이 0건**(5팩 전부
+  통과, entegris2022 US20220315802A1 n=5 held-out ρ=1.0·p=0.0083로 이미 해소돼 있었다 —
+  git log `71e2c67`). 다만 그 통과는 취약하다: 유일한 유의 held-out인 entegris2022가
+  `abrasive_conc_exponent`의 출처 그 자체라 순환보정(calibration_contact 기 신고)이고,
+  진짜 blind인 sic2026 DOE50(n=50, used_for_calibration라 집계 제외)은 ρ=0.089·p=0.266으로
+  여전히 비유의. 원인을 (a)n부족/(b)모델결함/(c)데이터부재로 분기한 결과 **(b)로 확정**:
+  `sim/factors.py::_f_chi`의 pH항 선택 우선순위가 세리아 계열이면 상속된
+  `abrasive_iep_ph`(owner=sti_ceria, Dandu 2009 pH 3~6용 IEP 정전 창)를 최우선으로 골라,
+  sic 팩이 sic2026에서 직접 역산해 자기 이름으로 선언한 `ph_softening_per_unit`을 가린다.
+  이 IEP 창은 pH≥6.5에서 완전 포화해 sic2026이 탐색하는 pH 9~11 전 구간에서 상수가 되고
+  실측(2~3배 반응)과 정반대(무반응)로 어긋난다. 반사실 실험(IEP 분기를 진단용으로만 제거,
+  코드 미변경)에서 같은 n=50에 ρ 0.089→0.404·p 0.266→0.0015로 뒤집혀 원인을 정량 확정했다.
+  부차 원인으로 sic 팩에 산화제(H2O2) 화학항 자체가(langmuir_K/passivation_K/peak_wt_pct
+  전부 부재) 없다는 것도 새로 확인. **코드는 변경하지 않았다**(`sim/factors.py` 우선순위·
+  YAML 상속 구조 미변경, 원인 특정까지만) — 후속 회차가 "팩이 own 계수를 직접 선언했으면
+  상속된 IEP 분기보다 우선"하는 규칙 추가를 검토할 수 있다는 제안만 남겼다. 부수적으로
+  sic2026의 F2(출처 없음) 플래그가 데이터 문제가 아니라 감사 도구가 `source:` 필드만
+  스캔하는 오탐임을 확인 — 실제 PDF(figshare:31056549, ACS SI, 22쪽·859,882B·Table S3
+  원문 대조 확인)를 확보해 `papers/`+`INDEX.json` 등록, `source:` 필드에 ID 토큰 삽입으로
+  해소(F2 8개→7개, 유의 8/21·ρ0.9512·pytest 715·격자 40/50 전부 불변, 회귀 없음). 노트:
+  validation/C4-SIC-PACK-DIAGNOSIS.md(verify 5블록 전부 통과), EVIDENCE-RULES.md 판정#33.
+  ⚠ COMPLETION.md 97행("C4 sic팩 1건")은 이 항목 기준으로 낡았다 — C4는 완성 조건을
+  충족하나(격자상 미완 항목 아님), 남은 잔여 미완은 **C2 10칸뿐**이다.

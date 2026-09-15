@@ -1,4 +1,13 @@
 {
+  "wang2026-acs-sic-cmp-si-table-s3": {
+    "src": "figshare direct download (ndownloader.figshare.com/files/60987447, ACS SI) — 2026-09-15 C4 sic팩 진단, 22p/859882B 크기 일치 및 표지·Table S3 첫 3행(2/6/9→160, 2/6/10→186.6, 2/6/11→376.1 nm/h) 원문 대조 확인",
+    "pdf_local": "papers/wang2026-acs-sic-cmp-si-table-s3.pdf.txt",
+    "doi": "figshare:31056549",
+    "title": "Machine Learning-Driven Optimization of Silicon Carbide Chemical Mechanical Polishing with Surface Roughness Constraints (Supporting Information)",
+    "authors": "Wang H, Qin Z, Zhang L, Han L, Lai J, Zhao L, Qi Y",
+    "venue": "ACS journal SI (2026)",
+    "note": "validation/datasets/sic2026_ceria_h2o2_ph_DOE50.yaml의 출처 — F2(출처에 DOI/특허번호 없음) 오탐 해소용으로 2026-09-15 확보. used_for_calibration: true(ph_softening_per_unit을 이 데이터에서 역산)이므로 held-out 집계에는 여전히 미포함"
+  },
   "choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4": {
     "src": "OpenAlex locations[] → escholarship.org repository copy (UC Berkeley eScholarship, qt0pn4r425) — curl에 Chrome UA 헤더 필요(기본 UA는 CloudFront 403) — 2026-09-15 cu_h2o2_bta 2회차",
     "pdf_local": "papers/choi2010-jes-bta-adsorption-kinetics-millisecond-glycine-ph4.pdf",
