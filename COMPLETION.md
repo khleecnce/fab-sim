@@ -486,3 +486,26 @@ C2만 바뀜). 남은 [전진가능] 3칸은 이 제안과 무관하게 계속 �
   validation/C4-SIC-PACK-DIAGNOSIS.md(verify 5블록 전부 통과), EVIDENCE-RULES.md 판정#33.
   ⚠ COMPLETION.md 97행("C4 sic팩 1건")은 이 항목 기준으로 낡았다 — C4는 완성 조건을
   충족하나(격자상 미완 항목 아님), 남은 잔여 미완은 **C2 10칸뿐**이다.
+- 2026-09-15 [Max워커] **χ `_f_chi` pH 항 선택 결함 실제 수정 — has_own 우선을 일반
+  원칙으로 코드화(판정#34)**. 판정#33이 특정한 결함(상속된 `abrasive_iep_ph`가 sic 고유
+  `ph_softening_per_unit`을 가림)을 팩 이름 하드코딩 없이 고쳤다: elif 체인을
+  (분기명, 항함수, 적용가능여부, 고유계수키) 후보 리스트로 재구성해 1차 패스에서
+  "적용 가능하고 고유 계수를 직접 선언(`has_own`)한 첫 후보"를 고르고, 아무도 own이
+  아니면(=기존 4팩 전부) 2차 패스에서 원래 elif 순서로 그대로 떨어지게 만들어 회귀를
+  구조적으로 봉인했다. 실행 대조(git stash) 결과 cu_h2o2_bta·oxide_silica·sti_ceria·
+  w_fe_oxidizer 4팩은 분기가 글자 하나까지 불변, sic_ceria_h2o2만 `ph_ceria_window`→
+  `ph_softening`으로 바뀌었다. sic2026(n=50, calibration이라 held-out 집계 제외)의
+  ρ는 0.089→0.393(4.4배), p는 0.266→0.002(비유의→유의)로 판정#33의 결론을 재확인.
+  **부수적 발견**: 판정#33 §2.4 반사실 실험("IEP 분기 제거→ph_softening") 자체가
+  서술 오류였다 — `abrasive_iep_ph`만 지우면 실제로는 `ph_peak`(오실리카 상속 정점
+  모델, 2차 가림)로 빠지고 `ph_softening`이 아니었다(재실행으로 확인, branches=
+  {("ceria_tooth","ph_peak")}). 그래서 목표값(ρ=0.404·p=0.0015)과 이번 결과(0.393/
+  0.002)가 다르다 — 수정 결함이 아니라 반사실 실험의 서술을 이번 회차에 함께
+  정정한 결과다(가림이 2겹인데 §2.4는 1겹만 벗겼다). 산화제(H2O2) 항 부재(§2.2)는
+  이번엔 모델링하지 않고 `_f_chi`에 구조적 경고 note만 추가(값·status·confidence
+  불변, sic 외에는 걸리지 않음). 검증: pytest 715 passed(0 실패, §직전과 동일)·
+  완성 격자 40/50 불변·qa_loop PASS(유의 8/21·ρ0.9512 불변, sic2026은 애초 집계
+  제외라 안 바뀌는 것이 정상)·`tests/test_chi_ph_branch_own_priority.py` 4건 신규
+  (5팩 분기 고정·sic own 선택·나머지 4팩 불변·pH 9→11 민감도 회복, 수정 전 코드로
+  대조하면 3/4 실패 확인). sic의 confidence·YAML 값은 미변경. 노트:
+  validation/C4-SIC-PACK-DIAGNOSIS.md "## 4단계", EVIDENCE-RULES.md 판정#34.

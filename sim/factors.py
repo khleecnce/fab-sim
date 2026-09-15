@@ -1080,6 +1080,19 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     (단조 연화항은 pH 11 위를 과대평가한다 — `_ph_peak_term` docstring 참조).
     억제 항은 여기가 아니라 ψ가 가져간다 — 방향이 반대이고, 사용자가
     "함량 변화에 따른 성능 변화"를 볼 때 촉진과 억제를 분리해 봐야 한다.
+
+    pH 항 선택 원칙 — **has_own 우선** (EVIDENCE-RULES.md 판정#34,
+    validation/C4-SIC-PACK-DIAGNOSIS.md §2.3·§2.4에서 진단):
+      "팩이 어떤 pH 메커니즘의 계수를 **직접 선언**(`has_own`)했다면, 상속만
+      받은 다른 메커니즘보다 우선한다." 자기 재료계에서 역산한 계수가 남의
+      재료계에서 물려받은 계수보다 그 재료를 잘 기술하기 때문이다. 아래
+      `candidates`를 1차 패스에서 own 계수 기준으로 훑고, 아무도 own이
+      아니면(=지금까지의 4팩이 전부 여기 해당) 2차 패스에서 기존 우선순위
+      (세리아 IEP 창 → W 산성역 → 실리카 정점 → 연화 폴백)로 그대로
+      떨어진다 — 그래서 기존 4팩의 분기 선택은 이 변경으로 바뀌지 않는다.
+      (sic_ceria_h2o2는 세리아 IEP 창의 `abrasive_iep_ph`를 sti_ceria에서
+      상속만 받았을 뿐 직접 선언한 적이 없는데, 이 분기가 최우선이라 자기
+      이름으로 직접 역산해 선언한 `ph_softening_per_unit`이 가려지고 있었다.)
     """
     from sim.chemistry import (_oxidizer_term, _ceria_term, _ph_softening_term)
     f = _new("chi")
@@ -1087,23 +1100,45 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     notes: List[str] = []
     terms: Dict[str, float] = {}
 
-    # pH 항 선택 — **재료계별로 다르다.** 메커니즘이 다른 재료에 같은 항을 쓰면
+    # pH 항 후보 — **재료계별로 다르다.** 메커니즘이 다른 재료에 같은 항을 쓰면
     # 부호까지 틀린다(실리카 IEP 2.5 vs 세리아 6.8 → 정전 상호작용이 반대 방향).
     #   세리아: IEP 창 모델 (Dandu 2009)
+    #   W 산성역: 산화 구동력 경로 (Stojadinović 2016)
     #   실리카: 정점형 (Li 2021), 없으면 단조 연화 폴백
-    # ⚠ sti_ceria 팩이 oxide_silica를 base로 상속하므로, 세리아를 먼저 확인하지
-    #   않으면 실리카의 pH 11 정점 항이 세리아에 잘못 적용된다 — 2026-09-08
-    #   dandu2009 백테스트에서 ρ=−0.525(음의 상관)로 드러난 결함이 바로 이것이다.
-    if str(pk.get_or("abrasive", "")) == "ceria" and pk.has("abrasive_iep_ph"):
-        ph_terms = [("ph_ceria_window", _ph_ceria_electrostatic_term)]
-    elif pk.has("w_ph_acid_k"):
-        # 금속 W 산성역 — 산화 구동력 경로(Stojadinović 2016). 세리아/실리카 항보다
-        # 먼저 확인한다: 메커니즘이 달라 다른 항을 빌려 쓰면 부호까지 틀린다.
-        ph_terms = [("ph_w_acidic", _ph_w_acidic_term)]
-    elif pk.has("ph_peak") and pk.has("ph_ref"):
-        ph_terms = [("ph_peak", _ph_peak_term)]
-    else:
-        ph_terms = [("ph_softening", _ph_softening_term)]
+    # 각 튜플은 (분기명, 항함수, 이 팩에서 적용 가능한가, 이 메커니즘을
+    # 식별하는 "고유 계수" 키) — 마지막 항목(has_own 여부 판정용)은 팩이
+    # 실제로 그 재료계에서 역산해 선언하는 계수이지, ph_ref처럼 여러
+    # 메커니즘이 공유하는 기준점이 아니다.
+    is_ceria = str(pk.get_or("abrasive", "")) == "ceria"
+    candidates = [
+        ("ph_ceria_window", _ph_ceria_electrostatic_term,
+         is_ceria and pk.has("abrasive_iep_ph"), "abrasive_iep_ph"),
+        ("ph_w_acidic", _ph_w_acidic_term,
+         pk.has("w_ph_acid_k"), "w_ph_acid_k"),
+        ("ph_peak", _ph_peak_term,
+         pk.has("ph_peak") and pk.has("ph_ref"), "ph_peak"),
+        ("ph_softening", _ph_softening_term,
+         pk.has("ph_softening_per_unit") and pk.has("ph_softening_ref"),
+         "ph_softening_per_unit"),
+    ]
+    chosen = None
+    # 1차 패스: 적용 가능하고, 그 메커니즘의 고유 계수를 팩이 **직접
+    # 선언**(has_own)한 첫 후보를 고른다(우선순위는 후보 나열 순서 그대로).
+    for name, fn, applicable, own_key in candidates:
+        if applicable and pk.has_own(own_key):
+            chosen = (name, fn)
+            break
+    if chosen is None:
+        # 2차 패스(기존 elif/else 체인과 동일): own이 아무도 없으면(상속값만
+        # 있거나 아예 없으면) 원래 우선순위로 처음 적용 가능한 후보를 쓰고,
+        # 그것도 없으면 마지막(연화) 후보로 무조건 떨어진다 — 원래 else와 동일.
+        for name, fn, applicable, _ in candidates[:-1]:
+            if applicable:
+                chosen = (name, fn)
+                break
+        if chosen is None:
+            chosen = (candidates[-1][0], candidates[-1][1])
+    ph_terms = [chosen]
 
     for name, fn in ([("oxidizer", _oxidizer_term),
                       ("ceria_tooth", _ceria_term)] + ph_terms):
@@ -1117,6 +1152,17 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
                 f.drivers[k] = float(pk.get(k))
             except (TypeError, ValueError):
                 pass
+    if "oxidizer" not in terms and (pk.has("oxidizer_wt_pct")
+                                     or pk.has("oxidizer_ref_wt_pct")) and not any(
+            pk.has(k) for k in ("oxidizer_langmuir_K", "oxidizer_passivation_K",
+                                "oxidizer_peak_wt_pct")):
+        notes.append(
+            "⚠ 산화제 농도(oxidizer_wt_pct/oxidizer_ref_wt_pct)가 팩에 선언돼 "
+            "있으나 형상 파라미터(oxidizer_langmuir_K/oxidizer_passivation_K/"
+            "oxidizer_peak_wt_pct)가 하나도 없어 χ가 산화제 변화에 조용히 "
+            "반응하지 않는다 — 이번 회차는 이 누락을 경고만 하고 모델링하지 "
+            "않는다(값·status·confidence 불변, validation/C4-SIC-PACK-"
+            "DIAGNOSIS.md §2.2).")
     if not terms:
         f.notes.append("⚠ χ 미모델링: 산화제·pH·세리아 파라미터가 팩에 없다. "
                        "화학 효과는 Kp에 뭉뚱그려진 상태 — 조성을 바꿔도 안 변한다.")

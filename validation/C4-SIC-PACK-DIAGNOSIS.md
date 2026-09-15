@@ -261,3 +261,144 @@ COMPLETION.md의 원칙("데이터에 맞추려 식을 비트는 순간 회귀�
 | sic2026(진짜 blind, n=50)은 왜 비유의(ρ=0.089,p=0.266)인가? | (b) 모델 결함. `_f_chi`의 pH 항 선택이 상속된 세리아 IEP 정전 창(pH 3~6용)을 최우선으로 골라, sic 고유 `ph_softening_per_unit`(자기 선언, 바로 이 데이터에서 역산)이 가려진다. IEP 창은 pH 9~11에서 완전 포화해 pH 민감도가 0이 되는데 실측은 2~3배 반응한다 |
 | F2(출처 없음) 플래그는 데이터 문제인가? | 아니다 — 실재하는 ACS SI(figshare:31056549) 논문, 감사 도구가 `source:` 필드만 스캔해 생긴 오탐. PDF 확보·INDEX 등록·source 필드 정정으로 해소 |
 | 코드를 고쳤는가? | 아니다. 원인만 특정하고 `sim/factors.py`·`knowledge/params/*.yaml`은 미변경. 데이터 인덱싱 파일(`papers/INDEX.json`, `sic2026...yaml`의 source 필드)만 정정 |
+
+## 4단계 — 수정 및 결과(2026-09-15, 후속 회차)
+
+과제: 판정#33이 남긴 결함(§2.3·§2.4)을 실제로 고친다. **일반 원칙**을 세운다 —
+"팩이 어떤 pH 메커니즘의 고유 계수를 직접 선언(`has_own`)했다면, 상속만 받은
+다른 메커니즘보다 우선한다." sic 팩만 이름으로 특별 취급하는 하드코딩은 금지.
+
+### 4.1 코드 변경
+
+`sim/factors.py::_f_chi`의 elif 체인을 (분기명, 항함수, 적용가능여부, 고유
+계수 키) 4-튜플 리스트로 재구성하고, 2-패스 선택으로 바꿨다:
+  1차 패스 — 적용 가능하고 고유 계수를 **직접 선언**(`has_own`)한 첫 후보.
+  2차 패스(아무도 own이 아니면) — 기존 elif/else 순서 그대로.
+
+이러면 "own인 메커니즘이 하나도 없으면 원래 동작과 100% 동일"이 구조적으로
+보장된다 — 코드가 그 자체로 회귀 방지 증명이다.
+
+### 4.2 4팩 분기 불변 확인 (실행 출력)
+
+```
+$ git stash -- sim/factors.py   # 수정 전 코드로 되돌려 대조
+cu_h2o2_bta    ['oxidizer']                 partial
+oxide_silica   ['ph_peak']                  partial
+sti_ceria      ['ceria_tooth', 'ph_ceria_window']  modeled
+w_fe_oxidizer  ['oxidizer', 'ph_w_acidic']  modeled
+sic_ceria_h2o2 ['ceria_tooth', 'ph_ceria_window']  modeled   ← 수정 전(버그)
+
+$ git stash pop   # 수정 후 코드
+cu_h2o2_bta    ['oxidizer']                 partial
+oxide_silica   ['ph_peak']                  partial
+sti_ceria      ['ceria_tooth', 'ph_ceria_window']  modeled   ← 불변
+w_fe_oxidizer  ['oxidizer', 'ph_w_acidic']  modeled          ← 불변
+sic_ceria_h2o2 ['ceria_tooth', 'ph_softening']     modeled   ← 수정됨
+```
+4팩(cu_h2o2_bta·oxide_silica·sti_ceria·w_fe_oxidizer)은 글자 하나까지 동일,
+sic_ceria_h2o2만 `ph_ceria_window` → `ph_softening`으로 바뀌었다. 이 표는
+`tests/test_chi_ph_branch_own_priority.py::test_branch_selection_fixed_across_five_packs`
+로 그대로 고정했다.
+
+### 4.3 backtest.py 결과 — 반사실 실험값과 다르다, 원인을 찾았다
+
+```
+수정 전: sic2026_ceria_h2o2_ph_DOE50   n=50  ρ=+0.089  p=0.266
+수정 후: sic2026_ceria_h2o2_ph_DOE50   n=50  ρ=+0.393  p=0.002
+```
+과제 지시문이 요구한 대조값은 §2.4 반사실 실험의 ρ=0.404·p=0.0015였다.
+**일치하지 않는다 — 원인을 조사했다.**
+
+```python verify
+# verify — §2.4 반사실 실험이 실제로 어느 분기를 탔는지 재확인
+import sys, yaml, numpy as np
+sys.path.insert(0, "validation")
+import sim.models  # noqa: F401
+from sim.engine import Recipe, simulate
+import sim.factors as factors_mod
+import backtest
+
+raw = yaml.safe_load(open("validation/datasets/sic2026_ceria_h2o2_ph_DOE50.yaml"))["conditions"]
+
+def recipe_from(c):
+    ov = dict(c.get("overrides") or {})
+    return Recipe(pack="sic_ceria_h2o2", pack_overrides=ov, pressure_psi=c.get("pressure_psi"),
+                  rpm_platen=c.get("rpm_platen"), rpm_wafer=c.get("rpm_wafer"))
+
+branches = set()
+for c in raw:
+    r = recipe_from(c)
+    rr2 = r.resolve()
+    del rr2.pack.params["abrasive_iep_ph"]   # §2.4가 실제로 한 조작 그대로
+    fac = factors_mod._f_chi(rr2)
+    branches.add(tuple(sorted(fac.terms.keys())))
+assert branches == {("ceria_tooth", "ph_peak")}   # ph_softening이 아니다!
+```
+**§2.4의 반사실 실험은 실제로 `ph_softening`이 아니라 `ph_peak`(오실리카에서
+상속된 실리카 정점 모델) 분기를 탔다.** `abrasive_iep_ph` 하나만 지우면
+elif 체인이 branch1(세리아 IEP)→branch2(W 산성)→**branch3(ph_peak: sic가
+`ph_peak`을 상속으로 갖고 있고 `ph_ref`는 자기선언이라 조건이 참)**에서
+멈춘다 — branch4(ph_softening)까지 가지 않는다. 즉 판정#33의 §2.4 서술
+("IEP분기를 못 타게 하면 ph_softening 분기로 빠진다")은 **가림이 한 겹이
+아니라 두 겹**이라는 사실을 놓친 오기였다: `abrasive_iep_ph`(sti_ceria
+상속)가 1차 가림이고, `ph_peak`(oxide_silica 상속, sic는 값 자체를 선언한
+적이 없음)이 2차 가림이다. 단순 삭제 반사실은 1차만 벗겨 2차 가림 뒤에
+숨어있던 **또 다른 상속 메커니즘**(실리카 정점 모델)을 대신 노출시켰을
+뿐이다.
+
+`has_own` 우선 규칙은 두 겹을 한 번에 뚫는다 — `abrasive_iep_ph`도
+`ph_peak`도 sic 입장에서는 `has_own=False`이므로 1차 패스에서 둘 다
+건너뛰고 곧바로 sic가 **직접 역산해 선언한**(`has_own=True`) `ph_softening_
+per_unit`으로 간다. 이게 §설계 원칙이 요구한 그대로의 동작이고,
+`tests/test_chi_ph_branch_own_priority.py::test_sic_takes_ph_softening_not_
+inherited_ceria_window`로 고정했다. ρ=0.393(<0.404)은 "실리카 정점 모델을
+빌려 쓴 우연한 적합"보다 낮지만, **sic 고유 계수를 쓰는 것이 이 수정의
+목적이므로 이 낮은 쪽이 맞는 결과다** — ρ를 높이려고 어느 분기를 택할지
+고른 게 아니라, "누구 계수를 쓰는가"의 원칙을 고정한 결과가 이렇게
+나온 것이다. 그래도 기준선(0.089)의 4.4배, 비유의(p=0.266)→유의(p=0.002)
+전환은 §2.4의 핵심 결론("IEP 창이 알칼리 SiC 계에 안 맞는다")을 그대로
+재확인한다.
+
+### 4.4 헤드라인·격자·회귀 불변 확인 (실행 출력 그대로)
+
+```
+held-out 12개 전체 평균: ρ=+0.817, 쌍별 적중률 91.0%   (수정 전/후 동일)
+  └ 유의 8개: ρ=+0.951, 쌍별 적중률 96.9%              (수정 전/후 동일)
+```
+sic2026은 `used_for_calibration: true`라 이 집계에 처음부터 안 들어간다 —
+그래서 이 수정이 헤드라인 숫자를 안 건드리는 것이 **정상**이다(실제로
+안 바뀜, 위 숫자가 그 확인).
+
+```
+$ .venv/bin/python tools/completion.py check   # 수정 전/후 모두
+완성 판정: ❌ 미완 — 격자 40/50칸 충족                (수정 전/후 동일, C4는 여전히 fails 0건)
+
+$ .venv/bin/python -m pytest -q
+715 passed, 19 warnings in 188.11s              (수정 전 715 passed와 동일 — 0 실패)
+
+$ .venv/bin/python tools/qa_loop.py run --strict
+QA 루프 #131  commit f2b2d7a  게이트 PASS
+  유의 데이터셋 8/21  유의 평균 ρ = 0.9512
+```
+
+### 4.5 산화제(H2O2) 항 부재 — 경고만 추가(모델링 안 함, §2.2 스코프 유지)
+
+`_f_chi`에 구조적 검사를 추가했다: 팩이 `oxidizer_wt_pct`/`oxidizer_ref_wt_pct`
+로 산화제 존재를 선언했는데 형상 파라미터(`oxidizer_langmuir_K`/
+`oxidizer_passivation_K`/`oxidizer_peak_wt_pct`)가 하나도 없으면
+`f.notes`에 경고를 추가한다(값·status·confidence는 그대로). 5팩 중 이
+조건에 걸리는 것은 `sic_ceria_h2o2` 하나뿐이다(cu_h2o2_bta·w_fe_oxidizer는
+형상 파라미터 보유, oxide_silica·sti_ceria는 산화제 개념 자체가 없음) —
+이름 하드코딩 없이 구조로만 걸린다.
+
+### 4.6 결론
+
+**B(수정 완료) 채택.** `sim/factors.py::_f_chi`의 pH 항 선택에 `has_own`
+우선 원칙을 넣어 sic 팩이 자기 고유 계수(`ph_softening_per_unit`)를 쓰게
+됐다. 4팩 분기는 완전히 불변(테스트로 고정), 전체 pytest 0 실패, 완성
+격자 40/50 불변, qa_loop PASS. sic2026 ρ는 0.089→0.393(4.4배), p는
+0.266→0.002(유의 전환)로 판정#33의 결론(모델결함, n부족 아님)을 재확인
+했다 — 다만 정확한 목표값(0.404/0.0015)과는 §4.3에서 밝힌 대로 **판정#33
+§2.4 반사실 실험 자체의 서술 오류**(2겹 가림을 1겹만 벗겼다) 때문에
+다르다. 이 오류는 이번 회차에 함께 정정했다. 산화제 항 부재(§2.2)는
+경고 note만 추가했고 모델링은 이번 회차 범위 밖으로 그대로 남겼다.
