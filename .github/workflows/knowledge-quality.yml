@@ -1,0 +1,24 @@
+name: knowledge-quality
+
+# verify.yml에서 분리했다. 모든 스텝이 continue-on-error라 CI를 막지
+# 못하면서 push마다 ubuntu 분을 태우고 있었다(2026-09-14 Actions 한도
+# 소진의 절반이 여기). 진행상황 추적이 목적이므로 주 1회면 충분하다.
+on:
+  schedule:
+    - cron: '0 3 * * 1'   # 매주 월요일 03:00 UTC = 12:00 KST
+  workflow_dispatch:
+
+jobs:
+  knowledge-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt
+      - name: 지식 품질 게이트 (참고용 — 미상환 부채 있어 non-blocking, 로그로 진행상황 추적)
+        continue-on-error: true
+        run: python tools/check_knowledge.py --all
+      - name: 주장 검증 — 출처 실존 + 코드 재현 (참고용 — non-blocking)
+        continue-on-error: true
+        run: python tools/verify_claims.py --all

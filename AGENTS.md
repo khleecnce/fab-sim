@@ -32,6 +32,15 @@
 
 3. **빨간 CI를 원격에 밀지 마라.** 실패하는 run도 분을 소모한다.
 
+4. **분(minute) 절약 장치 두 가지가 더 걸려 있다. 되돌리지 마라.**
+   - `concurrency: cancel-in-progress` — 크론이 몇 분 간격으로 연속
+     push 할 때 중간 run들을 취소한다. 이전에는 push마다 ~8분짜리 run이
+     끝까지 돌았다.
+   - `knowledge-quality`는 별도 워크플로로 분리해 **주 1회**(월 12:00 KST)
+     만 돈다. 모든 스텝이 `continue-on-error`라 아무것도 막지 못하면서
+     push마다 한 벌씩 분을 태우고 있었다. 필요하면 Actions 탭에서
+     수동 실행.
+
 ### 검증 명령
 
 ```bash
