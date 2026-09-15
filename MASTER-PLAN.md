@@ -2555,3 +2555,13 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
   (식별자에 공백이 섞인 상태). 파싱되게 고쳐 OA 탐색 경로를 되살렸다 — 이번 회차 DOI 해석이
   이것 없이는 안 됐다.
 - 완성 격자 49/50 불변(이 칸은 3회차 규칙상 1회 남음, 단 성격이 C2가 아님이 확정됨).
+
+### 2026-09-15 20:00 [성장엔진] GW 패드 3키를 문헌값으로 교체 + 파생 접촉량 재적분 (판정#40)
+- 정확도 갭 CONFIDENCE 1~2위(5팩 공통). 직전 회차가 권고로만 남긴 `pad_E_star_pa` 1.0e9→1.316e8 Pa,
+  `pad_asperity_radius_m` 5e-6→5e-5 m, `pad_height_beta_inv_m` 0.3e-6→2.0e-6 m 를 실제 반영, estimated→literature.
+- 파생 2값을 같은 GW 코드로 재적분: `real_contact_area_ratio` 5.8e-4→1.393e-3,
+  `active_particle_density_per_m2` 1.845e7→4.434e6 /m² (confidence 는 estimated 유지 — 단층 가정 미검증).
+- 부수 발견: 옛 파생값 source 의 "팩 값과 일관" 문구가 **재현 불가**였다(적분 입력과 팩 값이 3.9배 불일치).
+  `sim/sensitivity.py` E* 스캔 범위 (3e8,3e9) 는 새 기본값을 포함조차 안 해 문헌 대역으로 교체.
+- 검증: pytest 778 passed · qa_loop --strict PASS · 유의 평균 ρ 0.9442 **불변**(tier2 진단 경로라 정상).
+  노트: knowledge/pad/pad-gw-parameter-literature-adoption-derived-recompute.md
