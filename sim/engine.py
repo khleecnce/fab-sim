@@ -396,6 +396,16 @@ class WaferResult:
     ceria_oxygen_vacancy_x: Optional[float] = None
     ceria_electrostatic_attraction: Optional[int] = None
     ceria_redox_note: Optional[str] = None
+    # 패드 공정 하중주파수 역진단(Maxwell 점탄성, S12) — MRR과 완전히 독립, 진단 전용.
+    # sim/tier2_physics/viscoelastic_maxwell.py 엔진 등록. ω_asperity/De_asperity는
+    # 구조적으로 항상 None(_pad_loading_frequency_diagnostic 독스트링 참조).
+    pad_loading_omega_rot_rad_s: Optional[float] = None
+    pad_loading_omega_asperity_rad_s: Optional[float] = None
+    pad_relaxation_time_threshold_s: Dict[str, Optional[float]] = field(
+        default_factory=lambda: {"rot": None, "asperity": None})
+    pad_deborah_number: Dict[str, Optional[Dict[str, float]]] = field(
+        default_factory=lambda: {"rot": None, "asperity": None})
+    pad_loading_frequency_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1506,6 +1516,93 @@ def _pad_viscoelastic_diagnostic(rr: "ResolvedRecipe",
     return out
 
 
+def _pad_loading_frequency_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """공정 하중 주파수 ω → 패드 이완시간 임계값(역진단) — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/viscoelastic_maxwell.py::maxwell_storage_loss/tan_delta
+    (원본 무수정), sim/tier1_empirical/kinematics.py::rpm_to_rads(원본 무수정),
+    knowledge/materials/pad-viscoelasticity-dma.md §3(Maxwell 모델 수식),
+    §4(CMP 패드 실측 τ_creep 미확보 자백), §7(a)(ω=1/τ0 → E'/E=0.5 항등식).
+
+    §4가 자백하듯 CMP 패드 실측 τ0(이완시간)를 확보하지 못했다 — τ0를 지어내 De=τ0·ω를
+    내지 않는다. 대신 **역방향 진단**: 공정 하중 주파수 ω_process 후보를 기존 literature
+    등급 필드에서만 유도하고, τ0 없이도 계산되는 실질 정보인 τ_crit=1/ω(그 주파수에서
+    탄성/점성 경계가 되는 임계 이완시간)를 낸다.
+
+    후보 (A) 플래튼 회전 ω_rot = 2π·rpm_platen/60 [rad/s] — 패드 위 한 점이 웨이퍼 아래를
+    지나는 주기. rr.rpm_platen(base.yaml, confidence=literature)만으로 항상 계산된다.
+
+    후보 (B) asperity 접촉 주기 ω_asperity = 2π·V_rel/(2a)는 **항상 None으로 둔다**.
+    V_rel은 다른 모든 진단(_lubrication_diagnostics 등)과 동일하게
+    kin.speed_stats(...)["mean"]로 얻을 수 있고, 2a(Hertz 접촉폭)는
+    gw_contact.hertz_contact_area(delta, R)로 얻을 수 있지만, 그 delta(개별 asperity
+    압입깊이)를 이미 등록된 _gw_contact_state_diagnostic에서 가져올 수 없다 — 그 진단은
+    GW 통계모델의 앙상블 적분값(분리거리 d, 실접촉면적 A_r, 하중 W, 접촉점수 n_contacts)만
+    내고 단일 asperity의 delta=z-d(z=asperity 높이, 분포를 따름)는 산출하지 않는다.
+    이는 팩이 GW 패드 파라미터(pad_E_star_pa 등)를 선언하는지와 무관한 **구조적** 한계다
+    — 그 파라미터가 선언돼 있어도 delta는 여전히 나오지 않는다. delta를 별도 통계 가정
+    (예: 지수분포 memoryless 성질로 평균 delta=1/β 유도) 없이 지어낼 수 없어, 이 진단이
+    승인받지 않은 새 파생값을 만들지 않고 (B) 전체를 None + 스킵사유로 둔다.
+
+    τ0가 팩에 pad_relaxation_time_s로 선언될 때만(현재 어느 팩도 미선언 — 항상 None이
+    정상) De=τ0·ω_rot, E'/E, E''/E, tanδ를 viscoelastic_maxwell.maxwell_storage_loss/
+    tan_delta로 실제 계산한다(E=1.0 무차원 스프링 계수 — 모듈 자체 규약, 비율만 의미).
+    """
+    out: Dict[str, object] = {
+        "pad_loading_omega_rot_rad_s": None,
+        "pad_loading_omega_asperity_rad_s": None,
+        "pad_relaxation_time_threshold_s": {"rot": None, "asperity": None},
+        "pad_deborah_number": {"rot": None, "asperity": None},
+        "pad_loading_frequency_note": None,
+    }
+    notes: List[str] = []
+    from sim.tier1_empirical import kinematics as kin
+
+    omega_rot = kin.rpm_to_rads(rr.rpm_platen)
+    if rr.rpm_platen <= 0 or omega_rot <= 0:
+        notes.append(f"rpm_platen={rr.rpm_platen} <= 0 — ω_rot 계산 불가, 스킵")
+        out["pad_loading_frequency_note"] = " | ".join(notes)
+        return out
+    out["pad_loading_omega_rot_rad_s"] = float(omega_rot)
+    out["pad_relaxation_time_threshold_s"]["rot"] = float(1.0 / omega_rot)
+    notes.append(
+        f"ω_rot=2π·rpm_platen/60={omega_rot:.4f} rad/s(rpm_platen={rr.rpm_platen:g}) — "
+        f"플래튼 회전주기 기준. τ_crit_rot=1/ω_rot={1.0/omega_rot:.4f} s "
+        "(패드 이완시간이 이보다 길면 이 주파수에서 탄성 지배, 짧으면 점성 지배)")
+    notes.append(
+        "ω_asperity(애스퍼리티 접촉주기)는 항상 None: L_contact=2a(Hertz 접촉폭)를 구하려면 "
+        "개별 asperity 압입깊이 delta가 필요하나 _gw_contact_state_diagnostic은 분리거리 d와 "
+        "앙상블 적분값(A_r, W, n_contacts)만 내고 단일 asperity의 delta=z-d는 산출하지 않는다 "
+        "(GW 패드 파라미터 선언 여부와 무관한 구조적 한계) — delta를 지어낼 수 없어 (B) 전체 스킵")
+
+    if not rr.pack.has("pad_relaxation_time_s"):
+        notes.append(
+            "pad_relaxation_time_s 미선언 — τ0(패드 실측 이완시간)를 지어낼 수 없어 "
+            "De_rot(및 E'/E, E''/E, tanδ)는 None. τ_crit_rot만 유효 정보.")
+        out["pad_loading_frequency_note"] = " | ".join(notes)
+        return out
+    try:
+        import viscoelastic_maxwell as VM   # sim/tier2_physics (1바이트도 수정 안 함)
+        tau0 = float(rr.p("pad_relaxation_time_s"))
+        Es, El = VM.maxwell_storage_loss([omega_rot], 1.0, tau0)
+        td = VM.tan_delta(Es, El)
+        de_rot = tau0 * omega_rot
+        out["pad_deborah_number"]["rot"] = {
+            "tau0_s": tau0, "De": float(de_rot),
+            "E_storage_ratio": float(Es[0]), "E_loss_ratio": float(El[0]),
+            "tan_delta": float(td[0]),
+        }
+        regime = ("탄성(저장) 지배" if de_rot > 1 else
+                  ("점성(손실) 지배" if de_rot < 1 else "전이(De=1, E'/E=0.5)"))
+        notes.append(
+            f"τ0={tau0:.4g}s(팩 선언값) → De_rot=τ0·ω_rot={de_rot:.4g} → {regime}, "
+            f"E'/E={float(Es[0]):.4f}, E''/E={float(El[0]):.4f}, tanδ={float(td[0]):.4f}")
+    except Exception as e:
+        notes.append(f"τ0 선언되어 있으나 Deborah 수 계산 실패({e}) — None으로 둠")
+    out["pad_loading_frequency_note"] = " | ".join(notes)
+    return out
+
+
 def _disk_gw_scaling_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """디스크 설계 스펙(그릿 개수 N, 그릿 크기 D) 변경이 GW 접촉모델 파라미터
     (Ra, Rpk, λ)에 미치는 상대 배율 진단 — MRR 경로와 완전히 독립.
@@ -2385,6 +2482,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_visco = _pad_viscoelastic_diagnostic(rr, theta_ss)
     if pad_visco["pad_viscoelastic_note"]:
         notes.append(pad_visco["pad_viscoelastic_note"])
+    # 패드 공정 하중주파수 역진단(Maxwell 점탄성) — MRR 경로와 완전히 독립(진단 전용).
+    # pad_relaxation_time_s 팩 미선언이면 De는 조용히 None(현재 전 팩 미선언이라 항상
+    # None이 정상). ω_asperity는 구조적으로 항상 None(함수 독스트링 참조).
+    pad_loading_freq = _pad_loading_frequency_diagnostic(rr)
+    if pad_loading_freq["pad_loading_frequency_note"]:
+        notes.append(pad_loading_freq["pad_loading_frequency_note"])
     # 디스크 설계 스펙(N, D) 상대 배율 -> GW 파라미터(Ra, Rpk, λ) 진단 — MRR 경로와
     # 완전히 독립. 기준/대상 디스크 스펙(disk_gw_ref_*/disk_gw_target_*) 팩 미선언이면
     # 조용히 None(현재 5팩 전부 미선언이라 항상 None이 정상).
@@ -2519,6 +2622,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        archard_order_ratio=tribo["archard_order_ratio"],
                        tribology_hersey_number=tribo["tribology_hersey_number"],
                        tribology_note=tribo["tribology_note"],
+                       pad_loading_omega_rot_rad_s=pad_loading_freq["pad_loading_omega_rot_rad_s"],
+                       pad_loading_omega_asperity_rad_s=pad_loading_freq["pad_loading_omega_asperity_rad_s"],
+                       pad_relaxation_time_threshold_s=pad_loading_freq["pad_relaxation_time_threshold_s"],
+                       pad_deborah_number=pad_loading_freq["pad_deborah_number"],
+                       pad_loading_frequency_note=pad_loading_freq["pad_loading_frequency_note"],
                        ceria_oxygen_vacancy_x=ceria_redox["ceria_oxygen_vacancy_x"],
                        ceria_electrostatic_attraction=ceria_redox["ceria_electrostatic_attraction"],
                        ceria_redox_note=ceria_redox["ceria_redox_note"],

@@ -139,5 +139,25 @@ print(f"PASS: Maxwell E'/E@relax={ratio_at_relax}, Meng2025 탄성계수 배율=
 자기일관적임을 재확인했다 — 전사 오류가 없음을 검증했을 뿐, τ_creep 등 CMP 패드 고유의 미검증
 정량값(§4)을 해소한 것은 아니다. **§4 τ_creep은 여전히 미검증 상태로 남는다.**
 
+## 8. 엔진 등록 (S12, 2026-09-16) — τ0 없이 낼 수 있는 역진단만 등록
+`sim/tier2_physics/viscoelastic_maxwell.py`(§3 Maxwell 수식 재현 모듈)를 `sim/engine.py`의
+`_pad_loading_frequency_diagnostic`로 등록했다. §4가 자백한 대로 CMP 패드 실측 τ0(이완시간)
+문헌값이 없어 De=τ0·ω를 지어내지 않는다 — 대신 공정 하중 주파수 ω(플래튼 회전 ω_rot=
+2π·rpm_platen/60)를 역산하고 τ_crit=1/ω(이완시간 임계값)만 낸다. 애스퍼리티 접촉 주기
+ω_asperity는 개별 asperity 압입깊이 δ가 필요한데, 등록된 GW 역문제 진단
+(`_gw_contact_state_diagnostic`)이 내는 값은 분리거리 d와 앙상블 적분(A_r, W, n_contacts)뿐이라
+δ를 구조적으로 얻을 수 없어 항상 None(스킵)이다. 어느 팩도 `pad_relaxation_time_s`를
+선언하지 않아 De/E'/E/E''/E/tanδ는 항상 None이 정상 경로다(pad_groove_eol·
+pad_viscoelastic_temperature와 동일 지위).
+
+> ⚠ 1차 출처 확보 실패: CMP PU 패드의 DMA 주파수 스윕에서 tanδ 피크 주파수 또는 이완시간을
+> 보고한 1차 문헌을 찾지 못했다. 시도 경로 — `tools/find_open_access.py --title`로
+> "dynamic mechanical analysis chemical mechanical polishing pad polyurethane relaxation time"
+> (SSRN 유료 랜딩만 반환), "viscoelastic properties polyurethane CMP pad frequency sweep
+> storage loss modulus"(무관한 bagasse/glass fiber 복합재 논문 매칭), "IC1000 pad viscoelastic
+> relaxation time chemical mechanical planarization"(URI DigitalCommons 학위논문 PDF 링크는
+> Cloudflare 봇차단으로 다운로드 실패, "Just a moment..." HTML 반환). τ0는 여전히 미확보 —
+> §4의 결론과 동일하게 남는다.
+
 ## 다음 단원
 Lv1-2: CMP 패드 구조 (IC1000류 발포체, groove 패턴, subpad 역할) — 이번 노트의 §6 연장.
