@@ -85,20 +85,52 @@ def test_k_lookup_matches_chemistry_module_priority():
     assert math.isclose(out_w["inhibitor_theta_equilibrium"], expected_w, rel_tol=1e-12)
 
 
-def test_w_fe_oxidizer_flags_dead_concentration_axis():
-    """w_fe_oxidizer(피콜린산 121.8mM, K=1108)는 θ=0.9926으로 포화 — 농도축 사망.
+def test_w_fe_oxidizer_flags_saturation_and_attributes_it_to_literature():
+    """w_fe_oxidizer(피콜린산 121.8mM, K=1108)는 θ=0.9926으로 포화 — 🔴 신고.
 
-    이것이 판정#17이 정량 반증한 상태다. 진단이 이를 🔴로 신고해야 한다.
-    실측 고정(회귀 감지용): θ와 판별비를 현재 파라미터로 계산한 값에 묶는다.
+    ⚠ 이 포화는 **판정#17의 고장이 아니다**. Lee & Seo 2022(doi:10.3390/app12031227)
+    §3.3이 1.5wt%→5.0wt%에서 추가 억제 없음을 직접 실측했으므로, 이 팩의 운전점은
+    문헌이 측정한 포화 플래토 위에 있다 — 모델이 맞는 쪽이다.
+
+    진단이 지켜야 할 계약은 두 가지다:
+      (1) 포화 신호 자체는 낸다(🔴) — 민감도 0을 사용자가 '억제제 무영향'으로
+          오독하지 않게 한다.
+      (2) 원인을 (a)실계 포화 / (b)K 오경로(판정#17)로 **구분하지 못한다**고 밝히고,
+          이 팩에 대해서는 문헌 근거로 (a)임을 명시한다. 원인을 단정하면 안 된다.
     """
     res = simulate(Recipe(pack="w_fe_oxidizer", time_s=60))
     assert res.inhibitor_theta_equilibrium > 0.99
     assert res.inhibitor_conc_discrimination < 1.01
-    assert "🔴" in res.inhibitor_saturation_note
-    assert "판정#17" in res.inhibitor_saturation_note
+    note = res.inhibitor_saturation_note
+    assert "🔴" in note
+    # (2) 원인 미구분을 명시하고, 이 팩은 문헌 실측 플래토로 귀속한다.
+    assert "(a)와 (b)를 구분하지 못한다" in note
+    assert "10.3390/app12031227" in note
+    assert "판정#17의 고장이 아니다" in note
+    # 문턱 아래 미검증도 정직하게 남아 있어야 한다(§7 RESPONSE_CONFLICT).
+    assert "문턱 아래에서는 미검증" in note
     # 현행 파라미터(121.8 mM, K=1108 L/mol)의 닫힌형 값과 정확히 일치
     KC = 1108.0 * 121.8e-3
     assert math.isclose(res.inhibitor_theta_equilibrium, KC / (1.0 + KC), rel_tol=1e-9)
+
+
+def test_saturation_verdict_never_asserts_a_cause_for_unknown_packs():
+    """문헌 귀속이 없는 팩에는 원인을 단정하지 않는다(지어내기 금지).
+
+    cu_h2o2_bta·w_fe_oxidizer 외의 팩을 포화 상태로 만들어도 (a)/(b) 귀속 문장이
+    붙으면 안 된다 — 붙으면 근거 없는 원인 주장이 제품 출력이 된다.
+    """
+    rr = Recipe(pack="cu_h2o2_bta", time_s=60).resolve()
+    rr.pack.name = "synthetic_probe_pack"
+    rr.pack.params["inhibitor_mM"] = Param(
+        key="inhibitor_mM", value=1000.0, unit="mM",
+        source="test-probe", confidence="estimated")
+    out = _inhibitor_saturation_diagnostic(rr)
+    assert out["inhibitor_conc_discrimination"] < 1.01
+    note = out["inhibitor_saturation_note"]
+    assert "🔴" in note
+    assert "【이 팩의 근거】" not in note      # 귀속 문장 없음
+    assert "10.3390/app12031227" not in note   # 남의 팩 문헌을 끌어오지 않음
 
 
 def test_cu_pack_concentration_axis_is_alive():
