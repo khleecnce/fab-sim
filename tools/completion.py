@@ -29,7 +29,25 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "validation"))
 
-CONF_RANK = {"verified": 3, "literature": 2, "estimated": 1, "unverified": 0, "unknown": 0, "": 0}
+# ⚠ 등급 서열은 sim/factors.py 의 _worst_conf order 와 **반드시 일치해야 한다**.
+#   2026-09-16 발견: 이 표에 "measured" 가 빠져 있어 `.get(c, 0)` 이 최상급에
+#   가까운 실측 등급을 **0점(=unverified 취급)** 으로 읽었다. 그 결과
+#   blockers.py 가 sic_ceria_h2o2 의 measured 키(oxidizer_wt_pct·slurry_ph,
+#   Wang DOE 실측)를 "막는 키"로 지목해, 이미 실측으로 확보된 값의 문헌을
+#   다시 찾으라고 다음 회차를 오유도했다. 진짜 원인은 oxidizer_langmuir_K
+#   (estimated, 부트스트랩 CI 0.32~2.70)였다.
+#   등급표가 코드 두 곳에 따로 있으면 이 어긋남이 조용히 재발한다 —
+#   factors.py 의 order 를 단일 원천으로 읽고 순위를 만든다.
+def _conf_rank_from_factors() -> Dict[str, int]:
+    from sim.factors import _CONF_ORDER
+    n = len(_CONF_ORDER)
+    r = {c: n - i for i, c in enumerate(_CONF_ORDER)}   # 앞이 높다
+    r["unknown"] = 0
+    r[""] = 0
+    return r
+
+
+CONF_RANK = _conf_rank_from_factors()
 OK_STATUS = {"modeled", "partial"}
 MIN_CONF = "literature"
 RHO_MIN = 0.85

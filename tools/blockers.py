@@ -88,10 +88,29 @@ def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
                 if CONF_RANK.get(c, 0) < CONF_RANK[MIN_CONF]:
                     bad.append(f"{dk_raw}({c})")
                     blockers[f"{pack}:{dk}"].append(f"{key}/{pack}")
+            # 드라이버가 전부 OK 인데 팩터 등급이 미달이면 원인은 다른 곳이다.
+            # ⚠ 이걸 "코드 기본값"으로 단정하면 안 된다 — 팩터 등급은 드라이버
+            #   외에 **형상 파라미터**(지수·정점·이득·Langmuir 상수)도 _pack_conf
+            #   로 함께 읽기 때문이고, 그쪽이 원인인 경우가 실제로 있었다
+            #   (χ/sic_ceria_h2o2: 드라이버 3개는 measured 인데 산화제 Langmuir
+            #   상수가 estimated, 부트스트랩 CI 0.32~2.70). 단정하면 다음 회차가
+            #   코드를 뒤지다 시간을 버린다.
+            # 그래서 팩터 등급과 **같은 등급인 비드라이버 팩 키**를 후보로 낸다 —
+            # 그 중 하나가 약한 고리다. 후보가 0개면 그때는 코드 하한이다.
+            weak_nondriver: List[str] = []
+            if not bad:
+                dnames = {d.split("(")[0] for d in (f.drivers or {})}
+                for pk_key, meta in params.items():
+                    if pk_key in dnames or not isinstance(meta, dict):
+                        continue
+                    c = meta.get("confidence")
+                    if c == f.confidence:
+                        weak_nondriver.append(f"{pk_key}({c})")
             cells.append({
                 "factor": key, "pack": pack, "status": f.status,
                 "confidence": f.confidence, "why": "C1" if not ok_status else "C2",
                 "bad_params": bad,
+                "weak_nondriver": sorted(weak_nondriver),
                 "drivers": list((f.drivers or {}).keys()),
             })
     return blockers, cells
@@ -113,9 +132,18 @@ def main() -> int:
                 print(f"      막는 키: {', '.join(c['bad_params'])}")
             elif c["why"] == "C1":
                 print(f"      드라이버 없음(미모델링) — 유도 필요")
-            else:
-                print(f"      ⚠ 드라이버는 모두 OK인데 conf 미달 — 코드 기본값이 원인"
+            elif c.get("weak_nondriver"):
+                w = c["weak_nondriver"]
+                print(f"      드라이버는 모두 OK — 약한 고리는 **형상 파라미터** 쪽이다."
+                      f" 같은 등급({c['confidence']})인 비드라이버 팩 키 {len(w)}개:")
+                print(f"        {', '.join(w[:8])}"
+                      + (f" … 외 {len(w)-8}개" if len(w) > 8 else ""))
+                print(f"      → 이 중 이 팩터가 실제로 읽는 키를 승격하라"
                       f" (drivers={c['drivers']})")
+            else:
+                print(f"      ⚠ 드라이버 OK · 같은 등급인 팩 키도 없음 →"
+                      f" **코드 하한이 원인**. 근거 주석을 확인하라"
+                      f" (tools/confidence_cap_audit.py, drivers={c['drivers']})")
         return 0
 
     print("병목 파라미터 — 승격 시 오르는 칸 수 순\n")

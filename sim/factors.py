@@ -174,9 +174,17 @@ def _new(key: str) -> Factor:
     return Factor(key=key, symbol=sym, name=name, axis=axis, parts=list(parts))
 
 
+# 근거 등급 서열 — **높은 것부터**. 이 목록이 단일 원천이다.
+# ⚠ 같은 서열을 다른 모듈에 손으로 다시 적지 마라. tools/completion.py 가
+#   자기 표를 따로 들고 있다가 "measured" 를 빠뜨려, 최상급에 가까운 실측
+#   등급을 0점(unverified 취급)으로 읽고 이미 확보된 값의 문헌을 다시 찾으라고
+#   회차를 오유도한 적이 있다(2026-09-16). 소비자는 이 상수를 import 하라.
+_CONF_ORDER = ["verified", "measured", "literature", "estimated", "unverified"]
+
+
 def _worst_conf(*confs: str) -> str:
     """여러 근거를 합칠 때 신뢰도는 가장 약한 것을 따른다."""
-    order = ["verified", "measured", "literature", "estimated", "unverified"]
+    order = _CONF_ORDER
     idx = max((order.index(c) if c in order else len(order) - 1) for c in confs) \
         if confs else len(order) - 1
     return order[min(idx, len(order) - 1)]
