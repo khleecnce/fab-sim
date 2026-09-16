@@ -65,7 +65,8 @@ Showa Denko K.K.** 원문 전문 확보(freepatentsonline.com, Table 1 + 명세 
 출원인 Showa Denko는 patent_sources.py 신뢰 화이트리스트 등재("showa denko": Showa Denko
 Materials / Resonac).
 
-**화학종 일치도가 이번 탐색에서 가장 높다**: 연마입자=알루미나(α전환율 68~90%, BET 31~77 m²/g),
+**화학종 일치도가 이번 탐색에서 가장 높다**(출처: US 6,770,218 B2, Showa Denko K.K., §2.2
+명세·Table 1): 연마입자=알루미나(α전환율 68~90%, BET 31~77 m²/g),
 연마촉진제=**질산철 9수화물 3.5 wt%**(= w_fe_oxidizer의 Fe 촉매 축과 동일), 대상=텅스텐/구리/
 알루미늄 금속막, 패드=IC1000/Suba400. 즉 w_fe_oxidizer와 cu_h2o2_bta 두 팩의 연마입자+촉매
 계열을 한 특허가 함께 다룬다.
@@ -174,7 +175,7 @@ COMPLETION.md가 미리 정한 경로대로 **D99 = abrasive_size_nm × (D99/D50
 
 | 팩 | 연마입자 | abrasive_size_nm(기존 팩값) | ×5.00 | 제안 D99 (nm) | 독립 상한 문헌과 대조 |
 |---|---|---|---|---|---|
-| oxide_silica | 콜로이달 실리카 | 50 | 250 | **250** | Fuso(§2.1): LPC를 세는 bin이 0.20 µm — 꼬리가 200~300 nm 대역에 있다는 것과 오더 일치 ✓ |
+| oxide_silica | 콜로이달 실리카 | 50 | 250 | **250** | Fuso(§2.1, patent US20250059050A1): LPC를 세는 bin이 0.20 µm — 꼬리가 200~300 nm 대역에 있다는 것과 오더 일치 ✓ |
 | cu_h2o2_bta | 알루미나 | 100 | 500 | **500** | Showa Denko(§2.2) "more preferably 0.5 µm" 최대 입경 상한과 **정확히 일치** ✓ / Fujifilm(§2.3) Cu 0.2 µm bin 기준으로는 초과 ⚠ |
 | w_fe_oxidizer | 알루미나 | 150 | 750 | **750** | Showa Denko 상한 1.0 µm 이내 ✓, "more preferably 0.5 µm"는 초과 ⚠ |
 
