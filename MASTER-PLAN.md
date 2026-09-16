@@ -2622,3 +2622,24 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
   ρ=0.9442 불변(유의 7개) / 완성 격자 **58/60**(팩 신설로 분모 50→60, C2 1칸·C4 1칸 잔여).
 - 노트: knowledge/cmp/sic-preston-coefficient-pack-own-declaration.md (verify·check 모두 통과)
 
+- 2026-09-16 [Max워커] **S12 엔진 등록 2건 — `pad_groove_wear_flow` + `slurry_components`**
+  (커밋 d981e71·86e6401). (1) 그루브 마모→슬러리 유동 진단: 잔존깊이비·3단계 유동상태·
+  Poiseuille 직사각덕트 컨덕턴스비. 입력 관례(D0·t·c)를 `_pad_groove_eol_diagnostic`과
+  글자 그대로 동일하게 맞춰 같은 결과 문서 안의 숫자 모순을 봉인했고, 그루브 절대 폭은
+  모듈 기본값 0.5mm가 아니라 팩 선언 `groove_width_um`=600µm(Mu 2016 패드 B)를 쓴다
+  (판정#34 has_own 우선과 같은 취지). EOL 초과 D=0 clamp 구간은 컨덕턴스를 0.0으로 내되
+  note에 '계산값이 아니라 경계값'이라 경고. 금지 4함수(residence_time_s·slurry_volumes_cm3·
+  groove_wear_flow_state·micron_cabot_life_wafers)를 ast로 기계 고정 — 앞 3개는 h_land_um·
+  q_actual이, 마지막은 시간→wafer 환산이 팩 어디에도 없다. (2) 억제제 Langmuir 포화도 진단:
+  **새 물리가 아니라 보이지 않던 고장을 기계가 신고하게 만든 등록**이다. 판정#17이 정량
+  반증한 상태(K_eq를 정상상태 θ에 직접 대입 → θ 포화 → 농도축 사망)는 MRR 출력만으로는
+  안 보인다. θ(2C)/θ(C) 판별비로 한 숫자로 꺼냈고, **실측 결과 `w_fe_oxidizer`가 θ=0.9926·
+  판별비 1.0037로 🔴 농도축 사실상 사망 상태임을 처음 적발**했다(이 팩의 억제제 민감도 0이
+  '억제제 영향 없음'이 아니라 모델 구조 한계임이 이제 출력에 명시된다). `cu_h2o2_bta`는
+  쌍 표 K=3283으로 θ=0.767·판별비 1.132로 살아 있다. K 조회 우선순위는 `sim/chemistry.py::
+  _inhibitor_term`과 동일 복제하되 chemistry.py는 0바이트 수정, MRR에는 곱하지 않는다
+  (이미 같은 θ를 ψ가 소비 — 이중계상 금지). 역산 K_eff 후보(183·249.7 L/mol)는 계가 다른
+  알칼리+알루미나 데이터라 임의 대입하지 않았다. 검증: pytest **904 passed**(894→+10,
+  회귀 0), completion 격자 **60/60 불변**, qa_loop #209·#210 --strict PASS ρ=0.9442 불변,
+  두 원본 모듈 git diff 공백. ⚠ Claude Code 위임이 백그라운드 테스트 대기 중 조기종료해
+  산출물 0(로그 128바이트) — Max워커가 전량 직접 구현·검증. S12 잔여 16개.
