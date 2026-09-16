@@ -21,13 +21,20 @@ import sim.engine as E
 from sim.engine import Recipe, simulate, _tribology_archard_diagnostic, PSI_TO_PA
 import tribology_basics as TB
 
-_ALL_PACKS = ["cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sti_ceria", "w_fe_oxidizer"]
+_ALL_PACKS = ["cu_h2o2_bta", "oxide_silica", "sic_ceria_h2o2", "sic_alumina_kmno4",
+              "sti_ceria", "w_fe_oxidizer"]
 
 # Max워커가 미리 계산한 환산값 — 절대값을 못 박는다(상대성만 보는 테스트는 단위 버그를 못 잡는다).
 _EXPECTED_K = {
     "cu_h2o2_bta": 4.20e-4,
     "oxide_silica": 9.00e-4,
-    "sic_ceria_h2o2": 5.72e-3,
+    # 2026-09-16 판정#49: sic_ceria_h2o2 가 Kp 를 자기선언하면서(상속된 Si 산화막
+    # Kp 2.2e-13 → 4H-SiC 실측 역산 1.4144e-15) k = Kp·H 가 같은 배수로 내려갔다.
+    # 5.72e-3 은 산화막 Kp 에 SiC 경도를 곱한 값이었다 — 물리적으로 의미 없는 조합.
+    # 새 값 1.4144e-15 × 2.6e10 Pa = 3.67744e-5 (여전히 Archard 문헌 창 1e-5~1e-1 안).
+    "sic_ceria_h2o2": 3.67744e-5,
+    # 신설 팩(산성 KMnO4/알루미나, 판정#49-B): 4.9872e-15 × 2.6e10 Pa
+    "sic_alumina_kmno4": 1.296672e-4,
     "sti_ceria": 1.98e-3,
     "w_fe_oxidizer": 3.36e-3,
 }

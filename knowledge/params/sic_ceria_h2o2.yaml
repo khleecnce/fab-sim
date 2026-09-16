@@ -32,6 +32,62 @@ base: sti_ceria
 description: "4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산"
 
 params:
+  # ── Preston 계수 — 이 팩 전용값 선언 (2026-09-16, 판정#49) ──────────
+  # ⚠ 이 키는 조부모(sti_ceria)의 2.2e-13 m^2/N 을 상속하고 있었다. 그 값은
+  #   **세리아 슬러리로 깎은 Si 산화막(SiO2)** 에서 역산된 값이다. 이 팩이 깎는
+  #   것은 4H-SiC 로, 같은 저장소의 sim/pack_meta.py 가 이미 "경도가 높아 MRR이
+  #   Si 대비 2~3자리 낮다"고 적고 있다 — 즉 연마입자(세리아)만 같고 피삭재가
+  #   다른데 Preston 계수를 그대로 물려받고 있었다(판정#48 의 κ 농도항 상속과
+  #   같은 종류의 하이진 결함).
+  #   증상: sic2026_ceria_h2o2_ph_DOE50 (n=50) 백테스트에서 예측/실측
+  #   기하평균 164배 과대예측(계통편향 0.01배). 순위(rho=+0.393, p=0.002)는
+  #   맞는데 절대값만 두 자리 틀린 전형적인 Kp 스케일 결함이다.
+  kp_m_per_pa:
+    value: 1.4144e-15
+    unit: m^2/N
+    note: >
+      이 팩의 **기준 조건에서 역산한 Preston 계수**다. 기준 조건은 이 팩이 이미
+      선언해 둔 ref 3종과 정확히 일치하는 DOE 중심점이다:
+      CeO2 4 wt%(abrasive_ref_wt_pct) · H2O2 4 vol%(oxidizer_ref_wt_pct) ·
+      pH 10(ph_softening_ref / ph_ref) — Wang et al. ACS SI Table S3 의 S3-27
+      (4.5 psi, platen 60 rpm, head 60 rpm, 실측 198.52 nm/h = 3.3087 nm/min).
+      그 조건에서 모든 무차원 팩터가 1.0 이 되므로 Kp 는 유일하게 결정된다:
+      Kp_new = Kp_old x (실측/예측) = 2.2e-13 x (3.3087 / 514.654) = 1.4144e-15.
+
+      왜 이 데이터인가: 이 팩(4H-SiC + 세리아 + H2O2 알칼리)과 재료계가 정확히
+      일치하는 절대 MRR 데이터는 저장소에 이것뿐이다. 이미 ph_softening_per_unit
+      의 출처이기도 하므로 데이터셋은 used_for_calibration: true 로 표시돼 있고,
+      이 Kp 역산 역시 캘리브레이션이다 — **자기 데이터로 검증했다고 말하지 않는다.**
+
+      독립 확인 1 (다른 논문, 같은 재료계 아님):
+        Wei et al. 2026 (Crystals 16, 179, DOI 10.3390/cryst16030179, MDPI OA,
+        papers/wei2026-cryst16030179-4hsic-fenton-cmp.pdf 원문 확보) — 4H-SiC C면,
+        콜로이달 실리카 8 wt%(110 nm) + H2O2 5 wt% + Fe3O4 0.03 wt%, pH 9,
+        34.5 kPa(=5.004 psi), 패드/웨이퍼 각 50 rpm, 60 min, 최대 MRR 701 nm/h
+        (= 11.683 nm/min, Table 3 + Fig.4a 본문 인쇄값).
+        이 조건을 새 Kp 로 넣으면 예측 1.43 nm/min → **0.12배(8배 과소예측)**.
+        ⚠ 일치라고 부르지 않는다. 연마입자가 세리아가 아니라 실리카이고,
+        C면은 Si면보다 2~3배 빠르며(같은 리뷰 DOI 10.3390/mi13101752 §2),
+        Fenton 촉매가 추가된 계다. 자릿수(1자리 이내)만 맞는 것으로 본다.
+        직전 값(2.2e-13)이었다면 같은 조건에서 약 20배 과대예측이었다.
+      독립 확인 2 (held-out, 다른 연마입자):
+        su2011_procengr_6hsic_alumina_abrasive_conc (6H-SiC + 마이크론 알루미나)
+        계통편향 248배 → **1.59배**. 이 데이터는 이 팩의 어떤 파라미터에도
+        쓰이지 않은 held-out 이다.
+      남는 불일치 (덮지 않고 적는다):
+        entegris2022_us20220315802a1_sic_alumina_conc 는 반대로 0.005배
+        (196배 과소예측)가 된다. 이 특허 데이터의 실측 MRR 은 5.8 um/h 로,
+        su2011(0.045~0.070 um/h)·Wang(0.12~0.96 um/h)보다 두 자리 높다.
+        같은 "SiC CMP" 안에서 실측이 130배 벌어지는 것이므로 이건 Kp 하나로
+        덮을 문제가 아니라 **팩 분리(고속 산성 KMnO4 알루미나 계 vs 알칼리
+        세리아/H2O2 계) 문제**다. Kp 로 덮지 않는다.
+      순위 지표는 이 변경에 불변이다(Preston 은 Kp 에 선형 → 단조 변환).
+    source: >
+      Wang et al., figshare:31056549, ACS SI Table S3 (S3-27 중심 조건) 역산.
+      자릿수 교차확인: Wei et al. 2026, DOI 10.3390/cryst16030179.
+      상세: knowledge/cmp/sic-preston-coefficient-pack-own-declaration.md
+    confidence: measured
+
   film:
     value: sic_4h
     source: "Wang et al. ACS SI Table S3 — 4H-SiC 웨이퍼"
@@ -299,3 +355,15 @@ params:
       override 로만 주입되는 축은 팩이 본값을 모르므로 상대항을 만들 수 없다.
     source: knowledge/cmp/cu-cmp-ph-mechanism.md
     confidence: literature
+
+  # ── 연마입자 밀도 (2026-09-15) ────────────────────────────────
+  # 피복률 유도의 입력이다: theta_p = 1.5 * phi * h / d, phi = wt% -> 부피분율.
+  # 피복률이 있어야 입자당 접촉응력이 팩마다 갈리고, 그래야 alpha(탄성/소성)
+  # 판정이 '입력 부재로 인한 기본값'에서 실제 판정으로 바뀐다.
+  # ⚠ 물질의 고유 밀도이지 슬러리 제형 정보가 아니다.
+  abrasive_density_kg_m3:
+    value: 7220.0
+    unit: kg/m^3
+    confidence: literature
+    source: >
+      산화세륨 CeO2 7.22 g/cm3 — CRC Handbook. ⚠ 알루미나 계열 데이터셋에 적용할 때는 3950 으로 override 해야 한다(연마입자가 다르다).

@@ -22,8 +22,14 @@
 doi: "US20220315802A1 (Google Patents, Table 1 alumina series)"
 source: "Entegris Inc / U. Florida, US20220315802A1, Table 1 -- SiC CMP, alumina nanoparticle conc. vs removal rate, 4 wt% KMnO4 + 0.5 wt% nitrate salts, pH 2.3"
 read_method: table
-pack: sic_ceria_h2o2
+pack: sic_alumina_kmno4
 in_scope: true
+# ⚠ 2026-09-16 판정#49-B: pack 을 sic_ceria_h2o2 -> sic_alumina_kmno4 로 옮겼다.
+#   이 데이터는 산성 KMnO4(pH 2.3)/알루미나 계이고, sic_ceria_h2o2 는 알칼리
+#   세리아/H2O2 계다. Kp 를 후자에서 바로잡자 이 데이터가 195배 과소예측으로
+#   튀었는데, 원인은 Kp 가 아니라 한 팩에 두 레짐을 담아 둔 것이었다.
+#   절대 MRR 은 여전히 29배 과소예측이다 — 이 특허 수치가 논문 2편(Wang 2021,
+#   Chen 2015) 대비 이상치라는 판정의 귀결이며, held-out 으로 남겨 순위만 쓴다.
 scope_note: "Chemistry mismatch (alumina vs pack's ceria) -- tests kappa mechanical concentration term only, not chi (pH) chemistry term. See header above."
 used_for_calibration: false
 # ⚠ 2026-09-11: 이 데이터셋이 sic_ceria_h2o2의 abrasive_conc_exponent(-0.406) 출처이기도 하다
@@ -42,6 +48,37 @@ calibration_contact:
       회귀로 지수 -0.406 확인" — 이 데이터셋(Table 1)에서 그대로 도출했다(위
       2026-09-11 주석과 동일 사실).
     axis: abrasive_wt_pct
+  - param: abrasive_ref_wt_pct
+    pack: sic_alumina_kmno4
+    what: >
+      신설 팩(2026-09-16)의 조성 기준점 0.5 wt% 를 이 특허 Table 1 의 중간 수준에서
+      가져왔다. 실측 MRR 값 자체는 쓰지 않았고 "어느 농도를 배수 1.0 으로 볼지"만
+      정했다 — 부분 접촉이다.
+    axis: abrasive_wt_pct
+  - param: ph_ref
+    pack: sic_alumina_kmno4
+    what: 이 특허의 운전 pH 2.3 을 팩의 pH 기준점으로 선언(같은 성격의 부분 접촉).
+    axis: slurry_ph
+  - param: slurry_ph
+    pack: sic_alumina_kmno4
+    what: 이 특허의 운전 pH 2.3 을 팩 기준 조성의 pH 로 선언.
+    axis: slurry_ph
+  - param: ph_softening_ref
+    pack: sic_alumina_kmno4
+    what: 부모 팩(알칼리계 pH 10)의 연화 기준점을 이 특허 운전 pH 로 옮김.
+    axis: slurry_ph
+  - param: abrasive_wt_pct
+    pack: sic_alumina_kmno4
+    what: 팩 기준 조성의 연마입자 농도(0.5 wt%)를 이 특허 Table 1 중간 수준으로 선언.
+    axis: abrasive_wt_pct
+  - param: kp_m_per_pa
+    pack: sic_alumina_kmno4
+    what: >
+      Kp 자체는 **이 특허가 아니라** Wang 2021(DOI 10.1149/2162-8777/ac12de)의
+      1.4 um/h 에서 역산했다. 다만 그 역산이 위 조성 기준점(이 특허에서 온 0.5 wt%,
+      pH 2.3)을 배수 1.0 으로 전제하므로 간접 접촉이 있다. 이 특허의 실측 MRR
+      숫자는 Kp 결정에 쓰이지 않았다(그래서 23배 편향이 그대로 남아 있다).
+    axis: absolute_mrr
 
 conditions:
   - label: "Table1-1: Al2O3 0.1wt%"

@@ -29,6 +29,17 @@ closures:
     reason: 임계하중(critical downforce) 비선형 — 마모 그릿 팁 반경·IC1000 항복강도 1차 실측 부재
     reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
   - factor: gamma
+    pack: sic_alumina_kmno4
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: >
+      2026-09-16 신설 팩(판정#49-B). γ(패드 컨디셔닝 부하)는 슬러리 화학이 아니라
+      패드·디스크 축의 팩터라 부모(sic_ceria_h2o2)에서 그대로 상속되며, 그 칸은
+      이미 판정#22로 종결돼 있다. 팩을 쪼갠 것이 γ의 근거 상황을 바꾸지 않으므로
+      같은 종결을 상속한다 — 새 문헌 조사 없이 칸을 채우는 것이 아니라,
+      "이 칸은 부모와 동일한 구조적 한계"라는 선언이다.
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+  - factor: gamma
     pack: sic_ceria_h2o2
     judgments: ["판정#22", "판정#22-종결"]
     note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md

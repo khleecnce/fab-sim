@@ -2603,3 +2603,22 @@ COMPLETION C2 tau 5칸(전 팩)을 unverified→literature로 승격. confidence
 - 검증(직접 실행): **pytest 808→811 passed**(계약 테스트 3건 추가) / `qa_loop run --strict`
   **PASS**, 유의 평균 ρ=0.9442 불변(판정기 수리라 예측 경로 불변이 정상) / 완성 격자 49/50 불변.
 - 2026-09-16 (성장엔진/정확도루프): 판정#48 — sti_ceria 팩이 κ 농도항 3키를 실리카 부모(20 wt%)에서 상속하던 하이진 결함 정정. Dandu 2009 Fig.2a 벡터좌표 추출로 0.25 wt%·n=−0.4295 확보(자기검증 1.4%). dandu2009 계통편향 3.20→0.74배, 순위 ρ 불변. pytest 856 passed, qa_loop PASS(ρ=0.9442 불변), 갭 26→25.
+
+### 2026-09-16 (성장엔진/정확도루프) [판정#49·#49-B] SiC 팩의 Preston 계수 자기선언 + 레짐 분리
+- 최우선 갭 BIAS `sic2026_ceria_h2o2_ph_DOE50`(n=50, 순위 p=0.002인데 절대값 0.01배)를
+  역추적: `sic_ceria_h2o2` 팩에 **`kp_m_per_pa` 자기선언이 없어** 조부모 `sti_ceria`의
+  2.2e-13(= **Si 산화막**에서 역산된 값)을 상속하고 있었다. 팩은 `film: sic_4h`를
+  자기선언하면서 Kp만 물려받은 상태 — 판정#48과 같은 종류의 상속 하이진 결함.
+- Wang ACS SI Table S3 DOE 중심점(S3-27)에서 역산해 **1.4144e-15 m²/N** 자기선언.
+  계통편향 **164배 과대 → 0.90배**(MAPE 18677% → 47.7%). 독립 대조로 Wei 2026
+  (DOI 10.3390/cryst16030179, 원문 확보) 701 nm/h 조건에서 8배 과소 — 자릿수 일치로만
+  본다(옛 Kp였다면 20배 과대). 순위는 Kp에 불변이라 ρ 변동 없음.
+- 부수 발견: 같은 "SiC CMP" 안에서 절대 MRR이 문헌 간 **130배** 갈린다(알칼리 세리아
+  0.12~0.96 µm/h vs 산성 KMnO₄ 1.09~5.8 µm/h). Kp 하나로 덮지 않고 **팩을 쪼갰다** —
+  신설 `sic_alumina_kmno4`(산성 KMnO₄/알루미나). Kp는 Preston 정규화에서 1.2배 이내로
+  일치하는 **독립 논문 2편**(Wang 2021 ECS, Chen 2015 ASS)에서 역산(4.9872e-15);
+  29배 높은 US20220315802A1은 **특허 실시예 이상치**로 판정하고 held-out(ρ=+1.000)으로 유지.
+- 검증(직접 실행): **pytest 885 passed** / `qa_loop run --strict` **PASS**, 유의 평균
+  ρ=0.9442 불변(유의 7개) / 완성 격자 **58/60**(팩 신설로 분모 50→60, C2 1칸·C4 1칸 잔여).
+- 노트: knowledge/cmp/sic-preston-coefficient-pack-own-declaration.md (verify·check 모두 통과)
+
