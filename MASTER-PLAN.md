@@ -97,6 +97,46 @@
 
 ## 진행 로그
 
+### 2026-09-16 [Max워커] (이어서) S12 등록 1건 + 판정#51 등록거부 (커밋 be4088a·ea5d748)
+
+4. **`disk_preston_contact_decomposition` 등록** (be4088a) — 필드 5종
+   (`disk_contact_eta_c_m2`·`disk_contact_a_f`·`disk_contact_eta_over_af`·
+   `disk_contact_scale_factor`·`disk_preston_contact_note`). 모듈이 스스로
+   "K_p ∝ η_c/A_f 선형가정은 PROVISIONAL, 비례상수·지수 어느 출처도 회귀 안 함"이라
+   자백하므로 **Kp에 곱하지 않고** η_c/A_f 절대지표만 낸다. η_c·A_f는 새 상수를 박지 않고
+   이미 등록된 `_gw_contact_state_diagnostic`과 **같은 GW 런타임 해**에서 뽑았다 —
+   `disk_contact_a_f`가 `gw_real_contact_area_ratio`와 **부동소수점까지 동일**함을 테스트로
+   고정(두 진단이 같은 문서에서 다른 접촉면적을 내면 모순). 실측 5팩 동일:
+   η_c=4.433872e+06 /m², A_f=1.392942e-03, η_c/A_f=3.183099e+09.
+   기준 디스크 스펙이 어느 팩에도 없어 `scale_factor`는 전팩 None(**지어내지 않음**).
+   금지 3함수(`preston_coefficient_contact_scaling`·`disk_preston_contact_scaling`·
+   `fragment_contact_separation`) ast 고정.
+
+5. **판정#51 — `disk_cutrate_coupled` 엔진 등록 거부** (ea5d748). 등록하려다 **모듈의
+   핵심 주장이 틀렸음을 발견**했다. 모듈은 밀도항(CR∝N^-0.53)과 Rpk항(CR∝Rpk^0.85)을
+   "두 개의 독립된 문헌 회귀 지수"라 부르며 곱하는데, 두 지수의 출처가 Kwon 2013
+   (doi:10.1016/j.triboint.2013.08.008)의 **같은 3점 데이터셋**이고 그 3점에서 **Rpk는
+   N의 함수**다(Rpk∝N^-0.6226 — 이 값은 `disk_gw_relative_scaling.rpk_relative`가
+   **이미 같은 논문에서 채택해 쓰고 있었다**). 연쇄 0.8532×(-0.6226)=**-0.5312**가 직접
+   회귀 **-0.5327**과 **0.27% 일치** → 두 관계는 하나다. 곱하면 유효지수가 정확히 2.00배
+   (-0.533→-1.064)로 **N 이중계상**. 정량 확인: N 17,000→60,000 grits에서 올바른 예측
+   18.90 µm/h(실측 19.0, -0.5%) vs 두 항 곱 9.67 µm/h(**-49.1%**) — **결합식이 그것을
+   유도한 원 데이터조차 재현하지 못한다.** 소비처 grep 전수 확인 결과 `sim/`에 없고
+   모듈 self-test뿐이라 **아직 어떤 출력에도 반영되지 않았다**(등록을 막은 것으로 충분,
+   코드·값 불변). 노트: `knowledge/materials/disk-cutrate-coupling-n-double-counting-falsification.md`
+   (verify_claims ✓ check_knowledge ✓).
+   **교훈(재사용 가치 있음): 같은 논문의 같은 실험에서 나온 두 회귀를 "독립 변수"로 곱하지
+   마라 — 한 변수를 스윕하면 상관된 변수도 함께 움직이므로 각 회귀는 같은 인과의 다른
+   투영이다.** 판정#42·#48과 동형(도구·주석의 서술을 1차 자료로 검증하니 뒤집혔다).
+
+**게이트(Max워커 직접 재실행)**: pytest **951 passed**(939→+12, 회귀 0), completion
+**59/60 불변**, qa_loop #225 --strict PASS **ρ=0.9442 불변**, tier2 원본 무수정.
+
+**이번 회차 합계: 엔진 등록 3건(점탄성 하중주파수·표면전하 IEP·디스크 접촉통계) +
+자기정정 1건(ω_asperity) + 등록거부 판정 1건(#51) + 인프라 수정 1건(pre-push 오탐).
+pytest 918→951(+33), 격자 59/60 불변, ρ 0.9442 불변. S12 잔여: 10개 미등록
+(그중 `disk_cutrate_coupling`은 판정#51로 영구 등록거부 — 잔여에서 제외해야 한다).**
+
 ### 2026-09-16 [Max워커] S12 엔진 등록 3건 + 자기정정 1건 (커밋 f346c3e·2b9d2a7·3cb1444)
 
 1. **`viscoelastic_maxwell` 등록** (f346c3e) — τ0(패드 실측 이완시간) 문헌값이 없다는
