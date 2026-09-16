@@ -122,21 +122,55 @@ params:
     confidence: measured
 
   abrasive_conc_exponent:
-    value: -0.406
+    value: 0.227
     unit: "-"
     note: >
-      base(oxide_silica)의 +1/3(표면적지배, Li2021 콜로이달실리카 1~30wt%)을 오버라이드.
-      SiC+알루미나 직접 실측(US20220315802A1 Table 1, n=5, 0.1~5wt%)에서 로그-로그
-      회귀로 지수 -0.406(음수, 압입지배 레짐) 확인 — EVIDENCE-RULES.md §판정: 두 E3급
-      문헌 중 계 근접도(SiC vs oxide)로 이 값을 채택. 화학(알루미나 vs 세리아)이
-      다르므로 기계적 κ 농도항에만 적용, χ(pH 화학항)는 무관.
-      ⚠ n=5 회귀라 지수 정밀도는 미검증 — 방향(음수)·자릿수(-0.5 근방)만 신뢰.
-      판정#37(2026-09-15): 같은 특허 Table 1은 "Example 1 (Comparative)"로 자칭되고
-      Table 9(발명 공정 S-I1계열)는 동일 저농도 구간에서 부호가 반대(단조증가)임을
-      확인했으나, Table 9의 유효 관측 구간(0.1~1.0wt%)이 이 팩의 c_ref=4.0wt%를
-      전혀 포함하지 않아(4배 외삽) Table 1(0.1~5.0wt%, c_ref 포함) 유지로 재확정.
-      값·신뢰도 불변. 상세: knowledge/cmp/sic-abrasive-conc-exponent-table-provenance.md
-    source: knowledge/cmp/sic-alumina-concentration-negative-exponent-entegris.md §3, §5
+      ⚠ 2026-09-16 판정#52 — **부호를 뒤집었다(-0.406 → +0.227).**
+
+      이전 값 -0.406 은 Entegris US20220315802A1 Table 1(산성 pH 2.3 · KMnO4 ·
+      알루미나/지르코니아, n=5)의 로그-로그 회귀였다. 그런데 **그 데이터셋은
+      판정#49-B 로 이미 이 팩을 떠나 sic_alumina_kmno4 팩으로 옮겨졌다** —
+      근거는 다른 팩으로 가고 지수만 여기 남아 있던 상태다(고아 파라미터).
+
+      이 팩의 계(4H-SiC + H2O2 + 세리아 함유 연마입자)에서 직접 관측된 농도-MRR
+      방향은 **네 건 모두 비음(非負)**이다:
+        1) Wang et al. figshare:31056549 ACS SI Table S3 — 산화제·pH·압력·rpm 이
+           모두 같고 CeO2 농도만 다른 **매칭쌍 17개**의 로그-로그 기울기
+           중앙값 **+0.227** (부트스트랩 2000회 95% CI -0.136 ~ +0.598).
+           ← 이 값을 채택한다. 교란이 통제된 이 팩 자신의 계 실측이다.
+        2) Liang et al. Nano Research 2026 doi:10.26599/NR.2026.94909100 §2.3 —
+           4H-SiC, CuxO-CeO2/Al2O3 + H2O2 8wt%, 1/5/9 wt% 에서 228.54 → 538.45 →
+           621.47 nm/h **단조 증가**(OLS 기울기 +0.472).
+           held-out 이므로 **적합에 쓰지 않았다** — 방향 확인용.
+        3) Wei et al. 2026 doi:10.3390/cryst16030179 §3.2 — 4H-SiC C면, 콜로이달
+           실리카 2→8 wt% 에서 MRR 단조 증가(최대 701 nm/h). 8 wt% 초과에서
+           점도·응집으로 꺾인다.
+        4) Gong et al. 2024 doi:10.3390/ma17030679 L25 — +0.036(알루미나/KMnO4 계
+           라 참고값).
+
+      이론 유도값과의 관계: sim/regime_adapter.py 의 3인자 분해가 이 팩에서
+      n_C = p(1-αχ) = **+0.333**(표면적 지배 극한)을 준다. 채택값 +0.227 은
+      그 부호와 일치하고 자릿수도 같다 — 실측이 이론보다 약간 낮은 것은
+      고농도 포화(순수 거듭제곱이 구조적으로 표현 못 하는 영역) 때문으로 읽힌다.
+
+      ⚠ 한계: 부트스트랩 95% CI 가 0 을 포함한다. 즉 **크기는 미결정이고
+      부호만 판정됐다.** 그래서 confidence 를 literature 에 둔다(measured 아님).
+      ⚠ 이 값은 캘리브레이션 데이터(sic2026_ceria_h2o2_ph_DOE50,
+      used_for_calibration: true)에서 나왔다 — 그 데이터셋의 개선을 이 항의
+      근거로 주장하지 않는다.
+      ⚠ 적용 범위: 이 팩의 DOE 범위 2~6 wt% + 교차확인 1~9 wt%. Liang/Wei 가
+      공통으로 보고한 8~10 wt% 이상의 점도·응집 감쇠 구간은 이 거듭제곱이
+      표현하지 못한다.
+      ⚠ 마이크론급 알루미나(백강옥) 계의 비단조 거동(su2011, 판정#36)은 여전히
+      별개 레짐이다 — 이 지수로 설명하려 들지 마라.
+
+      과거 판정#37(Table 1 유지 재확정)은 "Entegris 데이터가 이 팩의 것"이라는
+      전제 위에 있었고, 판정#49-B 로 그 전제가 사라졌으므로 함께 종결한다.
+    source: >
+      Wang et al., figshare:31056549 (ACS SI Table S3) 매칭쌍 17개 재분석.
+      방향 교차확인: Liang et al. doi:10.26599/NR.2026.94909100 (held-out),
+      Wei et al. doi:10.3390/cryst16030179.
+      상세: knowledge/cmp/sic-ceria-abrasive-concentration-sign-reversal-ruling.md
     confidence: literature
 
   oxidizer_ref_wt_pct:
@@ -362,6 +396,14 @@ params:
       Kp 이중 계상이 된다. 기준점과 같은 출처 줄(Wang ACS SI Table S3 의 DOE
       중심점 H2O2 4 vol%)로 맞춘다. 같은 종류의 결함을 sic_alumina_kmno4 에서
       이미 한 번 고쳤다(그 파일 oxidizer_wt_pct note 참조).
+
+      ⚠ 단위 불일치(키는 _wt_pct, 값은 vol%)는 의도된 표기다 — 기준점
+      oxidizer_ref_wt_pct 와 **같은 근거**이므로 여기에도 그 근거를 남긴다:
+      H2O2 30% 수용액 기준 vol%↔wt% 는 밀도차로 약 1.1배 어긋나 엄밀히 같지 않지만,
+      χ 의 산화제 항과 Langmuir 항이 **기준 대비 비(c/c_ref)** 로만 이 값을 쓰므로
+      같은 단위끼리 나눠 배수가 불변이다. 그래서 값을 환산하지 않고 단위만 정직하게
+      표기한다. **절대 농도를 쓰는 항이 새로 생기면 그때 환산해야 한다** —
+      그 항을 추가하는 커밋에서 본값·기준점을 동시에 wt% 로 옮겨라.
     source: >
       Wang et al., figshare:31056549 (ACS SI Table S3) — 4H-SiC 50조건 DOE 중심점
       (H2O2 2/4/6 vol% 중 4 vol%). 기준점 oxidizer_ref_wt_pct 와 같은 출처.

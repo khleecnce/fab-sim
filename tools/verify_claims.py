@@ -243,7 +243,11 @@ def main() -> int:
         print(f"\n근거 없는 상수 {bad}건" if bad else "\n모든 상수에 근거 또는 미검증 선언 있음")
         return 1 if bad else 0
 
-    targets = ([p for p in KNOWLEDGE.rglob("*.md") if p.name != "INDEX.md"]
+    # `_`로 시작하는 파일은 형식 정본(_SCHEMA.md 등)이지 지식 노트가 아니다 —
+    # check_knowledge.py 와 같은 규칙으로 제외한다(그쪽은 이미 제외 중이었다).
+    # 이 어긋남 때문에 _SCHEMA.md 가 "검증 코드 블록 없음"으로 영구 반려 상태였다.
+    targets = ([p for p in KNOWLEDGE.rglob("*.md")
+                if p.name != "INDEX.md" and not p.name.startswith("_")]
                if a.all else [Path(p) for p in a.paths])
     if not targets:
         print("검사할 노트가 없다")

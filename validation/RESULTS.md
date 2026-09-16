@@ -3,8 +3,8 @@
 
 # 백테스트 결과
 
-- 측정 시각: 2026-09-16 12:06 KST
-- 코드 리비전: `e0c2614`
+- 측정 시각: 2026-09-16 18:14 KST
+- 코드 리비전: `5b92f77`
 
 ```
 ====================================================================================================
@@ -18,6 +18,7 @@ dandu2009_sio2_ceria_ph_sweep      n=  9  ρ=+0.933  τ=+0.833    p=0.000  MAPE=
     · 9/9 조건이 그래프 판독값(digitized) — 오차 포함
 entegris2022_us20220315802a1_sic_alumina_conc n=  5  ρ=+1.000  τ=+1.000    p=0.008  MAPE=  95.6%  스크리닝 사용 가능
     · ⚠ 계통 편향 23.04배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
+gong2024_4hsic_alumina_kmno4_L25   n= 25  ρ=-0.190  τ=-0.157    p=0.817  MAPE=  28.5%  유의하지 않음(p=0.817, n=25) — 우연과 구분 불가
 jani2025_cu_h2o2_acidic_chelator   n=  3  ρ=-1.000  τ=-1.000    p=1.000  MAPE= 249.5%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
     · ⚠ 계통 편향 0.29배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 kenchappa2021_softpad_hdp_oxide    n=  3  ρ=+1.000  τ=+1.000    p=0.167  MAPE= 195.8%  유의하지 않음(p=0.167, n=3) — 우연과 구분 불가
@@ -42,7 +43,7 @@ phm2016_dresser_usage_mrr          n=  5  ρ=+nan  τ=+nan        p=—  MAPE= 1
 sic2023_shear_rheological_L9       n=  9  ρ=+0.200  τ=+0.111    p=0.309  MAPE= 543.5%  범위밖(팩이 이 재료계를 안 다룸)
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
     · ⚠ 계통 편향 0.21배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
-sic2026_ceria_h2o2_ph_DOE50        n= 50  ρ=+0.393  τ=+0.280    p=0.002  MAPE=  47.7%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
+sic2026_ceria_h2o2_ph_DOE50        n= 50  ρ=+0.463  τ=+0.333    p=0.000  MAPE=  45.2%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
 su2011_procengr_6hsic_alumina_abrasive_conc n=  3  ρ=-0.500  τ=-0.333    p=0.833  MAPE=  64.1%  유의하지 않음(p=0.833, n=3) — 우연과 구분 불가
 tw202115224a_cu_abrasive_size_pressure n= 18  ρ=+0.717  τ=+0.827    p=0.001  MAPE=  92.9%  부분적 — 개선 필요
 us20080090500a1_cu_ph_silica_cross n= 12  ρ=+0.993  τ=+0.970    p=0.000  MAPE= 721.2%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
@@ -64,7 +65,7 @@ yang2023_quartz_ceria_L25          n= 25  ρ=-0.003  τ=+0.007    p=0.504  MAPE=
     · ⚠ 이 데이터셋은 팩 'sti_ceria'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
     · ⚠ 계통 편향 0.21배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 ----------------------------------------------------------------------------------------------------
-held-out 12개 전체 평균: ρ=+0.692, 쌍별 적중률 85.4%
+held-out 13개 전체 평균: ρ=+0.625, 쌍별 적중률 82.1%
   └ 그중 **통계적으로 유의한 것만** (8개, 총 79조건): ρ=+0.951, 쌍별 적중률 96.9%
 → 외부에 제시할 수 있는 숫자는 이 줄뿐이다 (p<0.05, 순열검정).
      · cn109609035b_oxide_anionic_silica_ph (n=7, ρ=+1.000, p=0.0002)
@@ -76,9 +77,9 @@ held-out 12개 전체 평균: ρ=+0.692, 쌍별 적중률 85.4%
      · us9200180b2_cu_abrasive_series (n=4, ρ=+1.000, p=0.0417)
      · us9499721b2_teos_colloidal_silica_pressure_conc (n=22, ρ=+0.992, p=0.0000)
   └ 그중 **calibration_contact가 전혀 없는(무접촉/clean) 것만** (4개): ρ=+0.992
-  └ 유의하지 않음 4개 — 평균에서 빼고 봐야 한다: kenchappa2021_softpad_hdp_oxide(n=3), netzband2020_thermal_oxide_ceria_ph(n=4), su2011_procengr_6hsic_alumina_abrasive_conc(n=3), us9200180b2_cu_h2o2_series(n=3)
+  └ 유의하지 않음 5개 — 평균에서 빼고 봐야 한다: gong2024_4hsic_alumina_kmno4_L25(n=25), kenchappa2021_softpad_hdp_oxide(n=3), netzband2020_thermal_oxide_ceria_ph(n=4), su2011_procengr_6hsic_alumina_abrasive_conc(n=3), us9200180b2_cu_h2o2_series(n=3)
      n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. 조건 수를 늘리거나 여러 데이터셋을 합쳐야 한다.
-  └ ⚠ 계통 편향 2배 초과 6/12개 — **절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.
+  └ ⚠ 계통 편향 2배 초과 6/13개 — **절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.
 
 범위 밖 6개(참고용, 집계 제외): carbide2023_slurry_composition_L9, lee2021_cu_nicotinic_inhibitor, mo2026_double_sided_L16, phm2016_dresser_usage_mrr, sic2023_shear_rheological_L9, yang2023_quartz_ceria_L25
 → 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. 실리콘 반도체 CMP 데이터가 필요하다.
