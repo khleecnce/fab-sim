@@ -250,6 +250,12 @@ class WaferResult:
     pad_groove_wear_stage: Optional[str] = None
     pad_groove_conductance_ratio: Optional[float] = None
     pad_groove_flow_note: Optional[str] = None
+    # 억제제 Langmuir 피복률 포화도 진단 (MRR 무관).
+    # sim/tier2_physics/slurry_components.py
+    inhibitor_theta_equilibrium: Optional[float] = None
+    inhibitor_theta_headroom: Optional[float] = None
+    inhibitor_conc_discrimination: Optional[float] = None
+    inhibitor_saturation_note: Optional[str] = None
     # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR과 무관. sim/tier2_physics/galvanic_hydroxide_ph.py.
     # 접촉 상대 금속 필드가 Recipe/팩에 없어(현재 5팩 전부 미선언) 갈바닉 필드는 항상 None이
     # 정상이다 — Co/Ru 등을 임의로 골라 넣지 않는다. 수산화물 전이 pH는 rr.film == "cu"이고
@@ -1040,6 +1046,121 @@ def _pad_groove_wear_flow_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
         "⚠ 진단 전용 — MRR에 영향 없음. residence_time_s·slurry_volumes_cm3·"
         "groove_wear_flow_state(h_land_um·q_actual 부재)와 micron_cabot_life_wafers"
         "(시간→wafer 환산 부재)는 호출하지 않는다.")
+    return out
+
+
+def _inhibitor_saturation_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """억제제 Langmuir 피복률 포화도 진단 — MRR 경로와 완전히 독립(진단 전용).
+
+    근거: sim/tier2_physics/slurry_components.py::langmuir_coverage/K_from_dG_ads
+    (원본 1바이트도 수정 안 함), sim/inhibitor_pairs.py(쌍 표),
+    knowledge/cmp/bta-inhibitor-langmuir-K-effective-cu-cmp-falsification.md
+    §5·§6, EVIDENCE-RULES 판정#17.
+
+    **이 진단이 답하는 질문**: "이 팩의 억제제 항이 농도 변화에 아직 반응하는가?"
+    판정#17이 정량 반증한 고장 방식은 다음이었다 — K_eq(평형 흡착상수)를 정상상태
+    θ에 그대로 대입하면 θ가 이미 0.996/0.998로 포화해 BTA 0.1 wt%와 0.25 wt%의
+    모델 예측비가 0.9926(사실상 무변화)이 되고, 실측비 0.6462와 34.6pp 어긋난다.
+    즉 **숫자는 나오지만 농도 축이 죽어 있는 상태**이고, MRR 출력만 봐서는 그게
+    보이지 않는다. 이 진단은 그 상태를 기계가 읽을 수 있는 필드로 꺼낸다.
+
+    산출:
+      inhibitor_theta_equilibrium   : θ = KC/(1+KC), 팩 선언 농도에서의 피복률
+      inhibitor_theta_headroom      : 1-θ (포화까지 남은 여유). 0에 가까우면 죽은 축
+      inhibitor_conc_discrimination : θ(2C)/θ(C). 농도를 2배로 올렸을 때 피복률이
+                                      몇 배 되는가. 1.000에 붙으면 **농도를 구분하지
+                                      못한다**(판정#17이 반증한 바로 그 상태)
+      inhibitor_saturation_note     : K 출처·경고
+
+    **K 조회 경로는 `sim/chemistry.py::_inhibitor_term`과 글자 그대로 같은 우선순위**를
+    따른다(쌍 표 → 팩 ΔG → 팩 K). 두 곳이 다른 K를 쓰면 같은 문서 안에서 θ가 모순되므로
+    순서를 복제하되, **chemistry.py는 1바이트도 고치지 않는다**.
+
+    ⚠ MRR에 곱하지 않는다 — `_inhibitor_term`이 이미 같은 θ를 소비해 ψ 배수를 만들고
+    있다. 여기서 다시 곱하면 이중계상이다(판정#15 `conditioner_pcr_decay` 선례와 동일
+    구조). 이 진단은 **가시화**일 뿐이다.
+
+    ⚠ θ의 절대값을 신뢰하지 마라. cu_h2o2_bta의 K는 평형 ΔG에서 나온 K_eq이고,
+    판정#17이 "이 경로(정상상태 θ)에 K_eq를 직접 쓰는 것"을 반증했다. 역산된 K_eff
+    후보(183·249.7 L/mol)는 계가 다른(알칼리+알루미나) 데이터에서 나와 이 산성 팩에
+    **채택하지 않았다** — 그래서 여기서도 K_eff를 임의로 대입하지 않는다. 이 진단이
+    내는 것은 "현행 파라미터가 만드는 θ가 얼마나 포화됐나"라는 **현행 모델의 자기
+    진단**이지, 참값 주장이 아니다.
+
+    억제제 파라미터가 없는 팩(현재 oxide_silica·sic_ceria_h2o2·sti_ceria)은
+    조용히 None + 스킵사유 — 산화막 계엔 금속 부식억제제가 없는 것이 정상이다.
+    """
+    out: Dict[str, object] = {"inhibitor_theta_equilibrium": None,
+                              "inhibitor_theta_headroom": None,
+                              "inhibitor_conc_discrimination": None,
+                              "inhibitor_saturation_note": None}
+    if not rr.pack.has("inhibitor_mM"):
+        out["inhibitor_saturation_note"] = (
+            f"inhibitor_mM 팩 '{rr.pack.name}'에 없음 — 억제제 포화도 진단 스킵 "
+            "(산화막 계엔 금속 부식억제제가 없는 것이 정상)")
+        return out
+    try:
+        import slurry_components as SC   # sim/tier2_physics (1바이트도 수정 안 함)
+        from sim.inhibitor_pairs import lookup_dG, K_from_dG
+
+        C_molar = float(rr.p("inhibitor_mM")) * 1e-3
+        # K 조회 우선순위를 sim/chemistry.py::_inhibitor_term과 동일하게 복제한다.
+        K = None
+        k_src = None
+        inhib = rr.pack.get_or("inhibitor_species", None)
+        subst = rr.pack.get_or("substrate_species", None)
+        if inhib and subst:
+            pair = lookup_dG(str(inhib), str(subst))
+            if pair is not None:
+                K = K_from_dG(pair.dG_kJ_per_mol)
+                k_src = (f"쌍 표({inhib}×{subst}) ΔG={pair.dG_kJ_per_mol:.2f} kJ/mol "
+                         f"[{pair.confidence}]")
+        if K is None and rr.pack.has("inhibitor_dG_ads_kJ"):
+            K = SC.K_from_dG_ads(float(rr.p("inhibitor_dG_ads_kJ")) * 1000.0)
+            k_src = "팩 inhibitor_dG_ads_kJ (단일 ΔG 폴백 — 쌍 검증 안 됨)"
+        if K is None and rr.pack.has("inhibitor_K_L_per_mol"):
+            K = float(rr.p("inhibitor_K_L_per_mol"))
+            k_src = "팩 inhibitor_K_L_per_mol (직접 선언)"
+        if K is None:
+            out["inhibitor_saturation_note"] = (
+                "inhibitor_mM은 있으나 흡착상수(쌍 표·ΔG·K 전부 부재) — θ를 지어낼 수 "
+                "없어 스킵(_inhibitor_term도 같은 조건에서 항을 건너뛴다)")
+            return out
+        theta = SC.langmuir_coverage(C_molar, K)
+        theta_2c = SC.langmuir_coverage(2.0 * C_molar, K)
+        if theta <= 0.0:
+            out["inhibitor_saturation_note"] = (
+                f"θ={theta:g} — 0 이하라 농도 판별비를 정의할 수 없어 스킵")
+            return out
+        discrimination = theta_2c / theta
+    except Exception as e:
+        out["inhibitor_saturation_note"] = f"억제제 포화도 진단 실패({e}) — None으로 둠"
+        return out
+    out["inhibitor_theta_equilibrium"] = float(theta)
+    out["inhibitor_theta_headroom"] = float(1.0 - theta)
+    out["inhibitor_conc_discrimination"] = float(discrimination)
+    # 판정#17이 반증한 상태(θ 포화로 농도축 사망)를 정량 경고로 꺼낸다.
+    if discrimination < 1.01:
+        verdict = (
+            f"🔴 농도축 사실상 사망 — 농도를 2배로 올려도 θ가 {discrimination:.4f}배밖에 "
+            "안 변한다(<1.01). 이것이 EVIDENCE-RULES 판정#17이 Len/McNeill/Gamble 2000 "
+            "실측으로 정량 반증한 상태다(모델 예측비 0.9926 vs 실측 0.6462, 34.6pp 어긋남). "
+            "이 팩에서 억제제 농도를 스윕해도 MRR은 거의 안 움직인다 — 민감도 결과를 "
+            "'억제제가 영향 없다'로 읽지 마라. 모델 구조의 한계다. ")
+    elif discrimination < 1.10:
+        verdict = (f"⚠ 농도축 둔감 — 2배 농도에서 θ가 {discrimination:.4f}배. "
+                   "포화 근처라 억제제 스윕의 분해능이 낮다. ")
+    else:
+        verdict = (f"농도축 살아있음 — 2배 농도에서 θ가 {discrimination:.4f}배. ")
+    out["inhibitor_saturation_note"] = (
+        f"{verdict}"
+        f"C={C_molar * 1e3:g} mM, K={K:.4g} L/mol(출처: {k_src}) → θ={theta:.6f}, "
+        f"여유(1-θ)={1.0 - theta:.6g}. "
+        "⚠ 진단 전용 — MRR에 곱하지 않는다(_inhibitor_term이 이미 같은 θ를 소비해 "
+        "ψ 배수를 만들고 있어 이중계상이 된다). "
+        "⚠ θ 절대값은 참값 주장이 아니다 — 판정#17이 'K_eq를 정상상태 θ에 직접 대입하는 "
+        "경로'를 반증했고, 역산 K_eff 후보(183·249.7 L/mol)는 계가 다른 알칼리+알루미나 "
+        "데이터라 이 팩에 채택하지 않았다(임의 대입 금지).")
     return out
 
 
@@ -2200,6 +2321,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_groove_flow = _pad_groove_wear_flow_diagnostic(rr)
     if pad_groove_flow["pad_groove_flow_note"]:
         notes.append(pad_groove_flow["pad_groove_flow_note"])
+    # 억제제 Langmuir 피복률 포화도 진단 — MRR 경로와 완전히 독립(가시화 전용).
+    # inhibitor_mM 미선언 팩(산화막 계 3팩)은 조용히 None + 스킵사유.
+    inhib_sat = _inhibitor_saturation_diagnostic(rr)
+    if inhib_sat["inhibitor_saturation_note"]:
+        notes.append(inhib_sat["inhibitor_saturation_note"])
     # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR 경로와 완전히 독립. 접촉 상대
     # 금속(contact_metal) 팩 미선언이면 갈바닉 필드는 조용히 None(현재 5팩 전부 미선언).
     galvanic_hydroxide = _galvanic_hydroxide_diagnostic(rr)
@@ -2321,6 +2447,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pad_groove_wear_stage=pad_groove_flow["pad_groove_wear_stage"],
                        pad_groove_conductance_ratio=pad_groove_flow["pad_groove_conductance_ratio"],
                        pad_groove_flow_note=pad_groove_flow["pad_groove_flow_note"],
+                       inhibitor_theta_equilibrium=inhib_sat["inhibitor_theta_equilibrium"],
+                       inhibitor_theta_headroom=inhib_sat["inhibitor_theta_headroom"],
+                       inhibitor_conc_discrimination=inhib_sat["inhibitor_conc_discrimination"],
+                       inhibitor_saturation_note=inhib_sat["inhibitor_saturation_note"],
                        galvanic_anode_metal=galvanic_hydroxide["galvanic_anode_metal"],
                        galvanic_delta_e0_v=galvanic_hydroxide["galvanic_delta_e0_v"],
                        hydroxide_transition_ph=galvanic_hydroxide["hydroxide_transition_ph"],
