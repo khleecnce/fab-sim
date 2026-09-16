@@ -348,6 +348,23 @@ class WaferResult:
     electrical_dishing_delta_r_pct: Optional[float] = None
     electrical_dishing_r_dish_um: Optional[float] = None
     electrical_resistance_note: Optional[str] = None
+    # Archard↔Preston 가교 진단 — MRR과 무관, 순수 가시화. sim/tier2_physics/
+    # tribology_basics.py::archard_wear_depth 원본 docstring이 스스로 적어둔 대응
+    # (Preston dot h = Kp·P·V 와 구조 동일 — Kp≈k/H)을 실행해, 기존 Kp를 무차원
+    # Archard 마모계수 k = Kp·H로 환산하고 knowledge/physics/tribology-friction-wear-
+    # stribeck.md §"Archard 오더 대조"의 연강 pin-on-disk 앵커(k=1e-3)와 오더 대조한다.
+    # ⚠ 오더가 겹친다는 것은 sanity check일 뿐 "CMP가 순수 Archard 연마마모"를 뜻하지
+    # 않는다 — CMP는 화학적 연화가 개입한 화학기계 복합과정이고, 1e-3 앵커는 연강
+    # pin-on-disk 예시값이지 CMP 재료계 실측이 아니다. 이 진단으로 어떤 팩터의
+    # confidence도 올리지 않는다. film_bulk_hardness_pa가 팩에 없으면 조용히 None.
+    archard_wear_coefficient: Optional[float] = None
+    archard_reference_k: Optional[float] = None
+    archard_order_ratio: Optional[float] = None
+    # Hersey 수(η·V/P, 관례상 차원 모호 — 모듈 docstring 자백) — slurry_viscosity_pa_s가
+    # 있는 팩에서만 오더 확인용으로 낸다. cmp_sommerfeld_number(_lubrication_diagnostics,
+    # 무차원 So=η·V/(P·δeff))와는 δeff 항 유무로 값이 다르다 — 중복 계산이 아니다.
+    tribology_hersey_number: Optional[float] = None
+    tribology_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1558,6 +1575,81 @@ def _electrical_resistance_diagnostic(rr: "ResolvedRecipe",
     return out
 
 
+def _tribology_archard_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """Archard↔Preston 가교 진단 — MRR 경로와 완전히 독립적인 순수 가시화.
+
+    근거: sim/tier2_physics/tribology_basics.py::archard_wear_depth 원본 docstring
+    ("Preston 식 dot h = Kp·P·V 와 구조 동일 — Kp≈k/H"), knowledge/physics/
+    tribology-friction-wear-stribeck.md §"Archard 오더 대조"(연강 pin-on-disk
+    k=1e-3 앵커). k = Kp·H(무차원 Archard 마모계수)로 환산해 오더 타당성만
+    대조한다 — 새 물리가 아니고, 어떤 팩터의 confidence도 올리지 않는다.
+    ⚠ 한계(note에 항상 명시): Archard k는 연마마모(abrasive wear) 계수이고 CMP는
+    화학적 연화가 개입한 화학기계 복합과정이다 — 오더가 겹친다고 "CMP가 순수
+    Archard 마모"인 것은 아니다. 앵커 k=1e-3은 연강 pin-on-disk 예시값이지 CMP
+    재료계 실측이 아니다.
+    film_bulk_hardness_pa가 팩에 없으면(kp_m_per_pa는 Recipe 필수값이라 항상 있음)
+    Archard 3필드 전부 조용히 None. Hersey 수는 hersey_number()가 스스로 "관례에
+    따라 차원이 달라지므로(무차원이 아닐 수 있음) 오더 확인용"이라 자백해, 이미
+    무차원임이 확실한 cmp_sommerfeld_number(_lubrication_diagnostics)와 중복 계산
+    하지 않고 slurry_viscosity_pa_s가 있는 팩에서만 η·V/P 형태로 별도로 낸다
+    (속도 V는 _lubrication_diagnostics와 동일하게 kin.speed_stats(...)["mean"]).
+    stribeck_cof·archard_wear_volume은 호출하지 않는다(전자는 alpha=50.0 등 근거
+    없는 정성 파라미터가 박혀 있고 cof_stribeck_estimate와 중복, 후자는 하중 W·
+    미끄럼거리 L의 절대값이 Recipe에 없음).
+    """
+    out: Dict[str, object] = {"archard_wear_coefficient": None, "archard_reference_k": None,
+                              "archard_order_ratio": None, "tribology_hersey_number": None,
+                              "tribology_note": None}
+    if not rr.pack.has("film_bulk_hardness_pa"):
+        out["tribology_note"] = "film_bulk_hardness_pa 팩에 없음 — Archard k 환산 스킵"
+        return out
+    try:
+        import tribology_basics as TB   # sim/tier2_physics (1바이트도 수정 안 함)
+        H = float(rr.p("film_bulk_hardness_pa"))
+        Kp = float(rr.kp_m_per_pa)
+        # k·P·L/H (archard_wear_depth) 를 L로 나누면 k·P·V/H — Preston Kp·P·V와 구조가
+        # 같아지는 지점이 k=Kp·H다(모듈 docstring이 스스로 적은 대응, 새 유도 아님).
+        k = Kp * H
+        ref_k = 1e-3   # 연강 pin-on-disk 예시(tribology-friction-wear-stribeck.md §"Archard 오더 대조")
+        ratio = k / ref_k
+    except Exception as e:
+        out["tribology_note"] = f"Archard k 환산 실패({e}) — None으로 둠"
+        return out
+    out["archard_wear_coefficient"] = k
+    out["archard_reference_k"] = ref_k
+    out["archard_order_ratio"] = ratio
+    notes = [
+        f"Archard k = Kp·H = {k:.4e}(Kp={Kp:.2e} m/Pa · H={H:.2e} Pa) — 연강 pin-on-disk "
+        f"예시 k=1e-3(tribology-friction-wear-stribeck.md §'Archard 오더 대조') 대비 "
+        f"{ratio:.3f}배, 같은 오더(1e-5~1e-1)에 있다는 sanity check일 뿐이다. Archard k는 "
+        "연마마모(abrasive wear) 계수이고 CMP는 화학적 연화가 개입한 화학기계 복합과정이라 "
+        "오더가 겹친다고 'CMP가 순수 Archard 마모'인 것은 아니다. 앵커 k=1e-3은 연강 "
+        "pin-on-disk 예시값이지 CMP 재료계 실측이 아니다 — 이 진단으로 어떤 팩터의 "
+        "confidence도 올리지 않는다."
+    ]
+    if rr.pack.has("slurry_viscosity_pa_s"):
+        try:
+            from sim.tier1_empirical import kinematics as kin
+            eta = float(rr.p("slurry_viscosity_pa_s"))
+            U_mean = kin.speed_stats(rr.wafer_radius_m, rr.center_offset_m,
+                                     rr.rpm_wafer, rr.rpm_platen)["mean"]
+            P = rr.pressure_psi * PSI_TO_PA
+            hersey = TB.hersey_number(eta, U_mean, P)
+            out["tribology_hersey_number"] = hersey
+            notes.append(
+                f"Hersey 수(η·V/P, V=kin.speed_stats mean) = {hersey:.4e} — 모듈 docstring이 "
+                "'관례에 따라 차원이 달라지므로(무차원이 아닐 수 있음) 오더 확인용'이라 자백해 "
+                "여기서도 오더 확인용으로만 낸다. cmp_sommerfeld_number(무차원, "
+                "_lubrication_diagnostics)와 값이 다른 이유: So=η·V/(P·δeff)는 유효필름두께 "
+                "δeff 항이 있어 무차원이지만 Hersey는 그 항이 없다 — 같은 η·V·P를 쓰지만 "
+                "δeff배만큼 다르다(중복 계산 아님)."
+            )
+        except Exception as e:
+            notes.append(f"Hersey 수 계산 실패({e}) — tribology_hersey_number None으로 둠")
+    out["tribology_note"] = " ".join(notes)
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -1955,6 +2047,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     elec_r = _electrical_resistance_diagnostic(rr, remaining)
     if elec_r["electrical_resistance_note"]:
         notes.append(elec_r["electrical_resistance_note"])
+    # Archard↔Preston 가교 진단 — MRR 경로와 완전히 독립. film_bulk_hardness_pa
+    # 팩 미선언이면 조용히 None(현재 5팩 전부 선언돼 있어 항상 값을 낸다).
+    tribo = _tribology_archard_diagnostic(rr)
+    if tribo["tribology_note"]:
+        notes.append(tribo["tribology_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -2043,6 +2140,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        electrical_dishing_delta_r_pct=elec_r["electrical_dishing_delta_r_pct"],
                        electrical_dishing_r_dish_um=elec_r["electrical_dishing_r_dish_um"],
                        electrical_resistance_note=elec_r["electrical_resistance_note"],
+                       archard_wear_coefficient=tribo["archard_wear_coefficient"],
+                       archard_reference_k=tribo["archard_reference_k"],
+                       archard_order_ratio=tribo["archard_order_ratio"],
+                       tribology_hersey_number=tribo["tribology_hersey_number"],
+                       tribology_note=tribo["tribology_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
