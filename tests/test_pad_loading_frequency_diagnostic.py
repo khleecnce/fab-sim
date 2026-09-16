@@ -223,21 +223,34 @@ def test_all_packs_full_simulate_wires_the_field():
         assert res.pad_loading_frequency_note is not None
 
 
-def test_original_viscoelastic_maxwell_module_unmodified():
+def _git_diff_clean_or_skip(paths, label):
+    """워킹트리에서 `git diff --quiet <paths>` 를 검사한다.
+
+    ⚠ 이 검사는 **git 워킹트리 안에서만** 의미가 있다. `.githooks/pre-push` 는
+    `git archive HEAD | tar -x` 로 만든 임시 디렉토리(= git 저장소가 아님)에서
+    테스트를 돌리므로, 거기선 `git diff` 가 128을 반환해 무조건 실패한다.
+    그 환경에서는 애초에 워킹트리 수정이라는 개념이 없으므로(HEAD를 그대로 꺼낸
+    스냅샷이다) skip 하는 것이 옳다 — 실제 게이트는 워킹트리 실행과 CI가 지킨다.
+    """
     import subprocess
-    result = subprocess.run(
-        ["git", "diff", "--quiet", "--", "sim/tier2_physics/viscoelastic_maxwell.py"],
-        cwd=E.__file__.rsplit("/sim/", 1)[0])
-    assert result.returncode == 0, "viscoelastic_maxwell.py에 diff가 있다 — 원본 무수정 위반"
+    root = E.__file__.rsplit("/sim/", 1)[0]
+    inside = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                            cwd=root, capture_output=True, text=True)
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        pytest.skip("git 워킹트리가 아님(pre-push archive 등) — 원본 무수정 검사 스킵")
+    result = subprocess.run(["git", "diff", "--quiet", "--"] + list(paths), cwd=root)
+    assert result.returncode == 0, f"{label}에 diff가 있다 — 원본 무수정 위반"
+
+
+def test_original_viscoelastic_maxwell_module_unmodified():
+    _git_diff_clean_or_skip(["sim/tier2_physics/viscoelastic_maxwell.py"],
+                            "viscoelastic_maxwell.py")
 
 
 def test_original_gw_modules_unmodified():
-    import subprocess
-    result = subprocess.run(
-        ["git", "diff", "--quiet", "--",
-         "sim/tier2_physics/gw_pressure_solve.py", "sim/tier2_physics/gw_contact.py"],
-        cwd=E.__file__.rsplit("/sim/", 1)[0])
-    assert result.returncode == 0, "gw_pressure_solve.py/gw_contact.py에 diff가 있다 — 원본 무수정 위반"
+    _git_diff_clean_or_skip(
+        ["sim/tier2_physics/gw_pressure_solve.py", "sim/tier2_physics/gw_contact.py"],
+        "gw_pressure_solve.py/gw_contact.py")
 
 
 def test_hertz_contact_area_consistent_with_gw_contact_module():
