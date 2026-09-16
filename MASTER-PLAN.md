@@ -96,6 +96,59 @@
 - CMP 슬러리 최신논문 크론(기존)과 중복 학습 금지 — 시뮬레이션 관점 노트만 여기에.
 
 ## 진행 로그
+
+### 2026-09-16 [Max워커] S12 엔진 등록 3건 + 자기정정 1건 (커밋 f346c3e·2b9d2a7·3cb1444)
+
+1. **`viscoelastic_maxwell` 등록** (f346c3e) — τ0(패드 실측 이완시간) 문헌값이 없다는
+   노트 §4의 자백을 존중해 De=τ0·ω를 지어내지 않고, **역방향 진단**(공정 하중주파수 ω와
+   임계 이완시간 τ_crit=1/ω)만 등록. 필드 5종.
+
+2. **자기정정 — ω_asperity '구조적 계산불가' 주장 반증** (2b9d2a7). 1의 위임 산출물이
+   독스트링에 "단일 asperity의 δ=z−d는 산출되지 않는다, **구조적** 한계"라고 단정했으나
+   Max워커가 직접 실행해 반증했다: GW 지수분포에서
+   **δ_mean = A_r/(πR·n) = 1/β (d에 무관한 닫힌형 항등식)** 이고, 실측 δ_mean=1.999999999999e-06 m
+   vs 팩 `pad_height_beta_inv_m`=2.0e-6 m (상대오차 4e-13). 이건 새 통계가정이 아니라 팩이
+   이미 literature 등급으로 선언한 `asperity_height_distribution: exponential` 에서 직접
+   유도되는 수학적 귀결이며, `gw_contact.py::gw_analytic_ratio` 독스트링이 같은 적분
+   ∫(z−d)φdz=(1/β)e^(−βd)를 이미 문서화하고 있었다.
+   → **ω_asperity = 3.620976e+05 rad/s**, τ_crit_asperity = 2.761687e-06 s 산출.
+   ω_asperity/ω_rot ≈ **6.29e4배** — 두 축은 서로 다른 물리 주기(플래튼 1회전 vs
+   애스퍼리티가 접촉폭 L=2a를 지나는 주기)라 **평균내거나 하나를 대표값으로 고르지 않는다**
+   (EVIDENCE-RULES). 지수분포 전제는 게이트로 막았다(gaussian 오버라이드 시 None+사유).
+   역수 변환(β=1/scale)을 되돌리면 `test_omega_asperity_computed_absolute_scale_all_packs`가
+   실제로 FAIL함을 확인(ω가 0.724 rad/s로 5e5배 어긋남) — 커밋 3d1ab2d의 21,600km 버그와
+   동형이라 **절대 스케일 assert로 기계 고정**.
+
+3. **`chelation_surface_charge` 등록** (3cb1444) — 필드 4종
+   (`abrasive_surface_charge_sign`·`abrasive_iep_literature_ph`·
+   `abrasive_iep_pack_deviation_ph`·`abrasive_surface_charge_note`).
+   모듈 docstring의 미등록 사유("Recipe에 pH·이온세기·킬레이트 농도 필드 없음")가
+   **절반만 참**임을 확인 — `oxide_surface_charge_sign(oxide,pH)`이 실제로 쓰는 입력
+   (`slurry_ph`·`abrasive`)은 5팩 전부에 이미 있다. 이온세기·리간드 농도가 필요한
+   나머지 4함수 + `hf_solution_pH`는 ast로 호출 금지 고정(특히 cu팩의
+   `chelator_species=glycine`은 모듈 리간드 표(EDTA·Cit)에 없어 대체 근거 없음).
+   **성과 2가지**: ①기존 `_colloid_stability_diagnostic`이 `abrasive_iep_ph` 미선언으로
+   스킵하던 **cu_h2o2_bta·w_fe_oxidizer 2팩을 문헌표 Al2O3=9.5로 커버**
+   ②**팩 선언 IEP vs 문헌 IEP 괴리를 필드로 노출** — oxide_silica 팩 2.5 vs 문헌 2.0으로
+   **0.5 pH 불일치**가 있다(조용히 한쪽 고르지 않고 둘 다 낸다).
+   부수 경고: sti_ceria(pH 5.5)는 CeO2 IEP 6.8과 1.3 pH 차이뿐이라 Ederer 2025 실측범위
+   하한 5.21을 쓰면 **부호가 '+'→'-'로 실제로 뒤집힌다** — note에 매번 명시.
+
+**게이트(Max워커 직접 재실행, 위임 보고를 신뢰하지 않음)**: pytest **939 passed**
+(918→926→939, 회귀 0), completion **59/60 불변**, qa_loop #221 --strict PASS
+**ρ=0.9442 불변**, `git diff --quiet sim/tier2_physics/` 공백(원본 3모듈 0바이트 수정).
+
+**부수 수정**: 원본 무수정 테스트가 `.githooks/pre-push`의 `git archive` 환경(= git 저장소가
+아님)에서 `git diff`가 128을 반환해 **오탐 실패**하던 것을 수정 — `git rev-parse
+--is-inside-work-tree` 확인 후 skip. 실제로 push가 한 번 막혔고, 수정 후 통과했다.
+이후 등록에서 같은 패턴을 쓸 것.
+
+**S12 잔여: 11개 미등록.** 다음 후보(지어낼 필요 적은 순): `disk_cutrate_coupling`(g 미확정이라
+활성항 생략 경로 필요), `disk_preston_contact_decomposition`(PROVISIONAL 선형가정 경고 필수),
+`conditioner_asperity_distribution`. 보류 유지: `friction_cof_epd`·`blanket_rate_transfer`
+(Recipe 시계열 스키마 부재), `competitive_metal_langmuir`·`metal_contamination_surface`
+(이온농도 스키마 부재), `disk_active_grit_fraction`(engage_depth가 노트에서 "가정값, 미검증"),
+`wear_aware_*`·`pad_wear_glazing`(S13 척도 불일치 판정 대기).
 - **2026-09-16 07시** [학습총괄] **게이트 자기참조 데드락 정정 + G3 cmp-calibrator 개방.** `cmp-calibrator`가 `agents/ORG.md` §4 표에서는 G3인데 `tools/progress.py`의 `GATES`에서만 G4로 적혀 있었고, G4 조건이 "M3(결합 모델 v1 + **캘리브레이션 골격**) 달성"이라 **그 골격의 주인이 자기 산출물을 조건으로 갇히는** 구조였다 — 문헌을 아무리 찾아도 안 열리는 칸(등급 리터럴 사건과 같은 종류). 코드를 정본(ORG)에 맞추고 "게이트 조건이 어떤 에이전트의 산출물이면 그 에이전트를 그 게이트에 두지 마라"를 ORG §4 규칙에 명문화. 이수 2단원(cmp-calibrator Lv1-1 KOH θ-δ 식별불가능성 / film-emerging Lv2-1 GST 연질막), 반려 0. 부채상환: `verify_claims --all`의 **검증코드 실패 3→0** — 원인이 주장 오류가 아니라 `papers/*.txt`(.gitignore 대상) 사본 부재였고, 둘이 같은 얼굴로 나와 멀쩡한 판정을 뒤집을 뻔했다. `tools/paper_text.py`가 PDF에서 재추출하며 사본이 아예 없으면 빈 문자열 대신 예외를 낸다(빈 문자열이면 `assert "구절" not in text`가 통과해 "원문 없이 확인했다"가 된다). 라벨감사 `excluded_axes` 신설로 netzband2020 거짓경보 해소(같은 논문의 **다른 Figure** 설명이었다 — 산문으로는 면제 불가, 기계가 읽는 필드+사유만 면제, 면제가 진짜 🔴을 못 덮는다는 것을 테스트로 고정). `validation/adjudicated_violations.yaml`: 판정#39로 종결된 ψ 위반 2건을 **끄지 않고 표시만** 해 "매 회차 같은 판정 반복"과 "신규 결함"을 가른다(수치가 움직이면 자동 해제, 예외목록 변질 방지 테스트 동반). 검증: pytest 856 passed · qa_loop PASS(ρ +0.944 불변, 격리 2) · model_hygiene 심각 2건 **전부 판정종결, 신규 0** · 완성 격자 49/50.
 - 2026-09-14 12시 [성장엔진] Netzband&Dunn 2020 Fig.3a를 PDF 벡터 rect에서 독립 재판독 → 기존 데이터셋 4점 전부 0.2% 이내 재현(판독 오류 아님 확증), ceria_mechanical_floor 1/5.5를 다른 실험축에서 0.1905로 독립 확증(4.6% 차이). C2 잔여 18칸을 4개 근본원인(R1 PCR앵커 2차인용 / R2 χ 식별불가 / R3 ψ 반증된 형태 / R4 도메인 외삽)으로 분해 — R2·R3은 문헌으로 안 열리고 조성 DOE 데이터셋이 필요함을 문서화. papers/INDEX.json 등록 + .pdf.txt 추출로 QA 감사 F2 오탐 해소(netzband2020 → clean). pytest 644 pass, qa_loop #75 PASS ρ=0.9537 유지.
 <!-- 크론이 실행마다 추가 -->
