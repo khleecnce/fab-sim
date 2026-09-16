@@ -32,9 +32,9 @@ footer{margin-top:60px;color:var(--mut);font-size:13px;border-top:1px solid var(
 
 <div class="grid">
 <div class="card"><b>10</b><span>merged performance factors (Λ Π Θ Γ · κ χ ψ τ Δ S), each a multiplier vs. a literature reference condition</span></div>
-<div class="card"><b>5</b><span>material systems: TEOS/silica, STI ceria, Cu/H₂O₂/BTA, W/Fe-oxidizer, SiC/ceria/H₂O₂</span></div>
-<div class="card"><b>21</b><span>held-out validation datasets digitized from patents &amp; papers (n = 3–50 each)</span></div>
-<div class="card"><b>ρ = +0.95</b><span>mean Spearman rank correlation on the 7 datasets that pass a permutation test (p &lt; 0.05)</span></div>
+<div class="card"><b>{{FABSIM_MATERIAL_COUNT}}</b><span>material systems: {{FABSIM_MATERIAL_LIST}}</span></div>
+<div class="card"><b>{{FABSIM_HELDOUT_COUNT}}</b><span>held-out validation datasets digitized from patents &amp; papers (n = 3–50 each)</span></div>
+<div class="card"><b>ρ = {{FABSIM_RHO}}</b><span>mean Spearman rank correlation on the {{FABSIM_SIG_N}} datasets that pass a permutation test (p &lt; 0.05)</span></div>
 </div>
 
 <h2>How the model is built</h2>
@@ -69,11 +69,11 @@ footer{margin-top:60px;color:var(--mut);font-size:13px;border-top:1px solid var(
 <li>Cleaning station is visualization only — no cleaning physics.</li>
 <li>Particle shape (spherical / cocoon / aggregated) and D10/D90 are recorded, not modeled — no quantitative literature model found.</li>
 <li>Carrier motor current needs a motor torque constant that is not public; torque is computed, current is not.</li>
-<li>12 of 50 factor × material cells still carry <code>estimated</code> rather than <code>literature</code> confidence — the model exists but a primary source for the parameter value has not been located.</li>
+<li>{{FABSIM_CELLS_ESTIMATED}} of {{FABSIM_CELLS_TOTAL}} factor × material cells still carry <code>estimated</code> rather than <code>literature</code> confidence — the model exists but a primary source for the parameter value has not been located.</li>
 </ul>
 
 <h2>Stack</h2>
-<p class="mut">Python 3.11 · NumPy/SciPy engine · FastAPI · three.js (PBR, PMREM) · SQLite run store · pytest (675 tests) · GitHub Actions CI. Literature corpus: 8,960 indexed CMP documents, 1,510 with full text, harvested from OpenAlex / Europe PMC / Google Patents.</p>
+<p class="mut">Python {{FABSIM_PYTHON_VERSION}} · NumPy/SciPy engine · FastAPI · three.js (PBR, PMREM) · SQLite run store · pytest ({{FABSIM_PYTEST_COUNT}} tests) · GitHub Actions CI. Literature corpus: {{FABSIM_CORPUS_TOTAL}} indexed CMP documents, {{FABSIM_CORPUS_FULLTEXT}} with full text, harvested from OpenAlex / Europe PMC / Google Patents.</p>
 
 <footer>Built with published patents and papers only. No employer data, tools, or processes were used. Demo access is by private link; source is not public.</footer>
 </div></body></html>
