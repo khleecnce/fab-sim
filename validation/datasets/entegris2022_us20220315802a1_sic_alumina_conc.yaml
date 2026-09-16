@@ -80,6 +80,21 @@ calibration_contact:
       숫자는 Kp 결정에 쓰이지 않았다(그래서 23배 편향이 그대로 남아 있다).
     axis: absolute_mrr
 
+  - param: oxidizer_wt_pct
+    pack: sic_alumina_kmno4
+    what: >
+      팩 기준 조성의 산화제 농도(KMnO4 4 wt%)를 이 특허 Table 1 의 고정 조건에서
+      선언(2026-09-16). 실측 MRR 은 쓰지 않았고 "어느 산화제 농도를 배수 1.0 으로
+      볼지"만 정했다 — ph_ref·abrasive_ref_wt_pct 와 같은 성격의 부분 접촉이다.
+      부모 팩의 H2O2 vol% 를 상속하던 차원 위반을 고치면서 자기선언했다.
+    axis: oxidizer_wt_pct
+  - param: oxidizer_ref_wt_pct
+    pack: sic_alumina_kmno4
+    what: >
+      위 본값의 기준점 동반 이동(같은 조성·같은 출처 줄). 비(c/c_ref)=1.0 이라
+      예측값에는 영향이 없고, 이 특허의 실측 MRR 은 쓰이지 않았다.
+    axis: oxidizer_wt_pct
+
 conditions:
   - label: "Table1-1: Al2O3 0.1wt%"
     mrr_nm_per_min: 96.67
