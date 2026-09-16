@@ -427,6 +427,13 @@ class WaferResult:
     disk_contact_eta_over_af: Optional[float] = None
     disk_contact_scale_factor: Optional[float] = None
     disk_preston_contact_note: Optional[str] = None
+    # 블랭킷 Cu 순간 포화속도 a1 대비 평균 rate r_avg(t) 과소평가 진단 — MRR과 무관,
+    # 진단 전용. sim/tier2_physics/blanket_rate_transfer.py::blanket_rate_average(원본
+    # 무수정, eq.3.52) 엔진 등록. 표 3.3(Tugbawa 2002) 4실험 값만 쓰고 대표값(평균)은
+    # 내지 않는다(min~max 범위). film != "cu"거나 time_s<=0이면 조용히 None.
+    blanket_transient_avg_to_inst_ratio_range: Optional[tuple] = None
+    blanket_transient_underestimate_pct_range: Optional[tuple] = None
+    blanket_transient_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -2642,6 +2649,78 @@ def _conditioner_sweep_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _blanket_rate_transient_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """블랭킷 Cu 순간 포화속도 a1 대비 평균 rate r_avg(t)의 과소평가 — MRR 경로와 완전히 독립적인 순수 가시화.
+
+    근거: sim/tier2_physics/blanket_rate_transfer.py::blanket_rate_average(원본 무수정,
+    eq.3.52), knowledge/cmp/npw-ptw-transfer-rules-quantitative.md §3·§6 verify (B)
+    (Tugbawa 2002, MIT EECS PhD thesis, dspace.mit.edu/handle/1721.1/8083, 표 3.3).
+
+    모듈 docstring의 미등록 사유("Recipe에 시간축 스키마가 없다")는 **역방향** fit_blanket_rate
+    (실측 (t, 제거량) 시계열로 a1/a2/τ를 역추정)에만 해당한다. 순방향 eq.3.52는 이 런의
+    rr.time_s 하나만 있으면 계산되므로 그 범위에서만 등록한다. fit_blanket_rate는 호출하지
+    않는다(test_blanket_rate_transient_diagnostic.py가 ast로 기계 고정).
+
+    상수(a1, a2, τ)는 표 3.3의 **4실험 값만** 쓴다(지어내지 않음, 노트 §3/§6이 정본).
+    4실험은 공정조건(압력·rpm)이 서로 달라 대표값(평균)을 내지 않고 **min~max 범위**로만
+    보고한다(EVIDENCE-RULES: 상반된/분산된 관측을 평균내지 않는다).
+
+    적용 대상은 **블랭킷 Cu**로 제한한다(rr.film == "cu", 판정#34: 팩 이름이 아니라 데이터
+    필드로 판별). 표 3.3은 Cu 실측이라 다른 막질에 전이할 근거가 없다.
+
+    팩 기본 운전점(3.0 psi, 55 rpm)은 표 3.3의 어느 실험(2~5 psi, 43~75 rpm)과도 일치하지
+    않는다 — 내삽·보간하지 않고 값은 범위로 내되, note에 운전점 불일치 경고를 항상 싣는다
+    (조용한 clamp·보간 금지).
+
+    t<=0이면 eq.3.52가 정의되지 않아(AR(t)/t) 스킵한다.
+    """
+    out: Dict[str, object] = {
+        "blanket_transient_avg_to_inst_ratio_range": None,
+        "blanket_transient_underestimate_pct_range": None,
+        "blanket_transient_note": None,
+    }
+    if rr.film != "cu":
+        out["blanket_transient_note"] = (
+            f"Cu 계 아님(film='{rr.film}') — Tugbawa 2002 표 3.3은 블랭킷 Cu 실측이라 "
+            f"다른 막질에 전이할 근거가 없어 스킵")
+        return out
+    t = rr.time_s
+    if t <= 0:
+        out["blanket_transient_note"] = (
+            f"time_s={t:g} <= 0 — eq.3.52 평균 rate r_avg(t)=AR(t)/t가 t>0에서만 정의돼 스킵")
+        return out
+    try:
+        import blanket_rate_transfer as BRT   # sim/tier2_physics (1바이트도 수정 안 함)
+    except Exception as e:
+        out["blanket_transient_note"] = f"blanket_rate_transfer 로드 실패({e}) — None으로 둠"
+        return out
+    # (Tugbawa 2002) 표 3.3, knowledge/cmp/npw-ptw-transfer-rules-quantitative.md §3/§6:
+    # a1[Å/s], a2[Å], tau[s], 압력[psi], rpm — 노트 원문이 정본
+    table_3_3 = {
+        1: (249.5, 3986.6, 16.4, 5.0, 63.0),
+        2: (120.0, 924.0, 9.71, 2.0, 43.0),
+        3: (159.0, 1176.0, 7.7, 4.0, 75.0),
+        4: (239.6, 1424.0, 6.3, 5.0, 63.0),
+    }
+    ratios = []
+    for a1, a2, tau, _p_psi, _rpm in table_3_3.values():
+        r_avg = BRT.blanket_rate_average(t, a1, a2, tau)
+        ratios.append(r_avg / a1)
+    ratio_lo, ratio_hi = min(ratios), max(ratios)
+    pct_lo, pct_hi = (1.0 - ratio_hi) * 100.0, (1.0 - ratio_lo) * 100.0
+    out["blanket_transient_avg_to_inst_ratio_range"] = (ratio_lo, ratio_hi)
+    out["blanket_transient_underestimate_pct_range"] = (pct_lo, pct_hi)
+    exp_str = ", ".join(f"{p_psi:g}psi/{rpm:g}rpm" for _, _, _, p_psi, rpm in table_3_3.values())
+    out["blanket_transient_note"] = (
+        f"t={t:g}s에서 r_avg(t)/a1 문헌 4실험(표 3.3) 범위 {ratio_lo:.4f}~{ratio_hi:.4f} "
+        f"(60 s류 관행 평균이 포화 순간속도 a1 대비 {pct_lo:.1f}~{pct_hi:.1f}% 낮음). "
+        f"⚠ 이 팩의 운전점(pressure_psi={rr.pressure_psi:g}, rpm_platen={rr.rpm_platen:g})은 "
+        f"표 3.3 4실험({exp_str}) 중 어느 것과도 일치하지 않아 이 범위는 오더 참고용이다 — "
+        f"내삽·보간하지 않는다. 우리 팩의 kp_m_per_pa도 문헌 평균 MRR에서 역산된 값이라 "
+        f"같은 편향을 상속할 수 있다.")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -2841,6 +2920,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     disk_preston = _disk_preston_contact_diagnostic(rr)
     if disk_preston["disk_preston_contact_note"]:
         notes.append(disk_preston["disk_preston_contact_note"])
+    # 블랭킷 Cu 순간 포화속도 a1 대비 평균 rate 과소평가 진단 — MRR 경로와 완전히 독립
+    # (진단 전용). film != "cu"이거나 time_s<=0이면 조용히 None.
+    blanket_transient = _blanket_rate_transient_diagnostic(rr)
+    if blanket_transient["blanket_transient_note"]:
+        notes.append(blanket_transient["blanket_transient_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -2959,6 +3043,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        disk_contact_eta_over_af=disk_preston["disk_contact_eta_over_af"],
                        disk_contact_scale_factor=disk_preston["disk_contact_scale_factor"],
                        disk_preston_contact_note=disk_preston["disk_preston_contact_note"],
+                       blanket_transient_avg_to_inst_ratio_range=blanket_transient[
+                           "blanket_transient_avg_to_inst_ratio_range"],
+                       blanket_transient_underestimate_pct_range=blanket_transient[
+                           "blanket_transient_underestimate_pct_range"],
+                       blanket_transient_note=blanket_transient["blanket_transient_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
