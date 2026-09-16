@@ -397,8 +397,9 @@ class WaferResult:
     ceria_electrostatic_attraction: Optional[int] = None
     ceria_redox_note: Optional[str] = None
     # 패드 공정 하중주파수 역진단(Maxwell 점탄성, S12) — MRR과 완전히 독립, 진단 전용.
-    # sim/tier2_physics/viscoelastic_maxwell.py 엔진 등록. ω_asperity/De_asperity는
-    # 구조적으로 항상 None(_pad_loading_frequency_diagnostic 독스트링 참조).
+    # sim/tier2_physics/viscoelastic_maxwell.py 엔진 등록. ω_asperity/De_asperity는 GW
+    # 패드 파라미터+asperity_height_distribution=exponential일 때 산출된다(2026-09-16
+    # 정정, _pad_loading_frequency_diagnostic 독스트링 참조).
     pad_loading_omega_rot_rad_s: Optional[float] = None
     pad_loading_omega_asperity_rad_s: Optional[float] = None
     pad_relaxation_time_threshold_s: Dict[str, Optional[float]] = field(
@@ -1520,9 +1521,11 @@ def _pad_loading_frequency_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]
     """공정 하중 주파수 ω → 패드 이완시간 임계값(역진단) — MRR 경로와 완전히 독립.
 
     근거: sim/tier2_physics/viscoelastic_maxwell.py::maxwell_storage_loss/tan_delta
-    (원본 무수정), sim/tier1_empirical/kinematics.py::rpm_to_rads(원본 무수정),
+    (원본 무수정), sim/tier2_physics/gw_pressure_solve.py::local_contact_state,
+    sim/tier2_physics/gw_contact.py::hertz_contact_area(둘 다 원본 무수정),
+    sim/tier1_empirical/kinematics.py::rpm_to_rads/speed_stats(원본 무수정),
     knowledge/materials/pad-viscoelasticity-dma.md §3(Maxwell 모델 수식),
-    §4(CMP 패드 실측 τ_creep 미확보 자백), §7(a)(ω=1/τ0 → E'/E=0.5 항등식).
+    §4(CMP 패드 실측 τ_creep 미확보 자백), §7(a)(ω=1/τ0 → E'/E=0.5 항등식), §8(개정).
 
     §4가 자백하듯 CMP 패드 실측 τ0(이완시간)를 확보하지 못했다 — τ0를 지어내 De=τ0·ω를
     내지 않는다. 대신 **역방향 진단**: 공정 하중 주파수 ω_process 후보를 기존 literature
@@ -1532,21 +1535,24 @@ def _pad_loading_frequency_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]
     후보 (A) 플래튼 회전 ω_rot = 2π·rpm_platen/60 [rad/s] — 패드 위 한 점이 웨이퍼 아래를
     지나는 주기. rr.rpm_platen(base.yaml, confidence=literature)만으로 항상 계산된다.
 
-    후보 (B) asperity 접촉 주기 ω_asperity = 2π·V_rel/(2a)는 **항상 None으로 둔다**.
-    V_rel은 다른 모든 진단(_lubrication_diagnostics 등)과 동일하게
-    kin.speed_stats(...)["mean"]로 얻을 수 있고, 2a(Hertz 접촉폭)는
-    gw_contact.hertz_contact_area(delta, R)로 얻을 수 있지만, 그 delta(개별 asperity
-    압입깊이)를 이미 등록된 _gw_contact_state_diagnostic에서 가져올 수 없다 — 그 진단은
-    GW 통계모델의 앙상블 적분값(분리거리 d, 실접촉면적 A_r, 하중 W, 접촉점수 n_contacts)만
-    내고 단일 asperity의 delta=z-d(z=asperity 높이, 분포를 따름)는 산출하지 않는다.
-    이는 팩이 GW 패드 파라미터(pad_E_star_pa 등)를 선언하는지와 무관한 **구조적** 한계다
-    — 그 파라미터가 선언돼 있어도 delta는 여전히 나오지 않는다. delta를 별도 통계 가정
-    (예: 지수분포 memoryless 성질로 평균 delta=1/β 유도) 없이 지어낼 수 없어, 이 진단이
-    승인받지 않은 새 파생값을 만들지 않고 (B) 전체를 None + 스킵사유로 둔다.
+    후보 (B) asperity 접촉 주기 ω_asperity = 2π·V_rel/(2a) — 2026-09-16 정정: 이전 회차가
+    "구조적으로 계산 불가"라 적었으나 **틀렸다**. GW 지수분포 해에서는 평균 압입깊이가
+    닫힌형으로 나온다 — A_r = πRηA_n·(1/β)·e^(−βd), n = ηA_n·e^(−βd) 이므로
+    δ_mean = A_r/(πR·n) = 1/β 가 **d에 무관한 정확한 항등식**이다(지수분포 memoryless
+    성질, gw_contact.py 독스트링의 gw_analytic_ratio 유도와 같은 적분). 이는 새 통계
+    가정이 아니라 팩이 이미 literature 등급으로 선언한 asperity_height_distribution=
+    exponential에서 직접 유도되는 수학적 귀결이다. 그래서 GW 5개 패드 파라미터
+    (_gw_contact_state_diagnostic과 동일 키)가 선언돼 있고 asperity_height_distribution
+    이 정확히 "exponential"일 때만 δ_mean=1/β → 2a=hertz_contact_area(δ_mean,R)에서
+    접촉폭 → ω_asperity=2π·V/(2a)를 실제로 계산한다(V는 다른 모든 진단과 동일하게
+    kin.speed_stats(...)["mean"]). 다른 분포(예: gaussian)면 이 항등식이 성립하지 않아
+    지어내지 않고 None + 스킵사유로 둔다.
 
     τ0가 팩에 pad_relaxation_time_s로 선언될 때만(현재 어느 팩도 미선언 — 항상 None이
-    정상) De=τ0·ω_rot, E'/E, E''/E, tanδ를 viscoelastic_maxwell.maxwell_storage_loss/
-    tan_delta로 실제 계산한다(E=1.0 무차원 스프링 계수 — 모듈 자체 규약, 비율만 의미).
+    정상) rot·asperity 두 축 모두 De=τ0·ω, E'/E, E''/E, tanδ를
+    viscoelastic_maxwell.maxwell_storage_loss/tan_delta로 실제 계산한다(E=1.0 무차원
+    스프링 계수 — 모듈 자체 규약, 비율만 의미). 두 축은 서로 다른 물리 주기이므로
+    평균내거나 하나를 대표값으로 고르지 않는다.
     """
     out: Dict[str, object] = {
         "pad_loading_omega_rot_rad_s": None,
@@ -1569,34 +1575,86 @@ def _pad_loading_frequency_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]
         f"ω_rot=2π·rpm_platen/60={omega_rot:.4f} rad/s(rpm_platen={rr.rpm_platen:g}) — "
         f"플래튼 회전주기 기준. τ_crit_rot=1/ω_rot={1.0/omega_rot:.4f} s "
         "(패드 이완시간이 이보다 길면 이 주파수에서 탄성 지배, 짧으면 점성 지배)")
-    notes.append(
-        "ω_asperity(애스퍼리티 접촉주기)는 항상 None: L_contact=2a(Hertz 접촉폭)를 구하려면 "
-        "개별 asperity 압입깊이 delta가 필요하나 _gw_contact_state_diagnostic은 분리거리 d와 "
-        "앙상블 적분값(A_r, W, n_contacts)만 내고 단일 asperity의 delta=z-d는 산출하지 않는다 "
-        "(GW 패드 파라미터 선언 여부와 무관한 구조적 한계) — delta를 지어낼 수 없어 (B) 전체 스킵")
+
+    omega_asp = None
+    # _gw_contact_state_diagnostic과 동일 키 튜플 재사용(새 게이트 만들지 않음)
+    pad_keys = ("pad_E_star_pa", "pad_asperity_radius_m", "pad_height_beta_inv_m",
+                "pad_asperity_density_m2", "pad_nominal_area_m2")
+    missing_pad = [k for k in pad_keys if not rr.pack.has(k)]
+    dist = rr.p("asperity_height_distribution") if rr.pack.has("asperity_height_distribution") else None
+    if missing_pad:
+        notes.append(
+            f"ω_asperity 스킵 — GW 패드 파라미터 미선언({', '.join(missing_pad)}): "
+            "δ_mean=1/β 항등식을 풀 입력이 없음")
+    elif dist != "exponential":
+        notes.append(
+            f"ω_asperity 스킵 — asperity_height_distribution={dist!r}(exponential 아님): "
+            "δ_mean=1/β는 지수분포 memoryless 항등식이라 다른 분포에서는 성립하지 않고, "
+            "지어낼 수 없음")
+    else:
+        try:
+            import gw_pressure_solve as GWP   # sim/tier2_physics (1바이트도 수정 안 함)
+            import gw_contact as GWC          # sim/tier2_physics (1바이트도 수정 안 함)
+            E_star = rr.p("pad_E_star_pa")
+            R = rr.p("pad_asperity_radius_m")
+            # ⚠ 단위: 팩 키는 스케일 1/β [m], 모듈이 받는 인자는 감쇠율 β [1/m]. 역수 변환
+            # 필수(미변환 시 d가 21.6 km로 풀린 전례, _gw_contact_state_diagnostic 주석 참조).
+            beta = 1.0 / rr.p("pad_height_beta_inv_m")
+            eta = rr.p("pad_asperity_density_m2")
+            A_n = rr.p("pad_nominal_area_m2")
+            P_center = rr.pressure_psi * PSI_TO_PA
+            state = GWP.local_contact_state(P_center, A_n, beta, eta, E_star, R)
+            # δ_mean = A_r/(π·R·n) = 1/β (지수분포 GW 해의 정확한 항등식, d와 무관)
+            delta_mean = state["A_r"] / (math.pi * R * state["n_contacts"])
+            area = GWC.hertz_contact_area(delta_mean, R)   # = πRδ (원본 무수정)
+            a = math.sqrt(area / math.pi)
+            L = 2.0 * a
+            V_mean = kin.speed_stats(rr.wafer_radius_m, rr.center_offset_m,
+                                     rr.rpm_wafer, rr.rpm_platen)["mean"]
+            omega_asp = 2.0 * math.pi * V_mean / L
+        except Exception as e:
+            notes.append(f"ω_asperity 계산 실패({e}) — None으로 둠")
+            omega_asp = None
+        else:
+            out["pad_loading_omega_asperity_rad_s"] = float(omega_asp)
+            out["pad_relaxation_time_threshold_s"]["asperity"] = float(1.0 / omega_asp)
+            ratio = omega_asp / omega_rot
+            notes.append(
+                f"ω_asperity=2π·V/(2a)={omega_asp:.4e} rad/s(V={V_mean:.4f} m/s, "
+                f"δ_mean={delta_mean:.4e} m=1/β[지수분포 항등식, asperity_height_distribution="
+                f"exponential 전제], 2a={L:.4e} m) — 애스퍼리티가 접촉폭 L=2a를 한 번 지나가는 "
+                f"주기 기준. τ_crit_asperity=1/ω_asperity={1.0/omega_asp:.4e} s. "
+                f"ω_asperity/ω_rot={ratio:.3e}배 — 두 축은 서로 다른 물리 주기(플래튼 1회전 "
+                "주기 vs 애스퍼리티가 접촉폭을 지나는 주기)라 평균내거나 하나를 대표값으로 "
+                "고르지 않는다. GW 5개 패드 파라미터는 base.yaml 상속이라 팩마다 값이 다르지 "
+                "않다(팩별 차이를 시사하지 않음).")
 
     if not rr.pack.has("pad_relaxation_time_s"):
         notes.append(
             "pad_relaxation_time_s 미선언 — τ0(패드 실측 이완시간)를 지어낼 수 없어 "
-            "De_rot(및 E'/E, E''/E, tanδ)는 None. τ_crit_rot만 유효 정보.")
+            "De(rot/asperity 모두), E'/E, E''/E, tanδ는 None. τ_crit만 유효 정보.")
         out["pad_loading_frequency_note"] = " | ".join(notes)
         return out
     try:
         import viscoelastic_maxwell as VM   # sim/tier2_physics (1바이트도 수정 안 함)
         tau0 = float(rr.p("pad_relaxation_time_s"))
-        Es, El = VM.maxwell_storage_loss([omega_rot], 1.0, tau0)
-        td = VM.tan_delta(Es, El)
-        de_rot = tau0 * omega_rot
-        out["pad_deborah_number"]["rot"] = {
-            "tau0_s": tau0, "De": float(de_rot),
-            "E_storage_ratio": float(Es[0]), "E_loss_ratio": float(El[0]),
-            "tan_delta": float(td[0]),
-        }
-        regime = ("탄성(저장) 지배" if de_rot > 1 else
-                  ("점성(손실) 지배" if de_rot < 1 else "전이(De=1, E'/E=0.5)"))
-        notes.append(
-            f"τ0={tau0:.4g}s(팩 선언값) → De_rot=τ0·ω_rot={de_rot:.4g} → {regime}, "
-            f"E'/E={float(Es[0]):.4f}, E''/E={float(El[0]):.4f}, tanδ={float(td[0]):.4f}")
+        omegas = {"rot": omega_rot}
+        if omega_asp is not None:
+            omegas["asperity"] = omega_asp
+        for axis, omega in omegas.items():
+            Es, El = VM.maxwell_storage_loss([omega], 1.0, tau0)
+            td = VM.tan_delta(Es, El)
+            de = tau0 * omega
+            out["pad_deborah_number"][axis] = {
+                "tau0_s": tau0, "De": float(de),
+                "E_storage_ratio": float(Es[0]), "E_loss_ratio": float(El[0]),
+                "tan_delta": float(td[0]),
+            }
+            regime = ("탄성(저장) 지배" if de > 1 else
+                      ("점성(손실) 지배" if de < 1 else "전이(De=1, E'/E=0.5)"))
+            notes.append(
+                f"τ0={tau0:.4g}s(팩 선언값) → De_{axis}=τ0·ω_{axis}={de:.4g} → {regime}, "
+                f"E'/E={float(Es[0]):.4f}, E''/E={float(El[0]):.4f}, tanδ={float(td[0]):.4f}")
     except Exception as e:
         notes.append(f"τ0 선언되어 있으나 Deborah 수 계산 실패({e}) — None으로 둠")
     out["pad_loading_frequency_note"] = " | ".join(notes)
@@ -2484,7 +2542,8 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         notes.append(pad_visco["pad_viscoelastic_note"])
     # 패드 공정 하중주파수 역진단(Maxwell 점탄성) — MRR 경로와 완전히 독립(진단 전용).
     # pad_relaxation_time_s 팩 미선언이면 De는 조용히 None(현재 전 팩 미선언이라 항상
-    # None이 정상). ω_asperity는 구조적으로 항상 None(함수 독스트링 참조).
+    # None이 정상). ω_asperity는 GW 패드 파라미터+exponential 분포 선언 시 산출된다
+    # (2026-09-16 정정, 함수 독스트링 참조).
     pad_loading_freq = _pad_loading_frequency_diagnostic(rr)
     if pad_loading_freq["pad_loading_frequency_note"]:
         notes.append(pad_loading_freq["pad_loading_frequency_note"])

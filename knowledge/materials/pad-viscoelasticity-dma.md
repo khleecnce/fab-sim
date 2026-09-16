@@ -142,13 +142,30 @@ print(f"PASS: Maxwell E'/E@relax={ratio_at_relax}, Meng2025 탄성계수 배율=
 ## 8. 엔진 등록 (S12, 2026-09-16) — τ0 없이 낼 수 있는 역진단만 등록
 `sim/tier2_physics/viscoelastic_maxwell.py`(§3 Maxwell 수식 재현 모듈)를 `sim/engine.py`의
 `_pad_loading_frequency_diagnostic`로 등록했다. §4가 자백한 대로 CMP 패드 실측 τ0(이완시간)
-문헌값이 없어 De=τ0·ω를 지어내지 않는다 — 대신 공정 하중 주파수 ω(플래튼 회전 ω_rot=
-2π·rpm_platen/60)를 역산하고 τ_crit=1/ω(이완시간 임계값)만 낸다. 애스퍼리티 접촉 주기
-ω_asperity는 개별 asperity 압입깊이 δ가 필요한데, 등록된 GW 역문제 진단
-(`_gw_contact_state_diagnostic`)이 내는 값은 분리거리 d와 앙상블 적분(A_r, W, n_contacts)뿐이라
-δ를 구조적으로 얻을 수 없어 항상 None(스킵)이다. 어느 팩도 `pad_relaxation_time_s`를
-선언하지 않아 De/E'/E/E''/E/tanδ는 항상 None이 정상 경로다(pad_groove_eol·
-pad_viscoelastic_temperature와 동일 지위).
+문헌값이 없어 De=τ0·ω를 지어내지 않는다 — 대신 공정 하중 주파수 ω 후보 두 개를 역산하고
+τ_crit=1/ω(이완시간 임계값)만 낸다.
+
+후보 (A) 플래튼 회전 ω_rot=2π·rpm_platen/60은 항상 계산된다.
+
+후보 (B) 애스퍼리티 접촉 주기 ω_asperity=2π·V/(2a) — **2026-09-16 정정**: 직전 회차는 이것이
+"개별 asperity 압입깊이 δ가 필요한데 GW 역문제 진단이 내는 값은 앙상블 적분뿐이라 구조적으로
+얻을 수 없다"고 적었으나 틀렸다. GW 지수분포 해에서는 평균 압입깊이가 닫힌형으로 나온다 —
+`A_r = πRηA_n·(1/β)·e^(−βd)`, `n = ηA_n·e^(−βd)` 이므로 `δ_mean = A_r/(πR·n) = 1/β`가 **분리거리
+d와 무관한 정확한 항등식**이다(지수분포 memoryless 성질, `gw_contact.py`의 `gw_analytic_ratio`
+유도와 동일 적분). 이는 새 통계 가정이 아니라 팩이 이미 literature 등급으로 선언한
+`asperity_height_distribution: exponential`에서 직접 유도되는 수학적 귀결이다. 그래서 GW
+5개 패드 파라미터(`_gw_contact_state_diagnostic`과 동일 키)가 선언돼 있고
+`asperity_height_distribution`이 정확히 `"exponential"`일 때만 δ_mean=1/β → Hertz 접촉폭
+2a=hertz_contact_area(δ_mean,R)를 거쳐 ω_asperity를 실제로 계산한다(가우시안 등 다른 분포면
+항등식이 성립하지 않아 지어내지 않고 None+스킵사유). GW 파라미터는 base.yaml 상속이라
+전 팩이 동일값을 낸다: δ_mean=2.0e-6 m, 2a=2.0e-5 m, V=1.1526 m/s, ω_asperity≈3.621e5 rad/s
+— ω_rot(≈5.76 rad/s, base.yaml rpm_platen=55)과 약 6.3e4배 차이 난다. 두 ω는 서로 다른
+물리 주기(플래튼 1회전 vs 애스퍼리티가 접촉폭을 한 번 지나가는 주기)이므로 평균내거나 하나를
+대표값으로 고르지 않는다.
+
+어느 팩도 `pad_relaxation_time_s`를 선언하지 않아 De/E'/E/E''/E/tanδ는 rot·asperity 두 축
+모두 항상 None이 정상 경로다(pad_groove_eol·pad_viscoelastic_temperature와 동일 지위). 선언될
+경우 두 축 각각 독립적으로 De=τ0·ω를 계산한다(하나만 대표로 고르지 않는다).
 
 > ⚠ 1차 출처 확보 실패: CMP PU 패드의 DMA 주파수 스윕에서 tanδ 피크 주파수 또는 이완시간을
 > 보고한 1차 문헌을 찾지 못했다. 시도 경로 — `tools/find_open_access.py --title`로
