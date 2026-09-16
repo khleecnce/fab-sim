@@ -2792,3 +2792,32 @@ pytest 939 passed, qa_loop --strict PASS(유의 평균 ρ=0.9442 불변 — 이 
 집계 밖), 완성 격자 59/60 불변.
 다음: KMnO4 산화제 형상을 **다른 문헌**에서 확보(이 L25 는 blind 로 보존), 또는
 `_ph_softening_term` 의 세리아 전용 게이트가 SiC 산화막 계에 타당한지 문헌 판정.
+
+## 2026-09-16 18:xx [성장엔진] 판정#52 — SiC 세리아 팩 농도지수 부호 역전(-0.406 → +0.227) + 신규 held-out 확보
+갭랭커 100점(sic_ceria_h2o2 n>=4 held-out 0건)에 대응. 코퍼스에서 못 찾아
+Unpaywall 경로로 **Liang et al., Nano Research 2026(doi:10.26599/NR.2026.94909100,
+CC-BY, 49p 출판사 PDF 직접 확보)** 을 새로 확보, §2.3 본문 인쇄값 4점을
+`validation/datasets/liang2026_4hsic_ceria_composite_h2o2_conc.yaml` 로 등록(held-out).
+
+그 데이터가 즉시 반증을 냈다: 팩의 `abrasive_conc_exponent`=-0.406(농도↑→MRR↓)인데
+실측은 1/5/9 wt% 에서 228.54/538.45/621.47 nm/h **단조 증가**(ρ=-0.800, p=0.958).
+원인 추적 결과 그 -0.406 의 근거 데이터(US20220315802A1)는 **판정#49-B 로 이미
+자식 팩 sic_alumina_kmno4 로 옮겨져 있었고 지수만 부모에 남은 고아 파라미터**였다.
+
+판정#52: 이 팩 계의 1차 문헌 4건이 전부 비음 방향이고(Wang DOE 매칭쌍 17개
+중앙값 +0.227, Liang +0.472, Wei 단조증가, Gong +0.036), 이론 유도 n_C=+0.333 과도
+부호가 일치한다. 두 지수를 평균내지 않고 **레짐 분할**:
+sic_ceria_h2o2 → +0.227, sic_alumina_kmno4 → -0.406(근거 특허와 같은 팩으로 이동).
+
+실측 결과: **유의 held-out 평균 rho 0.9442 → 0.9512**(유의 8→9개, 78→83조건),
+held-out 14개 전체 평균 rho 0.523→0.723, liang2026 rho -0.800→**+1.000(p=0.042)**,
+su2011 rho -0.500→+0.500 · MAPE 64.1%→**13.0%**, sic2026 DOE50(캘리브레이션 참고)
+rho 0.463→0.688. entegris2022·gong2024 는 불변(값이 아니라 자리만 옮겼으므로).
+pytest **951 passed**, qa_loop --strict **PASS**, 완성 격자 59/60 불변이나
+**C4(sic_ceria_h2o2 유의 held-out 0건) 해소**.
+노트: knowledge/cmp/sic-ceria-abrasive-concentration-sign-reversal-ruling.md
+(verify_claims 4출처 실존·1블록 assert 통과, check_knowledge 통과).
+부수: entegris 데이터셋의 calibration_contact pack 필드도 부모→자식으로 정정
+(감사가 F4 미신고 오염으로 잡던 것 해소).
+다음: 남은 C2 1칸(chi/sic_ceria_h2o2 oxidizer_langmuir_K 승격 — 부트스트랩
+구간이 한 자릿수라 독립 DOE 필요) 또는 BIAS(entegris 23배 계통편향).

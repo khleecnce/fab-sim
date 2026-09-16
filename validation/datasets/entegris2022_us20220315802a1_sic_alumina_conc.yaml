@@ -41,9 +41,13 @@ used_for_calibration: false
 #   캘리브레이션-검증 분리를 일관되게 다시 정리하는 것은 별도 과제로 남긴다(미검증).
 calibration_contact:
   - param: abrasive_conc_exponent
-    pack: sic_ceria_h2o2
+    pack: sic_alumina_kmno4
     what: >
-      knowledge/params/sic_ceria_h2o2.yaml의 abrasive_conc_exponent(-0.406) note —
+      ⚠ 2026-09-16 판정#52: 이 지수(-0.406)는 원래 부모 팩 sic_ceria_h2o2 에
+      선언돼 있었으나, 근거가 이 특허(=이 데이터셋)이고 이 데이터셋은 판정#49-B 로
+      이미 sic_alumina_kmno4 팩으로 옮겨져 있었으므로 파라미터도 같은 팩으로
+      이동했다. 접촉 신고의 pack 필드도 함께 갱신한다.
+      knowledge/params/sic_alumina_kmno4.yaml의 abrasive_conc_exponent(-0.406) note —
       "SiC+알루미나 직접 실측(US20220315802A1 Table 1, n=5, 0.1~5wt%)에서 로그-로그
       회귀로 지수 -0.406 확인" — 이 데이터셋(Table 1)에서 그대로 도출했다(위
       2026-09-11 주석과 동일 사실).

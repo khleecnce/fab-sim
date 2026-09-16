@@ -1198,6 +1198,15 @@
   "ver": "publishedVersion",
   "year": 2011
  },
+ "nr2026-ceria-composite-abrasive-sic-cmp": {
+  "authors": "Liang J, Zhang Y, et al.",
+  "doi": "10.26599/NR.2026.94909100",
+  "note": "cmp/sic-ceria-abrasive-concentration-sign-reversal-ruling.md — 4H-SiC held-out 데이터셋 liang2026_4hsic_ceria_composite_h2o2_conc 의 출처",
+  "pdf_local": "papers/nr2026-ceria-composite-abrasive-sic-cmp.pdf",
+  "src": "Nano Research (Tsinghua Univ. Press), CC-BY 오픈액세스. 출판사 PDF 직접 확보(sciopen.com), 49p.",
+  "title": "Chemical mechanical polishing on silicon carbide using developed ceria composite abrasives and their synergistic polishing mechanism",
+  "year": 2026
+ },
  "ouma1998-thesis-mit-cmp-dielectric-planarization": {
   "authors": "Dennis Okumu Ouma",
   "handle": "1721.1/9704",
