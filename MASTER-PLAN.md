@@ -2866,3 +2866,4 @@ CLI `--json` 실측 키 127개·blanket 진단 노출 확인.
 `friction_cof_epd`=시계열 스키마 부재, `disk_active_grit_fraction`=engage_depth가 노트에서
 "가정값·미검증", `pad_wear_glazing`/`wear_aware_*`/`conditioner_asperity_distribution`=
 A0·마모상수가 문헌 fit 파라미터라 공개 정량값 없음, `disk_cutrate_coupling`=판정#51로 등록 거부).
+- 2026-09-16 [성장엔진] 판정#53: C2 마지막 칸(χ/sic_ceria_h2o2 oxidizer_langmuir_K) 승격 **기각** — Liang2026 held-out 쌍(8→10 wt%)이 −3.3 %로 맞지만 포화구간이라 K 미식별·계 불일치(E4). 값·등급·코드 불변, 노트 §8 추가. 격자 59/60 유지, 987 passed, QA ρ=0.9512 불변
