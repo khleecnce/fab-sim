@@ -193,6 +193,9 @@ class WaferResult:
     lubrication_regime: Optional[str] = None       # "boundary"/"mixed"/"hydrodynamic"
     cmp_sommerfeld_number: Optional[float] = None
     cof_stribeck_estimate: Optional[float] = None
+    cof_qf_used: Optional[float] = None            # Q_f(열수지)가 실제로 쓴 μ
+    cof_estimate_vs_qf_ratio: Optional[float] = None
+    cof_consistency_note: Optional[str] = None
     # 슬러리 필름두께 스케일 진단 — MRR과 무관. Thakurta(2001) Eq.19 z0
     # (cmp-slurry-flow-lubrication-film-thickness.md). z0는 h_min의 스케일이지 정확한 값이 아니다.
     film_z0_scale_um: Optional[float] = None
@@ -578,9 +581,37 @@ def _lubrication_diagnostics(rr: "ResolvedRecipe") -> Dict[str, object]:
         d_eff = CLR.delta_eff(Ra, 0.0, 1.0)
         so = CLR.cmp_sommerfeld(mu, U_mean, p_mean, d_eff)
         lam = so   # λ≈So 근사(δeff≈σ 가정, 노트 §5) — 정량 항등식 아님
+        # ⚠ 전이 파라미터를 팩에서 읽는다. 이전에는 CLR.cof_stribeck(so) 로만 호출해
+        # base.yaml 의 cof_boundary·cof_hydro_coeff·cof_transition_alpha 3개 키가
+        # 완전한 dead code 였다(모듈 기본값 0.30/8.0/40.0 이 우연히 같은 값이라
+        # 증상이 보이지 않았음 — cof_boundary 를 3배로 흔들어도 출력 비트 불변이었다).
+        kw = {}
+        if rr.pack.has("cof_boundary"):
+            kw["mu_bl"] = float(rr.p("cof_boundary"))
+        if rr.pack.has("cof_hydro_coeff"):
+            kw["c_hydro"] = float(rr.p("cof_hydro_coeff"))
+        if rr.pack.has("cof_transition_alpha"):
+            kw["alpha_tr"] = float(rr.p("cof_transition_alpha"))
+        cof_est = CLR.cof_stribeck(so, **kw)
         out["lubrication_regime"] = CLR.regime_from_lambda(lam)
         out["cmp_sommerfeld_number"] = so
-        out["cof_stribeck_estimate"] = CLR.cof_stribeck(so)
+        out["cof_stribeck_estimate"] = cof_est
+
+        # μ 일관성 진단: Q_f(Θ 열수지)가 쓰는 μ 와 이 추정치를 같은 문서에서 대조한다.
+        if "mu_bl" in kw:
+            mu_qf = kw["mu_bl"]
+            out["cof_qf_used"] = mu_qf
+            out["cof_estimate_vs_qf_ratio"] = cof_est / mu_qf if mu_qf else None
+            out["cof_consistency_note"] = (
+                f"Q_f(Θ 열수지)는 μ={mu_qf:.4g}(cof_boundary, confidence=literature)를 쓰고, "
+                f"Stribeck 추정치는 {cof_est:.4g} (비 {cof_est / mu_qf:.4f}). "
+                "⚠ 이 둘은 독립 추정이 아니다 — cof_stribeck(So)는 mu_bl=cof_boundary 를 "
+                "입력으로 받아 전이항 f=exp(-alpha_tr·So)로 깎은 값이므로, 차이 전부가 "
+                "alpha_tr·c_hydro(둘 다 confidence=estimated, 노트 §6이 '임의·정성 재현'이라 "
+                "명시)에서 나온다. 따라서 Q_f에는 문헌등급인 cof_boundary 를 그대로 쓰고 "
+                "이 추정치를 대입하지 않는다(EVIDENCE-RULES: literature > estimated). "
+                "Q_f∝μ 이므로 μ 오차는 ΔT_ss에 선형 전파되고, Ea가 큰 막(Cu 151.7 kJ/mol)에서는 "
+                "thermal_chemical_rate_ratio 를 수십 % 이상 흔든다 — 절대값을 신뢰하지 말 것.")
     except Exception as e:
         out["_note"] = f"윤활 레짐 진단 실패({e}) — lubrication_regime 등 None으로 둠"
     return out
@@ -2799,6 +2830,8 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         notes.append("윤활 레짐 진단(So·λ·COF)은 λ≈So 근사(δeff≈σ 가정)이며 "
                      "COF 절대값은 정성적 오더 추정, 실측 캘리브레이션 필요 "
                      "(knowledge/physics/cmp-lubrication-regimes.md §5,§7)")
+        if lube.get("cof_consistency_note"):
+            notes.append(lube["cof_consistency_note"])
     # 슬러리 필름두께 스케일 z0 진단 — MRR 경로와 완전히 독립. 팩에 슬러리 점도가 없으면 조용히 None.
     film = _film_thickness_diagnostic(rr)
     if film.get("_note"):
@@ -2964,6 +2997,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        lubrication_regime=lube["lubrication_regime"],
                        cmp_sommerfeld_number=lube["cmp_sommerfeld_number"],
                        cof_stribeck_estimate=lube["cof_stribeck_estimate"],
+                       cof_qf_used=lube.get("cof_qf_used"),
+                       cof_estimate_vs_qf_ratio=lube.get("cof_estimate_vs_qf_ratio"),
+                       cof_consistency_note=lube.get("cof_consistency_note"),
                        film_z0_scale_um=film["film_z0_scale_um"],
                        film_lubrication_note=film["film_lubrication_note"],
                        ptw_effective_pressure_ratio=eff_p["ptw_effective_pressure_ratio"],
