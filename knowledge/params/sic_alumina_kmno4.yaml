@@ -94,6 +94,36 @@ params:
     source: "US20220315802A1 Table 1"
     confidence: measured
 
+  # ── 산화제 (2026-09-16, 물리위생 차원 위반 해소) ──────────────
+  # 부모(sic_ceria_h2o2)는 H2O2 를 vol% 로 선언한다(Wang DOE: 2/4/6 vol%).
+  # 이 팩의 산화제는 KMnO4 이고 특허 원문이 wt% 로 적는다 — 상속하면
+  # **다른 재료의 농도를 다른 단위로** 물려받는다(모델 위생 규칙:
+  # "재료를 바꾼 팩이 부모의 재료 고유 상수를 물려받으면 남의 재료로
+  #  계산한 숫자가 이 팩의 결과로 나온다"). 본값·기준점을 한 편집에서
+  # 함께 자기선언한다 — 비(c/c_ref)는 1.0 그대로라 예측은 불변이고,
+  # 키 이름(_wt_pct)과 단위(wt%)의 어긋남만 사라진다.
+  # ⚠ 현재 이 계보에는 산화제 형상 파라미터(langmuir_K/passivation_K/
+  #   peak_wt_pct)가 없어 χ 의 산화제 항 자체가 비활성이다(factors.py 가
+  #   경고로 신고 중). 그 항을 켤 때는 KMnO4 기준으로 형상을 새로 확보해야
+  #   하며, H2O2 형상을 전용하지 마라(E°가 다르다: MnO4-/MnO2 +1.68 V).
+  oxidizer_wt_pct:
+    value: 4.0
+    unit: "wt%"
+    note: >
+      이 팩의 기준 조성 산화제 농도 — KMnO4 4 wt%(ph_ref 와 같은 출처 줄).
+      부모의 H2O2 3.0 wt% 를 덮는다.
+    source: "US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3"
+    confidence: measured
+
+  oxidizer_ref_wt_pct:
+    value: 4.0
+    unit: "wt%"
+    note: >
+      기준점 동반 이동(본값과 같은 조성). 부모의 4.0 **vol%**(H2O2)를 덮는다 —
+      값이 우연히 같아도 단위와 재료가 다르므로 상속은 오답이다.
+    source: "US20220315802A1 Table 1 — 4 wt% KMnO4"
+    confidence: measured
+
   abrasive_density_kg_m3:
     value: 3950.0
     unit: kg/m^3
