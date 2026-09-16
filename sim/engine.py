@@ -211,6 +211,18 @@ class WaferResult:
     gw_contact_linearity_max_dev: Optional[float] = None
     gw_kp_physical_to_lit_ratio: Optional[float] = None
     gw_contact_note: Optional[str] = None
+    # GW 역문제(명목압력→분리거리) 런타임 해 진단 — MRR과 무관. sim/tier2_physics/
+    # gw_pressure_solve.py::local_contact_state + gw_contact.py::plasticity_index/
+    # gw_analytic_ratio. base.yaml의 real_contact_area_ratio(estimated, 3psi 대표값) note가
+    # "압력 의존성을 정식으로 넣으려면 GW를 런타임에 풀어야 한다"고 자백한 것을 실행해
+    # 정적 팩값과 런타임 해의 괴리를 gw_static_pack_ratio_deviation으로 노출한다.
+    # GW 5개 패드 파라미터(_gw_contact_linearity_diagnostic과 동일 키)가 없으면 조용히 None.
+    gw_solved_separation_m: Optional[float] = None
+    gw_real_contact_area_ratio: Optional[float] = None
+    gw_real_contact_pressure_pa: Optional[float] = None
+    gw_static_pack_ratio_deviation: Optional[float] = None
+    gw_plasticity_index: Optional[float] = None
+    gw_contact_regime_note: Optional[str] = None
     # Θ 정상상태 열저항 네트워크 진단 — MRR과 무관. White 2003 원문 에너지균형 이식
     # (frictional-heating-temperature-arrhenius-coupling.md §8). 공통 싱크 T₀ 대비 ΔT_ss[K]와
     # 슬러리/패드/공기 3분배. pad_thickness_m·pad_thermal_conductivity_w_mk 없으면 조용히 None.
@@ -661,8 +673,15 @@ def _gw_contact_linearity_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     try:
         import gw_preston_link as GWL   # sim/tier2_physics (1바이트도 수정 안 함)
         from sim.tier1_empirical import kinematics as kin
+        # ⚠ 단위 정정(2026-09-16, Max워커): 팩 키 `pad_height_beta_inv_m`는 지수분포의
+        # **스케일 1/β [m]**(=2.0e-6 m)이고, gw_contact.exp_pdf(z,beta)=β·exp(-βz)가 받는
+        # 인자는 **감쇠율 β [1/m]**다. 역수를 취하지 않고 그대로 넘기면 β가 5e5 배 작아져
+        # 분리거리 d가 21.6 km(!)로 풀린다. base.yaml `real_contact_area_ratio` note가
+        # 기록한 GW 해(d=7.62 µm, 실접촉비 1.393e-3, 접촉자리 4.434e6 /m²)는 β=1/(2.0e-6)
+        # 로 풀어야 재현된다 — 아래 역수 변환이 그 재현을 보장한다.
         pad = dict(E_star=rr.p("pad_E_star_pa"), R=rr.p("pad_asperity_radius_m"),
-                   beta=rr.p("pad_height_beta_inv_m"), eta=rr.p("pad_asperity_density_m2"),
+                   beta=1.0 / rr.p("pad_height_beta_inv_m"),
+                   eta=rr.p("pad_asperity_density_m2"),
                    A_n=rr.p("pad_nominal_area_m2"))
         P_center = rr.pressure_psi * PSI_TO_PA
         if rr.zone_pressures_psi:
@@ -686,6 +705,106 @@ def _gw_contact_linearity_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     out["gw_contact_note"] = (
         f"선형성 잔차 최대 {max_dev * 100:.1f}%(압력범위 {min(P_points) / 1e3:.1f}~"
         f"{max(P_points) / 1e3:.1f} kPa), GW-link/문헌 Kp 비 = {ratio:.3f}")
+    return out
+
+
+def _gw_contact_state_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """GW 역문제(명목압력→분리거리) 런타임 해 진단 — MRR 경로와 완전히 독립적인 진단 계산.
+
+    근거: sim/tier2_physics/gw_pressure_solve.py::local_contact_state(gw_numeric 재사용),
+    gw_contact.py::plasticity_index/gw_analytic_ratio. base.yaml의 real_contact_area_ratio
+    (confidence=estimated) note가 "압력에 따라 변하는 값이므로 3 psi 부근에서만 유효하다.
+    압력 의존성을 정식으로 넣으려면 GW를 런타임에 풀어야 한다"고 자백한 것을 실행한다.
+    GW 5개 패드 파라미터(_gw_contact_linearity_diagnostic과 동일 키)가 팩에 없으면
+    조용히 None. 압력은 zone별 루프 없이 rr.pressure_psi(center) 1점만 쓴다(범위 밖).
+    """
+    out: Dict[str, object] = {
+        "gw_solved_separation_m": None,
+        "gw_real_contact_area_ratio": None,
+        "gw_real_contact_pressure_pa": None,
+        "gw_static_pack_ratio_deviation": None,
+        "gw_plasticity_index": None,
+        "gw_contact_regime_note": None,
+    }
+    pad_keys = ("pad_E_star_pa", "pad_asperity_radius_m", "pad_height_beta_inv_m",
+                "pad_asperity_density_m2", "pad_nominal_area_m2")
+    missing = [k for k in pad_keys if not rr.pack.has(k)]
+    if missing:
+        out["gw_contact_regime_note"] = (
+            f"GW 패드 파라미터 미선언({', '.join(missing)}) — 접촉상태 진단 스킵")
+        return out
+    try:
+        import gw_pressure_solve as GWP   # sim/tier2_physics (1바이트도 수정 안 함)
+        import gw_contact as GWC          # sim/tier2_physics (1바이트도 수정 안 함)
+        E_star = rr.p("pad_E_star_pa")
+        R = rr.p("pad_asperity_radius_m")
+        # ⚠ 단위: 팩 키는 스케일 1/β [m], 모듈이 받는 인자는 감쇠율 β [1/m]. 역수 변환 필수
+        # (미변환 시 d가 21.6 km로 풀린다 — _gw_contact_linearity_diagnostic 주석 참조).
+        sigma_z = rr.p("pad_height_beta_inv_m")   # 지수분포: 표준편차 = 스케일 = 1/β [m]
+        beta = 1.0 / sigma_z                       # 감쇠율 β [1/m]
+        eta = rr.p("pad_asperity_density_m2")
+        A_n = rr.p("pad_nominal_area_m2")
+        P_center = rr.pressure_psi * PSI_TO_PA
+        state = GWP.local_contact_state(P_center, A_n, beta, eta, E_star, R)
+    except Exception as e:
+        out["gw_contact_regime_note"] = f"GW 접촉상태 진단 실패({e}) — None으로 둠"
+        return out
+
+    out["gw_solved_separation_m"] = float(state["d"])
+    out["gw_real_contact_area_ratio"] = float(state["contact_area_fraction"])
+    out["gw_real_contact_pressure_pa"] = float(state["p_r_mean"])
+
+    notes = [
+        f"압력은 zone별 루프 없이 center 1점(rr.pressure_psi={rr.pressure_psi} psi)만 사용 "
+        "— zone별 GW 해는 범위 밖"]
+
+    try:
+        analytic_ratio = GWC.gw_analytic_ratio(beta, E_star, R)   # A_r/W (d-무관 폐형식)
+        if state["W"] > 0:
+            numeric_ratio = state["A_r"] / state["W"]
+            rel_dev = abs(numeric_ratio - analytic_ratio) / analytic_ratio
+            if rel_dev > 0.01:
+                notes.append(
+                    f"⚠ 해석적 폐형식(gw_analytic_ratio) A_r/W 대비 수치해 상대편차 "
+                    f"{rel_dev * 100:.2f}% > 1%")
+    except Exception as e:
+        notes.append(f"해석적 폐형식 교차검증 실패({e})")
+
+    if rr.pack.has("real_contact_area_ratio"):
+        static_ratio = float(rr.p("real_contact_area_ratio"))
+        if static_ratio > 0:
+            out["gw_static_pack_ratio_deviation"] = out["gw_real_contact_area_ratio"] / static_ratio
+            notes.append(
+                f"런타임 해 {out['gw_real_contact_area_ratio']:.4e} vs 정적 팩값 "
+                f"real_contact_area_ratio={static_ratio:.4e}"
+                f"(confidence={rr.pack.param('real_contact_area_ratio').confidence}) "
+                f"— 배율 {out['gw_static_pack_ratio_deviation']:.3f}배")
+    else:
+        notes.append("팩이 real_contact_area_ratio 미선언 — 정적값 대비 괴리 계산 스킵")
+
+    H = float(rr.p("pad_asperity_hardness_max_pa")) if rr.pack.has("pad_asperity_hardness_max_pa") else None
+    dist = rr.p("asperity_height_distribution") if rr.pack.has("asperity_height_distribution") else None
+    if H is None:
+        notes.append("pad_asperity_hardness_max_pa 미선언 — 소성지수 계산 스킵")
+    elif dist != "exponential":
+        notes.append(
+            f"asperity_height_distribution={dist!r}(exponential 아님) — sigma_z 지어내지 않고 "
+            "소성지수 계산 스킵")
+    else:
+        # sigma_z는 위에서 pad_height_beta_inv_m(스케일=표준편차)로 이미 잡았다 — beta(감쇠율)를
+        # 넣으면 안 된다(두 값은 서로 역수, 여기서 혼동하면 psi가 5e5 배 어긋난다).
+        try:
+            psi = float(GWC.plasticity_index(E_star, H, sigma_z, R))
+            out["gw_plasticity_index"] = psi
+            regime = "탄성(psi<0.6)" if psi < 0.6 else ("소성(psi>1)" if psi > 1 else "전이영역(0.6~1)")
+            notes.append(
+                f"소성지수 psi={psi:.4f} → {regime} [미검증 판정기준: Johnson Contact Mechanics "
+                "1985 Ch.13 통상기준, gw_contact.py 독스트링이 2차 출처 교차검증 필요·미검증이라 "
+                "표기]. H=pad_asperity_hardness_max_pa(단일 패드 1종 측정, 다른 패드로의 이식은 추정)")
+        except Exception as e:
+            notes.append(f"소성지수 계산 실패({e})")
+
+    out["gw_contact_regime_note"] = " | ".join(notes)
     return out
 
 
@@ -1758,6 +1877,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     gw_contact = _gw_contact_linearity_diagnostic(rr)
     if gw_contact["gw_contact_note"]:
         notes.append(gw_contact["gw_contact_note"])
+    # GW 역문제 런타임 해(local_contact_state) 진단 — MRR 경로와 완전히 독립. GW 패드
+    # 파라미터 없으면 조용히 None. real_contact_area_ratio 정적 팩값과의 괴리를 노출한다.
+    gw_state = _gw_contact_state_diagnostic(rr)
+    if gw_state["gw_contact_regime_note"]:
+        notes.append(gw_state["gw_contact_regime_note"])
     # Θ 정상상태 열저항 네트워크 진단 — MRR 경로와 완전히 독립. 패드 두께·열전도도 없으면 조용히 None.
     theta_ss = _theta_steady_state_diagnostic(rr)
     if theta_ss["theta_steady_state_note"]:
@@ -1861,6 +1985,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        gw_contact_linearity_max_dev=gw_contact["gw_contact_linearity_max_dev"],
                        gw_kp_physical_to_lit_ratio=gw_contact["gw_kp_physical_to_lit_ratio"],
                        gw_contact_note=gw_contact["gw_contact_note"],
+                       gw_solved_separation_m=gw_state["gw_solved_separation_m"],
+                       gw_real_contact_area_ratio=gw_state["gw_real_contact_area_ratio"],
+                       gw_real_contact_pressure_pa=gw_state["gw_real_contact_pressure_pa"],
+                       gw_static_pack_ratio_deviation=gw_state["gw_static_pack_ratio_deviation"],
+                       gw_plasticity_index=gw_state["gw_plasticity_index"],
+                       gw_contact_regime_note=gw_state["gw_contact_regime_note"],
                        theta_steady_state_delta_T_k=theta_ss["theta_steady_state_delta_T_k"],
                        theta_heat_partition=theta_ss["theta_heat_partition"],
                        theta_steady_state_note=theta_ss["theta_steady_state_note"],
