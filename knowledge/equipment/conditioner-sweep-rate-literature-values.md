@@ -150,7 +150,7 @@ assert abs(total_sweeps - 9120) < 1, total_sweeps
 print(f"Zheng 8h 컨디셔닝 총 왕복수: {total_sweeps:.0f}회")
 ```
 
-문헌 재현 대조: Zheng et al. (2023) Table 1의 문헌값(sweep speed 19 rpm)으로 계산한 스윕 주기 3.158 s 는 Menk et al. (2010) 원문 "19 sweeps per minute"이 함의하는 주기 3.158 s 와 일치했다(상대오차 < 1e-12).
+문헌 재현 대조: Zheng et al. (2023) Table 1의 문헌값(sweep speed 19 rpm)으로 계산한 스윕 주기 3.158 s 는 (Menk et al. 2010) 원문 "19 sweeps per minute"이 함의하는 주기 3.158 s 와 일치했다(상대오차 < 1e-12).
 두 논문은 서로 다른 툴(Hwatsing Universal-300-Plus vs AMAT)·다른 표기("RPM" vs "sweeps per minute")를
 쓰지만 같은 물리량을 가리킨다. 같은 조건에서 스윕 1왕복당 패드 회전은 Zheng(패드 100 rpm) 5.3회,
 Menk(platen 93 rpm) 4.9회다.
