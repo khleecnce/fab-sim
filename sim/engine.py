@@ -22,7 +22,7 @@ from __future__ import annotations
 import math
 import re
 import sys
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields as _fields
 from pathlib import Path
 from typing import Callable, Dict, List, Literal, Optional, Protocol
 
@@ -167,6 +167,14 @@ class ResolvedRecipe:
 
 
 # ───────────────────────────────────────────────────────────── 출력 스키마
+# summary()에서 제외할 필드 — 배열 프로파일과 이미 가공해 실은 구조체만.
+# 진단 스칼라를 여기 추가하지 마라(그게 2026-09-16에 고친 결함 그 자체다).
+_SUMMARY_EXCLUDE = frozenset({
+    "recipe", "radius_m", "mrr_nm_per_min", "removed_nm", "remaining_nm",
+    "metrics", "factors", "equipment_outputs", "notes", "provenance",
+})
+
+
 @dataclass
 class WaferResult:
     recipe: Recipe
@@ -449,7 +457,7 @@ class WaferResult:
 
     def summary(self) -> Dict:
         m = self.metrics
-        return {
+        out: Dict = {
             "model": self.model, "pack": self.pack,
             "wafer": self.recipe.wafer, "film": self.film,
             "mean_mrr_nm_min": float(np.mean(self.mrr_nm_per_min)),
@@ -483,6 +491,20 @@ class WaferResult:
                                   for k, o in self.equipment_outputs.items()},
             "notes": self.notes,
         }
+        # 진단 필드 자동 노출 — 손으로 유지하던 목록이 실제로 뒤처져 있었다.
+        # 2026-09-16 실측: WaferResult 필드 125개 중 summary()가 내보내던 것은 37개뿐이라
+        # 그간 등록된 진단 88개(gw_pressure_solve·tribology_basics·slurry_components·
+        # blanket_rate_transfer 등)가 CLI(--json)·API 응답에서 통째로 보이지 않았다.
+        # 등록만 하고 사용자에게 도달하지 않으면 등록이 아니다.
+        # 제외 대상은 요약에 담을 수 없는 것뿐이다(_SUMMARY_EXCLUDE): 배열 프로파일은
+        # CLI --profile / API가 별도 경로로 내보내고, metrics·factors·equipment_outputs·
+        # notes는 위에서 이미 가공해 실었으며, provenance는 API가 직접 싣는다.
+        # 그 외 스칼라·문자열·튜플·dict 진단은 전부 자동으로 나간다.
+        for _f in _fields(self):
+            if _f.name in _SUMMARY_EXCLUDE or _f.name in out:
+                continue
+            out[_f.name] = getattr(self, _f.name)
+        return out
 
 
 # ───────────────────────────────────────────────────────────── 모델 등록
