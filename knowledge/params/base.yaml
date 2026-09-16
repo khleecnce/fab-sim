@@ -336,7 +336,13 @@ params:
     unit: cpm
     note: >
       Γ 기준점 — cond_sweep_cpm과 같은 값·같은 근거(상용 레시피 12건 최빈값).
-      ⚠ 반드시 cond_sweep_cpm과 함께 움직여야 Γ=1.0 기준 계약이 유지된다.
+      ⚠ 2026-09-17 실측 정정: 이전 note는 "반드시 cond_sweep_cpm과 함께 움직여야
+      Γ=1.0 기준 계약이 유지된다"고 적었으나 사실이 아니다. sim/factors.py::_f_gamma의
+      기준 분모는 downforce·rpm_platen·duty·disk_usage 4개로만 구성되고 sweep_cpm은
+      설계상 Γ 크기에 곱하지 않는다(커버리지 축이라 절삭 부하와 물리량이 다르다 —
+      같은 파일 주석). 이 값만 10→99로 흔들어도 MRR이 비트 단위로 불변임을 실행으로
+      확인했다. 따라서 이 키는 모델 입력이 아니라 짝 키의 근거 기록이며, 고아 상태가
+      정상이다(tests/test_no_orphan_pack_keys.py가 사유와 함께 고정).
     source: knowledge/equipment/conditioner-sweep-rate-literature-values.md
     confidence: literature
   cond_duty_pct:
