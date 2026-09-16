@@ -169,6 +169,12 @@ def gaps_bias():
         return out
     for r in res:
         sb = r.scale_factor
+        # rank_only: 데이터셋 자신의 절대값이 다른 문헌과 어긋난다는 판정이
+        # 근거와 함께 기록된 경우다(validation/backtest.py 참조). 그런 데이터셋의
+        # 편향은 우리 Kp 갭이 아니므로 갭 랭킹에 올리지 않는다 — 올리면 크론이
+        # 매 회차 같은 종결 판정을 다시 뒤집으려 든다.
+        if getattr(r, "rank_only", False):
+            continue
         if sb is not None and (sb > 2 or sb < 0.5) and (r.p_value or 1) < 0.05 and r.in_scope:
             out.append({"kind": "BIAS", "dataset": r.dataset,
                         "score": 50, "what": f"{r.dataset}: 순위는 맞는데(p={r.p_value:.3f}) 절대값 {sb:.2f}배 계통편향",
