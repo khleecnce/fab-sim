@@ -416,6 +416,17 @@ class WaferResult:
     abrasive_iep_literature_ph: Optional[float] = None
     abrasive_iep_pack_deviation_ph: Optional[float] = None
     abrasive_surface_charge_note: Optional[str] = None
+    # 디스크 접촉통계(η_c, A_f) -> Preston Kp 상대 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # disk_preston_contact_decomposition.py::eta_over_af(원본 무수정) 엔진 등록. η_c·A_f는
+    # _gw_contact_state_diagnostic과 동일 GW 런타임 해(local_contact_state)에서 구한다(새 상수
+    # 없음). K_p ∝ η_c/A_f는 모듈 스스로 자백한 PROVISIONAL 선형가정이라 절대 스케일하지
+    # 않는다(preston_coefficient_contact_scaling·disk_preston_contact_scaling 미호출).
+    # disk_contact_scale_factor는 5팩 어디에도 기준 디스크 스펙이 없어 항상 None.
+    disk_contact_eta_c_m2: Optional[float] = None
+    disk_contact_a_f: Optional[float] = None
+    disk_contact_eta_over_af: Optional[float] = None
+    disk_contact_scale_factor: Optional[float] = None
+    disk_preston_contact_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -2294,6 +2305,105 @@ def _abrasive_surface_charge_diagnostic(rr: "ResolvedRecipe") -> Dict[str, objec
     return out
 
 
+def _disk_preston_contact_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """디스크 접촉통계(η_c, A_f) -> Preston Kp 상대 진단 — MRR 경로와 완전히 독립적인 순수 가시화.
+
+    근거: sim/tier2_physics/disk_preston_contact_decomposition.py::eta_over_af(원본 무수정),
+    sim/tier2_physics/gw_pressure_solve.py::local_contact_state, gw_contact.py(둘 다
+    _gw_contact_state_diagnostic과 동일 경로 재사용, 원본 무수정), knowledge/materials/
+    disk-design-pad-roughness-asperity-relation.md §2.3·§3.4(b). 근거 원본: Sun (2009) PhD
+    dissertation, Univ. of Arizona, http://hdl.handle.net/10150/194898, Ch.7.2 Fig.7.14/7.15,
+    Eq.7.14.
+
+    ⚠ PROVISIONAL 경고 전파(모듈 docstring 자백 그대로): "K_p ∝ η_c/A_f" 단순 비례식은
+    노트가 검증한 유일한 정성적 관계(η_c/A_f가 클수록 K_p/MRR도 크다는 방향성)를 가장
+    단순한 선형 형태로 옮긴 것일 뿐이다 — 비례상수가 1인지, 지수가 정확히 1인지는 어느
+    출처도 회귀하지 않았다. 그래서 이 진단은 preston_coefficient_contact_scaling·
+    disk_preston_contact_scaling을 호출하지 않는다(진단만 낼 거면 부를 이유가 없다,
+    test_forbidden_functions_never_called이 ast로 기계 고정) — Kp·MRR에 아무것도 곱하지
+    않고 η_c/A_f 절대 지표만 노출한다. fragment_contact_separation도 호출하지 않는다 —
+    입력 a_f_intrinsic(파편 없는 고유 실접촉면적)이 Recipe·팩·GW 해 어디에도 없어
+    지어내면 파편 기여도가 통째로 창작된다.
+
+    η_c(#/m²)=n_contacts/A_n, A_f(=A_r/A_n)는 GW 런타임 해(local_contact_state,
+    _gw_contact_state_diagnostic과 동일 5개 패드 파라미터·동일 압력점 rr.pressure_psi
+    center 1점)에서 직접 계산한다 — 새 상수를 팩에 박지 않는다. A_f는
+    _gw_contact_state_diagnostic이 내는 gw_real_contact_area_ratio와 정확히 같은 값이어야
+    한다(같은 문서 안에서 두 진단이 다른 접촉면적을 내면 모순). η_c/A_f 자체는 반드시
+    disk_preston_contact_decomposition.py::eta_over_af 원본 함수로 구한다(직접 나눗셈
+    재구현 금지).
+
+    scale_factor(=현재/기준 배율)는 항상 None이다 — grep 확인 결과 5팩 어디에도 기준
+    디스크 스펙(disk_*_ref류)이 선언돼 있지 않다(disk_gw_ref_grit_count/size는
+    _disk_gw_scaling_diagnostic 전용의 별개 그릿-스펙 배율 키이며 이 진단의 기준이 아니다).
+    scale_factor = (η/A)/(η/A)_ref는 기준 디스크 조건이 있어야 의미가 있으므로, 임의
+    기준을 지어내 배율을 통째로 조작하지 않고 None + 사유로 둔다.
+
+    ⚠ GW 5개 패드 파라미터가 base.yaml 상속이라 5팩 전부 같은 η_c·A_f·η_c/A_f를 낸다 —
+    팩별 차이를 시사하면 오해를 준다.
+
+    GW 5개 패드 파라미터(pad_E_star_pa 등)가 팩에 없거나 asperity_height_distribution이
+    정확히 "exponential"이 아니면 조용히 None + 스킵사유(지수분포 전제 없이는 GW 해 자체가
+    이 노트가 검증한 식과 무관해진다).
+    """
+    out: Dict[str, object] = {
+        "disk_contact_eta_c_m2": None,
+        "disk_contact_a_f": None,
+        "disk_contact_eta_over_af": None,
+        "disk_contact_scale_factor": None,
+        "disk_preston_contact_note": None,
+    }
+    pad_keys = ("pad_E_star_pa", "pad_asperity_radius_m", "pad_height_beta_inv_m",
+                "pad_asperity_density_m2", "pad_nominal_area_m2")
+    missing = [k for k in pad_keys if not rr.pack.has(k)]
+    if missing:
+        out["disk_preston_contact_note"] = (
+            f"GW 패드 파라미터 미선언({', '.join(missing)}) — 디스크 접촉통계 진단 스킵")
+        return out
+    dist = rr.p("asperity_height_distribution") if rr.pack.has("asperity_height_distribution") else None
+    if dist != "exponential":
+        out["disk_preston_contact_note"] = (
+            f"asperity_height_distribution={dist!r}(exponential 아님) — GW 지수분포 전제가 "
+            "깨져 η_c·A_f 계산 스킵(지어내지 않음)")
+        return out
+    try:
+        import gw_pressure_solve as GWP   # sim/tier2_physics (1바이트도 수정 안 함)
+        import disk_preston_contact_decomposition as DPC   # sim/tier2_physics (원본 무수정)
+        E_star = rr.p("pad_E_star_pa")
+        R = rr.p("pad_asperity_radius_m")
+        # ⚠ 단위: 팩 키는 스케일 1/β [m], 모듈이 받는 인자는 감쇠율 β [1/m]. 역수 변환
+        # 필수(미변환 시 d가 21.6 km로 풀린 전례, _gw_contact_state_diagnostic 주석 참조).
+        beta = 1.0 / rr.p("pad_height_beta_inv_m")
+        eta = rr.p("pad_asperity_density_m2")
+        A_n = rr.p("pad_nominal_area_m2")
+        P_center = rr.pressure_psi * PSI_TO_PA
+        state = GWP.local_contact_state(P_center, A_n, beta, eta, E_star, R)
+        eta_c = state["n_contacts"] / A_n
+        a_f = state["contact_area_fraction"]
+        eta_af = DPC.eta_over_af(eta_c, a_f)
+    except Exception as e:
+        out["disk_preston_contact_note"] = f"디스크 접촉통계 진단 실패({e}) — None으로 둠"
+        return out
+
+    out["disk_contact_eta_c_m2"] = float(eta_c)
+    out["disk_contact_a_f"] = float(a_f)
+    out["disk_contact_eta_over_af"] = float(eta_af)
+
+    out["disk_preston_contact_note"] = (
+        f"pack='{rr.pack.name}'(GW 파라미터 base.yaml 상속 — 5팩 전부 동일값). "
+        f"η_c={eta_c:.6e} #/m²(=n_contacts/A_n, GW 런타임 해 P={rr.pressure_psi:g}psi center "
+        "1점, _gw_contact_state_diagnostic과 동일 경로 재사용), "
+        f"A_f={a_f:.6e}(=A_r/A_n, _gw_contact_state_diagnostic의 gw_real_contact_area_ratio와 "
+        f"동일 값), η_c/A_f={eta_af:.6e}"
+        "(disk_preston_contact_decomposition.py::eta_over_af, Sun 2009 Ch.7.2 Eq.7.14 정의). "
+        "⚠ PROVISIONAL: K_p ∝ η_c/A_f 선형가정(비례상수·지수 모두 미검증)은 노트 §3.4(b)/§5가 "
+        "확인한 방향성(η_c/A_f 클수록 K_p/MRR도 큼)만 신뢰하고, 캘리브레이션 없이 정량 예측에 "
+        "쓰면 안 된다(모듈 자백 그대로) — 그래서 이 진단은 Kp·MRR에 아무것도 곱하지 않는다. "
+        "기준 디스크 스펙(disk_*_ref류) 팩 미선언 — disk_contact_scale_factor는 지어내지 않고 "
+        "None으로 둔다.")
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -2725,6 +2835,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     abrasive_charge = _abrasive_surface_charge_diagnostic(rr)
     if abrasive_charge["abrasive_surface_charge_note"]:
         notes.append(abrasive_charge["abrasive_surface_charge_note"])
+    # 디스크 접촉통계(η_c, A_f) -> Preston Kp 상대 진단 — MRR 경로와 완전히 독립(진단 전용,
+    # PROVISIONAL 선형가정이라 절대 Kp·MRR에 곱하지 않는다). GW 패드 파라미터 없거나
+    # exponential 분포가 아니면 조용히 None.
+    disk_preston = _disk_preston_contact_diagnostic(rr)
+    if disk_preston["disk_preston_contact_note"]:
+        notes.append(disk_preston["disk_preston_contact_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -2838,6 +2954,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        abrasive_iep_literature_ph=abrasive_charge["abrasive_iep_literature_ph"],
                        abrasive_iep_pack_deviation_ph=abrasive_charge["abrasive_iep_pack_deviation_ph"],
                        abrasive_surface_charge_note=abrasive_charge["abrasive_surface_charge_note"],
+                       disk_contact_eta_c_m2=disk_preston["disk_contact_eta_c_m2"],
+                       disk_contact_a_f=disk_preston["disk_contact_a_f"],
+                       disk_contact_eta_over_af=disk_preston["disk_contact_eta_over_af"],
+                       disk_contact_scale_factor=disk_preston["disk_contact_scale_factor"],
+                       disk_preston_contact_note=disk_preston["disk_preston_contact_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
