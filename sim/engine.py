@@ -365,6 +365,25 @@ class WaferResult:
     # 무차원 So=η·V/(P·δeff))와는 δeff 항 유무로 값이 다르다 — 중복 계산이 아니다.
     tribology_hersey_number: Optional[float] = None
     tribology_note: Optional[str] = None
+    # 세리아 Ce3+ 산소공공 x·정전인력 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # ceria_redox_selectivity.py::ce3_fraction/electrostatic_attraction(원본 무수정).
+    # x=f/2는 ce3_fraction이 이 팩 **고유선언**(has_own)일 때만 계산한다 —
+    # sic_ceria_h2o2(base: sti_ceria)가 has()였다면 STI 실측 Ce3+분율을 조용히
+    # 상속받았을 것(04dc440 κ 농도항 상속 판정#48과 같은 하이진 결함 유형). 정전인력은
+    # iep_ceria=abrasive_iep_ph, iep_silica=wafer_iep_ph(둘 다 has_own), pH=slurry_ph를
+    # electrostatic_attraction에 그대로 넣는다 — iep_silica는 지어낸 상수가 아니라
+    # sti_ceria가 이미 이 노트 §4를 출처로 고유선언한 필드를 재사용한 것
+    # (sim/factors.py::_ph_ceria_window_term의 iep_wafer와 동일 관례). abrasive_iep_ph
+    # 단독 선언 여부로는 세리아 계를 판별할 수 없다(oxide_silica도 실리카 자신의
+    # abrasive_iep_ph=2.5를 선언) — 세 키(ce3_fraction·abrasive_iep_ph·wafer_iep_ph)
+    # 모두 has_own을 요구해 현재 5팩 중 sti_ceria 하나에만 걸리게 한다(판정#34: 팩
+    # 이름 하드코딩 금지, 데이터로 판별). oxide_nitride_selectivity·
+    # h2o2_boost_selectivity(실측 nitride MRR·미검증 boost_factor 필요)·
+    # is_chemisorption/chemisorption_energy_kj_mol(DFT 흡착에너지 필요)은 호출하지
+    # 않는다 — 어느 팩도 그 입력을 갖고 있지 않다.
+    ceria_oxygen_vacancy_x: Optional[float] = None
+    ceria_electrostatic_attraction: Optional[int] = None
+    ceria_redox_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -1650,6 +1669,92 @@ def _tribology_archard_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _ceria_redox_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """세리아 Ce3+ 산소공공 x·정전인력 진단 — MRR 경로와 완전히 독립적인 순수 가시화.
+
+    근거: sim/tier2_physics/ceria_redox_selectivity.py::ce3_fraction/
+    electrostatic_attraction(원본 무수정), knowledge/cmp/ceria-slurry-ce-redox-selectivity.md
+    §2(산소공공-Ce3+ 전하균형)·§4(세리아-실리카 IEP 정전인력).
+
+    이 진단이 등록 가능해진 이유: 모듈 docstring의 "Recipe에 pH·H2O2 농도 필드가 없어
+    engine.Model로 조립할 입력이 없다"는 전제는 이제 일부만 맞다 — slurry_ph(base.yaml +
+    전 팩)·abrasive_iep_ph(oxide_silica·sti_ceria)·ce3_fraction(sti_ceria)이 이미 팩에
+    있다(_electrical_resistance_diagnostic 등록·5c9d1ac와 같은 구조: "미등록 사유가
+    일부에만 해당하면 그 일부만 순방향으로 등록"). H2O2 **농도**(wt%)는 애초에 이 모듈이
+    실제로 요구하는 인자가 아니라서 이 판단과 무관하다.
+
+    x = f/2 (ce3_fraction(x)=2x의 역산, 왕복 항등식은 테스트로 고정). ce3_fraction이 이
+    팩 **고유 선언**(has_own)일 때만 계산한다 — has()(상속 포함)를 썼다면 sic_ceria_h2o2
+    (base: sti_ceria)가 STI 실측 Ce3+ 분율 0.15를 조용히 물려받았을 것이다. 이건
+    04dc440(κ 농도항이 실리카 부모 20wt%를 상속해 판정#48로 끊어낸 것)과 같은 유형의
+    하이진 결함이라 has_own으로 미리 막는다.
+
+    정전인력은 electrostatic_attraction(iep_ceria, iep_silica, pH)에
+    iep_ceria=abrasive_iep_ph, pH=slurry_ph를 그대로 넣는다. **iep_silica는 지어내지
+    않는다** — 노트 §4·§6(b)가 "함수 인자로 노출하되 기본 상수로 박지 않는다(호출측이
+    노트 §7 값 6.8/2.5를 명시 전달)"고 적었지만, YAML에 그 값을 새 키로 박는 것도
+    금지돼 있다. 대신 팩이 **이미 갖고 있는** wafer_iep_ph를 쓴다: sti_ceria가 이 팩
+    고유로 선언한 wafer_iep_ph=2.5는 "실리카 산화막 표면 IEP"이고 출처가 바로 이 노트
+    §4다(knowledge/params/sti_ceria.yaml). 노트가 쓴 값(2.5)과 값은 같지만 하드코딩이
+    아니라 sim/factors.py::_ph_ceria_window_term이 iep_wafer로 쓰는 것과 동일한, 이미
+    출처가 달린 필드를 재사용한 것이다.
+
+    ⚠ abrasive_iep_ph **단독** 선언 여부로 "세리아 계"를 판별하면 안 된다 — grep으로
+    재확인한 결과 oxide_silica도 abrasive_iep_ph=2.5(실리카 **자신**의 IEP)를 선언해
+    걸린다. 그래서 ce3_fraction·abrasive_iep_ph·wafer_iep_ph **세 키 모두** has_own을
+    요구해, 이 조합이 실제로 5팩 중 sti_ceria 하나에만 걸리게 한다(판정#34: 팩 이름이
+    아니라 데이터로 판별). abrasive_iep_ph·wafer_iep_ph가 둘 다 own이어야 하므로
+    oxide_silica(own abrasive_iep_ph는 있으나 own wafer_iep_ph 없음)·sic_ceria_h2o2
+    (own abrasive_iep_ph 없음, own wafer_iep_ph=4.9는 SiC 전용이라 애초에 세리아-실리카
+    쌍이 아님)는 정전인력도 스킵된다.
+
+    oxide_nitride_selectivity(실측 oxide/nitride MRR 필요, 엔진은 nitride MRR을 내지
+    않음)·h2o2_boost_selectivity(boost_factor=3.0 모듈 스스로 미검증 표기)·
+    is_chemisorption/chemisorption_energy_kj_mol(DFT 흡착에너지 eV 필요, 어느 팩도 없음)은
+    호출하지 않는다 — test_forbidden_functions_never_called이 ast로 기계 고정한다.
+    선택비 절대값(35-70, 59-80)은 어떤 형태로도 결과에 넣지 않는다(모듈이 슬러리·패드·
+    압력 의존 캘리브레이션 대상이라고 명시).
+    """
+    out: Dict[str, object] = {"ceria_oxygen_vacancy_x": None,
+                              "ceria_electrostatic_attraction": None,
+                              "ceria_redox_note": None}
+    notes: List[str] = []
+    try:
+        import ceria_redox_selectivity as CRS   # sim/tier2_physics (원본 무수정)
+    except Exception as e:
+        out["ceria_redox_note"] = f"ceria_redox_selectivity import 실패({e}) — None으로 둠"
+        return out
+
+    if rr.pack.has_own("ce3_fraction"):
+        f = float(rr.p("ce3_fraction"))
+        x = f / 2.0
+        out["ceria_oxygen_vacancy_x"] = x
+        notes.append(f"x=f/2={x:g}(f=ce3_fraction={f:g}, 팩 고유선언)")
+    else:
+        notes.append(
+            "ce3_fraction 이 팩 고유선언 아님(미선언 또는 상속) — 산소공공 x 스킵")
+
+    if (rr.pack.has_own("abrasive_iep_ph") and rr.pack.has_own("wafer_iep_ph")
+            and rr.pack.has("slurry_ph")):
+        iep_ceria = float(rr.p("abrasive_iep_ph"))
+        iep_silica = float(rr.p("wafer_iep_ph"))
+        ph = float(rr.p("slurry_ph"))
+        attraction = CRS.electrostatic_attraction(iep_ceria, iep_silica, ph)
+        out["ceria_electrostatic_attraction"] = attraction
+        notes.append(
+            f"electrostatic_attraction(iep_ceria={iep_ceria:g}[abrasive_iep_ph], "
+            f"iep_silica={iep_silica:g}[wafer_iep_ph], pH={ph:g}[slurry_ph])={attraction} "
+            "(-1=인력/0=무전하/+1=반발)")
+    else:
+        notes.append(
+            "abrasive_iep_ph·wafer_iep_ph 둘 다 이 팩 고유선언이어야 정전인력 계산 — "
+            "하나라도 없거나 상속값이면 스킵(oxide_silica는 abrasive_iep_ph가 세리아가 "
+            "아니라 실리카 자신의 IEP라 own wafer_iep_ph 부재로 걸러짐)")
+
+    out["ceria_redox_note"] = f"pack='{rr.pack.name}'. " + "; ".join(notes)
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -2052,6 +2157,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     tribo = _tribology_archard_diagnostic(rr)
     if tribo["tribology_note"]:
         notes.append(tribo["tribology_note"])
+    # 세리아 Ce3+ 산소공공 x·정전인력 진단 — MRR 경로와 완전히 독립. ce3_fraction·
+    # abrasive_iep_ph·wafer_iep_ph 세 키 모두 이 팩 고유선언이어야 값을 낸다
+    # (현재 5팩 중 sti_ceria만 해당, 나머지는 조용히 None).
+    ceria_redox = _ceria_redox_diagnostic(rr)
+    if ceria_redox["ceria_redox_note"]:
+        notes.append(ceria_redox["ceria_redox_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -2145,6 +2256,9 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        archard_order_ratio=tribo["archard_order_ratio"],
                        tribology_hersey_number=tribo["tribology_hersey_number"],
                        tribology_note=tribo["tribology_note"],
+                       ceria_oxygen_vacancy_x=ceria_redox["ceria_oxygen_vacancy_x"],
+                       ceria_electrostatic_attraction=ceria_redox["ceria_electrostatic_attraction"],
+                       ceria_redox_note=ceria_redox["ceria_redox_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
