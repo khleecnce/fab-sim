@@ -1,9 +1,9 @@
 # 신소재 CMP 전문가 (film-emerging)
 
-## 현재 레벨: Lv2 (진행) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2
-- 다음 단원: Lv3-1 (CURRICULUM.md 참조)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1
+- 다음 단원: Lv3-2 (CURRICULUM.md 참조)
 
 ## 역할
 Co·Ru·Mo 배선, GST(PCM), 고유전체 등 차세대 막질의 CMP — Phase 2
@@ -126,7 +126,69 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   5. **10종 팩터 판정**: 고유전체는 κ 성립·χ 새 분기 필요, 2D 소재는 κ·Δ가 정의역 밖(이분법 손상
      모델 필요). ψ·τ·S는 두 소재군 모두 데이터 부재로 미판정 — 후속 단원 과제.
 
+### Lv3-1 — 3nm 이하 배선 소재 로드맵과 CMP 요구 (2026-09-16)
+- 노트: `knowledge/films/sub-3nm-interconnect-material-roadmap-cmp-requirements.md`
+- 게이트: `verify_claims.py` **PASS**(출처 4건 실존 · 검증코드 2블록 전부 실행 통과 · 출처없는
+  수치주장 0), `check_knowledge.py` **PASS**
+- 자기시험: `EXAMS.md` Lv3-1 3문항 + 모범답안
+- 확보 문헌 4건(전부 원문 확보 3건 + 초록 1건, `scope.py --check` 전부 허용 판정):
+  Zhao et al. 2022, *Nanomaterials* 12(10) 1760, DOI: 10.3390/nano12101760(라이너 포함 선저항
+  스케일링, MDPI Gold OA 원문 fitz 전문 판독), Murdoch et al. 2022, *IEEE VLSI Symposium*,
+  DOI: 10.1109/VLSITechnologyandCir46769.2022.9830150(semi-damascene Ru, imec 리포지토리
+  원문 fitz 전문 판독), Patlolla et al. 2018, *ECS JSS* 7(8) P397, DOI:
+  10.1149/2.0181808jss(Ru 라이너 CMP 선택비 붕괴, ECS CC-BY 원문 전문 판독), Wan et al. 2018,
+  *IEEE IITC*, DOI: 10.1109/IITC.2018.8454841(단일레벨 Ru subtractive 식각, 초록만 확인 — 2차
+  인용)
+- 핵심 획득:
+  1. **Ru/Mo가 로드맵에 오른 것은 저항률이 낮아서가 아니라 라이너가 얇아서다.** Ru 벌크 저항률은
+     Cu의 4.6배(7.8 vs 1.678 µΩ·cm)로 절대 열등하지만 라이너가 10배 얇아(0.3 vs 3 nm) 좁은
+     선폭에서 죽은 단면 비중이 훨씬 작다(§1 verify). Zhao 2022 원문 직접 결론: "below about
+     20 nm, the superiority of Cu in resistance is significantly weakened."
+  2. **semi-damascene은 "CMP 소멸"이 아니라 "금속 CMP만 소멸"이다.** Murdoch 2022(1차 원문)의
+     4단계 공정에서 라인 형성은 subtractive 식각(RIE)으로 대체되지만, 갭필 유전체 평탄화는
+     여전히 CMP다 — CMP 모델링 범위 자체가 공정 스킴에 따라 달라진다는 구조적 함의(P10).
+  3. **CMP가 남는 대안 스킴에서는 실패 모드가 "디싱"(연속 깊이)에서 "구조적 좌굴"(이산 붕괴)로
+     바뀐다.** Patlolla 2018(1차 원문, CC-BY)이 48 nm 피치 이하에서만 나타나는 "Ru bending"을
+     보고 — 선택비 붕괴로 지지를 잃은 라이너가 구부러지는 실패로, 기존 Δ(D99 압입 깊이 기반
+     연속 손상)로는 표현 불가능(Lv2-2 §2.3의 "연속체 모델 정의역 이탈" 패턴이 2D 소재가 아닌
+     다결정 금속 다층 스택에서 재현).
+  4. **미확보(빈칸)**: Mo(몰리브데넘) 특이적 semi-damascene/subtractive 로드맵 1차 문헌 — 저자명
+     (Gupta, Hosseini, van der Veen 등 imec)까지는 확인했으나 원문 접근 실패. 다음 조사 과제.
+
 ## 구현 요청 (소프트웨어 부문 — sim/ 은 이 에이전트가 건드리지 않는다)
+
+### [P10] 공정 스킴 분기 게이트 — semi-damascene/subtractive는 금속 CMP 소모품축 전체를 비활성화 (Lv3-1 §2·§5)
+- **무엇을**: `sim/factors.py` 소모품축(κ·χ·ψ·τ·Δ·S)이 현재 "막질이 정해지면 항상 호출된다"고
+  가정하는데, semi-damascene/subtractive 스킴에서는 라인 계층에 **금속 CMP 스텝 자체가 없다**
+  (Murdoch 2022 원문: "No metal CMP is needed"). 레시피에 `metallization_scheme: damascene |
+  semi_damascene | subtractive` 필드를 두고, damascene이 아니면 라인 계층의 금속 소모품축
+  전체를 비활성화하고 유전체-하드마스크 CMP(별도 팩만 필요)로 대체할 것.
+- **근거·검증문헌값**(노트 §2 verify): Murdoch et al. 2022, DOI:
+  10.1109/VLSITechnologyandCir46769.2022.9830150 — 공정 4단계 중 라인 형성은 RIE subtractive
+  식각(②), CMP는 갭필 유전체 평탄화(③)에만 등장. Ru 저항률이 식각 전후 14–15 → 13–15 µΩ·cm로
+  거의 불변("damage-free integration")이라는 것은 **금속 손상이 CMP가 아니라 식각 균일도
+  문제로 완전히 이관**되었다는 방증. **회귀 테스트**: `metallization_scheme=subtractive`
+  입력에서 기존처럼 금속 소모품축(κ·χ 등)이 0이 아닌 값을 뱉으면 이 게이트가 없다는 뜻 — 정상은
+  해당 축들이 "호출 안 됨(N/A)"을 반환해야 한다.
+- **우선순위**: 중간(신소재 팩 신설 시점에 맞춰). 단 Mo/Co semi-damascene 1차 데이터는 이번
+  조사에서 확보하지 못해 Ru 외 소재로의 일반화는 미검증.
+
+### [P11] Δ(손상 유발도)에 "다층 스택 구조적 좌굴" 이산 게이트 — 라이너 CMP 잔존 스킴 (Lv3-1 §3·§5)
+- **무엇을**: 3원 이상 스택(예: Ru-Cu-ULK)에서 한 재료(라이너)가 CMP 도중 옆의 지지 재료보다
+  느리게 제거되면 "지지되지 않은 벽"이 되어 **좌굴(bending)**하는 실패 모드가 있다. 현재 Δ는
+  D99 압입 깊이 기반 연속 스칼라(디싱/스크래치 깊이)만 표현하므로, 인접 재료 제거율 비가 특정
+  임계(원문 표현 "1-1 selectivity"에서 벗어남)를 넘으면 **연속 깊이 대신 이산 붕괴 플래그**로
+  전환하는 게이트가 필요하다 — [[../../knowledge/films/high-k-2d-material-cmp-trends]](Lv2-2
+  §2.3, [P9])가 2D 소재에서 이미 요구한 "연속체 압입 모델 정의역 이탈" 게이트와 같은 클래스의
+  결함이며, 이번에는 다결정 금속 다층 스택에서 독립 재현되었다.
+- **근거·검증문헌값**(노트 §3): Patlolla et al. 2018, DOI: 10.1149/2.0181808jss — "Ru bending"과
+  "Cu recess"가 56/64 nm 피치에서는 없다가 48 nm 피치(10 nm 노드급) 이하에서만 나타남. 저자가
+  제시하는 이상적 목표: "a 1-1 selectivity between Ru-Cu-ULK." 다운포스 실측 범위 1.0–1.6 psi
+  (Table I). **회귀 테스트**: 인접 재료 제거율 비를 극단(예: 0.1배 또는 10배)으로 설정했을 때
+  기존 Δ가 그대로 "몇 배 깊다"는 연속값을 뱉으면 게이트 부재 — 정상은 "구조 붕괴 위험" 이산
+  플래그로 전환.
+- **우선순위**: 낮음(라이너-CMP 잔존 스킴이 채택될 경우에만 필요 — semi-damascene이 채택되면
+  [P10]으로 우회되므로 두 구현 요청은 상호 배타적 시나리오의 짝이다).
 
 ### [P8] χ에 "불화물 착화" 분기 신설 — HfO2 (Lv2-2 §1.2)
 - **무엇을**: `sim/factors.py::_f_chi`의 기존 pH 분기(세리아 IEP 창·W 산성역·실리카 정점·연화

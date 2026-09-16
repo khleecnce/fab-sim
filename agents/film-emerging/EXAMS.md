@@ -216,3 +216,56 @@ Waals 단어가 단 한 번도 나오지 않는데, 이 부재 자체가 "그 �
 잰 것"과 "①인데 아직 안 잰 것"이 겹쳐 있다고 정직하게 적어야 한다 — 어느 한쪽으로만 단정하면
 "2D 소재는 CMP와 무관하다"(② 과잉 해석)거나 "언젠가 누가 재면 될 값"(① 과소평가)이라는 잘못된
 결론으로 흐른다.
+
+## Lv3-1 — 3nm 이하 배선 소재 로드맵과 CMP 요구 (2026-09-16)
+> 근거 노트: [[../../knowledge/films/sub-3nm-interconnect-material-roadmap-cmp-requirements]]
+
+### Q1. Ru의 벌크 저항률은 Cu의 약 4.6배(7.8 vs 1.678 µΩ·cm)인데도 3nm 이하 로드맵에서 Cu 대체 후보로 꼽힌다. 이것이 모순이 아닌 이유를 수치로 설명하라.
+
+**모범답안.**
+모순이 아니다 — 로드맵이 비교하는 것은 **벌크 저항률이 아니라 라이너를 포함한 선저항**이기
+때문이다. Zhao et al. 2022(*Nanomaterials* 12(10) 1760, DOI: 10.3390/nano12101760, MDPI Gold
+OA 원문 확인)이 보고하는 라이너 두께는 Cu 3 nm, Ru 0.3 nm — **Cu가 Ru보다 10배 두껍다**(§3.2).
+라이너는 전류가 흐르지 않는 죽은 단면이므로, 이 노트가 논문의 풋프린트 정의(`w+2t`)로 선폭
+10 nm에서 재계산하면 **Cu는 단면의 절반 이상이 죽은 단면인 반면 Ru는 15% 미만**이다(§1
+verify, assert로 확인). 원문 §3.2의 직접 결론: "below about 20 nm, the superiority of Cu in
+resistance is significantly weakened." 즉 Ru가 채택되는 이유는 저항률이 낮아서가 아니라
+**라이너리스에 가까워(0.3 nm) 좁은 선폭에서 죽은 단면 페널티가 압도적으로 작기 때문**이다.
+*정직 표기*: §1의 정확한 % 수치(Cu·Ru 각각)는 논문이 직접 표로 주지 않은, 이 노트가 논문 자신의
+정의로 재구성한 **추정값**이다 — 방향(격차 4배 이상)만 신뢰한다.
+
+### Q2. Murdoch et al. 2022(imec)의 semi-damascene 스킴은 "No metal CMP is needed"라고 명시한다. 그렇다고 이 스킴에 CMP가 완전히 없어지는가? 공정 4단계로 답하고, 이것이 CMP 모델링 범위에 무엇을 뜻하는지 설명하라.
+
+**모범답안.**
+**아니다.** Murdoch et al., "First demonstration of Two Metal Level Semi-damascene
+Interconnects with Fully Self-aligned Vias at 18MP," *2022 IEEE VLSI Symposium*, DOI:
+10.1109/VLSITechnologyandCir46769.2022.9830150(imec 리포지토리 원문 fitz 전문 판독)의 공정은
+① Ru PVD 증착·어닐링 → ② EUV SADP + RIE로 Ru를 **subtractive 식각**(CMP 아님) → ③ 라인 사이를
+ALD SiO2로 갭필한 뒤 **여기서 dielectric CMP로 평탄화** → ④ 비아를 selective 가스 식각으로
+자기정렬(FSAV) 형성, 4단계다. 즉 **"금속 CMP"만 없어지고 유전체-하드마스크 CMP는 남는다.**
+이것이 뜻하는 바: 기존 Cu damascene에서 CMP가 짊어졌던 금속 제거율·선택비·디싱/에로전 문제가
+이 스킴의 라인 계층에서는 **건식 식각 균일도 문제로 통째로 이관**되고, CMP 모델(`sim/factors.py`
+소모품축 κ·χ·ψ·τ·Δ·S)은 스킴에 따라 **아예 호출되지 않는 공정 분기**를 새로 표현해야 한다(노트
+§5, 구현요청 [P10]) — 팩터 값을 조정하는 문제가 아니라 팩터가 적용될 대상 자체가 스킴에 따라
+사라진다는 구조적 차이다.
+
+### Q3. Patlolla et al. 2018(IBM)은 48nm 피치 이하에서 "Ru bending"이라는 결함을 보고한다. 이것이 기존 "디싱"과 왜 다른 종류의 실패이며, 기존 Δ(손상 유발도) 팩터로 왜 표현이 안 되는지 설명하라.
+
+**모범답안.**
+Patlolla et al., "CMP Development for Ru Liner Structures beyond 14nm," *ECS J. Solid
+State Sci. Technol.* 7(8) P397 (2018), DOI: 10.1149/2.0181808jss(ECS CC-BY 원문 확인)가
+보고하는 메커니즘: Cu CMP 1단계에서 이미 Cu가 리세스되고, 이어지는 라이너/배리어 CMP에서
+필드의 Ru가 먼저 제거되면 **Ru가 옆에서 받쳐줄 것 없이 홀로 서 있는 상태**가 되며, 계속
+폴리싱하면 이 지지되지 않은 Ru 벽이 **구부러진다(bending)**. 원문 인용: "Selectivity of the
+barrier/liner slurry to ULK-Ru-TaN-Cu is critical in this scenario as Ru is standing up
+without any support." 56 nm·64 nm 피치에서는 관측되지 않고 **48 nm 이하에서만** 나타난다.
+**디싱과의 차이**: 디싱은 오목하게 파이는 **연속적·스칼라 깊이**(nm 단위 depth)로 표현되는
+평면적 결함이다. 반면 Ru bending은 3원 스택(Ru-Cu-ULK)에서 한 재료가 구조적 지지를 잃어
+**기계적으로 좌굴하는 이산적 실패**(구부러져 인접 라인과 접촉하거나 끊김) — 깊이가 아니라
+"붙어 있는가/휘었는가"의 이분법이다. 저장소의 Δ는 D99 압입 깊이 기반 **국소·연속** 손상
+모델(Lv2-2가 2D 소재에서 이미 확인한 것과 동일한 구조의 문제)이라, 이 이산적 구조 붕괴를
+표현할 축 자체가 없다(노트 §5 표) — Lv2-2 §2.3의 "연속체 압입 모델 정의역 이탈" 패턴이
+**2D 소재가 아닌 다결정 금속 다층 스택에서도 재현**된다는 것이 이 단원의 핵심 발견이다.
+*정직 표기*: IBM 저자들 스스로 결론에서 "sub-48nm pitch structures are in progress"라고 적어
+이 문제가 2018년 시점 **미해결**이었다고 기록한다 — 이후 해법(예: semi-damascene 채택)이
+직접 인과관계인지는 이 노트가 증명하지 않았고 정황적 병행(§6-4)으로만 제시한다.
