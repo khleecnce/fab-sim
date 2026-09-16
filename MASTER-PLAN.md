@@ -2821,3 +2821,48 @@ pytest **951 passed**, qa_loop --strict **PASS**, 완성 격자 59/60 불변이�
 (감사가 F4 미신고 오염으로 잡던 것 해소).
 다음: 남은 C2 1칸(chi/sic_ceria_h2o2 oxidizer_langmuir_K 승격 — 부트스트랩
 구간이 한 자릿수라 독립 DOE 필요) 또는 BIAS(entegris 23배 계통편향).
+
+## 2026-09-16 19:xx [Max워커] S12 blanket_rate_transfer 등록 + summary() 진단 누락 결함 수정
+
+**① S12: `blanket_rate_transfer` 엔진 등록** (커밋 20409f0)
+모듈 docstring의 미등록 사유("Recipe에 시계열 스키마 없음")는 **역방향** `fit_blanket_rate`
+(실측 (t, 제거량) 시계열 → a1/a2/τ 역추정)에만 해당하고, 순방향 eq.3.52는 이 런의
+`rr.time_s` 하나면 계산된다는 판단으로 등록(electrical_thickness_extraction·
+recipe_conversion_factor와 동일 구조의 판단). 필드 3종
+(`blanket_transient_avg_to_inst_ratio_range`·`_underestimate_pct_range`·`_note`).
+근거 Tugbawa 2002 MIT EECS PhD thesis(dspace.mit.edu/handle/1721.1/8083) 표 3.3 4실험.
+**새 물리가 아니라 기존 Kp 근거의 체계적 편향 가시화** — 논문 §3.6이 "관행의 60 s 평균
+rate는 모델이 요구하는 포화 순간속도 a1보다 낮다"고 적고, 우리 팩의 `kp_m_per_pa`도
+문헌 평균 MRR에서 역산됐으므로 같은 편향을 상속할 수 있다. 실측 t=60 s에서
+r_avg/a1 = 0.7406~0.9010 (**9.9~25.9% 과소평가**, 4실험 개별 25.9/12.8/12.3/9.9%).
+설계 판단 3개: ①**대표값(평균) 금지** — 4실험은 압력·rpm이 달라 min~max 범위로만 보고
+②`rr.film=="cu"` 데이터 필드로만 판별(판정#34, 팩 이름 하드코딩 금지) — 표 3.3은 블랭킷
+Cu 실측이라 타 막질 전이 근거 없음, 5팩 중 cu만 산출 ③**운전점 불일치 경고 상시** —
+팩 운전점(3.0 psi, 55 rpm)이 표 3.3 4실험(2~5 psi, 43~75 rpm) 어느 것과도 불일치, 내삽·
+보간하지 않고 note에 명시(조용한 clamp 금지). `fit_blanket_rate`는 ast 경계테스트로 호출
+금지 고정. 원본 모듈 0바이트 수정. 계약테스트 10건(표 3.3 실험1의 r_avg(60s)/a1 **절대값**
+assert 포함 — 상대적 성질만 보는 테스트가 과거 21,600 km 오류를 통과시킨 전례 반영).
+
+**② 결함 수정: `summary()`가 진단 88개를 CLI·API에서 누락** (커밋 a1dae20)
+①을 등록한 뒤 노출을 확인하다 발견. **`WaferResult` 필드 125개 중 `summary()`가
+내보내던 키는 37개뿐이었다** — 즉 9/13 이후 등록한 진단 대부분(`gw_pressure_solve`·
+`tribology_basics`·`slurry_components`·`recipe_conversion_factor`·`ceria_redox_selectivity`·
+`pourbaix_nernst_slope`·`particle_chemomechanical_synergy` 등 88개)이 `sim.cli --json`과
+API 응답에서 **통째로 보이지 않았다**. summary()가 키 목록을 손으로 유지하는 구조라
+필드를 추가해도 목록에 넣는 것을 잊으면 조용히 누락됐고, 테스트가 없어 회차마다
+"등록 완료"로 기록되는 동안 실제로는 사용자에게 도달하지 않았다.
+**등록했는데 도달하지 않으면 등록이 아니다.** 수정: `dataclasses.fields` 자동 순회로
+교체하고 `_SUMMARY_EXCLUDE`(배열 프로파일 4종 + 이미 가공해 실은 구조체 6종)만 제외.
+재발 방지 테스트 22건 — 제외 목록을 리터럴로 못 박아 **진단을 몰래 숨기는 것을 차단**하고,
+6팩 전부에서 누락 0 + `json.dumps` 직렬화(CLI --json 경로)를 검사한다. PTW+패턴
+레이아웃으로 진단이 최대로 켜지는 경로도 포함. 실측: summary 키 **37 → 127**.
+MRR 비트 불변(테스트 고정).
+
+검증(Max워커 직접 실행, 위임 아님): pytest **987 passed**(961→+26, 회귀 0),
+completion.py 격자 **59/60 불변**, qa_loop #235 --strict **PASS** 유의 평균 ρ=0.9512 불변,
+CLI `--json` 실측 키 127개·blanket 진단 노출 확인.
+**S12 잔여: 9개 미등록** — 남은 것은 전부 구조적 사유로 등록 불가에 가깝다
+(`competitive_metal_langmuir`·`metal_contamination_surface`=pH/이온농도/제타전위 스키마 부재,
+`friction_cof_epd`=시계열 스키마 부재, `disk_active_grit_fraction`=engage_depth가 노트에서
+"가정값·미검증", `pad_wear_glazing`/`wear_aware_*`/`conditioner_asperity_distribution`=
+A0·마모상수가 문헌 fit 파라미터라 공개 정량값 없음, `disk_cutrate_coupling`=판정#51로 등록 거부).
