@@ -407,6 +407,15 @@ class WaferResult:
     pad_deborah_number: Dict[str, Optional[Dict[str, float]]] = field(
         default_factory=lambda: {"rot": None, "asperity": None})
     pad_loading_frequency_note: Optional[str] = None
+    # 산화물/연마입자 표면전하 부호(IEP 기준) 진단 — MRR과 무관, 진단 전용. sim/tier2_physics/
+    # chelation_surface_charge.py::oxide_surface_charge_sign(원본 무수정) 엔진 등록.
+    # slurry_ph·abrasive가 5팩 전부에 있어 부호는 항상 나온다(문헌 IEP표에 없는
+    # 연마입자면 None). abrasive_iep_pack_deviation_ph는 팩이 abrasive_iep_ph를
+    # 선언했을 때만(cu_h2o2_bta·w_fe_oxidizer는 미선언이라 None).
+    abrasive_surface_charge_sign: Optional[str] = None
+    abrasive_iep_literature_ph: Optional[float] = None
+    abrasive_iep_pack_deviation_ph: Optional[float] = None
+    abrasive_surface_charge_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -2155,6 +2164,136 @@ def _ceria_redox_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+# 판정#34: 팩 이름 하드코딩 금지 — abrasive 데이터 필드 값으로만 문헌 IEP 표를 조회한다.
+_ABRASIVE_TO_IEP_KEY = {"silica": "SiO2", "ceria": "CeO2", "alumina": "Al2O3"}
+
+
+def _abrasive_surface_charge_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """산화물/연마입자 표면전하 부호(IEP 기준) 진단 — MRR 경로와 완전히 독립적인 순수 가시화.
+
+    근거: sim/tier2_physics/chelation_surface_charge.py::oxide_surface_charge_sign
+    (원본 무수정, IEP 문헌표만 읽는다), knowledge/cmp/post-cmp-adsorption-cleaning-
+    chemistry.md §3·§6(C)·§7.
+
+    모듈 docstring은 "Recipe에 pH·이온세기·킬레이트 농도 필드가 없어 조립 불가"라고
+    통째로 미등록 사유를 달았지만, oxide_surface_charge_sign(oxide, pH)이 실제로 쓰는
+    입력(slurry_ph, abrasive)은 **5팩 전부에 이미 있다** — 이온세기·킬레이트 농도가
+    필요한 나머지 함수들(chelation_conditional_logK 등)만 여전히 입력이 없다.
+    _ceria_redox_diagnostic·_electrical_resistance_diagnostic과 같은 구조로 "미등록
+    사유가 일부에만 해당하면 그 일부만 순방향으로 등록"한다.
+
+    abrasive 값 → 모듈 IEP 키는 데이터 필드로만 분기한다(판정#34, 팩 이름 하드코딩
+    금지) — silica→SiO2, ceria→CeO2, alumina→Al2O3. 매핑 딕셔너리는 여기(엔진)에 두되
+    실제 IEP 숫자는 모듈의 `CSC.IEP`를 직접 읽는다(사본을 만들면 모듈이 바뀔 때 조용히
+    어긋난다). 표에 없는 연마입자는 지어내지 않고 스킵한다.
+
+    **교차검증(핵심)**: 팩이 자체적으로 abrasive_iep_ph를 선언한 경우(oxide_silica=2.5,
+    sti_ceria=6.8, sic_ceria_h2o2=6.8 상속) 문헌표 값(SiO2=2.0, CeO2=6.8)과 대조해
+    괴리를 `abrasive_iep_pack_deviation_ph`로 그대로 노출한다 — 둘 중 하나를 조용히
+    고르지 않는다. oxide_silica는 0.5 pH 괴리가 실제로 있다(팩 2.5 vs 문헌 2.0).
+
+    커버리지 확장: 기존 `_colloid_stability_diagnostic`은 abrasive_iep_ph가 팩에
+    선언된 경우만 동작해 cu_h2o2_bta·w_fe_oxidizer(알루미나, IEP 미선언) 2팩을
+    스킵한다. 이 진단은 문헌표(Al2O3=9.5, Zhang 2024)만으로 부호를 낼 수 있어 그
+    2팩도 커버한다 — abrasive_iep_pack_deviation_ph는 None(대조 기준이 없으니)이지만
+    부호 자체는 나온다.
+
+    CeO2 취약성: Ederer 2025 실측범위(CSC.CEO2_IEP_LIT_RANGE=5.21~9.40)가 넓어
+    단일값 6.8 판정이 취약하다. 범위 하한/상한에서 재계산해 부호가 뒤집히면
+    note에 명시한다(예: sti_ceria pH=5.5는 IEP=6.8과 1.3 pH 차이뿐이라 하한
+    5.21을 쓰면 부호가 '+'→'-'로 실제로 뒤집힌다).
+
+    ⚠ §7 그대로 전파: IEP는 벌크 분말/유리 표면값이고 CMP 후 실제 박막 IEP는
+    미확보 — 부호(+/0/-)만 판정하고 |ζ| 크기는 다루지 않는다.
+
+    chelation_conditional_logK·logK_at_I·log_alpha_H·free_metal_fraction은 호출하지
+    않는다 — 이온세기 I·킬레이트 리간드 농도가 Recipe·팩 어디에도 없고, cu_h2o2_bta가
+    선언한 chelator_species=glycine은 모듈 리간드 표(EDTA·Cit)에 없어 대체할 근거가
+    없다. hf_solution_pH도 호출하지 않는다 — DHF 세정 공정변수(HF wt%)가 Recipe에
+    없고, 이 엔진은 연마 단계를 모사하지 세정 단계를 모사하지 않는다.
+    test_forbidden_functions_never_called이 ast로 기계 고정한다.
+    """
+    out: Dict[str, object] = {"abrasive_surface_charge_sign": None,
+                              "abrasive_iep_literature_ph": None,
+                              "abrasive_iep_pack_deviation_ph": None,
+                              "abrasive_surface_charge_note": None}
+    if not (rr.pack.has("slurry_ph") and rr.pack.has("abrasive")):
+        out["abrasive_surface_charge_note"] = (
+            f"slurry_ph 또는 abrasive 팩 '{rr.pack.name}'에 없음 — 표면전하 진단 스킵")
+        return out
+    abrasive = str(rr.p("abrasive"))
+    iep_key = _ABRASIVE_TO_IEP_KEY.get(abrasive)
+    if iep_key is None:
+        out["abrasive_surface_charge_note"] = (
+            f"연마입자 '{abrasive}'는 문헌 IEP 매핑(silica/ceria/alumina)에 없음 — "
+            "지어내지 않고 스킵")
+        return out
+    try:
+        import chelation_surface_charge as CSC   # sim/tier2_physics (원본 무수정, import만)
+        if iep_key not in CSC.IEP:
+            out["abrasive_surface_charge_note"] = (
+                f"모듈 IEP 표에 '{iep_key}' 없음 — 지어내지 않고 스킵")
+            return out
+        ph = float(rr.p("slurry_ph"))
+        iep_lit = float(CSC.IEP[iep_key])
+        sign = CSC.oxide_surface_charge_sign(iep_key, ph)
+    except Exception as e:
+        out["abrasive_surface_charge_note"] = f"표면전하 진단 실패({e}) — None으로 둠"
+        return out
+
+    out["abrasive_surface_charge_sign"] = sign
+    out["abrasive_iep_literature_ph"] = iep_lit
+
+    notes = [f"abrasive='{abrasive}'→IEP키='{iep_key}', 문헌IEP={iep_lit:g}pH "
+             f"(sim/tier2_physics/chelation_surface_charge.py::IEP), slurry_ph={ph:g} "
+             f"→ 부호='{sign}'(pH<IEP→'+', pH>IEP→'-', pH==IEP→'0'; 표면 양전하일수록 '+')"]
+
+    if rr.pack.has("abrasive_iep_ph"):
+        pack_iep = float(rr.p("abrasive_iep_ph"))
+        deviation = pack_iep - iep_lit
+        out["abrasive_iep_pack_deviation_ph"] = deviation
+        if abs(deviation) > 1e-9:
+            notes.append(
+                f"⚠ 팩 선언 abrasive_iep_ph({pack_iep:g})가 문헌표값({iep_lit:g})과 "
+                f"{deviation:+.2f} pH 다르다 — 둘 중 하나를 조용히 고르지 않고 "
+                "필드로 둘 다 노출한다(팩 선언값은 부호 판정에 쓰지 않는다, "
+                "부호는 문헌표값 기준)")
+        else:
+            notes.append(
+                f"팩 선언 abrasive_iep_ph({pack_iep:g})가 문헌표값({iep_lit:g})과 일치")
+    else:
+        notes.append(
+            "팩이 abrasive_iep_ph 미선언 — 기존 _colloid_stability_diagnostic이 스킵하던 "
+            "팩(cu_h2o2_bta·w_fe_oxidizer 계열)도 문헌표만으로 부호 판정 가능 "
+            "(abrasive_iep_pack_deviation_ph=None, 대조 기준 없음)")
+
+    if iep_key == "CeO2":
+        lo, hi = CSC.CEO2_IEP_LIT_RANGE
+        sign_lo = "+" if ph < lo else ("-" if ph > lo else "0")
+        sign_hi = "+" if ph < hi else ("-" if ph > hi else "0")
+        if sign_lo != sign or sign_hi != sign:
+            flips = []
+            if sign_lo != sign:
+                flips.append(f"하한{lo:g}→'{sign_lo}'")
+            if sign_hi != sign:
+                flips.append(f"상한{hi:g}→'{sign_hi}'")
+            notes.append(
+                f"⚠ CeO2 IEP는 합성법별 실측범위가 {lo:g}~{hi:g}pH로 넓다(Ederer 2025) — "
+                f"단일값 {iep_lit:g} 판정은 취약하다. 이 pH({ph:g})에서는 "
+                f"{', '.join(flips)}로 부호가 뒤집힌다(기준부호 '{sign}')")
+        else:
+            notes.append(
+                f"CeO2 실측범위(Ederer 2025) {lo:g}~{hi:g}pH 전체에서 이 pH({ph:g})는 "
+                f"부호 '{sign}'로 안정적이다")
+
+    notes.append("⚠ IEP는 벌크 분말/유리 표면값(Brugnoli 2023/Ederer 2025/Zhang 2024) — "
+                 "CMP 후 실제 박막 IEP는 미확보(모듈 §7). 부호(+/0/-)만 판정하고 |ζ| 크기는 "
+                 "다루지 않는다.")
+
+    out["abrasive_surface_charge_note"] = f"pack='{rr.pack.name}'. " + "; ".join(notes)
+    return out
+
+
 def _conditioner_pcr_aging_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """컨디셔너 디스크 노화에 따른 Pad Cut Rate(PCR) 감쇠 진단 — MRR 경로와 완전히 독립.
 
@@ -2580,6 +2719,12 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     ceria_redox = _ceria_redox_diagnostic(rr)
     if ceria_redox["ceria_redox_note"]:
         notes.append(ceria_redox["ceria_redox_note"])
+    # 산화물/연마입자 표면전하 부호(IEP) 진단 — MRR 경로와 완전히 독립(가시화 전용).
+    # slurry_ph·abrasive 둘 다 5팩 전부에 있어 항상 값을 낸다(문헌표에 없는 연마입자면
+    # 조용히 None). abrasive_iep_ph 팩 선언과 문헌표 값을 대조해 괴리를 노출한다.
+    abrasive_charge = _abrasive_surface_charge_diagnostic(rr)
+    if abrasive_charge["abrasive_surface_charge_note"]:
+        notes.append(abrasive_charge["abrasive_surface_charge_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -2689,6 +2834,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        ceria_oxygen_vacancy_x=ceria_redox["ceria_oxygen_vacancy_x"],
                        ceria_electrostatic_attraction=ceria_redox["ceria_electrostatic_attraction"],
                        ceria_redox_note=ceria_redox["ceria_redox_note"],
+                       abrasive_surface_charge_sign=abrasive_charge["abrasive_surface_charge_sign"],
+                       abrasive_iep_literature_ph=abrasive_charge["abrasive_iep_literature_ph"],
+                       abrasive_iep_pack_deviation_ph=abrasive_charge["abrasive_iep_pack_deviation_ph"],
+                       abrasive_surface_charge_note=abrasive_charge["abrasive_surface_charge_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
