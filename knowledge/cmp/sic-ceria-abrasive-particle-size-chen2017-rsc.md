@@ -22,7 +22,8 @@ particles and the substrate surface in chemical-mechanical planarization of Si-f
 - **세리아 dmean ≈ 120 nm** — 공급업체 콜로이달 분산 스펙값이자 TEM으로 직접 확인(Fig. 1b).
   실제 CMP 실험(§2.3)에서 이 세리아를 2 wt%로 희석해 사용(원문 §2.1: "concentrations of
   silica particles and ceria particles were maintained at 6 wt% and 2 wt%, respectively").
-- 같은 원문의 실리카는 dmean ≈ 80 nm — 기존 sti_ceria.yaml의 80nm 값과 수치가 일치하는데,
+- 같은 원문의 실리카는 dmean ≈ 80 nm (같은 인용문, DOI 10.1039/C6RA27508G §2.1) — 기존
+  sti_ceria.yaml의 80nm 값과 수치가 일치하는데,
   이는 실리카 값이고 세리아 값이 아니다(§3 한계 참조).
 - 대상 웨이퍼: n형 2인치 Si-face **6H-SiC** 단결정(TanKeBlue Semiconductor). 4H-SiC는 아니나
   둘 다 SiC 폴리타입이고 CMP 연마입자-웨이퍼 상호작용 메커니즘(정전 흡착, Si–O–Ce 화학결합)은
@@ -93,3 +94,43 @@ oxidizer 항은 화학종 무관이지만 팩에 oxidizer_peak_wt_pct 자체가 
 sic2026(Wang, calibration에 소모), entegris2022(alumina, kappa만), 이번 건(KMnO4,
 무효) 외에 세 번째 독립 후보를 못 찾았다 — 미러 사이트·특허 검색 모두 ceria+H2O2 조합의
 정량 표를 추가로 내지 못함. "1차 미확보"로 기록.
+
+## 6. 검증 — 원문 실측값이 실제로 팩에 들어갔는가
+
+> ⚠ 갭 1 정정(2026-09-16 부채상환): 위 "sic_ceria_h2o2에 wafer_iep_ph 미선언" 은
+> 작성 시점 기준이며 **현재는 해소됐다**(팩 선언값 4.9, 근거는
+> [[sic-isoelectric-point-singh2006-jnr]] Singh et al. 2007). 갭 2(산화제 형상
+> 파라미터 부재)는 그대로 유효하다 — EVIDENCE-RULES 판정#35 가 기존 3경로
+> (촉진 Langmuir / 억제 / 단봉) 전부를 이 계에서 반증해 **항을 만들지 않기로**
+> 종결했기 때문이다. 즉 "아직 안 채운 칸"이 아니라 "채우면 안 되는 칸"이다.
+
+이 노트의 유일한 정량 주장은 "원문 dmean 120 nm 를 팩의 `abrasive_size_nm` 으로 채택했다"
+이므로, 검증도 그것 하나다 — 원문 인용값과 팩 선언값의 일치, 그리고 기준점(`_ref`)이
+같이 옮겨져 기준 조건 배수가 1.0 으로 유지되는지를 확인한다.
+
+```python verify
+# Chen et al. 2017, RSC Adv. 7, 16938-16952, DOI 10.1039/C6RA27508G §2.1 Materials
+CERIA_DMEAN_NM_PAPER = 120.0   # 원문 인용문: "ceria abrasives (dmean ~ 120 nm ...)"
+SILICA_DMEAN_NM_PAPER = 80.0   # 같은 인용문 — 세리아가 아니다(전용 금지, §3)
+
+assert CERIA_DMEAN_NM_PAPER != SILICA_DMEAN_NM_PAPER, (
+    "이 노트의 존재 이유: 기존 80nm 는 같은 원문의 **실리카** 값이었다")
+
+import sys, pathlib
+root = pathlib.Path(__file__).resolve().parents[2] if "__file__" in dir() else pathlib.Path(".").resolve()
+while root != root.parent and not (root / "sim" / "params.py").exists():
+    root = root.parent
+sys.path.insert(0, str(root))
+from sim.params import load_pack
+
+pk = load_pack("sic_ceria_h2o2")
+size = float(pk.get("abrasive_size_nm"))
+ref = float(pk.get("abrasive_ref_size_nm"))
+
+assert abs(size - CERIA_DMEAN_NM_PAPER) < 1e-9, (
+    f"팩 abrasive_size_nm={size} 가 원문 실측 {CERIA_DMEAN_NM_PAPER} nm 와 다르다")
+# 기준점 동반 이동 계약: 본값과 기준점이 같아야 기준 조건에서 입경 항 배수가 정확히 1.0.
+assert abs(ref - size) < 1e-9, (
+    f"기준점 {ref} 가 본값 {size} 와 어긋났다 — Kp 이중 계상 위험(_ref 동반 이동 규칙)")
+print(f"OK: 원문 {CERIA_DMEAN_NM_PAPER} nm == 팩 {size} nm, 기준점 {ref} nm 동반")
+```
