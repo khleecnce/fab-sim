@@ -1,5 +1,5 @@
 {
-  "ts": 1789537706.3091462,
+  "ts": 1789543337.2230148,
   "complete": false,
   "cells_done": 59,
   "cells_total": 60,
@@ -50,7 +50,7 @@
       "rhos": [
         1.0
       ],
-      "n_total": 1,
+      "n_total": 2,
       "mean_rho": 1.0
     },
     "cu_h2o2_bta": {

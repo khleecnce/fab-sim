@@ -2731,3 +2731,24 @@ held-out 개선 근거로 쓰지 않는다). 판정#35의 곡률 반증은 실�
 θ 경로 3함수 해시 고정으로 범위 정정(파일 동결은 의도보다 넓어 무관한 축 배선까지 막았다).
 다음: C4 sic_ceria_h2o2 held-out(n>=4) 확보 — 코퍼스 SiC 문서 63건 스캔했으나 세리아/H2O2
 알칼리 계 조성-MRR 표는 없었다(Wei 2026 은 실리카+Fe3O4, Entegris 는 산성 KMnO4/알루미나).
+
+## 2026-09-16 16:xx [성장엔진] VALIDATION 갭 — sic_alumina_kmno4 독립 held-out(L25, n=25) 확보 + 죽은 축 2개 실측 적발
+갭랭커 100점(SiC 계 held-out 부재)에 대응. 이 팩의 유일한 데이터(entegris2022)가
+자기 파라미터 9개의 출처라 순환보정이었다 — 로컬 코퍼스 전문 XML에서
+Gong et al. 2024(doi:10.3390/ma17030679, MDPI CC-BY) Table 2 의 **L25 직교표
+25조건**(pH 2~6 × KMnO4 1~5wt% × Al2O3 1~5wt%)을 파싱해
+`validation/datasets/gong2024_4hsic_alumina_kmno4_L25.yaml` 로 등록
+(used_for_calibration: false, qa_loop audit **clean**, 원문 텍스트 papers/ + INDEX.json 등록).
+백테스트: ρ=-0.190, p=0.817(비유의), MAPE 28.5%. **원인은 n 부족이 아니다** —
+예측값이 5개 값만 갖는다(Al2O3 농도축 하나만 살아 있음). pH축은 `_ph_softening_term`
+세리아 게이트로, KMnO4축은 판정#50 종 게이트로 각각 꺼져 있는데, **원문 극차분석 R 은
+산화제(0.172) > pH(0.110) > 연마입자(0.098)** — 우리가 못 보는 두 축이 실측 1·2위
+지배인자다. 노트: knowledge/cmp/sic-alumina-kmno4-L25-heldout-diagnosis.md
+(verify_claims ✓ 5블록 assert, check_knowledge ✓).
+§4에 농도지수 계내 충돌 기록(현행 -0.406 vs 이 DOE +0.036, 95% CI -0.037~+0.142 로 0 포함
+= "약한 인자" 후보) — **값·코드 미변경**: 적합에 쓰면 유일한 held-out 이 calibration 으로
+바뀌고, 두 관측 모두 E3 동급이라 서열로 못 깬다. EVIDENCE-RULES 3회차 한도 내 종결 예정.
+pytest 939 passed, qa_loop --strict PASS(유의 평균 ρ=0.9442 불변 — 이 데이터셋은 비유의라
+집계 밖), 완성 격자 59/60 불변.
+다음: KMnO4 산화제 형상을 **다른 문헌**에서 확보(이 L25 는 blind 로 보존), 또는
+`_ph_softening_term` 의 세리아 전용 게이트가 SiC 산화막 계에 타당한지 문헌 판정.

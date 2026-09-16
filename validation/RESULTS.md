@@ -3,8 +3,8 @@
 
 # 백테스트 결과
 
-- 측정 시각: 2026-09-16 08:01 KST
-- 코드 리비전: `8c6bd97`
+- 측정 시각: 2026-09-16 12:06 KST
+- 코드 리비전: `e0c2614`
 
 ```
 ====================================================================================================
@@ -14,10 +14,10 @@ carbide2023_slurry_composition_L9  n=  9  ρ=+0.167  τ=+0.111    p=0.344  MAPE=
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
     · ⚠ 계통 편향 0.12배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 cn109609035b_oxide_anionic_silica_ph n=  7  ρ=+1.000  τ=+1.000    p=0.000  MAPE=  84.0%  스크리닝 사용 가능
-dandu2009_sio2_ceria_ph_sweep      n=  9  ρ=+0.933  τ=+0.833    p=0.000  MAPE=  68.8%  스크리닝 사용 가능
-    · ⚠ 계통 편향 3.20배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
+dandu2009_sio2_ceria_ph_sweep      n=  9  ρ=+0.933  τ=+0.833    p=0.000  MAPE=  34.5%  스크리닝 사용 가능
     · 9/9 조건이 그래프 판독값(digitized) — 오차 포함
-entegris2022_us20220315802a1_sic_alumina_conc n=  5  ρ=+1.000  τ=+1.000    p=0.008  MAPE=  19.7%  스크리닝 사용 가능
+entegris2022_us20220315802a1_sic_alumina_conc n=  5  ρ=+1.000  τ=+1.000    p=0.008  MAPE=  95.6%  스크리닝 사용 가능
+    · ⚠ 계통 편향 23.04배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 jani2025_cu_h2o2_acidic_chelator   n=  3  ρ=-1.000  τ=-1.000    p=1.000  MAPE= 249.5%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
     · ⚠ 계통 편향 0.29배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
 kenchappa2021_softpad_hdp_oxide    n=  3  ρ=+1.000  τ=+1.000    p=0.167  MAPE= 195.8%  유의하지 않음(p=0.167, n=3) — 우연과 구분 불가
@@ -33,7 +33,7 @@ mariscal2020_peteos_ceria_pressure_velocity_3x3 n=  9  ρ=+0.967  τ=+0.889    p
     · 9/9 조건이 그래프 판독값(digitized) — 오차 포함
 mo2026_double_sided_L16            n= 12  ρ=+0.179  τ=+0.138    p=0.283  MAPE=  84.9%  범위밖(팩이 이 재료계를 안 다룸)
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
-netzband2020_thermal_oxide_ceria_ph n=  4  ρ=-0.800  τ=-0.667    p=0.958  MAPE= 143.8%  유의하지 않음(p=0.958, n=4) — 우연과 구분 불가
+netzband2020_thermal_oxide_ceria_ph n=  4  ρ=-0.800  τ=-0.667    p=0.958  MAPE= 247.6%  유의하지 않음(p=0.958, n=4) — 우연과 구분 불가
     · 4/4 조건이 그래프 판독값(digitized) — 오차 포함
 phm2016_dresser_usage_mrr          n=  5  ρ=+nan  τ=+nan        p=—  MAPE= 102.1%  범위밖(팩이 이 재료계를 안 다룸)
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
@@ -42,10 +42,8 @@ phm2016_dresser_usage_mrr          n=  5  ρ=+nan  τ=+nan        p=—  MAPE= 1
 sic2023_shear_rheological_L9       n=  9  ρ=+0.200  τ=+0.111    p=0.309  MAPE= 543.5%  범위밖(팩이 이 재료계를 안 다룸)
     · ⚠ 이 데이터셋은 팩 'oxide_silica'의 재료계 밖이다 — 결과는 모델 성능이 아니라 외삽 한계를 보여준다. held-out 집계에서 제외한다.
     · ⚠ 계통 편향 0.21배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
-sic2026_ceria_h2o2_ph_DOE50        n= 50  ρ=+0.393  τ=+0.280    p=0.002  MAPE=18676.9%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
-    · ⚠ 계통 편향 0.01배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
-su2011_procengr_6hsic_alumina_abrasive_conc n=  3  ρ=-0.500  τ=-0.333    p=0.833  MAPE=25429.2%  유의하지 않음(p=0.833, n=3) — 우연과 구분 불가
-    · ⚠ 계통 편향 0.00배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
+sic2026_ceria_h2o2_ph_DOE50        n= 50  ρ=+0.393  τ=+0.280    p=0.002  MAPE=  47.7%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
+su2011_procengr_6hsic_alumina_abrasive_conc n=  3  ρ=-0.500  τ=-0.333    p=0.833  MAPE=  64.1%  유의하지 않음(p=0.833, n=3) — 우연과 구분 불가
 tw202115224a_cu_abrasive_size_pressure n= 18  ρ=+0.717  τ=+0.827    p=0.001  MAPE=  92.9%  부분적 — 개선 필요
 us20080090500a1_cu_ph_silica_cross n= 12  ρ=+0.993  τ=+0.970    p=0.000  MAPE= 721.2%  참고용(캘리브레이션에 쓴 데이터 — 검증 아님)
     · ⚠ 계통 편향 0.12배 — 절대값은 신뢰 불가. 순위 지표만 근거로 쓸 것.
@@ -80,7 +78,7 @@ held-out 12개 전체 평균: ρ=+0.692, 쌍별 적중률 85.4%
   └ 그중 **calibration_contact가 전혀 없는(무접촉/clean) 것만** (4개): ρ=+0.992
   └ 유의하지 않음 4개 — 평균에서 빼고 봐야 한다: kenchappa2021_softpad_hdp_oxide(n=3), netzband2020_thermal_oxide_ceria_ph(n=4), su2011_procengr_6hsic_alumina_abrasive_conc(n=3), us9200180b2_cu_h2o2_series(n=3)
      n=3은 최소 p가 0.167이라 **구조적으로** 유의할 수 없다. 조건 수를 늘리거나 여러 데이터셋을 합쳐야 한다.
-  └ ⚠ 계통 편향 2배 초과 7/12개 — **절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.
+  └ ⚠ 계통 편향 2배 초과 6/12개 — **절대 MRR은 어디에도 쓰지 마라.** 순위 전용이다.
 
 범위 밖 6개(참고용, 집계 제외): carbide2023_slurry_composition_L9, lee2021_cu_nicotinic_inhibitor, mo2026_double_sided_L16, phm2016_dresser_usage_mrr, sic2023_shear_rheological_L9, yang2023_quartz_ceria_L25
 → 이들은 모델 성능이 아니라 '팩 커버리지 밖 외삽'을 보여준다. 실리콘 반도체 CMP 데이터가 필요하다.

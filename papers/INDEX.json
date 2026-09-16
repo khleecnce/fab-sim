@@ -232,6 +232,15 @@
   "title": "The role of interactions between abrasive particles and the substrate surface in chemical-mechanical planarization of Si-face 6H-SiC",
   "venue": "RSC Adv. 7, 16938-16952 (2017)"
  },
+ "cheng2017-jss-cu-ru-galvanic-ig-inhibitors": {
+  "authors": "Cheng J, Wang T, Lu X",
+  "doi": "10.1149/2.0181701jss",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": "papers/cheng2017-jss-cu-ru-galvanic-ig-inhibitors.pdf",
+  "src": "sci-hub.ren→sci.bban.top",
+  "title": "Galvanic Corrosion Inhibitors for Cu/Ru Couple during CMP of Ru",
+  "venue": "ECS J. Solid State Sci. Technol. 6(1) P62-P67 (2017)"
+ },
  "cheng2024-apsusc-bta-derivatives-cobalt-cmp": {
   "authors": "Cheng J, Lv Y, Zhang F, Han P, Miao Q, Huang Z",
   "doi": "10.1016/j.apsusc.2024.161684",
@@ -283,6 +292,24 @@
   "src": "미러 사이트(미러 사이트 -> 미러 사이트)",
   "title": "Shear thickening and defect formation of fumed silica CMP slurries",
   "year": 2013
+ },
+ "cui2012-jes-ru-oxide-species-periodate-ph": {
+  "authors": "Cui H, Park JH, Park JG",
+  "doi": "10.1149/2.103203jes",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": "papers/cui2012-jes-ru-oxide-species-periodate-ph.pdf",
+  "src": "sci-hub.ren→sci.bban.top",
+  "title": "Study of Ruthenium Oxides Species on Ruthenium CMP Using Periodate-Based Slurry",
+  "venue": "J. Electrochem. Soc. 159(3) H335-H341 (2012)"
+ },
+ "cui2013-jsst-ru-oxidizers-colloidal-silica": {
+  "authors": "Cui H, Park JH, Park JG",
+  "doi": "10.1149/2.030301jss",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": "papers/cui2013-jsst-ru-oxidizers-colloidal-silica.pdf",
+  "src": "sci-hub.ren→sci.bban.top",
+  "title": "Effect of Oxidizers on Chemical Mechanical Planarization of Ruthenium with Colloidal Silica Based Slurry",
+  "venue": "ECS J. Solid State Sci. Technol. 2(1) P26-P30 (2013)"
  },
  "dai2024-researchsquare-triazole-threshold-cu-cmp": {
   "authors": "Dai L, Yan Z, Zhang D, Li C, Shi C, Gao L, Xin Z",
@@ -444,6 +471,15 @@
   "src": "MDPI-OA",
   "title": "Material Structure and Mechanical Properties of Silicon Nitride and Silicon Oxynitride Thin Films Deposited by PECVD"
  },
+ "gong2024-ma17030679-4hsic-alumina-kmno4-L25": {
+  "authors": "Gong J, Wang W, Liu W, Song Z",
+  "doi": "10.3390/ma17030679",
+  "note": "validation/datasets/gong2024_4hsic_alumina_kmno4_L25.yaml (Table 2, L25 직교표 25조건)",
+  "pdf_local": "papers/gong2024-ma17030679-4hsic-alumina-kmno4-L25.txt",
+  "src": "MDPI CC-BY 오픈액세스. 로컬 코퍼스 JATS 전문 XML에서 텍스트 추출(Table 1~3 파이프 구분으로 보존). MDPI PDF 엔드포인트는 봇 차단.",
+  "title": "Polishing Mechanism of CMP 4H-SiC Crystal Substrate (0001) Si Surface Based on an Alumina (Al2O3) Abrasive",
+  "venue": "Materials 17(3), 679 (2024)"
+ },
  "gopal-talbot-2007-cu-alumina-2718474": {
   "confidence": "doi",
   "doi": "10.1149/1.2718474",
@@ -516,6 +552,15 @@
   "src": "sci-hub.kr -> sci-hub.red/storage (제목/저자/DOI 첫페이지 대조 확인)",
   "title": "Hydroxyl Radical Formation in H2O2-Amino Acid Mixtures and Chemical Mechanical Polishing of Copper",
   "venue": "J. Electrochem. Soc. 147 (10) 3820-3826 (2000)"
+ },
+ "he2018-jss-mo-kio3-acidic-passivation": {
+  "authors": "He P, Shao S, Qu XP",
+  "doi": "10.1149/2.0061806jss",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": "papers/he2018-jss-mo-kio3-acidic-passivation.pdf",
+  "src": "sci-hub.ren→sci.bban.top",
+  "title": "Chemical Mechanical Polishing of Molybdenum in Potassium Iodate-Based Acidic Slurries",
+  "venue": "ECS J. Solid State Sci. Technol. 7(6) P299-P304 (2018)"
  },
  "hirabayashi1996-us5575885-cu-polishing-aminoacetic-acid": {
   "authors": "Hirabayashi H, Kinoshita M, Kaneko H, Hayasaka N, Higuchi M, Mase K, Oshima J (Kabushiki Kaisha Toshiba)",
@@ -1171,6 +1216,15 @@
   "title": "Study on the Pad Wear Profile Based on the Conditioner Swing Using Deep Learning for CMP Pad Conditioning",
   "venue": "Tribology and Lubricants 40(2), 67-70 (2024)"
  },
+ "peethala2011-esl-cu-ru-galvanic-kio4": {
+  "authors": "Peethala BC, Roy D, Babu SV",
+  "doi": "10.1149/1.3589308",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": "papers/peethala2011-esl-cu-ru-galvanic-kio4.pdf",
+  "src": "sci-hub.ren→sci.bban.top",
+  "title": "Controlling the Galvanic Corrosion of Copper during CMP of Ruthenium Barrier Films",
+  "venue": "Electrochem. Solid-State Lett. 14(7) H306-H310 (2011)"
+ },
  "penta2011-acsami-polycation-charge-density-poly-selectivity": {
   "authors": "Penta NK, Dandu Veera PR, Babu SV",
   "doi": "10.1021/am2010114",
@@ -1758,6 +1812,15 @@
   "pdf": "https://미러 사이트/pdf/10.1016/j.mee.2020.111285.pdf",
   "src": "미러 사이트"
  },
+ "xu2022-rscadv-ru-ethylenediamine-h2o2": {
+  "authors": "Xu Y, Ma T, Liu Y, Tan B, Zhang S, Wang Y, Song G",
+  "doi": "10.1039/d1ra08243d",
+  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
+  "pdf_local": null,
+  "src": "RSC OA HTML (exa web_fetch) — PMC8978706",
+  "title": "Effect of ethylenediamine on CMP performance of ruthenium in H2O2-based slurries",
+  "venue": "RSC Adv. 12, 228-240 (2022)"
+ },
  "yamada2010-jes-pad-wear-response-w-cmp": {
   "added": "2026-09-14",
   "authors": "Y. Yamada, M. Kawakubo, K. Kadomura, T. Sugaya, O. Hirai, K. Tsugane",
@@ -1842,59 +1905,5 @@
   "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
   "title": "Study on Pad Performance Deterioration in Chemical Mechanical Polishing (CMP) of Fused Silica",
   "venue": "ECS J. Solid State Sci. Technol. 7(6), P295-P298 (2018)"
- },
- "cui2013-jsst-ru-oxidizers-colloidal-silica": {
-  "authors": "Cui H, Park JH, Park JG",
-  "doi": "10.1149/2.030301jss",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": "papers/cui2013-jsst-ru-oxidizers-colloidal-silica.pdf",
-  "src": "sci-hub.ren→sci.bban.top",
-  "title": "Effect of Oxidizers on Chemical Mechanical Planarization of Ruthenium with Colloidal Silica Based Slurry",
-  "venue": "ECS J. Solid State Sci. Technol. 2(1) P26-P30 (2013)"
- },
- "cui2012-jes-ru-oxide-species-periodate-ph": {
-  "authors": "Cui H, Park JH, Park JG",
-  "doi": "10.1149/2.103203jes",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": "papers/cui2012-jes-ru-oxide-species-periodate-ph.pdf",
-  "src": "sci-hub.ren→sci.bban.top",
-  "title": "Study of Ruthenium Oxides Species on Ruthenium CMP Using Periodate-Based Slurry",
-  "venue": "J. Electrochem. Soc. 159(3) H335-H341 (2012)"
- },
- "peethala2011-esl-cu-ru-galvanic-kio4": {
-  "authors": "Peethala BC, Roy D, Babu SV",
-  "doi": "10.1149/1.3589308",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": "papers/peethala2011-esl-cu-ru-galvanic-kio4.pdf",
-  "src": "sci-hub.ren→sci.bban.top",
-  "title": "Controlling the Galvanic Corrosion of Copper during CMP of Ruthenium Barrier Films",
-  "venue": "Electrochem. Solid-State Lett. 14(7) H306-H310 (2011)"
- },
- "he2018-jss-mo-kio3-acidic-passivation": {
-  "authors": "He P, Shao S, Qu XP",
-  "doi": "10.1149/2.0061806jss",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": "papers/he2018-jss-mo-kio3-acidic-passivation.pdf",
-  "src": "sci-hub.ren→sci.bban.top",
-  "title": "Chemical Mechanical Polishing of Molybdenum in Potassium Iodate-Based Acidic Slurries",
-  "venue": "ECS J. Solid State Sci. Technol. 7(6) P299-P304 (2018)"
- },
- "cheng2017-jss-cu-ru-galvanic-ig-inhibitors": {
-  "authors": "Cheng J, Wang T, Lu X",
-  "doi": "10.1149/2.0181701jss",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": "papers/cheng2017-jss-cu-ru-galvanic-ig-inhibitors.pdf",
-  "src": "sci-hub.ren→sci.bban.top",
-  "title": "Galvanic Corrosion Inhibitors for Cu/Ru Couple during CMP of Ru",
-  "venue": "ECS J. Solid State Sci. Technol. 6(1) P62-P67 (2017)"
- },
- "xu2022-rscadv-ru-ethylenediamine-h2o2": {
-  "authors": "Xu Y, Ma T, Liu Y, Tan B, Zhang S, Wang Y, Song G",
-  "doi": "10.1039/d1ra08243d",
-  "note": "materials/film-ru-mo-cmp-oxidizer-chemistry-ruo4-galvanic.md",
-  "pdf_local": null,
-  "src": "RSC OA HTML (exa web_fetch) — PMC8978706",
-  "title": "Effect of ethylenediamine on CMP performance of ruthenium in H2O2-based slurries",
-  "venue": "RSC Adv. 12, 228-240 (2022)"
  }
 }
