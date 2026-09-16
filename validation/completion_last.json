@@ -1,10 +1,10 @@
 {
-  "ts": 1789522297.8729842,
+  "ts": 1789537706.3091462,
   "complete": false,
   "cells_done": 59,
   "cells_total": 60,
   "fails": [
-    "C2 χ chi/cu_h2o2_bta: confidence=estimated",
+    "C2 χ chi/sic_ceria_h2o2: confidence=estimated",
     "C4 sic_ceria_h2o2: 유의 held-out 0건"
   ],
   "closed": [
@@ -14,6 +14,7 @@
     "Γ gamma/sic_ceria_h2o2: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/sti_ceria: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/w_fe_oxidizer: estimated(종결 판정#22·판정#22-종결)",
+    "χ chi/cu_h2o2_bta: estimated(종결 판정#20·판정#29·판정#38·판정#41·판정#45·판정#47)",
     "ψ psi/cu_h2o2_bta: unverified(종결 판정#24B·판정#24C·판정#26·판정#25)",
     "ψ psi/sti_ceria: estimated(종결 판정#28·판정#32)",
     "ψ psi/w_fe_oxidizer: unverified(종결 판정#24A·판정#25)",

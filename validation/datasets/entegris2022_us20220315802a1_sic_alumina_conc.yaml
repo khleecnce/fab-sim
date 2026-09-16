@@ -80,6 +80,14 @@ calibration_contact:
       숫자는 Kp 결정에 쓰이지 않았다(그래서 23배 편향이 그대로 남아 있다).
     axis: absolute_mrr
 
+  - param: oxidizer
+    pack: sic_alumina_kmno4
+    what: >
+      팩의 산화제 **종**(KMnO4)을 이 특허 Table 1 의 조성에서 선언(2026-09-16).
+      부모 팩이 H2O2 데이터로 적합한 Langmuir 형상 상수를 선언하면서, 산화제를
+      바꾼 이 팩이 그 곡선을 조용히 상속하는 것을 막기 위한 종 게이트 입력이다.
+      실측 MRR 은 쓰지 않았다 — 어느 종을 쓰는지만 적었다(부분 접촉).
+    axis: oxidizer_species
   - param: oxidizer_wt_pct
     pack: sic_alumina_kmno4
     what: >

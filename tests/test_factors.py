@@ -1084,3 +1084,43 @@ def test_chi_w_pack_is_now_fully_modeled():
     assert f.status == "modeled", f.status
     assert "ph_w_acidic" in f.terms
     assert f.value == pytest.approx(1.0, abs=1e-9)
+
+
+# ═══════════════════════════════ χ 산화제축 — sic_ceria_h2o2 배선 (2026-09-16)
+# 근거 노트: knowledge/cmp/sic-h2o2-oxidizer-saturation-alkaline-ceria.md
+
+def test_chi_oxidizer_axis_is_alive_for_sic_ceria_h2o2():
+    """H2O2 농도를 바꾸면 MRR이 실제로 움직여야 한다.
+
+    2026-09-16 이전에는 oxidizer_wt_pct/_ref는 있는데 형상 파라미터가 없어
+    χ가 산화제 변화에 **조용히 무반응**이었다(죽은 축). 배선이 풀리면 이 테스트가 잡는다.
+    """
+    lo = _mean_mrr(pack="sic_ceria_h2o2", oxidizer_wt_pct=2.0)
+    mid = _mean_mrr(pack="sic_ceria_h2o2", oxidizer_wt_pct=4.0)
+    hi = _mean_mrr(pack="sic_ceria_h2o2", oxidizer_wt_pct=6.0)
+    assert lo < mid < hi, (
+        f"H2O2 2/4/6 vol%에서 MRR이 단조 증가하지 않는다: {lo:.4f}/{mid:.4f}/{hi:.4f} "
+        "— 촉진-포화형(Langmuir) 배선이 깨졌다.")
+
+
+def test_chi_oxidizer_reference_unity_for_sic_ceria_h2o2():
+    """기준 조성(H2O2 4 vol%)에서 χ는 정확히 1.0 — Kp 이중 계상 방지."""
+    f = _factors(pack="sic_ceria_h2o2")["chi"]
+    assert f.value == pytest.approx(1.0, abs=1e-9), (
+        f"기준 조건 χ가 {f.value}다 — oxidizer_wt_pct와 oxidizer_ref_wt_pct가 "
+        "어긋났거나 단위가 섞였다(vol% vs wt%).")
+
+
+def test_oxidizer_shape_is_not_transferred_across_oxidizer_species():
+    """산화제 종이 다른 자식 팩은 부모의 Langmuir 곡선을 상속하지 않는다.
+
+    sic_alumina_kmno4는 KMnO4(E°(MnO4-/MnO2)=+1.68 V)를 쓰고, 부모의 K는 H2O2
+    데이터로 적합됐다. 종 게이트(판정#47과 같은 장치)가 꺼져 있으면 남의 산화제로
+    적합한 곡선으로 이 팩의 MRR을 예측하게 된다 — 그건 지어낸 값이다.
+    """
+    vals = [_mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=c)
+            for c in (2.0, 4.0, 6.0)]
+    assert vals[0] == pytest.approx(vals[1], rel=1e-12) and \
+           vals[1] == pytest.approx(vals[2], rel=1e-12), (
+        f"sic_alumina_kmno4가 KMnO4 농도에 반응했다({vals}) — H2O2로 적합한 "
+        "형상을 상속했다는 뜻이다. 종 게이트를 확인하라.")

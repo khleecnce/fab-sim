@@ -106,6 +106,18 @@ params:
   #   peak_wt_pct)가 없어 χ 의 산화제 항 자체가 비활성이다(factors.py 가
   #   경고로 신고 중). 그 항을 켤 때는 KMnO4 기준으로 형상을 새로 확보해야
   #   하며, H2O2 형상을 전용하지 마라(E°가 다르다: MnO4-/MnO2 +1.68 V).
+  # ── 산화제 종 선언 (2026-09-16) ────────────────────────────────
+  # 부모(sic_ceria_h2o2)가 2026-09-16 에 oxidizer_langmuir_K(H2O2 데이터로 적합)를
+  # 선언하면서, 상속만으로 이 팩까지 그 곡선을 쓰게 되는 상황이 생겼다.
+  # KMnO4 는 H2O2 와 산화력이 다르다(E°(MnO4⁻/MnO2)=+1.68 V vs SHE) — 형상을
+  # 전이하면 남의 산화제로 이 팩의 MRR 을 예측하게 된다. 종을 명시해
+  # sim/chemistry.py 의 종 게이트가 그 경로를 끄게 한다. 이 팩의 산화제 형상은
+  # KMnO4 데이터를 확보할 때까지 **갭으로 남긴다**(지어내지 않는다).
+  oxidizer:
+    value: KMnO4
+    source: "US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3"
+    confidence: measured
+
   oxidizer_wt_pct:
     value: 4.0
     unit: "wt%"

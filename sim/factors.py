@@ -1330,7 +1330,14 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     # 경로를 쓰는 팩에서는 등급 계산에서 제외한다(안 그러면 비활성 키의
     # estimated 등급이 계속 발목을 잡는다). 둘 다 없는 팩은
     # 기존 그대로 (n, C_peak)를 읽는다 — 하위호환, 동작 불변.
-    if pk.has("oxidizer_langmuir_K"):
+    # 2026-09-16 보강: **실제로 켜진 항의 등급만** 읽는다. 산화제 항이 꺼져 있는데
+    # (종 게이트로 차단됐거나 형상 파라미터가 비어) 그 키의 등급을 등급 하한에
+    # 반영하면, 쓰지도 않는 상수 때문에 χ 전체가 강등된다 — 실제로
+    # sic_alumina_kmno4 가 부모의 H2O2 K(estimated)를 상속만 하고 쓰지는 않는데
+    # χ 가 estimated 로 떨어졌다. 등급은 계산에 들어간 값의 성질이어야 한다.
+    if "oxidizer" not in terms:
+        oxidizer_shape_keys = ()
+    elif pk.has("oxidizer_langmuir_K"):
         oxidizer_shape_keys = ("oxidizer_langmuir_K",)
     elif pk.has("oxidizer_passivation_K"):
         oxidizer_shape_keys = ("oxidizer_passivation_K",)

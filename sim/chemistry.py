@@ -97,6 +97,39 @@ class ChemistryEffect:
         return f"화학 배수 {self.factor:.3f} = {parts}"
 
 
+def _oxidizer_species_gate_ok(pack, notes: List[str]) -> bool:
+    """산화제 Langmuir K 를 **적합된 산화제 종**에서만 쓰게 막는 게이트.
+
+    왜 필요한가 (2026-09-16): `oxidizer_langmuir_K` 는 재료 고유 상수다 —
+    산화제 종이 바뀌면 표준전극전위도 흡착 거동도 달라진다(H2O2 vs
+    MnO4⁻/MnO2 +1.68 V). 그런데 팩 상속은 "같은 물리를 공유한다"는 뜻이라
+    부모가 K 를 선언하면 **산화제를 바꾼 자식 팩까지 조용히 물려받는다**.
+    실제로 sic_ceria_h2o2(H2O2) 에 K 를 넣자 자식 sic_alumina_kmno4(KMnO4)가
+    그대로 상속했다 — 남의 산화제로 적합한 곡선으로 이 팩의 MRR 을 예측하게 된다.
+
+    판정#47(착화제 종 게이트)과 같은 장치다. 팩이 `oxidizer_langmuir_species`
+    (K 가 적합된 종)와 `oxidizer`(이 팩이 실제로 쓰는 종)를 둘 다 선언하고
+    서로 다르면, 지어내지 않고 이 경로를 끈다.
+    """
+    fitted = pack.get_or("oxidizer_langmuir_species", None)
+    if fitted is None:
+        return True                      # 종 선언이 없는 구버전 팩 — 기존 동작 유지
+    declared = pack.get_or("oxidizer", None)
+    if declared is None:
+        notes.append(
+            "⚠ oxidizer_langmuir_species 가 선언됐으나 팩에 oxidizer(실제 산화제 종)가 "
+            "없어 일치를 확인할 수 없다 — 지어내지 않고 Langmuir 경로를 끈다.")
+        return False
+    if str(declared) != str(fitted):
+        notes.append(
+            f"⚠ oxidizer_langmuir_K 는 {fitted} 로 적합됐는데 이 팩의 산화제는 "
+            f"{declared} 다 — 산화제 종이 다르면 곡선 형상을 전이할 수 없다"
+            "(표준전극전위·흡착 거동이 다르다). 이 팩에서는 산화제 형상 항을 "
+            "켜지 않는다 — 그 종의 데이터를 확보할 때까지 갭으로 남긴다.")
+        return False
+    return True
+
+
 def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
     """산화제 농도 → 기준 농도 대비 상대 MRR.
 
@@ -235,7 +268,7 @@ def _oxidizer_term(pack, notes: List[str]) -> Optional[float]:
                 "chelator_M 이 없어 레짐을 판별할 수 없다 — 지어내지 않고 "
                 "기존 경로로 폴백한다.")
 
-    if pack.has("oxidizer_langmuir_K"):
+    if pack.has("oxidizer_langmuir_K") and _oxidizer_species_gate_ok(pack, notes):
         # Langmuir 경로 — 폐형식: f(C) = φ + (1-φ)·θ(C)/θ(C_ref).
         # (레거시 경로처럼 φ를 분자·분모 양쪽에 넣고 나누는 게 아니다 — 그러면
         # 다른 함수가 되어 knowledge/params/w_fe_oxidizer.yaml의 K=0.549550

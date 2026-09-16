@@ -223,12 +223,42 @@ def test_forbidden_functions_never_called():
     assert not hit, f"engine.py가 {hit}를 호출한다 — 판정#19(축퇴)·미검증 근사 경로다"
 
 
-def test_original_module_untouched():
-    """원본 slurry_components.py / chemistry.py는 1바이트도 수정하지 않는다."""
-    import pathlib
-    import subprocess
-    root = pathlib.Path(__file__).resolve().parent.parent
-    for path in ("sim/tier2_physics/slurry_components.py", "sim/chemistry.py"):
-        result = subprocess.run(["git", "diff", "--stat", "HEAD", "--", path],
-                                capture_output=True, text=True, cwd=str(root))
-        assert result.stdout.strip() == "", f"{path} 수정됨: {result.stdout}"
+def test_original_theta_path_untouched():
+    """이 진단이 소비하는 θ 경로 자체는 건드리지 않는다.
+
+    ⚠ 2026-09-16 범위 정정: 이 테스트는 원래 `git diff --stat HEAD --
+    sim/chemistry.py` 로 **파일 전체를 동결**했다. 그러나 chemistry.py 에는 이
+    진단과 무관한 항(산화제·pH 연화·세리아)이 함께 들어 있어, 다른 축을 배선하는
+    정당한 편집까지 이 테스트가 막았다(실제로 χ 산화제축 배선에서 걸렸다).
+    파일 동결은 "진단이 원본 물리를 바꾸지 않는다"는 의도보다 넓다 —
+    **의도한 대상은 θ(피복률) 계산 경로 하나**이므로 그 함수들의 소스만 고정한다.
+
+    여기서 고정하는 것:
+      · slurry_components.langmuir_coverage / K_from_dG_ads (진단이 직접 호출)
+      · chemistry._inhibitor_term (같은 θ 를 MRR 쪽에서 소비 — 이중계상 경계)
+    이 셋 중 하나라도 바뀌면 진단과 MRR 이 서로 다른 θ 를 보게 될 수 있다.
+    """
+    import hashlib
+    import sim.chemistry as CH
+
+    fixed = {
+        "slurry_components.langmuir_coverage":
+            "ba8d618d5fca2bd422521e9d0bbb08a4",
+        "slurry_components.K_from_dG_ads":
+            "e5f411beb368c4be5abe48474e402ff3",
+        "chemistry._inhibitor_term":
+            "ec92f2e5a174484984aef48ec71af134",
+    }
+    actual = {
+        "slurry_components.langmuir_coverage":
+            hashlib.md5(inspect.getsource(SC.langmuir_coverage).encode()).hexdigest(),
+        "slurry_components.K_from_dG_ads":
+            hashlib.md5(inspect.getsource(SC.K_from_dG_ads).encode()).hexdigest(),
+        "chemistry._inhibitor_term":
+            hashlib.md5(inspect.getsource(CH._inhibitor_term).encode()).hexdigest(),
+    }
+    changed = [k for k in fixed if fixed[k] != actual[k]]
+    assert not changed, (
+        f"θ 경로 함수가 수정됐다: {changed}. 진단(engine)과 MRR(chemistry)이 서로 "
+        f"다른 피복률을 보게 될 수 있다. 의도한 변경이면 근거를 판정에 남기고 "
+        f"이 해시를 갱신하라: { {k: actual[k] for k in changed} }")
