@@ -244,6 +244,12 @@ class WaferResult:
     pad_groove_eol_hours: Optional[float] = None
     pad_groove_exhausted: Optional[bool] = None
     pad_groove_note: Optional[str] = None
+    # 그루브 마모 -> 슬러리 유동 상태 진단 (MRR 무관).
+    # sim/tier2_physics/pad_groove_wear_flow.py
+    pad_groove_residual_fraction: Optional[float] = None
+    pad_groove_wear_stage: Optional[str] = None
+    pad_groove_conductance_ratio: Optional[float] = None
+    pad_groove_flow_note: Optional[str] = None
     # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR과 무관. sim/tier2_physics/galvanic_hydroxide_ph.py.
     # 접촉 상대 금속 필드가 Recipe/팩에 없어(현재 5팩 전부 미선언) 갈바닉 필드는 항상 None이
     # 정상이다 — Co/Ru 등을 임의로 골라 넣지 않는다. 수산화물 전이 pH는 rr.film == "cu"이고
@@ -938,6 +944,102 @@ def _pad_groove_eol_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
         f"c={c:g} μm/h, D0={d0_um:g} μm(groove_depth_mm={d0_um / 1000.0:g}mm). "
         f"누적마모={cum:.1f} μm, 그루브 EOL={eol_h:.2f} h. "
         f"glazing EOL 미산출이라 OR 결합 미수행.")
+    return out
+
+
+def _pad_groove_wear_flow_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """그루브 마모 → 슬러리 유동 상태 진단 — MRR 경로와 완전히 독립.
+
+    근거: sim/tier2_physics/pad_groove_wear_flow.py(원본 1바이트도 수정 안 함,
+    self-test PASS), knowledge/materials/pad-groove-wear-flow-change-end-of-life.md
+    §2·§4·§5. 인용 문헌은 그 모듈 docstring 그대로(US8192257B2, US11938584B2,
+    Mu 2016 doi:10.1016/j.mee.2016.02.035, Irfan 2025 doi:10.3390/jmmp9030095).
+
+    입력 관례는 `_pad_groove_eol_diagnostic`과 **완전히 동일**하다 — 같은 문서 안에서
+    두 진단이 다른 D0·다른 시간축을 쓰면 숫자가 서로 모순되기 때문이다:
+      D0 = pack.groove_depth_mm * 1000 [μm] (base.yaml 0.76mm, literature)
+      t  = meta.pad_hours [h] (컨디셔닝 시간 = 연마 시간 가정)
+      c  = pack.pad_cut_rate_um_per_h [μm/h] — 팩 미선언이면 스킵(하드코딩 거부,
+           풀컨택트 43.4 vs 분할 22.2 중 어느 쪽인지 팩이 정하지 않았다).
+           현재 5팩 전부 미선언이라 항상 None이 정상이다.
+
+    그루브 **절대 폭** w는 팩의 `groove_width_um`(600 μm = 0.6 mm, Mu 2016 패드 B,
+    confidence=literature)을 쓴다. 모듈 기본값 0.5 mm(Irfan 2025 §2.3 기하)는
+    **쓰지 않는다** — 우리 팩이 자기 이름으로 폭을 선언하고 있으므로 그쪽이 우선이다
+    (판정#34의 has_own 우선 원칙과 같은 취지). 어느 값을 썼는지 note에 항상 밝힌다.
+
+    ⛔ **호출하지 않는 함수 4개**(입력이 Recipe/팩 어디에도 없어 지어내야 하기 때문):
+      - residence_time_s / slurry_volumes_cm3 / groove_wear_flow_state
+        → h_land_um(land 위 슬러리 필름 두께)·q_actual_cm3_per_s(실유량)가 없다.
+      - micron_cabot_life_wafers → 입력이 **wafer당** 마모량인데 우리는 **시간당**
+        (μm/h)만 갖고 있고, 시간→wafer 환산(웨이퍼/시간)이 어느 팩에도 없다.
+    이 경계는 tests/test_pad_groove_wear_flow_diagnostic.py가 ast로 기계 고정한다.
+
+    ⚠ `wear_stage`의 임계값 0.7/0.35는 **PROVISIONAL**이다 — 모듈 docstring이 스스로
+    "노트 §4의 모델 제안이며 Liu/Irfan 0.29~0.33, Cabot 0.20, Micron 0.2~0.4 범위 안에서
+    이 에이전트가 고른 값"이라고 밝힌다. 단계 라벨을 공정 판정 근거로 쓰면 안 된다.
+
+    ⚠ D가 0으로 clamp되는 구간(EOL 초과)에서는 컨덕턴스가 정의되지 않으므로(급수해가
+    h=0에서 발산) 0.0으로 내고 note에 경고를 명시한다 — 조용한 clamp 금지.
+    """
+    out: Dict[str, object] = {"pad_groove_residual_fraction": None,
+                              "pad_groove_wear_stage": None,
+                              "pad_groove_conductance_ratio": None,
+                              "pad_groove_flow_note": None}
+    if not rr.pack.has("pad_cut_rate_um_per_h"):
+        out["pad_groove_flow_note"] = (
+            "pad_cut_rate_um_per_h 미선언 — 43.4(풀컨택트)/22.2(분할) 중 어느 "
+            "컨디셔닝 방식인지 팩이 정하지 않아 그루브 유동 진단 스킵 "
+            "(pad_groove_eol 진단과 동일 사유)")
+        return out
+    if not rr.pack.has("groove_depth_mm"):
+        out["pad_groove_flow_note"] = (
+            "groove_depth_mm 미선언 — 초기 그루브 깊이 D0를 지어낼 수 없어 스킵")
+        return out
+    if not rr.pack.has("groove_width_um"):
+        out["pad_groove_flow_note"] = (
+            "groove_width_um 미선언 — 컨덕턴스 계산에 필요한 그루브 절대 폭을 "
+            "모듈 기본값 0.5mm로 대신 채우지 않고 스킵(지어내기 금지)")
+        return out
+    try:
+        import pad_groove_wear_flow as PGWF   # sim/tier2_physics (1바이트도 수정 안 함)
+        c = float(rr.p("pad_cut_rate_um_per_h"))
+        hours = float(rr.meta.get("pad_hours", 0) or 0)
+        d0_um = float(rr.pack.param("groove_depth_mm").value) * 1000.0  # mm -> um
+        w_um = float(rr.pack.param("groove_width_um").value)
+        w_mm = w_um / 1000.0
+        d_um = PGWF.groove_depth_um(d0_um, c, hours)
+        residual = PGWF.residual_depth_fraction(d_um, d0_um)
+        stage = PGWF.wear_stage(d_um, d0_um)
+        if d_um <= 0.0:
+            cond_ratio = 0.0
+            eol_warn = (
+                "⚠ EOL 초과 — D(t)가 0으로 clamp됐다(누적 마모 "
+                f"{c * hours:.1f} μm ≥ D0 {d0_um:g} μm). 컨덕턴스 급수해가 h=0에서 "
+                "정의되지 않아 컨덕턴스비를 0.0으로 내보낸다(계산값이 아니라 경계값). ")
+        else:
+            cond_ratio = PGWF.conductance_ratio(d_um, d0_um, w_mm)
+            eol_warn = ""
+    except Exception as e:
+        out["pad_groove_flow_note"] = f"그루브 마모-유동 진단 실패({e}) — None으로 둠"
+        return out
+    out["pad_groove_residual_fraction"] = float(residual)
+    out["pad_groove_wear_stage"] = str(stage)
+    out["pad_groove_conductance_ratio"] = float(cond_ratio)
+    out["pad_groove_flow_note"] = (
+        f"{eol_warn}"
+        f"컨디셔닝 시간 = 연마 시간 가정(meta.pad_hours={hours:g}h, "
+        "pad_groove_eol 진단과 동일 관례). "
+        f"D0={d0_um:g} μm, c={c:g} μm/h → D(t)={d_um:.1f} μm, 잔존비={residual:.4f}. "
+        f"컨덕턴스비 G(D)/G(D0)={cond_ratio:.4f} (직사각 덕트 Poiseuille 급수해, "
+        f"h³ 의존이라 잔존비보다 급하게 떨어진다). "
+        f"그루브 절대 폭은 팩 선언값 groove_width_um={w_um:g} μm(={w_mm:g}mm, "
+        "Mu 2016 패드 B)을 썼다 — 모듈 기본값 0.5mm(Irfan 2025 §2.3 기하)는 쓰지 않는다. "
+        f"단계='{stage}' ⚠PROVISIONAL: 임계 0.7/0.35는 모듈이 스스로 '노트 §4의 모델 "
+        "제안(Liu/Irfan 0.29~0.33·Cabot 0.20·Micron 0.2~0.4 범위 중 선택)'이라 밝힌 값이다. "
+        "⚠ 진단 전용 — MRR에 영향 없음. residence_time_s·slurry_volumes_cm3·"
+        "groove_wear_flow_state(h_land_um·q_actual 부재)와 micron_cabot_life_wafers"
+        "(시간→wafer 환산 부재)는 호출하지 않는다.")
     return out
 
 
@@ -2093,6 +2195,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     pad_groove = _pad_groove_eol_diagnostic(rr)
     if pad_groove["pad_groove_note"]:
         notes.append(pad_groove["pad_groove_note"])
+    # 그루브 마모 -> 슬러리 유동 상태 진단 — MRR 경로와 완전히 독립.
+    # pad_cut_rate_um_per_h 팩 미선언이면 조용히 None(현재 5팩 전부 미선언).
+    pad_groove_flow = _pad_groove_wear_flow_diagnostic(rr)
+    if pad_groove_flow["pad_groove_flow_note"]:
+        notes.append(pad_groove_flow["pad_groove_flow_note"])
     # 갈바닉 부식 방향·Cu 수산화물 전이 pH 진단 — MRR 경로와 완전히 독립. 접촉 상대
     # 금속(contact_metal) 팩 미선언이면 갈바닉 필드는 조용히 None(현재 5팩 전부 미선언).
     galvanic_hydroxide = _galvanic_hydroxide_diagnostic(rr)
@@ -2210,6 +2317,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        pad_groove_eol_hours=pad_groove["pad_groove_eol_hours"],
                        pad_groove_exhausted=pad_groove["pad_groove_exhausted"],
                        pad_groove_note=pad_groove["pad_groove_note"],
+                       pad_groove_residual_fraction=pad_groove_flow["pad_groove_residual_fraction"],
+                       pad_groove_wear_stage=pad_groove_flow["pad_groove_wear_stage"],
+                       pad_groove_conductance_ratio=pad_groove_flow["pad_groove_conductance_ratio"],
+                       pad_groove_flow_note=pad_groove_flow["pad_groove_flow_note"],
                        galvanic_anode_metal=galvanic_hydroxide["galvanic_anode_metal"],
                        galvanic_delta_e0_v=galvanic_hydroxide["galvanic_delta_e0_v"],
                        hydroxide_transition_ph=galvanic_hydroxide["hydroxide_transition_ph"],
