@@ -2870,3 +2870,56 @@ A0·마모상수가 문헌 fit 파라미터라 공개 정량값 없음, `disk_cu
 - 2026-09-16 [Max워커] **S12 종결** — 미등록 9개 전수 재판정(`validation/S12-RESIDUAL-JUDGMENT.md`). `sim/tier2_physics/*.py` 39개와 engine import를 grep 기계 대조해 미등록 목록을 확정한 뒤, 9개 전부 (a)필수입력→(b)Recipe/6팩 YAML 실존(has_own/상속/부재)→(c)모듈 기본값이 문헌값인가 자체가정인가→(d)판정 순으로 코드를 직접 열어 확인. **전부 영구 스킵 확정, 신규 등록 0건·None스텁 0건.** docstring 미등록 사유가 부분적으로 틀린 사례 2건 재발견(competitive_metal_langmuir의 pH는 실제로 6팩 전부에 존재 — 진짜 블로커는 금속이온 유리농도 / conditioner_asperity_distribution의 σ0는 대입 가능 — 블로커는 A0)했으나 진짜 블로커가 따로 있어 판정 불변. 스키마 확장 가치판단 4갈래도 함께 기록 — 특히 **디스크 grit·Rpk를 화학 팩에 넣으면 "Cu 화학을 바꿨는데 디스크 사양이 같이 바뀌는" 잘못된 결합**이 되므로 `equipment/conditioner_disk.yaml` 장비팩 분리가 옳은 구조(설계변경이라 범위 밖). 987 passed, 격자 59/60 불변, QA ρ=0.9512 불변. 커밋 567cffb
 - 2026-09-16 [Max워커] **판정#54: μ 일관성 — dead code 3키 해소** — S12 종결 판정 ⑤가 "두 독립 추정이 중복"이라 적은 건을 실행 대조하니 성격이 달랐다. `cof_stribeck(So, mu_bl, ...)`의 `mu_bl`이 곧 `cof_boundary`라 두 값은 **독립이 아니라 종속**이고, 더 중요하게 `cof_boundary`·`cof_hydro_coeff`·`cof_transition_alpha` 3키가 base.yaml에 선언돼 있으면서 **엔진이 읽지 않는 dead code**였다(모듈 기본인자와 우연히 값이 같아 증상 은폐 — cof_boundary를 3배 흔들어도 출력 비트 불변). 3키를 팩에서 읽도록 수정(기본값 비트 불변 = 순수 결함 수정), Q_f에는 문헌등급 `cof_boundary`를 유지하고 estimated 전이 파라미터로 깎인 추정치를 대입하지 않음. 진단 3종(`cof_qf_used`·`cof_estimate_vs_qf_ratio`·`cof_consistency_note`)으로 두 값을 나란히 노출. **전파 정량화**: μ 오차가 ΔT_ss에 선형 전파되고 Arrhenius로 증폭 — Ea=8.75(oxide) -7.0% vs **Ea=151.7 kJ/mol(Cu) -72.8%**. 계약테스트 11건, **998 passed**(회귀 0), 격자 59/60 불변, QA #240 ρ=0.9512 불변. 커밋 a0f5126
 - 2026-09-16 [정확도루프] **판정#55: 여러 회차 연속 최상위 BIAS 갭 종결 — 우리 Kp 가 아니라 특허 원자료가 이상치** — `entegris2022_us20220315802a1_sic_alumina_conc`(23.04배 계통편향)를 Preston 정규화 k*=MRR/(P·rpm) 로 같은 재료계 문헌과 직접 대조. 논문 3편(Gong 2024 4.735e-06 / Wang 2021 6.267e-06 / Chen 2015 7.312e-06)은 서로 **1.54배** 안에 모이는데 이 특허만 **1.813e-04**(24.8~38.3배 위), 특허의 가장 느린 조건조차 논문 최대의 6.6배다. 갭 랭커 처방대로 Kp 를 23배 올리면 held-out Gong 2024(n=25) 편향이 **1.336배→0.058배(17.2배 과대예측)** 로 뒤집힌다. **팩은 한 글자도 안 바꿨다.** 대신 데이터셋에 `rank_only`+근거문자열(`rank_only_ruling`)을 신설해 **절대값 판정만 면제**하고 순위(ρ=+1.000, p=0.008)는 유지 — backtest 가 근거 없는 플래그를 무시·경고하고, `accuracy_gaps.gaps_bias` 가 rank_only 를 건너뛴다(같은 종결 판정 재순환 차단). 새 실용 기준: **k* 의 문헌 간 정상 산포는 ≈1.5배**, 그 밖 한 자릿수면 Kp 갭이 아니라 원자료를 의심한다. 노트 knowledge/cmp/sic-kmno4-alumina-absolute-mrr-patent-vs-papers.md(verify 5항 통과), 계약테스트 4건. **1002 passed**(998→+4), QA #241 --strict PASS ρ=**0.9512 불변**, 격자 59/60 불변. 갭 랭커 최상위가 다음 건(liang2026, 3.97배)으로 이동 확인.
+
+## 2026-09-17 [Max워커] 공개 랜딩 사실 자동생성 + 고아 팩 키 게이트
+
+두 건 다 **같은 고장 방식**을 친다: 손으로 유지하는 목록 + 검사하는 테스트 없음 =
+조용한 드리프트. 9/16의 `summary()` 결함(필드 125개 중 37개만 손유지 목록에 들어
+있어 진단 88개가 CLI/API에서 누락)과 판정#54(dead config 3키)의 연장선이다.
+
+**① 공개 랜딩(/demo) 사실 주장 자동생성** (커밋 aaf6636, push)
+`sim/web/demo.html`은 면접관·투자자용 **유일한 공개 문서**인데 숫자가 전부 손으로
+박혀 있고 아무 테스트도 검사하지 않아 실제로 틀려 있었다. 실측 드리프트 8건:
+material systems 5→**6**(sic_alumina_kmno4 추가를 반영 못 함), held-out 21→**20**,
+유의 데이터셋 7→**8**, pytest 675→**1012**, estimated 칸 "of 50"→**of 60**,
+corpus fulltext 1,510→**1,527**, Python 3.11→**3.9**(.venv 실제), 팩 목록 문자열.
+`sim/web_facts.py::landing_facts()`가 각 숫자를 실제 아티팩트에서 산출하고
+(available_packs / validation/datasets/*.yaml / loop_ledger.jsonl /
+completion_last.json / corpus.sqlite / sys.version_info), demo.html은 `{{FABSIM_*}}`
+토큰만 담는다. 아티팩트 부재 시 해당 키만 `—`로 떨어뜨리고 **옛 하드코딩 값을
+폴백으로 쓰지 않는다**(그게 이 결함 자체이므로). 테스트 11건 — 미치환 토큰 0 /
+각 fact를 테스트가 아티팩트에서 **직접 재계산해** 대조(상수 하드코딩 금지) /
+stale 값 재출현 차단(리터럴 고정) / 아티팩트 부재 시에도 렌더 성공.
+⚠ **위임 산출물 결함 1건 적발·정정**: 최초 구현이 pytest 개수를 loop_ledger.jsonl의
+`tests.summary`에서 읽었는데 그 원장은 별도 크론이 append할 때만 갱신돼 **뒤처진다**
+(실측 951 vs 실제 1012, 61건 차이). 손유지 상수를 '뒤처지는 아티팩트'로 바꾼 것은
+드리프트를 고친 게 아니므로 `pytest --collect-only` 직접 수집(0.6s, lru_cache)으로
+교체하고, 원장값을 따라가면 FAIL하는 회귀 테스트를 신설했다.
+
+**② 고아 팩 키 기계 게이트** (커밋 3d60e59, push)
+판정#54를 1회성 수정에서 상시 방어로 바꿨다. 전수 스캔: 고유 파라미터 키 132개 중
+**7개가 sim/ 어디에도 없다**. 그 중 5개는 `literature`·`verified` 등급 — 등급이
+높다는 건 1차 출처로 검증됐다는 뜻인데 아무도 읽지 않으면 **그 검증은 모델에
+도달하지 않는다**. `tests/test_no_orphan_pack_keys.py` 4건: 새 고아 FAIL / 배선
+끝난 키가 면제목록에 남아도 FAIL(낡은 면제는 다음 고아를 숨긴다) / 사유 없는 면제
+차단(40자 이상) / 총량 7 고정(이름 갈아끼우기 우회 차단). 7개 각각에 **구체적
+선행조건**을 사유로 기재. 게이트 작동 증명: 가짜 키 주입 → 실제 FAIL, 원복 → PASS.
+⚠ **note가 코드에 대해 사실과 다른 주장을 하던 2건 정정**(값 무변경):
+(a) `cond_ref_sweep_cpm` — "반드시 cond_sweep_cpm과 함께 움직여야 Γ=1.0 계약 유지"라
+적었으나 `_f_gamma` 기준 분모는 4개(downforce·rpm·duty·usage)뿐이고 sweep_cpm은
+설계상 곱하지 않는다. 10→99로 흔들어 MRR 비트 불변 확인.
+(b) `hamaker_j` — "dlvo_colloid self-test가 이 값으로 재현"으로 읽히게 적었으나 그
+self-test는 A를 인자 리터럴로 받고 팩을 조회하지 않는다. **1000배**(8.5e-21→8.5e-18)
+흔들어 MRR·colloid 진단 3종 비트 불변 확인. (b)는 같은 파일에 다른 크론의 미커밋
+변경이 있어 이번 커밋에서 제외 — 다음 회차에 별도로 올린다.
+
+⚠ **작업 위생 사고 1건(자체 보고)**: (b) 제외 후 `git checkout`으로 워킹트리를
+되돌리면서 다른 크론의 미커밋 변경(`oxide_silica.abrasive_density_kg_m3`,
+literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회차에 원문 그대로
+복원하고 값(2200.0 kg/m^3)·등급·출처 일치를 확인했다. 교훈: **다른 크론의 미커밋
+변경이 있는 파일에는 `git checkout`을 쓰지 말고 해당 hunk만 되돌려라** — `git add`
+경로 지정은 지켰는데 정작 복구 명령이 파일 단위였다.
+
+물리 모델·팩터·화학 코드 무수정(①은 순수 표현층, ②는 테스트+note). 게이트 직접
+재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
+qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
