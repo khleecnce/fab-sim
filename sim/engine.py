@@ -39,6 +39,7 @@ if str(_ROOT.parent) not in sys.path:
 
 from sim.metrics.uniformity import compute_metrics, UniformityMetrics  # noqa: E402
 from sim.params import ParamPack, load_pack, available_packs  # noqa: E402
+from sim.equipment import load_equipment_pack  # noqa: E402
 from sim.chemistry import chemistry_factor, ChemistryEffect  # noqa: E402,F401
 from sim.factors import compute_factors, mrr_multiplier, coverage, Factor  # noqa: E402
 from sim.equipment_outputs import compute_outputs, Output  # noqa: E402
@@ -83,6 +84,10 @@ class Recipe:
     # 팩 값을 이번 런에만 덮어쓴다 — 민감도 스캔·DOE의 통로.
     # 팩 파일을 고치지 않고 "이 값만 5% 올리면?"을 물을 수 있어야 한다.
     pack_overrides: Dict[str, float] = field(default_factory=dict)
+    # 컨디셔너 디스크 장비팩(knowledge/equipment/packs/*.yaml) 선택 — 선택 필드.
+    # None=지금까지와 완전히 동일 동작. 값을 줘도 이번 회차는 스키마만 세우는
+    # 단계라 어떤 물리 계산에도 쓰지 않는다(sim/equipment.py 참조, 백로그 ㉺).
+    conditioner_disk: Optional[str] = None
 
     # 팩에서 채워야 하는 필드 → 팩의 키 이름
     _FROM_PACK = {
@@ -123,7 +128,13 @@ class Recipe:
                 used.append(key)
             else:
                 vals[attr] = cur
-        return ResolvedRecipe(base=self, pack=pk, used_keys=used, **vals)
+        # 장비팩(컨디셔너 디스크) — 선택. 지정 안 하면 None(MRR 경로 무영향).
+        # 없는 팩 이름이면 load_equipment_pack이 FileNotFoundError로 즉시 실패한다
+        # (params.py 선례와 동일 — 조용히 무시하지 않는다).
+        equipment_pack = (load_equipment_pack(self.conditioner_disk)
+                          if self.conditioner_disk is not None else None)
+        return ResolvedRecipe(base=self, pack=pk, used_keys=used,
+                              equipment_pack=equipment_pack, **vals)
 
 
 @dataclass
@@ -141,6 +152,9 @@ class ResolvedRecipe:
     kp_m_per_pa: float
     n_points: int
     edge_exclusion_m: float
+    # 컨디셔너 디스크 장비팩 — base.conditioner_disk가 None이면 None(스키마 신설
+    # 회차라 어떤 물리 계산도 이 필드를 읽지 않는다. 진단 표시에만 쓰인다).
+    equipment_pack: Optional[ParamPack] = None
 
     # 팩에 없는(사람이 정하는) 필드는 원본에서 그대로 위임
     @property
@@ -445,6 +459,11 @@ class WaferResult:
     blanket_transient_avg_to_inst_ratio_range: Optional[tuple] = None
     blanket_transient_underestimate_pct_range: Optional[tuple] = None
     blanket_transient_note: Optional[str] = None
+    # 컨디셔너 디스크 장비팩 로드 여부 — MRR과 완전히 무관, 스키마 신설 회차(백로그 ㉺)라
+    # 물리값은 절대 산출하지 않는다. sim/equipment.py::load_equipment_pack()이 실제로
+    # 읽었는지와 그 요약만 보고한다. Recipe.conditioner_disk가 None이면 둘 다 None.
+    conditioner_disk_pack: Optional[str] = None
+    conditioner_disk_note: Optional[str] = None
     model: str = ""
     notes: List[str] = field(default_factory=list)
     # 병합 파라미터 (ARCHITECTURE-V2 §2) — 이 런에서 각 축이 얼마였나.
@@ -2774,6 +2793,24 @@ def _blanket_rate_transient_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object
     return out
 
 
+def _conditioner_disk_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
+    """컨디셔너 디스크 장비팩 로드 여부 진단 — MRR 경로와 완전히 독립.
+
+    백로그 ㉺(장비팩 스키마 신설, S12-RESIDUAL-JUDGMENT.md §2-2) 회차의 스키마만
+    세우는 단계라, 팩이 로드돼도 어떤 물리 계산에도 쓰지 않는다. Recipe.conditioner_disk가
+    None이면(지금까지의 기본 동작) 둘 다 None — MRR·notes 모두 이전과 완전히 동일하다.
+    """
+    out: Dict[str, object] = {"conditioner_disk_pack": None, "conditioner_disk_note": None}
+    if rr.base.conditioner_disk is None:
+        return out
+    pack = rr.equipment_pack
+    out["conditioner_disk_pack"] = pack.name
+    out["conditioner_disk_note"] = (
+        f"장비팩 '{pack.name}' 로드됨(값 {len(pack.params)}개) — "
+        "스키마 신설 회차라 어떤 물리 계산에도 사용하지 않는다(진단 표시 전용)")
+    return out
+
+
 # ───────────────────────────────────────────────────────────── 실행
 def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult:
     """레시피를 팩으로 해석한 뒤 실행한다.
@@ -2980,6 +3017,11 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
     blanket_transient = _blanket_rate_transient_diagnostic(rr)
     if blanket_transient["blanket_transient_note"]:
         notes.append(blanket_transient["blanket_transient_note"])
+    # 컨디셔너 디스크 장비팩 로드 진단 — MRR 경로와 완전히 독립. conditioner_disk가
+    # None이면(기본값) 조용히 None(현재 전체 레시피가 기본값이라 항상 None이 정상).
+    cond_disk = _conditioner_disk_diagnostic(rr)
+    if cond_disk["conditioner_disk_note"]:
+        notes.append(cond_disk["conditioner_disk_note"])
     # 이 런에 실제로 쓰인 값 중 검증 안 된 것을 결과에 실어 보낸다.
     # 팩 전체가 아니라 '쓰인 것'만 — 안 쓴 값의 미검증은 이 결과와 무관하다.
     weak = [k for k in rr.used_keys
@@ -3106,6 +3148,8 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
                        blanket_transient_underestimate_pct_range=blanket_transient[
                            "blanket_transient_underestimate_pct_range"],
                        blanket_transient_note=blanket_transient["blanket_transient_note"],
+                       conditioner_disk_pack=cond_disk["conditioner_disk_pack"],
+                       conditioner_disk_note=cond_disk["conditioner_disk_note"],
                        model=model, notes=notes, factors=factors,
                        equipment_outputs=eq_outputs,
                        pack=rr.pack.name, film=rr.film,
