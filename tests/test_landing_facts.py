@@ -85,9 +85,20 @@ def test_cells_facts_match_completion_last():
 
 
 def test_corpus_facts_match_sqlite():
+    """⚠ 이 테스트는 data/corpus/corpus.sqlite 가 있을 때만 의미가 있다.
+
+    그 파일은 .gitignore(33행)에 있어 **커밋되지 않는다**. 따라서
+    `.githooks/pre-push` 가 HEAD 를 임시 디렉토리에 git archive 해서 돌리는
+    클린 트리에는 DB 가 존재하지 않고, connect() 는 빈 파일을 새로 만든 뒤
+    'no such table: documents' 로 죽는다 — 즉 이 테스트는 클린 트리에서
+    **구조적으로 통과할 수 없었고**, 그 결과 모든 크론의 push 가 막혀 있었다
+    (2026-09-18 발견). DB 가 없으면 검사할 대상 자체가 없으므로 skip 한다.
+    """
     from sim.web_facts import ROOT
 
     db = ROOT / "data" / "corpus" / "corpus.sqlite"
+    if not db.exists():
+        pytest.skip(f"코퍼스 DB 없음(.gitignore 대상): {db} — 클린 트리에서는 검사 대상이 없다")
     con = sqlite3.connect(str(db))
     try:
         total = con.execute("select count(*) from documents").fetchone()[0]
