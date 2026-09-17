@@ -97,6 +97,50 @@
 
 ## 진행 로그
 
+### 2026-09-18 [Max워커] 장비팩 스키마 신설(㉺) + K_i 1회차(㉻) + pre-push 구조결함 수정
+
+**커밋 3개 — 전부 로컬. push는 남의 미완성 상태에 막혀 있다(§3).**
+
+1. **㉺ 장비팩 스키마 신설** (e0debc7) — 컨디셔너 디스크를 화학 팩에서 분리.
+   `S12-RESIDUAL-JUDGMENT.md` §2-2가 지목한 구조적 블로커였다. `base.yaml`이 이미
+   "R은 소재 물성이 아니라 컨디셔닝(디스크 grit·하중)이 만드는 기하량"이라 적었는데,
+   그 값들을 화학 팩 6개가 각자 선언하면 **"Cu 화학을 바꿨는데 디스크 사양이 같이 바뀌는"**
+   잘못된 결합이 생긴다. `sim/equipment.py`(params.py의 Param/ParamPack 재사용, 복제 아님),
+   `knowledge/equipment/packs/{3m_e187_260mm,3m_e187_360mm}.yaml` + `SCHEMA.md`,
+   `Recipe.conditioner_disk: Optional[str]` + 진단 2종.
+   **값은 3M E187 TDS(자료번호 60-5002-0211-8) 표에 있는 것만** 옮겼다.
+   ⚠ **`grit_density_per_cm2`·`Rpk`·`engage_depth_um`은 일부러 비워 뒀다** — TDS에 없다.
+   조회 시 `ParamMissing`이 뜨는 것을 테스트로 기계 고정해 미래 회차가 몰래 채우는 것을 막았다.
+   SEMICON West 2000의 그릿 100~425µm·exposure 0~60%는 60종 DOE **탐색범위**지 E187 제품
+   스펙이 아니므로 제외. MRR 경로 비트불변(테스트 2건으로 고정). 계약테스트 12건.
+   **결과: ③`disk_active_grit_fraction`·④`disk_cutrate_coupling`는 아직 안 풀린다** —
+   스키마는 섰고, 이제 진짜 블로커가 "설계 부재"가 아니라 "N/Rpk 공개값 부재"로 좁혀졌다.
+
+2. **㉻ K_i 문헌표 1회차** (a1234c2) — Cu·Fe·Co·W·Ru 전원 확보 실패.
+   **"못 찾았다"가 아니라 "그 정의의 값이 발표된 적 없다"가 결론이다.**
+   Loewenstein·Charpin·Mertens 1999(doi:10.1149/1.1391670) 원문 Table VI를 다시 열어보니
+   10종 금속 전부에 있는 것은 K_i가 아니라 **경험적 거듭제곱 지수 m′·n′**이고, 저자가
+   "관측 농도구간 안에서만 유효"라 직접 못박았다. K_Cr=1e6만 숫자가 있는 이유는 **Cr만
+   단독(비경쟁) 실험이라 이중역수 직선화가 가능**했기 때문 — 나머지 9종은 경쟁계에서만
+   측정해 원리적으로 K_i 분리가 안 된다. W·Ru는 10종 패널에 애초에 없다. K_H(1e3) 출처는
+   "Unpublished results". 외부 SCM(보유 중인 Sun 2007 Cu/SiO2 pK1=4.35·pK2=8.22)은
+   양성자교환 + Boltzmann 정전보정 전제라 pH 무관 겉보기 단일상수로 **환산 불가**.
+   모듈·YAML 0줄 변경. verify_claims ✓ check_knowledge ✓.
+
+3. **pre-push 구조결함 수정** (08fc54a) — `tests/test_landing_facts.py::test_corpus_facts_match_sqlite`가
+   `.gitignore:33` 대상인 `data/corpus/corpus.sqlite`를 요구해, `.githooks/pre-push`가
+   `git archive`로 만드는 **클린 트리에서 구조적으로 통과 불가**였다(`no such table: documents`).
+   즉 모든 크론의 push가 막혀 있었다. DB 부재 시 skip으로 변경(있으면 기존 검사 그대로).
+   ⚠ **그런데 push는 여전히 막혀 있다 — 원인이 하나 더 있고 그건 내 것이 아니다.**
+   다른 크론이 `knowledge/params/*.yaml` 4팩에 `abrasive_density_kg_m3`를 **커밋했는데
+   그 값을 읽는 `sim/regime_adapter.py`는 아직 미커밋**이라, `test_no_orphan_pack_keys.py`
+   2건이 HEAD에서 FAIL한다. 남의 작업물이라 건드리지 않고 로컬 커밋으로 대기시켰다.
+
+**게이트(Max워커 직접 재실행)**: pytest **1029 passed**(회귀 0) / completion **59/60 불변**
+/ qa_loop #248 --strict **PASS ρ=0.9512 불변**. 이번 회차는 confidence를 하나도 올리지
+않았다 — 스키마와 판정만 세웠고, 값을 채우지 않은 것이 의도된 결과다.
+
+
 ### 2026-09-16 [Max워커] (이어서) S12 등록 1건 + 판정#51 등록거부 (커밋 be4088a·ea5d748)
 
 4. **`disk_preston_contact_decomposition` 등록** (be4088a) — 필드 5종
