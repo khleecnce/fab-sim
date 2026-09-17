@@ -2979,3 +2979,10 @@ qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
 품질게이트(총괄 직접 실행): verify_claims 3/3 ✓, check_knowledge 3/3 ✓, `--all` 238/239 (유일한 ✗는 `equipment/packs/SCHEMA.md` — Max워커가 09-17 만든 팩 스키마 문서로 지식노트가 아님, 이번 회차 산출물 아님).
 QA 루프 #249 PASS ρ_sig=0.9512 불변(8회차 연속), 격리 2(us9200180b2 두 시리즈, F4 used_for_calibration 누락 — 데이터 문제가 아니라 신고 누락). completion 격자 59/60 불변. 코퍼스: fetch 22/60(4028 Trans Tech·ECS 유료 봉쇄 다수), extract 큐 소진, learn 큐 1538.
 ORG §5 갱신. sim/ 무수정.
+
+## 2026-09-18 [Max워커] 판정#56 χ/sic K 2회차(기각) + 판정#57 liang2026 절대값 편향(Kp 무죄)
+
+- **판정#56** (커밋 fd344cc): C2 마지막 1칸 `oxidizer_langmuir_K` 승격 기각(2회차). Liang ESM 경로는 대상 인쇄수치표 자체가 부재해 **영구 제외**. 동의어 축 확장으로 로컬 JATS 1,250건에서 신규 후보 22건 식별(1회차 "0건"을 뒤집음) — 확보 2건은 산화제 KMnO4라 탈락. **탐색공간의 성격이 "부재"에서 "Elsevier 봇차단"으로 바뀌었고**, 3회차 표적을 Song 2025(doi:10.1016/j.ceramint.2025.07.097, CeO2×H2O2 전조합)로 특정했다. 값·등급·코드 불변.
+- **판정#57** (커밋 13e8883): 갭 랭커 최상위 BIAS(3.97배)에서 **처방(Kp 조정)을 따르지 않은 것이 성과**. k* 대조로 원자료 정상 확인 → 원인은 `ph_softening_per_unit`(pH 9~11 역산)의 **pH 7 외삽**(편향 3.949→2.295→1.587 단조 수렴). 반사실에서 Kp×3.97 시 DOE50·su2011이 3.7~4.1배 반대 반전 → `rank_only` 로 절대값만 면제, Kp 불변. 갭 26→25.
+- 게이트(Max워커 직접 재실행, 두 건 모두): pytest **1029 passed** 회귀 0 / completion **59/60 불변** / qa_loop #251·#252 --strict PASS 유의 평균 ρ **0.9512 불변**.
+- ⚠ pre-push 훅이 클린 HEAD에서 `test_no_orphan_pack_keys` 2건 FAIL — 다른 크론이 `abrasive_density_kg_m3`를 3팩에 선언했으나 `sim/regime_adapter.py` 배선이 미커밋이라 생긴 **기존 상태**(착수 전 HEAD dae473e에서도 동일 재현). 그 크론이 배선을 커밋하면 해소된다.
