@@ -316,3 +316,15 @@ params:
       (sim/regime_adapter.py::alpha_from_bulk_bound).
     source: "Nanoindentation of CVD W films — 보고 범위 10~14 GPa"
     confidence: literature
+
+  # ── 연마입자 밀도 (2026-09-15) ────────────────────────────────
+  # 피복률 유도의 입력이다: theta_p = 1.5 * phi * h / d, phi = wt% -> 부피분율.
+  # 피복률이 있어야 입자당 접촉응력이 팩마다 갈리고, 그래야 alpha(탄성/소성)
+  # 판정이 '입력 부재로 인한 기본값'에서 실제 판정으로 바뀐다.
+  # ⚠ 물질의 고유 밀도이지 슬러리 제형 정보가 아니다.
+  abrasive_density_kg_m3:
+    value: 3950.0
+    unit: kg/m^3
+    confidence: literature
+    source: >
+      알파-알루미나 Al2O3 3.95 g/cm3 — CRC Handbook, corundum. 이 팩의 연마입자는 알루미나다.

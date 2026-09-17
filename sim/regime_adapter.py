@@ -116,11 +116,18 @@ def contact_stress_pa(pk, pressure_psi: Optional[float],
     # 입자가 자리를 얼마나 채우는가. 피복률 1 이면 입자 응력 = 자리 압력.
     coverage = _num(pk, "particle_surface_coverage")
     if coverage is None:
+        # 선언이 없으면 **팩 물성에서 유도**한다 (θ_p = 1.5·φ·h/d).
+        # 이 유도가 없으면 σ 가 팩을 전혀 안 봐서 다섯 팩이 같은 값이 되고,
+        # 그 결과 α 판정이 전 팩 동일하게 떨어진다 — 그 α 가 n_C 를 통해
+        # 농도 반응의 부호를 정하므로 조용한 오판의 근원이 된다.
+        coverage = particle_coverage(pk, notes)
+    if coverage is None:
         notes.append(
             f"입자 접촉응력 {p_contact:.3g} Pa — 단층·완전피복 가정에서 입자가 "
             "받는 응력은 그 자리의 실접촉 압력과 같다. "
-            "⚠ 실제 피복률(particle_surface_coverage)이 1 보다 작으면 응력은 "
-            "그 비만큼 커진다 — 피복률 실측이 없어 상계를 못 좁혔다.")
+            "⚠ 피복률을 선언도 유도도 못 했다. θ_p ≤ 1 이므로 이 값은 "
+            "**하한**이고, 실제 응력은 이보다 크다 — α 판정이 탄성 쪽으로 "
+            "치우친다는 뜻이다.")
         return p_contact
 
     coverage = max(min(float(coverage), 1.0), 1e-6)
@@ -160,6 +167,96 @@ def surface_hardness_pa(pk, notes: List[str]) -> Optional[float]:
     return None
 
 
+def particle_coverage(pk, notes: List[str]) -> Optional[float]:
+    """접촉 자리에서 입자가 실제로 차지하는 면적 비 θ_p ∈ (0, 1].
+
+    왜 필요한가
+    ──────────
+    `contact_stress_pa` 가 내는 σ 는 **입자가 자리를 빈틈없이 덮는다**는
+    가정의 값이다. 실제로는 θ_p < 1 이고 그만큼 응력이 커진다:
+
+        σ_real = σ_계산 / θ_p
+
+    θ_p 가 없으면 σ 가 팩 물성을 전혀 안 보게 되고(실제로 다섯 팩이
+    같은 값이었다), 그 결과 α 판정이 전 팩 동일하게 떨어진다.
+    그 α 가 n_C = p(1−αχ) 를 통해 **농도 반응의 부호**를 정한다.
+
+    유도 (입력 → 판단 기준 → 출력, 물질명 없음)
+    ──────────────────────────────────────────
+        고형분 부피분율          φ   = (wt/100) / ρ_p / [(wt/100)/ρ_p + (1−wt/100)/ρ_f]
+        슬러리 단위부피 입자 수  n_v = φ / (π d³/6)
+        간극 h 안의 면밀도       n_a = n_v · h
+        입자 단면적              a_p = π d²/4
+        피복률                   θ_p = n_a · a_p = 1.5 · φ · h / d
+
+    ⚠ 상한 1 로 자른다. θ_p > 1 은 단층 가정이 깨졌다는 뜻(다층)이고,
+      그 경우 응력은 더 이상 커지지 않는다 — 자르는 것이 물리적으로 옳다.
+      다만 잘렸다는 사실을 신고한다(다층 레짐 신호다).
+    """
+    wt = _num(pk, "abrasive_wt_pct")
+    d_nm = _num(pk, "abrasive_size_nm")
+    rho_p = _num(pk, "abrasive_density_kg_m3")
+    gap = None
+    for key in ("fluid_gap_m", "pad_wafer_gap_m", "film_thickness_m"):
+        gap = gap or _num(pk, key)
+
+    # 간극이 선언돼 있지 않으면 윤활 이론의 **길이 스케일** z0 로 대신한다.
+    #   z0 = sqrt(2·μ·ω·R1·R2 / P)   (Thakurta 2001 Eq.19)
+    # ⚠ z0 는 정확한 최소 유막두께 h_min 이 아니다 — 무차원화 기준 길이다.
+    #   그래서 여기서 나온 θ_p 는 **자릿수 추정**이고, 그 사실을 신고한다.
+    #   그럼에도 쓰는 이유: θ_p 가 아예 없으면 σ 가 팩 물성을 전혀 안 보게 되고
+    #   (다섯 팩이 같은 값이 됐다) α 판정이 입력 부재로 전부 같아진다.
+    #   자릿수라도 팩마다 갈리는 편이 '조용한 동일 판정'보다 낫다.
+    z0_used = False
+    if gap is None:
+        mu = _num(pk, "slurry_viscosity_pa_s")
+        if mu and mu > 0:
+            try:
+                import math as _m
+                rpm = _num(pk, "rpm_platen") or 60.0
+                r1 = _num(pk, "wafer_radius_m") or 0.15
+                r2 = _num(pk, "center_offset_m") or 0.20
+                p_app = (_num(pk, "pressure_psi") or 3.0) * PSI_TO_PA
+                omega = 2.0 * _m.pi * float(rpm) / 60.0
+                gap = _m.sqrt(2.0 * float(mu) * omega * float(r1) * float(r2)
+                              / p_app)
+                z0_used = True
+            except Exception:
+                gap = None
+
+    missing = [n for n, v in (("abrasive_wt_pct", wt), ("abrasive_size_nm", d_nm),
+                              ("abrasive_density_kg_m3", rho_p),
+                              ("간극(fluid_gap_m 또는 점도)", gap)) if not v or v <= 0]
+    if missing:
+        notes.append(
+            "⚠ 피복률 미산출: " + ", ".join(missing) + " 가 없다. "
+            "θ_p=1(완전피복)로 가정되며, 이는 접촉응력을 **하한**으로 만든다 "
+            "— α 판정이 탄성 쪽으로 치우친다.")
+        return None
+
+    rho_f = float(_num(pk, "slurry_density_kg_m3") or 1000.0)   # 물 기준
+    rho_s = float(rho_p)          # type: ignore[arg-type]
+    w = float(wt) / 100.0         # type: ignore[arg-type]
+    phi = (w / rho_s) / ((w / rho_s) + (1.0 - w) / rho_f)
+    d_m = float(d_nm) * 1e-9      # type: ignore[arg-type]
+    theta = 1.5 * phi * float(gap) / d_m
+
+    if theta > 1.0:
+        notes.append(
+            f"피복률 θ_p = {theta:.3g} → 1.0 으로 제한. 단층 가정이 깨진 "
+            "다층 레짐 신호다(간극 안에 입자가 여러 겹). 응력은 더 커지지 않는다.")
+        return 1.0
+    src = ("윤활 길이스케일 z0" if z0_used else "팩 선언 간극")
+    warn = (" ⚠ z0 는 정확한 최소 유막두께가 아니라 무차원화 기준 길이다 "
+            "(Thakurta 2001 Eq.19) — 이 θ_p 는 **자릿수 추정**이고 절대값을 "
+            "주장하지 않는다. 정밀값은 유막 두께 실측이 필요하다(R8)."
+            if z0_used else "")
+    notes.append(
+        f"피복률 θ_p = {theta:.4f} (φ={phi:.5f}, h={gap:.3g} m [{src}], "
+        f"d={d_nm:g} nm). 입자당 접촉응력이 {1.0 / theta:.1f} 배로 커진다.{warn}")
+    return theta
+
+
 def alpha_from_bulk_bound(pk, sigma_pa: Optional[float],
                           notes: List[str]) -> Optional[Tuple[float, str]]:
     """벌크 경도만 있을 때, 부등식이 허용하는 범위에서만 α 를 판정한다.
@@ -180,11 +277,33 @@ def alpha_from_bulk_bound(pk, sigma_pa: Optional[float],
             "변질층은 벌크보다 무르므로 변질층 경도를 몰라도 소성이 확정된다.")
         return ALPHA_PLASTIC, "literature"
     if ratio <= 0.1:
+        # ⚠ 이 가지는 "탄성 확정"이 아니다 (2026-09-15 재판정).
+        #
+        # σ 는 피복률 θ_p 로 나뉘어야 하는 값인데(contact_stress_pa docstring),
+        # θ_p 가 어느 팩에도 선언돼 있지 않아 1.0(완전피복)으로 가정된다.
+        # θ_p ≤ 1 이므로 **실제 응력은 지금 값보다 크거나 같다**:
+        #       σ_real = σ_계산 / θ_p ≥ σ_계산
+        # 따라서 여기서 나온 낮은 비는 상한이 아니라 **하한 비**이고,
+        # θ_p 가 이 비만큼 작으면 소성으로 뒤집힌다.
+        #
+        # 실측이 이 미확정을 뒷받침한다: 접촉응력이 다섯 팩 전부 동일한
+        # 3.566e7 Pa 다 — 입자 크기·농도·재료가 계산에 들어가지 않기 때문이다.
+        # 그런데 이 가지의 결과(α=2/3)가 n_C = p(1-αχ) = +1/3 을 전 팩에
+        # 강제하고, 실측은 세 재료계 모두 농도와 **음의 상관**을 보인다
+        # (최강 -0.893, 한 계열은 회귀 지수가 -0.406).
+        #
+        # 그래서 등급을 estimated 로 두되 **왜 확정이 아닌지**를 신고한다.
+        # 값을 바꾸지 않는 이유: θ_p 를 모르는 상태에서 소성으로 뒤집는 것도
+        # 근거 없는 선택이고, 그쪽이 오히려 지표를 좋게 만들어 더 위험하다.
+        need = ratio          # θ_p 가 이 값 이하면 소성으로 뒤집힌다
         notes.append(
-            f"α 판정(탄성): 접촉응력이 벌크 경도의 {ratio:.3f}배로 두 자릿수 작다. "
-            "변질층이 벌크보다 무르더라도 그 정도 차이를 메우려면 경도가 10배 이상 "
-            "낮아야 하는데 그런 보고는 없다 — 탄성 접촉으로 본다. "
-            "⚠ 변질층 경도의 절대값이 확보되면 재판정해야 한다.")
+            f"⚠ α 잠정(탄성): 접촉응력/벌크경도 = {ratio:.4f}. **확정이 아니다.** "
+            f"이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 "
+            f"실제 응력은 이보다 크다 — θ_p 가 {need:.3f} 이하이면 소성으로 "
+            "뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. "
+            "θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 "
+            "팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). "
+            "⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.")
         return ALPHA_ELASTIC, "estimated"
     notes.append(
         f"⚠ α 미확정: 접촉응력/벌크경도 = {ratio:.3f} 는 중간 영역이다. 변질층이 "
