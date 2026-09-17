@@ -254,3 +254,65 @@ C2 는 "1차 출처로 값을 대조해 승격"을 요구하는데, 이번에 �
 **재개 조건**: (i) 알칼리 pH 9~11 · 무촉매 · 세리아 연마입자로 H2O2 농도만 3점 이상
 스윕한 문헌, 또는 (ii) Liang Fig.3(i) 의 4/6/12 wt% 세 점을 **인쇄 수치로** 제공하는
 ESM 표(현재는 그래프만 있어 판독값을 만들지 않았다). 3회차 규칙의 **1회차**다.
+
+## 9. 2회차 (판정#53 재개, 2026-09-18)
+
+판정#53 이 명시한 재개 조건 (i)(ii) 만 재시도했다. 3회차 규칙의 **2회차**다.
+
+### 9.1 조건 (ii) — Liang 2026 ESM 확보 시도: 실패
+
+sciopen.com (출판사, Tsinghua Univ. Press) 의 기사 페이지는 본문 HTML 을 자바스크립트
+AJAX 호출(`/article/full_text?doi=...`)로 나중에 채운다. 이 호출을 쿠키·Referer·
+X-Requested-With 등 다양한 조합으로 직접 재현해도 매번 `303 → /common/404` 로
+막힌다(WAF/봇차단, 사람 브라우저의 JS 실행 결과에 의존하는 토큰이 있는 것으로 보임).
+`.../article_pdf/<DOI>-ESM.pdf` 류의 URL 직접 추측 6종도 전부 본문 0바이트(빈 200).
+
+**부수 확인(중요) — 설령 확보했어도 (ii) 를 충족하지 못했을 것이다.** 이미 로컬에 있는
+본문 PDF(`papers/nr2026-ceria-composite-abrasive-sic-cmp.pdf`)를 다시 읽어보면, H2O2
+축과 연결된 ESM 항목은 **Fig. S21**(ORP 시간감쇠, EPR ·OH 신호)과 **Fig. S22** 뿐이고,
+Fig. 3(i) 의 4/6/12 wt% 점을 인쇄 수치로 주는 **Table S** 항목은 없다(Table S1~S3 는
+조성·상분석·연마입자 비교표로 전혀 다른 용도). 즉 ESM 봉쇄를 뚫었어도 요구한
+"인쇄 수치 표"는 애초에 존재하지 않았을 가능성이 크다.
+
+### 9.2 조건 (i) — 알칼리·무촉매·순수 세리아 H2O2 스윕 문헌 탐색
+
+1회차가 쓴 정확 질의(SiC ∩ 세리아 ∩ H2O2 ∩ MRR, SiC ∩ H2O2)를 반복하지 않고, 과제
+지시대로 축을 넓혔다: `lapping`/`planariz`, `removal rate`/`polishing rate`/`nm/h`,
+`hydrogen peroxide`/`oxidant concentration`, `CeO2`/`cerium oxide` 동의어. 로컬
+JATS 전문 코퍼스(`data/corpus/fulltext/*.xml`, 1,250건)에서 SiC ∩ 세리아 ∩ H2O2
+동의어 교집합으로 **15건**(1회차의 "0건"과 다른 결과 — 동의어 확장 덕분)을 새로 찾았고,
+`documents` 테이블 제목 LIKE 검색으로 SiC×과산화물 계열 제목 **7건**을 추가로 찾았다.
+전부 확인한 결과:
+
+| 문헌 | 확보 여부 | 탈락 사유 |
+|---|---|---|
+| Chen et al. 2015, *Appl. Surf. Sci.* 359:664–668, doi:10.1016/j.apsusc.2015.10.158 | **확보**(sci-hub 미러, 저자·제목·DOI 대조 완료) | 순수 세리아 연마입자는 맞으나 **산화제가 KMnO4**(H2O2 아님), **pH 2 산성**(요건은 pH 9~11) |
+| Zhu Qiqi 2024, *Acad. J. Mater. Chem.* 5(1):31-37, doi:10.25236/ajmc.2024.050106 | **확보**(출판사 직링크, 저자·제목 대조 완료) | 세리아 연마입자 언급은 있으나 실측 산화제 스윕은 **KMnO4 뿐**, H2O2 데이터 0건 |
+| Ni et al. 2021, *ECS J. Solid State Sci. Technol.*, doi:10.1149/2162-8777/ac40d5 | 미확보(IOP 직접·sci-hub 미러 전부 실패) | 초록상 **세리아-코팅 실리카 복합**(순수 세리아 아님), H2O2 축 스윕 언급 없음 — 확보해도 조건 미달 가능성 높음 |
+| Song et al. 2025, *Ceram. Int.*, doi:10.1016/j.ceramint.2025.07.097 | **미확보** — 가장 유력한 후보였으나 접근 전부 실패 | 초록: 연마입자 4종(다이아몬드·SiO2·**CeO2**·Al2O3) × 산화제 4종(KMnO4·**H2O2**·KIO4·K2S2O8) 전조합 연구 — CeO2×H2O2 조합이 포함될 가능성이 높다. 그러나 ScienceDirect 는 Cloudflare 봇차단(`Just a moment...`), doi.org 리다이렉트도 동일 차단, sci-hub 미러(`sci.bban.top`) 404(2025년 논문이라 미색인 추정), OpenAlex 에도 대체 저장소 없음(`any_repository_has_fulltext: false`) |
+| Fu et al. 2014, *Adv. Mater. Res.* 1027:213-216, doi:10.4028/www.scientific.net/amr.1027.213 | 미확보(scientific.net PDF 는 Cloudflare 챌린지) | 초록·키워드에 세리아 언급 없음(저자군의 이전 논문들은 다이아몬드 연마입자 계열) — 확보해도 조건 미달 가능성 높음 |
+
+### 9.3 판정 — 승격 기각 유지, 재개 조건 3회차로 이월
+
+**승격 기각 — `confidence: estimated` 유지, 값 0.7600 불변, 코드·팩 미변경(2회차).**
+
+⚠ **1차 출처 확보 실패.** 시도한 경로: sciopen.com ESM AJAX API(쿠키·Referer·
+X-Requested-With 조합 4회), ESM PDF 직접 URL 추측 6종, sci-hub 미러(`sci.bban.top`)
+3개 DOI, ScienceDirect 직접 접근 2가지 방식(doi.org 리다이렉트, PII 직링크, pdfft
+다운로드 엔드포인트), scientific.net PDF 직링크, DuckDuckGo HTML 검색. 조건 (ii) 는
+ESM 자체가 봉쇄됐고, 설령 뚫었어도 대상 ESM 항목(Fig S21/S22)이 인쇄 수치 표가
+아님을 본문에서 확인했다 — **이 경로는 사실상 막혔다.** 조건 (i) 는 동의어 확장으로
+1회차보다 넓은 후보군(22건)을 찾는 데는 성공했으나, 기준(알칼리·무촉매·순수세리아·
+H2O2 3점 이상 스윕)을 전부 만족하는 문헌을 **확보하지 못했다** — 가장 근접한 후보
+(Song 2025)는 Elsevier 봇차단이라는 **접근 장벽** 때문이지 **부재 확인**이 아니다.
+
+**null 도 결론이다.** 이 회차가 확정한 것: (a) ESM 재개 경로는 접근·내용 양쪽에서
+막혀 사실상 닫혔다, (b) 알칼리·무촉매·순수세리아 H2O2 스윕 문헌은 **존재할 가능성이
+있다**(Song 2025 가 유력 후보로 새로 식별됨)는 점에서 1회차의 "코퍼스·웹 범위에
+없다"는 결론을 일부 수정한다 — 없는 게 아니라 **Elsevier 봇차단에 막혀 못 읽는다**.
+
+**3회차 재개 조건(갱신)**: (i) Song et al. 2025(doi:10.1016/j.ceramint.2025.07.097)
+의 CeO2×H2O2 조합 데이터를 Elsevier 봇차단을 우회해 확보(기관 접근·다른 미러·
+저자 요청 등), 또는 (ii) 이와 독립인 알칼리·무촉매·순수세리아 H2O2 3점 이상 스윕
+문헌을 신규 발굴. Liang 2026 ESM 경로는 **재개 대상에서 제외**한다(9.1 에서 확인한
+대로 대상 표 자체가 없다).

@@ -1991,5 +1991,21 @@
   "venue": "J. Electrochem. Soc. (2007)",
   "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
   "src": "exa 초록 — grooved pad는 접촉면적↓→net MRR↓(방향). 본문 미확보"
+ },
+ "chen2015-apsusc-colloidal-silica-ceria-6hsic-kmno4": {
+  "authors": "Chen G, Ni Z, Xu L, Li Q, Zhao Y",
+  "doi": "10.1016/j.apsusc.2015.10.158",
+  "title": "Performance of colloidal silica and ceria based slurries on CMP of Si-face 6H-SiC substrates",
+  "venue": "Appl. Surf. Sci. 359, 664-668 (2015)",
+  "note": "cmp/sic-h2o2-oxidizer-saturation-alkaline-ceria.md §9.2 — 판정#53 2회차, 순수 세리아 연마입자이지만 산화제가 KMnO4(H2O2 아님)라 탈락",
+  "src": "sci-hub 미러(sci.bban.top), 저자·제목·DOI 대조 완료"
+ },
+ "zhu2024-ajmc-dlvo-adsorption-6hsic-sio2-ceo2": {
+  "authors": "Zhu Qiqi",
+  "doi": "10.25236/ajmc.2024.050106",
+  "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
+  "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)",
+  "note": "cmp/sic-h2o2-oxidizer-saturation-alkaline-ceria.md §9.2 — 판정#53 2회차, 산화제 스윕이 KMnO4뿐이라 H2O2 데이터 0건으로 탈락",
+  "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료"
  }
 }
