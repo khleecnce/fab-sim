@@ -59,6 +59,25 @@ calibration_contact:
       근거로만 인용돼 있다. 따라서 이 데이터셋의 ρ 는 자기 답안지 채점이 아니다 —
       다만 인용 사실 자체는 접촉이므로 정직하게 신고한다.
 
+# ⚠ 판정#57 (2026-09-18): accuracy_gaps 가 절대값 3.97배 BIAS로 잡았다.
+#   Preston 정규화 k* 대조(knowledge/cmp/liang2026-composite-abrasive-absolute-mrr-bias.md)
+#   결과 원자료 raw rate 는 Wang DOE50 산포 안(정상)이었고, 편향은 팩의
+#   ph_softening_per_unit 캘리브레이션 범위(pH 9~11) 밖(pH 7)으로의 외삽 +
+#   미모델링 Fenton 촉매 경로에서 나온다는 것을 반사실 실험으로 확인했다.
+#   Kp 를 3.97배 올려 맞추면 같은 팩의 캘리브레이션 데이터(DOE50, n=50)와
+#   held-out(su2011)이 둘 다 3.7~4.1배 반대로 틀어진다 — Kp 불변, 절대값
+#   판정만 면제한다(순위는 그대로 집계).
+rank_only: true
+rank_only_ruling: >
+  판정#57: 절대값 3.97배 편향의 원인은 팩 Kp 결함이 아니라 pH 항(캘리브레이션
+  범위 pH 9~11) 밖으로의 외삽 + 이 팩에 없는 CuxO Fenton-유사 촉매 경로다.
+  Preston 정규화 k* 대조로 원자료 raw rate 가 Wang DOE50 산포(10배 범위) 안에
+  있음을 확인했고(이상치 아님), Kp 를 조정해 이 데이터셋을 맞추는 반사실
+  실험에서 같은 팩의 캘리브레이션 데이터(DOE50)와 held-out(su2011)이 각각
+  0.957→0.241배, 1.078→0.272배로 반대 방향 3.7~4.1배 틀어짐을 확인했다.
+  상세: knowledge/cmp/liang2026-composite-abrasive-absolute-mrr-bias.md.
+  순위(ρ=+1.000, p=0.042)는 그대로 집계한다 — 제거가 아니라 절대값 면제다.
+
 scope_note: >
   4H-SiC + H2O2 계는 일치하나 연마입자가 CuxO-CeO2/Al2O3 복합(알루미나 담체)이고
   pH 7 중성이며 Fenton-유사 촉매가 있다. 절대 MRR 비교 금지 — κ 연마입자 농도항과
