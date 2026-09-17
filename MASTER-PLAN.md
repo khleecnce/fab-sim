@@ -2967,3 +2967,15 @@ literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회�
 물리 모델·팩터·화학 코드 무수정(①은 순수 표현층, ②는 테스트+note). 게이트 직접
 재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
 qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
+
+## 2026-09-18 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — cmp-calibrator Lv2-2 · pad-structure Lv3-2 · tool-platen-head Lv3-2
+
+전날(09-17 01:00) 같은 3명이 Claude 주간 한도(`weekly limit · resets Sep 18 2am`)로 0바이트 로그로 전멸했던 회차의 재실행. 프롬프트는 09-17본 그대로 재사용.
+
+- **cmp-calibrator Lv2-2** → `knowledge/calibration/uq-prediction-interval-coverage-extrapolation-warning.md` (출처 4건 실존, verify 4블록 통과). 핵심 판정: `series_scale.py`의 부트스트랩 배율 CI는 ρ 불확실성만 담고 δ·관측잡음을 누락 → 새 레시피점 예측구간으로 쓰면 과소커버리지(합성 n=20: s-CI만 ≈36% vs 잔차포함 ≈95%). 외삽 지표는 마할라노비스 d_M + GP 예측분산, 임계 √χ²(0.99,4)≈3.64는 제안·미검증. PROFILE 구현요청: `predict_interval`/`extrapolation_warning`. 3/6→4/6.
+- **pad-structure Lv3-2** → `knowledge/materials/pad-groove-stack-pressure-flow-model-spec.md` (출처 7건, verify 4블록). 서브패드 BOEF 적층 모델, `P_land=P/(1−GFQ)` 하중평형(Preston에 곱하지 말 것 경고), 그루브 유형 상대비 3편 교차수렴(방사·나선 vs 동심원 ≈+24%). sim/tier2 중복표: 컨덕턴스·체류·GW국소압 기존 재사용, land증배·엣지피크비·유형계수 부재→구현요청. 5/6→**6/6 완주**.
+- **tool-platen-head Lv3-2** → `knowledge/equipment/tool-settings-to-pressure-velocity-field-model-spec.md` (출처 7건, verify 3블록). 존압력 응답행렬 M 명세(단일존 4.5%→멀티존 2.5% NU 재현), 속도장은 `kinematics.speed_stats` 재사용으로 폐형식 검증, Ye&Yao 2025(PMC12029203) rpm비 실측과 대조 — Preston(∝V)가 제거율 감소를 3–4%p 과대예측함을 기록. 링압비 감도 8.0 %NU/ratio(2점 국소선형). 5/6→**6/6 완주**.
+
+품질게이트(총괄 직접 실행): verify_claims 3/3 ✓, check_knowledge 3/3 ✓, `--all` 238/239 (유일한 ✗는 `equipment/packs/SCHEMA.md` — Max워커가 09-17 만든 팩 스키마 문서로 지식노트가 아님, 이번 회차 산출물 아님).
+QA 루프 #249 PASS ρ_sig=0.9512 불변(8회차 연속), 격리 2(us9200180b2 두 시리즈, F4 used_for_calibration 누락 — 데이터 문제가 아니라 신고 누락). completion 격자 59/60 불변. 코퍼스: fetch 22/60(4028 Trans Tech·ECS 유료 봉쇄 다수), extract 큐 소진, learn 큐 1538.
+ORG §5 갱신. sim/ 무수정.

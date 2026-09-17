@@ -109,8 +109,8 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | pad-material | 활성 (G2 개방 2026-09-06) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | pad-lifecycle | 활성 (G3 개방 2026-09-06) | 6/6 ✓ 완주 (Lv3-2 완료: 시간축을 시간→패드상태(λ)→Kp 2단계로 분리, Sampurno 2011 λ(t) 재현·Zhou 2018 무릎압력·Wu 2013 디스크 2단계·PHM 477웨이퍼 교차검증; Cal-1은 G2 대기) | 2026-09-16 |
 | disk-design | 활성 (G3 개방 2026-09-06) | 6/6 ✓ 완주 | 2026-09-08 |
-| tool-platen-head | 활성 (G2 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
-| pad-structure | 활성 (G3 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
+| tool-platen-head | 활성 (G2 개방 2026-09-07) | 6/6 ✓ 완주 (Lv3-2 완료: 존압력→p(r) 응답행렬 명세, Ye&Yao 2025 rpm비 실측 대조; Cal-1은 G2 대기) | 2026-09-18 |
+| pad-structure | 활성 (G3 개방 2026-09-07) | 6/6 ✓ 완주 (Lv3-2 완료: 서브패드 적층 BOEF·land 압력증배·그루브 유형 상대비 모델 명세; Cal-1은 G2 대기) | 2026-09-18 |
 | disk-kinematics | 활성 (G4 개방 2026-09-07) | 5/6 (Lv3-1 완료) | 2026-09-08 |
 | film-oxide | 활성 (G1 개방 2026-09-08) | 6/6 ✓ 완주 (Lv3-2 완료: 막질별 Kp 배율 thermal=1 기준 TEOS 1.35·HDP/SOD 1.30~1.50·PSG 2.9·BPSG 4.6(Liu 1995 앵커, 상대비 literature·절대 Kp estimated), 세리아는 경도→밀도/화학 축이라 배율 이식 금지) | 2026-09-15 |
 | film-cu | 활성 (G1 개방 2026-09-08) | 6/6 ✓ 완주 (Lv3-2 완료: 1차 (P,V,MRR) 역산 Kp 1.1~5.8e-13 중앙 1.9e-13, Tugbawa r_cu=159Å/s@4psi 역산 3.67e-13이 팩 3.5e-13과 5% 내 일치·Guo 2004 Preston 유효창 P≲6psi·V≲0.7m/s) | 2026-09-15 |
@@ -125,7 +125,7 @@ L4  fab-director                          [미활성] 공정 플로우 설계·�
 | defect-scientist | 활성 (G3 개방 2026-09-12) | 5/6 (Lv3-1 완료: ADC — WM-811K 811,457맵/9클래스/None 85.24%, Shi2026 F1 전수재현(오차 0.006%p), 자명분류기 acc 85% vs macro-F1 0.095; RCA — Choi2010 스크래치 길이 ~2µm 응집체/>8µm 패드·디스크 debris, 규칙 후보표 R1–R6) | 2026-09-15 |
 | tool-post-clean | 활성 (G4 개방 2026-09-13, 선수충족: surface-contamination 6/6·slurry-colloid 3/6) | 5/6 (Lv3-1 완료: 나노입자 제거 한계 — 부착력∝R(vdW) vs 유체항력∝R² → F_D/F_a∝R, Ng2007 경계값 1% 재현, R_crit≈385µm(G=5000/s 가정, 오더만) 서브µm는 유체력만으론 제거불가; Seo2019 Cu/Co 갈바닉 ΔEcorr 40→5mV) | 2026-09-15 |
 | film-emerging | 활성 (G4 개방 2026-09-15, 선수충족: slurry-chemistry 5/6·film-cu 6/6) | 2/6 (Lv1-2 완료: Ru Pourbaix RuO₂ 1.12V/RuO₄ 1.04V, 연마율 정점은 E°≈1.6V NaIO₄·NaClO(Cui 2013), RuO₄ 억제창 pH≳9(Peethala 2011), Mo는 MoO₃ 부동태 有·RR/SER 41배, Ru/Cu ΔE_corr 540→20mV, Mo/KIO₃ Hill n≈4.2가 Langmuir 대비 SSE 52배 우수; Co/Ru 실측 ΔE_corr 전수탐색 후 부재로 종결) | 2026-09-16 |
-| cmp-calibrator | 활성 (G3 개방 2026-09-16, 선수충족) | 0/6 | 2026-09-16 |
+| cmp-calibrator | 활성 (G3 개방 2026-09-16, 선수충족) | 4/6 (Lv2-2 완료: 예측구간 커버리지·외삽 경고) | 2026-09-18 |
 | (그 외) | 대기 | — | — |
 
 ## 6. Phase 2 이후 — 다른 공정 (자리만)

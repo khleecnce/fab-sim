@@ -1923,5 +1923,73 @@
   "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
   "title": "Study on Pad Performance Deterioration in Chemical Mechanical Polishing (CMP) of Fused Silica",
   "venue": "ECS J. Solid State Sci. Technol. 7(6), P295-P298 (2018)"
+ },
+ "gramacy-lee2012-nugget-computer-experiments": {
+  "authors": "Gramacy RB, Lee HKH",
+  "doi": "10.1007/s11222-010-9224-x",
+  "note": "calibration/uq-prediction-interval-coverage-extrapolation-warning.md",
+  "pdf_local": "papers/gramacy-lee2012-nugget-computer-experiments.pdf",
+  "src": "arXiv 1007.4580 프리프린트 전문(동일 논문, Statistics and Computing 게재본)",
+  "title": "Cases for the nugget in modeling computer experiments",
+  "venue": "Statistics and Computing 22(3), 713-722 (2012)"
+ },
+ "papadopoulos2024-guaranteed-coverage-pi-gpr": {
+  "authors": "Papadopoulos H",
+  "doi": "10.1109/tpami.2024.3418214",
+  "note": "calibration/uq-prediction-interval-coverage-extrapolation-warning.md",
+  "pdf_local": "papers/papadopoulos2024-guaranteed-coverage-pi-gpr.pdf",
+  "src": "arXiv 2310.15641 프리프린트 전문(동일 논문, IEEE TPAMI 게재본)",
+  "title": "Guaranteed Coverage Prediction Intervals with Gaussian Process Regression",
+  "venue": "IEEE Trans. Pattern Anal. Mach. Intell. 46(12), 9072-9083 (2024)"
+ },
+ "ye-yao-2025-mi16040450-trajectory-relative-speed": {
+  "authors": "Ye G, Yao Z",
+  "year": 2025,
+  "title": "Research on the Trajectory and Relative Speed of a Single-Sided Chemical Mechanical Polishing Machine",
+  "doi": "10.3390/mi16040450",
+  "pmc": "PMC12029203",
+  "note": "equipment/tool-settings-to-pressure-velocity-field-model-spec.md",
+  "fulltext_local": "papers/ye-yao-2025-mi16040450-fulltext.xml",
+  "src": "1차 논문 (Micromachines, CC-BY, Europe PMC fullTextXML)"
+ },
+ "byrne2011-wafer-scale-fem-contact-pressure": {
+  "authors": "Byrne G, Ahearne E, Timoney P",
+  "doi": "10.1177/09544054JEM2187",
+  "title": "Development and validation of a 200 mm wafer-scale finite element model of contact pressure distribution in CMP",
+  "venue": "Proc. IMechE Part B: J. Eng. Manuf. 226 (2011)",
+  "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
+  "src": "exa 리프린트 발췌(sensorprod) — 엣지 피크비 1.732/2.391 vs Wang 4.47, 패드2.68/서브패드1.33mm. 로컬 PDF 미확보(SAGE 유료·CloudFront 차단)"
+ },
+ "choi-dornfeld-2004-pad-stack-widnu": {
+  "authors": "Choi J, Dornfeld DA",
+  "doi": "10.1557/proc-816-k4.4",
+  "title": "Evaluation of the Effect of Pad Thickness and Stiffness on Pressure Non-Uniformity at Die-Scale in ILD CMP",
+  "venue": "UC Berkeley eScholarship 06k6x1vm; MRS Symp. Proc. 816, K4.4 (2004)",
+  "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
+  "src": "eScholarship OA 원문 전체(exa) — 2층 DOE 회귀 H/L=6.53+0.63Eh-0.58Es-0.37Th. https://escholarship.org/uc/item/06k6x1vm"
+ },
+ "bae2022-radial-groove-copper-cmp": {
+  "authors": "Bae C, Oh S, Kim T",
+  "doi": "10.1016/j.mssp.2022.106968",
+  "title": "Effect of radial grooves pads on copper chemical mechanical polishing",
+  "venue": "Mater. Sci. Semicond. Process. 151 (2022)",
+  "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
+  "src": "exa 초록+핵심수치 — CG vs RG32: 신선분율 0.528→0.676, Cu RR 4051→5047 Å/min. 본문 미확보(Elsevier)"
+ },
+ "rosales-yeomans-2008-pad-grooves-copper-cmp": {
+  "authors": "Rosales-Yeomans D, DeNardis D, Borucki L, Philipossian A",
+  "doi": "10.1149/1.2963268",
+  "title": "Design and Evaluation of Pad Grooves for Copper CMP",
+  "venue": "J. Electrochem. Soc. 155, H797 (2008)",
+  "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
+  "src": "exa 초록 수치 — Log(-)Spiral(+) vs 동심원: RR +24%, COF +28%. 본문 미확보(ECS/IOP)"
+ },
+ "wang-yang-2007-effects-pad-grooves-cmp": {
+  "authors": "Wang, Yang",
+  "doi": "10.1149/1.2716558",
+  "title": "Effects of Pad Grooves on Chemical Mechanical Planarization",
+  "venue": "J. Electrochem. Soc. (2007)",
+  "note": "materials/pad-groove-stack-pressure-flow-model-spec.md",
+  "src": "exa 초록 — grooved pad는 접촉면적↓→net MRR↓(방향). 본문 미확보"
  }
 }

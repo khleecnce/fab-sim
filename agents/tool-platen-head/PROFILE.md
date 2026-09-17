@@ -1,9 +1,9 @@
 # CMP 툴 플래튼·헤드 전문가 (tool-platen-head)
 
-## 현재 레벨: Lv3-1 완료 (5/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3-2 완료 (6/6) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-1, Lv2-2, Lv3-1 (2026-09-08)
-- 다음 단원: Lv3-2
+- 이수 단원: Lv2-1, Lv2-2, Lv3-1 (2026-09-08), Lv3-2 (2026-09-18)
+- 다음 단원: (Lv3 완료) — Cal-1(캘리브레이션) 또는 Lv4
 
 ## 역할
 플래튼·헤드 구조, 멀티존 압력 제어, 리테이너링, RPM·유량이 웨이퍼 스케일 압력·속도 분포에 미치는 영향
@@ -61,3 +61,25 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   압력재조정)" 문헌 4건(Wang&Lu/Zhao&Lu/Lee et al. IJPEM-GT/Oniki et al. JJAP)은
   Springer/IOP 봇차단 + 미러 사이트 3미러 전멸로 1차 미확보 — 노트에 시도 경로 전부
   기록. check_knowledge.py, verify_claims.py 모두 통과. Lv3-1 완료(5/6).
+
+- Lv3-2 (2026-09-18): 툴 설정 → (p(r), V(r)) 분포 모델 명세 — 세 축(존압력·속도장·
+  링압)을 하나의 순방향 함수 `tool_settings_to_fields`로 통합. (a) 존압력→p(r) **선형
+  응답행렬 M** 모델: partition-of-unity(행합=1, 균일압→균일p 재현), 멤브레인 전이폭
+  w=12.5mm를 Lee 2026 응답개시 관측(10-15mm)으로 보정해 세 존 개시반경 예측 ±6mm 일치,
+  단일존 4.5%→멀티존 2.5% NU개선 44.4% 재현. (b) 속도장은 kinematics.py speed_stats
+  **재사용**(재구현 금지), ω_p=ω_w에서 V=ω·r_cc=1.746 m/s로 **신규 확보 Ye&Yao 2025**
+  (Micromachines 16(4):450, PMC12029203, Europe PMC XML) 실측 1.75 m/s·NUV 0–0.42 재현,
+  Preston(∝V) 제거율감소가 실측(13%/45.6%)을 3-4%p 과대예측함을 정직 기록. (c) 링압비
+  감도 8.0%NU/ratio(Lee 링 5→6psi, NU 4.5→6.1%). (d) 기존 sim 함수 중복표로 "신규 구현은
+  응답행렬 M 하나뿐"임을 확정. check_knowledge.py, verify_claims.py 모두 통과. Lv3 완료(6/6).
+
+  ### 구현 요청 (software 부문 BACKLOG용, ORG.md §5 — 직접 구현 금지)
+  - 무엇을: `tool_settings_to_fields(zone_pressures_psi, p_ring_psi, rpm_platen, rpm_head,
+    r_cc_m, R_wafer_m, zone_bounds_m, transition_w_m=0.0125, n_radial=200, theta_average=True)
+    -> {r_m, p_r_Pa, V_r_mps, V_mean_mps}`. 신규는 존압→p(r) 응답행렬 M(smoothstep
+    partition-of-unity) 순수함수뿐. 속도장은 sim/tier1_empirical/kinematics.py speed_stats 호출.
+  - 근거 노트: knowledge/equipment/tool-settings-to-pressure-velocity-field-model-spec.md §2·§3·§5.
+  - 검증 문헌값: 행합=1(이탈<1e-12)·균일4psi→p=4.0; w=12.5mm→개시 82.5/72.5/72.5mm(Lee 85/70/70±6);
+    단일→멀티 NU 4.5→2.5%(개선44.4%); 60/60에서 V=1.746 m/s(Ye&Yao 1.75)·NU=0; 링압비 감도 8.0%/ratio.
+  - 유효범위: 존압 1.5–10psi, 링압 1.5–9.0psi, rpm 10–100, r_cc 0.15–0.28m, w 0.010–0.015m.
+    범위밖 ValueError(조용한 클램프 금지). 우선순위: 중.
