@@ -480,6 +480,15 @@
   "title": "Polishing Mechanism of CMP 4H-SiC Crystal Substrate (0001) Si Surface Based on an Alumina (Al2O3) Abrasive",
   "venue": "Materials 17(3), 679 (2024)"
  },
+ "gopal2006-jes-cmp-slurry-chemistry-zeta-alumina": {
+  "authors": "Tanuja Gopal, Jan B. Talbot",
+  "doi": "10.1149/1.2198128",
+  "note": "knowledge/slurry/zeta-potential-ph-continuous-relation.md — 알루미나(1mM KNO3, 무첨가) zeta 58mV@pH3.5 -> -24mV@pH10, IEP~9(본문 명시); 비교용 Cabot 실리카 -3mV@pH3.5 -> -56mV@pH10, IEP<2",
+  "pdf": "papers/gopal2006-jes-cmp-slurry-chemistry-zeta-alumina.pdf",
+  "src": "Unpaywall -> iopscience.iop.org/article/10.1149/1.2198128/pdf 직접 다운로드 성공(200, OA)",
+  "title": "Effects of CMP Slurry Chemistry on the Zeta Potential of Alumina Abrasives",
+  "venue": "J. Electrochem. Soc. 153(7) G622-G629 (2006)"
+ },
  "gopal-talbot-2007-cu-alumina-2718474": {
   "confidence": "doi",
   "doi": "10.1149/1.2718474",
