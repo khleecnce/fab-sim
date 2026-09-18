@@ -3444,3 +3444,45 @@ PTW 예측 시연"이므로 이것이 M5의 실질 병목이었다. 탭3을 신�
 무관하다(직전 4회차와 동일 관측). 이 파일들은 건드리지 않았다.
 
 **M5 잔여**: 진단 텍스트(M4 결함진단 연동) + 5분 시연 시나리오 문서. 데이터 경로 자체는 이제 섰다.
+
+### 2026-09-19 [Max워커] M5 — 데모 CSV 3종 + 탭3 드리프트 점검 (커밋 c358ca7, push)
+
+같은 회차 두 번째 항목. S10으로 탭3이 섰지만 **저장소에 샘플 CSV가 0건**이라
+실제 시연이 불가능했다(`find data docs -iname "*.csv"` → 0). M5 게이트가 "5분 시연
+가능"이므로 데이터 부재가 실질 병목이었다.
+
+**A. `tools/make_demo_csv.py` + `data/demo/` CSV 3종**
+- 물리 기준선을 지어내지 않고 `sim.engine.simulate()`가 `oxide_silica`에 대해 실제로
+  내는 `removed_nm`에서 출발. 그 위에 **의도적으로 주입한** 편차만 더한다:
+  `measured = removed_nm(r) + 8.0*sin(r/40.0) + offset + N(0, 0.5)` [nm]
+- npw(offset 0, seed 20260919) / ptw(offset 0, seed 20260920) / drifted(offset **+30.0**, seed 20260921).
+- 계수 8.0·40.0·0.5·30.0은 **전부 임의값이며 문헌값이 아님**을 README에 명시.
+- SYNTHETIC 이중 표기: `data_source` 열(전 행) + `data/demo/README.md`.
+  CSV 첫 줄 `#` 주석은 **일부러 넣지 않았다** — 탭3 업로더가 `comment=` 없이
+  `read_csv`하므로 주석 줄이 헤더로 읽혀 데모가 깨진다(사유도 README에 기록).
+
+**B. 탭3 "드리프트 점검" 섹션** — `pipeline.evaluate_new_lot()` 호출, `DriftReport`
+필드를 그대로 표로 노출. `drift.py`의 "보고만 하고 재적합하지 않는다" 경계를 지키려
+**자동 재적합 버튼을 두지 않았다**.
+
+**Max워커 직접 재검증**
+- 결정성: 재생성 2회 → 3개 CSV md5 전부 동일.
+- 스키마: 3개 전부 `ingest.validate_record` 오류 0건.
+- 정상 → `verdict=calibrated`, fit_npw improved=True, loo_rmse **0.5608 vs baseline 5.0292**(n=36).
+- drifted → `verdict=`**alarm**, rmse_new 30.36 vs ref 0.56(ratio 54.1),
+  frac_outside_90ci=1.000, 이항검정 p≈1e-36.
+- **대조**(정상 CSV를 새 로트로 재투입) → `verdict=`**ok**, frac_outside_90ci=0.111
+  (기대 0.10), p=0.4915. 즉 알람이 항상 울리는 게 아니라 **실제로 구분한다**.
+  주입 폭을 키우지 않고 1회 시도로 잡혔다.
+- pytest **1228 passed / 1 skipped**(1216→+12, 신규 회귀 0), completion 59/60 불변,
+  `sim/calibration`·`sim/engine.py`·`data/schema` 0바이트 수정 확인.
+
+⚠ **부수 관측(결함 아님, 기록용)**: `fit_npw.apply()`에서 RuntimeWarning
+(divide by zero / overflow / invalid in matmul)이 뜬다. 원인은 이 데모 CSV가 반경 9점을
+각도 4개에 복제한 구조(36행 중 **고유 반경 9개**)라 RBF 커널 행렬에 중복행이 생기는 것.
+**결과는 오염되지 않았다** — 직접 확인: mean 전부 유한(nan 0건), 범위 -4.48~7.63 nm,
+외삽 플래그 0/36. 숨기지 않고 남긴다. 후속으로 다룬다면 "중복 반경 입력 시 경고" 쪽이지
+값 보정이 아니다.
+
+**M5 잔여**: 진단 텍스트(M4 결함진단 연동) + 5분 시연 시나리오 문서.
+데이터 경로와 시연 데이터는 이제 둘 다 섰다.
