@@ -3332,3 +3332,50 @@ ORG.md §7.4가 요구한 캘리브레이션 3파일이 **이로써 전부 섰�
 
 **M3 남은 것**: `fit_ptw.py`(NPW 보정치를 prior로 PTW 잔차 추가 학습). 이번에 만든
 `to_prior_dict()`가 그 인계 훅이다. `predict.py`·`drift.py`는 그 다음.
+
+### 2026-09-19 01:00~01:40 [Max워커] M3 — `sim/calibration/fit_ptw.py` (NPW→PTW 전이)
+
+같은 회차 두 번째 항목. fit_npw.py에 이어 ORG §7.4의 `fit_ptw.py`까지 세웠다.
+이로써 §7.4 5파일 중 4개(ingest·prior·fit_npw·fit_ptw)가 서고 `predict.py`·`drift.py`만 남는다.
+
+**ORG §7 전이 규칙("NPW 보정치가 PTW의 초기값이 된다. 반대는 아니다")을 기계적으로 강제**:
+PTW 적합은 `NPWCorrection.to_prior_dict()`를 **입력으로 요구**하고(없으면 거부), PTW 데이터가
+NPW 하이퍼파라미터를 되돌려 수정하지 않음을 **입력객체 불변 assert**로 고정했다. 학습 대상은
+**잔차의 잔차** — `observed_PTW − physics_PTW − NPW보정(r)`. NPW 보정을 빼지 않고 처음부터
+재적합하는 경로와 결과가 다름을 테스트로 구분 고정했다(전이 ≠ 독립재학습).
+
+**하이퍼파라미터 전이 방식 = 페널티 없는 초기값 전이**(완전자유/완전고정 사이 제3안).
+근거 없는 정규화 폭(예 "log공간 가우시안 penalty σ=0.5")을 그럴듯하게 박지 않기 위해서다 —
+prior.py가 sigma 절대폭을 "미검증, 운영 규약이지 문헌값 아님"으로 명시한 선례와 같은 태도.
+
+**안전장치 = 3자 LOO 비교**: (a)무보정 (b)NPW만 (c)NPW+PTW. (c)가 (b)보다 나쁘면
+`improved=False`이고 `apply_ptw()`가 **NPW 층까지만 적용**한다. 층을 늘려 항상 이기는 척하지
+않는 것이 요점. 여기에 `is_npw_equivalent()`(ptw_vm_schema.py의 기존 판정 — 패턴정보도
+시계열도 없으면 PTW는 NPW와 구분되지 않는다) True 입력은 **PTW 적합 자체를 거부**하는
+경로를 추가해, 기존 판정을 서술이 아니라 코드로 강제했다.
+
+**실측(합성, NPW 3·sin(r/40) + 주입 PTW편차 2·cos(r/30), 노이즈 σ=0.05)**:
+(a) 1.9729 → (b) 1.4346 → (c) **0.0498**, improved=True·converged=True.
+하이퍼파라미터 NPW{l=80.97mm, σ_f=3.325, σ_n=0.0394} → PTW{l=60.58mm, σ_f=2.308, σ_n=0.0448}
+(NPW 근방에서 출발해 데이터가 지지하는 방향으로 이동 — 전이가 실제로 작동).
+
+**⚠ 이번 회차의 실질 발견 — 패턴밀도는 MRR 경로에 연결돼 있지 않다.**
+위임이 보고하고 **Max워커가 직접 재현**했다:
+```
+oxide_silica, time_s=60: NPW mean removed = 143.01295323042672
+                         PTW(pattern_density=0.50) mean = 143.01295323042672  (np.allclose True)
+                         ptw_effective_pressure_ratio = 1.589  ← 진단은 계산됨
+```
+즉 `_ptw_effective_pressure_diagnostic`이 유효압력비 1.589를 **진단 필드로는 내면서도**
+MRR에 곱하지 않아 PTW와 NPW의 제거량이 **비트 단위로 동일**하다. `sim.engine._MODELS`에
+등록된 모델도 `tier1.preston_radial` 하나뿐이다(엔진 주석이 가리키는 `tier1.pattern_density`는
+실재하지 않음). **따라서 fit_ptw 테스트의 "패턴밀도발 편차"는 전부 인위 주입이며 실물리가
+아니라고 docstring·테스트 양쪽에 명시**했고, NPW≡PTW 항등을 회귀감시 테스트로 고정했다
+(나중에 패턴 효과가 MRR에 연결되면 이 테스트가 먼저 깨져 알려준다).
+→ **후속 과제(S6 계열과 연결)**: 유효압력비를 MRR에 실제로 태울지 여부는 Sorooshian(2005)
+표값 3점 밖 보간 근거가 없어 지금 결정할 수 없다. 소프트웨어 부문 판단 사항으로 넘긴다.
+
+**게이트(Max워커 직접 재실행)**: `tests/test_fit_ptw.py` **15 passed**, 전체 스위트
+**1183 passed / 1 skipped**(1168→+15, **신규 회귀 0**), `completion.py check` **59/60 불변**.
+⚠ 기존 3건 실패(`test_sic_kmno4_ph_judgement61`)는 다른 크론의 미커밋 워킹트리에서 오는
+것으로 이 커밋 경로와 무관(직전 3회차와 동일).
