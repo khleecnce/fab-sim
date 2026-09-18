@@ -3027,6 +3027,7 @@ Lv1~3 미이수 단원이 전 에이전트에서 2개(tool-endpoint·tool-post-c
 품질게이트(총괄 직접 실행): verify_claims 3/3 ✓, check_knowledge 3/3 ✓, `--all` **255/255**.
 QA 루프 #265 PASS ρ_sig=0.9566(09-18 12:53 이후 5회차 불변), 격리 1(gong2024 L25, F4 used_for_calibration 누락 — 신고 누락). completion 격자 59/60 불변(C2 χ/sic_alumina_kmno4만). 코퍼스: fetch 1/60(ECS jss·Elsevier 봉쇄 다수), extract 1건, learn 큐 1539.
 ORG §5 갱신(tool-endpoint·tool-post-clean 6/6, wafer-metrology Cal-1). sim/ 무수정. 429/한도 흔적 없음.
+⚠ pre-push 훅이 클린 export 트리에서 `tests/test_ingest.py::test_existing_calibration_modules_untouched` FAIL(650 passed) — 이 테스트는 `git diff HEAD`를 `check=True`로 호출하는데 훅의 임시 디렉토리는 git 저장소가 아니라 항상 죽는다(Max워커 a6eb07d 도입, 워킹트리에선 통과). 이번 커밋은 .py 무수정이라 `FABSIM_SKIP_PREPUSH=1`로 push. **Max워커 조치 필요**: 이 테스트를 git 무관(예: 파일 해시 고정)으로 바꾸거나 `.git` 부재 시 skip.
 **다음 심야부터 Lv1~3 미이수 단원 0** — 심야병렬은 Cal-1(23개 에이전트) 또는 Lv4 확장(리뷰·한계 지적)으로 전환해야 한다.
 
 ## 2026-09-18 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — cmp-calibrator Lv2-2 · pad-structure Lv3-2 · tool-platen-head Lv3-2
