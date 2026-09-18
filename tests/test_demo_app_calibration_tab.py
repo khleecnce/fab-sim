@@ -151,3 +151,41 @@ def test_calibration_modules_imported_not_reimplemented():
     # demo_app이 이 심볼들을 그대로 재노출하는지(감싸서 동작을 바꾸지 않았는지).
     assert demo_app.cal_pipeline.run_calibration is pipeline.run_calibration
     assert demo_app.cal_predict.predict_radial is predict.predict_radial
+
+
+# ═══════════════════════════════ ⑧ 드리프트 섹션 — cal_run 없으면 안 보이고, 탭 개수는 그대로 3
+
+def test_no_cal_run_hides_drift_section_and_tab_count_stays_three():
+    at = AppTest.from_file(APP_PATH, default_timeout=60)
+    at.run()
+    assert len(at.exception) == 0
+    assert len(at.tabs) == 3
+    headers = [h.value for h in at.subheader]
+    assert not any("드리프트 점검" in h for h in headers)
+
+
+# ═══════════════════════════════ ⑨ cal_run이 session_state에 있으면 드리프트 섹션이 뜬다
+
+def test_cal_run_in_session_state_shows_drift_section():
+    from sim.calibration import pipeline
+
+    record = demo_app._csv_to_record(
+        _npw_df(), coord_kind="polar", value_col="thickness_nm", value_unit="nm",
+        wafer_id="W-CSV-DRIFT", wafer_diameter_mm=300, notch_direction="Bottom",
+        edge_exclusion_mm=0.0, r_col="r_mm", r_unit="mm", theta_col="theta_deg", theta_unit="deg",
+    )
+    run = pipeline.run_calibration("oxide_silica", record)
+
+    at = AppTest.from_file(APP_PATH, default_timeout=60)
+    at.session_state["cal_run"] = run
+    at.run()
+    assert len(at.exception) == 0
+    assert len(at.tabs) == 3
+    headers = [h.value for h in at.subheader]
+    assert any("드리프트 점검" in h for h in headers)
+    infos = [i.value for i in at.info]
+    assert any("새 로트 CSV" in v for v in infos)
+    # 재적합 버튼이 없다 — 드리프트 섹션 버튼은 "드리프트 점검 실행" 하나뿐이어야 한다.
+    button_labels = [b.label for b in at.button]
+    assert "드리프트 점검 실행" in button_labels
+    assert not any("재적합" in lbl for lbl in button_labels)

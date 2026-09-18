@@ -487,6 +487,7 @@ with tab3:
             cal_pack_name, npw_record,
             ptw_source=ptw_record, ptw_input=ptw_input, model=cal_model_name,
         )
+        st.session_state["cal_run"] = run
 
         st.subheader("단계별 실행 기록 (StageRecord)")
         stage_rows = [
@@ -536,3 +537,38 @@ with tab3:
             if corrected_pred.note:
                 st.caption(corrected_pred.note)
         st.metric("평균 제거율", f"{metrics_2d['mean']:.3e} m/s")
+
+    cal_run = st.session_state.get("cal_run")
+    if cal_run is not None:
+        st.subheader("드리프트 점검 (새 로트)")
+        st.caption(
+            "sim/calibration/drift.py의 check_drift()를 evaluate_new_lot()을 통해 그대로 "
+            "호출한다 — 이 모듈은 '보고만 하고 재적합하지 않는다'는 경계를 갖는다(ORG §7.4). "
+            "이 섹션도 재적합 버튼을 두지 않는다. 아래 표는 DriftReport 필드를 그대로 보여준다 "
+            "— UI가 판정을 다시 해석하거나 미화하지 않는다."
+        )
+        _drift_df, drift_record = _cal_record_uploader("새 로트", "cal_drift")
+        if drift_record is None:
+            st.info("새 로트 CSV를 업로드하고 위 필드를 채우면 드리프트 점검을 실행할 수 있다.")
+        drift_run_clicked = st.button(
+            "드리프트 점검 실행", key="cal_drift_btn", disabled=drift_record is None,
+        )
+        if drift_run_clicked and drift_record is not None:
+            try:
+                report = cal_pipeline.evaluate_new_lot(cal_run, drift_record)
+            except ValueError as exc:
+                st.error(f"evaluate_new_lot 실패: {exc}")
+            else:
+                st.subheader(f"DriftReport.verdict: {report.verdict}")
+                report_row = {
+                    "n_points": report.n_points,
+                    "rmse_new": report.rmse_new,
+                    "rmse_reference": report.rmse_reference,
+                    "ratio": report.ratio,
+                    "frac_outside_90ci": report.frac_outside_90ci,
+                    "verdict": report.verdict,
+                    "z_scores": np.asarray(report.z_scores).tolist(),
+                    "reasons": list(report.reasons),
+                    "note": report.note,
+                }
+                st.dataframe(pd.DataFrame([report_row]))
