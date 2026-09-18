@@ -611,6 +611,15 @@
   "title": "Characterization and dressing effect of CMP diamond disc conditioner with ordered abrasive distribution",
   "venue": "Int. J. Adv. Manuf. Technol. 128 (2023) 1029-1048"
  },
+ "gustafsson2003-chemgeo-molybdate-tungstate-ferrihydrite": {
+  "authors": "Gustafsson J.P.",
+  "doi": "10.1016/S0009-2541(03)00161-X",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md",
+  "pdf_local": "papers/gustafsson2003-chemgeo-molybdate-tungstate-ferrihydrite.pdf",
+  "src": "KTH DiVA repository OA (get/diva2:341411/FULLTEXT01.pdf)",
+  "title": "Modelling molybdate and tungstate adsorption to ferrihydrite",
+  "venue": "Chem. Geol. 200(1-2), 105-115 (2003)"
+ },
  "han2012-nrl-nanobrush-pad-cu-ulk-low-pressure": {
   "authors": "Han G, Liu Y, Lu X, Luo J",
   "doi": "10.1186/1556-276X-7-603",
@@ -701,6 +710,15 @@
   "src": "MDPI CC-BY (mdpi-res.com CDN 직링크; mdpi.com은 403)",
   "title": "Improvement of Material Removal Rate and Within Wafer Non-Uniformity in Chemical Mechanical Polishing Using Computational Fluid Dynamic Modeling",
   "venue": "J. Manuf. Mater. Process. 9(3), 95 (2025)"
+ },
+ "james1972-jcis-co-adsorption-sio2-tio2-model-systems": {
+  "authors": "James R.O., Healy T.W.",
+  "doi": "10.1016/0021-9797(72)90172-5",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md",
+  "pdf_local": "papers/james1972-jcis-co-adsorption-sio2-tio2-model-systems.pdf",
+  "src": "sci-hub.kr (storage/2024/214/a6e758c9aa7946f931a3bde71e0e63ae/james1972.pdf) — 제목/저자/DOI 대조 확인",
+  "title": "Adsorption of hydrolyzable metal ions at the oxide-water interface. I. Co(II) adsorption on SiO2 and TiO2 as model systems",
+  "venue": "J. Colloid Interface Sci. 40(1), 42-52 (1972)"
  },
  "jani2025-revisiting-roles-cu-cmp": {
   "authors": "Jani C, Venkataswamy R, Seo J, Krishnan S",
@@ -1512,6 +1530,15 @@
   "src": "미러 사이트 경유(sci.bban.top) — IOP/ECS 페이월",
   "title": "Correlation of Pad Topography, Friction Force and Removal Rate during Tungsten Chemical Mechanical Planarization",
   "venue": "ECS Transactions 34(1), 621-626 (2011)"
+ },
+ "schindler1976-jcis-ligand-properties-surface-silanol-fe-cu-cd-pb": {
+  "authors": "Schindler P.W., Fürst B., Dick R., Wolf P.U.",
+  "doi": "10.1016/0021-9797(76)90057-6",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md",
+  "pdf_local": "papers/schindler1976-jcis-ligand-properties-surface-silanol-fe-cu-cd-pb.pdf",
+  "src": "sci-hub.kr (storage/2024/215/601eb59511f928d599621f10730e93ea/schindler1976.pdf) — 제목/저자/DOI 대조 확인",
+  "title": "Ligand properties of surface silanol groups. I. Surface complex formation with Fe3+, Cu2+, Cd2+, and Pb2+",
+  "venue": "J. Colloid Interface Sci. 55(2), 469-475 (1976)"
  },
  "seidel1990-anisotropic-etching-si-alkaline-part1": {
   "authors": "Seidel, Csepregi, Heuberger, Baumgaertel",
