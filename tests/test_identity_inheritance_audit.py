@@ -41,6 +41,22 @@ _KNOWN = {
     ("sic_alumina_kmno4", "oxidizer_langmuir_species"),
 }
 
+# 2026-09-18, 판정#63 — ph_peak/ph_mrr_at_peak_rel 을 연마입자축으로 새로 분류하며
+# 드러난 신고 6건. EVIDENCE-RULES 판정#59 ③이 이미 "abrasive: alumina 만 선언하면
+# ph_peak(오이드_silica 소유, 정점 pH=11 실리카 전용)로 떨어져 실리카 곡선을 산성
+# 알루미나계에 씌운 오염값이 나온다"를 실측으로 확인해 둔 바로 그 경로다 — 셋 다
+# 현재는 sim/factors.py::_f_chi has_own 우선순위(판정#34)가 다른 own pH 분기를
+# 먼저 골라 비활성(dead)이지만, 그 own 키가 사라지면 즉시 이 오염이 되살아난다.
+_KNOWN_PH_PEAK_AXIS = {
+    ("sic_alumina_kmno4", "ph_peak"),
+    ("sic_alumina_kmno4", "ph_mrr_at_peak_rel"),
+    ("sic_ceria_h2o2", "ph_peak"),
+    ("sic_ceria_h2o2", "ph_mrr_at_peak_rel"),
+    ("sti_ceria", "ph_peak"),
+    ("sti_ceria", "ph_mrr_at_peak_rel"),
+}
+_KNOWN |= _KNOWN_PH_PEAK_AXIS
+
 
 def test_audit_reports_known_material_mismatches():
     got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
@@ -122,3 +138,62 @@ def test_unclassified_keys_are_reported_separately_not_silently_dropped():
     flagged = {(m["pack"], m["key"]) for m in res["mismatches"]}
     for u in res["unclassified"]:
         assert (u["pack"], u["key"]) not in flagged
+
+
+def test_ph_peak_axis_is_abrasive_2026_09_18():
+    """판정#63 — ph_peak/ph_mrr_at_peak_rel 은 연마입자축(Li 2021 실리카 전용 곡선).
+
+    같은 문헌·같은 곡선의 두 키가 다른 축으로 갈라지면 그 자체가 결함이다
+    (과제 지시 — "다르게 분류하면 그 자체가 결함이다").
+    """
+    assert _axis_of("ph_peak") == "abrasive"
+    assert _axis_of("ph_mrr_at_peak_rel") == "abrasive"
+
+    got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
+    assert _KNOWN_PH_PEAK_AXIS <= got, (
+        "ph_peak/ph_mrr_at_peak_rel 연마입자축 신고가 사라졌다 — "
+        "판정#59 ③ 이 실측 확인한 오염 경로가 다시 사각지대로 돌아갔다"
+    )
+
+
+def test_ph_softening_per_unit_axis_is_film_and_silent_for_sic_alumina():
+    """판정#63 — ph_softening_per_unit 은 막질축(SiC 표면화학, sic_ceria_h2o2.yaml
+    note: "다른 재료계로 옮기지 마라"는 것은 abrasive/oxidizer 축을 가리킨 말이고,
+    film(SiC)은 소유 조상과 sic_alumina_kmno4 사이에 실제로 일치한다 — 그래서
+    신고되지 않는 것이 정확한 판정이지, 사각지대로 남아 우연히 조용한 게 아니다.
+    """
+    assert _axis_of("ph_softening_per_unit") == "film"
+    me = load_pack("sic_alumina_kmno4").get_or("film", None)
+    owner = load_pack("sic_ceria_h2o2").get_or("film", None)
+    assert me == owner == "sic_4h", "막질이 실제로 일치해야 이 침묵이 정당하다"
+
+    got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
+    assert ("sic_alumina_kmno4", "ph_softening_per_unit") not in got
+
+
+def test_pad_ra_m_and_bulk_slurry_viscosity_stay_axis_none():
+    """판정#63 — 패드/장비·슬러리 전체 물성은 AXIS_NONE 이 맞다(사각지대가 아니라
+    적극적 판정). AXIS_NONE 에 있다는 것은 신고 대상에서 빠진다는 뜻이므로 값
+    자체가 여전히 유효한지(예: 도구 리팩터로 키가 사라지지 않았는지) 함께 고정한다.
+    """
+    assert _axis_of("pad_ra_m") is None
+    assert _axis_of("slurry_viscosity_pa_s") is None
+    assert "pad_ra_m" in AXIS_NONE
+    assert "slurry_viscosity_pa_s" in AXIS_NONE
+
+    got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
+    for pack, key in got:
+        assert key not in {"pad_ra_m", "slurry_viscosity_pa_s"}, (pack, key)
+
+
+def test_unclassified_axis_blind_spot_is_now_empty():
+    """과제 완료 조건 — 이번 회차 전 4키(pad_ra_m·ph_peak·ph_mrr_at_peak_rel·
+    ph_softening_per_unit)가 전부 판정됐다. 새 사각지대가 생기면(새 팩·새 키) 이
+    테스트가 아니라 --unclassified 로 드러나야 정상이라, 여기서는 '지금 아는 4키가
+    더는 사각지대에 없다'만 고정한다(전체 unclassified==0을 강제하면 미래의 정당한
+    사각지대까지 이 테스트를 깨뜨린다).
+    """
+    res = audit()
+    unclassified_keys = {u["key"] for u in res["unclassified"]}
+    resolved = {"pad_ra_m", "ph_peak", "ph_mrr_at_peak_rel", "ph_softening_per_unit"}
+    assert not (resolved & unclassified_keys), resolved & unclassified_keys

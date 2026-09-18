@@ -94,15 +94,97 @@ AXIS_EXACT: Dict[str, str] = {
     "shield_nitride_langmuir_K": "inhibitor",
     "shield_nitride_hill_n": "inhibitor",
     "shield_nitride_strength_k": "inhibitor",
+    # χ pH 정점형 항(_ph_peak_term, Li et al. 2021 doi:10.1149/2162-8777/ac3e44,
+    # 20wt% 실리카 Fig.1)의 정점 위치. sim/factors.py::_f_chi 2차 패스 자체가
+    # 이 계열 후보를 "고유 계수를 선언한 조상의 abrasive"로 게이팅한다(판정#59) —
+    # abrasive: alumina 만 자기선언하고 이 값이 폴백되면 "실리카 곡선을 산성
+    # 알루미나계에 씌운 오염값"이 실측으로 확인됐다(EVIDENCE-RULES 판정#59 ③).
+    # 연마입자축.
+    "ph_peak": "abrasive",
+    # ph_peak 와 **같은 문헌·같은 곡선의 정점 높이**(pH10→11 MRR 비 1.113, 동일
+    # Li 2021 Fig.1) — 다른 축으로 갈라지면 그 자체가 결함이므로 ph_peak 와
+    # 동일하게 연마입자축. 현재는 sim 어디서도 값으로 소비되지 않는 근거 기록용
+    # 키다(tests/test_no_orphan_pack_keys.py 의 _KNOWN_ORPHANS 참조, χ pH 항은
+    # ph_curvature_low/high 로 형상을 만들고 이 비를 따로 곱하지 않는다 — 곱하면
+    # Kp 와 이중계상). 축 배정은 "지금 쓰이는가"가 아니라 "이 숫자가 어느 재료
+    # 실측인가"를 묻는 것이라 orphan 이어도 ph_peak 와 갈라둘 이유가 없다.
+    "ph_mrr_at_peak_rel": "abrasive",
+    # χ pH 연화항(_ph_softening_term)의 pH 1단위당 경도비 감쇠 계수.
+    # knowledge/params/sic_ceria_h2o2.yaml 자신의 note가 직접 근거를 댄다:
+    # "이 값은 SiC 표면 화학에서 나왔다. Si 산화막의 pH 의존성은 다르다
+    # (...) 다른 재료계로 옮기지 마라." — 무엇을 깎느냐(SiC 표면 가수분해/연화)
+    # 가 계수를 정하지, 어느 연마입자·산화제로 깎느냐가 정하지 않는다는 것이
+    # 문헌 역산 당시(판정#34 계보)의 명시적 주장이다. 막질축.
+    # ⚠ sic_alumina_kmno4 가 이 키를 상속하는 유일한 팩인데, 그 팩의 film 도
+    # sic_4h 로 소유 조상(sic_ceria_h2o2)과 동일해 막질축에서는 애초에 불일치가
+    # 없다 — 즉 이 상속은 "재료가 달라도 정당"한 사례가 아니라 "애초에 재료가
+    # 같아서" 감사가 조용한 것이다(연마입자·산화제만 다르다). 현재는
+    # sim/factors.py::_f_chi 1차 패스가 own `sic_kmno4_ph_acid_k`(판정#61)를
+    # 먼저 골라 이 항 자체가 비활성(dead)이다 — 그 own 키가 제거/리네임되면
+    # 이 축 배정이 즉시 유효해진다(그때도 film 일치이므로 신고되지 않는 것이
+    # 맞다; 산성 pH=2.3 을 알칼리 pH 9~11 역산 계수로 외삽하는 별개의 위험은
+    # 이 감사의 범위 밖이다).
+    "ph_softening_per_unit": "film",
 }
 
+# 패드/장비 하드웨어 물성 — 어느 IDENTITY_KEYS 축에도 속하지 않는다(감사 사각지대가
+# 아니라 "축이 없는 게 맞다"는 적극적 판정). sim/equipment_outputs.py:98-100·
+# sim/engine.py:589-595 가 유일한 소비처이고, 둘 다 pad_ra_m 을
+# slurry_viscosity_pa_s 와 함께 Sommerfeld 수/Stribeck 윤활 진단에만 쓴다 —
+# abrasive/film/oxidizer/inhibitor/chelator_species 어느 것도 이 계산에 들어가지
+# 않는다(패드 표면거칠기는 패드 제조사·컨디셔닝의 함수다). tools/audit_identity_
+# inheritance.py 자신의 모듈 docstring(§"왜 축이 필요한가")이 이미 pad_ra_m 을
+# "축 없이 대조하면 오탐이 섞이는" 표준 예로 든다 — 그 서술을 코드로 확정한다.
+_PAD_RA_M_NOTE = (
+    "패드 표면거칠기 — sim/equipment_outputs.py:98-100, sim/engine.py:589-595의 "
+    "윤활 진단(Sommerfeld/Stribeck)에서만 slurry_viscosity_pa_s와 함께 쓰인다. "
+    "5개 IDENTITY_KEYS(연마입자/막질/산화제/억제제/착화제) 중 어느 것도 이 계산에 "
+    "들어가지 않는다 — 패드는 재료 정체성이 아니라 소모품/장비 축이다."
+)
+
 # 명시적으로 **축 없음**으로 선언하는 키 — 재료가 달라도 상속이 정당하다.
-# (여기 넣는 것은 "괜찮다"는 주장이므로 근거를 반드시 적는다.)
+# (여기 넣는 것은 "괜찮다"는 주장이므로 근거를 반드시 적는다. 근거가 "그런 축을
+# 아직 못 찾았다"뿐이면 그렇게 정직하게 적는다 — 문헌 근거가 있는 것처럼 쓰지 않는다.)
 AXIS_NONE: Dict[str, str] = {
-    "hamaker_j": "입자-매질-기판 3자 상수라 한 축에 귀속되지 않는다. 별도 판정 대상.",
-    "damage_exponent": "기계적 손상 깊이 지수 — 재료 고유인지 공정 고유인지 미확정.",
-    "dispersant_type": "분산제는 연마입자와 짝이지만 별도 축으로 선언된 적이 없다.",
-    "slurry_viscosity_pa_s": "슬러리 전체 물성 — 단일 재료축에 귀속 불가.",
+    "pad_ra_m": _PAD_RA_M_NOTE,
+    "hamaker_j": (
+        "미검증 — 귀속 근거 미확보. 3자(입자-매질-기판) 상수라 원칙적으로도 단일 "
+        "축 귀속이 어렵고, tests/test_no_orphan_pack_keys.py 의 _KNOWN_ORPHANS가 "
+        "이미 확인한 대로 sim/tier2_physics/dlvo_colloid.py는 self-test에서 A를 "
+        "인자로만 받고 팩을 조회하지 않는다 — 현재 sim 어디서도 이 팩 값을 읽지 "
+        "않는 고아 키라 축을 배정해도 검증할 실행 경로가 없다."
+    ),
+    "damage_exponent": (
+        "미검증 — 귀속 근거 상충. 팩 note 들이 서로 다른 축을 정당화 근거로 쓴다: "
+        "oxide_silica.yaml(\"막질 일치(산화막 CMP)이나 연마입자 불일치(세리아 vs "
+        "콜로이달 실리카)\")·w_fe_oxidizer.yaml(\"막질·공정 완전 일치\")은 막질축을 "
+        "근거로 값을 전이했는데, cu_h2o2_bta.yaml은 정반대로 막질이 다른데도"
+        "(텅스텐→구리) \"연마입자·촉매 계열 유사성\"을 근거로 같은 값을 전이했다. "
+        "base.yaml 자신도 \"재료 고유인지 공정 고유인지 미확정\"이라 적는다. "
+        "축을 강제 배정하면 이 상충 중 하나는 반드시 틀린다 — 사각지대로 남긴다. "
+        "(참고: 현재 실제 상속은 전부 base.yaml 경유뿐이라 — 5팩이 전부 own 선언 — "
+        "audit()의 `owner in (..., \"base\", None): continue` 규칙에 걸려 이미 신고 "
+        "대상이 아니다. 축 배정은 지금 당장 신고 건수를 바꾸지 않는다.)"
+    ),
+    "dispersant_type": (
+        "미검증 — 귀속 근거 미확보. sim/chemistry.py::_dispersant_protection_term의 "
+        "DISPERSANT_MRR_RELATIVE 표는 Li et al. 2021 §6의 실리카 슬러리 실측값이고 "
+        "'분산제는 입자 표면에 흡착한다'는 메커니즘상 연마입자축이 그럴듯한 "
+        "후보이지만, 그 흡착 선호도가 연마입자 화학종(실리카 vs 알루미나 등)에 "
+        "따라 달라진다는 것을 직접 보인 문헌은 확보하지 못했다 — PAA/PVA 류는 "
+        "일반 고분자 분산제로 입자 특이성이 없을 수도 있다. 함수 docstring도 "
+        "이를 억제제축(IDENTITY_KEYS의 inhibitor)과 명시적으로 분리해 둔 상태라 "
+        "그쪽으로도 옮길 근거가 없다. 그럴듯한 가설과 확인된 근거를 구분해 "
+        "사각지대로 남긴다."
+    ),
+    "slurry_viscosity_pa_s": (
+        "슬러리 **전체** 물성(연마입자 wt%·첨가제 농도 등 다성분이 함께 정한다) — "
+        "pad_ra_m 과 정확히 같은 소비처(sim/equipment_outputs.py:98-100, "
+        "sim/engine.py:589-595의 윤활 진단)에서 같은 이유로 쓰인다. 단일 "
+        "IDENTITY_KEYS 축의 '고유 계수'가 아니라 혼합물 전체의 측정값이라 "
+        "원칙적으로 한 재료축에 귀속시키는 것 자체가 범주 오류다 — pad_ra_m 과 "
+        "동급의 근거 있는 AXIS_NONE(미검증이 아니다)."
+    ),
 }
 
 
