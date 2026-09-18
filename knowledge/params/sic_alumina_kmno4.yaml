@@ -118,6 +118,72 @@ params:
     source: "US20220315802A1 Table 1 — 기준 조성"
     confidence: measured
 
+  # ── κ 입경 정점형 곡선 — 알루미나 자기 실측으로 재선언 (2026-09-18) ──────────
+  # ⚠ 이 5키는 부모(sic_ceria_h2o2, 세리아 Oh et al. 2010)에서 상속되고 있었다.
+  #   알루미나 팩인데 정점·지수가 세리아 형상이었다(판정#60 §5). Su et al. 2011
+  #   (Procedia Engineering 24, 441-446, DOI 10.1016/j.proeng.2011.11.2673, 6H-SiC +
+  #   알루미나, §3.2 Fig.2, 4점 입경 스윕)로 알루미나 자신의 실측으로 교체한다.
+  #   Fig.2 판독은 그래프 벡터좌표 기계판독(육안 아님) — 본문 인쇄값 2점(51/63.3
+  #   nm/h)으로 보정 검증됨. 근거·한계는
+  #   knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6 참조.
+  abrasive_size_nm:
+    value: 500.0
+    unit: nm
+    note: >
+      Gong et al. 2024 (DOI 10.3390/ma17030679) Table 1 — 이미 이 팩의 `abrasive:` 키가
+      인용 중이던 문헌, 알루미나 연마입자 500 nm 고정 스펙. 이번 회차에 abrasive_size_nm
+      기준값으로도 승격한다(이전에는 키가 없어 부모의 120 nm(세리아, Chen 2017)를
+      상속했다).
+    source: "Gong et al. 2024, DOI 10.3390/ma17030679 Table 1"
+    confidence: literature
+
+  abrasive_ref_size_nm:
+    value: 500.0
+    unit: nm
+    note: >
+      κ 입경항 기준점 — 이 팩의 abrasive_size_nm(500 nm)과 일치시킨다(관례상 항상 동일,
+      d==d_ref면 항=1.0으로 Kp 앵커에 영향 없음, sim/factors.py L680-722).
+    source: "이 팩의 abrasive_size_nm 과 같은 출처"
+    confidence: literature
+
+  abrasive_size_peak_nm:
+    value: 2500.0
+    unit: nm
+    note: >
+      Su et al. 2011 §3.2 Fig.2(알루미나+6H-SiC 입경 스윕) — PyMuPDF 벡터 드로잉 좌표를
+      축 눈금 라벨(page.get_text("words")) 선형보정으로 기계판독한 4점(1.0/1.5/2.5/3.5 μm)
+      중 2.5 μm(W2.5)가 최대(원문 텍스트 인쇄값 63.3 nm/h와 기계판독 62.9 nm/h가 오차
+      0.4 이내로 정합). 판독 방법·한계는
+      knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §6 참조.
+      ⚠ 화학(알칼리 pH9 vs 이 팩의 산성 KMnO4)·폴리타입(6H vs 4H) 불일치 — 입경 항은
+      입자 자체 기하이지 화학이 아니라는 가정(sic_ceria_h2o2의 Chen 2017 이식 선례와
+      동일 논리)은 미검증.
+      ⚠ 스케일 외삽: 이 팩의 기준 입경(Gong 2024, 500 nm)은 Su 2011 스윕 구간(1.0~3.5 μm
+      = 1000~3500 nm) 아래다 — 정점·지수 형상이 500 nm까지 그대로 유지된다는 보장 없음.
+    source: knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6
+    confidence: literature
+
+  abrasive_size_exp_below_peak:
+    value: 0.3092888377
+    unit: dimensionless
+    note: >
+      Su et al. 2011 §3.2 Fig.2 기계판독+원문 인쇄값 3점(1.0/1.5/2.5 μm, 47.9(기계판독)/
+      51.0(원문 텍스트)/63.3(원문 텍스트) nm/h) 로그-로그 최소자승 회귀.
+      ⚠ n=3, 구간별 국소 기울기 편차 큼(그래프 판독오차 + 실제 비선형 혼재) — 전역
+      회귀값을 대표값으로 쓴다.
+    source: knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6
+    confidence: literature
+
+  abrasive_size_exp_above_peak:
+    value: -0.0664695242
+    unit: dimensionless
+    note: >
+      Su et al. 2011 §3.2 Fig.2 2점(2.5→3.5 μm, 63.3(원문 텍스트)→61.9(기계판독) nm/h)
+      직선 기울기(n=2, 회귀 아님). 하락폭이 작아(-2.2%) 측정 잡음과 구분 어려움 — 부호
+      (음수)만 신뢰, 크기는 약한 근거.
+    source: knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6
+    confidence: literature
+
   ph_ref:
     value: 2.3
     unit: pH

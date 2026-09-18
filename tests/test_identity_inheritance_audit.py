@@ -6,27 +6,33 @@
   (b) 오탐을 내지 않는다 — 패드 물성처럼 재료축과 무관한 키는 신고하지 않는다.
   (c) 현재 신고 목록이 **줄지 않는다**(누가 축 분류를 지우면 실패한다).
       늘어나는 것은 막지 않는다 — 새 팩이 생기면 신고가 느는 게 정상이다.
+      단, 결함이 실제로 해소돼 줄어드는 것은 정당하다 — 그 경우 _KNOWN 에서 빼되
+      해소 상태를 별도 테스트로 고정한다.
   (d) 도구가 MRR 을 바꾸지 않는다(순수 감사 도구다).
 """
 import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from sim.engine import Recipe, simulate           # noqa: E402
+from sim.params import load_pack                  # noqa: E402
 from tools.audit_identity_inheritance import (    # noqa: E402
     AXIS_NONE, IDENTITY_KEYS, _axis_of, audit,
 )
 
 # 판정#60 시점의 실측 신고 목록(팩, 키). 이 조합들은 재료가 실제로 어긋난다.
+#
+# 입경 5키(abrasive_size_nm / abrasive_ref_size_nm / abrasive_size_peak_nm /
+# abrasive_size_exp_below_peak / abrasive_size_exp_above_peak)는 2026-09-18,
+# 판정#60 §5 후속으로 sic_alumina_kmno4 가 세리아 상속을 끊고 Su et al. 2011
+# (DOI 10.1016/j.proeng.2011.11.2673) 근거로 자기선언(own)하여 해소됐다 —
+# knowledge/cmp/alumina-abrasive-size-mrr-relation.md 참조. 해소 상태는
+# test_alumina_pack_size_axis_is_self_declared 로 고정한다.
 _KNOWN = {
-    ("sic_alumina_kmno4", "abrasive_size_nm"),
-    ("sic_alumina_kmno4", "abrasive_ref_size_nm"),
-    ("sic_alumina_kmno4", "abrasive_size_peak_nm"),
-    ("sic_alumina_kmno4", "abrasive_size_exp_below_peak"),
-    ("sic_alumina_kmno4", "abrasive_size_exp_above_peak"),
     ("sic_alumina_kmno4", "abrasive_iep_ph"),
     ("sic_alumina_kmno4", "ce3_fraction"),
     ("sic_alumina_kmno4", "ceria_tooth_gain"),
@@ -81,6 +87,31 @@ def test_audit_is_read_only_mrr_unchanged():
     after = {p: float(np.mean(simulate(Recipe(pack=p)).mrr_nm_per_min))
              for p in packs}
     assert before == after
+
+
+def test_alumina_pack_size_axis_is_self_declared():
+    """판정#60 §5 후속(2026-09-18) — 입경 5키는 이제 세리아 상속이 아니라
+    Su et al. 2011(DOI 10.1016/j.proeng.2011.11.2673) 근거의 자기선언 값이다.
+    knowledge/cmp/alumina-abrasive-size-mrr-relation.md §4 표와 절대값으로 일치해야
+    누가 YAML 에서 5키를 지워 상속으로 되돌려도 이 테스트가 잡아낸다.
+    """
+    pk = load_pack("sic_alumina_kmno4")
+    expected = {
+        "abrasive_size_nm": 500.0,
+        "abrasive_ref_size_nm": 500.0,
+        "abrasive_size_peak_nm": 2500.0,
+        "abrasive_size_exp_below_peak": 0.3092888377,
+        "abrasive_size_exp_above_peak": -0.0664695242,
+    }
+    for key, value in expected.items():
+        assert pk.has_own(key), f"'{key}'가 자기선언이 아니다(상속으로 되돌아갔다)"
+        assert pk.get(key) == pytest.approx(value, rel=1e-6), key
+
+    got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
+    for key in expected:
+        assert ("sic_alumina_kmno4", key) not in got, (
+            f"'{key}'가 다시 신고됐다 — 해소가 되돌려졌다"
+        )
 
 
 def test_unclassified_keys_are_reported_separately_not_silently_dropped():
