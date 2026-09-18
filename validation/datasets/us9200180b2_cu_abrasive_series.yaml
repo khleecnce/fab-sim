@@ -42,6 +42,19 @@ rank_only_ruling: >
   15-19, pH 6.2-9.9)이고 이 데이터셋은 TABLE 3(Examples 11-14, 연마입자 스윕)으로 서로 다른
   실시예다 — 특허 원문 대조로 확인(위 E1). 캘리브레이션 오염이 아니라 오검출이므로 audit_verified:
   true로 해제한다.
+# 기계가 읽는 '의도적 미전달 축' 선언 (tools/label_vs_input_audit.py)
+#   위 rank_only_ruling 산문만으로는 면제되지 않는다 — 감사기는 이 구조화 필드만 읽는다.
+excluded_axes:
+  inhibitor_mM: >
+    [EVIDENCE-RULES 판정#58] 원문(US9200180B2 TABLE 3)의 억제제는 BTA 가 아니라
+    벤젠술폰산 1 wt% 고정이고, 전 조건 동일하므로 이 표는 억제제 축을 스윕하지 않는다.
+    팩 cu_h2o2_bta 의 억제제 항 exp(-k*θ) 는 BTA-Cu 쌍 상수로 세워져 있어 벤젠술폰산에
+    쓸 수 없다(재료쌍 상수 이식 금지). 반사실 실험으로 inhibitor_mM=0 을 명시해 보면
+    obs/pred 가 0.0110~0.0211 → 0.0012~0.0074 로 **10배 더 나빠진다** — 즉 이 미전달이
+    상쇄 오차를 숨기고 있다는 신호이므로, 근거 없는 보정 금지 원칙에 따라 값을 넣지
+    않는다. 벤젠술폰산-Cu 쌍 상수가 확보되면(R8 측정 명세) 그때 축을 신설해 전달한다.
+    이 데이터셋은 rank_only: true 라 절대값 주장에 쓰이지 않는다.
+
 conditions:
   - label: "silica 0.5wt%, H2O2 1wt% (Example 11)"
     pressure_psi: 2.0

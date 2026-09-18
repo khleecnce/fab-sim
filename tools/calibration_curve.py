@@ -28,8 +28,13 @@ def main() -> int:
             continue
         # ⚠ 계수를 뽑은 데이터(used_for_calibration)는 따로 표시한다.
         #   그 데이터로 성능을 주장하면 자기 채점이다.
+        # ⚠ rank_only(판정으로 절대값이 면제된 계열)도 따로 센다 — 이 표는
+        #   **절대오차** 학습곡선이므로, 절대값을 쓰지 않기로 판정한 계열을
+        #   여기 넣으면 "축척 학습이 악화한다"는 거짓 진단이 나온다.
+        #   backtest.run_all() 의 절대값 집계도 같은 이유로 rank_only 를 뺀다.
         rows.append((r.dataset, p, o, r.in_scope,
-                     bool(getattr(r, "used_for_calibration", False))))
+                     bool(getattr(r, "used_for_calibration", False)),
+                     bool(getattr(r, "rank_only", False))))
 
     print("=" * 84)
     print("데이터 투입량 → 절대오차 (held-out 측정)")
@@ -43,7 +48,7 @@ def main() -> int:
     at1, at3, at5 = [], [], []
     oos_at1, oos_at5 = [], []
     oos_n = 0
-    for name, p, o, in_scope, is_calib in rows:
+    for name, p, o, in_scope, is_calib, rank_only in rows:
         rep = learning_curve(p, o, series=name)
         if rep is None:
             continue
@@ -53,10 +58,11 @@ def main() -> int:
                 else "🔴" if rep.verdict.startswith("🔴") else "⚠")
         f = lambda x: f"{x:6.1f}%" if x is not None else "     -"   # noqa: E731
         tag = ("  [범위밖]" if not in_scope
+               else "  [순위전용]" if rank_only
                else "  [캘리브]" if is_calib else "")
         print(f"{name[:44]:44s} {p.size:3d} {f(v1)} {f(v3)} {f(v5)}  {mark}{tag}")
 
-        if not in_scope or is_calib:
+        if not in_scope or is_calib or rank_only:
             oos_n += 1
             if v1 is not None:
                 oos_at1.append(v1)
@@ -91,7 +97,7 @@ def main() -> int:
             print(f"    5점 투입 → {np.mean(at5):6.1f}%   (기준 ≤ 15%)")
     if oos_n:
         print()
-        print(f"  집계 제외 {oos_n}개 (범위 밖 + 캘리브레이션 사용분, 참고용)")
+        print(f"  집계 제외 {oos_n}개 (범위 밖 + 캘리브레이션 사용분 + 순위전용, 참고용)")
         if oos_at1:
             print(f"    1점 투입 → {np.mean(oos_at1):6.1f}%")
         if oos_at5:
