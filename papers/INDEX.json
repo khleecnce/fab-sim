@@ -2106,5 +2106,50 @@
   "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료",
   "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
   "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)"
+ },
+ "an2012-jjap-pva-brush-pre-process-params": {
+  "authors": "An J, Lee H, Kim H, Jeong H",
+  "doi": "10.1143/jjap.51.026501",
+  "year": 2012,
+  "title": "Effect of Process Parameters on Particle Removal Efficiency in Poly(vinyl alcohol) Brush Scrubber Cleaning",
+  "note": "knowledge/cmp/post-cmp-cleaning-conditions-residual-defect-probability-model-spec.md §2A — PVA 브러시 PRE vs 속도(50-300rpm)·overlap·젖음성, PSL 300nm 60s, PRE~99% 저친수, 150rpm 피크·200rpm 교차",
+  "pdf_local": "papers/an2012-jjap-pva-brush-pre-process-params.pdf",
+  "src": "1차 논문",
+  "access": "sci.bban.top 미러"
+ },
+ "xu2010-friction-epd-cmp-signal-processing": {
+  "authors": "Xu C, Guo D, Jin Z, Kang R",
+  "doi": "10.1088/1674-4926/31/12/126002",
+  "note": "equipment/epd-trace-to-removal-model-spec.md",
+  "pdf_local": "papers/xu2010-friction-epd-cmp-signal-processing.txt",
+  "src": "jos.ac.cn 무료 PDF(oldPDF/10080902.pdf) exa web_fetch 경유 — 마찰계수/토크 실측 EPD, Kalman innovation+Chebyshev 3S 임계, time error 식(17) ΔT=|T/d̄|, μ 0.4~0.7(Fig6b)",
+  "title": "A signal processing method for the friction-based endpoint detection system of a CMP process",
+  "venue": "J. Semiconductors 31(12):126002 (2010)"
+ },
+ "headley2019-cof-shear-pmc-w-ild": {
+  "authors": "Headley R, Frank C, Sampurno Y, Philipossian A",
+  "doi": "10.1149/2.0251910jss",
+  "note": "equipment/epd-trace-to-removal-model-spec.md",
+  "pdf_local": "papers/headley2019-cof-shear-pmc-w-ild.txt",
+  "src": "ECS JSS; iopscience 봇차단→exa+arizona repository(10150/634963)+NCCAVS CMPUG 발표자료로 교차확인. W/ILD COF 실측, boundary vs mixed lubrication, oxide RR∝COF 선형",
+  "title": "Correlating Coefficient of Friction and Shear Force to Platen Motor Current in Tungsten and Interlayer Dielectric CMP at Highly Non-Steady-State Conditions",
+  "venue": "ECS J. Solid State Sci. Technol. 8(10):P634-P645 (2019)"
+ },
+ "us7078894-ebara-eddy-current-polishing": {
+  "assignee": "Ebara Corporation",
+  "patent": "US7078894",
+  "note": "equipment/epd-trace-to-removal-model-spec.md",
+  "pdf_local": "papers/us7078894-ebara-eddy-current-polishing.txt",
+  "src": "freepatentsonline.com/7078894.html exa web_fetch — 저항성분 두께 선형(1000Å→0, FIG16), Cu 7MHz/Ta 180MHz, 교정곡선 FIG21",
+  "title": "Polishing device using eddy current sensor"
+ },
+ "griesmann2007-300mm-wafer-flatness-metrology": {
+  "authors": "Griesmann U, Wang Q, Tricard M, Dumas P, Hall C",
+  "doi": "10.1063/1.2799352",
+  "note": "cmp/wafer-metrology-customer-data-schema-metric-definition-mapping.md",
+  "pdf_local": "papers/griesmann2007-300mm-wafer-flatness-metrology.pdf",
+  "src": "NIST 정부간행물 AIP Conf. Proc. 원문 PDF(Unpaywall→publisher, fitz 판독). EE 3→1.5mm·SFQR 26×8mm·TTV~40nm 확인",
+  "title": "Manufacture and Metrology of 300 mm Silicon Wafers with Ultra-Low Thickness Variation",
+  "venue": "AIP Conf. Proc. 931, 105-109 (2007)"
  }
 }

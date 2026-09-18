@@ -8,7 +8,7 @@
 - [x] Lv2-1 세정 화학: 암모니아·시트르산·계면활성제·부식 방지
 - [x] Lv2-2 메가소닉·건조(IPA/마랑고니)와 워터마크 — 2026-09-14, `knowledge/cmp/post-cmp-megasonic-marangoni-drying-watermark.md`
 - [x] Lv3-1 최신 리뷰: 저결함 세정, 나노입자 제거 한계 — 2026-09-15, `knowledge/cmp/post-cmp-nanoparticle-removal-limit-adhesion-drag-scaling.md`
-- [ ] Lv3-2 세정 조건 → 잔류 결함 확률 모델 (sim/tier2)
+- [x] Lv3-2 세정 조건 → 잔류 결함 확률 모델 (sim/tier2) — 2026-09-19, `knowledge/cmp/post-cmp-cleaning-conditions-residual-defect-probability-model-spec.md`
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 세정 후 결함 검사 데이터 스키마 + 세정 효율 보정

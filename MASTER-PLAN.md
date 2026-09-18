@@ -3016,6 +3016,19 @@ literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회�
 재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
 qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
 
+## 2026-09-19 심야 01:00 [심야병렬] 서브에이전트 3명 동시 학습 — tool-endpoint Lv3-2 · tool-post-clean Lv3-2 · wafer-metrology Cal-1
+
+Lv1~3 미이수 단원이 전 에이전트에서 2개(tool-endpoint·tool-post-clean Lv3-2)만 남아, 3번째 슬롯은 처음으로 **Cal-1(캘리브레이션 단원)** 을 열었다 — wafer-metrology는 6/6 완주 + M3 캘리브레이션 골격(ingest/prior/fit_npw)이 이미 착수돼 §7.3 선수조건이 충족됐다고 판단.
+
+- **tool-endpoint Lv3-2** → `knowledge/equipment/epd-trace-to-removal-model-spec.md` (출처 9건 실존, verify 4블록 통과). 마찰 EPD: Xu 2010 μ 0.4–0.7 실측·Cu→Ta 전이 검출지연 ΔT=|T/d̄| → 잔막오차 δh=RR·ΔT 폐형식; Headley 2019 W/ILD COF(boundary vs mixed 윤활이 계단 검출성 지배). 광학: Fresnel 단층 R(d,λ,n) 구현, SiO₂·633nm 주기 λ/2n=216.8nm assert. 와전류: Ebara US7078894 저항성분 1000Å→0 선형, Wang 2023 24–2095nm(초록 E5). 통합 `epd_trace_to_removal(trace, sensor)→(t_ep, removed, h_remain, σ_h)` 명세 + process_time/wear_aware_endpoint 중복표(적분은 호출만). 5/6→**6/6 완주**.
+- **tool-post-clean Lv3-2** → `knowledge/cmp/post-cmp-cleaning-conditions-residual-defect-probability-model-spec.md` (출처 5건, verify 1블록). PRE 동역학 N(t)=N₀e^{−kt}: 브러시 An 2012(PSL 300nm 60s 99% → k=0.077/s, rpm 150 피크 비단조), 화학 Gowda 2020(pH 8/10/12 → 35/71/>99%, IEP 통과 시 재부착 차단 계단), 메가소닉 Wortman-Otto 2022(0.5–1.5 W/cm² 2차 속도론·고파워 저해). 잔류결함 Poisson(λ), λ=N₀(1−PRE)+λ_redep(제타 동부호→0), 워터마크·부식은 독립 Poisson 가산. 기존 구현요청 3함수와 중복 없음(결정론 물리량×확률 λ). 미확보: 손상문턱 파워·재부착 분포모수·워터마크 개수환산. 5/6→**6/6 완주**.
+- **wafer-metrology Cal-1** → `knowledge/cmp/wafer-metrology-customer-data-schema-metric-definition-mapping.md` (출처 10건, verify 1블록). 원 데이터 형식: US6922603B1 극좌표 49점(1+8/16/24)·Bibby&Harwood 1997 직교 52점·**SEMI MF1618(=ASTM F1618-02) "점수 가변·절차 고정"** — 3편 연속 못 찾던 측정점 표준 근거 확보·NIST Griesmann 2007 원문(EE 3→1.5mm, SFQR 26×8mm). WIWNU 정의 5종 각 1차(3σ/μ·σ/μ·half-range·full-range·range/(max+min)) — 같은 49점이 **정의만으로 2.78배** 스프레드; 49 vs 81점 range는 매끈 프로파일 0.19%·노이즈 1nm +4.6%·**최외곽반경 불일치 +23.5%(비교불가 지배원인)**. `metric_definition`·`measured_quantity`·`outermost_radius_mm` 등 11필드 스키마 개정 제안표 → cmp-data-engineer 인계(스키마 파일 무수정). Cal-1 [x].
+
+품질게이트(총괄 직접 실행): verify_claims 3/3 ✓, check_knowledge 3/3 ✓, `--all` **255/255**.
+QA 루프 #265 PASS ρ_sig=0.9566(09-18 12:53 이후 5회차 불변), 격리 1(gong2024 L25, F4 used_for_calibration 누락 — 신고 누락). completion 격자 59/60 불변(C2 χ/sic_alumina_kmno4만). 코퍼스: fetch 1/60(ECS jss·Elsevier 봉쇄 다수), extract 1건, learn 큐 1539.
+ORG §5 갱신(tool-endpoint·tool-post-clean 6/6, wafer-metrology Cal-1). sim/ 무수정. 429/한도 흔적 없음.
+**다음 심야부터 Lv1~3 미이수 단원 0** — 심야병렬은 Cal-1(23개 에이전트) 또는 Lv4 확장(리뷰·한계 지적)으로 전환해야 한다.
+
 ## 2026-09-18 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — cmp-calibrator Lv2-2 · pad-structure Lv3-2 · tool-platen-head Lv3-2
 
 전날(09-17 01:00) 같은 3명이 Claude 주간 한도(`weekly limit · resets Sep 18 2am`)로 0바이트 로그로 전멸했던 회차의 재실행. 프롬프트는 09-17본 그대로 재사용.

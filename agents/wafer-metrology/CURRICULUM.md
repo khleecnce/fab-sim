@@ -11,7 +11,7 @@
 - [x] Lv3-2 출력 스키마 확정 + 지표 계산 라이브러리 구현 (sim/metrics/) — 반경 프로파일·다이 맵 입력 → 전 지표 동시 산출, 테스트 포함 (2026-09-08, knowledge/cmp/wafer-metrology-output-schema-site-flatness-standards.md — ASTM F1530 GBIR/GF3R/GF3D/GFLR/GFLD/SBIR/SBID/SF3R/SF3D/SFQR/SFQD 11종 + Bow/Warp 확정, GBIR=TTV 항등식 재현; sim/ 구현은 트랙B 인계, PROFILE.md 구현요청 등록. 49점 산업관행의 SEMI 표준 근거는 3편 연속 미확보로 남김)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 고객 계측 데이터(포인트 좌표·두께·조도) 스키마 소유. 지표 정의 불일치(고객마다 다른 WIWNU 정의)를 매핑하는 규칙
+- [x] Cal-1 고객 계측 데이터(포인트 좌표·두께·조도) 스키마 소유. 지표 정의 불일치(고객마다 다른 WIWNU 정의)를 매핑하는 규칙 (2026-09-19, knowledge/cmp/wafer-metrology-customer-data-schema-metric-definition-mapping.md — 원 데이터 형식 3+편(US6922603B1 49점·Bibby&Harwood 52점·MF1618 점수표준·US7539552B2 다이·NIST Griesmann 2007 EE 3→1.5mm/SFQR 26×8mm 전문확보) + WIWNU 정의 5종 각 1차(3σ/σ/half-range/full-range/range-over-sum, Kumar2019·Doko2026·Burwell2023·Zhu2022) + 매핑규칙(원점→D1~D5 재계산→정본 3σ/mean, 스칼라→σ계열 무손실·range 불가플래그, measured_quantity 축) + 샘플링편향 verify(정의만 2.78배 스프레드·49vs81 range 노이즈+4.6%/최외곽반경+23.5%) + 스키마개정 제안표는 cmp-data-engineer 인계. check_knowledge·verify_claims 통과)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

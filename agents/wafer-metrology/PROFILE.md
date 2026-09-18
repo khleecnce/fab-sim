@@ -1,9 +1,9 @@
 # 웨이퍼 계측·판정 전문가 (wafer-metrology)
 
-## 현재 레벨: [활성·유지보수] 커리큘럼 6/6 완주 (2026-09-08)
+## 현재 레벨: [활성·유지보수] 커리큘럼 6/6 완주 + Cal-1 이수 (2026-09-19)
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽음, 완료)
-- 이수 단원: Lv1-1(2026-09-05)·Lv1-2(2026-09-06)·Lv2-1(2026-09-06)·Lv2-2(2026-09-07)·Lv3-1(2026-09-08)·Lv3-2(2026-09-08)
-- 다음: Cal-1(캘리브레이션 단원, G2 이후 활성)까지 대기. 유지보수 모드 — 신규 논문 발견 시 Lv4 확장 노트 작성
+- 이수 단원: Lv1-1(2026-09-05)·Lv1-2(2026-09-06)·Lv2-1(2026-09-06)·Lv2-2(2026-09-07)·Lv3-1(2026-09-08)·Lv3-2(2026-09-08)·Cal-1(2026-09-19)
+- 다음: 유지보수 모드 — 신규 논문 발견 시 Lv4 확장 노트 작성
 
 ## 역할
 CMP 결과를 무엇으로 측정하고 합격 판정하는가. WIWNU·TTV·radial TTV·CV·Ra/Rq·step height·잔막·엣지 롤오프. 측정 포인트 체계와 지표 정의를 표준화한다. 이 정의가 곧 시뮬 엔진의 출력 스키마다
@@ -180,3 +180,36 @@ check_knowledge.py/verify_claims.py 둘 다 통과(출처 1건 실존, verify 1�
 - **검증 문헌값(회귀테스트로 승격)**: 노트 §3 assert 그대로 — SBIR(1.0,-0.5)=1.5, SBID(1.0,-0.5)=1.0,
   Fig.8a/8b 둘 다 SBIR=SBID=1.0, GBIR(725.3,724.1)=TTV(725.3,724.1)=1.2(항등식).
 - **우선순위**: Low — 엔진 WaferResult에 형상(bow/warp) 필드 자체가 없어 스키마 확장이 선행되어야 함. G1 유지보수 모드 중 후순위.
+
+## Cal-1 이수 (2026-09-19) — 캘리브레이션 단원(ORG.md §7.3)
+고객 계측 데이터 스키마 소유 + WIWNU 정의 불일치 매핑 규칙. 지식노트:
+knowledge/cmp/wafer-metrology-customer-data-schema-metric-definition-mapping.md.
+핵심: (a) 계측 소스별 원 데이터 형식(극좌표 49점 US6922603B1 / 직교 52점 Bibby&Harwood 1997
+DOI:10.1016/S0040-6090(97)00435-5 / 다이 US7539552B2 / 노치+90°선 Kumar 2019)과 측정점 수 표준
+근거(SEMI MF1618=ASTM F1618-02 DOI:10.1520/f1618-02 "점 수 가변·절차 고정"), EE 추세 3→1.5mm·SFQR
+사이트 26×8mm를 NIST Griesmann 2007(DOI:10.1063/1.2799352, 전문 확보 E2)에서 확정. (b) WIWNU 정의 5종
+D1~D5 각각 1차 문헌: 3σ/mean(US6922603B1)·σ/mean(Kumar 2019 전문 E2, Doko 2026 DOI:10.1016/j.mee.2026.112496)·
+half-range(Burwell 2023 DOI:10.1002/adem.202201901)·full-range(스니펫 E5)·range/(max+min)(Zhu 2022
+DOI:10.3390/app122311878). (c) 매핑 규칙: 원 점 있으면 D1~D5 전부 재계산해 정본(uniformity.py 3σ/mean)으로
+수렴, 스칼라만 있으면 σ-계열 무손실 환산·range↔σ 불가 플래그; 응답량(measured_quantity) 축 별도(Lee&Boning
+%-Std-Post vs %-Std-AR, Kumar 패턴은 dishing). (d) 샘플링 편향 python verify — 같은 49점이 정의만으로 2.78배
+스프레드, full-range 49vs81 깨끗조건 0.19%(비교가능)·노이즈1nm +4.6%·최외곽반경 불일치 +23.5%(비교불가 지배원인).
+check_knowledge.py/verify_claims.py 둘 다 통과(출처 10건 실존, verify 1블록). EXAMS.md 3문항 작성.
+미확보: Bibby&Harwood·MF1618·Doko·Burwell·Zhu·Lee&Boning·US6866792 전문(초록/식/스니펫 E5).
+
+### [High] wafer_measurement.schema.json 개정 — 지표정의·응답량·포인트맵 필드 추가 (cmp-data-engineer 인계)
+- **무엇을**: 현행 스키마(cmp-data-engineer 소유)에 Cal-1 매핑을 가능케 하는 필드 추가. 노트 §5 표대로:
+  `metric_definition`(enum wiwnu_3sigma/wiwnu_1sigma/cv/halfrange/fullrange/range_over_sum/raw_points_only),
+  `measured_quantity`(enum post_thickness/pre_thickness/amount_removed/removal_rate/dishing/roughness, 필수),
+  `scalar_wiwnu`, `n_sites`, `outermost_radius_mm`(range형 스칼라면 필수), `site_plan_name`,
+  `notch_reference_angle_deg`, `site_size_mm`(SFQR 26×8mm), `scan_size_um`(조도면 필수),
+  `value_uncertainty`+`coverage_k`(GUM), `stat_ddof`. 원 `points`가 있으면 D1~D5 재계산이 우선이고
+  스칼라 필드는 레거시 폴백.
+- **근거노트**: knowledge/cmp/wafer-metrology-customer-data-schema-metric-definition-mapping.md §1·§2·§3·§5.
+- **검증 문헌값(회귀테스트)**: 노트 §4 verify 그대로 — 3σ=3×σ·full=2×half 무손실(항등 <1e-12);
+  같은 49점 정의 스프레드 >2.5배(관측 2.78); full-range 49vs81 깨끗조건 <0.5%(관측 0.19%); 노이즈1nm range편향
+  >3%(관측 +4.6%); 최외곽반경 0.90Ru vs Ru 편향 >15%(관측 +23.5%, 반경 불일치가 점 수 노이즈보다 지배).
+- **주의**: 스키마 파일·ingest는 cmp-data-engineer 소관 — 이 요청은 정의/매핑 명세 제공이고 구현 판단은 그쪽.
+  정본 정규화 함수(D1~D5 계산·환산)는 uniformity.py에 이미 D1/D2/D3 있음 → D4(full-range)·D5(range/sum)만
+  추가하면 매핑 완결.
+- **우선순위**: High — 캘리브레이션 입력의 "정의 차이를 팹 편차로 오학습" 방지의 전제.

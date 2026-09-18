@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv3-1
-- 다음 단원: Lv3-2
+- 이수 단원: Lv3-2
+- 다음 단원: Lv4 (모델 개선 제안)
 
 ## 역할
 광학·모터전류·와전류 EPD 원리와 신호 해석, 종말점 → 제거량 역산
@@ -67,3 +67,29 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   `removed = RR*(t_detect + t_overpolish)` 골격을 쓰고, `t_overpolish`를 (i) 필터지연항
   (Lv1-2 §3 공식 재사용)과 (ii) 공정 안전마진항(막질별 상수, 이 노트 §5)으로 분리해서
   넣기를 제안한다 — 두 항의 물리적 기원이 다르므로 하나의 튜닝 상수로 뭉치면 안 된다.
+- Lv3-2 EPD 신호 → 제거량 모델 명세 — 2026-09-19. 지식노트
+  [[../../knowledge/equipment/epd-trace-to-removal-model-spec]]
+  (verify_claims 4블록 통과·출처 9건 실존, check_knowledge 통과). EXAMS.md Lv3-2 3문항 추가.
+  신규 출처: Xu et al.(2010, J.Semicond, μ 0.4–0.7 실측·Cu→Ta innovation<0·Chebyshev 3S 임계·검출오차
+  식17 ΔT=|T/d̄|), Headley et al.(2019, ECS JSS, W/ILD COF 실측·boundary vs mixed lubrication·oxide RR∝COF
+  선형), US7078894(Ebara 특허, 저항성분 1000Å→0 substantially linear·Cu 7MHz/Ta 180MHz·교정곡선 룩업),
+  Wang et al.(2023, IEEE TIE, 선형범위 24–2095nm·종점 100–180nm — 초록 E5). 핵심: 마찰/모터전류는 시각만
+  주어 검출오차 ΔT가 잔막오차 δh=RR·ΔT로 직결(불확실성 지배), 간섭은 λ/2n 두께직접, 와전류는 저항성분
+  극박막 선형+룩업. Fresnel 단층 무흡수 R(d,λ,n) 폐형식으로 633nm·SiO2 λ/2n=216.8nm 재현.
+
+## 구현 요청 (Lv3-2 — sim/tier2, wear_aware_endpoint 확장; 구현은 소프트웨어 부문)
+
+- **`epd_trace_to_removal(trace, sensor, h0, RR, calib=None) → (t_ep, removed, h_remain, sigma_h)`**
+  신규 함수. process_time.py/wear_aware_endpoint.py의 제거량 적분은 **재구현 금지, 그대로 호출**하고
+  앞단(트레이스→t_ep)과 불확실성 전파만 얹는다. 근거노트 §1·§5.
+  - friction/motor_current 경로: (i) 안정구간 표본표준편차 S로 임계 T=3S(단측, 하강방향), (ii) trailing
+    이동평균이 임계 이탈하는 t2 검출, (iii) t_ep=t2−|T/d̄| (Xu 식17, d̄=전이 하강기울기), (iv)
+    removed=RR·t_ep, **sigma_h=RR·ΔT**. 검증문헌값: μ대역 0.4–0.7(Xu Fig6b), Cu→Ta 방향 음(식16).
+  - optical_interf 경로: 프린지 카운트 N → removed=N·λ/2n+δ (Lv2-2 §2). 검증: 633nm·SiO2 주기 216.8nm.
+  - eddy 경로: 참조 교정곡선 룩업 d=g⁻¹(signal). 유효범위 24–2095nm(Wang2023) / ≤1000Å 저항성분 선형
+    (US7078894). 하한 수십 nm(An 55nm).
+  - **우선순위 상** — Lv3-1의 t_detect 센서리드타임 보정(AE +10s)·블록별 임계갱신 요청과 함께 설계.
+- 오버폴리시 추가제거량은 `removed += RR·t_op`로 EPD 후단에 붙이되, 디싱 증가 정량은 형제(film-cu)
+  소관이므로 이 함수는 계산하지 않는다(근거노트 §4). 우선순위 중.
+- sigma_h(검출오차 전파)는 wear_aware_endpoint의 optimism_pct(드리프트 낙관도)와 **별개 불확실성원**이므로
+  따로 리턴한다 — 하나로 합치지 마라. 근거노트 §5 표. 우선순위 중.

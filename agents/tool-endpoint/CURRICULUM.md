@@ -8,7 +8,7 @@
 - [x] Lv2-1 막질별 EPD 적합성과 한계(투명막·다층) — 2026-09-11. 지식노트 [[../../knowledge/equipment/epd-film-type-suitability-transparent-multilayer-limits]]
 - [x] Lv2-2 EPD 트레이스 → 제거량·잔막 역산 방법 — 2026-09-12. 지식노트 [[../../knowledge/equipment/epd-trace-removal-remaining-thickness-inversion]]
 - [x] Lv3-1 최신 리뷰: ML 기반 EPD, 인시츄 계측 통합 — 2026-09-15. 지식노트 [[../../knowledge/equipment/epd-ml-statistical-insitu-metrology-integration]]
-- [ ] Lv3-2 EPD 신호 → 제거량 모델 (sim/tier2, 기존 wear_aware_endpoint 확장)
+- [x] Lv3-2 EPD 신호 → 제거량 모델 (sim/tier2, 기존 wear_aware_endpoint 확장) — 2026-09-19. 지식노트 [[../../knowledge/equipment/epd-trace-to-removal-model-spec]]
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 EPD 트레이스 실데이터 스키마 + 역산 보정

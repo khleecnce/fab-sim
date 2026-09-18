@@ -227,3 +227,42 @@ A3. 이 특허는 폴리싱 패드를 관통하는 도파관(waveguide)으로 �
 특허는 1차 자료(가중 0.9)이나 실측 성능 수치는 청구범위 중심이라 없다. 상세는
 [[../../knowledge/equipment/epd-ml-statistical-insitu-metrology-integration]] §3.
 출처: US 10,478,937 B2, Applied Materials, 우선일 2015-03-05, 등록 2019-11-19.
+
+## Lv3-2 EPD 신호 → 제거량 모델 명세
+
+**Q1. 마찰 EPD에서 Xu et al.(2010)의 검출 시각 오차 폐형식은 무엇이며, 이 오차가 왜 그리고 어떻게
+"잔막(제거량) 불확실성"으로 직결되는가? 두께를 직접 재는 간섭·와전류와 대비해 설명하라.**
+
+A1. Xu(2010)의 검출오차는 $\Delta T=t_2-t_1=|T/\bar d|$(식17)로, 임계 $T=3S$(Chebyshev 3σ, 식11/16)를 전이
+구간 신호의 하강 기울기 $\bar d=\frac1N\sum(E_i-E_{i-1})/\Delta t$(식18)로 나눈 값이다. 마찰/모터전류는 "시각"만
+주고 두께를 못 재므로(Lv2-2 §3), 제거량은 $h(t)=h_0-RR\cdot t$로 환산해야 한다 — 따라서 검출시각 오차 $\Delta T$가
+그대로 잔막오차 $\delta h=RR\cdot\Delta T$로 전파된다. 즉 이 축의 제거량 불확실성은 근본적으로 "$RR\times$검출지연"
+이며, $RR$ 자체의 불확실성(Preston $K_p$)이 겹친다. 반면 간섭은 두께를 $\lambda/2n$ 주기로, 와전류는 룩업 교정으로
+**직접** 주므로 $RR$ 환산 없이 잔막을 얻는다(다만 간섭은 절대 원점 $d_0$, 와전류는 참조 교정이 필요). 실측 μ 대역은
+Xu Fig6b 0.4–0.7, Cu→Ta 전이는 innovation 음(마찰 감소, 식16). 재현: [[../../knowledge/equipment/epd-trace-to-removal-model-spec]] §1.
+출처: Xu C et al. (2010), doi:10.1088/1674-4926/31/12/126002.
+
+**Q2. 와전류 EPD의 두께-신호 관계는 어떤 함수형이며 유효범위는? US7078894와 Wang(2023)의 수치로 답하고,
+근거등급 차이를 밝혀라.**
+
+A2. 와전류는 원리상 두께의 (구간별) 단조함수라 참조 웨이퍼 교정곡선 룩업 $d=g^{-1}(\text{signal})$로 역산한다.
+US7078894(Ebara 특허, E 특허0.9)는 **저항(resistance) 성분**이 점 D(두께 1000 Å)→점 C(0)까지 "substantially
+linear"하게 변하고 같은 구간 reactance는 거의 안 변한다고 명시 — 극박막 선형구간이 $\lesssim$1000 Å. Cu는 7 MHz
+(종점오차 ~1000 Å), Ta 배리어는 180 MHz로 올려 Å 분해능. Wang(2023, IEEE TIE)은 특성비 검출로 선형범위
+**24–2095 nm**, 정확도 2.1 nm, Cu-CMP 종점두께 100–180 nm를 보고하나 **원문 유료로 초록만(E5)**이다. 즉
+US7078894가 특허 1차 자료(선형성·주파수분기 본문 확인), Wang은 선형범위 수치를 보태는 E5 보조. 하한은 수십 nm
+(An 개선 후 55 nm, 광학 투명화 30–40 nm)에서 금속 EPD 전반이 무너진다(Lv2-1 §4). 재현:
+[[../../knowledge/equipment/epd-trace-to-removal-model-spec]] §3.
+출처: US 7,078,894 B2 (Ebara); C. Wang et al. (2023), doi:10.1109/tie.2023.3239881 (초록 E5).
+
+**Q3. 이 단원의 통합 명세 `epd_trace_to_removal`는 기존 process_time.py·wear_aware_endpoint.py와 무엇을
+재구현하고 무엇을 새로 얹는가? 경계를 정확히 답하라.**
+
+A3. 두 기존 모듈은 "**target 두께가 주어졌을 때**" 제거량 적분($removed=MRR\cdot t$, 정상상태 / MRR(t) 사다리꼴,
+드리프트)과 종점시각($target/MRR$ 또는 보간)을 푼다. 이 명세는 그 적분을 **재구현하지 않고 그대로 호출**한다 —
+새로 얹는 것은 **앞단**(트레이스에서 $t_{ep}$를 3S 임계로 검출하고 식17로 보정), **센서별 역산 경로**(friction=시각→
+$RR$곱, interf=$N\lambda/2n$, eddy=룩업), 그리고 **불확실성 전파**($\sigma_h=RR\cdot\Delta T$). 즉 입력이 target이
+아니라 **트레이스+센서종류**이며, 출력은 $(t_{ep},\text{제거량},\text{잔막},\sigma)$다. `sensor`·`calib` 인자가 신규.
+디싱 정량은 형제(film-cu) 소관이라 오버폴리시 **추가제거량**($RR\cdot t_{op}$)까지만 다룬다. 상세:
+[[../../knowledge/equipment/epd-trace-to-removal-model-spec]] §5.
+출처: 본 단원 명세(sim/tier1_empirical/process_time.py·sim/tier2_physics/wear_aware_endpoint.py docstring 대조).
