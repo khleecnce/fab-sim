@@ -3215,3 +3215,43 @@ Crossref 조회 결과 **무관한 논문**("Fate of Volatile Chlorinated Organi
 **pytest 1098 passed / 1 skipped 회귀 0** · completion **59/60 불변**.
 ⚠ 2회차 위임은 max-turns(120) 소진으로 중단(로그 30바이트)했으나 노트 255줄은 남겼다 —
 Max워커가 스코프 재검증·§10 신설·INDEX 3건 등록·DOI 정정·게이트 4종을 직접 수행해 수거.
+
+---
+
+### 2026-09-18 22:30~23:30 [Max워커] M3 게이트 — `sim/calibration/ingest.py` 신설 (커밋 a6eb07d, push 완료)
+
+ORG.md §7.4가 요구한 데이터 파이프라인 3개 파일 중 `ingest.py`가 없었고
+`data/schema/`·`data/synthetic/`는 **빈 디렉토리**였다. M3(2026-10-25) 게이트 항목.
+
+**만든 것 3종:**
+- `data/schema/wafer_measurement.schema.json`(draft 2020-12) — 필드 집합을 **지어내지 않고**
+  `normalize.py` 공개 API(`to_canonical_coords`·`to_canonical_units`·`apply_edge_exclusion`)의
+  요구입력에서 역산했다. 새 물리 상수 0개. `notch_direction` enum ≡ `normalize.NOTCH_ANGLES_RAD`
+  키, `unit` enum ⊇ `normalize._SCALAR_FACTORS` 키임을 **집합 동등으로 테스트 고정** — 한쪽만
+  바뀌면 CI가 잡는다(스키마가 모르는 단위를 받아 `to_canonical_units`가 ValueError로 죽는 경로 차단).
+- `sim/calibration/ingest.py`(227줄) — 스키마 검증 → 정준 좌표/단위 → 엣지제외·이상치 플래그 →
+  파케이. **설계 제약 3개를 테스트로 고정**: ①가역성(원 단위·좌표계·notch·EE·이상치 method/k·
+  원 레코드 전체를 `provenance`와 parquet 메타데이터에 보존, 왕복 후 원값 복원 rel=1e-12)
+  ②**행 삭제 금지**(이상치·엣지제외·결측은 플래그 컬럼 + 사유 문자열로만 — `normalize.py` §0·§3
+  정책 계승) ③`engine.Recipe`/`WaferResult` 미의존을 ast로 고정(이 모듈은 Model이 아니다).
+  `normalize.py`·`series_scale.py`·`ptw_vm_schema.py`는 **0바이트 수정**(git diff 테스트로 고정).
+- `tools/make_synthetic_wafer.py` + `data/synthetic/*.json` 2장 — **엔진 자신의** 반경 프로파일이
+  진실값이고 그 위에 측정 반복성 가우시안(rel 1%+0.2nm, `# 미검증` 표기) 하나만 얹었다.
+  물리를 흉내내는 인위적 패턴은 넣지 않았다. 실측·회사 데이터 0건(ORG §7.5).
+
+**게이트(Max워커 직접 포그라운드 실행):** `tests/test_ingest.py` **16 passed**,
+전체 **1113 passed / 1 skipped**, `completion.py check` **59/60 불변**(이 작업은 MRR 경로를
+건드리지 않으므로 격자가 움직이면 그게 버그다).
+
+⚠ **전체 스위트 3건 실패는 이 작업과 무관**: `tests/test_sic_kmno4_ph_judgement61.py` 3건이
+다른 크론의 **미커밋** 작업 중 상태(`knowledge/params/sic_alumina_kmno4.yaml`·`sim/factors.py`,
+20:12~20:20 수정)에서 온 것이다 — 판정#61이 고정한 Chen 2020 pH 감쇠비 3.56배가 현재
+워킹트리에서 1.49배로 나온다. 커밋된 HEAD는 green이므로 **내 6개 파일만** `git add`로
+올렸고 그쪽 파일은 건드리지 않았다.
+
+⚠ 위임 세션은 **4회차 연속 동일 사인**으로 조기종료했다 — 브리프 최상단에 "테스트를
+백그라운드로 돌리지 마라"를 명시했는데도 로그(153바이트)가
+"full-suite run is already executing in the background ... I'll wait for its completion
+notification"으로 끝났다. **산출물 6개는 전부 남겼으므로 사망은 아니다**(지난 회차들과 다른 점).
+다음 회차 브리프는 "전체 스위트를 돌리지 말고 신규 테스트 파일만 돌린 뒤 끝내라 —
+전체 회귀는 호출자가 돌린다"로 바꿀 것. 9분짜리 전체 스위트가 위임 종료의 실질 원인이다.
