@@ -211,12 +211,29 @@ def _summary_section(g: Dict[str, Dict[str, Any]], res: Dict[str, Any], packs: L
     L.append("| 팩(내부 식별자) | 공정 |\n|---|---|")
     for p in packs:
         L.append(f"| `{p}` | {_pack_desc(p) or '(설명 없음)'} |")
+    # 미충족 문장은 실제 res["fails"] 에서 만든다 — 하드코딩하면 격자가 채워진 뒤에도
+    # "남은 미충족은 X 1칸"이 남아 완성 판정과 문서가 모순된다(2026-09-18 실제 발생).
+    fails = res.get("fails") or []
+    if not fails:
+        tail = (
+            "충족 — **완성 기준을 전부 만족한다.** 다만 이 중 일부 칸은 아래 "
+            "\"'종결 판정'이란 무엇인가\"에서 설명하는 **검증된 한계**로 인정된 것이며, "
+            "그 칸의 수치는 1차 문헌이 아니라 자체 적합값이라는 사실이 각 표에 그대로 남아 있다."
+        )
+    else:
+        items = []
+        for f in fails:
+            m = re.search(r"(\w+)/(\w+):", f)
+            if not m:
+                items.append(f)
+                continue
+            k, pk = m.group(1), m.group(2)
+            sym, name = (FACTOR_SPEC[k][0], FACTOR_SPEC[k][1]) if k in FACTOR_SPEC else ("", k)
+            items.append(f"**{sym} {name}(`{k}`) / {_pack_desc(pk) or pk}**")
+        tail = "충족. 남은 미충족 " + str(len(fails)) + "칸: " + ", ".join(items) + "."
     L.append(
         f"\n### 현재 완성도\n\n격자(10개 팩터 × {len(packs)}개 공정 = {res['cells_total']}칸) 중 "
-        f"**{res['cells_done']}/{res['cells_total']}칸** 충족. 남은 미충족은 "
-        f"**χ(화학 반응성)/`cu_h2o2_bta`(Cu CMP, H2O2 산화제) 1칸**뿐이며, Cu 표면에서 H2O2가 만드는 "
-        f"산화막 반응성의 정량 관계를 그 조성·pH 조건에서 보고한 1차 문헌을 아직 찾지 못해 "
-        f"confidence가 literature 등급에 못 미친다(estimated).\n"
+        f"**{res['cells_done']}/{res['cells_total']}칸** {tail}\n"
     )
     n_closed = len(res.get("closed") or [])
     L.append(
