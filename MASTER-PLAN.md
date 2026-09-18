@@ -3407,3 +3407,40 @@ MRR에 곱하지 않아 PTW와 NPW의 제거량이 **비트 단위로 동일**�
 **1183 passed / 1 skipped**(1168→+15, **신규 회귀 0**), `completion.py check` **59/60 불변**.
 ⚠ 기존 3건 실패(`test_sic_kmno4_ph_judgement61`)는 다른 크론의 미커밋 워킹트리에서 오는
 것으로 이 커밋 경로와 무관(직전 3회차와 동일).
+
+### 2026-09-19 [Max워커] M5 게이트 S10 — 데모 UI에 캘리브레이션 사슬 연결 (커밋 97f0f10, push)
+
+M3에서 `sim/calibration/` 7개 모듈(ingest→prior→fit_npw→fit_ptw→predict→drift→pipeline)이
+전부 섰지만 **테스트에서만 돌고 사용자 화면에는 한 줄도 노출돼 있지 않았다** — `sim/demo_app.py`는
+탭 2개뿐이고 calibration을 import조차 하지 않았다. M5 게이트 원문이 "CSV 업로드 → NPW 보정 →
+PTW 예측 시연"이므로 이것이 M5의 실질 병목이었다. 탭3을 신설해 연결했다.
+
+**설계 요점 — 지어내지 않기**
+- `_csv_to_record()`를 UI에서 분리한 **순수 함수**로 두어 Streamlit 없이 단위테스트 가능하게 했다.
+- 스키마가 요구하지만 CSV 열에는 없는 항목(wafer_id·직경·notch_direction·edge_exclusion·
+  coord_kind·값/좌표 열 매핑·단위)은 **전부 위젯으로 사용자가 명시**하고 조용한 기본값을 박지
+  않는다. 열 매핑이 비었거나 CSV에 없으면 ValueError로 명시 실패.
+- `coord_kind='die'`는 8열(col/row/pitch/origin)이 필요해 **명시적 미구현**으로 안내(감춘 제약 아님).
+- `PTWVMInput`의 prev_layer_topography·e_test_R_ohm·mrr_lag 등은 입력받지 않고 None(미측정) 유지.
+- verdict 문자열을 그대로 표시하고, `_success_message()`가 **"calibrated"일 때만** st.success를
+  허용한다 — partial/uncalibrated/failed는 st.warning. improved=False를 성공으로 포장하지 않는다.
+- PTW가 `is_npw_equivalent`로 거부되면(skipped) 그 사유를 그대로 노출. ingest/fit/predict의
+  ValueError는 st.error로 원문 노출(try/except pass 없음).
+- `sim/calibration/`·`sim/engine.py`·`data/schema/` **0바이트 수정**(git diff --stat 공백 확인).
+
+**Max워커 직접 재검증(위임 산출물 수거 후)**
+- 합성 NPW 60점 e2e: schema 오류 0, ingest 60행/제외 0, verdict=`calibrated`,
+  stages 5개(priors·ingest_npw·fit_npw=ok / ingest_ptw·fit_ptw=skipped「PTW 미제공」).
+- **CI 거동을 실측으로 확인**: 노이즈 σ=0.3 데이터(학습범위 20~110mm)에서
+  sigma 30mm 0.249 · 65mm 0.247 · 100mm 0.249 → **외삽 130mm 0.433 · 145mm 0.682**.
+  즉 `predict.py`가 docstring에서 주장한 "apply()의 마스킹과 달리 외삽에서 CI가 접히지
+  않는다"가 실제로 성립한다. 무노이즈 합성에서 sigma≈0이 나오는 것은 적합된 σ_n=5.09e-6의
+  정상 귀결이지 결함이 아님(두 경우를 각각 돌려 구분 확인).
+- pytest **1216 passed / 1 skipped**(신규 회귀 0), 신규 탭 테스트 포함 21 passed,
+  `completion.py check` **59/60 불변**.
+
+⚠ 기존 3건 실패(`tests/test_sic_kmno4_ph_judgement61.py`)는 다른 크론의 미커밋 워킹트리
+(`knowledge/params/sic_alumina_kmno4.yaml`·`sim/factors.py`)에서 오는 것으로 이 커밋 경로와
+무관하다(직전 4회차와 동일 관측). 이 파일들은 건드리지 않았다.
+
+**M5 잔여**: 진단 텍스트(M4 결함진단 연동) + 5분 시연 시나리오 문서. 데이터 경로 자체는 이제 섰다.
