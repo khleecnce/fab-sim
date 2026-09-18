@@ -1,18 +1,1 @@
-{
-  "us9200180b2_cu_abrasive_series": {
-    "flags": [
-      "F4:팩 cu_h2o2_bta의 파라미터 cu_ph_acid_k(note)가 같은 문헌(US9200180B2)에서 도출 — used_for_calibration 누락",
-      "F4:팩 cu_h2o2_bta의 파라미터 cu_ph_alkaline_k(source)가 같은 문헌(US9200180B2)에서 도출 — used_for_calibration 누락"
-    ],
-    "since": 1789463931.564836,
-    "how_to_clear": "원문에서 값 확인 후 데이터셋 파일에 audit_verified: true 추가"
-  },
-  "us9200180b2_cu_h2o2_series": {
-    "flags": [
-      "F4:팩 cu_h2o2_bta의 파라미터 cu_ph_acid_k(note)가 같은 문헌(US9200180B2)에서 도출 — used_for_calibration 누락",
-      "F4:팩 cu_h2o2_bta의 파라미터 cu_ph_alkaline_k(source)가 같은 문헌(US9200180B2)에서 도출 — used_for_calibration 누락"
-    ],
-    "since": 1789463931.5648372,
-    "how_to_clear": "원문에서 값 확인 후 데이터셋 파일에 audit_verified: true 추가"
-  }
-}
+{}

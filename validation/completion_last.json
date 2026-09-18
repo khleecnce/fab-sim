@@ -1,11 +1,10 @@
 {
-  "ts": 1789549951.84693,
+  "ts": 1789709406.419837,
   "complete": false,
   "cells_done": 59,
   "cells_total": 60,
   "fails": [
-    "C2 χ chi/sic_ceria_h2o2: confidence=estimated",
-    "C4 sic_ceria_h2o2: 유의 held-out 0건"
+    "C2 χ chi/sic_alumina_kmno4: confidence=estimated"
   ],
   "closed": [
     "Γ gamma/cu_h2o2_bta: estimated(종결 판정#22·판정#22-종결)",
@@ -15,6 +14,7 @@
     "Γ gamma/sti_ceria: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/w_fe_oxidizer: estimated(종결 판정#22·판정#22-종결)",
     "χ chi/cu_h2o2_bta: estimated(종결 판정#20·판정#29·판정#38·판정#41·판정#45·판정#47)",
+    "χ chi/sic_ceria_h2o2: estimated(종결 판정#50·판정#53·판정#56·판정#56-종결)",
     "ψ psi/cu_h2o2_bta: unverified(종결 판정#24B·판정#24C·판정#26·판정#25)",
     "ψ psi/sti_ceria: estimated(종결 판정#28·판정#32)",
     "ψ psi/w_fe_oxidizer: unverified(종결 판정#24A·판정#25)",
@@ -63,10 +63,12 @@
       "mean_rho": 0.8587
     },
     "sic_ceria_h2o2": {
-      "n_sig": 0,
-      "rhos": [],
-      "n_total": 2,
-      "mean_rho": null
+      "n_sig": 1,
+      "rhos": [
+        1.0
+      ],
+      "n_total": 3,
+      "mean_rho": 1.0
     },
     "w_fe_oxidizer": {
       "n_sig": 1,

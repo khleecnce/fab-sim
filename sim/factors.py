@@ -1227,6 +1227,58 @@ def _ph_w_acidic_term(pack, notes: List[str]) -> Optional[float]:
     return val
 
 
+def _ph_sic_kmno4_acidic_term(pack, notes: List[str]) -> Optional[float]:
+    """pH → MRR, **SiC × 산성 KMnO4** 계의 산화력 감쇠 + 기계 하한 항.
+
+    근거 노트: knowledge/cmp/sic-kmno4-acidic-ph-decay-chen2020.md
+    1차 출처: Chen G., Du C., Ni Z., Liu Y., Zhao Y. (2020),
+              Russ. J. Appl. Chem. 93(6) 832-837, doi:10.1134/S1070427220060099, Fig. 1(a).
+              (2 wt% Al2O3 나노입자 + 0.05 M KMnO4, 6H-SiC Si면, 4 psi, 90/90 rpm)
+
+    왜 별도 항인가 — 이 계에서 pH 는 세리아 IEP 창(정전 상호작용)도 실리카 정점형도
+    아니고 **MnO4- 의 산화력**을 통해 들어온다. 산성에서 MnO4- + 4H+ + 3e- → MnO2 +
+    2H2O 의 전위가 Nernst 로 pH 와 함께 떨어지므로 MRR 이 pH 증가와 함께 감소한다.
+    Chen 2020 Fig.1 은 pH 2→10 에서 Si 면·C 면 모두 **단조 감소**를 보인다 — 알칼리
+    쪽에서 오히려 오르는 실리카/세리아 계와 부호가 반대다.
+
+    형태: f(pH) = g(pH)/g(pH_ref),  g(pH) = φ + (1-φ)·exp(-k·(pH - pH_anchor)).
+    φ 는 **화학이 꺼져도 남는 기계 경로**(연마입자 압흔)다 — 산화력이 떨어져도 MRR 이
+    0 으로 가지 않고 평탄해지는 관측(pH 6~10 에서 거의 수평)을 담는다. 단순 지수만
+    쓰면 pH 10 을 3 배 넘게 과소예측한다.
+    기준점 나눗셈 덕에 pH = pH_ref 에서 항상 1.0 이다(Kp 이중 계상 방지).
+
+    ⚠ 적용 게이트 — 팩이 `sic_kmno4_ph_acid_k` 를 **직접 선언**할 때만 켜진다.
+    ⚠ 근거 구간은 pH 2~10 이다. 그 밖은 외삽이며 notes 에 경고를 남긴다.
+    ⚠ 계수는 그래프 판독(digitized)에서 나왔다 — 눈금 간격 역산으로 인쇄 최대값
+      1554 nm/h 를 -0.6 % 로 재현했지만 개별 막대는 판독오차를 갖는다.
+    """
+    if not (pack.has("slurry_ph") and pack.has("sic_kmno4_ph_acid_k")
+            and pack.has("ph_ref")):
+        return None
+    ph = float(pack.get("slurry_ph"))
+    ph_ref = float(pack.get("ph_ref"))
+    k = float(pack.get("sic_kmno4_ph_acid_k"))
+    anchor = float(pack.get_or("sic_kmno4_ph_anchor", 2.0))
+    floor = float(pack.get_or("sic_kmno4_ph_floor", 0.0))
+    floor = min(max(floor, 0.0), 1.0)
+
+    def g(x: float) -> float:
+        return floor + (1.0 - floor) * math.exp(-k * (x - anchor))
+
+    ref = g(ph_ref)
+    if ref <= 0:
+        return None
+    val = g(ph) / ref
+    notes.append(
+        f"SiC×산성 KMnO4 pH: pH {ph:g} (기준 {ph_ref:g}) → 상대 {val:.3f}. "
+        f"MnO4- 산화력 감쇠 경로 — k={k:g}/pH, 기계 하한 φ={floor:g} "
+        "(Chen 2020 doi:10.1134/S1070427220060099 Fig.1a 판독 5점 적합, "
+        "재현오차 -2.4~+2.6 %). ⚠ 그래프 판독 기반이라 계수는 estimated.")
+    if not (2.0 <= ph <= 10.0):
+        notes.append(f"⚠ pH {ph:g}는 근거 구간(2~10) 밖이다 — 외삽이다.")
+    return val
+
+
 def _f_chi(rr: "ResolvedRecipe") -> Factor:
     """χ 화학 반응성 — 표면 연화·산화가 만드는 MRR 배수.
 
@@ -1287,6 +1339,8 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
          pk.has("w_ph_acid_k"), "w_ph_acid_k"),
         ("ph_cu_acidic", _ph_cu_acidic_term,
          pk.has("cu_ph_acid_k"), "cu_ph_acid_k"),
+        ("ph_sic_kmno4_acidic", _ph_sic_kmno4_acidic_term,
+         pk.has("sic_kmno4_ph_acid_k"), "sic_kmno4_ph_acid_k"),
         ("ph_peak", _ph_peak_term,
          pk.has("ph_peak") and pk.has("ph_ref"), "ph_peak"),
         ("ph_softening", _ph_softening_term,
@@ -1394,7 +1448,7 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     f.confidence = _worst_conf(
         _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"),
         _pack_conf(pk, *oxidizer_shape_keys, "ph_peak", "ceria_tooth_gain",
-                   "w_ph_acid_k"))
+                   "w_ph_acid_k", "sic_kmno4_ph_acid_k"))
     f.sources = ["knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
                  "knowledge/cmp/particle-wafer-interaction-"
                  "mechanical-chemical-balance.md"]

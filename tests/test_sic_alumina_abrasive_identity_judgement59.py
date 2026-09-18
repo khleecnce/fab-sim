@@ -1,3 +1,4 @@
+import pytest
 """sic_alumina_kmno4 연마입자 정체성 상속 결함 수정 — 회귀 고정 (EVIDENCE-RULES.md 판정#59).
 
 배경: sim/factors.py::_f_chi 의 분기 판정 키 `abrasive` 를 sic_alumina_kmno4 팩이
@@ -73,17 +74,34 @@ def test_sic_alumina_kmno4_ceria_tooth_gone():
 
 
 def test_sic_alumina_kmno4_ph_branch_blocked_not_leaked():
+    """판정#59 의 본질은 유지된다 — **남의 재료 pH 곡선은 여전히 안 샌다.**
+
+    ⚠ 2026-09-18 판정#61 로 갱신: 이 팩은 이제 자기 재료계 문헌
+    (Chen 2020, DOI 10.1134/S1070427220060099)에서 온 `ph_sic_kmno4_acidic`
+    분기를 **직접 선언**해 쓴다. 그래서 (a) 차단 목록에서 검사하는 것은
+    여전히 '남의 재료 계수 5종'이고, (b) 판정#59 의 차단 note 는 더 이상
+    발생하지 않는다(1차 패스에서 own 계수로 선택이 끝나 2차 패스에 닿지 않는다).
+    아래 마지막 assert 를 '판정#59 문구 존재'에서 '자기 분기 선택'으로 바꾼다 —
+    지키려던 성질(남의 곡선 차단)은 그대로다.
+    """
     f = _chi("sic_alumina_kmno4")
     leaked = {"ph_peak", "ph_softening", "ph_ceria_window",
               "ph_w_acidic", "ph_cu_acidic"} & set(f.terms.keys())
     assert not leaked, f"남의 재료 pH 곡선이 샜다: {leaked}"
-    joined_notes = " ".join(f.notes)
-    assert "판정#59" in joined_notes
+    assert "ph_sic_kmno4_acidic" in f.terms, f.terms
 
 
-def test_sic_alumina_kmno4_ph_still_unresponsive_for_the_right_reason():
-    """수정 후에도 pH 축은 여전히 무반응이다 — 알루미나계 pH 계수가 문헌에
-    없기 때문(정확한 갭)이지, wafer_iep_ph 누락으로 인한 skip(틀린 이유)이 아니다."""
+def test_sic_alumina_kmno4_ph_axis_now_live_via_own_material_literature():
+    """판정#61 로 **의도적으로 뒤집힌** 계약 — 이 테스트는 원래
+    "pH 축이 여전히 무반응"을 고정하고 있었다.
+
+    판정#59 가 그 무반응을 '정확한 갭'(알루미나계 pH 계수 미확보)이라 기록했고,
+    판정#61 이 그 계수를 자기 재료계 문헌(Chen 2020, 6H-SiC + 0.05 M KMnO4 +
+    2 wt% Al2O3, pH 2~10 단조 감소)에서 확보해 배선했다. 갭이 메워졌으므로
+    '무반응' 고정은 더 이상 지킬 성질이 아니다 — 대신 **방향과 기준 1.0** 을 고정한다.
+    근거 노트: knowledge/cmp/sic-kmno4-acidic-ph-decay-chen2020.md
+    """
     chi_2 = _chi("sic_alumina_kmno4", slurry_ph=2.0).value
     chi_6 = _chi("sic_alumina_kmno4", slurry_ph=6.0).value
-    assert chi_2 == chi_6
+    assert chi_2 > chi_6, (chi_2, chi_6)      # 산성일수록 MnO4- 산화력이 크다
+    assert _chi("sic_alumina_kmno4").value == pytest.approx(1.0, abs=1e-9)
