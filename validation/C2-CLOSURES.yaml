@@ -108,6 +108,30 @@ closures:
     reason: Park 2003 그림판독 의존 + (K,n,k) 산화막 비식별. 교차검증용 동일화학종 농도스윕 문헌이 13개 소스 확인 끝에 부재 확정(3회차)
     reopen_if: 비영어권 특허DB 전수 또는 유료저널 직접구독 등 새 근거 범주
 
+  # ── χ/sic_ceria_h2o2 — oxidizer_langmuir_K (판정#50 → #53 → #56 → #56-종결, 3회차 종결) ──
+  # K=0.7600 은 팩 자신의 캘리브레이션 DOE(figshare:31056549)에서 나온 적합값(판정#50, E2).
+  # 캘리브레이션 밖 1차 출처로 승격하려면 알칼리(pH 9~11)·무촉매·순수 세리아·H2O2 1축
+  # 3점 이상 스윕 실측이 필요한데, 3회차에 걸쳐 그런 문헌을 확보하지 못했다:
+  #   #53 Liang 2026(Nano Research) held-out 대조 → 방향은 맞으나 포화구간이라 K 비식별(E4)
+  #   #56 Song 2025(Ceram. Int.) 초록상 CeO2×H2O2 조합 유력 후보로 식별 → Elsevier 봇차단
+  #   #56-종결 sci-hub 신규 미러·CORE·OpenAlex·Semantic Scholar 4중 확인 → 셀프아카이브
+  #       사본 자체가 없음(2025-10 출간, 아직 어디에도 안 올라옴). 독립 신규 문헌 3건도
+  #       전부 요건 위반(Fenton 촉매/복합 연마입자/H2O2 미측정)으로 탈락.
+  - factor: chi
+    pack: sic_ceria_h2o2
+    judgments: ["판정#50", "판정#53", "판정#56", "판정#56-종결"]
+    note: knowledge/cmp/sic-h2o2-oxidizer-saturation-alkaline-ceria.md
+    reason: >
+      알칼리·무촉매·순수 세리아 H2O2 1축 3점 이상 스윕 1차 실측이 공개 접근 범위(OA API+
+      sci-hub 미러+기관 리포지토리 색인+로컬 코퍼스)에 없다. 가장 유력한 후보(Song 2025,
+      doi:10.1016/j.ceramint.2025.07.097)는 초록상 CeO2×H2O2 조합을 포함하나 2025-10
+      출간이라 어떤 셀프아카이브 색인(Unpaywall/OpenAlex/Semantic Scholar/CORE)에도
+      사본이 없고 sci-hub 도 미색인이다.
+    reopen_if: >
+      Song 2025 본문을 기관 접근·저자 요청 등 이 코퍼스 밖 수단으로 확보, 또는 이와 독립인
+      알칼리·무촉매·순수세리아 H2O2 3점 이상 스윕 문헌이 신규로 색인됨(예: Song 2025 가
+      추후 셀프아카이브되어 any_repository_has_fulltext=true 로 바뀜).
+
   # ── Δ/cu_h2o2_bta — damage_exponent (판정#27 → #30 → #31 3회차 종결) ─────────
   - factor: delta
     pack: cu_h2o2_bta

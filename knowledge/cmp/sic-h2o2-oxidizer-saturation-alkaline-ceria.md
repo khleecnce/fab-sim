@@ -316,3 +316,76 @@ H2O2 3점 이상 스윕)을 전부 만족하는 문헌을 **확보하지 못했�
 저자 요청 등), 또는 (ii) 이와 독립인 알칼리·무촉매·순수세리아 H2O2 3점 이상 스윕
 문헌을 신규 발굴. Liang 2026 ESM 경로는 **재개 대상에서 제외**한다(9.1 에서 확인한
 대로 대상 표 자체가 없다).
+
+## 10. 3회차(마지막, 판정#56 재개, 2026-09-18) — 최종 종결
+
+3회차 규칙의 **마지막 회차**다. 판정#56 이 지정한 재개 조건 (i)(ii) 만 재시도했고,
+2회차가 이미 실패한 경로(ScienceDirect Cloudflare·doi.org 리다이렉트·PII 직링크·
+pdfft·sci.bban.top)는 반복하지 않았다.
+
+### 10.1 조건 (i) — Song 2025 를 Elsevier 봇차단 밖 경로로 확보: 실패
+
+Crossref 로 정확한 서지(제목 "Mechanistic insights into the synergistic effect of
+oxidizers and abrasives in chemical mechanical polishing of 4H-SiC wafer", 저자
+Xin Song·Jiani Guo·Changyang Xu·Zhigang Dong·Ren-Ke Kang·Shang Gao, *Ceramics
+International* 2025-10)를 먼저 확정한 뒤 새 경로만 시도했다:
+
+| 경로 | 결과 |
+|---|---|
+| sci-hub.se / .st | 접속 실패(connection refused, 000) |
+| sci-hub.ru / .box | HTTP 200, 그러나 본문이 "논문을 찾을 수 없습니다"(2025년 논문 미색인) |
+| sci-hub.ren | Cloudflare Turnstile 검증 페이지로 막힘(자동화 불가, 시도 안 함) — **sci-hub.wf 는 지시대로 시도하지 않음** |
+| Unpaywall(`find_open_access.py --title`) | `oa_status: hybrid`, `pdf: null`, host=publisher(ScienceDirect) 뿐 — 셀프아카이브 사본 없음 |
+| OpenAlex work API | `any_repository_has_fulltext: false`, `best_oa_location.pdf_url: null` |
+| Semantic Scholar Graph API | `openAccessPdf.status: HYBRID`, url 은 doi.org 뿐(=ScienceDirect) |
+| CORE API v3(`/search/works`, DOI·제목 질의) | `totalHits: 0` — 어떤 기관 리포지토리에도 사본 없음 |
+| Semantic Scholar author API(Zhigang Dong, id 47045206) | `affiliations: []`, `homepage: null` — 저자 리포지토리 단서 없음 |
+| BASE(Bielefeld) 검색 | Anubis PoW 봇차단 페이지(자동 우회 안 함) |
+| DuckDuckGo HTML 검색(2질의) | "anomaly" 봇탐지 페이지로 막힘 |
+| WebSearch / exa web_search 도구 | 이 세션에서 권한 미승인으로 호출 자체 실패 |
+
+**결론**: Unpaywall·OpenAlex·Semantic Scholar·CORE 네 개의 독립 색인이 모두
+"셀프아카이브 사본 존재하지 않음"에 수렴한다(2회차의 "부재가 아니라 접근 장벽"
+가설과 달리, 이번엔 리포지토리 사본 자체가 **구조적으로 없다** — 2025년 10월 출간
+따끈한 논문이라 저자가 아직 어디에도 올리지 않은 것으로 보인다). sci-hub 도
+같은 이유로 미색인. Cloudflare Turnstile·Anubis PoW·DuckDuckGo 봇탐지는 캡차/PoW
+자동 우회를 하지 않는다는 원칙상 더 밀어붙이지 않았다.
+
+### 10.2 조건 (ii) — 독립 문헌 신규 발굴: 실패
+
+OpenAlex 전문검색(세리아/CeO2 × H2O2/hydrogen peroxide × SiC × alkaline/pH 조합
+2질의, 상위 25건씩) 으로 2회차가 못 찾은 후보를 추가로 훑었다. 새로 확인한 것:
+
+- **W4393284079** = 2회차에 이미 확인한 **Zhu Qiqi 2024**(doi:10.25236/ajmc.2024.050106)
+  와 동일 논문(같은 DOI) — 초록 재확인 결과도 동일: SiO2 연마입자 농도-MRR(피크
+  185 nm/h)과 pH-습윤성/DLVO 계산이 본문이고, **H2O2 실측 스윕은 없다**. 재조사
+  금지 목록에 이미 있던 문헌.
+- **W4392151338**(Sono-Fenton, doi:10.1149/2162-8777/ad2cfd, 2024) — 초록에
+  "heterogeneous sono-Fenton oxidation" 명시, **Fenton 촉매 존재** → 요건
+  "촉매 없음" 위반으로 제외.
+- **W4403891709**(Sci. Rep. 2024, doi:10.1038/s41598-024-77598-x, UACMP 직교배열
+  최적화) — 오픈액세스(확보 가능)이나 연마입자가 **실리카+알루미나 복합**(세리아
+  아님)이고 설계가 직교표(Taguchi) 라 H2O2 단독 1축 스윕이 아님 → 요건 2개 위반.
+- 나머지 검색 결과(리뷰 4건, MD 시뮬레이션 3건, Cu-CMP·임플란트·부식 등 무관
+  11건)는 스코프 밖.
+
+로컬 코퍼스는 2회차에서 이미 동의어 확장까지 마친 전수 탐색(22건 확인, 전부
+탈락)이라 반복하지 않았다.
+
+### 10.3 최종 판정 — 영구 종결
+
+**승격 기각 — `confidence: estimated` 유지, 값 0.7600 불변, 코드·YAML·팩 미변경
+(3회차·최종).**
+
+3회차 재개 조건 (i)(ii) 를 모두 새 경로로 재시도했으나 둘 다 실패했다. (i)은
+2회차가 "Elsevier 봇차단"이라 진단했던 것이 이번 회차엔 "봇차단과 무관하게
+셀프아카이브 사본 자체가 존재하지 않는다"(Unpaywall/OpenAlex/S2/CORE 4중 확인)로
+더 정확해졌다 — 여전히 확보 실패라는 결론은 같다. (ii)는 검색 축을 넓혀도 기준
+4개(알칼리 pH 9~11·무촉매·순수 세리아·H2O2 3점 이상 스윕)를 동시에 만족하는
+신규 후보가 나오지 않았다.
+
+**EVIDENCE-RULES.md 3회차 규칙에 따라 이 칸을 스코프 축소로 영구 종결한다**:
+알칼리·무촉매·순수세리아 H2O2 스윕은 현 접근 범위(공개 OA API + sci-hub 미러 +
+기관 리포지토리 색인 + 로컬 코퍼스)로 확보 불가 — K=0.7600 `estimated` 영구 확정,
+격자 59/60 이 이 프로젝트의 도달 가능 상한이다. **후속 크론 재탐색 금지.**
+판정 기록: `EVIDENCE-RULES.md` 판정#56-종결. 종결 등록: `validation/C2-CLOSURES.yaml`.
