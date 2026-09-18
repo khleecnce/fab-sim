@@ -151,3 +151,38 @@ RMS < 150 Å(316 s는 270 Å, 1.5 µm 제거 후 저밀도에서 파탄)을 얻�
 이 모순은 Sorooshian의 "유효압력"이 제거율 차이를 전부 압력으로 돌린 역산값이라 화학·온도 효과가 섞였기 때문으로 추정하며
 원인은 미상으로 기록했다. 따라서 α(ρ)는 PTW에서 폴리시 단계별로 캘리브레이션할 파라미터이고 PL처럼 한 번 뽑아 옮길 수 없다.
 출처: 본 노트 §2.2, §4, verify (C)(D).
+
+---
+
+## Cal-1 (NPW/PTW 메타데이터 스키마·정렬·비교 규칙) — knowledge/cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md
+
+**Q1. 같은 레시피의 NPW 반경 프로파일과 PTW 다이 맵을 공통 좌표로 정렬할 때 "다이 중심 반경 r_die 투영"이
+가진 두 가지 원리적 한계를 300 mm·다이 26×33 mm 합성 격자로 정량하라. 어느 반경 구간이 왜 비교 불가능한가?**
+A1. r_die = hypot(x_die, y_die)로 각 다이 중심을 웨이퍼 반경축에 사상하면 NPW 방위각평균 프로파일과 같은 축이 된다.
+한계 (L1) 외곽 비교불가: 완전인쇄(full-printed) 다이는 최원 corner가 유효반경 Ru=147 mm 안에 들어와야 하고 다이 반대각이
+21.0 mm이므로, 다이 중심의 최대 반경은 130 mm(=0.884·Ru)에서 멈춘다. 그 바깥 annulus [130, 147] mm는 전체 유효면적의
+21.8 %인데 PTW 다이 중심이 없다 — 부분 다이는 패턴이 잘려 밀도 정의가 깨지므로 계측 제외. NPW의 최외곽 링(147 mm)은
+49점·81점 모두 이 구간에 있어 PTW로 비교할 수 없다. 한계 (L2) 반경 스미어: 다이 하나가 차지하는 반경폭이 2×반대각 =
+42 mm로, NPW 81점 링 간격(Ru/5 = 29.4 mm)보다 커서 한 다이를 하나의 세밀 링에 깨끗이 귀속시킬 수 없다(49점 링 간격
+49 mm보다는 작아 조밀 링에만 할당 가능). 즉 PTW는 NPW의 반경 분해능을 따라가지 못한다. 합성 격자 완전다이 57개.
+출처: 본 노트 §2, §4-B (합성 계산·문헌 재현 아님으로 정직 표기).
+
+**Q2. PTW 시험마스크의 측정 구조물 종류·블록 크기·피치/밀도 정의의 1차 근거는 무엇이고, 블록 크기는 무엇으로 결정되는가?**
+A2. Park, Tugbawa, Boning 외(MIT/SEMATECH), "Electrical Characterization of Copper CMP," Proc. 1999 CMP-MIC pp.184–191(저자
+리포지토리 원문, DOI 없는 학회 프로시딩이나 IEEE·특허 참고문헌 다수로 교차확인). 구조물 종류: density 구조·pitch 구조·
+modified Kelvin(전기 두께 추출의 핵심)·serpentine/comb(최소피처 0.35 µm 수율). 정의: pitch = line width + line space,
+metal density = line width / pitch = 면적비(0.35/0.70 = 0.5). 블록 크기는 **상호작용거리**로 결정된다 — oxide CMP 상호작용거리가
+3–5 mm(Ouma CMP-MIC 1998)이므로 이웃 구조 간섭을 디커플하려고 density 구조를 3×3 mm, pitch 구조를 2.5×3.0 mm(밀도 고정
+50 %, dishing은 상호작용거리보다 짧은 스케일이라 완화)로 잡았다. 이 값들이 스키마의 structure_type·block_size_mm·pitch_um·
+line_width_um·line_space_um 필드의 근거다.
+출처: 본 노트 §1.2, verify (A).
+
+**Q3. NPW MRR과 PTW 유효 MRR을 비교하려 할 때, local_density 필드와 npw_time_series 필드가 각각 없으면 무엇이 불가능/편향되는가?
+전이 규칙(Lv3-2)을 데이터 필드 요구로 번역한 규칙을 말하라.**
+A3. 비교의 정의는 "같은 반경 빈에서 NPW MRR(블랭킷) 대 PTW 유효 MRR(=RR_up = K/ρ_eff, Boning 1999)"이다. (i) local_density가
+없으면 RR_up = K/ρ를 **정의할 수 없다**(ρ=0.5면 up-area가 블랭킷의 2배인데 ρ를 모르면 보정 자체가 불가) → PTW 값을 NPW와
+직접 비교하는 것을 **금지**하고 is_npw_equivalent()로 걸러야 한다. (ii) npw_time_series(≥2 시점)가 없이 단일 60 s 평균 MRR만
+있으면 순간 포화 rate a₁을 못 뽑는다 — Tugbawa 2002 표 3.3 실험1(a₁ 249.5 Å/s, a₂ 3986.6 Å, τ 16.4 s)에서 60 s 평균이
+184.8 Å/s로 26 % 낮으므로, 비교는 허용하되 10–26 % 편향 경고를 붙인다. 이렇게 Lv3-2 §5 전이표의 각 단계(순간화·다이위치 K·
+레시피 변환·드리프트 분해·밀도 보정·PL 재사용)를 "필요 필드 → 결손 시 불가능해지는 것"의 표(본 노트 §3)로 번역한다.
+출처: 본 노트 §3, verify (C).

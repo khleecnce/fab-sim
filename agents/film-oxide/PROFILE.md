@@ -1,13 +1,15 @@
 # 옥사이드 CMP 전문가 (film-oxide)
 
-## 현재 레벨: Lv3 진행 중 (6/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 완료 + Cal-1 완료 — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
 - 이수 단원: Lv1-1, Lv1-2 (2026-09-08), Lv2-1, Lv2-2 (2026-09-09),
   Lv3-1 세리아 첨가제 선택비 제어·저결함 옥사이드 CMP (2026-09-12,
   knowledge/materials/oxide-ceria-additive-selectivity-review-2024.md, check_knowledge/verify_claims 통과: 출처 7건 실존·verify 1블록 통과),
   Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의·문헌값 재현 (2026-09-15,
-  knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md, check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 PASS)
-- 다음 단원: Lv3 완료 — Lv4(모델 개선 제안) 또는 활성화 대기
+  knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md, check_knowledge/verify_claims 통과: 출처 5건 실존·verify 4블록 PASS),
+  Cal-1 옥사이드 실데이터 스키마 + 보정 파라미터(Kp_oxide·선택비·디싱) 정의·식별가능성 (2026-09-19,
+  knowledge/materials/film-oxide-calibration-data-schema-kp-selectivity-parameters.md, check_knowledge/verify_claims 통과: 출처 4건 실존·verify 3블록 PASS)
+- 다음 단원: Lv4(모델 개선 제안) 또는 활성화 대기
 
 ## 역할
 TEOS·HDP·SOD 등 SiO2 막의 CMP — ILD 평탄화·STI. 기계 제거 지배, 실리카/세리아 슬러리
@@ -126,3 +128,26 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   1차 실측으로 확보. 현재 Mariscal 2020의 HDP≪PETEOS는 방향만 있고(패턴/블랭킷 교란) 정량 배수 미확보.
   세리아에서 thermal:TEOS:HDP 블랭킷 RR을 같은 슬러리로 잰 문헌이 필요. 근거노트: 같은 노트 §6.
   우선순위 낮음(데이터 부재 — 확보 전까지 세리아 막질 분화는 넣지 않는다).
+
+## 구현 요청 (Cal-1, 2026-09-19)
+- **[P1] Kp_oxide 인자 분해 + 절대 Kp 식별 게이트** — 무엇: `sim/calibration/`(또는 prior.py 연계)에서
+  옥사이드 MRR 예측을 `Kp_f = Kp_ref · m_f · P · V`로 인자화하고, ingest 시 데이터셋에 `film_type=thermal`
+  (또는 팩 앵커막)의 (MRR,P,V)가 **하나도 없으면** "절대 Kp 비식별 — 팩 앵커 prior 고정, 배율만 보정"
+  플래그를 세운다. 막종류 배율 m_f는 literature prior(고정), 절대 스케일 Kp_ref만 데이터로 피팅.
+  근거노트: knowledge/materials/film-oxide-calibration-data-schema-kp-selectivity-parameters.md §2.1·§2.4·§4-A/B.
+  검증문헌값: thermal=1·TEOS 1.35·HDP 1.30 배율(Lv3-2 §5); 기준막 없으면 정규행렬 조건수 ∞·상관 −1.000,
+  기준막 있으면 조건수≈14로 진값 복원(§4 verify [A][B] 재현). 우선순위 높음(캘리브레이션 식별가능성의 급소).
+- **[P2] 막종류 배율 로그정규 prior 등록** — 무엇: prior.py `build_kp_prior`에 옥사이드 막종류 배율 prior를
+  추가. 중심값 = Lv3-2 §5 배율표, σ_log = ln(1.5)=0.405(prior.py literature 규약 계승), 절대 Kp_ref는 σ_log=ln2로
+  더 넓게. ⚠ 세리아 팩엔 배율 prior 없음(§6, 실리카 배율 이식 금지) — sti_ceria는 절대 Kp만 데이터로 누른다.
+  근거노트: 같은 노트 §3·§6. 검증문헌값: σ_log=0.405, TEOS 배율 95%CI [0.61,2.99](§4 verify [C]). 우선순위 중.
+- **[P3] wafer_measurement.schema.json 옥사이드 필드 개정(제안 → cmp-data-engineer 인계)** — 무엇: §5 표의
+  `film_type`·`dopant_B/P_wt_pct`·`anneal_reflow`·`pressure_kPa`·`velocity_m_per_s`·`slurry_pack_id`·`stop_layer`·
+  `selectivity_oxide_over_stop`·`feature_width_um`·`pattern_density_rho`·`dishing_nm`·`erosion_nm`·
+  `overpolish_time_s`·`is_reference_film` 추가. 파일 직접 수정 금지(cmp-data-engineer 소유). 근거노트: 같은 노트
+  §1·§5. 검증: `pressure`·`velocity` 없으면 Kp_ref 비식별(§4-A), `is_reference_film`이 절대 Kp 식별 게이트.
+  우선순위 중.
+- **[P4] 디싱 계수 PTW 식별(구조)** — 무엇: 디싱 D_ss(ρ)=d_max·ρ(s−1)/(1+ρ(s−1))의 (d_max,s)를 PTW·밀도 ρ
+  2점 이상에서 식별하도록 ingest 게이트(ρ 1점이면 비식별 경고). Lee 2002 폐형해는 이미 [P1] STI Phase 2
+  구현요청(Lv2-2)에 있으므로 그와 연결. 근거노트: 같은 노트 §2.3·§4-D2. 검증: ρ 2점 (0.3,0.7)에서 d_max=400·
+  s=10 복원, ρ 1점이면 (d_max=600,s=4.16)이 같은 D_ss 내는 무한해(§4 verify [D2]). 우선순위 낮음(PTW 데이터 선행).

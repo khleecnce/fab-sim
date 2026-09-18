@@ -11,7 +11,7 @@
 - [x] Lv3-2 옥사이드 막질별 Kp·선택비 파라미터 세트 정의 + 문헌값 재현 (sim/tier2) (2026-09-15, knowledge/materials/film-oxide-kp-filmtype-scaling-teos-hdp-bpsg-psg.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 옥사이드 실데이터(막종류·MRR·WIWNU·디싱) 스키마 + 보정 파라미터(Kp_oxide, 선택비) 정의
+- [x] Cal-1 옥사이드 실데이터(막종류·MRR·WIWNU·디싱) 스키마 + 보정 파라미터(Kp_oxide, 선택비) 정의 (2026-09-19, knowledge/materials/film-oxide-calibration-data-schema-kp-selectivity-parameters.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

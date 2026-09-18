@@ -11,7 +11,7 @@
 - [x] Lv3-2 NPW→PTW 전이 규칙 정량화: 어떤 파라미터가 이전되고 어떤 것이 새로 필요한가 (sim/calibration) (2026-09-09, knowledge/cmp/npw-ptw-transfer-rules-quantitative.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 NPW/PTW 메타데이터 스키마 소유. 두 유형 실데이터 정렬·비교 규칙 정의 (§7.2 전이 규칙의 구현)
+- [x] Cal-1 NPW/PTW 메타데이터 스키마 소유. 두 유형 실데이터 정렬·비교 규칙 정의 (§7.2 전이 규칙의 구현) (2026-09-19, knowledge/cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

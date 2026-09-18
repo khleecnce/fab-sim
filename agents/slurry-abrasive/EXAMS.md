@@ -331,3 +331,38 @@ TEOS, 4 psi)를 압력만 맞춰 비교한 **교차연구(E4)** 값이다 — �
 팩 계수가 아니다. 알루미나 칸은 **콜로이달 실리카와 같은 조건에서 나란히 잰 1차 실측이 없어**
 지어내지 않고 미확보로 비워둔다(리지드 인덴터 가정은 알루미나에서 잘 성립하나 Kp 배율 수치는 별개).
 출처: knowledge/cmp/abrasive-parameters-to-kp-contribution-quantitative-model.md §7.
+
+## Cal-1 스펙시트(입도·농도·제타) → 모델 입력 변환 규칙 — 2026-09-19
+
+**Q1. 상용 슬러리 TDS(Evonik IDISIL)와 CMP 슬러리 특허(Versum)는 입경을 각각 어떤 측정
+가중으로 적으며, 같은 물리 입자라도 왜 두 값이 다른가? 어떻게 통일하는가?**
+A. Evonik IDISIL TDS는 "Average Particle Size **Z avg**"(DLS **강도가중** 큐물란트, 유체역학
+직경)로, Versum 특허(US20190127607A1/US10894906B2)는 D99를 "**99 wt.%**"로 정의하고
+**disc centrifuge**(질량/부피가중 침강)로 잰다. 로그정규 분포에서 개수·면적·부피·강도로
+가중한 분포는 전부 같은 σ_g의 로그정규이고 median만 이동하므로(Hatch–Choate 1929,
+doi:10.1016/s0016-0032(29)91451-4), 강도median = 부피median × exp(3·ln²σ_g)만큼 크다.
+σ_g=1.31이면 강도가중이 부피가중보다 약 25% 크다. 통일하려면 정본 가중(제안: 부피median)을
+정하고 $D_{med,k}=D_g\exp(k\ln^2\sigma_g)$로 환산하되, σ_g는 D99/D50에서 역산한다(disc
+centrifuge D99/D50=1.887→σ_g=1.314, D75로 3.6% 이내 교차검증).
+출처: knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md §1·§2·§3.
+
+**Q2. 팩 abrasive_size_nm=50이 Evonik KE50 Z-avg 50 nm과 정확히 일치하는데도, 이 일치를
+"검증 통과"로 보지 않고 잔차를 이 축에 귀속할 수 없다고 판정한 이유는?**
+A. 팩 `abrasive_size_nm`이 **측정 가중(size_basis)을 선언하지 않기** 때문이다. Evonik 50은
+강도가중(Z-avg)인데, 팩이 이를 부피/개수 기준 정점모델(Li 2021)에 그대로 넣으면 σ_g=1.31
+가정 하에 부피median 40 nm·개수median 32 nm으로 벌어져 **basis 미명시만으로 최대 35%
+잠재 편차**가 실린다. 즉 50=50은 규약이 우연히 겹친 것이지 같은 물리량의 일치가 아니다.
+정점모델의 크기 축 가중도 원문이 그래프 축만 주어 미확인이므로, `size_basis` 필드를 붙이지
+않는 한 이 축의 잔차를 신뢰 귀속할 수 없다(§6 스키마 개정 제안의 근거).
+출처: knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md §4·§5.
+
+**Q3. 변환 후 예측 MRR과 실측 MRR의 잔차를 입도·농도 중 어느 축에 귀속할지가 왜 단일
+조건에서 식별 불가능하며, 무엇이 있어야 귀속이 성립하는가?**
+A. Kp는 입도·농도가 **곱**으로 들어간 구조(K_p=K_p0·κ_size(d)·κ_conc(C))라, 단일 조건에서
+관측된 잔차 1.20은 입도 단독(d≈57.4 nm) 또는 농도 단독(C≈1.73 wt%)이 **각각 완벽히**
+설명한다 — 무한히 많은 (Δlnκ_size, Δlnκ_conc) 조합이 같은 잔차를 내므로 비식별이다. 귀속이
+성립하려면 **그 스펙 축을 스윕한 데이터**(농도 고정·입경만 2점 이상, 또는 US9499721B2 22점
+농도 스윕)가 있어야 하고, 이는 prior.py/fit_npw.py의 잔차 GP가 반경 계통편차만 학습하고 스펙
+축에 귀속하지 않는 설계와 정합한다. 제타 축은 추가로 **측정 pH가 명시**돼야(Seo 2021 pH 8.1)
+귀속 가능하다 — 제타는 IEP 근처에서 부호까지 바뀌기 때문이다.
+출처: knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md §5.

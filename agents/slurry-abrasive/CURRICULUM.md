@@ -11,7 +11,7 @@
 - [x] Lv3-2 입자 파라미터 → Kp 기여 정량모델 (2026-09-16, knowledge/cmp/abrasive-parameters-to-kp-contribution-quantitative-model.md — verify_claims·check_knowledge 둘 다 통과. 산출물은 항별 1차 회귀 감사·함수형 AIC 비교·3입자 배율표·D99→Δ 귀속 + 팩 갱신 제안표 + sim/tier2 구현 요청서. sim/·YAML 미수정)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 스펙시트(입도·농도·제타) → 모델 입력 변환 규칙 정의 + 공개 데이터로 검증
+- [x] Cal-1 스펙시트(입도·농도·제타) → 모델 입력 변환 규칙 정의 + 공개 데이터로 검증 (2026-09-19, knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md — verify_claims·check_knowledge 둘 다 통과. Evonik TDS=Z-avg(강도가중) vs Versum 특허=disc centrifuge(질량가중 D99="99wt.%") 스펙 가중 불일치, Hatch-Choate median 변환(disc centrifuge D99/D50→σg=1.31, D75 3.6% 교차검증)·wt%→vol%(입자밀도 필수)·1차입경 vs 응집체 3규칙, 팩 50nm=Evonik 50 우연일치이나 size_basis 부재로 최대 35% 잠재편차, Kp 곱셈구조 단일조건 식별불가→스윕 필요, data/schema 슬러리 스펙 필드 개정 제안)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

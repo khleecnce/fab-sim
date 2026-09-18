@@ -263,6 +263,43 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (doi:10.1016/j.mee.2010.07.040), Luo-Dornfeld/Bai 2007. EVIDENCE-RULES 판정#1(입경 null) 종합
   재확인. **새 근거 충돌 없음**(형제 판정 종합).
 
+- Cal-1 (2026-09-19, **자가검사 통과**): 스펙시트(입도·농도·제타) → 모델 입력 변환 규칙 정의 + 공개 데이터 검증 —
+  knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md
+  (`verify_claims.py` 출처 4건 실존·코드 5블록 전부 통과, `check_knowledge.py` 통과).
+  1차 스펙 조사(상용 TDS·특허 실시예): **Evonik IDISIL TDS**(papers/evonik-idisil-cmp-colloidal-silica-datasheet.pdf,
+  입경="Average Particle Size Z avg"=DLS 강도가중, Silica Content wt.%, pH(20°C), Peanut 형상)·**US9499721B2**
+  (avg 54nm 측정법 미기재, 15wt% 농축→희석, pH 4.7)·**US20190127607A1/US10894906B2**(Versum, D99="99 wt.%",
+  disc centrifuge 질량가중, Table1 D50 152.3/D75 189.8/D99 287.5)·**Seo 2021**(doi:10.1149/2162-8777/ac2c56,
+  ζ=−63mV @pH 8.1 — 제타 측정 pH 명시 예). 핵심 발견: (1) **스펙시트마다 입경 측정 가중이 다르다** —
+  상용 TDS는 Z-average(강도), 특허는 disc centrifuge(질량). (2) **Hatch–Choate median 변환**(1929,
+  doi:10.1016/s0016-0032(29)91451-4) $D_{med,k}=D_g\exp(k\ln^2\sigma_g)$로만 통일 가능; disc centrifuge
+  D99/D50=1.887→σ_g=1.314 역산, 역산에 안 쓴 D75로 3.6% 이내 교차검증(로그정규 정합). (3) **wt%→vol%**는
+  입자밀도 필수(slurry-colloid F_vol 인용, 실리카 2.2로 30wt%→16.3vol%, 밀도 혼동만으로 15%+ 편차). (4)
+  팩 abrasive_size_nm=50이 Evonik Z-avg 50과 **우연 일치**하나 size_basis 미명시로 정점모델 입력에 최대 35%
+  잠재 편차 — 값은 유지, 필드 신설 제안. (5) **식별가능성**: Kp=κ_size·κ_conc 곱 구조라 단일조건 잔차는
+  입도/농도 어느 단독으로도 완벽 설명(비식별) → 스펙 축 스윕이 귀속의 전제(prior.py/fit_npw.py 잔차층 설계와 정합).
+  형제 경계 준수: 제타 화학·pH·산화제(slurry-chemistry)·이력/응집(slurry-colloid)·스키마 파일(cmp-data-engineer)은
+  인용만. sim/·data/schema/·YAML 미수정 — 스키마 개정은 §6 제안표로 인계.
+
+## 구현 요청 (계속 — Cal-1 캘리브레이션 스키마)
+
+8. **슬러리 스펙 스키마 필드 신설**(cmp-data-engineer 인계, 우선순위: 중, 신규 2026-09-19)
+   - 무엇을: `data/schema/`에 슬러리 스펙 필드(또는 `slurry_spec` 객체) 신설 — 핵심은 값과 함께 **측정 규약**을
+     메타로 받는 것: `abrasive_size_basis`(enum: intensity_zaverage/volume_median/mass_median/number_median/
+     primary_bet/primary_tem/hydrodynamic, **필수**)·`abrasive_size_method`(dls/laser_diffraction/disc_centrifuge/
+     spos/bet/tem)·`psd_sigma_g` 또는 (d50,d99)·`abrasive_conc_unit`(wt_pct/vol_pct/g_per_L)·
+     `abrasive_density_kg_m3`(wt%면 필수)·`zeta_mv`+`zeta_ph`(제타 있으면 pH 필수)·`zeta_ionic_strength_mM`.
+   - 근거 노트: knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md §1·§6.
+   - 검증 문헌값: Evonik Z-avg vs disc centrifuge 가중 차이, Hatch-Choate σ_g=1.314(US10894906B2), Seo 2021 pH 8.1.
+   - 하지 말 것: size_basis 없이 D50만 받기(가중 통일 불가). 제타를 측정 pH 없이 받기(귀속 불가).
+
+9. **`abrasive_size_nm`에 size_basis 태그**(우선순위: 중, 신규 2026-09-19)
+   - 무엇을: 팩 `abrasive_size_nm`(및 정점모델 기준)에 측정 가중을 명시하는 주석/키. 정점모델(Li 2021)이 어느
+     가중의 크기를 가정했는지 원문이 밝히지 않아 현재 Evonik 50과의 일치가 규약상 모호하다 — 값은 유지하되
+     basis를 못박아야 이 축의 잔차를 신뢰 귀속할 수 있다.
+   - 근거 노트: 위 노트 §4·§5. 검증 문헌값: σ_g=1.31 가정 시 Z-avg 50→부피median 40·개수median 32(basis별 35% 편차).
+   - 하지 말 것: 지어낸 σ_g로 상용 TDS(σ_g 비공개) 값을 강제 환산(그게 오염). σ_g 없는 소스는 표기 그대로+플래그.
+
 ## 구현 요청 (계속 — Lv3-2 sim/tier2)
 5. **입자 경도 진단 인자(승수 아님, 게이트)** (우선순위: 낮음, 신규 2026-09-16)
    - 무엇을: 팩에 `abrasive_hardness_gpa`가 있고 웨이퍼(표면층) 유효경도보다 낮으면 "리지드

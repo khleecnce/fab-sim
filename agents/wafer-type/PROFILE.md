@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [활성] (G1 개방 2026-09-06)
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1 (2026-09-06), Lv2-2 (2026-09-07), Lv3-1 (2026-09-08), Lv3-2 (2026-09-09)
-- 다음 단원: Cal-1 (G2 이후 활성)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1 (2026-09-06), Lv2-2 (2026-09-07), Lv3-1 (2026-09-08), Lv3-2 (2026-09-09), Cal-1 (2026-09-19)
+- 다음 단원: 커리큘럼 완주 — 유지보수 모드
 
 ## 역할
 NPW(블랭킷)와 PTW(패턴) 웨이퍼의 목적·구조·측정 체계·데이터 해석 차이. 두 유형 데이터를 잇는 전이 규칙의 소유자
@@ -151,3 +151,46 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
    검증값: ρ 0.1/0.5에서 α 2.2/1.7 ↔ h/σ 0.93/1.73. 우선순위: 중.
 5. **MRS99 eq.5 형태의 다제품 블랭킷 rate 분해** `effective_blanket_rate(n, BR0, BR_device[D], delta[n])` — 기존 R2R 모듈이
    있으면 그 안에 제품 오프셋 항만 추가. 검증값: MRS99 Fig.11 ±100 Å(정성). 우선순위: 낮음.
+
+
+## 이수 기록 (크론 갱신, 2026-09-19)
+- 2026-09-19: **Cal-1 완료**. knowledge/cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md
+  (check_knowledge ✓, verify_claims ✓ — 출처 4건 실존확인, python verify 1블록 (A)~(C) 통과).
+  새 1차 출처: **Park, Tugbawa, Boning 외(MIT/SEMATECH), "Electrical Characterization of Copper CMP,"
+  Proc. 1999 CMP-MIC pp.184–191**(저자 리포지토리 boning.mit.edu 원문 전문, DOI 없는 학회 프로시딩·
+  IEEE 1309307/freepatentsonline 특허 참고문헌으로 교차확인) — PTW 시험구조물(density/pitch/Kelvin/
+  serpentine/comb)·블록크기(density 3×3mm, pitch 2.5×3.0mm, 상호작용거리 3–5mm로 결정)·정의식
+  (pitch=lw+ls, density=lw/pitch)의 1차 근거 확보. 나머지는 기존 노트 1차 출처 인용
+  (US6922603B1 49점, Ouma 1998 PL·다이위치 K, Tugbawa 2002 순간rate, NIST Griesmann 2007 노광사이트).
+  핵심: ① NPW 메타=웨이퍼스케일(막·증착·두께·로트·측정망) vs PTW 메타=다이·피처스케일(마스크·구조물·
+  피치·밀도·다이좌표) — 한 스키마에 담으려면 `wafer_type` 구분 키가 record 최상위 필요(현행 두 스키마 모두 결손).
+  ② 정렬=다이 중심 r_die 투영 + 국소밀도 그룹핑, 합성격자(300mm·26×33mm·57다이)로 두 한계 정량:
+  (L1) 완전다이 중심 최대반경 130mm=0.884·Ru → 외곽 21.8% 면적 NPW-only 비교불가,
+  (L2) 다이 반경스팬 42mm > NPW 81점 링간격 29.4mm → 세밀링 귀속 모호(49점 조밀링만 할당).
+  ③ 비교=NPW MRR 대 PTW 유효 MRR(K/ρ_eff), local_density 결손=비교금지·npw_time_series 결손=10–26% 편향경고.
+  Lv3-2 §5 전이표를 §3 "필드→결손 시 불가능해지는 것" 표로 데이터화.
+  미검증: Park 1999 DOI 없음(교차확인), 다이 26×33mm는 업계자료(E5)·격자는 합성예시, 커버리지 %는 직접계산(문헌재현 아님).
+  6/6 + Cal-1 완료 → 커리큘럼 완주. sim/·data/schema/ 무수정(구현요청으로 인계).
+
+## 구현 요청 (2026-09-19, wafer-type Cal-1)
+근거 노트: knowledge/cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md §5. **파일 직접수정 금지**로
+넘긴다(스키마 파일=cmp-data-engineer, PTWVMInput=소프트웨어 부문). 형제 경계 준수.
+
+1. **`wafer_measurement.schema.json`에 `wafer_type` 구분 키 추가** (cmp-data-engineer 인계) — enum `NPW`/`PTW`,
+   record 레벨 **필수**. allOf if/then으로 wafer_type별 필드 필수성 분기: PTW면 `mask_id`·`structure_type`
+   (enum density/pitch/kelvin/serpentine/comb/blanket)·`local_density`([0,1])를 필수로. 근거: 노트 §1·§5.1
+   (NPW/PTW 메타 비대칭 — 현행 스키마에 구분 키 자체가 없음). 검증값: Park 1999 블록 density 3×3mm·pitch
+   2.5×3.0mm, pitch=lw+ls·density=lw/pitch(0.35/0.70=0.5). 우선순위: **높음** (Cal-1 정렬·비교의 전제).
+2. **PTW↔NPW 정렬 함수** `project_die_to_radius(die_records, wafer_diameter_mm, ee_mm)` → 각 다이의
+   r_die=hypot(x,y)와 완전인쇄 여부(최원 corner ≤ Ru), 그리고 NPW 반경 링(49/81점)과의 커버리지 리포트
+   (외곽 비교불가 annulus·세밀링 귀속 모호 플래그). 근거: 노트 §2·§4-B. 검증값: 300mm·26×33mm·EE3mm →
+   완전다이 57개, r_die 최대 130mm(0.884·Ru), 외곽 21.8% 비교불가, 다이스팬 42mm(2×반대각 21.0mm) >
+   81점 링간격 29.4mm. 우선순위: 중 (cmp-calibrator NPW→PTW 전이의 좌표 어댑터).
+3. **비교가능성 게이트** `npw_ptw_comparable(npw_meta, ptw_meta)` → 경고/차단 리스트: local_density 결손 →
+   "유효 MRR(K/ρ_eff) 정의불가, 비교금지"; npw_time_series(<2 시점) 결손 → "순간 포화 rate 미상, 10–26%
+   편향 경고"(Tugbawa 표3.3 실험1 60s 평균 −26%); recipe_id 불일치 → "레시피 변환계수 필요"; mask_id 없이
+   PL 재사용 시도 → 차단. 근거: 노트 §3 표. 검증값: RR_up=K/ρ ρ=0.5 → 2×, deficit(60s)=25.9%. 우선순위: 중.
+4. **`PTWVMInput` 확장** (소프트웨어 부문) — `mask_id`·`structure_type`·`pitch_um`·`recipe_id`·
+   `npw_reference_id`·`planarization_length_mm` 추가, validate에 "npw_reference_id 없으면 순간화 불가 경고"·
+   "mask_id 없이 PL 있으면 이전근거 없음 경고" 규칙. 근거: 노트 §5.2. 기존 local_density·is_npw_equivalent는
+   §3 "밀도 결손=비교금지"를 이미 판정하므로 그 위에 마스크·전이 링크만 얹는다. 우선순위: 중.

@@ -3016,6 +3016,20 @@ literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회�
 재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
 qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
 
+## 2026-09-19 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — wafer-type Cal-1 · film-oxide Cal-1 · slurry-abrasive Cal-1
+
+Lv1~3 미이수 단원이 0이므로 예고대로 Cal-1(캘리브레이션 단원)으로 전환. 선정 근거: ORG §7.3 표에서 §7.2 전이 규칙의 데이터 구현(wafer-type), 막질 축 대표(film-oxide), 소모품 축 대표(slurry-abrasive) — 세 축이 서로 겹치지 않고 직전 회차의 wafer-metrology Cal-1(계측 스키마)에 바로 이어지는 조합. 직전 12시간 성장엔진·Max워커 커밋과 에이전트 중복 없음. 프롬프트 `.night_prompts_0919b/`.
+
+- **wafer-type Cal-1** → `knowledge/cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md` (출처 4건 실존, verify 1블록, 상호링크 20). NPW/PTW 메타데이터 필드 근거(US6922603B1·Ouma 1998·Tugbawa 2002·NIST Griesmann 2007, Park 1999 papers/ 등록). 정렬 규칙: 다이 중심 r_die 투영 + 국소밀도 그룹핑. 합성 격자(300mm·26×33mm·완전다이 57)로 **(L1)** 완전다이 중심 최대 130mm=0.884·R → 외곽 **21.8% 면적은 NPW-only(PTW 비교불가)**, **(L2)** 다이 반경스팬 42mm > NPW 81점 링간격 29.4mm → 세밀링 귀속 모호(49점 링만 할당) assert 고정. 비교 규칙: `local_density` 결손=비교금지, `npw_time_series` 결손=10–26% 편향경고(Tugbawa 표3.3). **핵심 발견: `wafer_measurement.schema.json`·`PTWVMInput` 둘 다 `wafer_type`(NPW/PTW) 구분 키가 없음** → PROFILE 구현요청 4건. Cal-1 [x].
+- **film-oxide Cal-1** → `knowledge/materials/film-oxide-calibration-data-schema-kp-selectivity-parameters.md` (출처 4건 실존, verify 3블록, 상호링크 15). 옥사이드 전용 14필드(막종류 enum·도펀트·어닐·정지층·구조물 폭/밀도·팩 ID) 각각을 Lv3-2 배율표(TEOS 1.35·BPSG 4.6)의 의존변수로 근거. 보정 파라미터 분해 `Kp_oxide = Kp_ref·m_f·P·V`: **배율 m_f는 literature prior 고정, 절대 Kp_ref만 피팅**. 합성 최소자승으로 **thermal 기준막 없으면 조건수 ∞·상관 −1.000(비식별), 앵커 넣으면 조건수≈14로 진값 복원**. 선택비는 P·V 매칭 필수(불일치 시 P₁V₁/P₂V₂배 편향), 디싱은 ρ 2점 이상에서만 (d_max,s) 식별. prior 표(Wei 2010·Liu 1995·Mariscal 2020·Dandu 2009) + prior.py 규약 σ_log=ln1.5. 구현요청 P1~P4. Cal-1 [x].
+- **slurry-abrasive Cal-1** → `knowledge/cmp/slurry-abrasive-specsheet-to-model-input-conversion-rules.md` (출처 4건 실존, verify 5블록, 상호링크 27). 스펙시트 조사: **Evonik TDS=Z-avg(강도가중) vs Versum 특허=disc centrifuge 질량가중 D99("99wt.%")** — 스펙마다 입경 가중 기준이 다르다. 변환 3규칙: ① Hatch–Choate median 변환 `D_med,k=D_g·exp(k·ln²σ_g)`(1929, doi:10.1016/s0016-0032(29)91451-4; D99/D50=1.887→σ_g=1.314, 역산에 안 쓴 D75로 3.6% 교차검증) ② wt%→vol%(입자밀도 필수, slurry-colloid F_vol 인용) ③ 1차입경 vs 응집체. 팩 `abrasive_size_nm=50`은 Evonik Z-avg 50과 **우연 일치**이나 `size_basis` 미명시로 정점모델 입력에 최대 35% 잠재편차 → 값 유지·필드 신설 제안. 잔차 귀속: Kp=κ_size·κ_conc 곱구조라 단일조건 잔차는 비식별 → 스펙 축 스윕이 전제. 구현요청 #8·#9. Cal-1 [x].
+
+품질게이트(총괄 직접 실행): verify_claims 3/3 ✓(출처 12건 전부 실존·코드 9블록 전부 통과·출처없는 수치 0), check_knowledge 3/3 ✓, `--all` **258/258**.
+QA 루프 #266 PASS ρ_sig=0.9566(09-18 12:53 이후 6회차 불변), 격리 1(gong2024 L25, F4 used_for_calibration 신고 누락 — 전 회차와 동일, 데이터 문제 아님). completion 격자 59/60 불변(C2 χ/sic_alumina_kmno4만). 코퍼스: fetch 23/60(ECS·jkem 봉쇄, JSME·Trans Tech 일부 확보), extract 큐 소진(rates 추출 0), learn 큐 1562.
+ORG §5 갱신(3명 Cal-1 완료). sim/·data/schema/ 무수정. 429/한도 흔적 없음.
+**Cal-1 진도: 4/23** (wafer-metrology·wafer-type·film-oxide·slurry-abrasive). 세 노트가 공통으로 지목한 스키마 결손(`wafer_type` 키·`size_basis`·옥사이드 enum)은 cmp-data-engineer Cal-1(스키마 통합·검증)이 자연스러운 다음 대상 — 다음 심야 후보: cmp-data-engineer · cmp-calibrator · tool-platen-head Cal-1.
+⚠ pre-push 훅 `test_ingest.py::test_existing_calibration_modules_untouched`(클린 export 트리에서 git 부재로 FAIL) 미해결 여부는 push 시 확인.
+
 ## 2026-09-19 심야 01:00 [심야병렬] 서브에이전트 3명 동시 학습 — tool-endpoint Lv3-2 · tool-post-clean Lv3-2 · wafer-metrology Cal-1
 
 Lv1~3 미이수 단원이 전 에이전트에서 2개(tool-endpoint·tool-post-clean Lv3-2)만 남아, 3번째 슬롯은 처음으로 **Cal-1(캘리브레이션 단원)** 을 열었다 — wafer-metrology는 6/6 완주 + M3 캘리브레이션 골격(ingest/prior/fit_npw)이 이미 착수돼 §7.3 선수조건이 충족됐다고 판단.

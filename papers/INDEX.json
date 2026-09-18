@@ -2151,5 +2151,14 @@
   "src": "NIST 정부간행물 AIP Conf. Proc. 원문 PDF(Unpaywall→publisher, fitz 판독). EE 3→1.5mm·SFQR 26×8mm·TTV~40nm 확인",
   "title": "Manufacture and Metrology of 300 mm Silicon Wafers with Ultra-Low Thickness Variation",
   "venue": "AIP Conf. Proc. 931, 105-109 (2007)"
+ },
+ "park1999-cmpmic-electrical-characterization-cu-cmp": {
+  "authors": "Park T, Tugbawa T, Boning D, Chung J, Hymes S, Muralidhar R, Wilks B, Smekalin K, Bersuker G",
+  "doi": "",
+  "note": "cmp/wafer-type-npw-ptw-metadata-schema-alignment-rules.md",
+  "pdf_local": "papers/boning-electrical-characterization-cu-cmp.pdf",
+  "src": "저자 소속 리포지토리(boning.mit.edu) 리프린트 — 학회 프로시딩(DOI 없음), IEEE 1309307·freepatentsonline 특허 참고문헌으로 교차확인",
+  "title": "Electrical Characterization of Copper Chemical Mechanical Polishing",
+  "venue": "Proc. 1999 CMP-MIC Conf., Santa Clara, pp. 184-191 (Feb. 1999)"
  }
 }
