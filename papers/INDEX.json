@@ -388,6 +388,15 @@
   "title": "Achieving highly selective polishing of polysilicon over oxide and nitride films via ethylenediamine-modulated interfacial mechanochemistry",
   "venue": "J. Manuf. Process. (2025-12)"
  },
+ "dawkins2019-ualberta-phd-ceria-silica-electrostatic": {
+  "authors": "Dawkins, Korel V.",
+  "doi": "10.7939/r3-g3c2-xe63",
+  "note": "cmp/zeta-potential-ph-continuous-relation.md",
+  "pdf_local": "papers/dawkins2019-ualberta-phd-ceria-silica-electrostatic.pdf",
+  "src": "학위논문(PhD) — University of Alberta ERA/Scholaris 리포지토리 OA",
+  "title": "Mixed Abrasive Slurries of Ceria and Silica Nanoparticles formed by Electrostatic Attraction for Shallow Trench Isolation Chemical Mechanical Polishing",
+  "venue": "PhD Dissertation, University of Alberta, Dept. of Chemical and Materials Engineering (2019-11)"
+ },
  "doddabasanagouda2004-isu-ms-thesis-cmp-pad-multiscale-response": {
   "authors": "Doddabasanagouda S (advisors: Chandra A, Bastawros A)",
   "doi": "10.31274/rtd-20201023-76",
@@ -1047,6 +1056,15 @@
   "src": "초록만 — bronze OA이나 IOP Radware 캡차로 PDF/HTML 차단, 미러 사이트 미러 5종 캡차, Wayback/fatcat/CORE 사본 없음",
   "title": "Investigating the Impact of Pad Groove Depth Reduction on Process Variation in Oxide Chemical Mechanical Polishing",
   "venue": "ECS J. Solid State Sci. Technol. (2024)"
+ },
+ "liu2024-materials-alumina-mno2-4hsic-cmp": {
+  "authors": "Gong, Juntao; Wang, Weilei; Liu, Weili; Song, Zhitang",
+  "doi": "10.3390/ma17030679",
+  "note": "cmp/zeta-potential-ph-continuous-relation.md",
+  "pdf_local": "papers/liu2024-materials-alumina-mno2-4hsic-cmp.pdf",
+  "src": "1차 논문 — MDPI Materials, CC-BY OA (mdpi-res.com CDN)",
+  "title": "Polishing Mechanism of CMP 4H-SiC Crystal Substrate (0001) Si Surface Based on an Alumina (Al2O3) Abrasive",
+  "venue": "Materials 17(3), 679 (2024)"
  },
  "lo-lin-2005-fem-anfis-jmatprotec": {
   "authors": "Lo, Lin",
