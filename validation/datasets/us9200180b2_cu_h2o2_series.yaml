@@ -9,6 +9,7 @@ source: >
   head 84 rpm, membrane pressure 2.0 psi, slurry 200 mL/min, 60 s, ECD 구리 블랭킷 웨이퍼.
 in_scope: true
 used_for_calibration: false
+audit_verified: true
 pack: cu_h2o2_bta
 conditions:
   - label: "H2O2 1wt% (Example 5)"
@@ -75,3 +76,9 @@ notes: >
   옮겼다(chi-cu-h2o2-independent-refit-us9200180b2.md의 "8.5~9.5" 근사 대신 정밀값).
   chelator_M=0.0은 벤젠술폰산이 이 팩이 선언한 착화제(글리신)가 아니라는 사실의
   명시이지 추정이 아니다.
+  [EVIDENCE-RULES 판정#58, 2026-09-18] audit_verified: true 추가 — qa_loop 감사가
+  F4(팩 cu_h2o2_bta의 cu_ph_acid_k/cu_ph_alkaline_k가 같은 문헌 US9200180B2에서 도출 —
+  used_for_calibration 누락)로 격리했으나, 감사 휴리스틱이 같은 특허 내 표(table)를
+  구분하지 못한 오검출이다. cu_ph_alkaline_k의 실제 캘리브레이션 출처는 TABLE 4
+  (Examples 15-19)이고 이 데이터셋은 TABLE 1-b(Examples 5-7)로 서로 다른 실시예다 —
+  papers/patents/US9200180B2.html 원문 대조로 두 표의 조성·수치가 겹치지 않음을 확인했다.

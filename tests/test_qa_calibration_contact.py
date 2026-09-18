@@ -27,13 +27,45 @@ def _ds(tmp_path, name, vals, source="doi:10.1000/none", extra=""):
     return p
 
 
-def test_f4_ignores_comment_only_reference_w_fe_regression():
-    """w_fe_oxidizer.yaml:34의 주석 "held-out 검증은 ... US8070843B2 ... 으로만
-    한다"는 선언이지 실제 파라미터 값의 출처가 아니다 — F4를 유발하면 안 된다."""
+def test_f4_ignores_comment_only_reference_w_fe_regression(tmp_path):
+    """주석(#)에만 적힌 문헌 언급은 F4를 유발하면 안 된다.
+
+    원래 이 테스트는 실제 파일(us8070843b2_w_h2o2_series.yaml)을 읽어 검사했다.
+    그런데 2026-09-18 판정#58이 w_fe_oxidizer.yaml의 kp_m_per_pa **note 값**에
+    US8070843B2를 근거 서술로 인용하면서, 그 문헌이 주석이 아니라 파싱되는
+    필드에 들어갔다 — 즉 F4가 뜨는 것이 **정상**이 됐고(실제 접촉이 생겼다),
+    그 데이터셋은 calibration_contact 신고로 C4로 격하해 처리했다.
+
+    따라서 이 테스트는 '그 파일'이 아니라 **'주석은 무시한다'는 성질 자체**를
+    검사하도록 바꾼다 — 실제 팩 파일의 근거 서술이 바뀔 때마다 무관한 테스트가
+    깨지지 않게 하려는 것이다(원래 의도도 성질 검사였다).
+    """
+    pack_yaml = tmp_path / "params" / "fake_pack.yaml"
+    pack_yaml.parent.mkdir(parents=True, exist_ok=True)
+    pack_yaml.write_text(
+        "# held-out 검증은 US8070843B2 로만 한다  <- 주석이라 파싱되면 안 된다\n"
+        "params:\n  kp_m_per_pa:\n    value: 1.0e-13\n"
+        "    note: 문헌범위 역산 대표값(문헌 ID 없음)\n",
+        encoding="utf-8")
+    import yaml as _yaml
+    d = _yaml.safe_load(pack_yaml.read_text(encoding="utf-8"))
+    fields = {k: {kk: vv for kk, vv in v.items() if kk in ("source", "note") and isinstance(vv, str)}
+              for k, v in (d.get("params") or {}).items()}
+    pack_src = {"oxide_silica": fields}
+    p = _ds(tmp_path, "w_comment_only", [100, 140, 180], source="US8070843B2")
+    a = Q.audit_dataset(p, {}, {}, pack_src, {})
+    assert not any(f.startswith("F4") for f in a["flags"]), a["flags"]
+
+
+def test_f4_declared_contact_downgrades_to_c4_w_fe_real_file():
+    """판정#58 이후의 실제 상태: 팩 note가 이 문헌을 인용하므로 접촉은 실재하고,
+    calibration_contact 신고가 있으므로 F4가 아니라 C4로 나와야 한다.
+    (신고를 지우면 F4로 되돌아가는 것이 정상 — 숨기는 경로를 막는다.)"""
     pack_src = Q._pack_sources()
     ds_path = ROOT / "validation" / "datasets" / "us8070843b2_w_h2o2_series.yaml"
     a = Q.audit_dataset(ds_path, {}, {}, pack_src, {})
-    assert not any(f.startswith("F4") for f in a["flags"])
+    assert not any(f.startswith("F4") for f in a["flags"]), a["flags"]
+    assert any(f.startswith("C4") and "kp_m_per_pa" in f for f in a["flags"]), a["flags"]
 
 
 def test_f4_fires_for_note_derived_reference(tmp_path):

@@ -175,6 +175,13 @@ def gaps_bias():
         # 매 회차 같은 종결 판정을 다시 뒤집으려 든다.
         if getattr(r, "rank_only", False):
             continue
+        # used_for_calibration: 이 데이터셋으로 팩 파라미터를 역산했으므로 같은
+        # 데이터로 그 파라미터가 "틀렸다"고 재판정하면 순환이다(EVIDENCE-RULES
+        # 판정#58). validation/backtest.py 의 held-out 집계(`held = [... not
+        # r.used_for_calibration]`)가 이미 같은 이유로 이 필터를 쓴다 — 갭
+        # 랭커만 빠뜨리면 held-out 지표와 다른 기준으로 같은 데이터를 이중 판정하게 된다.
+        if getattr(r, "used_for_calibration", False):
+            continue
         if sb is not None and (sb > 2 or sb < 0.5) and (r.p_value or 1) < 0.05 and r.in_scope:
             out.append({"kind": "BIAS", "dataset": r.dataset,
                         "score": 50, "what": f"{r.dataset}: 순위는 맞는데(p={r.p_value:.3f}) 절대값 {sb:.2f}배 계통편향",
