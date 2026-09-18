@@ -27,7 +27,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import yaml                                            # noqa: E402
-from sim.inhibitor_pairs import PAIR_TABLE, lookup_dG  # noqa: E402
+from sim.inhibitor_pairs import PAIR_TABLE, lookup_dG, adsorption_ruled_out  # noqa: E402
 
 DS = ROOT / "validation" / "datasets"
 
@@ -71,15 +71,31 @@ def main() -> int:
     print(f"현재 쌍 표: {len(PAIR_TABLE)}건 등록")
     print()
 
-    have, miss = [], []
+    have, miss, ruled = [], [], []
     for (a, s), users in sorted(need.items(), key=lambda kv: -len(kv[1])):
         pair = lookup_dG(a, s)
-        (have if pair else miss).append((a, s, users, pair))
+        if pair:
+            have.append((a, s, users, pair))
+            continue
+        reason = adsorption_ruled_out(a, s)
+        if reason:
+            ruled.append((a, s, users, reason))
+        else:
+            miss.append((a, s, users, pair))
 
     print(f"■ 표에 있음 {len(have)}쌍")
     for a, s, users, pair in have:
         print(f"  ✅ {a} × {s:6s}  ΔG={pair.dG_kJ_per_mol:7.2f}  "
               f"[{pair.confidence}]  ← {len(users)}개 계열")
+
+    if ruled:
+        print()
+        print(f"■ 흡착 없음으로 **선언된** {len(ruled)}쌍 — 조사 대상이 아니다")
+        print("   ('아무도 안 쟀다'가 아니라 '그 메커니즘이 없다'. 억제 항이")
+        print("    없는 것이 물리적으로 옳으므로 문헌을 더 찾지 마라.)")
+        for a, s, users, reason in ruled:
+            print(f"  🚫 {a} × {s:6s}  ← {len(users)}개 계열")
+            print(f"        근거: {reason[:110]}")
 
     print()
     print(f"■ 표에 없음 {len(miss)}쌍 — 이것이 다음 문헌 조사 목록이다")

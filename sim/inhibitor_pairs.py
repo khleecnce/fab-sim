@@ -37,7 +37,8 @@ from typing import Dict, List, Optional, Tuple
 R_GAS = 8.314462618          # J/(mol·K)
 WATER_MOLAR = 55.34          # mol/L — 물의 몰농도(표준상태 기준 변환용)
 
-__all__ = ["PairDG", "lookup_dG", "K_from_dG", "measurement_spec", "PAIR_TABLE"]
+__all__ = ["PairDG", "lookup_dG", "K_from_dG", "measurement_spec", "PAIR_TABLE",
+           "NO_ADSORPTION", "adsorption_ruled_out"]
 
 
 @dataclass(frozen=True)
@@ -64,8 +65,39 @@ class PairDG:
 PAIR_TABLE: Dict[Tuple[str, str], PairDG] = {}
 
 
+# ──────────────────────────────────────────────────────────────
+# 이름 정규화 — 같은 물질이 두 이름으로 불려 쌍이 조용히 안 잡히는 것을 막는다
+#
+# 왜 필요한가: 산(malonic acid)과 그 음이온(malonate)은 같은 흡착종인데
+# 문헌·데이터셋·팩이 서로 다른 이름을 쓴다. 표기가 다르다는 이유로 조회가
+# 실패하면 **값이 있는데도 '미확보'로 보고**되고, 다음 회차가 이미 확보한
+# 문헌을 다시 찾는다. 반대로 정규화를 남용하면 이식 금지 규칙이 무너지므로
+# **같은 흡착종임이 확실한 산/염기 짝·표기 변형만** 넣는다.
+# ⚠ 작용기가 다른 인접 분자(TTA↔BTA, succinate↔malonate)는 절대 넣지 마라.
+# ──────────────────────────────────────────────────────────────
+_INHIB_ALIAS = {
+    "malonic": "malonate",          # 산 ↔ 그 음이온 (같은 흡착종)
+    "malonic acid": "malonate",
+    "benzotriazole": "bta",
+    "2-mercaptobenzothiazole": "2-mbt",
+}
+_SUBST_ALIAS = {
+    "oxide": "sio2",                # 검증 데이터셋 표기 ↔ 화학식
+    "silica": "sio2",
+    "tan": "ta",                    # TaN 배리어도 표면은 Ta 산화물이다
+    "copper": "cu",
+    "tungsten": "w",
+}
+
+
+def _key(inhibitor: str, substrate: str) -> Tuple[str, str]:
+    i = inhibitor.strip().lower()
+    s = substrate.strip().lower()
+    return (_INHIB_ALIAS.get(i, i), _SUBST_ALIAS.get(s, s))
+
+
 def register(p: PairDG) -> None:
-    PAIR_TABLE[(p.inhibitor.lower(), p.substrate.lower())] = p
+    PAIR_TABLE[_key(p.inhibitor, p.substrate)] = p
 
 
 # ── 쌍이 성질임을 보여주는 결정적 증거 ────────────────────────
@@ -94,6 +126,56 @@ register(PairDG(
     ("⚠ 물리흡착 영역의 낮은 값 — 이런 크기도 실제로 보고된다",
      "EQCM 은 θ 를 직접 재므로 다층 판별이 가능한 방법이다",),
 ))
+register(PairDG(
+    "malonate", "cu", -47.7,
+    "in situ 엘립소메트리(θ 직접 환산) + full Temkin 등온식 (f=1.65)",
+    "10.17675/2305-6894-2020-9-3-13", "literature",
+    ("산화된 Cu 표면(E=0.0 V vs SHE) 기준 ΔG_a,max. CMP 는 산화제를 포함하므로 이쪽이 맞다",
+     "환원 표면(E=-0.60 V)에서는 -38.3 kJ/mol — 산화막 유무로 9.4 kJ/mol 갈린다",
+     "붕산염 완충 pH 7.40, 22±2 °C. 실제 Cu 슬러리(착화제 공존)에서는 경쟁흡착으로 더 약할 수 있다",
+     "다층 아님: plateau + 두께 0.23 nm(분자 길이 미만) 로 평면배향 단층 확인 → 명백한 ΔG1",
+     "⚠ Temkin ΔG_a,max 는 '가장 강한 사이트' 값이라 Langmuir 단일 ΔG 보다 체계적으로 더 음수다",
+     "⚠ 같은 논문의 succinate(-77.4)·ethylmalonate(-69.4) 를 이 줄에 쓰지 마라 — "
+     "같은 기질·같은 방법인데 K 가 10^5 배 갈린다(인접분자 이식 금지의 정량 근거)",),
+))
+
+
+# ──────────────────────────────────────────────────────────────
+# 🚫 흡착이 일어나지 않는다고 **선언된** 쌍
+#
+# 왜 별도 표가 필요한가: `lookup_dG` 가 None 을 돌려주는 경우는 두 가지인데
+# 지금까지 구분되지 않았다.
+#   ① 아무도 안 쟀다        → 절대값 주장 금지, R8 측정 명세 발행
+#   ② 그 메커니즘이 없다     → 억제 항이 없는 것이 **물리적으로 옳다**
+# ②를 ①로 취급하면 다음 회차가 존재하지 않는 문헌을 계속 찾는다.
+# 반대로 근거 없이 ②로 선언하면 억제를 조용히 0 으로 만드는 것이므로,
+# 이 표에 들어오려면 **왜 흡착이 불가능한지**를 반드시 적어야 한다.
+# ──────────────────────────────────────────────────────────────
+NO_ADSORPTION: Dict[Tuple[str, str], str] = {
+    ("bta", "ta"):
+        "BTA 억제의 실체는 Cu(I)-BTA 중합착물이고 Ta 표면은 d0 인 Ta2O5 라 "
+        "착물 상대가 없다. barrier CMP 에서 BTA 를 쓰는 이유 자체가 'Ta 는 두고 "
+        "Cu 만 억제해 선택비를 얻기 위해서'이므로 흡착 부재가 공정 전제다.",
+    ("benzenesulfonic", "sio2"):
+        "SiO2 IEP ~2–3 이라 CMP pH 대역에서 표면이 음전하이고 설포네이트도 "
+        "음이온이다 — 정전 반발. 흡착이 아니라 분산 안정화 방향으로 작용한다.",
+    ("benzenesulfonic", "ta"):
+        "Ta2O5 IEP ~2.7–3 으로 CMP pH 대역에서 음전하. 위와 같은 정전 반발.",
+    ("malonate", "w"):
+        "1차 문헌 2편(10.1557/PROC-477-115, S0927775724012974)이 W CMP 에서 "
+        "말론산의 역할을 H2O2 안정화 + 알루미나/W 제타전위 조절(입자 오염 저감)로 "
+        "규정한다 — 표면 흡착 억제제가 아니다. 이 축은 억제 항이 아니라 산화제 "
+        "안정성·분산 항으로 다뤄야 하므로 쌍 등록 자체가 구조적으로 부적절하다.",
+}
+
+
+def adsorption_ruled_out(inhibitor: str, substrate: str) -> Optional[str]:
+    """이 쌍은 '미측정'이 아니라 '메커니즘 부재'로 선언됐는가.
+
+    반환값이 있으면 그 문자열이 근거다. 호출자는 억제 항을 만들지 않되
+    그 사실을 '값 없음'이 아니라 '효과 없음'으로 신고해야 한다.
+    """
+    return NO_ADSORPTION.get(_key(inhibitor, substrate))
 
 
 def lookup_dG(inhibitor: str, substrate: str) -> Optional[PairDG]:
@@ -102,7 +184,7 @@ def lookup_dG(inhibitor: str, substrate: str) -> Optional[PairDG]:
     None 을 받았을 때 호출자가 할 일은 유사 값으로 채우는 것이 아니라
     measurement_spec() 을 사용자에게 제시하는 것이다.
     """
-    return PAIR_TABLE.get((inhibitor.lower(), substrate.lower()))
+    return PAIR_TABLE.get(_key(inhibitor, substrate))
 
 
 def K_from_dG(dG_kJ_per_mol: float, temp_K: float = 298.15) -> float:

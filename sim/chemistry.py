@@ -353,7 +353,16 @@ def _inhibitor_term(pack, notes: List[str]) -> Optional[float]:
     inhib = pack.get_or("inhibitor_species", None)
     subst = pack.get_or("substrate_species", None)
     if inhib and subst:
-        from sim.inhibitor_pairs import lookup_dG, K_from_dG, measurement_spec
+        from sim.inhibitor_pairs import (lookup_dG, K_from_dG, measurement_spec,
+                                          adsorption_ruled_out)
+        ruled_out = adsorption_ruled_out(str(inhib), str(subst))
+        if ruled_out:
+            # '아무도 안 쟀다'와 '그 메커니즘이 없다'는 다른 결론이다.
+            # 후자는 억제 항이 없는 것이 물리적으로 옳으므로 R8 을 발행하지
+            # 않는다 — 발행하면 다음 회차가 존재하지 않는 문헌을 찾으러 간다.
+            notes.append(f"({inhib} × {subst}) 쌍은 흡착이 일어나지 않는다고 "
+                         f"선언된 쌍이다 — 억제 항을 만들지 않는다. 근거: {ruled_out}")
+            return None
         pair = lookup_dG(str(inhib), str(subst))
         if pair is not None:
             K = K_from_dG(pair.dG_kJ_per_mol)

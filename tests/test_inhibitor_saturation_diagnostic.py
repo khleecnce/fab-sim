@@ -247,7 +247,14 @@ def test_original_theta_path_untouched():
         "slurry_components.K_from_dG_ads":
             "e5f411beb368c4be5abe48474e402ff3",
         "chemistry._inhibitor_term":
-            "ec92f2e5a174484984aef48ec71af134",
+            # 2026-09-19 갱신: 쌍 조회 앞에 `adsorption_ruled_out()` 분기를 추가했다.
+            # θ 계산 경로(langmuir_coverage · K_from_dG · k_inhib)는 한 줄도 바뀌지
+            # 않았고, 추가된 것은 '메커니즘 부재로 선언된 쌍이면 항을 만들지 않고
+            # 근거를 신고한다'는 조기 반환뿐이다. 현재 쌍 키를 선언한 팩은
+            # cu_h2o2_bta(bta × cu) 하나이고 그 쌍은 NO_ADSORPTION 에 없으므로
+            # 수치 결과는 불변이다(백테스트로 확인). 근거: 미측정과 메커니즘 부재를
+            # 같은 None 으로 뭉개면 다음 회차가 존재하지 않는 문헌을 계속 찾는다.
+            "397e52f8159ccce1637e9d1604d79887",
     }
     actual = {
         "slurry_components.langmuir_coverage":
