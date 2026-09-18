@@ -1247,7 +1247,23 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
       (sic_ceria_h2o2는 세리아 IEP 창의 `abrasive_iep_ph`를 sti_ceria에서
       상속만 받았을 뿐 직접 선언한 적이 없는데, 이 분기가 최우선이라 자기
       이름으로 직접 역산해 선언한 `ph_softening_per_unit`이 가려지고 있었다.)
+
+    2차 패스(own이 아무도 없을 때) 추가 규칙 — **소유 조상의 연마입자 검사**
+    (EVIDENCE-RULES.md 판정#59): 아무도 own이 아니면 기존 우선순위로 처음
+    적용 가능한 후보를 쓰지만, 그 전에 "이 고유 계수를 실제로 선언한 조상
+    팩의 `abrasive`가 이 팩의 `abrasive`와 다른가"를 확인한다. 다르면 후보를
+    건너뛴다 — 안 그러면 "own은 아무도 없지만 상속된 계수가 남의 재료
+    곡선"인 경우를 그대로 적용하게 된다(sic_alumina_kmno4가 abrasive를
+    alumina로 자기선언한 뒤에도 폴백이 오이드_silica 소유 ph_peak(정점 pH=11,
+    실리카 전용)로 떨어져 산성 알루미나/KMnO4계에 실리카 곡선을 씌우던 사고가
+    실측으로 확인됐다). own 계수는 이 검사를 항상 통과한다(자기 재료가 자기
+    계수를 쓴 것이므로 불일치가 있을 수 없다) — 그래서 5팩(cu_h2o2_bta·
+    oxide_silica·sic_ceria_h2o2·sti_ceria·w_fe_oxidizer)은 전부 1차 패스에서
+    이미 선택이 끝나 이 검사에 닿지 않고, 분기 선택은 바뀌지 않는다. 모든
+    후보가 재료 불일치로 막히면 pH 항 없이(terms에서 빠진 채) notes에 왜
+    막혔는지 남긴다 — 조용히 다른 재료 곡선으로 떨어지지 않는다.
     """
+    from sim.params import load_pack
     from sim.chemistry import (_oxidizer_term, _ceria_term, _ph_softening_term)
     f = _new("chi")
     pk = rr.pack
@@ -1285,16 +1301,40 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
             chosen = (name, fn)
             break
     if chosen is None:
-        # 2차 패스(기존 elif/else 체인과 동일): own이 아무도 없으면(상속값만
-        # 있거나 아예 없으면) 원래 우선순위로 처음 적용 가능한 후보를 쓰고,
-        # 그것도 없으면 마지막(연화) 후보로 무조건 떨어진다 — 원래 else와 동일.
-        for name, fn, applicable, _ in candidates[:-1]:
-            if applicable:
+        # 2차 패스: own이 아무도 없으면(상속값만 있거나 아예 없으면) 원래
+        # 우선순위로 처음 "적용 가능하고 + 소유 조상의 연마입자가 이 팩과
+        # 같은" 후보를 쓴다(판정#59, 위 docstring 참조). own_key는 매
+        # candidates 항목의 applicable 조건에 이미 포함돼 있으므로 여기서
+        # applicable=True면 pk.has(own_key)도 항상 True다.
+        for name, fn, applicable, own_key in candidates:
+            if not applicable:
+                continue
+            if pk.has_own(own_key):
                 chosen = (name, fn)
                 break
-        if chosen is None:
-            chosen = (candidates[-1][0], candidates[-1][1])
-    ph_terms = [chosen]
+            owner_name = pk.param(own_key).owner
+            owner_abrasive = None
+            if owner_name != pk.name:
+                try:
+                    owner_abrasive = load_pack(owner_name).get_or("abrasive", None)
+                except Exception:
+                    owner_abrasive = None
+            this_abrasive = pk.get_or("abrasive", None)
+            if owner_abrasive and this_abrasive and owner_abrasive != this_abrasive:
+                notes.append(
+                    f"⚠ pH 분기 '{name}'의 고유 계수 '{own_key}'는 {owner_name} 팩"
+                    f"(연마입자={owner_abrasive})이 소유한 상속값인데 이 팩의 연마"
+                    f"입자는 {this_abrasive}다 — 재료가 달라 이 분기를 쓰지 않는다"
+                    f"(판정#59).")
+                continue
+            chosen = (name, fn)
+            break
+    ph_terms = [chosen] if chosen is not None else []
+    if chosen is None:
+        notes.append(
+            "⚠ pH 항 미모델링: 상속된 pH 메커니즘 후보가 전부 다른 연마입자가 "
+            "소유한 계수라 재료 불일치로 막혔다 — 이 팩 고유의 pH 계수가 "
+            "확보될 때까지 갭으로 남긴다(판정#59).")
 
     for name, fn in ([("oxidizer", _oxidizer_term),
                       ("ceria_tooth", _ceria_term)] + ph_terms):

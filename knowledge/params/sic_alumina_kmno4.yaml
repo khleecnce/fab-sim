@@ -22,6 +22,22 @@ base: sic_ceria_h2o2
 description: "4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)"
 
 params:
+  # ── 연마입자 종 선언 (2026-09-18, 판정#59) ─────────────────────
+  # 부모(sic_ceria_h2o2)가 'ceria' 를 선언하는데, 이 팩은 여태 그 값을
+  # own 없이 상속만 받고 있었다 — 아래 abrasive_density_kg_m3(α-Al2O3 3.95 g/cm3)·
+  # description·근거 문헌(US20220315802A1 Table 1, Gong 2024 Materials 17(3) 679
+  # Table 1)이 전부 "알루미나"라고 말하는데 sim/factors.py._f_chi 의 분기 판정
+  # 키만 세리아였다. 그 결과 (a) 알루미나 슬러리에 세리아 chemical tooth
+  # (_ceria_term)가 켜져 있었고 (b) pH 분기가 세리아 IEP 창으로 들어가
+  # wafer_iep_ph 부재로 skip → pH 축이 죽었다(knowledge/cmp/sic-alumina-pack-
+  # abrasive-identity-inheritance-defect.md). 부모의 ceria 를 덮는다 —
+  # 연마입자가 다르다(abrasive_density_kg_m3 키의 note 와 같은 형식).
+  abrasive:
+    value: alumina
+    note: 부모의 ceria 를 덮는다 — 연마입자가 다르다.
+    source: "US20220315802A1 Table 1 (alpha-alumina); Gong et al. 2024, DOI 10.3390/ma17030679 Table 1 (Al2O3 500 nm)"
+    confidence: literature
+
   kp_m_per_pa:
     value: 4.9872e-15
     unit: m^2/N
