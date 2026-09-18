@@ -3294,3 +3294,41 @@ CI90 125.1~158.6 (±12%). `cu_h2o2_bta`(Kp **estimated**) 500.545 vs 508.039 · 
 
 **M3 남은 것**: `fit_npw.py`(NPW 잔차 GP 보정). ingest(데이터)·prior(물리)가 섰으므로
 다음 회차가 바로 이어받을 수 있다.
+
+### 2026-09-19 00:10~00:50 [Max워커] M3 게이트 3/3 — `sim/calibration/fit_npw.py` (커밋 3208c9d, push)
+
+ORG.md §7.4가 요구한 캘리브레이션 3파일이 **이로써 전부 섰다** — ingest.py(데이터 입구,
+9/18) · prior.py(물리 입구, 9/18) · fit_npw.py(잔차 층). M3 "합성 데이터로 파이프라인 검증"
+요건의 코드 측 골격 완성.
+
+**설계 경계**: `series_scale.py`가 정한 "구조는 물리, 축척·잔차는 데이터"를 그대로 따른다.
+이 모듈에는 **문헌값·물리상수가 하나도 없다** — GP 하이퍼파라미터(l, σ_f, σ_n)는 전부
+주변우도 최대화로 데이터에서 적합하는 값이지 지어내는 값이 아니다. sklearn은 .venv에
+없어 **numpy+scipy Cholesky로 직접 구현**(R&W GPML 2006 Alg.2.1, LOO는 eq.5.12 폐형식).
+
+**이 과제의 핵심은 GP가 아니라 안전장치 3개다**:
+1. **LOO-CV 자기검증** — GP LOO RMSE가 무보정 기준선보다 나쁘면 `improved=False`로
+   `apply()`가 **보정을 적용하지 않고 물리 예측을 그대로 반환**한다. "데이터가 부족하면
+   물리모델이 이긴다"를 숫자로 증명하는 경로.
+2. **외삽 금지** — 학습 반경 밖/길이척도 초과 거리는 보정을 0으로 감쇠 + `extrapolated` 플래그.
+3. **n<5 거부** — 예외가 아니라 정상 반환 + 사유 문자열.
+
+**실측(합성 SYN-OXIDE-SILICA-001, pack=oxide_silica, seed=0, n_train=36)**:
+기준선 LOO RMSE **1.5648** vs GP **1.5621** → `improved=True`이나 **개선폭 0.18%로 미미**.
+적합값 l_mm=10.63 · σ_f=0.291 · σ_n=1.538 — σ_n이 신호분산의 5배라 **이 웨이퍼는 측정노이즈
+지배이고 반경 구조가 거의 없다**는 뜻이다. GP가 물리모델을 이길 이유가 없는 데이터이고,
+그 숫자를 꾸미지 않고 테스트에 그대로 고정했다. 순수 노이즈 대조군에서는 l_mm→9.4e-14로
+붕괴하며 `improved=False`(구조 없음을 정확히 판정), 알려진 sin 곡선은 최대오차 0.028로 회수.
+
+**읽기전용 계약을 테스트로 고정**: fit 실행 후 `sim/factors.py`·`sim/engine.py`·
+`knowledge/params/` 내용 해시 불변 assert.
+
+**게이트(Max워커 직접 재실행)**: `tests/test_fit_npw.py` **15 passed**, 전체 스위트
+**1168 passed / 1 skipped**(1153→+15, **신규 회귀 0**), `completion.py check` **59/60 불변**
+(이 모듈이 격자를 움직였다면 물리 confidence를 건드렸다는 뜻이라 버그였을 것).
+⚠ 기존 3건 실패(`test_sic_kmno4_ph_judgement61`)는 **다른 크론의 미커밋 워킹트리**
+(`sim/factors.py`·`knowledge/params/sic_alumina_kmno4.yaml`)에서 온 것으로 이 커밋 경로와
+무관하다 — 직전 2회차와 동일한 기존 상태.
+
+**M3 남은 것**: `fit_ptw.py`(NPW 보정치를 prior로 PTW 잔차 추가 학습). 이번에 만든
+`to_prior_dict()`가 그 인계 훅이다. `predict.py`·`drift.py`는 그 다음.
