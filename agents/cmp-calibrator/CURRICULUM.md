@@ -9,7 +9,8 @@
 - [x] Lv2-2 불확실성 정량화와 예측 구간, 외삽 경고 (2026-09-18, `knowledge/calibration/uq-prediction-interval-coverage-extrapolation-warning.md`)
 - [x] Lv3-1 드리프트 감지: 소모품 로트·패드 교체·툴 PM 후 재보정 트리거 (2026-09-18,
       `knowledge/cmp/calibration-drift-detection-recalibration-triggers.md`)
-- [ ] Lv3-2 sim/calibration/{prior,fit_npw,fit_ptw,predict,drift}.py 구현 + 합성 데이터 검증
+- [x] Lv3-2 sim/calibration/{prior,fit_npw,fit_ptw,predict,drift}.py 구현 + 합성 데이터 검증 (2026-09-18,
+      `knowledge/calibration/hierarchical-shrinkage-npw-prior-ptw-fit-drift-design.md`)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 이 에이전트가 §7 전체의 기술 소유자. 각 서브에이전트가 정의한 보정 파라미터를 실제로 피팅한다

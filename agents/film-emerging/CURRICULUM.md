@@ -8,7 +8,8 @@
 - [x] Lv2-1 GST·칼코게나이드 CMP: 연질막 결함 제어 — 2026-09-16 이수 (knowledge/cmp/gst-chalcogenide-cmp-soft-film-defect-control.md, verify/check 둘 다 PASS)
 - [x] Lv2-2 고유전체·2D 소재 CMP 동향 — 2026-09-16 이수 (knowledge/films/high-k-2d-material-cmp-trends.md, verify/check 둘 다 PASS)
 - [x] Lv3-1 최신 리뷰: 3nm 이하 배선 소재 로드맵과 CMP 요구 — 2026-09-16 이수 (knowledge/films/sub-3nm-interconnect-material-roadmap-cmp-requirements.md, verify/check 둘 다 PASS)
-- [ ] Lv3-2 신소재 파라미터 세트 골격 정의 (sim/tier2)
+- [x] Lv3-2 신소재 파라미터 세트 골격 정의 (sim/tier2) — 2026-09-18 이수 (GaN 사례,
+  knowledge/films/gan-cmp-parameter-skeleton-new-film-onboarding.md, verify/check 둘 다 PASS)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
 - [ ] Cal-1 신소재 실데이터 스키마 초안

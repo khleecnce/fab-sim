@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv3-1
-- 다음 단원: Lv3-2
+- 이수 단원: Lv3-2
+- 다음 단원: Cal-1 (ORG.md §7.3 활성화 게이트 대기)
 
 ## 역할
 물리 prior + 고객 실데이터 → 잔차 보정 모델. 소량 데이터 GP/BNN, NPW→PTW 전이, 불확실성, 드리프트. 제품의 핵심 기술
@@ -121,6 +121,30 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   Kp/S/Γ 스칼라 축이 아니라 압력 프로파일 p(r)·V(r) 문제(tool-platen-head 소관)에 가까워
   이 삼분류에 매핑되지 않는다(⚠ 미검증 제안).
 
+- 2026-09-18 Lv3-2 sim/calibration/{prior,fit_npw,fit_ptw,predict,drift}.py 설계 확정
+  이수. 노트: `knowledge/calibration/hierarchical-shrinkage-npw-prior-ptw-fit-drift-design.md`.
+  이번 단원은 앞선 Lv1~Lv3-1 다섯 단원의 결론을 모듈 경계로 종합하는 회차라 새 1차
+  출처는 1건(Lai & Bernstein 2024, ACC 2024, DOI 10.23919/acc60939.2024.10644929 —
+  arXiv:2404.10914v1 전문 6쪽 판독)만 확보했고, QW2008·KOH2001·PST2014·NIST 핸드북은
+  기존 4개 노트에서 이미 원문 판독한 것을 재인용했다(정직성 표지에 명시). check_knowledge.py·
+  verify_claims.py 둘 다 통과. verify 블록 2개 실제 실행·통과: (1) QW2008 p.198의 정밀도가중
+  사후분포를 n개 등정밀 i.i.d. PTW 관측으로 특수화한 닫힌해 `w(n)=n/(n+k)`를 원식과 1e-9
+  이내로 대조, k=1일 때 n=0/1/5의 데이터가중치가 정확히 0/0.5/5-6(≈0.833)임을 확인;
+  (2) NIST EWMA 분산식을 뒤집은 등가표본수 `n_eff(λ)=(2-λ)/λ`를 PST2014 Table 4.1의
+  λ=0.275/0.096/0.049(≡n_eff≈6.27/19.83/39.82배)에 대해 40만 스텝 몬테카를로로 5% 이내
+  재현.
+  핵심 결론: (1) NPW→PTW 방향은 파라미터가 아니라 **모형 그래프의 위상**(NPW 적합이
+  PTW 우도를 전혀 보지 않는 1→2단계 순차 구조, Perdikaris2015 식2.6의 마르코프 가정)이
+  강제한다 — `fit_npw.py`가 `fit_ptw.py`의 입력만 내고 그 역은 설계에 없다. (2) 지수망각은
+  칼만 필터의 "물리 구조를 전혀 안 쓰는" 최단순 특수 케이스(LB2024 Table I: Σ_k=(1/λ-1)P_k)
+  이므로, FabSim처럼 일부 축(Γ,S)에 이미 알려진 물리 시상수(τ=27.4h)가 있다면 그 구조를
+  상태공간(A_k)에 직접 넣는 것이 원칙적으로 낫고, 시상수가 없는 축(Kp)만 구조 없는
+  지수망각을 쓰는 것이 "자유도를 늘리지 않는다"는 제약과 정합된다 — 단 이 판정 자체는
+  LB2024의 일반이론을 FabSim에 적용한 이 노트의 설계 추론이라 미검증 표지를 달았다.
+  (3) 계층화는 series_scale.py의 자유도(계열당 배율 1개)를 **늘리지 않는다** — 같은
+  스칼라 `ln(s)`를 "NPW 사전 + PTW n개의 정밀도가중 평균"으로 재료만 바꾸는 것이고,
+  드리프트의 소모품 리셋 이벤트는 이 스칼라의 유효 n을 0으로 되돌리는 것으로 구현된다.
+
 ## 구현 요청
 
 (이번 단원도 `sim/`에 코드를 넣지 않았다. 향후 계층 베이지안 NPW→PTW 전이를
@@ -190,3 +214,72 @@ series_scale.py는 배율 s의 부트스트랩 CI만 내는데, 이를 새 레�
   - **미해결**: 캐리어 멤브레인·리테이너링 PM은 이 리셋 이벤트에는 넣되, 어느 스칼라 축
     (Kp/S/Γ)을 재적합할지는 근거노트 §4가 "매핑 안 됨"으로 남겼다 — tool-platen-head
     에이전트와 조율 필요(우선순위: 낮음, 이번 단원 범위 밖).
+
+### `sim/calibration/{prior,fit_npw,fit_ptw,predict,drift}.py` 최종 설계 (Lv3-2 산출,
+근거노트: `knowledge/calibration/hierarchical-shrinkage-npw-prior-ptw-fit-drift-design.md`)
+
+이 5개 모듈이 Lv1~Lv3-2 전체 조사의 종합 산출물이다. **설계 제약(반드시 지킬 것):
+`series_scale.py`가 계열당 학습하는 자유도(배율 `s` 1개)를 이 계층화가 늘려서는 안 된다** —
+아래 시그니처는 전부 "같은 스칼라 `ln(s)`를 어디서 가져오는가"만 바꾼다.
+
+- `prior.py: physics_prior(recipe, model_fn) -> PriorSpec(mean=0.0, note=str)`
+  - 입력: 레시피 x, 물리모델 함수(η(x,θ)). PTW/NPW 어느 쪽 데이터도 보지 않는다 — 순수
+    물리모델의 축척 기준선(항상 `ln(s)=0`, 즉 배율 1배)을 제공하는 것이 전부다.
+  - 출력: `PriorSpec.mean=0.0`은 "NPW 데이터가 아예 없으면 배율을 안 건드린다"는 뜻 —
+    series_scale.py가 이미 이렇게 동작한다(`fit_series_scale`이 없으면 pred 그대로 씀).
+    이 함수는 그 디폴트를 명시적 타입으로 감싸는 것뿐이다.
+  - 근거: §2(근거노트) — 계층의 최상위 항은 데이터를 전혀 보지 않는 물리모델이어야
+    NPW→PTW 방향(위상)이 성립한다.
+  - 우선순위: 낮음(현재도 암묵적으로 존재 — 명시적 타입화만 필요).
+
+- `fit_npw.py: fit_npw(pred, obs, series, prior=physics_prior(...)) -> NpwPosterior(u, v, n_npw, mape, notes)`
+  - 입력: NPW (pred,obs) 쌍, 계열명, 상위 prior(기본은 `physics_prior`의 ln(s)=0).
+  - 동작: 내부에서 기존 `series_scale.fit_series_scale`을 **그대로 호출**(새 통계량을
+    만들지 않는다), 그 출력 `(scale, ci_low, ci_high, n_points)`을 근거노트 §1의 `(u,v)`로
+    변환한다 — `u = ln(scale)`, `v`는 부트스트랩 CI 폭에서 정규근사로 역산
+    (`v ≈ ((ln(ci_high)-ln(ci_low))/(2·1.96))²`). `n_points==1`이면 `fit_series_scale`이
+    이미 내는 "신뢰구간 낼 수 없음" 경고를 그대로 전파하고 `v`는 물리 사전 기본값(아래
+    `k` 참고)으로 대체한다.
+  - 출력: `NpwPosterior`는 `fit_ptw.py`의 **유일한 입력**이다 — 이 함수가 PTW 데이터를
+    받는 경로는 설계에 없다(근거노트 §2의 위상 제약).
+  - 검증문헌값: 없음(이 함수 자체는 기존 `fit_series_scale`의 재사용 래퍼라 새 수치
+    주장이 없다) — 재포장(repackaging)이 유일한 역할임을 테스트로 못박을 것
+    (`fit_npw(...).u == ln(fit_series_scale(...).scale)`가 항등식으로 성립해야 함).
+  - 우선순위: 높음(계층 전체의 진입점).
+
+- `fit_ptw.py: fit_ptw(pred, obs, npw_posterior: NpwPosterior, k_equiv=1.0) -> PtwPosterior(scale, var, n_ptw, w)`
+  - 입력: PTW (pred,obs) 쌍, `fit_npw`의 출력, 등가표본수 `k_equiv`(사전 강도 — 근거노트
+    §1의 `k`, 기본값 제안 1.0: "NPW 사전 하나가 PTW 관측 1개와 동등한 정보량"이라는
+    보수적 디폴트, 일반 원칙 미확보라 **미검증**).
+  - 동작: 근거노트 §1의 `posterior_mean_full(u,v,σ²_obs,ȳ,n)`을 그대로 구현 —
+    `w = n/(n+k_equiv)`, `scale = exp(w·mean(ln(obs/pred)) + (1-w)·npw_posterior.u)`.
+    `n_ptw==0`이면 `w=0`이 되어 **정확히 NPW 사후를 반환**해야 한다(verify(1)이 이미
+    1e-12 이내로 확인한 항등식 — 구현 후 동일 assert 재현 필수).
+  - 출력: `PtwPosterior.var`는 `predict.py`의 `predict_interval`이 소비하는 "배율
+    분산" 항(Lv2-2 API, `predict_interval(pred, series_scale, resid_logsd, level)`의
+    `series_scale`을 이 `PtwPosterior`로 교체).
+  - 검증문헌값: 근거노트 verify(1) — k_equiv=1일 때 n=0/1/5의 `w`가 정확히
+    0 / 0.5 / 5/6(≈0.833)이어야 한다. 이 세 점을 유닛테스트 assert로 그대로 옮길 것.
+  - 우선순위: **최고**(제품 핵심 — n=0/1/5라는 소량 데이터 스윕이 정확히 이 함수의
+    동작 범위다).
+
+- `predict.py`: Lv2-2가 이미 확정한 API(`predict_interval`, `extrapolation_warning`,
+  `agents/cmp-calibrator/PROFILE.md` 상단 절 참고)를 **시그니처 변경 없이** 그대로 쓰되,
+  `series_scale` 인자에 `fit_series_scale`의 출력 대신 `fit_ptw`의 `PtwPosterior`를
+  넘긴다. `resid_logsd`(형상오차+관측잡음)는 종전과 동일하게 `fit_ptw`가 아니라
+  `series_scale.py`의 `learning_curve`/`residual_mape`에서 온다 — 이 항은 계층화의
+  영향을 받지 않는다(근거노트 §4).
+  - 우선순위: 중간(API 재사용, 배선만 필요).
+
+- `drift.py: consumable_reset_event(...)`는 Lv3-1 API를 그대로 쓰되, 리셋 동작에
+  **`fit_ptw`의 `n_ptw`를 0으로 되돌리는 것**을 명시적으로 추가한다(근거노트 §4 —
+  "잔차 이력 초기화"의 계층모델적 의미는 정확히 `n_ptw←0`이다. 새 파라미터를 만들지
+  않는다). Γ/S축(물리 시상수 τ=27.4h 보유)은 상태공간형 재추정(`A_k`에 τ 인코딩,
+  근거노트 §3)을, Kp축(시상수 없음)은 Lv3-1의 `residual_ewma_signal`(NIST EWMA)을
+  그대로 쓰되 등가표본수 `n_eff(λ)=(2-λ)/λ`(근거노트 verify(2), PST2014
+  λ=0.275/0.096/0.049 ↔ n_eff≈6.27/19.83/39.82배)로 λ를 "원하는 오경보 ARL"에서
+  역산하는 인터페이스를 유지한다.
+  - **미해결**: Γ/S 상태공간형(`A_k`)의 구체적 이산화 형태(τ=27.4h를 어떤 샘플링
+    주기로 이산화할지)는 이번 단원 범위 밖 — tool-platen-head 에이전트의
+    `conditioner_pcr_decay` 정의와 조율 필요.
+  - 우선순위: 높음(Lv3-1 산출과 이번 단원의 접합점).

@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv3 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1
-- 다음 단원: Lv3-2 (CURRICULUM.md 참조)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1, Lv3-2
+- 다음 단원: Cal-1 (CURRICULUM.md 참조)
 
 ## 역할
 Co·Ru·Mo 배선, GST(PCM), 고유전체 등 차세대 막질의 CMP — Phase 2
@@ -155,7 +155,70 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   4. **미확보(빈칸)**: Mo(몰리브데넘) 특이적 semi-damascene/subtractive 로드맵 1차 문헌 — 저자명
      (Gupta, Hosseini, van der Veen 등 imec)까지는 확인했으나 원문 접근 실패. 다음 조사 과제.
 
+### Lv3-2 — 신소재 파라미터 세트 골격 정의: GaN 사례 (2026-09-18)
+- 노트: `knowledge/films/gan-cmp-parameter-skeleton-new-film-onboarding.md`
+- 게이트: `verify_claims.py` **PASS**(출처 7건 실존 · 검증코드 1블록 실행 통과 · 출처없는
+  수치주장 0), `check_knowledge.py` **PASS**
+- 자기시험: `EXAMS.md` Lv3-2 3문항 + 모범답안
+- `knowledge/params/*.yaml`은 읽기만 했다(base.yaml, sic_ceria_h2o2.yaml, oxide_silica.yaml,
+  w_fe_oxidizer.yaml 4건 대조) — 수정 없음.
+- 확보 문헌 5건(원문 fitz 전문 판독 2건 + WebFetch 초록 확인 3건, 실패 1건 기록):
+  Dong et al. 2022, *Materials* 15(3) 1210, DOI: 10.3390/ma15031210(MDPI CC-BY, **원문
+  fitz 전문 판독** — GaN 나노압입 경도), Mandal et al. 2021, *Carbon* 183, DOI:
+  10.1016/j.carbon.2021.04.100 / arXiv:2104.01048(**원문 fitz 전문 판독** — β-Ga2O3
+  등전점), Aida et al. 2011, *J. Electrochem. Soc.* 158(12) H1206, DOI:
+  10.1149/2.024112jes(IOP 봇차단, WebFetch 부분 텍스트 확인 — 콜로이달실리카 GaN CMP
+  MRR), Wei et al. 2022, *ECS JSS* 11, DOI: 10.1149/2162-8777/ac5807(IOP 봇차단, WebFetch
+  초록 확인 — UV보조 광전기화학 CMP MRR), Xian et al. 2024, *ECS JSS*, DOI:
+  10.1149/2162-8777/ad1c89(IOP 봇차단, Semantic Scholar 초록 확인 — K2S2O8 산화제 표면조도
+  최적화). 탐색 실패 1건: Polian et al. 1996(DOI 10.1063/1.361236, GaN 탄성상수) — AIP
+  403·Semantic Scholar abstract null, 무료 전문 경로 전멸로 종결(§2.2에서 "결과에 영향
+  없음"으로 확인).
+- 핵심 획득:
+  1. **절차서의 직관("경도·탄성계수 둘 다 필요")이 실제 코드 소비처와 다르다** — 저장소
+     전체에서 막질 탄성계수를 쓰는 파라미터 키가 0건(`grep -i modulus knowledge/params/*.yaml`
+     결과 패드 E* 3건뿐). `regime_adapter.py::alpha_from_bulk_bound`는 `film_bulk_hardness_pa`
+     하나만 쓴다 — GaN 탄성계수를 못 찾은 것(AIP 봇차단)이 결과에 영향 없다는 것까지
+     정량 확인(local_P/H=7.76e-4, verify (a)).
+  2. **산화막 Preston 계수를 GaN에 상속하면 351배 과대예측**(verify (b), assert로 재현) —
+     GaN(19.2GPa)은 산화막(9GPa)보다 2.1배만 더 단단해 경도차로는 설명 안 되는 격차.
+     격차의 대부분은 화학(불활성)에서 온다는 것을 정성 확인했으나 정량 분해는 못 했다.
+  3. **GaN CMP 문헌은 "UV 조사 하에서"라는 조건절을 반복** — 화학적 불활성 때문에
+     광생성 정공 없이는 산화가 유의미하게 진행되지 않는다는 뜻이다. 기존 5팩 스키마
+     어디에도 광량(UV 강도) 축이 없다 — "문헌 없음"이 아니라 "물어볼 칸이 없다"는 구조적
+     결손([P12]).
+  4. **IEP는 GaN 자체가 아니라 CMP가 만들어내는 산화생성물(β-Ga2O3, pH 4.6)의 값을 대리로
+     써야 한다** — SiC(분말→단결정 전이, EVIDENCE-RULES E4)보다 오히려 더 직접적인 대리
+     관계(CMP가 실제로 그 화학종을 만든다)라는 것을 확인했다([P13]).
+  5. **미확보(빈칸, R8)**: Aida 2011/Wei 2022/Xian 2024 세 편 전부 원문이 IOP Radware
+     봇차단으로 막혀 압력·rpm·입경·정확한 pH 표를 못 봤다 — `kp_m_per_pa` 자기선언이
+     이번 회차에 불가능했다. 다음 회차 최우선 과제(원문 표만 확보하면 즉시 역산 가능).
+
 ## 구현 요청 (소프트웨어 부문 — sim/ 은 이 에이전트가 건드리지 않는다)
+
+### [P12] 광량(UV) 축 — 기존 5팩 스키마에 아예 없는 신규 차원 (Lv3-2 §2.3·§5)
+- **무엇을**: `sim/chemistry.py`의 χ(산화제)항이 "농도만의 함수"라는 암묵 전제를 갖는데,
+  GaN처럼 화학적으로 불활성인 막질은 자외선 조사 유무·광량(mW/cm²)이 산화 반응 자체를
+  켜고 끄는 독립 게이트로 작동한다. 레시피에 `uv_assist: bool`(또는
+  `uv_intensity_mw_cm2: float`) 필드를 신설하고, `oxidizer_langmuir_K`류 상수에
+  `requires_uv: true` 메타를 붙여 UV 없이 이 상수를 쓰면 경고가 나가게 할 것.
+- **근거·검증문헌값**: Wei et al. 2022, DOI: 10.1149/2162-8777/ac5807 — "MRR of GaN was as
+  high as 404.6 nm h⁻¹ ... under UV"(NaOCl), "380.3 nm h⁻¹ ... under UV"(H2O2). UV 없는
+  대조 수치는 원문 봇차단으로 미확보. **회귀 테스트**: `uv_assist=false` 입력에서 GaN 팩의
+  산화제 항이 (자기선언된 값이 있어도) 저활성 폴백으로 떨어져야 한다 — 지금 스키마로는 이
+  폴백을 표현할 필드 자체가 없다.
+- **우선순위**: 낮음(GaN 팩 자체가 아직 없음). 그러나 스키마 결손이라 팩 신설보다 먼저
+  풀어야 하는 선행 작업이다.
+
+### [P13] IEP 교차물질(산화생성물) 전이 규칙의 명문화 (Lv3-2 §2.5)
+- **무엇을**: `wafer_iep_ph`가 지금은 "막질 자체의 등전점"이라는 암묵 전제로 쓰이는데,
+  GaN처럼 CMP 화학이 표면을 다른 화학종(Ga2O3)으로 바꿔놓고 그 화학종의 IEP가 실제 연마
+  계면을 지배하는 경우가 있다. 파라미터 문서에 "wafer_iep_ph는 막질 자체가 아니라 CMP가
+  실제로 형성하는 표면종의 IEP를 우선한다"는 규칙을 명문화할 것.
+- **근거**: Mandal et al. 2021, DOI: 10.1016/j.carbon.2021.04.100 — β-Ga2O3 IEP pH 4.6.
+- **우선순위**: 낮음(문서화 작업, 코드 변경 없음).
+
+
 
 ### [P10] 공정 스킴 분기 게이트 — semi-damascene/subtractive는 금속 CMP 소모품축 전체를 비활성화 (Lv3-1 §2·§5)
 - **무엇을**: `sim/factors.py` 소모품축(κ·χ·ψ·τ·Δ·S)이 현재 "막질이 정해지면 항상 호출된다"고
