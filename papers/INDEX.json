@@ -333,6 +333,15 @@
   "src": "미러 사이트(미러 사이트)",
   "title": "Chemical Processes in Glass Polishing"
  },
+ "coughlin1995-est-divalent-metal-ions-goethite-nonreversible": {
+  "authors": "Coughlin BR, Stone AT",
+  "doi": "10.1021/es00009a042",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md §3.6 (Mn). ⚠ 흡착체=침철석(α-FeOOH), 실리카·알루미나 아님 = E4 타계 전이",
+  "pdf_local": "papers/coughlin1995-est-divalent-metal-ions-goethite-nonreversible.pdf",
+  "src": "1차 논문 — sci-hub.ru 경유 확보, PDF 1페이지 제목·저자 대조 완료",
+  "title": "Nonreversible Adsorption of Divalent Metal Ions (Mn(II), Co(II), Ni(II), Cu(II), Pb(II)) onto Goethite: Effects of Acidification, Fe(II) Addition, and Picolinic Acid Addition",
+  "venue": "Environ. Sci. Technol. 29(9), 2445-2455 (1995)"
+ },
  "crawford2013-colsurfa-fumed-silica-shear-thickening": {
   "authors": "Crawford, Williams, Boldridge, Liberatore",
   "doi": "10.1016/j.colsurfa.2013.06.003",
@@ -405,6 +414,15 @@
   "src": "CORE API v3 search (works?q=quantitative analysis multi-scale response CMP pad quasi-static dynamic characterization dry wet pad) → core.ac.uk/download/595616917.pdf — 2026-09-14 2회차 재탐색",
   "title": "A quantitative analysis of multi-scale response of CMP pad: quasi-static and dynamic characterization of dry and wet pad",
   "venue": "MS thesis, Iowa State University (2004)"
+ },
+ "dugger1964-jpc-exchange-twenty-metal-ions-silanol-silica-gel": {
+  "authors": "Dugger DL, Stanton JH, Irby BN, McConnell BL, Cummings WW, Maatman RW",
+  "doi": "10.1021/j100786a007",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md §3.5 (Al). ⚠ scope 범위 밖(1964 < before_year 1990) — §10 참조, 참고용",
+  "pdf_local": "papers/dugger1964-jpc-exchange-twenty-metal-ions-silanol-silica-gel.pdf",
+  "src": "1차 논문 — sci-hub.ru 경유 확보, PDF 1페이지 제목·저자 대조 완료",
+  "title": "The Exchange of Twenty Metal Ions with the Weakly Acidic Silanol Group of Silica Gel",
+  "venue": "J. Phys. Chem. 68(4), 757-760 (1964)"
  },
  "egan-kim-2019-abrasive-size-tungsten-contact-cmp": {
   "authors": "B. Egan, H. J. Kim",
@@ -1621,6 +1639,15 @@
   "src": "NIST NVL public PDF (nvlpubs.nist.gov/nistpubs/Legacy/IR/nbsir82-1664.pdf), US Gov 저작물",
   "title": "Thermal Conductivity of a Polyurethane Foam from 95 K to 340 K",
   "venue": "NBSIR 82-1664, National Bureau of Standards (1982)"
+ },
+ "spencer2017-ornl-ruthenium-capture-methods-tritium-offgas": {
+  "authors": "Spencer BB, Parks ML, Bruffey SH",
+  "doi": "10.2172/1427631",
+  "note": "cmp/competitive-metal-adsorption-langmuir-constants.md §8 — Ru 탐색 중 확보했으나 **기체상 RuO4 제거효율만 보고, 평형상수·pH·이온세기 없음** → 표에 올릴 수 없음을 확인하고 버린 문헌(재탐색 방지용 등록)",
+  "pdf_local": "papers/spencer2017-ornl-ruthenium-capture-methods-tritium-offgas.pdf",
+  "src": "기관 보고서(ORNL/SPR-2017/576) — info.ornl.gov 미러 경유",
+  "title": "Initial Assessment of Ruthenium Removal Systems for Tritium Pretreatment Off-Gas",
+  "venue": "Oak Ridge National Laboratory (2018-01)"
  },
  "srinivasan2015-ecsjss-sti-cmp-review": {
   "authors": "Ramanathan Srinivasan, Pradeep VR Dandu, S. V. Babu",
