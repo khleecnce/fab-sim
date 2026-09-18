@@ -11,7 +11,8 @@
 - [x] Lv3-2 툴 설정 → 압력·속도 분포 모델 (2026-09-18, knowledge/equipment/tool-settings-to-pressure-velocity-field-model-spec.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 툴 로그(존압력·RPM·유량·온도 시계열) 파싱·정렬 규칙 + 존 응답 행렬 보정
+- [x] Cal-1 툴 로그(존압력·RPM·유량·온도 시계열) 파싱·정렬 규칙 + 존 응답 행렬 보정 (2026-09-19,
+  knowledge/equipment/cmp-tool-log-time-series-alignment-zone-response-calibration.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

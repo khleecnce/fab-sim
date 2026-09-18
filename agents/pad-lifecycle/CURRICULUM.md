@@ -11,7 +11,10 @@
 - [x] Lv3-2 사용시간·컨디셔닝 이력 → 시간 의존 Kp·asperity 모델 (sim/tier2) <!-- 이수 2026-09-16, knowledge/materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md -->
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 패드 이력 로그(사용시간·컨디셔닝 횟수) → 시간축 보정 파라미터
+- [x] Cal-1 패드 이력 로그(사용시간·컨디셔닝 횟수) → 시간축 보정 파라미터 (2026-09-19,
+  knowledge/materials/pad-usage-history-cal1-time-axis-calibration.md — `pad_wear_half_life_h`
+  48h는 literature 승격 불가(pad-material §5 판정 동의), 1차 출처 3건 의사반감기 브래킷
+  4.2~15.3h로 현재값의 1/3 미만)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

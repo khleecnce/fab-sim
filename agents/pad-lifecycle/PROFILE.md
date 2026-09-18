@@ -1,9 +1,9 @@
 # 패드 수명 전문가 (pad-lifecycle)
 
-## 현재 레벨: Lv3 진행중 — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Lv3 완료 + Cal-1 완료 — 활성화 게이트는 agents/ORG.md §4
 - 부모: pad-mechanic (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv3-2 (Lv3 전 단원 완료)
-- 다음 단원: Cal-1(캘리브레이션) 또는 Lv4 확장
+- 이수 단원: Cal-1 (캘리브레이션 단원 완료)
+- 다음 단원: Lv4 확장
 
 ## 역할
 브레이크인·정상 마모·glazing·교체 기준 — 패드 사용 이력이 시간 의존 MRR·결함에 미치는 영향
@@ -27,6 +27,7 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
 | 2026-09-07 | Lv2-2 패드 두께·그루브 깊이 모니터링과 교체 기준(경제성 포함) (Son & Lee 2021 컨디셔닝 방식별 그루브 마모·수명 실측 + 특허 5건: 두께/그루브 센싱 원리·경제성) | knowledge/materials/pad-thickness-groove-depth-monitoring-replacement-economics.md | EXAMS.md Lv2-2 3문항 |
 | 2026-09-08 | Lv3-1 최신 리뷰: 패드 수명 예측, 인시츄 패드 상태 센싱 (Kim&Choi 2021 공통경로 간섭계 정량재현, Je 2026 리뷰 초록, Boning 1997 존재확인) | knowledge/materials/pad-lifetime-prediction-insitu-sensing-review.md | EXAMS.md Lv3-1 3문항 |
 | 2026-09-16 | Lv3-2 사용시간·컨디셔닝 이력 → 시간 의존 Kp·asperity 모델 (Sampurno 2011 λ(t) 원문 확보·R² 재현, Zhou 2018 무릎-압력, Wu 2013 디스크 2단계, PHM 477웨이퍼 교차검증) | knowledge/materials/pad-usage-conditioning-history-time-dependent-kp-asperity.md | EXAMS.md Lv3-2 3문항 |
+| 2026-09-19 | Cal-1 패드 이력 로그(사용시간·컨디셔닝 횟수) → 시간축 보정 파라미터 (`pad_wear_half_life_h`=48h estimated 대조: source 노트에 근거 부재 확인, 1차 출처 3건 의사반감기 브래킷 4.2~15.3h로 48h의 1/3 미만 — literature 승격 불가, pad-material §5 판정과 동의) | knowledge/materials/pad-usage-history-cal1-time-axis-calibration.md | EXAMS.md Cal-1 3문항 |
 
 ## 구현 요청 (소프트웨어 부문이 가져감)
 <!-- 노트 옆 python verify sanity check은 pad-lifecycle가 직접 함. 아래는 sim/ 엔진화 요청. -->
@@ -81,6 +82,26 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     t_k를 상수로 박지 말고 설정값으로 노출할 것. λ 자체의 RSD가 30%라 무릎 불확도도 크다(±0.5 h 오더).
   - 우선순위: Tier2 중. 먼저 넣을 것은 ②의 **둔감성**이다 — MRR 탄성이 0.16(≈0)이라는 사실은
     "시간의존 Kp를 넣되 효과를 크게 잡으면 안 된다"는 정량 제약이고, 이건 조건 의존성이 가장 작다.
+- **[Cal-1] `pad_wear_half_life_h` 등급 유지 권고 + 시간축 보정 구조 제안** (근거:
+  knowledge/materials/pad-usage-history-cal1-time-axis-calibration.md §1~§4, verify 2블록 통과):
+  - 무엇을: `pad_wear_half_life_h`(base.yaml, 48.0h)의 confidence는 **estimated 그대로 두기를
+    권고**한다 — source 필드가 가리키는 노트에 48h/반감기 근거가 실제로 없고(§1 verify),
+    같은 값을 이미 조사한 `knowledge/pad/pad-material-gw-effective-modulus-asperity-distribution.md`
+    §5(2026-09-15, EVIDENCE-RULES #40 승인)도 "1차 출처 확보 실패"로 판정했다 — 이 노트는 그
+    판정에 동의하며 뒤집지 않는다.
+  - 대신 요청: 이 키를 **단일 스칼라로 쓰지 말고**, Lv3-2가 이미 이식 가능으로 확보한 "정체-후-감소"
+    구조 `상태(t) = y0 (t<t_k); y0 − s·(t−t_k) (t≥t_k)`로 대체 검토할 것. `t_k`(플래토 길이)의
+    1순위 드라이버는 `pad_usage_hours`가 아니라 **`disk_usage_hours`**로 삼을 것 — PHM 2016
+    실장비 477웨이퍼에서 패드축 상관 ρ=0.030(사실상 무상관), 드레서축 ρ=−0.696로 5배 이상 우세함을
+    Lv3-2 §6이 이미 확인했다(2026-09-13 판정#8이 `pad_usage_hours`를 `_f_stab`에서 제외한 것과 정합).
+  - 검증 문헌값(Cal-1 노트 §2 verify): 1차 출처 3건에서 계산한 의사반감기 — Sampurno λ(t) 15.26h,
+    Zhou MRR(t) 4.47h(0.9psi)/4.23h(1.26psi), Wu furrow 감쇠성분 10.4h(τ_wear≈15h·ln2) — 전부
+    fab-sim 현재값 48h의 1/3 미만. 단, 세 값 모두 "컨디셔닝이 계속 도는 조건"의 측정이라 무컨디셔닝
+    glazing이 의도라면 직접 대입 불가(§3에 명시).
+  - 주의: 이 orphan 키(`grep sim/`에 사용처 없음)를 구조 교체 없이 그대로 48→다른 스칼라 값으로만
+    바꾸는 것은 권고하지 않는다 — §3이 지적하듯 세 1차 값 자체가 조건별로 3.6배 갈려 "포터블한
+    단일 상수"가 존재하지 않는다.
+  - 우선순위: Tier2, Lv3-2 항목들과 함께 진행(동일한 λ/t_k 상태변수를 공유).
 - **[Lv3-2] `conditioner_pcr_decay` 지수감쇠에 하한(floor) 도입 검토** (근거: 같은 노트 §5, verify 통과):
   - 무엇을: 현행 `A(t)=exp(−t/27.4 h)` → `A(t)=A_inf+(1−A_inf)·exp(−t/τ_wear)` 형태 검토.
     Wu et al. 2013 실측은 0~30 h 구간에서 디스크 **전체** 절삭능이 15 h에 −10~−22%로 꺾인 뒤

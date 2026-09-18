@@ -1,9 +1,9 @@
 # CMP 툴 플래튼·헤드 전문가 (tool-platen-head)
 
-## 현재 레벨: Lv3-2 완료 (6/6) — 활성화 게이트는 agents/ORG.md §4
+## 현재 레벨: Cal-1 완료 — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv2-1, Lv2-2, Lv3-1 (2026-09-08), Lv3-2 (2026-09-18)
-- 다음 단원: (Lv3 완료) — Cal-1(캘리브레이션) 또는 Lv4
+- 이수 단원: Lv2-1, Lv2-2, Lv3-1 (2026-09-08), Lv3-2 (2026-09-18), Cal-1 (2026-09-19)
+- 다음 단원: Lv4(교수급 확장) — 실데이터 책임은 Cal-1로 1차 완료
 
 ## 역할
 플래튼·헤드 구조, 멀티존 압력 제어, 리테이너링, RPM·유량이 웨이퍼 스케일 압력·속도 분포에 미치는 영향
@@ -83,3 +83,36 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     단일→멀티 NU 4.5→2.5%(개선44.4%); 60/60에서 V=1.746 m/s(Ye&Yao 1.75)·NU=0; 링압비 감도 8.0%/ratio.
   - 유효범위: 존압 1.5–10psi, 링압 1.5–9.0psi, rpm 10–100, r_cc 0.15–0.28m, w 0.010–0.015m.
     범위밖 ValueError(조용한 클램프 금지). 우선순위: 중.
+
+- Cal-1 (2026-09-19): 툴 로그(존압력·RPM·유량·온도 시계열) 파싱·정렬 규칙 + 존 응답 행렬
+  보정 — (a) 다중 샘플레이트 채널 정렬 규칙(공통시간축 리샘플 + 정상상태 창=마지막 3τ,
+  τ는 White 2003 19-74s·Shin 2025 90s 관측 근거로 확정). (b) M 실측보정 절차(p(r) 예측 대
+  실측 RR 최소자승, {Zone1,Zone2,Ring} 블록은 one-factor-at-a-time 없이는 식별불가임을
+  명시). (c) `platen_hot_side_ref_c`(36°C, Shin 2025 단일실측) 대조 — **신규 확보** 2건
+  (Rosales-Yeomans et al. 2006, DOI 10.1149/1.2168392, 산화막/ILD 100·200mm 트라이보미터,
+  sci.bban.top 경유 원문 전문 확보; Hocheng et al. 1999, DOI 10.1149/1.1392620, 대만
+  실험실 CMP 툴, 동일 경로 원문 확보)를 기존 White 2003과 합쳐 4문헌·5장비-막질 비교:
+  자릿수(상온+수~십수°C)는 공통이나 절대값·ΔT는 장비종속으로 최대 6배(2.6~15°C) 벌어짐,
+  같은 장비·막질에서도 pV만으로 6.4°C 스윙(Rosales-Yeomans) — confidence는 `estimated`
+  유지가 맞고 `literature` 승격 근거 없음(반증에 가까움). (d) **핵심 반전**: `sim/factors.py`
+  코드를 직접 assert해 Θ(`_f_theta`)가 `MRR_COUPLED={chi,psi,kappa,tau}`에 없는 진단전용
+  팩터임을 확인 — 이 상수는 오늘 시점 어떤 MRR 예측도 바꾸지 않는다. 추가로 T_hot<T_ref
+  조건(저발열 막질)에서 냉각항이 조용히 1.0 폴백되는 가드 취약점도 코드 재현으로 적발.
+  check_knowledge.py, verify_claims.py 모두 통과.
+  knowledge/equipment/cmp-tool-log-time-series-alignment-zone-response-calibration.md
+
+  ### 구현 요청 (2026-09-19, tool-platen-head Cal-1 — software 부문 BACKLOG용, 직접 구현 금지)
+  - 무엇을: (1) `data/schema/tool_log.schema.json` 신설(cmp-data-engineer 소관)에
+    `pad_interface_temp_c_timeseries`·`zone_pressure_psi_timeseries[]`·`pv_condition_w_m2`
+    3필드 추가. (2) `sim/factors.py::_f_theta`에 `driving_ref<=0` 가드 발동 시 `f.notes`
+    경고 추가(현재는 무발동 — 냉각항이 조용히 사라진다). (3) `tools/accuracy_gaps.py`의
+    CONFIDENCE 랭킹 score 계산에 "그 파라미터가 MRR_COUPLED 소속 팩터에 실제로 소비되는가"
+    가중치 추가 제안(현재는 confidence 등급만 보고 배선 여부를 안 봐서, 진단전용 팩터의
+    estimated 파라미터가 실제 영향력 있는 파라미터와 동일 점수로 상위 랭크됨).
+  - 근거 노트: knowledge/equipment/cmp-tool-log-time-series-alignment-zone-response-calibration.md
+    §4.4·§4.5·§6(F)·§7.
+  - 검증 문헌값: Rosales-Yeomans 200mm pV스윙 6.4°C(26.5→32.9)·100mm 3.6°C(25.5→29.1);
+    Hocheng ΔT피크 3.3-3.5°C; MRR_COUPLED={chi,psi,kappa,tau}(theta 미포함, 코드 assert);
+    cool_temp(T_hot=36)=1.583 vs (T_hot=32.9)=2.171(+37.1%) vs (T_hot=29)=1.0(가드 폴백).
+  - 우선순위: 낮음(§4.5가 밝혔듯 현재 Θ는 MRR 예측에 영향이 없어 급하지 않음) — 단, 로그
+    스키마 3필드는 향후 Θ를 MRR_COUPLED에 편입할 때 필요한 선행 작업이라 중간 우선순위.

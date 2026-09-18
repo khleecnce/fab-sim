@@ -2,6 +2,44 @@
 
 > 단원 이수 시 3문항 + 모범답안을 여기에 추가한다. 답안에는 출처를 단다.
 
+## Cal-1 툴 로그 파싱·정렬 규칙 + 존 응답 행렬 보정
+출처: knowledge/equipment/cmp-tool-log-time-series-alignment-zone-response-calibration.md
+
+**Q1. 툴 로그의 온도 채널에서 "정상상태" 구간을 추출하는 규칙은 무엇이고, 그 창(window)
+길이를 왜 임의로 정하지 않았는가?**
+A. 규칙: 런 길이가 90 s 이상이면 마지막 3τ(최소 60 s, 데이터 없으면 마지막 1/3 구간)만
+정상상태로 채택하고, 90 s 미만인 런은 "정상상태 미도달"로 표시해 캘리브레이션에서 제외한다.
+τ 값은 임의가 아니라 두 독립 문헌에서 왔다 — White et al.(2003, DOI 10.1149/1.1560642)이
+집중정수 열회로 모델에서 얻은 시정수 τ=19-74 s, Shin et al.(2025, DOI 10.3390/ma18194461)이
+실측한 "90 s에서 92-99% 정상상태 도달". Shin 자신의 90 s 데이터도 완전평형이 아니라는 점을
+그대로 인용해, 그보다 짧은 런을 정상상태로 오인하는 것을 막는다.
+
+**Q2. 존압력 응답행렬 M을 실측 로그로 "보정"한다고 할 때, 왜 M 자체(기하 행렬)를 다시
+추정하는 게 아니라 p(r) 예측과 실측 제거율을 맞추는 절차인가? 그리고 왜 {Zone1,Zone2,Ring}
+블록은 스텝테스트 설계를 잘못하면 보정이 불가능한가?**
+A. M은 [[../../knowledge/equipment/tool-settings-to-pressure-velocity-field-model-spec]]에서
+이미 순수 기하(존 멤버십, smoothstep partition-of-unity)로 정의됐고 압력값과 무관하다 —
+그래서 "실측 보정"의 대상은 M 자체가 아니라, M이 만드는 예측 p(r)=Σ M[j,i]P_i이 Preston
+역산 실측(RR(r)/(Kp·V(r)))과 얼마나 맞는지, 그리고 필요하면 M을 최소자승 재추정하는 것이다.
+[[../../knowledge/equipment/cmp-multizone-carrier-radial-response]]가 이미 밝힌 대로
+Zone3는 독립이지만 Zone1·Zone2·Ring은 블록대각으로 결합돼 있어, 세 압력을 동시에 바꾸는
+스텝테스트로는 설계행렬의 랭크가 부족해 개별 기여를 분리(식별)할 수 없다 — one-factor-at-
+a-time으로 하나씩 바꿔야 그 블록을 재추정할 수 있다.
+
+**Q3. `platen_hot_side_ref_c`(36°C, Shin 2025 단일 실측)를 전 팩 공통 근사로 쓰는 것이
+정당한지 이번 조사로 무엇을 확인했으며, 그보다 더 중요하게 밝혀진 사실은 무엇인가?**
+A. 신규 확보한 Rosales-Yeomans et al.(2006, DOI 10.1149/1.2168392, 산화막/ILD 트라이보미터)과
+Hocheng et al.(1999, DOI 10.1149/1.1392620, 대만 실험실 툴)을 기존 White et al.(2003, Cu)와
+합쳐 4문헌·5개 장비-막질 조합을 비교하면, 절대/상대 계면온도는 모두 "상온+수~십수°C 상승"
+자릿수에는 들어맞지만, 같은 장비·같은 막질(Rosales-Yeomans) 안에서도 pV 조건만으로 최대
+6.4°C 스윙하고 장비 간 ΔT는 2.6~15°C(최대 4.5배)까지 벌어진다 — 그래서 "전 팩 공통 상수"는
+자릿수만 방어되고 confidence를 `literature`로 승격할 근거는 없다(estimated 유지가 맞다).
+더 중요한 사실: `sim/factors.py`를 직접 assert한 결과 Θ(`_f_theta`)는
+`MRR_COUPLED={chi,psi,kappa,tau}`에 포함되지 않는 **진단 전용** 팩터라서, 이 상수를 무엇으로
+바꾸든 오늘 시점 어떤 MRR 예측치도 변하지 않는다. 부가로, T_hot이 팩 기준 T_ref(30°C)보다
+낮은 저발열 조건(예: Rosales-Yeomans 100mm 산화막 29°C)을 넣으면 `driving_ref<=0` 가드가
+발동해 냉각수온도 항이 조용히 1.0으로 무효화되는 구조적 취약점도 코드 재현으로 확인했다.
+
 ## Lv3-2 툴 설정 → 압력·속도 분포 모델
 출처: knowledge/equipment/tool-settings-to-pressure-velocity-field-model-spec.md
 
