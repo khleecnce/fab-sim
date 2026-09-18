@@ -1260,6 +1260,32 @@ def _ph_sic_kmno4_acidic_term(pack, notes: List[str]) -> Optional[float]:
     k = float(pack.get("sic_kmno4_ph_acid_k"))
     anchor = float(pack.get_or("sic_kmno4_ph_anchor", 2.0))
     floor = float(pack.get_or("sic_kmno4_ph_floor", 0.0))
+
+    # ── 산화제 농도에 따른 기계 하한 φ 보간 (판정#64, 2026-09-18)
+    # φ 는 "산화력이 꺼져도 남는 removal" 이다. 산화제가 진해지면 알칼리 쪽에서도
+    # 산화가 완전히 꺼지지 않아 관측되는 평탄부가 **위로 올라간다**. 두 실측 앵커:
+    #   · Chen 2020(0.05 M ≈ 0.79 wt% KMnO4, 6H Si면): pH2→10 3.56배 감소 → φ=0.268
+    #   · Wang 2021(6.5 wt% KMnO4, 4H Si면): pH2 1.4 → pH12 1.1 µm/h → φ=0.785
+    # 두 앵커를 log(농도)로 선형보간한다. 앵커 4개가 전부 선언될 때만 켜지고,
+    # 아니면 위의 정적 floor 를 그대로 쓴다(하위호환).
+    # ⚠ 앵커가 2점뿐이라 형상은 미검증 — 보간값 자체는 estimated 다.
+    _fl_note = ""
+    _anc = ("sic_kmno4_ph_floor_lo_wt", "sic_kmno4_ph_floor_lo",
+            "sic_kmno4_ph_floor_hi_wt", "sic_kmno4_ph_floor_hi")
+    if all(pack.has(a) for a in _anc) and pack.has("oxidizer_wt_pct"):
+        c_lo = float(pack.get("sic_kmno4_ph_floor_lo_wt"))
+        f_lo = float(pack.get("sic_kmno4_ph_floor_lo"))
+        c_hi = float(pack.get("sic_kmno4_ph_floor_hi_wt"))
+        f_hi = float(pack.get("sic_kmno4_ph_floor_hi"))
+        c = float(pack.get("oxidizer_wt_pct"))
+        if c_lo > 0 and c_hi > 0 and c > 0 and c_hi != c_lo:
+            t = (math.log(c) - math.log(c_lo)) / (math.log(c_hi) - math.log(c_lo))
+            t_cl = min(max(t, 0.0), 1.0)          # 앵커 밖은 외삽하지 않고 고정
+            floor = f_lo + t_cl * (f_hi - f_lo)
+            _fl_note = (f" φ 는 산화제 {c:g} wt% 에서 앵커 보간값 "
+                        f"({c_lo:g}→{f_lo:g}, {c_hi:g}→{f_hi:g} wt%, log 선형)")
+            if not (0.0 <= t <= 1.0):
+                _fl_note += " ⚠ 앵커 구간 밖이라 끝값으로 고정"
     floor = min(max(floor, 0.0), 1.0)
 
     def g(x: float) -> float:
@@ -1273,7 +1299,8 @@ def _ph_sic_kmno4_acidic_term(pack, notes: List[str]) -> Optional[float]:
         f"SiC×산성 KMnO4 pH: pH {ph:g} (기준 {ph_ref:g}) → 상대 {val:.3f}. "
         f"MnO4- 산화력 감쇠 경로 — k={k:g}/pH, 기계 하한 φ={floor:g} "
         "(Chen 2020 doi:10.1134/S1070427220060099 Fig.1a 판독 5점 적합, "
-        "재현오차 -2.4~+2.6 %). ⚠ 그래프 판독 기반이라 계수는 estimated.")
+        "재현오차 -2.4~+2.6 %)." + _fl_note +
+        " ⚠ k 는 그래프 판독 기반이라 estimated.")
     if not (2.0 <= ph <= 10.0):
         notes.append(f"⚠ pH {ph:g}는 근거 구간(2~10) 밖이다 — 외삽이다.")
     return val

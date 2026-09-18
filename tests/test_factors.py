@@ -1124,3 +1124,36 @@ def test_oxidizer_shape_is_not_transferred_across_oxidizer_species():
            vals[1] == pytest.approx(vals[2], rel=1e-12), (
         f"sic_alumina_kmno4가 KMnO4 농도에 반응했다({vals}) — H2O2로 적합한 "
         "형상을 상속했다는 뜻이다. 종 게이트를 확인하라.")
+
+
+def test_sic_kmno4_ph_floor_scales_with_oxidizer_concentration():
+    """판정#64 — pH 평탄부(기계 하한 φ)는 산화제 농도에 따라 올라간다.
+
+    두 실측 앵커가 서로 다른 φ 를 준다:
+      · Chen 2020 (0.05 M ≈ 0.79 wt% KMnO4) — pH 2→10 에서 3.56배 감소 (φ=0.268)
+      · Wang 2021 (6.5 wt% KMnO4)           — pH 2→12 에서 1.4→1.1 µm/h (φ=0.785)
+    진한 산화제에서는 알칼리 쪽 산화가 덜 꺼지므로 감쇠가 얕아야 한다.
+    이 계약이 깨지면 두 문헌 중 하나를 버린 것이다.
+    """
+    lo = _mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=0.79, slurry_ph=10.0)
+    hi = _mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=6.5, slurry_ph=10.0)
+    ref_lo = _mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=0.79)
+    ref_hi = _mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=6.5)
+    drop_lo, drop_hi = lo / ref_lo, hi / ref_hi
+    assert drop_hi > drop_lo, (
+        f"진한 산화제(6.5 wt%)의 pH 10 감쇠({drop_hi:.3f})가 묽은 쪽"
+        f"({drop_lo:.3f})보다 깊다 — φ 농도 보간의 부호가 뒤집혔다.")
+    # Chen 2020 저농도 앵커 재현: pH 2→10 에서 약 3.56배 감소 (φ=0.268)
+    a = _mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=0.79, slurry_ph=2.0)
+    assert a / lo == pytest.approx(3.56, rel=0.03), a / lo
+
+
+def test_sic_kmno4_ph_floor_reference_unity_unaffected_by_oxidizer():
+    """φ 를 농도로 흔들어도 **기준 pH 에서는** χ 가 1.0 이다.
+
+    φ 는 g(pH)/g(pH_ref) 의 분자·분모에 동시에 들어가므로 pH=pH_ref 에서
+    상쇄된다. 이 계약이 깨지면 Kp 가 이중 계상된다.
+    """
+    for c in (0.79, 4.0, 6.5):
+        f = _factors(pack="sic_alumina_kmno4", oxidizer_wt_pct=c)["chi"]
+        assert f.value == pytest.approx(1.0, abs=1e-9), (c, f.value)
