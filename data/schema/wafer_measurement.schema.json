@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fabsim:calibration:wafer_measurement",
+  "title": "FabSim wafer measurement record",
+  "description": "웨이퍼 1장의 두께/제거율 측정 레코드 집합. 필드 집합은 sim/calibration/normalize.py 의 공개 API(to_canonical_coords, to_canonical_units, apply_edge_exclusion) 요구입력에서 역산 — 새 물리 상수 없음. notch_direction enum은 normalize.NOTCH_ANGLES_RAD 키와, unit enum은 normalize._SCALAR_FACTORS 키 + 'rpm' + 그 정준(canonical) 단위 출력값과 정확히 일치해야 한다(tests/test_ingest.py가 드리프트를 고정).",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "wafer_id",
+    "wafer_diameter_mm",
+    "notch_direction",
+    "edge_exclusion_mm",
+    "coord_kind",
+    "points"
+  ],
+  "properties": {
+    "wafer_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "웨이퍼 고유 식별자."
+    },
+    "wafer_diameter_mm": {
+      "enum": [150, 200, 300],
+      "description": "SEMI M1 표준 웨이퍼 직경(mm)."
+    },
+    "notch_direction": {
+      "enum": ["Bottom", "Right", "Top", "Left"],
+      "description": "US7539552B2식 노치 방향 — normalize.NOTCH_ANGLES_RAD 키와 정확히 일치해야 함."
+    },
+    "edge_exclusion_mm": {
+      "type": "number",
+      "minimum": 0,
+      "description": "엣지제외 폭(mm) — normalize.apply_edge_exclusion 의 ee_mm."
+    },
+    "coord_kind": {
+      "enum": ["polar", "cartesian", "die"],
+      "description": "normalize.to_canonical_coords 가 받는 kind 값."
+    },
+    "series_id": {
+      "type": ["string", "null"],
+      "description": "series_scale.py 의 계열 키(축척 역산 단위). 없으면 null."
+    },
+    "notes": {
+      "type": ["string", "null"]
+    },
+    "points": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/point" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "coord_kind": { "const": "polar" } }, "required": ["coord_kind"] },
+      "then": {
+        "properties": {
+          "points": { "items": { "required": ["r_m", "theta_rad"] } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "coord_kind": { "const": "cartesian" } }, "required": ["coord_kind"] },
+      "then": {
+        "properties": {
+          "points": { "items": { "required": ["x_m", "y_m"] } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "coord_kind": { "const": "die" } }, "required": ["coord_kind"] },
+      "then": {
+        "properties": {
+          "points": {
+            "items": {
+              "required": ["col", "row", "pitch_x_m", "pitch_y_m", "col0", "row0", "x0_m", "y0_m"]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "point": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": ["number", "null"],
+          "description": "측정값. null=결측(실측 실패) — normalize.apply_edge_exclusion 의 missing 개념과 동일."
+        },
+        "unit": {
+          "enum": ["angstrom", "angstrom_per_s", "psi", "rpm", "nm", "nm_per_min", "kPa", "m_per_s"],
+          "description": "normalize._SCALAR_FACTORS 키(angstrom/angstrom_per_s/psi) + 'rpm' + 이미 정준단위인 것(nm/nm_per_min/kPa/m_per_s). normalize 가 모르는 단위는 여기 없다."
+        },
+        "r_m": { "type": "number", "description": "polar: 반경(m)." },
+        "theta_rad": { "type": "number", "description": "polar: 각도(rad)." },
+        "x_m": { "type": "number", "description": "cartesian/die 결과: x(m)." },
+        "y_m": { "type": "number", "description": "cartesian/die 결과: y(m)." },
+        "col": { "type": "number", "description": "die: 열 인덱스." },
+        "row": { "type": "number", "description": "die: 행 인덱스." },
+        "pitch_x_m": { "type": "number" },
+        "pitch_y_m": { "type": "number" },
+        "col0": { "type": "number" },
+        "row0": { "type": "number" },
+        "x0_m": { "type": "number" },
+        "y0_m": { "type": "number" },
+        "radius_m": {
+          "type": "number",
+          "description": "unit='rpm'일 때 필수 — normalize.to_canonical_units(v='rpm', radius_m=...)."
+        },
+        "notes": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "unit": { "const": "rpm" } }, "required": ["unit"] },
+          "then": { "required": ["radius_m"] }
+        }
+      ]
+    }
+  }
+}
