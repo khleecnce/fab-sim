@@ -166,6 +166,22 @@ NO_ADSORPTION: Dict[Tuple[str, str], str] = {
         "말론산의 역할을 H2O2 안정화 + 알루미나/W 제타전위 조절(입자 오염 저감)로 "
         "규정한다 — 표면 흡착 억제제가 아니다. 이 축은 억제 항이 아니라 산화제 "
         "안정성·분산 항으로 다뤄야 하므로 쌍 등록 자체가 구조적으로 부적절하다.",
+    ("benzenesulfonic", "cu"):
+        "US9200180B2 명세서가 이 성분을 억제제가 아니라 **산화제 겸 Ta 착화제**로 "
+        "규정한다 — corrosion inhibitor 마쿠쉬 군(1,2,4-triazole/benzotriazole/"
+        "TINUVIN/CDX)에 들어 있지 않고, 'not only serves as oxidants but complexes "
+        "with tantalum ions to form tantalum sulfonate complexes, which results in "
+        "high tantalum and/or tantalum nitride removal rates' 로 서술된다. "
+        "부호도 반대다: 'both Ta and TaN removal rates are substantially increased "
+        "with increasing benzenesulfonic acid concentration' — 억제제라면 농도가 "
+        "오를 때 제거율이 내려야 한다. 이 계에서 Cu 제거율이 낮은 이유는 흡착막이 "
+        "아니라 알칼리 H2O2 부동태화다('a much higher passivation rate for copper "
+        "than tantalum ... in a mixture of hydrogen peroxide and benzenesulfonic "
+        "acid'), 그래서 그 물리는 억제 항이 아니라 oxidizer_passivation_K 가 "
+        "맡는다(팩 cu_alkaline_benzenesulfonic). "
+        "⚠ 이 줄이 없으면 갭 리포트가 이 쌍을 '문헌 조사 목록'에 계속 올려 "
+        "다음 회차가 존재하지 않는 흡착 상수를 찾으러 간다 — 실제로 한 회차를 "
+        "그렇게 썼다. 구조적으로 대상이 아닌 것과 아직 못 찾은 것은 다르다.",
 }
 
 

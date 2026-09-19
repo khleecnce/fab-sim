@@ -31,10 +31,20 @@ W_H2O2_SERIES = DS / "us8070843b2_w_h2o2_series.yaml"
 
 
 def test_alkaline_sweep_is_calibration_not_heldout():
-    """이 데이터셋은 cu_ph_alkaline_k 의 캘리브레이션 출처다 — held-out으로 재판정하면 순환이다."""
+    """이 데이터셋은 cu_ph_alkaline_k 의 캘리브레이션 출처다 — held-out으로 재판정하면 순환이다.
+
+    ⚠ 2026-09-19: 팩 이름이 `cu_h2o2_bta` → `cu_alkaline_benzenesulfonic` 으로
+    바뀌었다. 이 표(pH 6.2~9.9, 콜로이달 실리카 10 wt%, 벤젠술폰산, **BTA 없음**)의
+    조성이 산성·BTA 팩과 달라 알칼리 계를 별도 팩으로 분리했기 때문이다.
+    판정#58 이 지키려던 것은 **팩 이름이 아니라 '역산 출처를 held-out 으로 다시
+    채점하지 않는다'는 계약**이므로, 이름을 새 팩으로 갱신하되 그 계약(아래
+    used_for_calibration 과 gaps_bias 필터)은 그대로 둔다.
+    분리 근거: 부모 팩으로 예측하면 obs/pred 퍼짐이 1.06배(형상은 맞고 축척만
+    193배 틀림) — 축척만 틀린 것은 정의상 Kp 문제이고 Kp 는 계마다 역산된다.
+    """
     raw = yaml.safe_load(ALKALINE_SWEEP.read_text(encoding="utf-8"))
     assert raw.get("used_for_calibration") is True
-    assert raw.get("pack") == "cu_h2o2_bta"
+    assert raw.get("pack") == "cu_alkaline_benzenesulfonic"
 
 
 def test_gaps_bias_skips_used_for_calibration():

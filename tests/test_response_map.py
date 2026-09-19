@@ -91,16 +91,37 @@ def test_real_datasets_produce_usable_evidence():
 def test_confound_detection_sees_non_factor_inputs():
     """교란 판정은 '모델이 아는 축'이 아니라 '실험에서 변한 축' 기준이어야 한다.
 
-    US9200180B2 TABLE 3은 실리카 0.5→20 wt%(abrasive_wt_pct — FACTORS에 없는 키)와
-    pH 9.2→10.0을 **동시에** 움직인 표다. 이전 구현은 FACTORS 키만 훑어서 pH가
-    단독 변화한 것으로 오인했고, 그 결과 cu_h2o2_bta/pH에 존재하지 않는
+    원 결함: 교란 탐지가 FACTORS 키만 훑어서, FACTORS 에 없는 키(예: 연마입자
+    농도)가 함께 변하는 표를 '단독 변화'로 오인했다. 그 결과 존재하지 않는
     DEAD 갭이 4회차 연속 최상위(score 95)로 올라왔다.
+
+    ⚠ 2026-09-19: 원래 특정 데이터셋(us9200180b2_cu_abrasive_series)을 이름으로
+    박아 두었는데, 그 데이터셋이 게이트 밖 2점을 빼면서 n=2 로 줄어 증거를
+    내지 않게 되자 테스트가 깨졌다. **계약은 그 파일이 아니라 '교란 탐지가
+    FACTORS 밖 키를 본다'는 성질**이므로, 이름을 박지 말고 성질로 검사한다
+    (저장소 규칙: 판정 기준에 특정 사례를 하드코딩하지 않는다 — 하드코딩하면
+    그 사례가 바뀔 때마다 계약과 무관하게 깨진다).
     """
-    ev = {(e.dataset, e.key): e for e in literature_evidence()}
-    e = ev.get(("us9200180b2_cu_abrasive_series", "slurry_ph"))
-    assert e is not None
-    assert e.confounded, "실리카 농도가 같이 변하는데 단독 증거로 잡혔다"
-    assert not e.usable()
+    from tools.response_map import FACTORS
+
+    ev = list(literature_evidence())
+    confounded = [e for e in ev if e.confounded]
+    assert confounded, "교란으로 잡힌 증거가 하나도 없다 — 탐지기가 죽었을 수 있다"
+
+    # 교란은 반드시 사용 불가로 이어져야 한다(교란된 증거를 쓰면 오진한다)
+    for e in confounded:
+        assert not e.usable(), f"{e.dataset}/{e.key}: 교란인데 usable 이다"
+        assert e.n_varying >= 2, (
+            f"{e.dataset}/{e.key}: 교란인데 변한 축이 {e.n_varying}개다 — "
+            "교란의 정의는 '2축 이상 동시 변화'이므로 판정이 모순이다")
+
+    # 핵심 계약: 변한 축을 세는 범위가 **FACTORS 키에 갇혀 있지 않아야** 한다.
+    # FACTORS 키만 훑으면 그 밖의 축(연마입자 농도 등)이 함께 변해도 1축으로
+    # 세어 '단독 증거'로 통과시킨다 — 그것이 판정#42 의 원 결함이다.
+    # 그래서 FACTORS 키 수보다 많은 축이 변한 데이터셋이 실제로 잡히는지 본다.
+    factor_keys = {f.key for f in FACTORS}
+    assert any(e.n_varying > len(factor_keys & {e.key}) for e in confounded), (
+        "교란 판정이 대상 키 자신만 세고 있다 — FACTORS 밖 축을 못 보는 상태일 수 있다")
 
 
 def test_quarantined_datasets_are_not_evidence():

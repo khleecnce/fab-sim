@@ -40,6 +40,10 @@ KNOWN_UNMODELED_LABEL_AXES = {
     # 모델에 그 축이 없다. 같은 입경·같은 압력이면 모델은 두 배합을 같게 본다.
     # 형상 인자는 아직 어느 팩에도 없으므로 데이터가 아니라 모델의 갭이다.
     "tw202115224a_cu_abrasive_size_pressure",
+    # 벤젠술폰산 농도를 스윕하는데 모델에 그 축이 없다. 이 파일은 채점용이
+    # 아니라 **기록용**이며 `validation_use: none` 으로 집계에서 빠져 있다
+    # (그 축이 Cu MRR 을 2.4배 움직인다는 1차 증거를 보존한다).
+    "us9200180b2_cu_benzenesulfonic_series",
 }
 
 

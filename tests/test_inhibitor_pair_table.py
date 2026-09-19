@@ -88,12 +88,20 @@ def test_ruled_out_pairs_carry_a_reason_and_are_not_in_the_value_table():
 
 
 def test_missing_and_ruled_out_are_distinguishable():
-    """'아무도 안 쟀다'와 '그 메커니즘이 없다'는 다른 결론이다."""
-    # 메커니즘 부재로 선언된 쌍
+    """'아무도 안 쟀다'와 '그 메커니즘이 없다'는 다른 결론이다.
+
+    ⚠ 예시 쌍을 고를 때 주의: 여기 쓰는 '미확보' 쌍은 언젠가 값이 확보되거나
+    메커니즘 부재로 선언될 수 있다. 실제로 benzenesulfonic×cu 를 예시로 썼다가
+    특허 원문이 '억제제가 아님'을 확정하면서 이 테스트가 깨졌다 — 테스트가
+    낡은 것이지 코드가 틀린 게 아니었다. 아직 어느 쪽으로도 판정되지 않은
+    쌍(nicotinic×cu)을 쓴다.
+    """
+    # 메커니즘 부재로 선언된 쌍 — 근거가 함께 나온다
     assert adsorption_ruled_out("bta", "ta")
-    # 단순 미확보 쌍 — 선언되지 않았으므로 R8 대상이다
-    assert adsorption_ruled_out("benzenesulfonic", "cu") is None
-    assert lookup_dG("benzenesulfonic", "cu") is None
+    assert adsorption_ruled_out("benzenesulfonic", "cu")
+    # 아직 판정되지 않은 쌍 — 선언이 없으므로 R8(측정 명세) 대상이다
+    assert adsorption_ruled_out("nicotinic", "cu") is None
+    assert lookup_dG("nicotinic", "cu") is None
 
 
 def test_malonate_cu_uses_the_oxidized_surface_value():

@@ -40,15 +40,25 @@ def _r_avg(t, a1, a2, tau):
     return AR / t
 
 
-def _cu_pack():
+def _cu_packs():
+    """film == 'cu' 인 팩을 **전부** 돌려준다.
+
+    ⚠ 처음엔 첫 번째 하나만 골랐는데(`_cu_pack`), 2026-09-19 에 알칼리 Cu 계가
+    별도 팩(cu_alkaline_benzenesulfonic)으로 분리되면서 Cu 팩이 둘이 됐다.
+    그러자 "Cu 아닌 팩" 목록에 나머지 Cu 팩이 섞여 들어가 계약 테스트가 깨졌다.
+    팩이 늘어날 때마다 깨지지 않도록 **개수를 가정하지 말고 전부 센다.**
+    """
+    out = []
     for pack in _ALL_PACKS:
         rr = Recipe(pack=pack, time_s=60).resolve()
         if rr.film == "cu":
-            return pack
-    raise AssertionError("Cu 팩이 5팩 안에 없다 — 테스트 전제 깨짐")
+            out.append(pack)
+    assert out, "Cu 팩이 하나도 없다 — 테스트 전제 깨짐"
+    return out
 
 
-_CU_PACK = _cu_pack()
+_CU_PACKS = _cu_packs()
+_CU_PACK = _CU_PACKS[0]          # 단일 팩으로 충분한 케이스의 대표
 
 
 def _git_diff_clean_or_skip(paths, label):
@@ -89,7 +99,7 @@ def test_diagnostic_does_not_change_mrr():
 
 
 def test_none_when_film_not_cu():
-    non_cu_packs = [p for p in _ALL_PACKS if p != _CU_PACK]
+    non_cu_packs = [p for p in _ALL_PACKS if p not in _CU_PACKS]
     assert non_cu_packs, "Cu 아닌 팩이 없다 — 테스트 전제 깨짐"
     for pack in non_cu_packs:
         rr = Recipe(pack=pack, time_s=60).resolve()
@@ -172,7 +182,7 @@ def test_forbidden_fit_blanket_rate_never_called_in_engine():
 def test_all_packs_full_simulate_wires_the_field():
     for pack in _ALL_PACKS:
         res = simulate(Recipe(pack=pack, time_s=60))
-        if pack == _CU_PACK:
+        if pack in _CU_PACKS:
             assert res.blanket_transient_avg_to_inst_ratio_range is not None, pack
             assert res.blanket_transient_underestimate_pct_range is not None, pack
         else:
