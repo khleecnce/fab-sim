@@ -292,3 +292,158 @@ def test_engine_ptw_path_is_currently_npw_equivalent_regression_guard():
     ptw = simulate(Recipe(pack="oxide_silica", wafer="PTW", time_s=60.0, meta={"pattern_density": "0.5"}))
     assert np.allclose(npw.removed_nm, ptw.removed_nm)
     assert np.allclose(npw.mrr_nm_per_min, ptw.mrr_nm_per_min)
+
+
+# ═══════════════════════════════ ⑬ tier1.pattern_density_effective_pressure — 실측 3건
+#
+# 배경(2026-09-19 실측): sim.engine._MODELS 에는 'tier1.preston_radial' 외에
+# 'tier1.pattern_density_effective_pressure'(Sorooshian 2005 §3.3 실측표)도 등록돼
+# 있다. 이 절의 세 테스트는 fit_ptw.fit(model=...)로 이 모델을 실제로 돌려본 결과를
+# 고정한다 — ⑫와 달리 model을 명시적으로 넘긴다.
+
+from sim.calibration import ingest as _ingest_mod  # noqa: E402
+
+
+def _npw_correction_for_pattern_density_fixture(seed=0, n_restarts=6):
+    """test_pipeline.py의 _npw_record와 동일한 방식 — pattern_density 관련 세 테스트가
+    전부 같은 npw_correction(엔진 실측 기반)을 쓰도록 공유한다."""
+    from sim.engine import Recipe as _Recipe, simulate as _simulate
+
+    engine_result = _simulate(_Recipe(pack="oxide_silica"))
+
+    def _physics_nm(r_mm):
+        return np.interp(r_mm, engine_result.radius_m * 1000.0, engine_result.removed_nm)
+
+    r_train = np.linspace(5.0, 135.0, 25)
+    rng = np.random.default_rng(0)
+    values = _physics_nm(r_train) + 3.0 * np.sin(r_train / 40.0) + rng.normal(0.0, 0.3, size=len(r_train))
+    points = [{"r_m": float(r) / 1000.0, "theta_rad": 0.0, "value": float(v), "unit": "nm"}
+              for r, v in zip(r_train, values)]
+    record = {
+        "wafer_id": "W-PDEP-NPW", "wafer_diameter_mm": 300, "notch_direction": "Bottom",
+        "edge_exclusion_mm": 3.0, "coord_kind": "polar", "series_id": "pdep-npw-series", "points": points,
+    }
+    return fit_npw.fit("oxide_silica", _ingest_mod.ingest_record(record), seed=seed, n_restarts=n_restarts)
+
+
+def _pattern_density_fixture(local_density, seed=5, wafer_id="W-PTW-PDEP"):
+    """test_pipeline.py의 _npw_record/_ptw_record와 동일한 방식으로 합성 레코드를 만든다
+    (fit_ptw.fit은 ingest.IngestResult를 요구하므로 fit_residuals용 (r, y) 배열 픽스처로는
+    이 모델을 통과시킬 수 없다 — 반드시 실제 table을 만들어야 한다)."""
+    from sim.engine import Recipe as _Recipe, simulate as _simulate
+    from sim.calibration.ptw_vm_schema import PTWVMInput as _PTWVMInput
+
+    engine_result = _simulate(_Recipe(pack="oxide_silica"))
+
+    def _physics_nm(r_mm):
+        return np.interp(r_mm, engine_result.radius_m * 1000.0, engine_result.removed_nm)
+
+    r_train = np.linspace(5.0, 135.0, 25)
+    rng = np.random.default_rng(seed)
+    values = (_physics_nm(r_train) + 3.0 * np.sin(r_train / 40.0) + 2.0 * np.cos(r_train / 30.0)
+              + rng.normal(0.0, 0.05, size=len(r_train)))
+    points = [{"r_m": float(r) / 1000.0, "theta_rad": 0.0, "value": float(v), "unit": "nm"}
+              for r, v in zip(r_train, values)]
+    record = {
+        "wafer_id": wafer_id, "wafer_diameter_mm": 300, "notch_direction": "Bottom",
+        "edge_exclusion_mm": 3.0, "coord_kind": "polar", "series_id": "pdep-series", "points": points,
+    }
+    ptw_ingest = _ingest_mod.ingest_record(record)
+    ptw_input = _PTWVMInput(product_id="P1", layer="M1", die_density_mean=local_density,
+                             local_density=local_density)
+    return ptw_ingest, ptw_input
+
+
+def test_pattern_density_effective_pressure_grid_gate_via_fit():
+    """fit_ptw.fit() 경로에서 신규 모델의 **밀도 격자 게이트만** 남는다(판정#65 후속).
+
+    이력(중요): 2026-09-19 최초 측정에서는 격자 **안** 값(0.50)도 ValueError 가 났다.
+    원인은 격자가 아니라 타입이었다 — `fit()` 이 `meta['pattern_density']` 를
+    `str(...)` 로 채우는데(`Recipe.meta` 가 `Dict[str, str]` 로 선언돼 있으니 생산자
+    쪽이 규약을 지킨 것이다) 소비자인 엔진이 캐스팅 없이 리터럴 튜플과 비교했다.
+    같은 날 엔진에 `_meta_pattern_density()` 를 넣어 소비 경계에서 캐스팅하도록
+    고쳤으므로, 이제 0.50 은 **정상 동작하고** 0.4 만 격자 밖으로 거부된다.
+
+    이 테스트는 그 수정 이후의 계약을 고정한다: 격자 밖은 여전히 조용히 폴백하지
+    않고 크게 실패해야 하고(ValueError), 격자 안은 실제로 돌아야 한다.
+    """
+    npw_corr = _npw_correction_for_pattern_density_fixture()
+
+    # 격자 밖(0.4) — 조용한 보간 금지, 반드시 실패
+    ptw_ingest, ptw_input = _pattern_density_fixture(0.4)
+    with pytest.raises(ValueError, match="pattern_density"):
+        fit_ptw.fit("oxide_silica", ptw_input, ptw_ingest, npw_corr,
+                     model="tier1.pattern_density_effective_pressure", seed=0, n_restarts=3)
+
+    # 격자 안(0.50) — 타입 수정 이후 실제로 적합이 돌아야 한다
+    ptw_ingest, ptw_input = _pattern_density_fixture(0.50)
+    res = fit_ptw.fit("oxide_silica", ptw_input, ptw_ingest, npw_corr,
+                       model="tier1.pattern_density_effective_pressure", seed=0, n_restarts=3)
+    assert res is not None
+
+
+def test_meta_pattern_density_string_and_float_agree():
+    """`meta['pattern_density']` 를 문자열로 주든 float 로 주든 같은 결과여야 한다.
+
+    `Recipe.meta` 는 `Dict[str, str]` 이고 실제 생산자 3곳(`sim/cli.py`·`sim/studio.py`·
+    `sim/calibration/fit_ptw.py`)이 전부 `str(...)` 로 넣는다. 수정 전에는 CLI·Studio 에서
+    밀도를 0.5 로 줘도 유효압력 진단이 조용히 **스킵**됐고, 그때 붙던 사유 문구가
+    "0.5는 표에 없는 값(지원: 0.10/0.50/0.90)" 이라 **지원 목록에 있는 값을 없다고 말하는**
+    거짓 안내였다. 그 회귀를 막는다.
+    """
+    from sim.engine import Recipe, simulate
+
+    def _ratio(v):
+        return simulate(Recipe(pack="oxide_silica", wafer="PTW",
+                               meta={"pattern_density": v})).ptw_effective_pressure_ratio
+
+    assert _ratio("0.5") == _ratio(0.50)
+    assert _ratio("0.5") is not None
+    assert _ratio("0.10") == _ratio(0.10)
+    # 숫자로 못 읽는 값은 지어내지 않고 None
+    assert _ratio("abc") is None
+    # 격자 밖은 문자열이어도 여전히 None(조용한 반올림 금지)
+    assert _ratio("0.3") is None
+
+
+def test_pattern_density_effective_pressure_engine_prediction_differs_from_npw():
+    """A-3 실측: fit_ptw.fit() 경로로는 위 테스트가 보이듯 이 모델의 pred_ptw를 절대
+    만들어낼 수 없다(격자 안 조건도 타입 불일치로 거부된다) — 그래서 fit_ptw.fit 수준
+    에서 "격자 안 pred_ptw" 픽스처는 만들 수 없다는 사실을 여기 기록하고, 대신
+    sim.engine.simulate()를 직접 불러 물리 예측 자체의 배수를 고정한다(엔진 자체는
+    타입 캐스팅 없이 float 0.50을 바로 받으면 정상 동작한다). pressure_psi=3.0(기본
+    팩 값), pattern_density=0.50 조건에서 실측(2026-09-19): PTW MRR = NPW MRR ×
+    1.5466666666666666 — 반경 전체에서 상수배(형상 불변, 모듈 docstring이 경고한 대로).
+    """
+    from sim.engine import Recipe, simulate
+
+    npw = simulate(Recipe(pack="oxide_silica", wafer="NPW"))
+    ptw = simulate(Recipe(pack="oxide_silica", wafer="PTW", meta={"pattern_density": 0.50}),
+                    model="tier1.pattern_density_effective_pressure")
+
+    assert not np.allclose(npw.mrr_nm_per_min, ptw.mrr_nm_per_min)
+    ratio = ptw.mrr_nm_per_min / npw.mrr_nm_per_min
+    assert ratio == pytest.approx(1.5466666666666666, rel=1e-9)
+    # 상수배라 반경별 분산이 사실상 0 — "스케일만 바뀌고 형상은 안 바뀐다"는 경고의 실측.
+    assert np.ptp(ratio) < 1e-9
+
+
+def test_fit_default_model_unchanged_bitwise_regression():
+    """A-2/기본값 불변 고정: model 인자를 생략한 fit_ptw.fit() 결과는
+    model='tier1.preston_radial'을 명시한 것과 to_dict()까지 완전히 동일해야 한다
+    (기본값을 preston_radial로 유지하기로 한 결정 — pattern_density_effective_pressure는
+    바로 위 테스트가 보이듯 fit() 경로에서 항상 거부되므로 기본값으로 바꾸면 기존
+    호출자가 전부 ValueError를 맞는다). 세 loo_rmse 값은 실측(2026-09-19, seed=0,
+    n_restarts=6, pack='oxide_silica', local_density=0.4)을 그대로 고정한다."""
+    npw_corr = _npw_correction_for_pattern_density_fixture()
+    ptw_ingest, ptw_input = _pattern_density_fixture(0.4)
+
+    corr_default = fit_ptw.fit("oxide_silica", ptw_input, ptw_ingest, npw_corr, seed=0, n_restarts=6)
+    corr_explicit = fit_ptw.fit("oxide_silica", ptw_input, ptw_ingest, npw_corr,
+                                 model="tier1.preston_radial", seed=0, n_restarts=6)
+
+    assert corr_default.to_dict() == corr_explicit.to_dict()
+    assert corr_default.loo_rmse_uncorrected == pytest.approx(1.9947031155171697, rel=1e-9)
+    assert corr_default.loo_rmse_npw_only == pytest.approx(1.367487779429455, rel=1e-9)
+    assert corr_default.loo_rmse_ptw == pytest.approx(0.051596834676616986, rel=1e-9)
+    assert corr_default.improved is True

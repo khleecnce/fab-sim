@@ -587,7 +587,7 @@ class PatternDensityEffectivePressureModel:
             raise ValueError(
                 f"{self.name}은 PTW 전용이다 — wafer={recipe.wafer!r}에는 적용할 수 없다 "
                 "(NPW는 blanket이라 패턴밀도 유효압력 개념이 없다)")
-        density = recipe.meta.get("pattern_density")
+        density = _meta_pattern_density(recipe)
         if density is None or density not in (0.10, 0.50, 0.90):
             raise ValueError(
                 f"{self.name}은 recipe.meta['pattern_density']가 {{0.10, 0.50, 0.90}} 중 "
@@ -723,6 +723,30 @@ def _film_thickness_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     return out
 
 
+def _meta_pattern_density(rr: "ResolvedRecipe") -> Optional[float]:
+    """meta['pattern_density']를 float로 읽는다. 없으면 None.
+
+    Recipe.meta 는 `Dict[str, str]` 로 선언돼 있고, 실제 생산자 3곳
+    (`sim/cli.py`·`sim/studio.py`·`sim/calibration/fit_ptw.py`)이 전부 `str(...)`로
+    넣는다 — 즉 문자열이 규약이고, 캐스팅하지 않는 소비자 쪽이 결함이다.
+    `_cu_dishing_erosion_tugbawa_diagnostic`은 이미 `float(meta[...])`로 읽고 있었다.
+
+    2026-09-19(판정#65 후속): 이 캐스팅이 없어서 CLI·Studio에서 밀도를 0.5로 줘도
+    `'0.5' != 0.50`이라 유효압력 진단이 조용히 스킵되고 있었다. 더 나쁜 것은 그때
+    붙던 사유 문구가 "0.5는 표에 없는 값(지원: 0.10/0.50/0.90)"이라 **지원 목록에
+    있는 값을 없다고 말하는** 거짓 안내였다는 점이다.
+
+    숫자로 해석되지 않으면 지어내지 않고 None(호출자가 스킵 사유를 남긴다).
+    """
+    raw = rr.meta.get("pattern_density")
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
+
+
 def _effective_pressure_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
     """PTW 유효압력/인가압력 비 진단 — MRR 경로와 완전히 독립적인 진단 계산.
 
@@ -735,8 +759,11 @@ def _effective_pressure_diagnostic(rr: "ResolvedRecipe") -> Dict[str, object]:
                               "ptw_effective_pressure_note": None}
     if rr.wafer != "PTW":
         return out
-    density = rr.meta.get("pattern_density")
+    density = _meta_pattern_density(rr)
     if density is None:
+        if rr.meta.get("pattern_density") is not None:
+            out["_note"] = (f"pattern_density={rr.meta.get('pattern_density')!r}를 숫자로 "
+                            "읽을 수 없다 — 유효압력 진단 스킵")
         return out
     try:
         import npw_ptw_effective_pressure as EPR   # sim/tier2_physics (1바이트도 수정 안 함)

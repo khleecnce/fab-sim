@@ -37,16 +37,41 @@ import해 재사용한다. 이 파일이 새로 쓰는 것은: (1) NPW 층을 �
   아예 두지 않고 초기값 전이만 한다** — 이 결정 자체가 미검증 영역을 늘리지 않는
   선택이다.
 
-━━ 발견: 엔진의 PTW 경로는 현재 NPW와 MRR이 동일하다 ━━
-sim/engine.py 2859행 note("PTW인데 패턴 모델을 쓰지 않았다 — model='tier1.pattern_density'로
-실행하라. 지금 값은 NPW 등가")가 가리키는 'tier1.pattern_density' 모델은 **등록되어
-있지 않다**(sim.engine._MODELS == {'tier1.preston_radial': ...}뿔). 즉 Recipe(wafer="PTW")를
-model='tier1.preston_radial'(유일하게 존재하는 모델)로 돌리면 removed_nm/mrr_nm_per_min이
-NPW와 완전히 동일하다(실측, 2026-09-19: np.allclose 통과). 패턴밀도가 MRR 경로에 아직
-연결돼 있지 않다는 뜻이다. 따라서 이 모듈의 물리 예측(pred_ptw)은 사실상 pred_npw와
-같은 수가 나온다 — 이것은 버그가 아니라 엔진의 현재 한계이며, 이 모듈이 지어내서
-고치지 않는다. 테스트에서 쓰는 "패턴밀도 의존 편차"는 전부 **인위적으로 주입한 값**이고
-실물리가 아니다(테스트 docstring에 명시).
+━━ 발견(2026-09-19 갱신): 기본 경로는 여전히 NPW와 MRR이 동일 — 단, 신규 모델은 연결돼 있다 ━━
+sim.engine._MODELS에는 'tier1.preston_radial' 외에 'tier1.pattern_density_effective_pressure'
+(Sorooshian 2005 §3.3 실측표, 판정#65)도 **등록되어 있다**. 이 함수의 기본값
+model='tier1.preston_radial'로 Recipe(wafer="PTW")를 돌리면 removed_nm/mrr_nm_per_min이
+지금도 NPW와 완전히 동일하다(실측, 2026-09-19: np.allclose 통과, test_fit_ptw.py
+⑫가 회귀 감시). model='tier1.pattern_density_effective_pressure'를 명시하면 물리 예측이
+실제로 달라진다(같은 날 실측: pressure_psi=3, pattern_density=0.50 조건에서
+PTW MRR = NPW MRR × 1.5466666666666666, 전 반경에서 상수배 — Preston 식에 밀도별
+유효압력비를 곱할 뿐이라 반경 방향 **형상은 바꾸지 않는다**). 참고로 sim/models.py의
+구 'tier1.pattern_density'(Boning 1/ρ)는 register_all()이 import 시점에 등록하는데,
+fit_ptw.py는 sim.models를 import하지 않으므로 이 모듈이 만드는 실행 컨텍스트에서는
+그 이름이 등록돼 있지 않다 — 관련 있는 건 신규 'tier1.pattern_density_effective_pressure'
+뿐이다.
+
+이 모듈의 fit()에 그 모델을 넘기면 **이제 실제로 돌아간다**. 단 조건이 좁다:
+local_density가 표 격자 {0.10, 0.50, 0.90} 안이고 pressure_psi가 {3, 7}이어야 하며,
+그 밖이면 조용히 폴백하지 않고 ValueError로 크게 실패한다(test_fit_ptw.py
+test_pattern_density_effective_pressure_grid_gate_via_fit이 양쪽을 고정).
+
+⚠ 이력(같은 날 2026-09-19, 남겨두는 이유는 동형 재발을 막기 위해서다): 처음에는
+격자 **안** 값(0.50)도 ValueError가 났다. 원인은 격자가 아니라 **타입**이었다 —
+fit()이 meta['pattern_density']를 str(...)로 채우는데(Recipe.meta가 Dict[str, str]로
+선언돼 있으므로 생산자 쪽이 규약을 지킨 것이다) 소비자인 엔진이 캐스팅 없이
+(0.10, 0.50, 0.90) 리터럴과 비교했다. 같은 결함이 CLI·Studio에도 있었고 — 거기서는
+예외조차 안 나고 **진단이 조용히 스킵되면서 "0.5는 표에 없는 값(지원: 0.10/0.50/0.90)"
+이라는 거짓 안내**가 붙었다. 엔진에 `_meta_pattern_density()`를 넣어 소비 경계에서
+캐스팅하도록 고쳤다.
+
+⚠ 그래도 **기본값은 바꾸지 않는다**(아래 fit() docstring 참고). 이 모델은 밀도별
+유효압력비를 Preston 식에 **곱할 뿐**이라 전 반경 상수배이고 반경 방향 **형상은
+바꾸지 않는다**(실측: pressure_psi=3·density=0.50에서 ×1.5466666666666666,
+np.ptp(ratio) < 1e-9). 즉 반경 잔차를 학습하는 이 모듈의 GP 보정에 새 정보를 주지
+않는다 — "연결됐으니 예측이 좋아진다"고 기대할 근거가 없다. 테스트에서 쓰는
+"패턴밀도 의존 편차"는 여전히 전부 **인위적으로 주입한 값**이고, 이 모듈이 실제로
+계산해내는 값이 아니다(테스트 docstring에 명시).
 """
 from __future__ import annotations
 
@@ -255,11 +280,19 @@ def fit(pack: str, ptw_input: PTWVMInput, ingest_result, npw_correction: Optiona
     관측 단위·엔진 격자 범위 처리·is_excluded/missing/outlier 제외는 fit_npw.fit과
     동일한 규칙을 따른다(재구현이 아니라 같은 판단을 이 파이프라인에도 적용).
 
-    ⚠ model은 항상 'tier1.preston_radial'만 넘겨라 — 'tier1.pattern_density'는 이
-    엔진에 등록되어 있지 않다(모듈 docstring "발견" 참고). wafer="PTW"로 이 모델을
-    돌려도 물리 예측은 NPW와 동일한 수가 나온다 — 이 함수가 지어내서 다르게
-    만들지 않는다.
-    """
+    ⚠ model 기본값은 'tier1.preston_radial'로 유지한다 — 바꾸지 마라. wafer="PTW"를
+    이 기본 모델로 돌리면 물리 예측은 지금도 NPW와 동일한 수가 나온다(모듈 docstring
+    "발견" 참고, test_fit_ptw.py가 회귀 감시).
+
+    model='tier1.pattern_density_effective_pressure'(Sorooshian 2005 §3.3 실측표,
+    판정#65)를 넘기는 것은 **이제 가능하다**. 다만 기본값으로 삼지 않는 이유가 둘 있다:
+    (1) 적용 조건이 좁다 — local_density ∈ {0.10, 0.50, 0.90}, pressure_psi ∈ {3, 7}
+        밖이면 ValueError다. 기본값으로 두면 기존 호출자 대부분이 깨진다.
+    (2) 더 중요하게, 이 모델은 전 반경에 **상수배**를 곱할 뿐 반경 방향 형상을 바꾸지
+        않는다. 이 모듈이 학습하는 것은 반경 잔차이므로, 스케일만 바뀌는 입력은 GP
+        보정에 새 정보를 주지 않는다. 연결 자체는 의미가 있으나(물리 경로가 살아났다)
+        **이 모듈의 예측 정확도를 올려주는 종류의 변화는 아니다.**
+        """
     from sim.engine import Recipe, simulate  # 지연 임포트 — 순환 임포트 회피(fit_npw.py와 동일 패턴)
 
     if npw_correction is None:
