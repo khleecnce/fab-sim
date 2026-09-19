@@ -27,7 +27,9 @@ sys.path.insert(0, str(ROOT))
 
 from sim.factors import FACTOR_SPEC                    # noqa: E402
 from sim.engine import Recipe, simulate                # noqa: E402
-from tools.completion import _packs, CONF_RANK, MIN_CONF, OK_STATUS  # noqa: E402
+from tools.completion import (                          # noqa: E402
+    _packs, CONF_RANK, MIN_CONF, OK_STATUS, c2_closures,
+)
 
 import yaml  # noqa: E402
 
@@ -62,8 +64,18 @@ def _pack_params(pack: str, _seen: Optional[List[str]] = None) -> Dict[str, dict
     return {k: v for k, v in out.items() if isinstance(v, dict)}
 
 
-def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
-    """(병목키 → 그 키가 막는 칸 목록, 칸별 상세)"""
+def analyze(include_closed: bool = False) -> Tuple[Dict[str, List[str]], List[dict]]:
+    """(병목키 → 그 키가 막는 칸 목록, 칸별 상세)
+
+    ⚠ 2026-09-20(판정#79): **종결된 칸은 기본으로 제외한다.**
+    `validation/C2-CLOSURES.yaml`에 유효 등록된 칸은 3회차 소진으로 영구 종결된
+    것이라 "고치면 오른다"가 성립하지 않는다 — 그런데 이 도구는 그걸 모르고
+    계속 1위로 올렸고, 실제로 Δ/cu_alkaline_benzenesulfonic 이 종결 직후에도
+    1위로 남아 있었다. 종결 칸을 순위에 두면 다음 회차가 **4회차를 돌게 된다**
+    (EVIDENCE-RULES 3회차 규칙 위반을 도구가 유도하는 꼴). --include-closed 로
+    감사 목적의 전체 보기는 여전히 가능하다.
+    """
+    closures = c2_closures()
     blockers: Dict[str, List[str]] = defaultdict(list)
     cells: List[dict] = []
     for pack in _packs():
@@ -74,6 +86,10 @@ def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
             ok_status = f.status in OK_STATUS
             conf_ok = CONF_RANK.get(f.confidence or "", 0) >= CONF_RANK[MIN_CONF]
             if ok_status and conf_ok:
+                continue
+            cl = closures.get((key, pack))
+            closed = bool(cl and cl.get("valid"))
+            if closed and not include_closed:
                 continue
             bad: List[str] = []
             for dk_raw in (f.drivers or {}):
@@ -107,6 +123,8 @@ def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
                     if c == f.confidence:
                         weak_nondriver.append(f"{pk_key}({c})")
             cells.append({
+                "closed": closed,
+                "closure_judgments": (cl or {}).get("judgments", []),
                 "factor": key, "pack": pack, "status": f.status,
                 "confidence": f.confidence, "why": "C1" if not ok_status else "C2",
                 "bad_params": bad,
@@ -119,15 +137,21 @@ def analyze() -> Tuple[Dict[str, List[str]], List[dict]]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--cells", action="store_true")
+    ap.add_argument("--include-closed", action="store_true",
+                    help="C2-CLOSURES.yaml 로 영구 종결된 칸도 순위에 포함(감사용). "
+                         "기본은 제외 — 종결 칸을 병목으로 내면 다음 회차가 4회차를 돈다.")
     a = ap.parse_args()
-    blockers, cells = analyze()
+    blockers, cells = analyze(include_closed=a.include_closed)
 
     if a.cells:
         print(f"미충족 칸 {len(cells)}개\n")
         for c in sorted(cells, key=lambda x: (x["why"], x["factor"], x["pack"])):
             sym = FACTOR_SPEC[c["factor"]][0]
+            mark = ""
+            if c.get("closed"):
+                mark = "  [종결 " + "·".join(c.get("closure_judgments") or []) + "]"
             print(f"[{c['why']}] {sym} {c['factor']}/{c['pack']}  "
-                  f"status={c['status']} conf={c['confidence']}")
+                  f"status={c['status']} conf={c['confidence']}{mark}")
             if c["bad_params"]:
                 print(f"      막는 키: {', '.join(c['bad_params'])}")
             elif c["why"] == "C1":
@@ -146,7 +170,13 @@ def main() -> int:
                       f" (tools/confidence_cap_audit.py, drivers={c['drivers']})")
         return 0
 
-    print("병목 파라미터 — 승격 시 오르는 칸 수 순\n")
+    n_closed = sum(1 for c in cells if c.get("closed"))
+    if not a.include_closed:
+        print("병목 파라미터 — 승격 시 오르는 칸 수 순"
+              "  (영구 종결 칸 제외, 전체는 --include-closed)\n")
+    else:
+        print(f"병목 파라미터 — 승격 시 오르는 칸 수 순"
+              f"  (⚠ 종결 {n_closed}칸 포함 — 감사용, 작업 대상 아님)\n")
     rank = sorted(blockers.items(), key=lambda kv: -len(kv[1]))
     for k, v in rank:
         print(f"{len(v):2d}칸  {k}")
@@ -158,6 +188,18 @@ def main() -> int:
     print("\n키 이름별 합계(팩 무관) — 하나의 문헌으로 여러 팩을 동시에 올릴 후보\n")
     for k, n in sorted(bykey.items(), key=lambda kv: -kv[1]):
         print(f"{n:2d}칸  {k}")
+    # ⚠ 2026-09-20: 드라이버가 전부 OK 인 칸은 위 표에 **한 줄도 안 나온다**
+    #   (blockers dict 는 bad driver 에서만 채워진다). 종결 칸 제외를 켜고 나니
+    #   표가 통째로 비어 "남은 병목 없음"으로 오독될 여지가 생겼다 — 실제로는
+    #   형상 파라미터가 막는 칸이 남아 있다. 여기서 그 칸들을 명시한다.
+    orphan = [c for c in cells if not c["bad_params"] and c["why"] == "C2"]
+    if orphan:
+        print(f"\n⚠ 위 표에 안 잡히는 미충족 칸 {len(orphan)}개 — 드라이버는 전부 OK 이고")
+        print("   **형상 파라미터(지수·정점·이득·Langmuir 상수)** 가 막는 칸이다.")
+        print("   자세히: python tools/blockers.py --cells\n")
+        for c in sorted(orphan, key=lambda x: (x["factor"], x["pack"])):
+            sym = FACTOR_SPEC[c["factor"]][0]
+            print(f"      {sym} {c['factor']}/{c['pack']}  conf={c['confidence']}")
     return 0
 
 
