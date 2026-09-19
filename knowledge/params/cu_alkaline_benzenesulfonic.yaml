@@ -299,29 +299,54 @@ params:
     value: 0.3333333333
     unit: "-"
     note: >
-      코드 기본값(1/3)과 같은 값이지만 **팩이 own 선언해야 등급이 잡힌다**
-      (미선언 시 `_pack_conf`가 "물어볼 대상 없음"=unverified를 반환 — 값이
-      조용히 폴백되는 것과 등급이 매겨지는 것은 다른 사건이다).
+      **판정#80(2026-09-20)로 estimated→literature 승격.** 코드 기본값(1/3)과
+      같은 값이지만 팩이 own 선언해야 등급이 잡힌다는 사정은 그대로다.
 
-      값의 출처: US9499721B2(Cabot, 콜로이달 실리카) TABLE 18 E1 실측
-      24점 전역 로그-로그 회귀 n≈0.30(1/3에 근접, 4/3 압입극한과는 거리가 멂,
-      knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md
-      §5). 연마입자 화학종(콜로이달 실리카)은 이 팩과 정확히 일치한다.
+      1차 출처(신규): Cooper, K. et al. "Effects of Particle Concentration on
+      Chemical Mechanical Planarization." Electrochem. Solid-State Lett. 5(12),
+      G109-G112 (2002). doi:10.1149/1.1517772 (find_open_access.py로 확인,
+      papers/cooper2002-cu-particle-conc-1517772.pdf 원문 4쪽 전문 판독).
+      원문이 **Cu 기판에서 직접** 농도 스윕을 수행했다: "Copper wafers were
+      polished using proprietary acidic slurries comprised of silica-based
+      particles..." (Experimental), Fig.4가 Cu 단독 removal rate vs wt%,
+      Fig.5가 Cu·SiO2 함께 wt%^(1/3) 축으로 선형 확인, §Conclusions:
+      "CMP removal rates... were found to scale linearly with wt%^1/3 for
+      dielectric and metal substrates." 알루미나가 아니라 실리카 기반 입자임도
+      원문으로 확인(알루미나였다면 입자종 전이가 새로 생겼을 것).
 
-      ⚠ **literature로 올리지 않고 estimated로 낮춘 이유**: 위 근거 노트
-      §5 자신이 "같은 화학계(TEOS/콜로이달실리카)"라는 표현으로 일치 판정
-      기준을 **막질+입자 조합**으로 규정한다(oxide_silica가 이 값을
-      literature로 받은 것도 막질이 TEOS/oxide로 일치했기 때문). 이 팩은
-      막질이 Cu다 — US9499721B2의 TEOS/oxide와 다르다. 입자(콜로이달 실리카)
-      만 일치하고 막질이 다른 전이이므로, 같은 코퍼스가 이미 쓰는 기준으로는
-      "다른 화학계로의 전이"에 해당해 한 단계 낮춘다(damage_exponent의
-      W→Cu 막질전이가 literature가 아니라 estimated로 낮춰진 것과 동형 판단).
-      함수형 자체의 한계(고농도 포화를 순수 거듭제곱이 못 담음, 국소 지수
-      0.56→0.11 붕괴)는 그대로 남아 있다(같은 노트 §3,§5) — 이 팩의
-      abrasive_wt_pct=10 wt%는 US9499721B2 스윕 상한(3 wt%)보다 높아 이
-      한계 구간에 이미 들어가 있다는 뜻이기도 하다(과대평가 방향, 미보정).
-    source: knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md §5
-    confidence: estimated
+      **이전 강등 사유(US9499721B2, TEOS/oxide 막질→Cu 막질 전이)가 이 신규
+      출처로 소멸**한다 — Cooper 2002는 막질(Cu)과 입자(silica-based)가 이
+      팩과 직접 일치하는 1차 실측이지 전이가 아니다. 코드베이스가 이미 쓰는
+      "동일 시스템=막질+입자" 정의(같은 근거 노트 §5, oxide_silica/US9499721B2
+      판정에서 확립)로 판단하면 이 전이는 필요 없어진다.
+
+      ⚠ **정직하게 남기는 잔여 불일치**: Cooper 2002의 Cu 실측 조건은
+      **산성**(pH, "proprietary acidic slurries") + **BTA 또는 TA 부식억제제**
+      함유 슬러리다(Fig.6, "corrosion inhibitor, triazole (TA) or
+      benzotriazole (BTA)") — 이는 이 팩(cu_alkaline_benzenesulfonic, pH
+      6.2~11.2 알칼리, 억제제 없음, 벤젠술폰산)이 아니라 **부모 팩
+      cu_h2o2_bta(pH 4.0 산성+BTA)와 정확히 같은 화학계**다
+      (knowledge/params/cu_h2o2_bta.yaml 참조). pH 전환(산성→알칼리)과
+      억제제 유무는 Cooper 2002에서 직접 테스트되지 않았다 — 완화 근거로는
+      (1) 지수 유도(Eq.3-15)가 순수 기하학적 충돌빈도 논증이라 화학종을
+      참조하지 않고, (2) 원문 Fig.6이 Cu 시스템 내에서 BTA↔TA 억제제 교체를
+      **실측으로 테스트**해 지수가 붕괴하지 않음을 보였다(화학 강건성의
+      정성적 실측 증거) — 두 가지가 있으나, 산-알칼리 전환 자체는 미검증으로
+      남는다. 상세: knowledge/cmp/kappa-cu-alkaline-shape-exponents-round2.md §4.
+
+      절대 wt% 스케일(x축 눈금)은 원문에 그래프로만 있고 인쇄값 없음 —
+      지수값(1/3) 자체와 함수형만 채택, 정확값 재현은 불가.
+
+      함수형 자체의 한계(고농도 포화를 순수 거듭제곱이 못 담음)는 그대로
+      남는다 — 이 팩의 abrasive_wt_pct=10 wt%가 어느 레짐에 있는지는
+      Cooper 2002도 절대 스케일을 안 주므로 판단 불가(US9499721B2의 3 wt%
+      상한 논의는 보조 근거로만 남김).
+    source: >
+      knowledge/cmp/kappa-cu-alkaline-shape-exponents-round2.md §2-4 (1차,
+      Cooper 2002, doi:10.1149/1.1517772, Cu 직접 실측);
+      knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md §5
+      (보조, US9499721B2, TEOS/oxide 전이 근거였던 이전 출처 — 참고용 유지)
+    confidence: literature
 
   # ── Δ D99 꼬리·손상지수 축 (판정#71, 2026-09-19) ─────────────────
   # 부모(cu_h2o2_bta)는 알루미나 전용 1차 특허(US7344988B2, D99.9<5×D50)로

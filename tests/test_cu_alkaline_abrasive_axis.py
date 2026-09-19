@@ -35,12 +35,18 @@ def test_kappa_size_and_conc_terms_are_1_at_baseline():
 
 
 def test_kappa_size_and_conc_confidence_estimated_not_unverified():
-    """κ가 unverified에서 실제로 벗어났는지(값 없음이 아니라 근거가 약함으로 승격)."""
+    """κ가 unverified에서 실제로 벗어났는지(값 없음이 아니라 근거가 약함으로 승격).
+
+    판정#80(2026-09-20): abrasive_conc_exponent는 Cooper 2002(Cu 직접 실측,
+    doi:10.1149/1.1517772)로 literature 승격. abrasive_size_exponent는 실측
+    다리(알칼리·무억제제 Cu 입경 스윕)를 확보하지 못해 estimated 유지
+    (knowledge/cmp/kappa-cu-alkaline-shape-exponents-round2.md).
+    """
     pk = load_pack(PACK)
     assert pk.has_own("abrasive_size_exponent")
     assert pk.has_own("abrasive_conc_exponent")
     assert pk.param("abrasive_size_exponent").confidence == "estimated"
-    assert pk.param("abrasive_conc_exponent").confidence == "estimated"
+    assert pk.param("abrasive_conc_exponent").confidence == "literature"
     rr = _resolve()
     f = _f_kappa(rr)
     assert f.confidence != "unverified"
