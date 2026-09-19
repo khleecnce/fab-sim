@@ -361,9 +361,25 @@ params:
       K-안정 콜로이달 실리카(DuPont Air Products / 현 Versum) 자체의 D99 실측은
       이번 탐색에서 찾지 못했다(1회차) — 이번 값은 그 부재를 메우는 **차선
       대체값**이지 직접 측정값이 아니다.
+
+      **2회차(2026-09-19) 재탐색 — 값·등급 변경 없음**:
+      knowledge/cmp/abrasive-d99-psd-width-size-dependence.md 전문 참고.
+      K-안정 콜로이달 실리카(DuPont/Versum/Fuso/Nalco) 자체의 D99 실측은 이번에도
+      확보 못 함(US9200180B2·US10894906B2/US10421890B2 재확인, EP3101076A1/
+      US10032644B2는 설계목표 서술만 있고 수치표 없음). 대신 다른 제조사(CMC
+      Materials, US11725116B2 Table 1C)의 양전하 콜로이달 실리카가 D50=37~127nm
+      구간 disc centrifuge D10/D50/D90 실측표를 제공 — 이 팩과 D50이 정확히
+      일치하는 조성(1F: D10=47/D50=55/D90=63)에서 Hatch-Choate 외삽 D99≈70.4nm로,
+      현재값(103.8nm)과 47% 차이. 화학(양전하 아미노실란 vs K-안정)·용도(W CMP vs
+      알칼리 Cu CMP)·측정량(D90 외삽 vs D99 실측) 3중 불일치라 이 대체값으로
+      교체하지 않는다 — 다만 D99/D50 비율이 입자크기와 중간 강도 음의 상관
+      (r≈-0.59, r²≈0.35)을 갖는다는 정량적 근거는 새로 확보했다(§3 "비율의
+      입자크기 불변성 미검증" 한계에 대한 부분 답변 — 완전 불변은 아니되 크기만으로
+      결정되지도 않음).
     source: >
       knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §3, §5
-      (비율 출처 US10894906B2 Table 1)
+      (비율 출처 US10894906B2 Table 1); 2회차 재탐색:
+      knowledge/cmp/abrasive-d99-psd-width-size-dependence.md
     confidence: estimated
   abrasive_ref_d99_nm:
     value: 103.824688
