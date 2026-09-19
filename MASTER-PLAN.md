@@ -3527,6 +3527,31 @@ qa_loop #271 --strict **PASS ρ=0.9512 불변**.
 시연 경로에서는 여전히 1/ρ 폴백을 쓰게 된다(경고와 함께).
 
 
+### 2026-09-19 12시 회차 [정확도루프] VALIDATION — cu_alkaline_benzenesulfonic n=4 확보
+
+갭 랭커 최우선(score 100): "팩 cu_alkaline_benzenesulfonic 에 n≥4 held-out 0건
+(보유 2건, 전부 n<4)". n=3 은 최소 p 가 0.167 이라 **구조적으로** 유의 판정이
+불가능하다 — 점을 늘리는 것 말고 방법이 없다.
+
+US9200180B2 원문(papers/patents/US9200180B2.html)을 다시 열어 TABLE 1-a 의
+Comparative Example 4 가 TABLE 1-b(Examples 5/6/7)와 **같은 H2O2 스윕의 0점**임을
+확인했다: 칼륨안정 실리카 3 wt% · 벤젠술폰산 2 wt% 고정이 동일하고 변수도 H2O2
+단일축, 장비·절차도 같다(Mirra 3400 / Politex / 2.0 psi / 90·84 rpm).
+Cu RR 208 Å/min, pH 10.2 → 20.8 nm/min 로 validation/datasets/
+us9200180b2_cu_h2o2_series.yaml 에 추가. 계열은 0/1/2.5/5 wt% 4점,
+208/118/92/77 Å/min 전 구간 단조 감소가 됐다.
+("comparative example"은 청구범위 밖이라는 뜻이지 실험 품질 표시가 아니다.)
+
+결과 — 파라미터·코드는 한 줄도 건드리지 않았고 데이터만 늘렸다:
+  · 이 데이터셋: n=3 → n=4, ρ=+1.000, p=0.167 → **0.042**(비유의 → 유의),
+    MAPE 39.9% → 32.3%
+  · 유의 held-out 8개 → 9개(79 → 83조건), 유의 평균 ρ +0.951 → **+0.957**
+  · qa_loop run --strict PASS (#273), pytest 1267 passed / 1 skipped
+  · completion.py check: C4 미충족 2 → 1 (cu_alkaline_benzenesulfonic 의
+    "유의 held-out 0건" 해소). 격자 64/70 → 65/70.
+
+남은 C4 는 cu_h2o2_bta 의 유의 평균 ρ 0.7175 < 0.85 하나다.
+
 ### 2026-09-19 09시 회차 (2) [Max워커] — 판정#67: meta 타입 불일치 수정
 
 커밋 1b22b38 (push 완료). 판정#65 의 후속으로 신규 패턴 모델을 캘리브레이션

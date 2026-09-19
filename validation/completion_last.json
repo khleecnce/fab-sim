@@ -1,5 +1,5 @@
 {
-  "ts": 1789776993.7142131,
+  "ts": 1789787955.6863942,
   "complete": false,
   "cells_done": 64,
   "cells_total": 70,
@@ -10,7 +10,6 @@
     "C2 χ chi/sic_alumina_kmno4: confidence=estimated",
     "C1 ψ psi/cu_alkaline_benzenesulfonic: status=unmodeled",
     "C1 Δ delta/cu_alkaline_benzenesulfonic: status=unmodeled",
-    "C4 cu_alkaline_benzenesulfonic: 유의 held-out 0건",
     "C4 cu_h2o2_bta: 유의 평균 ρ 0.7175 < 0.85"
   ],
   "closed": [
@@ -77,10 +76,12 @@
       "mean_rho": 1.0
     },
     "cu_alkaline_benzenesulfonic": {
-      "n_sig": 0,
-      "rhos": [],
+      "n_sig": 1,
+      "rhos": [
+        1.0
+      ],
       "n_total": 5,
-      "mean_rho": null
+      "mean_rho": 1.0
     },
     "w_fe_oxidizer": {
       "n_sig": 1,
