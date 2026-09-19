@@ -227,3 +227,34 @@ closures:
       "LPC 개수축 — 입력 축 미신설") D99 축 자체가 우회되는 경우. 후자가 더 유망하다 —
       US6979252B1 TABLE 1 4점 + Fujifilm US10907074 + lu2018 로 세 계의 1차 실측이
       이미 모인다(축 신설은 함수형 변경이므로 사용자 승인 사항, 노트 §5 제안).
+
+  # ── κ / cu_alkaline_benzenesulfonic — abrasive_size_exponent (판정#71 → #80 → 판정#82 종결) ──
+  # 3회차 소진. κ 칸은 abrasive_conc_exponent(판정#80, literature)와 이 지수 둘 다
+  # literature여야 오르는데, 이 지수만 계속 estimated로 남는다.
+  - factor: kappa
+    pack: cu_alkaline_benzenesulfonic
+    judgments: ["판정#71", "판정#80", "판정#82"]
+    note: knowledge/cmp/kappa-cu-alkaline-size-exponent-round3.md
+    reason: >
+      Cu + 순수 구형 콜로이달 실리카 + 알칼리 pH + BTA/글리신/트리아졸 등 유기 부식억제제
+      없음(또는 벤젠술폰산계)이라는 4요건과, 입경 단독 스윕(다른 축 고정) MRR 인쇄값 3점
+      이상이라는 관측 요건을 동시에 만족하는 1차 문헌이 3회차 탐색 범위(로컬 특허 코퍼스
+      471건 전수 재점수화, OpenAlex Cooper 2002 피인용 17건 전수, corpus.sqlite 3종
+      검색어)에서 확보되지 않았다. 가장 근접한 두 후보를 원문까지 직접 판독해 각각 단일
+      사유로 탈락시켰다: Lu et al. 2003(doi:10.1016/S0021-9797(02)00166-2, Clarkson Univ./
+      Matijević 그룹)은 Cu+순수구형콜로이달실리카+pH10+입경 100/200/300 nm 3점 인쇄표
+      (Table 7)까지 요건을 충족하나 그 슬러리가 5 wt% H2O2+1 wt% 글리신이라 배제 대상
+      억제제가 혼입돼 있다. Li et al. 2005(doi:10.1149/1.1869974, Univ. Arizona/Fujimi
+      Philipossian 그룹)는 억제제(BTA/글리신/트리아졸) 언급이 전무하나 입경이 13/35 nm
+      2점뿐(3점 미달)이고 pH 자체가 원문에 보고되지 않는다. 그 외 SiO2/CeO2 core-shell
+      (순수실리카 아님)·quasi-continuum 시뮬레이션(실측 아님)·HNO3+시트르산/BTA 알루미나
+      개질실리카(산성+BTA+비순수실리카 이중위반)·"weakly/low-pH alkaline" Cu 슬러리 2편
+      (입경을 노화 응집 지표로만 추적, 의도적 스윕 아님)·scientific.net 로컬사본(메타데이터
+      페이지뿐+농도스윕)·유기산염/글리신함침 nano-CRC 2편(억제제 포함) 전부 부적격을 직접
+      확인했다.
+    reopen_if: >
+      Cu + 순수 구형 콜로이달 실리카 + 알칼리 pH + 억제제 없음(또는 벤젠술폰산계) 4요건을
+      만족하는 신규 1차 문헌이 입경 단독 스윕 3점 이상 인쇄표로 색인되거나, Lu 2003의
+      pH10·글리신 조건을 억제제 없이 재현한 후속 실험이 나오거나, Li 2005 계열(Fujimi
+      H2O2 콜로이달실리카, 억제제 무첨가)이 입경 3점 이상으로 확장된 후속 논문이 나오는
+      경우.
