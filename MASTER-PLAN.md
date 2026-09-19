@@ -4202,3 +4202,43 @@ qa_loop #311 `--strict` **PASS** 유의 평균 ρ **0.9566 불변**.
 push 는 호출자가 한다"** 로 바꿨다. 결과: 위임이 노트·판정#82 행·C2-CLOSURES 등록·INDEX
 등록·커밋까지 **끝까지 수행**하고 정상 종료했다(EXIT=0, "Committed as 73edb84, not pushed").
 이 분업(위임=탐색·판독·기록, 호출자=전체 스위트·qa_loop·push)을 표준으로 유지한다.
+
+### 2026-09-20 — [Max워커] 판정#83 χ/cu_alkaline 산화제 K 3회차 종결 → **C2 전 칸 마감, 격자 70/70**
+
+`oxidizer_passivation_K`(0.8232, estimated)는 `completion.py check` C2의 **마지막 미충족
+칸**이었다. 판정#81이 미탐색으로 남긴 두 각도를 전부 소진하고 3회차 규칙으로 영구 종결.
+
+- **각도1 (특허 어사이니 확장) — 신규 후보 0건.** 로컬 특허 코퍼스 471건을 Google Patents
+  `DC.contributor scheme="assignee"` 메타태그로 정밀 파싱(문자열 grep은 인용 특허까지 잡는
+  오탐이 많아 폐기 — `"cabot"` grep 140여 건 중 실제 Cabot 특허는 47건)해 Cabot/CMC·AMAT·
+  Hitachi·JSR 73건 → copper+H2O2+removal rate 동시출현 31건 전수 확인. Cu 억제제 계는 전부
+  BTA 실사용이고 나머지는 "copper"가 배경기술 인용일 뿐 실시예가 W·SiC·poly-Si·Ni.
+  무억제제·알칼리·Cu 3요건 충족 특허는 현재 K의 출처(US9200180B2/US20110165777A1) 외 0건.
+- **각도2 (Hebei 공업대 후속 논문) — 새 결격 유형 2개 확인.** OpenAlex Works API
+  (institution I184843921) 전수 나열로 5후보. 원문 확보 2건이 각각 탈락:
+  Zhang 2015(doi:10.1149/2.0171511jss, IOP hybrid 직접 PDF)는 BTA 무첨가·pH 9.5~10.0까지
+  맞으나 H2O2가 슬러리별 단일값이고 pH·킬레이트제가 동시에 다른 별개 처방 = **처방 번들링**;
+  Hu 2017(doi:10.21767/2470-9867.10004, Wayback 스냅샷)은 pH 10.5·H2O2 3점 스윕까지 맞으나
+  측정량이 개방회로전위(26/250/380 mV)·분극·CV뿐이고 **제거율을 아예 안 잰다**. 나머지
+  3건(Liu2010·Chen2014·Luan2016)은 원문 봉쇄 — **"확인 못 함"으로 부적격과 구분해 기록**.
+  ⚠ 부수 사실: OpenAlex `oa_status: bronze`는 무료 접근을 보장하지 않는다(Chen2014가
+  bronze인데 IOP 구매 페이지로 귀결) — 앞으로 hybrid/gold만 신뢰 신호로 쓴다.
+- **부수(과제 지시)**: `oxidizer_peak_wt_pct`(1.0)의 근거인 US9200180B2 [0077]을 로컬 원문에서
+  직접 확인 — "This is **possibly** due to a much higher passivation rate..."로 수치·관측범위가
+  없고 "possibly" 헤지까지 붙은 **정성** 서술. 팩 note의 "관측창에 정점 없음"은 정량 근거가
+  아니라 **구성적 선택**임이 확정됐다(값 변경 없음 — 근거가 없으므로).
+
+값·YAML·코드 0 변경. `validation/C2-CLOSURES.yaml` 등록.
+게이트(Max워커 직접 재실행): verify_claims ✓ check_knowledge ✓ pytest **1299 passed**/1 skipped
+회귀 0 · completion **70/70**(검증된 한계 17칸) · qa_loop #312 --strict PASS ρ=0.9566 불변.
+커밋 dc5d173, push 완료.
+
+> **남은 미완은 C4 하나다**: `cu_h2o2_bta` 유의 평균 ρ 0.7175 < 0.85. 판정#77·#78이 원인을
+> `tw202115224a` 하나로 확정하고 "구조적 미달"로 기록했으므로, 이 팩 계의 **새 독립 DOE**
+> 확보가 유일한 경로다.
+
+⚠ **위임 운영 — 표준을 어겨서 turn 을 태웠다**: 직전 회차가 확립한 분업(위임=탐색·판독·기록·
+커밋 / 호출자=전체 pytest·qa_loop·push)을 이번 브리프가 지키지 않고 완료기준에 전체 스위트와
+qa_loop 을 넣었다. 결과: 위임이 노트를 완성하고도 `Reached max turns (120)` 으로 사망해
+INDEX 등록·판정 행·C2-CLOSURES 등록·커밋을 전부 호출자가 뒤처리했다(pytest 1회가 583초다).
+**다음 회차부터 브리프에 전체 스위트를 넣지 마라.**
