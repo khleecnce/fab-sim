@@ -192,7 +192,13 @@ def check_dimensions() -> List[Issue]:
                 continue                       # 식별자(문자열)는 단위 없음이 정상
             unit = _norm(getattr(p, "unit", None))
 
-            if key.endswith(DIMLESS_SUFFIX):
+            # 지수는 **이름 어디에 있든** 무차원이다. `..._exponent_m` 처럼 지수를
+            # 가리키는 문자(m·n·k)가 뒤에 붙으면 접미 규칙이 그 한 글자를 단위로
+            # 읽어 '미터'로 오판한다 — 판정 기준을 접미에서 '의미 표지 포함'으로
+            # 올린다(물질명 없는 구조 규칙). 반대로 진짜 길이 파라미터는 이름에
+            # _exponent 가 들어갈 이유가 없으므로 사각지대가 생기지 않는다.
+            if key.endswith(DIMLESS_SUFFIX) or any(
+                    f"{s}_" in key for s in DIMLESS_SUFFIX):
                 if unit and unit not in ("-", "1", "", "pH"):
                     out.append(Issue(
                         "D", "warn", f"{name}:{key} 는 무차원이어야 하는데 단위 '{unit}'",
