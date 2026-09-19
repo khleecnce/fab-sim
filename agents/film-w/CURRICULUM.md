@@ -11,7 +11,7 @@
 - [x] Lv3-2 W Kp·산화 속도 파라미터 + 문헌값 재현 (sim/tier2) (2026-09-15, knowledge/cmp/w-cmp-preston-kp-oxidizer-rate-literature-reproduction.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 W 실데이터 스키마 + 산화제 농도 의존 보정 파라미터
+- [x] Cal-1 W 실데이터 스키마 + 산화제 농도 의존 보정 파라미터 (2026-09-20, knowledge/cmp/film-w-calibration-data-schema-oxidizer-concentration-parameters.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

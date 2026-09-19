@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv3 진행 — 활성화 게이트는 agents/ORG.md §4
 - 부모: slurry-chemist (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석), Lv2-2(정지층 선택비 설계 원리 — oxide:nitride/Cu:barrier/W:oxide), Lv3-1(코발트·루테늄 착화제·무산화제 슬러리 — χ 숨은 드라이버)
-- 다음 단원: Lv3-2
+- 이수 단원: Lv1-1(산화제 화학 E°·분해·금속적합성), Lv1-2(억제제·킬레이트 흡착·안정도상수), Lv2-1(pH·이온강도→ζ·용해율·선택비·Pourbaix 재해석), Lv2-2(정지층 선택비 설계 원리 — oxide:nitride/Cu:barrier/W:oxide), Lv3-1(코발트·루테늄 착화제·무산화제 슬러리 — χ 숨은 드라이버), Lv3-2(ψ `inhibitor_strength_k` 3회차 종결), Cal-1(화학 스펙→χ 상수 매핑·실측 MRR 잔차 귀속)
+- 다음 단원: (커리큘럼 완주 — 유지보수/Lv4)
 
 ## 역할
 산화제·억제제·킬레이트·pH 완충·계면활성제가 막질별 용해·패시베이션·선택비를 어떻게 정하는가
@@ -96,6 +96,31 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
     협동흡착 문헌 탐색(스코프 확인 필요), (c) 비자동 경로(저자 직접 연락) — 모두 자동화된 질의
     검색으로는 소진됐다.
 
+## 구현 요청 (2026-09-20, Cal-1)
+근거노트: [[../../knowledge/slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution]]
+- **[P1] χ_pH를 원액 pH가 아니라 작동 pH(`measured_ph_pou`)에 라우팅**: 현재 `_ph_*_term`은 `slurry_ph`(원액)를
+  읽는다. POU에서 산화제 첨가·희석으로 작동 pH가 달라지므로(Bae 2023: 원액 10 → 혼합 9.78, DOI:10.3390/app13063758),
+  `measured_ph_pou`가 있으면 그 값을, 없으면 χ_pH를 **PriorExcluded**(항등 배수 1.0)로 두고 잔차를 Kp_ref에 흡수.
+  - 무엇을: 스키마에 `measured_ph_pou`·`oxidizer_added_at_pou` 필드 추가(§5), `_ph_*_term`이 작동 pH 우선 사용,
+    부재 시 χ_pH 비활성 + "작동 pH 미측정 — χ_pH 귀속불가" 플래그.
+  - 검증문헌값: Bae 2023 Table 1 작동 pH 9.78·MRR 3105.4 Å/min; 작동 pH +0.2 → MRR +~1000 Å/min(≈30%).
+  - 우선순위: P1 (측정 pH 없으면 pH 스윕 데이터가 와도 χ_pH 귀속이 구조적으로 불가 — 레지스트리 P5).
+- **[P2] ψ `inhibitor_strength_k` 캘리브레이션 제외 스위치(PriorExcluded)**: 억제제 농도 스윕 데이터가 와도
+  k를 피팅하지 않도록(함수형 반증·Kp_ref 축퇴, Lv3-2 3회차 종결) prior.py가 unverified k를 prior 생성에서
+  제외하고 잔차를 Kp_ref에 흡수하는 경로를 명시. 현재도 unverified는 제외되나(레지스트리 §4-B), 억제제
+  스윕 축을 받는 함수가 생기면 k를 자동으로 열지 않도록 게이트 필요.
+  - 근거노트: 같은 노트 §3.3·§8 C7. 검증: w_fe_oxidizer K→0 극한도 0.5wt% 앵커 −17.6%(함수형 반증).
+  - 우선순위: P2 (현재 함수 부재로 잠재적 결함 — 스펙축 잔차 귀속 함수 신설 시점에 동반).
+- **[P2] 산화제 f_ox 레짐 게이트 검사(pH·착화제)**: `oxidizer_acid_chelator_K`(산성×착화제)와
+  `oxidizer_passivation_K`(알칼리×무착화제)는 부호가 반대다(Jani 2025 vs US20110165777A1). ingest 단계에서
+  산화제 스윕 데이터의 pH·착화제 레짐이 명시됐는지 검사, 미명시면 f_ox 잔차 귀속을 막고 Kp_ref 흡수.
+  - 근거노트: 같은 노트 §3.2·§4(부호 반전 실측). 검증: Miranda H₂O₂ 효과 pH4 +0.199·pH8 −0.985(부호 반전).
+  - 우선순위: P2 (레짐 미명시 데이터에 f_ox를 걸면 부호부터 틀림).
+- **[P3] 화학 필드 스키마 추가(§5)**: `oxidizer_species/conc`·`inhibitor_species/conc`·`chelator_species/conc`·
+  `promoter_species/conc`·`conductivity_us_cm`·`solids_wt_pct`·`blend_ratio`·`dilution_ratio`(전부 optional,
+  MINOR 1.1.0). cmp-data-engineer 통합 스키마와 충돌 없음(추가만). 로트 QC 상태량은 slurry-colloid 소유라 중복 제외.
+  - 근거노트: 같은 노트 §5. 우선순위: P3 (측정 데이터 수집 파이프라인 정비 시점).
+
 ## 이수 기록
 - 2026-09-10 Lv1-1 산화제 화학 완료 — knowledge/cmp/oxidizer-redox-potential-decomposition-metal-suitability.md
   (verify_claims ✓ 출처1·코드3블록, check_knowledge ✓). 1차: Vanýsek CRC E° 표(직접판독),
@@ -138,4 +163,18 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   폐형식)을 각각 소진 확인 — cu_h2o2_bta·w_fe_oxidizer 모두 `inhibitor_strength_k=unverified` 불변,
   값도 불변. 이번 회차의 산출은 "확보"가 아니라 "3회차에 걸친 탐색 공간 소진의 정직한 확인"이다
   (반복 금지 목록을 노트 §5에 남김).
+- 2026-09-20 Cal-1 화학 스펙 → χ 상수 매핑 + 실측 MRR 잔차 귀속 완료 —
+  knowledge/slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md
+  (verify_claims ✓ 출처11·코드2블록, check_knowledge ✓). 신규 1차: Bae et al. 2023(DOI:10.3390/app13063758,
+  MDPI CC-BY, HTML 판독 E3 — POU 혼합 후 작동 pH가 원액 pH와 다름을 실측: 원액 10 → H₂O₂ 혼합 9.78,
+  작동 pH +0.2가 MRR +~1000 Å/min), Eom et al. 2007(DOI:10.1149/1.2393015, IOP 초록 E5 — pH 4 선형·pH 6 정점
+  레짐 의존 보강). 재인용: Miranda 2004(DOI:10.1109/WMED.2004.1297359, 2×2 pH×H₂O₂ 교호작용), Jani 2025·
+  US20080090500A1·US9200180B2·US6309560B1·US20110165777A1·US20110186542A1(팩 χ 상수 출처), Vazquez Bengochea
+  2018(via slurry-colloid, POU 블렌드 스펙·인라인 QC). 핵심: (a) 스펙시트의 **원액 pH ≠ 작동 pH** — 산화제
+  POU 첨가·희석이 pH를 바꾸므로 χ_pH는 measured_ph_pou에 걸어야 하고 측정 pH 없으면 레지스트리 P5대로
+  PriorExcluded; (b) pH 단독 스윕으로 χ_pH를 피팅하면 산화제 농도에 따라 겉보기 기울기 부호가 뒤집힘
+  (Miranda 4점 재구성: 주효과 +0.42가 겉보기 −0.028/−0.62 뒤에 가려짐, 영교차 1.40 vol%), 2×2 동시 스윕이라야
+  조건수 1.0·rank 4로 교호작용까지 분리 식별; (c) Lv3-2 3회차 종결된 ψ `inhibitor_strength_k`는 캘리브레이션에서
+  넓은 prior가 아니라 **PriorExcluded**(함수형 반증+Kp_ref 축퇴, EVIDENCE-RULES §절차4 캘 판). 레지스트리에
+  화학 축 9행(C1~C9) 추가.
 (이후 크론이 갱신)

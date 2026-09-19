@@ -11,7 +11,7 @@
 - [x] Lv3-2 소재 파라미터 → GW 유효 강성·asperity 분포 정량모델 (2026-09-15, knowledge/pad/pad-material-gw-effective-modulus-asperity-distribution.md — verify_claims·check_knowledge 통과)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 패드 스펙시트(경도·밀도·기공) → 접촉모델 입력 변환 + 실측 프로파일 잔차
+- [x] Cal-1 패드 스펙시트(경도·밀도·기공) → 접촉모델 입력 변환 + 실측 프로파일 잔차 (2026-09-20, knowledge/pad/pad-material-specsheet-to-contact-model-input-residual-attribution.md — verify_claims·check_knowledge 통과)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

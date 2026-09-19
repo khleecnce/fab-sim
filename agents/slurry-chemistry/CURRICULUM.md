@@ -11,7 +11,7 @@
 - [x] Lv3-2 화학 조성 → 용해율·패시베이션 상수 정량모델 (sim/tier2) (2026-09-15, knowledge/cmp/psi-inhibitor-strength-k-primary-source-verification.md — 3회차 종결, 등급 불변)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 화학 스펙(농도·pH·산화제 종류) → 화학 상수 매핑 + 실측 MRR과의 잔차 정의
+- [x] Cal-1 화학 스펙(농도·pH·산화제 종류) → 화학 상수 매핑 + 실측 MRR과의 잔차 정의 (2026-09-20, knowledge/slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

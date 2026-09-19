@@ -2204,5 +2204,14 @@
   "src": "IOPscience 초록만(exa web_fetch, E5) — 전문 IOP 유료·봇차단. 확보한 PDF는 HTML 스텁이라 삭제",
   "title": "Learning about physical parameters: the importance of model discrepancy",
   "venue": "Inverse Problems 30(11):114007 (2014)"
+ },
+ "bae2023-two-way-injection-cu-cmp": {
+  "authors": "Bae C, Kim J, Kwak D, Oh S, Kim T",
+  "doi": "10.3390/app13063758",
+  "note": "slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md",
+  "pdf_local": "papers/bae2023-two-way-injection-cu-cmp.txt",
+  "src": "MDPI HTML 전문 판독(PDF 봇차단), CC-BY",
+  "title": "Investigation of the Two-Way Injection Slurry-Supply Method for the Cu CMP Process",
+  "venue": "Appl. Sci. 13(6):3758 (2023)"
  }
 }

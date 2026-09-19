@@ -2,8 +2,8 @@
 
 ## 현재 레벨: Lv2 (진행) — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1, Lv3-2
-- 다음 단원: Lv3-2 (W Kp·산화 속도 파라미터 + 문헌값 재현, sim/tier2)
+- 이수 단원: Lv1-1, Lv1-2, Lv2-1, Lv2-2, Lv3-1, Lv3-2, Cal-1
+- 다음 단원: Lv4 (최신논문 상시추적·모델 한계 지적·결합 모델 리뷰)
 
 ## 역할
 W 플러그·contact CMP — 산화제(H2O2/Fe) 화학, 리세스·코어링, 배리어(Ti/TiN)
@@ -67,7 +67,33 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   선언종(Fe(NO₃)₃)과 30~60배 불일치. (4) 온도: 양의 계수 방향만 1차(Ea kJ/mol 미확보). verify_claims
   ✓(출처 7/코드 3블록) · check_knowledge ✓. EXAMS Lv3-2 3문항.
 
+- Cal-1 (2026-09-20): W 실데이터 스키마 + 산화제 농도 의존 보정 파라미터. 노트
+  `knowledge/cmp/film-w-calibration-data-schema-oxidizer-concentration-parameters.md`. 새 1차 문헌 2편 —
+  Choi et al. 2022(Appl.Surf.Sci. 606, 153767, DOI 10.1016/j.apsusc.2022.153767, Samsung/Stanford, 로컬 PDF
+  완독: CVD W+ALD 핵생성+PVD overburden 스택·TiN 배리어·SiO₂ stop·Reflexion-LK dead-weight·bulk/buff
+  반대선택비·H₂O₂+Fe(NO₃)₃ Fenton) · Kun Xu et al. 2016(ECS JSS 5(6) P361, DOI 10.1149/2.0371606jss, Applied
+  Materials, IOP OA HTML 판독: ALD W SiH₄ 소립/B₂H₆ 대립·CVD W 2000–2200 Å·eddy current+RS-100 4탐침 두께·
+  Ave.RR 3단계) — + 재인용(Lim2013·Stojadinović2016·US8070843B2·Wang2012·Kaufman1991·Lee&Seo2022 ρ_W
+  5.6e-8·Kim2005·S.Xu2020·Yu2009·Egan&Kim2019). 핵심 산출: (1) **Kp_W=K_p,ref·f_ox(C;K_ox,φ)·g_pH** 분해 —
+  K_p,ref·K_ox 피팅·φ·곡선형(Langmuir) prior 고정, **산화제 반포화 K_ox는 종별 재설정**(Fe(NO₃)₃~0.004 vs
+  H₂O₂~6 wt%=1600배, 공통K 적용 시 69% 오차). (2) (K_p,ref,C_peak)는 **포화영역(반포화≥2배) 관측 필요** —
+  없으면 cond>1e3·|r|>0.99 비식별(판정#19 Langmuir 판본). (3) 팩 Kp 2.6배 과대는 K_p,ref 스칼라(s≈0.39)로
+  흡수 가능하나 **산화제 100배 불일치는 oxidizer_type 필드 없이 스칼라로 흡수 불가**. verify_claims ✓(출처
+  14/코드 3블록) · check_knowledge ✓. EXAMS Cal-1 3문항. 레지스트리 추가 행 W1~W6(cmp-calibrator §1).
+
 ## 구현 요청 (software-lead용, 우선순위 순)
+
+- (P1) **W 스키마에 `oxidizer_type` 종별 f_ox 축 신설**(Cal-1 최우선): 통합 49필드에 없는 W 특이 필드.
+  `oxidizer_type`(enum H2O2/ferric_nitrate/KIO3/K3FeCN6/KMnO4)·`oxidizer_conc_wt_pct`·`fe_catalyst_ppm`을
+  slurry_spec에 추가하고, f_ox 반포화 K_ox를 oxidizer_type별 분기 테이블로. 근거노트 §2·§4-1·§5. 검증 문헌값:
+  H₂O₂ 반포화 6.3 wt%(US8070843B2)·Fe(NO₃)₃ 0.004 wt%(Lim2013)·KIO₃ 2 wt%(Stojadinović). **oxidizer_type
+  없이는 종류 혼동으로 f_ox 오적용(69% 오차)** — Lv3-2 P1의 스키마 레벨 해법. sim/ 직접수정 금지 — 크론 판정.
+- (P2) **절대 K_p,ref 식별 게이트(`is_reference_oxidizer`)**: 기준 산화제·pH·matched P·V NPW가 데이터셋에
+  하나라도 있어야 절대 K_p,ref가 식별된다(§4-2). 없으면 "산화제 스케일과 얽혀 비식별 — 팩 앵커 prior 고정"
+  플래그. film-oxide `is_reference_film` 대응. 근거노트 §2.2·§4-2.
+- (P2) **4탐침 시트저항→두께 provenance(`resistivity_ohm_m`·`thickness_method`)**: 블랭킷 W MRR은 t=ρ/Rs로
+  환산되므로 ρ 가정(Lee&Seo 2022 ρ_W=5.6e-8 Ω·m)을 레코드에 기록해야 두께·MRR이 재현된다(§1.1·§4-3).
+  박막 두께의존 저항률(scattering)은 미반영 — 단일 ρ 가정 계통편차 플래그. 근거노트 §1.1·§7.
 
 - (P1) **W 산화제 곡선 축을 산화제 종별로 분리 + Kp 상단편차 반영**: 현재 `w_fe_oxidizer.yaml`은
   oxidizer=Fe(NO₃)₃ 선언인데 산화제 곡선 파라미터(oxidizer_langmuir_K=0.549/wt%, 정점 H₂O₂ 3 wt%)는

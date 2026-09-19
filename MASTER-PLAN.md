@@ -3016,6 +3016,19 @@ literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회�
 재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
 qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
 
+## 2026-09-20 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — film-w Cal-1 · slurry-chemistry Cal-1 · pad-material Cal-1
+
+직전 회차 예고대로 각 축 대표(막질 W·슬러리 화학·패드 소재) Cal-1. 세 노트 모두 말미에 cmp-calibrator §1 레지스트리 형식의 "추가 행"을 넣게 해 파라미터 레지스트리로 합류하도록 했다. 직전 3시간 Max워커 커밋(판정#78~#80, cu_alkaline κ)과 에이전트 중복 없음. 프롬프트 `.night_prompts_0920b/`.
+
+- **film-w Cal-1** → `knowledge/cmp/film-w-calibration-data-schema-oxidizer-concentration-parameters.md` (출처 14건 실존, verify 3블록). W 필드 3축(NPW 증착스택·핵생성·배리어·4탐침 t=ρ/Rs / PTW 플러그 직경·리세스·코어링 / 슬러리 산화제 종·농도·Fe·pH) 근거: 새 1차 Choi 2022(10.1016/j.apsusc.2022.153767, PDF 완독)·Xu 2016(10.1149/2.0371606jss, 본문 판독·PDF 미저장 표기) + 기존 10편 재인용. 분해 `Kp_W=Kp_ref·f_ox(C;K_ox,φ)·g_pH`: Kp_ref·K_ox 피팅 / φ·곡선형 prior 고정, **K_ox는 산화제 종류마다 재설정**(형태 공통·스케일 종별). H2O2/Fe(NO3)3 스윕 재현 오차<3%(반포화 1600배 차이, 공통 K 강제 시 69% 오차); 포화영역 미포함 시 (Kp_ref,C_peak) |r|=0.9998 비식별·포함 시 cond<1e2. Lv3-2 팩 Kp 2.6배 과대는 스칼라 s≈0.39로 흡수 가능하나 산화제 100배 불일치는 **`oxidizer_type` 필드 없이 흡수 불가**. 스키마 제안 10필드, 레지스트리 W1~W6. Cal-1 [x].
+- **slurry-chemistry Cal-1** → `knowledge/slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md` (출처 11건 실존, verify 2블록). COA/스펙 항목→χ 상수(χ_pH·f_ox·ψ·킬레이트 a·촉진 m) 매핑. 핵심: **POU 작동 pH ≠ 원액 pH**(Bae 2023 10.3390/app13063758: 10→9.78, +0.2 pH가 MRR ≈30%) → `measured_ph_pou` 없으면 χ_pH 귀속 불가(레지스트리 P5 PriorExcluded 정량 근거). Miranda 2004 2×2 실측으로 pH 단독 스윕 기울기가 산화제 농도에 따라 **부호 전환**(1.0 vol% +0.120/pH → 3.5 vol% −0.621/pH, 영교차 1.40 vol%), 2×2 동시 스윕은 cond 1.0·rank 4 식별. ψ K(3회차 종결)는 넓은 prior가 아니라 PriorExcluded로 판정. 스키마 제안 11필드(전부 optional=MINOR), 레지스트리 C1~C9. Cal-1 [x].
+- **pad-material Cal-1** → `knowledge/pad/pad-material-specsheet-to-contact-model-input-residual-attribution.md` (출처 3건 실존, verify 2블록). 스펙시트 항목(Shore D·밀도·기공·압축률·E′·그루브)→GW 입력(E*·R·η·σ_s) 매핑; 새 특허 US10562149B2(CMC: E′(25)≥1200/E′(80)≤15 MPa·Shore D 70+·기공 10–30 vol%)·US20030100250A1. **Shore D 60 → Qi eq.11 117 MPa vs Kunz-Studer 6.99 MPa = 16.8배** → 경도로 E* 고정 불가, E*는 Lv3-2 문헌 클러스터(119–380 MPa)를 prior로(둘 다 채택 안 함·평균 금지). GW 지수분포 폐형해로 (E*,η) 단일조건·압력스윕 모두 비식별(cond ∞·r=−1), E* 고정 시만 η 복원(<10%). R·η·σ_s는 컨디셔닝 축(disk-*·pad-lifecycle 인용만). 레지스트리 P12~P14. ⚠ Kunz-Studer식이 cati 기술블로그 경유(SCOPE blog_forum enabled:false) — 채택 안 한 대조 예시라 노트에 "범위 밖 소스·prior 사용 금지" 표기를 총괄이 추가. Cal-1 [x].
+
+품질게이트(총괄 직접 실행): verify_claims 3/3 ✓(출처 28건 전부 실존·코드 7블록 전부 통과·출처없는 수치 0), check_knowledge 3/3 ✓, `--all` **282/283** — 유일한 ✗는 Max워커 미커밋 작업물 `knowledge/cmp/chi-cu-alkaline-oxidizer-K-independent-refit-round2.md`(untracked, 이 회차 산출 아님·건드리지 않음).
+QA 루프 #308·#309 PASS ρ_sig=0.9566(불변), 격리 0, 플래그 11(C4 9·F2 2 동일). completion 격자 68/70 불변. 코퍼스 fetch 60/extract 120 실행: total 9257·fulltext 1719·extractions 1343(+7), 큐 fetch 7538·extract 1·learn 1707 — 새 fulltext 대부분 rates=0(추출 표만).
+ORG §5 갱신(3명 Cal-1 완료). sim/·data/schema/·knowledge/params/ 무수정. 429/한도 흔적 없음.
+**Cal-1 진도: 10/23**. 다음 심야 후보: film-nitride · pad-structure · tool-platen-head Cal-1 → 이후 cmp-calibrator가 레지스트리 표에 W1~W6·C1~C9·P12~P14를 병합하는 Lv4 리뷰 회차 필요.
+
 ## 2026-09-20 심야 01:00 [심야병렬] 서브에이전트 3명 동시 학습 — cmp-data-engineer Cal-1 · cmp-calibrator Cal-1 · film-cu Cal-1
 
 직전 회차 예고대로 "세 노트가 공통 지목한 스키마 결손"을 받는 통합층(데이터·피팅) + PTW 보정 대표 사례(Cu) 조합. 직전 14시간 성장엔진·Max워커 커밋(슬러리-chemist·abrasive·팩 판정)과 에이전트 중복 없음. 프롬프트 `.night_prompts_0920/`.
