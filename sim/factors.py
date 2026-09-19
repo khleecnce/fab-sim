@@ -1691,6 +1691,38 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
         srcs.append("knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md §6")
         f.notes.extend(dnotes)
 
+    # ── χ 선점 판정 (2026-09-19, 판정#70) ─────────────────────────────
+    # ψ 가 비는 이유는 두 가지가 전혀 다르다:
+    #   (a) 아무도 안 쟀다 → 진짜 미모델링(unmodeled). 숨기면 안 된다.
+    #   (b) 메커니즘은 실재하고 계량도 됐지만 **χ 가 같은 θ(C) 를 이미 전담**한다
+    #       → ψ 에 다시 곱하면 이중계상. 이때 옳은 값은 항등원 1.0 이다.
+    # 근거: knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md §3·§6(c)
+    #   — 같은 θ(C) 를 ψ 에도 곱하면 US9200180B2 Ex.5-7 실측 대비 오차가
+    #     단일항보다 커짐을 수치로 확인(노트 verify 블록 (c)).
+    # has_own 게이트: 상속만 받은 팩이 조용히 partial 이 되면 진짜 미모델링을
+    #   가린다 — **자기 own 계수로 χ 를 이미 가동 중인 팩만** 이 분기를 탄다.
+    if not terms:
+        _chi_own = [k for k in ("oxidizer_passivation_K", "cu_ph_alkaline_k")
+                    if pk.has_own(k)]
+        if _chi_own:
+            f.value = 1.0
+            f.terms = {"owned_by_chi": 1.0}
+            f.status = "partial"
+            f.confidence = "literature"
+            f.sources = ["knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md",
+                         "knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md"]
+            f.notes.append(
+                "ψ=1.000 (항등원): 이 팩의 표면 보호 메커니즘(H2O2/pH 유도 Cu 부동태화)은 "
+                "실재하고 1차 문헌으로 계량됐으나(US9200180B2 [0077]·[0111]·TABLE 4), "
+                f"χ 가 자기선언 계수 {'·'.join(_chi_own)} 로 같은 물리량 θ(C) 를 이미 "
+                "전담 모델링한다 — ψ 에 같은 θ(C) 를 다시 곱하면 이중계상이다"
+                "(knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md §6c 수치 증명). "
+                "이 계 문헌에 ψ 가 독립으로 가져갈 흡착 화학종이 없다(§4: 억제제 없음, "
+                "벤젠술폰산은 Ta 착화제·산화제로 부호 반대, 분산제 라벨 없음) — "
+                "새 독립 흡착종이 확보될 때까지 항등원이 맞다.")
+            f.notes.extend(notes)
+            f.notes.extend(dnotes)
+            return f
     if not terms:
         f.notes.append("⚠ ψ 미모델링: 억제제 파라미터(inhibitor_mM + 흡착상수)도, "
                        "첨가제 농도축(shield_*)도, 분산제 파라미터(dispersant_type)도 팩에 "

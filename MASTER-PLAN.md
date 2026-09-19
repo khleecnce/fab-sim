@@ -3673,3 +3673,4 @@ check_knowledge ✓ · pytest **1267 passed / 1 skipped, 회귀 0** · completio
 **위임 운용 관측**: 이번 위임은 **턴 소진 없이 정상 종료**했다(로그 1917바이트, 요약까지
 출력). 직전 3회 연속 사망과 달리 "5턴 안에 노트 생성 + 확보할 때마다 즉시 저장 +
 테스트는 포그라운드로"를 브리프 최상단에 둔 것이 유지됐다.
+- 2026-09-19 (성장엔진/정확도루프): C1 `ψ psi/cu_alkaline_benzenesulfonic` 종결 — 판정#70. H2O2/pH→Cu 부동태 관계는 US9200180B2 TABLE 4·Ex.5-7 로 1차 확인되나 **χ 가 같은 θ(C) 를 own 계수로 이미 전담**해 ψ 신설은 이중계상(노트 §6c assert로 수치 증명). `_f_psi` 에 has_own 게이트 항등원 분기 + `tests/test_psi_owned_by_chi.py` 3건. 완성 격자 64/70 → **65/70**, qa_loop --strict PASS(유의 ρ 0.9566 불변 — 배수 1.0 설계 의도), pytest green.

@@ -1,14 +1,13 @@
 {
-  "ts": 1789787955.6863942,
+  "ts": 1789794487.121496,
   "complete": false,
-  "cells_done": 64,
+  "cells_done": 65,
   "cells_total": 70,
   "fails": [
     "C2 Γ gamma/cu_alkaline_benzenesulfonic: confidence=estimated",
     "C2 κ kappa/cu_alkaline_benzenesulfonic: confidence=unverified",
     "C2 χ chi/cu_alkaline_benzenesulfonic: confidence=estimated",
     "C2 χ chi/sic_alumina_kmno4: confidence=estimated",
-    "C1 ψ psi/cu_alkaline_benzenesulfonic: status=unmodeled",
     "C1 Δ delta/cu_alkaline_benzenesulfonic: status=unmodeled",
     "C4 cu_h2o2_bta: 유의 평균 ρ 0.7175 < 0.85"
   ],
@@ -124,10 +123,12 @@
     ],
     "psi": [
       "knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md",
+      "knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md",
       "knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
       "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md",
       "knowledge/cmp/psi-adsorption-shield-oxide-systems.md",
-      "knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md"
+      "knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md",
+      "knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md"
     ],
     "tau": [
       "knowledge/cmp/slurry-turnover-ratio-mrt-preston-constant.md",
