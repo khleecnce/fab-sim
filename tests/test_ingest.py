@@ -223,6 +223,19 @@ def test_synthetic_files_exist_and_ingest():
 
 # 11. normalize.py / series_scale.py / ptw_vm_schema.py 가 0바이트 수정됨
 def test_existing_calibration_modules_untouched():
+    # ⚠ 이 검사는 **워킹트리 가드**다 — 그 작업 지시가 세 파일을 건드리지 말라고
+    #   했는지 확인할 뿐, HEAD 에 담긴 코드의 계약이 아니다. 그래서 git 워크트리가
+    #   아닌 곳에서는 판정 자체가 성립하지 않는다.
+    #   .githooks/pre-push 가 HEAD 를 임시 디렉토리로 export 해 pytest 를 돌리는데
+    #   거기엔 .git 이 없어 `git diff` 가 128 로 죽고 check=True 가 예외를 냈다 —
+    #   로컬 전체 스위트는 통과하는데 push 만 막히는 유형이라 원인을 엉뚱한 곳에서
+    #   찾게 된다(2026-09-19 실제로 그랬다). 판정 불가일 때는 실패가 아니라 skip 이다.
+    inside = subprocess.run(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        pytest.skip("git 워크트리가 아니다(클린 export 등) — 워킹트리 가드는 판정 불가")
     result = subprocess.run(
         ["git", "diff", "--stat", "HEAD", "--",
          "sim/calibration/normalize.py",
