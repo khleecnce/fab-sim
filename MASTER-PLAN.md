@@ -4354,3 +4354,4 @@ US6309560B1(알루미나·BTA無)에서 온 **타계 전이(E4)** 값인데 크�
 게이트(Max워커 직접 재실행): verify_claims ✓ check_knowledge ✓ pytest **1302 passed**/1 skipped
 (정정 전 1 failed → 정정 후 통과) · completion **70/70** 불변 · qa_loop #315 --strict PASS
 ρ=0.9566 불변. 커밋 bd77c81 + dda1d02, push 완료.
+- 2026-09-20 오전: [정확도루프] 판정#87 — 응답지도 가짜 CONFLICT 2건 제거. `hong2007` 반복측정·`excluded_axes` 미반영·`US8501625B2` 층별 형상 분기가 원인. `classify` 반복측정 접기 + `excluded_axes` 교란 계상 + 새 판정 SPLIT(score 110) 신설. 전 팩 CONFLICT 2→0, `sim/` 0변경. pytest 1304 passed, qa_loop #318 PASS ρ 0.9566 불변, completion 70/70 불변.
