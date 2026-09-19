@@ -567,6 +567,53 @@ class PrestonRadialModel:
         return np.interp(radius_m, rs, mrr)
 
 
+class PatternDensityEffectivePressureModel:
+    """Tier1 선택형(opt-in): PTW 패턴밀도별 유효압력비를 Preston MRR에 곱한다.
+
+    근거: Sorooshian(2005) §3.3 실측표(sim/tier2_physics/npw_ptw_effective_pressure.py) —
+    패턴 웨이퍼의 융기(up) 피처에 실제로 걸리는 접촉압력 P_eff/P_applied을 밀도별로
+    실측했다. Preston: MRR = Kp·P·V. Kp는 blanket NPW에서 역산되므로
+    up-area 제거율 = Kp·P_eff·V = ratio × blanket Preston MRR — 이중계상이 아니다.
+
+    사용자가 이 모델을 **명시적으로** 선택했을 때만 돈다. 조건 미달(NPW·density
+    미지정/표 밖·pressure 표 밖)이면 조용한 blanket 폴백 없이 ValueError로 크게
+    실패한다 — 조용히 넘어가면 "패턴 효과를 넣었다"는 거짓말이 되기 때문이다.
+    """
+    name = "tier1.pattern_density_effective_pressure"
+    _TEMP_C = 23.0   # 표의 상온 행 고정 — notes()가 이 근거 없음을 항상 명시한다
+
+    def mrr_radial(self, recipe: "ResolvedRecipe", radius_m: np.ndarray) -> np.ndarray:
+        if recipe.wafer != "PTW":
+            raise ValueError(
+                f"{self.name}은 PTW 전용이다 — wafer={recipe.wafer!r}에는 적용할 수 없다 "
+                "(NPW는 blanket이라 패턴밀도 유효압력 개념이 없다)")
+        density = recipe.meta.get("pattern_density")
+        if density is None or density not in (0.10, 0.50, 0.90):
+            raise ValueError(
+                f"{self.name}은 recipe.meta['pattern_density']가 {{0.10, 0.50, 0.90}} 중 "
+                f"정확히 하나여야 한다 — 받은 값: {density!r} (조용한 보간·외삽 없음)")
+        if recipe.pressure_psi not in (3, 7):
+            raise ValueError(
+                f"{self.name}은 pressure_psi가 {{3, 7}} 중 하나여야 한다 — "
+                f"받은 값: {recipe.pressure_psi!r} (표에 3·7psi만 있고 그 사이 보간 근거가 "
+                "문헌에 없다)")
+        import npw_ptw_effective_pressure as EPR   # sim/tier2_physics (1바이트도 수정 안 함)
+        ratio = EPR.table_ratio(density, recipe.pressure_psi, self._TEMP_C)
+        return ratio * PrestonRadialModel().mrr_radial(recipe, radius_m)
+
+    def notes(self, recipe: "ResolvedRecipe") -> List[str]:
+        return [
+            f"{self.name}: 표 온도 23℃ 고정 — 실제 패드표면 온도를 표 온도"
+            "(10/23/35/45)에 매핑할 근거가 없다 (Sorooshian 2005 §3.3).",
+            "이 값은 융기(up) 피처의 step-height 국면 제거율이지 다이 평균 제거율도, "
+            "평탄화 완료 후 제거율도 아니다 — 시간에 따라 ratio가 1로 수렴하는 과정은 "
+            "미모델링.",
+            "ratio는 3점(0.10/0.50/0.90) 실측 조회값이다 — 그 사이 밀도는 지원하지 않는다.",
+            "비교 대상인 Boning 1/ρ 모델(10/2/1.11배)은 저밀도에서 실측을 4배 이상 "
+            "과대예측한다 — 이 모델은 그쪽을 쓰지 않는다.",
+        ]
+
+
 _MODELS: Dict[str, Model] = {}
 
 
@@ -575,6 +622,15 @@ def register(model: Model) -> None:
 
 
 register(PrestonRadialModel())
+register(PatternDensityEffectivePressureModel())
+
+# PTW 패턴 효과를 MRR 경로에 반영하는 모델들. simulate()가 "패턴 모델을 안 썼다" 경고를
+# 띄울지 판단하는 데만 쓴다. 판정#65(EVIDENCE-RULES): 둘 다 등록돼 있으나 근거 등급은
+# 같지 않다 — 기본 권장은 실측표 기반 effective_pressure 쪽이다.
+_PATTERN_MODELS = frozenset({
+    "tier1.pattern_density",                      # Boning 1/ρ (sim/models.py, 폐형식 가정)
+    "tier1.pattern_density_effective_pressure",   # Sorooshian 2005 §3.3 실측표
+})
 
 
 def _lubrication_diagnostics(rr: "ResolvedRecipe") -> Dict[str, object]:
@@ -2856,8 +2912,10 @@ def simulate(recipe: Recipe, model: str = "tier1.preston_radial") -> WaferResult
         remaining = rr.initial_thickness_nm - removed
         if np.any(remaining < 0):
             notes.append("잔막 음수 — 오버폴리시. time_s 또는 initial_thickness 확인")
-    if rr.wafer == "PTW" and model != "tier1.pattern_density":
-        notes.append("PTW인데 패턴 모델을 쓰지 않았다 — model='tier1.pattern_density'로 실행하라. "
+    if rr.wafer == "PTW" and model not in _PATTERN_MODELS:
+        notes.append("PTW인데 패턴 모델을 쓰지 않았다 — "
+                     "model='tier1.pattern_density_effective_pressure'(Sorooshian 2005 실측표, "
+                     "판정#65 권장) 또는 'tier1.pattern_density'(Boning 1/ρ)로 실행하라. "
                      "지금 값은 NPW 등가")
     # 윤활 레짐 진단 — MRR 경로와 완전히 독립. 팩에 슬러리 점도·패드 Ra가 없으면 조용히 None.
     lube = _lubrication_diagnostics(rr)
