@@ -127,6 +127,30 @@ register(PairDG(
      "EQCM 은 θ 를 직접 재므로 다층 판별이 가능한 방법이다",),
 ))
 register(PairDG(
+    "glycine", "cu", -39.8208,
+    "전위동태 분극(Tafel) + Langmuir (K_ads=1.25e5 L/mol, R²=0.991), 30±0.5 °C",
+    "10.5281/zenodo.5594539", "literature",
+    ("Nandi, Biswas, Jain, Nandi, J. Indian Chem. Soc. 94, 369-380 (2017) "
+     "— OA 전문(Zenodo 호스팅) 확보·직접 읽음, 원문 화합물 (1)=순수 글리신 "
+     "(N-벤젠설포닐 유도체 (2)~(10)은 이식 금지 대상 — 등록하지 않았다)",
+     "0.6 M NaCl 수용액, pH 6, 무산화제 — 이 팩(cu_h2o2_bta, pH 3, H2O2 존재)과 "
+     "전해질·pH 다름. 원문 자신도 'at pH 6 ... glycine ... is found to be only "
+     "10.1% (zwitter ion). glycine is good inhibitor in HCl/H2SO4 ... where it "
+     "exists as protonated species' 라고 pH 의존성을 명시한다 — 부호(억제)는 "
+     "교차 corroboration 있으나 크기는 pH 3 조건에 그대로 쓸 수 없다",
+     "⚠ 교차확인: 같은 팩·같은 데이터셋(jani2025, doi:10.1149/2162-8777/adc59e, "
+     "pH 3)이 독립적으로 '글리신은 억제제'라는 같은 방향을 확인했다(원문: "
+     "'glycine functions as a dissolution inhibitor ... effectiveness is limited "
+     "at low pH, where its predominantly protonated ... forms reduce its ability "
+     "to complex with Cu2+'). 그러나 그 논문은 ΔG_ads(Langmuir)를 보고하지 않고 "
+     "통제쌍 2점에서 역산한 지수형 계수(a=1.5119 /M, "
+     "knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md)만 가진다 — "
+     "이 줄의 값과 그 계수는 서로 다른 함수형·다른 측정법이라 대체하지 않는다",
+     "⚠ 참고(등록 금지 — 인접분자): 같은 계열 유도체(bicine/tricine, N-치환 "
+     "글리신) ΔG_ads ≈ -28~-32 kJ/mol(물리흡착); Lys-Glu-Asp-Gly 테트라펩타이드 "
+     "ΔG_ads=-30.86 kJ/mol — 둘 다 곁사슬이 다른 인접 분자라 이 줄에 쓰지 않았다",),
+))
+register(PairDG(
     "malonate", "cu", -47.7,
     "in situ 엘립소메트리(θ 직접 환산) + full Temkin 등온식 (f=1.65)",
     "10.17675/2305-6894-2020-9-3-13", "literature",
@@ -166,6 +190,21 @@ NO_ADSORPTION: Dict[Tuple[str, str], str] = {
         "말론산의 역할을 H2O2 안정화 + 알루미나/W 제타전위 조절(입자 오염 저감)로 "
         "규정한다 — 표면 흡착 억제제가 아니다. 이 축은 억제 항이 아니라 산화제 "
         "안정성·분산 항으로 다뤄야 하므로 쌍 등록 자체가 구조적으로 부적절하다.",
+    ("oxalic", "cu"):
+        "옥살산은 Cu CMP에서 표면 흡착 억제제가 아니라 **착화제(complexing agent)"
+        "**로 작용해 Cu2+ 를 가용성 착물로 빼낸다 — 흡착이 아니라 정반대(용해 촉진) "
+        "방향이다. jani2025(doi:10.1149/2162-8777/adc59e, CC-BY, 전문 확보·직접 "
+        "읽음)가 'HC2O4- dissolved CuO to form soluble complexes like "
+        "[Cu(C2O4)2]2-' 라 명시하고, RSM 회귀에서 [oxalic acid] 계수가 +536.63"
+        "(p=1.7e-7)로 **가장 강하고 유의한 양(+)의 인자**('oxalic acid had the "
+        "most significant positive impact on the response') — 억제제라면 농도가 "
+        "오를 때 제거율이 내려야 하는데 정반대다. 독립 1차 문헌(Cabot US6309560B1 "
+        "TABLE 1, knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md)"
+        "도 옥살산암모늄 농도 증가 → Cu 제거율 단조 증가(최대 12.81배)를 별도로 "
+        "확인해 같은 결론(촉진·복합체 형성)에 도달했다 — 그 물리는 이 팩에서 이미 "
+        "sim/chemistry.py::_carboxylate_promoter_term(promoter_species=oxalic) "
+        "이 맡고 있다. 이 줄이 없으면 갭 리포트가 존재하지 않는 흡착 상수를 "
+        "계속 찾으라고 지시한다(benzenesulfonic×cu 줄과 같은 재발 방지 목적).",
     ("benzenesulfonic", "cu"):
         "US9200180B2 명세서가 이 성분을 억제제가 아니라 **산화제 겸 Ta 착화제**로 "
         "규정한다 — corrosion inhibitor 마쿠쉬 군(1,2,4-triazole/benzotriazole/"

@@ -18,6 +18,7 @@
 | 2026-09-08 | Lv3-2 슬러리 5파라미터(pH·입자크기·농도·K⁺·분산제)→oxide MRR 정량모델, Li et al.(2021) OA 원문 정량 재현 | [[../../knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative]] | EXAMS Lv3-2 3문항 |
 | 2026-09-15 | Lv2 부록 — ψ 흡착보호 3상수(K/n/k) 1차 출처(Park 2003) 재대조·Hill n=4.62 반증 시도, confidence=estimated 유지 판정 | [[../../knowledge/cmp/psi-shield-hill-constants-ceria-primary-source]] | EXAMS Lv2 부록 3문항 |
 | 2026-09-19 | C2 완성격자 — χ `sic_alumina_kmno4` 산화제 형상(`oxidizer_langmuir_K`) 종게이트 통과: Gong 2024 L25 직교표(같은 논문, 이미 인용 중) 주효과평균 5점에서 K=2.28(1/wt%) 역산, status partial→modeled. held-out 상충 발견(§구현 요청) | [[../../knowledge/chemistry/sic-kmno4-oxidant-adsorption-kinetics]] | check_knowledge·verify_claims 통과 |
+| 2026-09-20 | C4 배차 — `sim/inhibitor_pairs.py` 쌍 표: glycine×cu 등록(Nandi 2017, OA/Zenodo DOI:10.5281/zenodo.5594539, ΔG_ads=−39.82 kJ/mol, pH6 NaCl), oxalic×cu는 NO_ADSORPTION 선언(jani2025 adc59e + US6309560B1 — 착화제이지 흡착억제 아님). `pair_gap_report.py` 미등록 쌍 2→0. **중요**: `cu_h2o2_bta`는 `inhibitor_species=bta` 고정이라 이 쌍 표가 glycine/oxalic 경로에 실제로 연결되지 않는다(그 둘은 별도 전용 항 `_chelator_suppression_term`/`_carboxylate_promoter_term`이 이미 처리) — 등록은 감사 통과용이지 C4(ρ=0.7175, 원인은 tw202115224a 연마입자 형상축, 판정#73)를 움직이지 않는다 | [[../../knowledge/cmp/glycine-oxalic-cu-adsorption-verdict]] | check_knowledge·verify_claims·qa_loop 통과 |
 
 ## 구현 기여
 <!-- sim/ 모듈 기여 기록 -->
