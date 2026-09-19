@@ -40,6 +40,22 @@ closures:
       "이 칸은 부모와 동일한 구조적 한계"라는 선언이다.
     reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
   - factor: gamma
+    pack: cu_alkaline_benzenesulfonic
+    judgments: ["판정#22", "판정#22-종결"]
+    note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md
+    reason: >
+      2026-09-19 신설 팩(판정#71 배경 — cu_h2o2_bta에서 pH·화학 계 분리로 갈라짐).
+      γ(패드 컨디셔닝 부하)는 슬러리 화학이 아니라 패드·디스크 축의 팩터라
+      부모(cu_h2o2_bta)에서 그대로 상속되며, 그 칸은 이미 판정#22로 종결돼 있다.
+      판정#71에서 `sim/factors.py::_f_gamma`(441~588행) 소스코드를 직접 읽어
+      필요 입력이 `cond_downforce_lbf`·`cond_duty_pct`·`rpm_platen`뿐이고 pH·
+      억제제·연마입자 종류 등 화학 파라미터를 전혀 참조하지 않음을 재확인했고
+      (knowledge/cmp/cu-alkaline-benzenesulfonic-abrasive-axis-kappa-delta.md §7
+      verify 블록), estimated 하한 리터럴(`_worst_conf(driver_conf, "estimated")`)
+      이 팩 분기 밖에서 무조건 실행됨을 확인했다. 팩을 쪼갠 것이 γ의 근거 상황을
+      바꾸지 않으므로 같은 종결을 상속한다 — sic_alumina_kmno4와 동일한 논리다.
+    reopen_if: 그릿 팁 반경 실측 또는 IC1000 항복강도 직접값 신규 출처
+  - factor: gamma
     pack: sic_ceria_h2o2
     judgments: ["판정#22", "판정#22-종결"]
     note: knowledge/equipment/gamma-conditioning-load-confidence-basis.md

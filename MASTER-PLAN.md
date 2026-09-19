@@ -3674,3 +3674,37 @@ check_knowledge ✓ · pytest **1267 passed / 1 skipped, 회귀 0** · completio
 출력). 직전 3회 연속 사망과 달리 "5턴 안에 노트 생성 + 확보할 때마다 즉시 저장 +
 테스트는 포그라운드로"를 브리프 최상단에 둔 것이 유지됐다.
 - 2026-09-19 (성장엔진/정확도루프): C1 `ψ psi/cu_alkaline_benzenesulfonic` 종결 — 판정#70. H2O2/pH→Cu 부동태 관계는 US9200180B2 TABLE 4·Ex.5-7 로 1차 확인되나 **χ 가 같은 θ(C) 를 own 계수로 이미 전담**해 ψ 신설은 이중계상(노트 §6c assert로 수치 증명). `_f_psi` 에 has_own 게이트 항등원 분기 + `tests/test_psi_owned_by_chi.py` 3건. 완성 격자 64/70 → **65/70**, qa_loop --strict PASS(유의 ρ 0.9566 불변 — 배수 1.0 설계 의도), pytest green.
+
+### 2026-09-19 [Max워커] — 판정#71: cu_alkaline_benzenesulfonic 연마입자 축 — Γ 1칸만 순증, κ·Δ는 승격 실패를 정직 보고
+
+**표적**: 완성격자 미충족 3칸(C1 `Δ`·C2 `κ`·C2 `Γ`, χ 2칸은 범위 밖 — 손대지 않음).
+
+**Γ(닫음)**: `sim/factors.py::_f_gamma`(441~588행) 소스코드 직접 재확인 — 화학 파라미터
+(pH·억제제·연마입자 종류) 미참조, estimated 하한 리터럴이 팩-독립으로 걸림. `sic_alumina_kmno4`와
+동일 논리로 `validation/C2-CLOSURES.yaml`에 판정#22·판정#22-종결 상속 등록. **completion 65→66/70.**
+
+**κ(승격 실패 — unverified→estimated로 실질 개선했으나 게이트 미통과)**: `abrasive_size_nm`
+=55.0nm(US9200180B2 CHDF 실측 50-60nm 중앙값)·`abrasive_ref_size_nm` own 선언(literature).
+`abrasive_size_exponent`=0.0은 부모 null 결과(판정#1)를 상속하되 **한 단계 낮춰 estimated** —
+그 null 결과는 실측 다리(TW202115224A, 글리신/알라닌/트리아졸 화학)+이론 다리(Chen thesis,
+화학종 미참조 확인) 둘로 literature였는데, 이 팩(벤젠술폰산·억제제 없음)은 이론 다리만 전이됨
+(E4). `abrasive_conc_exponent`=1/3(US9499721B2)도 입자(콜로이달실리카)는 일치하나 막질이
+TEOS/oxide 대 Cu로 달라 같은 코퍼스 기준(막질+입자 일치=literature)으로 estimated. 결과: κ
+전체 confidence=estimated. **completion.py MIN_CONF=literature를 못 넘어 C2는 여전히 열림**
+(값을 억지로 안 지어서 낸 정직한 결과 — 브리프의 held-out ρ 유도 금지를 지켰다).
+
+**Δ(C1은 닫혔으나 C2가 새로 열림)**: `abrasive_d99_nm`=103.824688nm — 알루미나 일반비(5.00)를
+실리카에 쓰면 이 코퍼스 자신의 기존 assert([[abrasive-particle-size-distribution-d99-tail]]
+§5, 일반비 vs 실리카실측 100%+ 괴리)와 모순되므로 대신 US10894906B2 실리카 실측 비율
+(1.887722)을 이 팩 D50(55nm)에 재적용(용도 불일치라 estimated). `damage_exponent`=2.54는
+판정 축이 막질(입자재료 무관, [[delta-damage-model-synthesis]] §3 표로 재확인)이라 부모와
+값·등급 동일 상속. Δ의 status는 unmodeled→partial로 바뀌어 **C1은 통과**했지만 confidence가
+estimated라 **같은 셀에 새 C2가 열렸다**(순감소 없음 — 실패 유형만 바뀜). D99 쪽 estimated는
+damage_exponent(이미 판정#27/#30/#31로 3회차 종결)와 달리 1회차라 C2-CLOSURES 무임승차
+등록을 하지 않았다.
+
+**결과**: completion **65/70 → 66/70**(Γ만 순증, κ·Δ는 열려 있음 — 그대로 보고). 신규 회귀
+`tests/test_cu_alkaline_abrasive_axis.py` 6건 PASS(기준조건 κ size·conc 항=1.0 이중계상방지,
+Δ d99 드라이버 확인, 입경 흔들어도 κ 불변=null결과, D99 흔들면 Δ 예상방향 이동, damage_exponent
+부모 상속 확인). pytest 전체·qa_loop --strict 결과는 아래 게이트 실행 기록에 추가.
+노트: knowledge/cmp/cu-alkaline-benzenesulfonic-abrasive-axis-kappa-delta.md

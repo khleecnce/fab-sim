@@ -1,17 +1,17 @@
 {
-  "ts": 1789794487.121496,
+  "ts": 1789799812.4699461,
   "complete": false,
-  "cells_done": 65,
+  "cells_done": 66,
   "cells_total": 70,
   "fails": [
-    "C2 Γ gamma/cu_alkaline_benzenesulfonic: confidence=estimated",
-    "C2 κ kappa/cu_alkaline_benzenesulfonic: confidence=unverified",
+    "C2 κ kappa/cu_alkaline_benzenesulfonic: confidence=estimated",
     "C2 χ chi/cu_alkaline_benzenesulfonic: confidence=estimated",
     "C2 χ chi/sic_alumina_kmno4: confidence=estimated",
-    "C1 Δ delta/cu_alkaline_benzenesulfonic: status=unmodeled",
+    "C2 Δ delta/cu_alkaline_benzenesulfonic: confidence=estimated",
     "C4 cu_h2o2_bta: 유의 평균 ρ 0.7175 < 0.85"
   ],
   "closed": [
+    "Γ gamma/cu_alkaline_benzenesulfonic: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/cu_h2o2_bta: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/oxide_silica: estimated(종결 판정#22·판정#22-종결)",
     "Γ gamma/sic_alumina_kmno4: estimated(종결 판정#22·판정#22-종결)",
