@@ -43,6 +43,14 @@ import yaml                                            # noqa: E402
 
 DATASET_DIR = ROOT / "validation" / "datasets"
 
+# 구조 검사(맨 아래)에서 입력 시그니처를 만들 때 제외할 필드.
+# ⚠ 관측값(mrr_* · observed · measured)을 반드시 뺀다 — 넣으면 조건마다 값이
+#   달라 모든 조건이 고유해지고 검사가 영원히 0건을 돌려준다(자기 무력화).
+_NON_INPUT_FIELDS = frozenset({
+    "label", "note", "notes", "source", "read_method", "comment", "ref",
+})
+_OBSERVED_KEY = re.compile(r"mrr|observed|measured|removal_rate|obs_", re.IGNORECASE)
+
 # 라벨에 쓰이는 표기 → 실제 파라미터 키
 # ⚠ 물질명이 아니라 **축 이름**으로 맞춘다.
 LABEL_TO_KEY: Dict[str, str] = {
@@ -84,7 +92,6 @@ KEY_UNITS: Dict[str, Set[str]] = {
 
 def _unit_ok(key: str, unit: Optional[str]) -> bool:
     """라벨의 단위가 그 키의 차원과 양립하는가.
-
     단위가 아예 없으면 판정하지 않고 통과시킨다(라벨은 자주 단위를 생략한다).
     있는데 어긋나면 그 토큰은 그 키의 값이 아니다.
     """
@@ -207,6 +214,45 @@ def scan(path: pathlib.Path) -> List[str]:
                 f"않는다. 라벨에도 없어 조용히 넘어간다 — 모델은 이 축을 "
                 f"팩 기본값으로 계산한다. 의도적 제외라면 `excluded_axes: "
                 f"{{{key}: <사유>}}` 로 선언하라(산문으로는 면제되지 않는다)."
+            )
+
+    # ── 이름을 모르는 축도 잡는다 (구조 검사) ───────────────────────────
+    # 위의 세 검사는 전부 LABEL_TO_KEY 에 **이름이 등록된 축**만 본다. 그래서
+    # 표에 없는 축(새 첨가제·계면활성제 등)이 라벨에서 변하면 감사기가 0건을
+    # 돌려주고 '깨끗함'을 보고한다 — 통과가 아니라 사각지대다.
+    #
+    # 실측: 한 데이터셋이 계면활성제를 0/250/2000 ppm 으로 바꾸는데 그 축이
+    # 표에 없어 12조건이 모델 입장에서 고유입력 7개로 뭉쳤다. 같은 입력에
+    # 다른 실측이 오니 순위 상관이 구조적으로 무너지는데(ρ=-0.243),
+    # 세 검사 모두 침묵했고 검증은 "모델이 산화제를 못 맞춘다"로 오진했다.
+    #
+    # 이름에 의존하지 않는 판정: **서로 다른 라벨의 수**보다 **서로 다른
+    # 입력 조합의 수**가 적으면, 라벨이 구분하는 무언가가 모델에 전달되지
+    # 않고 있다. 어느 축인지는 몰라도 '전달 누락이 존재한다'는 사실은 확정된다.
+    #
+    # ⚠ 시그니처에서 **관측값을 반드시 빼라.** 실측 MRR 은 조건마다 다르므로
+    #   그것을 넣으면 모든 조건이 고유해져 이 검사가 영원히 0건을 돌려준다
+    #   (자기 무력화 — 첫 구현이 정확히 이 함정에 빠졌다). 시그니처는 **모델이
+    #   받는 입력**만으로 구성한다.
+    labels = [str(c.get("label", "")) for c in conds]
+    if len(set(labels)) > 1 and "" not in labels:
+        sigs = set()
+        for c in conds:
+            flat = _flat(c)
+            sigs.add(tuple(sorted(
+                (k, repr(v)) for k, v in flat.items()
+                if k not in _NON_INPUT_FIELDS
+                and not _OBSERVED_KEY.search(k)
+                and isinstance(v, (int, float, str, bool))
+            )))
+        if len(sigs) < len(set(labels)):
+            problems.append(
+                f"🔴 라벨은 {len(set(labels))}종인데 모델이 받는 고유 입력은 "
+                f"{len(sigs)}종뿐이다 — 라벨이 구분하는 축 중 최소 하나가 "
+                f"전달되지 않는다. 같은 입력에 다른 실측이 오므로 이 데이터셋의 "
+                f"순위·절대값 지표는 **구조적으로** 달성 불가능하다. "
+                f"(이 검사는 축 이름을 모르는 채로도 결함을 잡는다 — "
+                f"LABEL_TO_KEY 에 없는 새 축이 여기서 걸린다.)"
             )
     return problems
 

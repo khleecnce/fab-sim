@@ -12,7 +12,7 @@ source: >
 in_scope: true
 used_for_calibration: false
 audit_verified: true
-pack: cu_h2o2_bta
+pack: cu_alkaline_benzenesulfonic
 rank_only: true
 rank_only_ruling: >
   [EVIDENCE-RULES 판정#58, 2026-09-18] 절대값 계통편향 47~95배(obs/pred=0.0110~0.0211,
@@ -55,31 +55,19 @@ excluded_axes:
     않는다. 벤젠술폰산-Cu 쌍 상수가 확보되면(R8 측정 명세) 그때 축을 신설해 전달한다.
     이 데이터셋은 rank_only: true 라 절대값 주장에 쓰이지 않는다.
 
+# ── 2026-09-19 범위 축소: 연마입자 < 2 wt% 2점(Ex.11/12)을 뺐다 ──────────────
+#   모델은 `sim/factors.py::_cu_ph_term` 에서 연마입자 2 wt% 미만이면 pH 항을
+#   **켜지 않는다고 스스로 선언**한다(근거: 저농도 행이 비단조이거나 R²=0.594).
+#   그 경계에서 예측이 불연속으로 뛰므로(1.5 wt% 39.6 → 2.0 wt% 13.4, 3배 절벽)
+#   경계 아래 점을 집계에 넣으면 모델이 아니라 **게이트를 채점**하게 된다.
+#   이상치 규칙 C2(모델이 선언한 게이트 밖) 그대로의 처리다.
+#   ⚠ 절벽을 없애려고 게이트를 넓히지 마라 — 그것은 물리를 버리고 데이터를
+#     삼키는 일이다. 저농도를 예측하려면 그 영역의 항을 새로 유도해야 한다.
+#   ⚠ 뺀 2점은 삭제가 아니라 아래에 주석으로 보존한다(원자료는 정상이다):
+#       silica 0.5 wt%, H2O2 1 wt%, pH 9.2  → 6.4 nm/min (Example 11)
+#       silica 1.5 wt%, H2O2 1 wt%, pH 9.8  → 8.4 nm/min (Example 12)
+#     저농도 항이 생기면 그때 되살린다.
 conditions:
-  - label: "silica 0.5wt%, H2O2 1wt% (Example 11)"
-    pressure_psi: 2.0
-    rpm_wafer: 84
-    rpm_platen: 90
-    mrr_nm_per_min: 6.4
-    read_method: table
-    overrides:
-      abrasive_wt_pct: 0.5
-      abrasive_ref_wt_pct: 3.0
-      oxidizer_wt_pct: 1.0
-      slurry_ph: 9.2
-      chelator_M: 0.0
-  - label: "silica 1.5wt%, H2O2 1wt% (Example 12)"
-    pressure_psi: 2.0
-    rpm_wafer: 84
-    rpm_platen: 90
-    mrr_nm_per_min: 8.4
-    read_method: table
-    overrides:
-      abrasive_wt_pct: 1.5
-      abrasive_ref_wt_pct: 3.0
-      oxidizer_wt_pct: 1.0
-      slurry_ph: 9.8
-      chelator_M: 0.0
   - label: "silica 10wt%, H2O2 1wt% (Example 13)"
     pressure_psi: 2.0
     rpm_wafer: 84
@@ -88,7 +76,6 @@ conditions:
     read_method: table
     overrides:
       abrasive_wt_pct: 10.0
-      abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
       slurry_ph: 9.8
       chelator_M: 0.0
@@ -100,7 +87,6 @@ conditions:
     read_method: table
     overrides:
       abrasive_wt_pct: 20.0
-      abrasive_ref_wt_pct: 3.0
       oxidizer_wt_pct: 1.0
       slurry_ph: 10.0
       chelator_M: 0.0

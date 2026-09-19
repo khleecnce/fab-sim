@@ -10,7 +10,7 @@ source: >
 in_scope: true
 used_for_calibration: false
 audit_verified: true
-pack: cu_h2o2_bta
+pack: cu_alkaline_benzenesulfonic
 conditions:
   - label: "H2O2 1wt% (Example 5)"
     pressure_psi: 2.0
@@ -21,7 +21,6 @@ conditions:
     overrides:
       oxidizer_wt_pct: 1.0
       abrasive_wt_pct: 3.0
-      abrasive_ref_wt_pct: 3.0
       slurry_ph: 9.5
       chelator_M: 0.0
   - label: "H2O2 2.5wt% (Example 6)"
@@ -33,7 +32,6 @@ conditions:
     overrides:
       oxidizer_wt_pct: 2.5
       abrasive_wt_pct: 3.0
-      abrasive_ref_wt_pct: 3.0
       slurry_ph: 9.1
       chelator_M: 0.0
   - label: "H2O2 5wt% (Example 7)"
@@ -45,7 +43,6 @@ conditions:
     overrides:
       oxidizer_wt_pct: 5.0
       abrasive_wt_pct: 3.0
-      abrasive_ref_wt_pct: 3.0
       slurry_ph: 8.5
       chelator_M: 0.0
 notes: >

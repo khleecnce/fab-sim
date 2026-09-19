@@ -30,6 +30,18 @@ KNOWN_OUT_OF_SCOPE = {
     "carbide2023_slurry_composition_L9",
 }
 
+# 구조 검사(라벨 종류 > 고유 입력 종류)가 새로 드러낸 **미모델링 축** 부채.
+# ⚠ 이것은 면제가 아니라 **기한 있는 기록**이다. 여기 있는 동안 그 데이터셋의
+#   순위·절대값 지표는 구조적으로 달성 불가능하므로 성능 근거로 쓰면 안 된다.
+#   해소 경로는 둘뿐이다: ①그 축을 모델에 넣는다 ②그 축이 고정인 부분집합만 남긴다.
+#   (us20110165777a1 은 ②로 이미 해소했다 — 계면활성제 0 ppm 4점만 남겼다.)
+KNOWN_UNMODELED_LABEL_AXES = {
+    # 연마입자 제조사(Nalco/Fuso)와 형상(구형/누에고치형)이 라벨에서 구분되는데
+    # 모델에 그 축이 없다. 같은 입경·같은 압력이면 모델은 두 배합을 같게 본다.
+    # 형상 인자는 아직 어느 팩에도 없으므로 데이터가 아니라 모델의 갭이다.
+    "tw202115224a_cu_abrasive_size_pressure",
+}
+
 
 def _in_scope(path: pathlib.Path) -> bool:
     import yaml
@@ -48,6 +60,10 @@ def test_no_label_only_axis_in_scoped_datasets():
         if path.stem in KNOWN_OUT_OF_SCOPE or not _in_scope(path):
             continue
         probs = scan(path)
+        if path.stem in KNOWN_UNMODELED_LABEL_AXES:
+            # 미모델링 축 부채는 위에 기록돼 있다. 다만 **그 종류만** 넘어간다 —
+            # 같은 파일에서 다른 결함(🔴 이름 있는 축 미전달 등)이 나오면 실패다.
+            probs = [p for p in probs if "고유 입력" not in p]
         if probs:
             offenders.append((path.stem, probs))
 
@@ -209,3 +225,92 @@ def test_exclusion_without_reason_is_not_an_exclusion():
     with tempfile.TemporaryDirectory() as d:
         probs = scan(_write(d, body))
     assert probs, "빈 사유로도 면제됐다 — 선언만으로 감사기를 끌 수 있다"
+
+
+# ──────────────────────────────────────────────────────────────
+# 구조 검사 — 이름이 등록되지 않은 축도 잡는가
+#
+# 위의 모든 케이스는 `LABEL_TO_KEY` 에 이름이 있는 축을 다룬다. 그래서 표에
+# 없는 새 축(계면활성제·입자 제조사 등)이 라벨에서 변하면 감사기가 0건을
+# 돌려주고 '깨끗함'을 보고한다 — 통과가 아니라 **사각지대**다.
+# 실측: 계면활성제 0/250/2000 ppm 을 바꾸는 12조건이 모델 입장에서 고유입력
+# 7종으로 뭉쳐 ρ=-0.243 이 나왔는데 위 검사 전부가 침묵했다.
+# ──────────────────────────────────────────────────────────────
+
+def test_structure_check_catches_an_unnamed_axis():
+    """표에 이름이 없는 축의 전달 누락도 잡아야 한다."""
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: w_fe_oxidizer
+        conditions:
+          - label: "H2O2 1 wt%, 계면활성제 0 ppm"
+            mrr_nm_per_min: 16.0
+            overrides: {oxidizer_wt_pct: 1.0}
+          - label: "H2O2 1 wt%, 계면활성제 250 ppm"
+            mrr_nm_per_min: 12.1
+            overrides: {oxidizer_wt_pct: 1.0}
+          - label: "H2O2 3 wt%, 계면활성제 0 ppm"
+            mrr_nm_per_min: 15.8
+            overrides: {oxidizer_wt_pct: 3.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert any("고유 입력" in p for p in probs), (
+        f"이름이 등록되지 않은 축의 전달 누락을 놓쳤다: {probs}")
+
+
+def test_structure_check_ignores_observed_values():
+    """관측값이 시그니처에 섞이면 모든 조건이 고유해져 검사가 자기 무력화된다.
+
+    아래 두 조건은 입력이 같고 **관측값만 다르다**. 그래도 잡혀야 한다 —
+    안 잡히면 관측값이 시그니처에 들어갔다는 뜻이고, 그 순간 이 검사는
+    영원히 0건만 돌려준다(첫 구현이 정확히 이 함정에 빠졌다).
+    """
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: w_fe_oxidizer
+        conditions:
+          - label: "배합 A"
+            mrr_nm_per_min: 10.0
+            overrides: {oxidizer_wt_pct: 1.0}
+          - label: "배합 B"
+            mrr_nm_per_min: 250.0
+            overrides: {oxidizer_wt_pct: 1.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert any("고유 입력" in p for p in probs), (
+        f"관측값이 시그니처에 섞여 검사가 무력화됐다: {probs}")
+
+
+def test_structure_check_stays_silent_when_every_label_has_its_own_input():
+    """거짓 경보 방지 — 조용해야 할 때 조용한지도 함께 잠근다."""
+    import tempfile
+    import textwrap
+
+    body = textwrap.dedent("""
+        source: 합성 데이터 (테스트용)
+        in_scope: true
+        pack: w_fe_oxidizer
+        conditions:
+          - label: "H2O2 1 wt%"
+            mrr_nm_per_min: 10.0
+            overrides: {oxidizer_wt_pct: 1.0}
+          - label: "H2O2 3 wt%"
+            mrr_nm_per_min: 20.0
+            overrides: {oxidizer_wt_pct: 3.0}
+          - label: "H2O2 5 wt%"
+            mrr_nm_per_min: 30.0
+            overrides: {oxidizer_wt_pct: 5.0}
+    """)
+    with tempfile.TemporaryDirectory() as d:
+        probs = scan(_write(d, body))
+    assert not probs, f"정상 데이터셋에 거짓 경보: {probs}"
