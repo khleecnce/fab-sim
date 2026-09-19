@@ -70,6 +70,19 @@ rank_only_ruling: >
 #   false를 유지한다. F4는 경고(⚠)이고 F1/F3처럼 격리를 강제하지 않는다. 세 팩 모두의
 #   캘리브레이션-검증 분리를 일관되게 다시 정리하는 것은 별도 과제로 남긴다(미검증).
 calibration_contact:
+  - param: abrasive
+    pack: sic_alumina_kmno4
+    what: >
+      ⚠ 2026-09-19 학습총괄: qa_loop F4 가 남긴 마지막 1건을 해소한다.
+      `abrasive: alumina` 는 **적합된 계수가 아니라 재료 정체성 선언**이다 — 이
+      특허가 알루미나를 쓴다는 사실을 팩에 옮긴 것이고, 이 데이터셋의 실측 MRR 을
+      전혀 보지 않는다. 따라서 "이 데이터로 맞춘 값"이 아니므로
+      used_for_calibration 을 뒤집을 근거가 없고(뒤집으면 멀쩡한 검증 데이터를
+      버린다), 대신 접촉 사실만 신고해 F4 → C4 로 정상화한다.
+      같은 값이 Gong 2024 Table 1 에도 독립으로 인쇄돼 있다(출처 이중).
+      판정 기준: **그 파라미터가 이 데이터셋의 관측값(MRR)을 입력으로 썼는가.**
+      안 썼으면 정체성 선언이고, 썼으면 캘리브레이션이다.
+    axis: abrasive
   - param: abrasive_conc_exponent
     pack: sic_alumina_kmno4
     what: >
