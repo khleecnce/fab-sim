@@ -231,10 +231,62 @@ params:
   # 전이하면 남의 산화제로 이 팩의 MRR 을 예측하게 된다. 종을 명시해
   # sim/chemistry.py 의 종 게이트가 그 경로를 끄게 한다. 이 팩의 산화제 형상은
   # KMnO4 데이터를 확보할 때까지 **갭으로 남긴다**(지어내지 않는다).
+  # 2026-09-19 갱신: 아래 oxidizer_langmuir_K 를 자기선언해 갭을 채웠다 — 이 note 의
+  # "갭으로 남긴다"는 더 이상 유효하지 않다(knowledge/chemistry/sic-kmno4-oxidant-
+  # adsorption-kinetics.md §1).
   oxidizer:
     value: KMnO4
     source: "US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3"
     confidence: measured
+
+  # ── 산화제 형상 (χ 산화제축 배선, 2026-09-19, C2 완성격자 회차) ─────────
+  # 종 게이트(sim/chemistry.py::_oxidizer_species_gate_ok)를 통과시키려면 이 팩
+  # 고유의 KMnO4 데이터로 K 를 자기선언해야 한다(부모의 H2O2 K 는 상속되지 않는다
+  # — 판정#50, 의도된 차단). 이 K 는 이 팩과 재료계가 완전히 일치하는 문헌
+  # (4H-SiC + α-Al2O3 500 nm + KMnO4, Gong et al. 2024, DOI 10.3390/ma17030679)의
+  # L25 직교표(5수준 KMnO4 1~5 wt%, 각 수준 5회 반복 주효과 평균)에서 역산했다.
+  # 근거·피팅·한계는 knowledge/chemistry/sic-kmno4-oxidant-adsorption-kinetics.md 전체.
+  # ⚠ **held-out 상충**: 같은 논문의 같은 Table 2 가
+  # validation/datasets/gong2024_4hsic_alumina_kmno4_L25.yaml(used_for_calibration:
+  # false)로 이 팩의 독립 검증에 쓰이고 있었다. 이 K 를 선언하는 순간 그 독립성이
+  # 깨진다(자기 답안지 채점, kp_m_per_pa 의 Entegris 사례와 같은 성격) — 이 팩
+  # yaml 은 그 파일을 고칠 권한이 없으므로 agents/slurry-chemist/PROFILE.md
+  # §구현 요청으로 갱신을 위임했다.
+  oxidizer_langmuir_species:
+    value: KMnO4
+    note: >
+      oxidizer_langmuir_K 가 KMnO4 데이터로 적합됐다는 선언 — 이 팩의 oxidizer(위,
+      KMnO4)와 일치하므로 종 게이트를 통과한다(판정#47과 같은 장치).
+    source: "Gong et al. 2024, DOI 10.3390/ma17030679 — 이 팩과 산화제 종 일치"
+    confidence: measured
+
+  oxidizer_langmuir_K:
+    value: 2.28
+    unit: "1/wt%"
+    note: >
+      촉진-포화형 Langmuir 피복 상수. f(C)=φ+(1-φ)·θ(C)/θ(C_ref), θ(C)=K·C/(1+K·C),
+      φ=0.15(_oxidizer_term 기본값, 이 팩은 새로 선언하지 않는다 — 아래 축퇴 참조),
+      C_ref=4 wt%(=이 팩의 oxidizer_ref_wt_pct, 우연히 아래 문헌의 격자점과 일치).
+
+      Gong et al. 2024(DOI 10.3390/ma17030679) Table 2, L25(5³) 직교표의 KMnO4
+      주효과 평균 5점(1/2/3/4/5 wt% → 0.53348/0.67452/0.68066/0.68680/0.70520 µm/h,
+      Table 3 인쇄값과 로컬 재계산이 일치)을 비선형 최소자승으로 적합. 잔차(비율
+      공간) rms 3.1%, 최대 개별 잔차 5.7%p(C=2 지점).
+
+      ⚠ **K·φ 축퇴**: φ 를 자유변수로 풀면 음수로 발산한다(자유도 부족, 판정#19의
+      (n,C_peak) 축퇴와 같은 종류). φ=0 으로 고정하면 K=2.82 로 바뀌지만 예측치는
+      <1%p 차이 — φ 는 이 데이터로 식별 불가능하다. 그래서 φ 는 새로 선언하지 않고
+      기존 기본값(0.15)에 얹었다.
+      ⚠ **주효과 평균이지 통제된 단일축 스윕이 아니다** — 다른 두 인자(pH, 알루미나
+      wt%)의 영향이 직교 배치로 상쇄된다는 가정에 의존(상호작용항 미검증).
+      ⚠ **held-out 상충**(위 oxidizer_langmuir_species note 참조) — 미해소.
+      ⚠ 폴리타입 불일치(Gong 은 4H, 이 팩의 pH 계수는 6H Chen 2020) — 미검증, 기존
+      관례(Su 2011 이식 선례)와 동일한 가정.
+
+      기준점 계약: C_ref=4 wt% 가 이 문헌 격자점과 일치해 f(C_ref)=1 이 별도 재보간
+      없이 성립한다 — kp_m_per_pa 재역산 불필요(값 불변).
+    source: "Gong et al. 2024, DOI 10.3390/ma17030679 Table 2/3 (L25 직교표, n=25, 5수준 주효과 평균)"
+    confidence: estimated
 
   oxidizer_wt_pct:
     value: 4.0
