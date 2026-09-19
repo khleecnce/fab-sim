@@ -141,6 +141,15 @@
   "title": "Effect of radial grooves pads on copper chemical mechanical polishing",
   "venue": "Mater. Sci. Semicond. Process. 151 (2022)"
  },
+ "bae2023-two-way-injection-cu-cmp": {
+  "authors": "Bae C, Kim J, Kwak D, Oh S, Kim T",
+  "doi": "10.3390/app13063758",
+  "note": "slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md",
+  "pdf_local": "papers/bae2023-two-way-injection-cu-cmp.txt",
+  "src": "MDPI HTML 전문 판독(PDF 봇차단), CC-BY",
+  "title": "Investigation of the Two-Way Injection Slurry-Supply Method for the Cu CMP Process",
+  "venue": "Appl. Sci. 13(6):3758 (2023)"
+ },
  "bai2007-apsusc-cu-mrr-molecular-scale-particle-size-conc": {
   "authors": "J. Bai, et al.",
   "confidence": "doi",
@@ -216,6 +225,15 @@
   "src": "PMC OA (CC-BY), 로컬 코퍼스 data/corpus/fulltext/doi_10.1021_acs.langmuir.3c00304.xml 복사 (2026-09-13)",
   "title": "New Atomistic Insights on the Chemical Mechanical Polishing of Silica Glass with Ceria Nanoparticles",
   "venue": "Langmuir 39(15), 5527-5540 (2023)"
+ },
+ "brynjarsdottir-ohagan-2014-model-discrepancy": {
+  "authors": "Brynjarsdóttir J, O'Hagan A",
+  "doi": "10.1088/0266-5611/30/11/114007",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": null,
+  "src": "IOPscience 초록만(exa web_fetch, E5) — 전문 IOP 유료·봇차단. 확보한 PDF는 HTML 스텁이라 삭제",
+  "title": "Learning about physical parameters: the importance of model discrepancy",
+  "venue": "Inverse Problems 30(11):114007 (2014)"
  },
  "buxton-1988-hydroxyl-radical-rate-constants": {
   "authors": "G. V. Buxton, C. L. Greenstock, W. P. Helman, A. B. Ross",
@@ -1073,6 +1091,15 @@
   "title": "Lens-free reflective topography for high-resolution wafer inspection",
   "venue": "Sci. Rep. 14, 10519 (2024)"
  },
+ "legratiet-garnier-2014-recursive-cokriging": {
+  "authors": "Le Gratiet L, Garnier J",
+  "doi": "10.1615/int.j.uncertaintyquantification.2014006914",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": "papers/legratiet-garnier-2014-recursive-cokriging.pdf",
+  "src": "arXiv:1210.0686v3 전문 PDF 24쪽(math.ST)",
+  "title": "Recursive co-kriging model for design of computer experiments with multiple levels of fidelity",
+  "venue": "Int. J. Uncertainty Quantification 4(5):365-386 (2014)"
+ },
  "li2019-jss-marangoni-drying": {
   "authors": "Li Changkun; Zhao Dewen; Lu Xinchun (Tsinghua Univ.)",
   "doi": "10.1149/2.0061910jss",
@@ -1089,6 +1116,16 @@
   "src": "Univ. of Arizona repository http://hdl.handle.net/10150/323377 (공개 학위논문)",
   "title": "Process Optimization and Fundamental Consumables Characterization of Advanced Dielectric and Metal CMP",
   "venue": "PhD dissertation, Univ. of Arizona (2014)"
+ },
+ "lin2009-ecs-h2o2-cu-slurry": {
+  "authors": "Lin J, Du T (Fujimi Corporation)",
+  "doi": "10.1149/1.3096490",
+  "note": "cmp/chi-cu-alkaline-oxidizer-K-independent-refit-round2.md",
+  "pdf_local": "papers/lin2009-ecs-h2o2-cu-slurry.pdf",
+  "src": "sci-hub.red storage 직링크(IOP 직접접근 차단). 1쪽 제목·저자·소속 원문 대조 확인 — 오염사본 아님",
+  "title": "Effect of H2O2 Concentration and Slurry Dilution on Removal Rate and Surface Quality for a Cu Slurry",
+  "venue": "ECS Transactions 18(1):485-490 (2009)",
+  "verdict": "판정#81 부적격 — Cu RR vs H2O2 가 Fig.1/Fig.2 그래프 전용, 인쇄값 없음. pH 미인쇄, 억제제 성분명 비공개"
  },
  "lin2011-ualberta-thesis-mixed-abrasive-colloidal-stability": {
   "authors": "Lin F (MSc thesis, Univ. of Alberta)",
@@ -1524,6 +1561,15 @@
   "title": "Filtration of aqueous colloidal ceria slurries using fibrous filters - An experimental and simulation study",
   "venue": "Separation and Purification Technology 176, 231-242 (2017)"
  },
+ "raue-2009-profile-likelihood-identifiability": {
+  "authors": "Raue A, Kreutz C, Maiwald T, Bachmann J, Schilling M, Klingmüller U, Timmer J",
+  "doi": "10.1093/bioinformatics/btp358",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": null,
+  "src": "OUP article HTML(exa web_fetch) — 초록·서론·§2-4 정의식 판독. PDF는 OUP 봇차단(HTTP 403)으로 미확보, 수식 4/8/10·Def.1은 본문 HTML에서 직접 확인",
+  "title": "Structural and practical identifiability analysis of partially observed dynamical models by exploiting the profile likelihood",
+  "venue": "Bioinformatics 25(15):1923-1929 (2009)"
+ },
  "ring-prasad-dirksen-asperity-population-balance-J120": {
   "authors": "T.A. Ring, A. Prasad, J.A. Dirksen",
   "note": "Table 1: η=(1/Dgrit)², σ=Dgrit/2 매핑 규칙 — 표기 수치(2.938e11 /m², 8.112µm)와 Dgrit=190µm가 상호 불일치",
@@ -1808,6 +1854,15 @@
   "title": "Chip-scale modeling of pattern dependencies in copper chemical mechanical polishing processes",
   "venue": "MIT EECS PhD thesis (2002)"
  },
+ "tuo-wu-2015-efficient-calibration-imperfect": {
+  "authors": "Tuo R, Wu CFJ",
+  "doi": "10.1214/15-AOS1314",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": "papers/tuo-wu-2015-efficient-calibration-imperfect.pdf",
+  "src": "arXiv:1507.07280v1 전문 PDF 24쪽(math.ST)",
+  "title": "Efficient calibration for imperfect computer models",
+  "venue": "Ann. Statist. 43(6):2331-2352 (2015)"
+ },
  "urban2016-cmpug-ferro-high-selectivity-ceria-sti": {
   "authors": "Nate D. Urban (Ferro Corp.)",
   "note": "cmp/sti-cmp-ceria-high-selectivity-nitride-stop-dishing.md — Ferro STI slurry generations table (HDP RR 2000-3500 A/min, nitride <20 A/min, 4->0.5 wt% ceria), amine SiN passivation, >500:1 customer report",
@@ -1946,6 +2001,26 @@
   "src": "로컬 corpus 기존 PDF(w-cmp-abrasive-conc-temp-4717508.pdf)에서 fitz 텍스트 추출 (2026-09-15 film-w Lv3-2)",
   "title": "Removal Mechanism of Tungsten CMP Process: Effect of Slurry Abrasive Concentration and Process Temperature",
   "venue": "ECS Transactions 41(43) 103-111 (2012), Reflexion GT"
+ },
+ "wang2012-jsemicond-alkaline-noinhibitor-pattern": {
+  "authors": "Wang Chenwei et al.",
+  "doi": "10.1088/1674-4926/33/11/116001",
+  "note": "cmp/chi-cu-alkaline-oxidizer-K-independent-refit-round2.md",
+  "pdf_local": "papers/wang2012-jsemicond-alkaline-noinhibitor-pattern.pdf",
+  "src": "sci-hub.red storage 직링크. 1쪽 제목·권호(2012 J. Semicond. 33 116001) 원문 대조 확인",
+  "title": "Planarization properties of an alkaline slurry without an inhibitor on copper patterned wafer CMP",
+  "venue": "J. Semicond. 33(11):116001 (2012)",
+  "verdict": "판정#81 부적격 — H2O2 3.3 vol% 고정이라 산화제 스윕 자체가 없음(스윕축은 다른 변수)"
+ },
+ "wang2014-jsemicond-cu-alkaline-noinhibitor": {
+  "authors": "Wang Aochen et al.",
+  "doi": "10.1088/1674-4926/35/2/026003",
+  "note": "cmp/chi-cu-alkaline-oxidizer-K-independent-refit-round2.md",
+  "pdf_local": "papers/wang2014-jsemicond-cu-alkaline-noinhibitor.pdf",
+  "src": "sci-hub.red storage 직링크. 1쪽 제목·권호(2014 J. Semicond. 35 026003) 원문 대조 확인",
+  "title": "Electrochemical investigation of copper chemical mechanical planarization in alkaline slurry without an inhibitor",
+  "venue": "J. Semicond. 35(2):026003 (2014)",
+  "verdict": "판정#81 부적격 — 화학·pH(10, 무억제제, 콜로이달실리카)는 요건 충족하나 RR vs H2O2(Fig.1b) 그래프 전용, 인쇄값 없음"
  },
  "wang2024-materials-shmp-laceria-dispersant-fulltext": {
   "authors": "Wang S. et al.",
@@ -2168,50 +2243,5 @@
   "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료",
   "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
   "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)"
- },
- "raue-2009-profile-likelihood-identifiability": {
-  "authors": "Raue A, Kreutz C, Maiwald T, Bachmann J, Schilling M, Klingmüller U, Timmer J",
-  "doi": "10.1093/bioinformatics/btp358",
-  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
-  "pdf_local": null,
-  "src": "OUP article HTML(exa web_fetch) — 초록·서론·§2-4 정의식 판독. PDF는 OUP 봇차단(HTTP 403)으로 미확보, 수식 4/8/10·Def.1은 본문 HTML에서 직접 확인",
-  "title": "Structural and practical identifiability analysis of partially observed dynamical models by exploiting the profile likelihood",
-  "venue": "Bioinformatics 25(15):1923-1929 (2009)"
- },
- "tuo-wu-2015-efficient-calibration-imperfect": {
-  "authors": "Tuo R, Wu CFJ",
-  "doi": "10.1214/15-AOS1314",
-  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
-  "pdf_local": "papers/tuo-wu-2015-efficient-calibration-imperfect.pdf",
-  "src": "arXiv:1507.07280v1 전문 PDF 24쪽(math.ST)",
-  "title": "Efficient calibration for imperfect computer models",
-  "venue": "Ann. Statist. 43(6):2331-2352 (2015)"
- },
- "legratiet-garnier-2014-recursive-cokriging": {
-  "authors": "Le Gratiet L, Garnier J",
-  "doi": "10.1615/int.j.uncertaintyquantification.2014006914",
-  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
-  "pdf_local": "papers/legratiet-garnier-2014-recursive-cokriging.pdf",
-  "src": "arXiv:1210.0686v3 전문 PDF 24쪽(math.ST)",
-  "title": "Recursive co-kriging model for design of computer experiments with multiple levels of fidelity",
-  "venue": "Int. J. Uncertainty Quantification 4(5):365-386 (2014)"
- },
- "brynjarsdottir-ohagan-2014-model-discrepancy": {
-  "authors": "Brynjarsdóttir J, O'Hagan A",
-  "doi": "10.1088/0266-5611/30/11/114007",
-  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
-  "pdf_local": null,
-  "src": "IOPscience 초록만(exa web_fetch, E5) — 전문 IOP 유료·봇차단. 확보한 PDF는 HTML 스텁이라 삭제",
-  "title": "Learning about physical parameters: the importance of model discrepancy",
-  "venue": "Inverse Problems 30(11):114007 (2014)"
- },
- "bae2023-two-way-injection-cu-cmp": {
-  "authors": "Bae C, Kim J, Kwak D, Oh S, Kim T",
-  "doi": "10.3390/app13063758",
-  "note": "slurry/slurry-chemistry-spec-to-model-constants-mapping-residual-attribution.md",
-  "pdf_local": "papers/bae2023-two-way-injection-cu-cmp.txt",
-  "src": "MDPI HTML 전문 판독(PDF 봇차단), CC-BY",
-  "title": "Investigation of the Two-Way Injection Slurry-Supply Method for the Cu CMP Process",
-  "venue": "Appl. Sci. 13(6):3758 (2023)"
  }
 }
