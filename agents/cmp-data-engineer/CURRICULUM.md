@@ -17,7 +17,8 @@
       → knowledge/data/cmp-measurement-ingest-schema-standardization.md (2026-09-15)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 이 에이전트 자체가 캘리브레이션 층의 데이터 기반. 각 서브에이전트가 정의한 스키마를 통합·검증한다
+- [x] Cal-1 이 에이전트 자체가 캘리브레이션 층의 데이터 기반. 각 서브에이전트가 정의한 스키마를 통합·검증한다
+      → knowledge/data/cmp-calibration-schema-integration-validation-rules.md (2026-09-20)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

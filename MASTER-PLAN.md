@@ -3016,6 +3016,19 @@ literature 등급, CRC Handbook 출처)을 **덮어썼다**. 즉시 같은 회�
 재실행: pytest **1017 passed**(1002→+15, 회귀 0), completion 격자 **59/60 불변**,
 qa_loop #243·#244 --strict **PASS** 유의 평균 ρ=**0.9512 불변**.
 
+## 2026-09-20 심야 01:00 [심야병렬] 서브에이전트 3명 동시 학습 — cmp-data-engineer Cal-1 · cmp-calibrator Cal-1 · film-cu Cal-1
+
+직전 회차 예고대로 "세 노트가 공통 지목한 스키마 결손"을 받는 통합층(데이터·피팅) + PTW 보정 대표 사례(Cu) 조합. 직전 14시간 성장엔진·Max워커 커밋(슬러리-chemist·abrasive·팩 판정)과 에이전트 중복 없음. 프롬프트 `.night_prompts_0920/`.
+
+- **cmp-data-engineer Cal-1** → `knowledge/data/cmp-calibration-schema-integration-validation-rules.md` (출처 3건 실존, verify 4블록). 직전 Cal-1 4편(wafer-metrology·wafer-type·film-oxide·slurry-abrasive)의 개정 제안을 한 표로 수집·충돌 판정 → 통합 record **49필드**(`wafer_type` 구분키·`metric_definition`·`outermost_radius_mm`·옥사이드 enum·`size_basis`·입자밀도 등). 근거: JSON Schema draft 2020-12 원문(if/then·dependentRequired·exclusiveMinimum·date-time→RFC3339) + SEMI 계보. 표준라이브러리 검증기로 합성 6레코드(정상3·위반3: PTW 필수·range형 반경·zeta_ph·wt%밀도·Kp 식별게이트·물리불가능값) 분기 assert. 버전규칙 SemVer optional=MINOR/required=MAJOR. 구현요청: 통합 스키마 v1.1.0. Cal-1 [x].
+- **cmp-calibrator Cal-1** → `knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting.md` (출처 5건 실존, verify 2블록). 형제들이 정의한 보정 파라미터(Kp_ref·m_f·κ_size·κ_conc·전이편향)를 레지스트리 표로 통합 — prior σ_log·식별 조건·잔차 귀속 순서. **곱셈 구조 3레짐 식별성**: 단일조건 cond=∞·프로파일 우도 평탄(Δχ²=0) → P·V 스윕만 Kp_ref만 복원(오차<0.05) → +막종류·입경 스윕 전부 복원 cond<1e7. 근거 Tuo & Wu(δ·θ 교락, L2 보정)·Le Gratiet & Garnier 2014(재귀 co-kriging Prop.1=NPW→PTW 순차 정확성)·Brynjarsdóttir & O'Hagan 2014(초록 E5). 5단계 피팅 절차 ↔ sim/calibration 함수 매핑, **미구현 3건**(스펙축 잔차귀속·m_f 재추정 게이트·조건매칭 검사) 구현요청. Cal-1 [x].
+- **film-cu Cal-1** → `knowledge/cmp/film-cu-calibration-data-schema-pattern-dependent-parameters.md` (출처 3건 실존, verify 2블록). Cu 전용 필드 근거 Park 1999(NPW 풀스택 250Å barrier/1000Å seed/1.5µm ECD·HRP 프로파일러·오버폴리시 split, E2)·Tugbawa 2002(hdl 1721.1/8083)·US7300602B2. 파라미터 분해: 스케일 B·τ₃·Y₁=피팅 / 형상지수 α₂·β₂·ψ·Cu:배리어 선택비=prior 고정 / r_cu·r_ox=NPW prior. Tugbawa 선폭 스윕(10/1µm dishing비) 재현 **오차 5.3%**, 밀도 Y₁ **4.8%**(50% 어레이 41% 과대는 Lv2-1 미해결 계승). **오버폴리시 시간 스윕 없으면 (d_max,τ₃) 조건수 4.3×10¹⁰·상관 +0.999 비식별, 과도영역 스윕 시 4.9×10³ 식별**. PTWVMInput 부족 필드 표 + `is_dishing_identifiable()` 게이트 제안(파일 무수정). Cal-1 [x].
+
+품질게이트(총괄 직접 실행): verify_claims 3/3 ✓(출처 11건 전부 실존·코드 8블록 전부 통과·출처없는 수치 0), check_knowledge 3/3 ✓, `--all` **278/278**.
+QA 루프 #305·#306 PASS ρ_sig=0.9566(불변), 격리 0, 플래그 11(C4 신고된 부분오염 9·F2 원문미확보 2: li2021_oxide_silica_ph·sic2026_ceria_h2o2_ph_DOE50 — 자동확보 실패, 유료/봉쇄). completion 격자 **68/70**(C2 κ·χ/cu_alkaline_benzenesulfonic 2칸, C4 cu_h2o2_bta ρ 0.7175 — 판정#78 구조적 미달 확정). 코퍼스(일요일 harvest --pages 10 포함): total 9257·fulltext 1719·extractions 1336, 큐 fetch 7538·extract 26·learn 1682 — harvest 신규는 europepmc +5 수준(google patents 0), 소진 추세.
+ORG §5 갱신(3명 Cal-1 완료). sim/·data/schema/·knowledge/params/ 무수정. 429/한도 흔적 없음.
+**Cal-1 진도: 7/23**(wafer-metrology·wafer-type·film-oxide·slurry-abrasive·cmp-data-engineer·cmp-calibrator·film-cu). 통합층 2명이 끝났으니 다음 심야 후보: film-w · slurry-chemistry · tool-platen-head Cal-1(각 축 대표, 레지스트리에 파라미터 행 추가).
+
 ## 2026-09-19 심야 04:00 [심야병렬] 서브에이전트 3명 동시 학습 — wafer-type Cal-1 · film-oxide Cal-1 · slurry-abrasive Cal-1
 
 Lv1~3 미이수 단원이 0이므로 예고대로 Cal-1(캘리브레이션 단원)으로 전환. 선정 근거: ORG §7.3 표에서 §7.2 전이 규칙의 데이터 구현(wafer-type), 막질 축 대표(film-oxide), 소모품 축 대표(slurry-abrasive) — 세 축이 서로 겹치지 않고 직전 회차의 wafer-metrology Cal-1(계측 스키마)에 바로 이어지는 조합. 직전 12시간 성장엔진·Max워커 커밋과 에이전트 중복 없음. 프롬프트 `.night_prompts_0919b/`.

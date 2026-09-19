@@ -238,3 +238,39 @@ Knoop 2100 vs 800)가 바뀌는 교란 비교라 정량 지수를 못 뽑는다(
 출처: [[../../knowledge/cmp/delta-damage-exponent-cu-primary-source]] (Li et al. 2018 ECS JSS
 DOI 10.1149/2.0101806jss 전문 확보·그래프 판독 verify, Saka et al. 2009 DOI 10.1149/1.3121964
 전문 확보, Teo et al. 2003 SPIE 5041 로컬 코퍼스 기확보, Egan & Kim 2019 원 출처 재확인)
+
+---
+
+## Cal-1 — Cu 실데이터 스키마 + 패턴 의존 보정 파라미터 (2026-09-20)
+노트: [[../../knowledge/cmp/film-cu-calibration-data-schema-pattern-dependent-parameters]]
+
+**Q1.** dishing 커널 d_max(w,s)=B·w^α₂·min(s,s_l)^β₂ 와 닫힌 시간해 D_ss·τ₃ 에서, 어떤 파라미터를
+고객 데이터로 피팅하고 어떤 것을 literature prior 로 고정하는가? 그 판단의 근거는?
+**A1.** **스케일 B(d_max 진폭)·τ₃·Y₁ 는 데이터 피팅**, **형상 지수 α₂·β₂·s_l·엣지 라운딩 ψ(C,s_c)·
+Cu:배리어 선택비는 literature prior 고정**, **r_cu·r_ox 는 NPW 블랭킷 prior**다. 근거: B 는 그 팹·
+슬러리·패드 고유값이라 팹마다 바뀌지만(Tugbawa Table 3.9 #1 stacked 333 Å vs #2 solo 372 Å), 지수
+α₂·β₂ 는 트렌치 기하·패드 압축의 함수라 대체로 보존되고 소량 고객 데이터로 재추정하면 B 와 곱으로
+얽혀 식별이 안 된다(선폭 넓은 스윕이 있는 팹만 α₂ 데이터 승격). 이는 film-oxide Cal-1 의 "절대 Kp(피팅)
+× 막종류 배율(prior 고정)" 분해와 같은 원리의 패턴축 판이다([[../../knowledge/materials/film-oxide-calibration-data-schema-kp-selectivity-parameters]] §2.1).
+Cu:배리어 선택비는 배리어가 250 Å 로 얇아 stage-two 단독 실험이 불가하므로(Tugbawa §3.7.1, 클리어
+~12.5 s) 특허 하한(US7300602B2 TaN:Cu ≥3–4:1)으로 고정한다.
+
+**Q2.** 고객이 오버폴리시 60 s 한 시점의 최종 dishing 맵만 입력했다. 왜 이것만으로는 d_max 와
+시간상수 τ₃ 를 분리할 수 없는가? 무엇을 추가로 받아야 하는가?
+**A2.** D_cu(t)=D_ss·(1−e^{−(t−t₃)/τ₃}) 인데 60 s ≫ τ₃(~2 s)면 이미 포화라 D_cu≈D_ss 로 **τ₃ 감도가
+소멸**(∂D/∂τ₃→0)한다. 그래서 (d_max,τ₃) 정규행렬 조건수가 4.3×10¹⁰ 로 폭발하고(§4-B verify), 단일
+시점에 군집하면 두 파라미터가 거의 공선(상관 +0.999)이 된다. 게다가 패턴 유효 r_ox 가 미지면 포화
+dishing 1점은 (d_max,r_ox) 곡선 위 무한해를 준다(§4-C, d_max 328~367 Å 이 같은 D_ss). 해법: **오버폴리시
+시간 스윕**(과도영역 t−t₃ ≈ 0.5~16 s 를 포함한 ≥과도 샘플)을 받아야 한다 — 그러면 조건수가 4.9×10³
+로 떨어져 d_max·τ₃ 가 분리 식별된다. 스키마의 `overpolish_time_s`(배열)가 τ₃ 식별 게이트다.
+
+**Q3.** Cu NPW 실데이터에서 산화막(TEOS)에는 없고 Cu 에만 있는 특이 필드 셋을 들고, 각각을 규정하는
+1차 문헌과 그 필드가 필요한 이유를 답하라.
+**A3.** (1) **시드/ECP 구분(`cu_seed_thickness_nm`·`ecp_thickness_nm`)** — Park 1999 §II(1000 Å PVD Cu
+seed + 1.5 µm electroplated Cu): 시드와 벌크 ECD 는 조직·저항이 달라 전기 두께 추출과 클리어 단계
+전환이 이 구분에 의존한다. (2) **어닐(`anneal_flag`·`anneal_temp_C`)** — ECD Cu 는 폴리시 전 재결정
+어닐로 입경·경도가 바뀌어 Kp 에 실리는 배선 표준 공정(정량 어닐-Kp 곡선은 미확보=E5). (3) **배리어
+종류·두께(`barrier_type`·`barrier_thickness_nm`)** — Park 1999 §II(250 Å barrier), 배리어 종류
+(Ta/TaN/Co/Ru)가 2단계 선택비를 바꾼다([[../../knowledge/cmp/film-cu-barrier-ta-tan-co-selectivity]] §3).
+산화막은 단일 유전체막이라 이 3중 금속 구조(시드/ECP/배리어)와 어닐 이력이 없다. 출처: Park et al.
+1999 CMP-MIC 전문(papers/boning-electrical-characterization-cu-cmp.pdf, E2).

@@ -2168,5 +2168,41 @@
   "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료",
   "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
   "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)"
+ },
+ "raue-2009-profile-likelihood-identifiability": {
+  "authors": "Raue A, Kreutz C, Maiwald T, Bachmann J, Schilling M, Klingmüller U, Timmer J",
+  "doi": "10.1093/bioinformatics/btp358",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": null,
+  "src": "OUP article HTML(exa web_fetch) — 초록·서론·§2-4 정의식 판독. PDF는 OUP 봇차단(HTTP 403)으로 미확보, 수식 4/8/10·Def.1은 본문 HTML에서 직접 확인",
+  "title": "Structural and practical identifiability analysis of partially observed dynamical models by exploiting the profile likelihood",
+  "venue": "Bioinformatics 25(15):1923-1929 (2009)"
+ },
+ "tuo-wu-2015-efficient-calibration-imperfect": {
+  "authors": "Tuo R, Wu CFJ",
+  "doi": "10.1214/15-AOS1314",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": "papers/tuo-wu-2015-efficient-calibration-imperfect.pdf",
+  "src": "arXiv:1507.07280v1 전문 PDF 24쪽(math.ST)",
+  "title": "Efficient calibration for imperfect computer models",
+  "venue": "Ann. Statist. 43(6):2331-2352 (2015)"
+ },
+ "legratiet-garnier-2014-recursive-cokriging": {
+  "authors": "Le Gratiet L, Garnier J",
+  "doi": "10.1615/int.j.uncertaintyquantification.2014006914",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": "papers/legratiet-garnier-2014-recursive-cokriging.pdf",
+  "src": "arXiv:1210.0686v3 전문 PDF 24쪽(math.ST)",
+  "title": "Recursive co-kriging model for design of computer experiments with multiple levels of fidelity",
+  "venue": "Int. J. Uncertainty Quantification 4(5):365-386 (2014)"
+ },
+ "brynjarsdottir-ohagan-2014-model-discrepancy": {
+  "authors": "Brynjarsdóttir J, O'Hagan A",
+  "doi": "10.1088/0266-5611/30/11/114007",
+  "note": "calibration/calibration-parameter-registry-identifiability-sequential-fitting.md",
+  "pdf_local": null,
+  "src": "IOPscience 초록만(exa web_fetch, E5) — 전문 IOP 유료·봇차단. 확보한 PDF는 HTML 스텁이라 삭제",
+  "title": "Learning about physical parameters: the importance of model discrepancy",
+  "venue": "Inverse Problems 30(11):114007 (2014)"
  }
 }

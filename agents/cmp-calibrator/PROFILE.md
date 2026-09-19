@@ -2,8 +2,8 @@
 
 ## 현재 레벨: [대기] — 활성화 게이트는 agents/ORG.md §4
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv3-2
-- 다음 단원: Cal-1 (ORG.md §7.3 활성화 게이트 대기)
+- 이수 단원: Cal-1 (2026-09-20 — 커리큘럼 전 단원 완주)
+- 다음 단원: Lv4(확장 — 최신논문 상시추적·결합모델 리뷰)
 
 ## 역할
 물리 prior + 고객 실데이터 → 잔차 보정 모델. 소량 데이터 GP/BNN, NPW→PTW 전이, 불확실성, 드리프트. 제품의 핵심 기술
@@ -145,7 +145,62 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   스칼라 `ln(s)`를 "NPW 사전 + PTW n개의 정밀도가중 평균"으로 재료만 바꾸는 것이고,
   드리프트의 소모품 리셋 이벤트는 이 스칼라의 유효 n을 0으로 되돌리는 것으로 구현된다.
 
+- 2026-09-20 Cal-1 통합 보정 파라미터 레지스트리 + 식별가능성 + 순차 피팅 이수.
+  노트: `knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting.md`.
+  세 형제 Cal-1 노트(film-oxide Kp_ref·m_f, slurry-abrasive κ_size·κ_conc, wafer-type
+  NPW→PTW 전이)가 각자 정의한 보정 파라미터를 **하나의 레지스트리(P1–P11)**로 통합 —
+  이름·prior 중심출처·등급→σ_log·식별에 필요한 스윕·잔차 귀속 순서(1 절대 Kp_ref → 2
+  고정 m_f → 3 스윕된 스펙축만 → 4 반경 δ(r) GP → 5 PTW 잔차). 새 1차 문헌 3편 확보·판독:
+  Raue et al. 2009(프로파일 우도 식별성, DOI 10.1093/bioinformatics/btp358 — OUP HTML에서
+  식4/8/10·Def.1 직접 판독, PDF는 봇차단 E2), Tuo & Wu 2015(KOH θ 비식별·L2 보정,
+  arXiv:1507.07280 전문 E2), Le Gratiet & Garnier 2014(재귀 co-kriging Prop.1=순차 정확성,
+  arXiv:1210.0686 전문 E2); Brynjarsdóttir & O'Hagan 2014(δ·θ 교락, 초록 E5 보강).
+  check_knowledge.py·verify_claims.py 둘 다 통과. verify 블록 2개 실제 실행·통과:
+  (1) 곱셈모형 3-레짐 식별성 — 단일조건 cond=∞·프로파일 완전평탄(Δχ²=0, Raue 구조적
+  비식별), P·V스윕만 Kp_ref만 복원(오차<0.05)·배율/입경 여전히 평탄, +막+입경스윕 전부
+  복원(오차<0.06)·cond<1e7·프로파일 볼록(Δχ²>1), 표준라이브러리+numpy만; (2) prior.py
+  σ_log 상수 대조(literature 0.405·estimated 0.811·measured 0.203, m_f 95%폭 ×2.21배·
+  Kp_ref ×4.90배, unverified→PriorExcluded).
+  핵심 결론: (1) 형제들이 물려준 파라미터가 전부 **곱셈 구조**라 곱 인자들이 로그공간 합으로
+  상쇄돼 한 조건 데이터로는 구조적 비식별 — 잔차 귀속은 "흔든 축에만, 안 흔든 축은 lumped
+  Kp_ref에 흡수하고 쪼개지 않는다"(EVIDENCE-RULES §3 데이터 스누핑 금지). (2) m_f를
+  literature prior로 고정하는 설계는 Tuo&Wu·Brynjarsdóttir의 δ·θ 교락 결론("meaningful
+  priors로만 해소")의 직접 귀결 — 소량 레짐에서 가장 넓은 prior(P1 estimated)만 데이터로
+  누른다. (3) NPW 먼저·PTW 잔차 후 순차는 편의가 아니라 Le Gratiet Prop.1(재귀=결합 정확
+  동일, Z_{t-1}⊥δ_t)이 강제하는 정확 분해이며, 이것이 fit_ptw.fit의 npw_correction 읽기전용
+  필수인자 계약의 통계적 정본이다. (4) 피팅 절차 5단계가 sim/calibration의 어느 함수에
+  대응하는지 매핑하고, **스펙축 잔차 귀속·m_f 재추정 게이트·조건매칭 검사 3건이 미구현**임을
+  드러냄(아래 구현 요청).
+
 ## 구현 요청
+
+### 통합 파라미터 레지스트리 3대 미구현 (Cal-1 산출, 근거노트:
+`knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting.md` §5)
+
+레지스트리(§1)와 피팅 절차 매핑(§5)이 드러낸, 현재 `sim/calibration`에 **없는** 세 경로.
+전부 기존 함수를 건드리지 않고 새 함수/게이트로 얹는다(설계 제약: series_scale 자유도를 늘리지 않음).
+
+- `attribute_spec_axis_residual(residuals, sweep_design, axes=["size","conc","ph"]) -> dict`
+  - 무엇을: validation/datasets의 **스윕 축**을 design matrix로 받아 κ_size/κ_conc 계수를 별도
+    최소자승으로 뽑는다. 현재 `fit_npw`는 반경 δ(r)만 학습하고 스펙축에 잔차를 귀속하지 못한다.
+  - 설계 제약: **스윕이 없는 축은 귀속하지 않고 lumped Kp_ref에 흡수**한다(§1 순서3, 안 흔든 축
+    분할 금지). 원형은 근거노트 §4 verify(1) block1(design matrix 조건수·프로파일 우도).
+  - 검증문헌값: 근거노트 §4 — 입경 스윕 ≥2점이면 프로파일 Δχ²>1(식별), 없으면 Δχ²=0(평탄→흡수).
+  - 우선순위: 중간(스펙축 스윕 데이터셋이 있을 때만 의미).
+
+- `mf_refit_gate(records) -> bool` — 막종류 배율 재추정 게이트(P2)
+  - 무엇을: `is_reference_film` 플래그(film-oxide §5 제안)를 읽어 "기준막+대상막 **동일 P·V**
+    동시측정"일 때만 m_f를 열어준다. 그 외에는 항상 literature prior 고정(보수적 안전).
+  - 근거: 근거노트 §2.2(δ·θ 교락, Tuo&Wu·Brynjarsdóttir), §4-A(기준막 없으면 rank 3/5·비식별).
+  - 우선순위: 낮음(고정이 기본이고 안전 — 열어주는 경로만 추가).
+
+- `ingest_condition_match_check(record)` — P7 선택비·P8 디싱 조건매칭 게이트
+  - 무엇을: 선택비 보고 시 oxide·stop이 동일 P·V인지, 디싱 보고 시 밀도 ρ가 ≥2점인지를
+    ingest 단계에서 검사해 미충족이면 "비식별 — 비교불가/prior 고정" 플래그를 띄운다.
+  - 근거: 근거노트 §1 레지스트리 식별조건 열; film-oxide §2.4 (P·V 불일치=P₁V₁/P₂V₂ 편향).
+  - 우선순위: 중간(잘못된 선택비/디싱 피팅을 입구에서 막는 안전장치).
+
+---
 
 (이번 단원도 `sim/`에 코드를 넣지 않았다. 향후 계층 베이지안 NPW→PTW 전이를
 실제로 구현할 때 참고할 사항:

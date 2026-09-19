@@ -13,7 +13,8 @@
       `knowledge/calibration/hierarchical-shrinkage-npw-prior-ptw-fit-drift-design.md`)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 이 에이전트가 §7 전체의 기술 소유자. 각 서브에이전트가 정의한 보정 파라미터를 실제로 피팅한다
+- [x] Cal-1 이 에이전트가 §7 전체의 기술 소유자. 각 서브에이전트가 정의한 보정 파라미터를 실제로 피팅한다
+      (2026-09-20, `knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting.md`)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안

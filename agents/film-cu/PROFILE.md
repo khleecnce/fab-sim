@@ -1,9 +1,9 @@
 # 구리 CMP 전문가 (film-cu)
 
-## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv3 6/6 진행중
+## 현재 레벨: 활성 (G1 개방 2026-09-08) — Lv3 6/6 + Cal-1 완료
 - 부모: cmp-integrator (부모의 knowledge/ 노트를 선행 필수로 읽는다)
-- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09), Lv2-2 (2026-09-11), Lv3-1 (2026-09-12), Lv3-2 (2026-09-15)
-- 다음 단원: (Lv3 완료 — Lv4 대기)
+- 이수 단원: Lv1-1 (2026-09-08), Lv1-2 (2026-09-09), Lv2-1 (2026-09-09), Lv2-2 (2026-09-11), Lv3-1 (2026-09-12), Lv3-2 (2026-09-15), Cal-1 (2026-09-20)
+- 다음 단원: (Lv3+Cal-1 완료 — Lv4 대기)
 
 ## 역할
 Cu 배선 CMP — 전기화학 부식·패시베이션 제어, 배리어 CMP, dishing/erosion. 화학 지배
@@ -68,6 +68,19 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (신규 1차출처: Li et al. 2018 ECS JSS DOI 10.1149/2.0101806jss 전문(그래프 판독 verify 포함)
   + Saka et al. 2009 DOI 10.1149/1.3121964 전문; Teo et al. 2003 SPIE 5041 로컬 코퍼스 재검토.
   YAML 미수정 — 판정 규칙상 승격 근거 미달을 정직하게 기록.)
+- **Cal-1 (2026-09-20)**: Cu 실데이터 스키마(NPW MRR·PTW dishing/erosion 맵) + 패턴 의존 보정 파라미터
+  분해·식별가능성 — PTW 보정 대표 사례. NPW(시드/ECP·어닐·배리어·측정법)·PTW(마스크·선폭/스페이스·
+  밀도·오버폴리시 시간·dishing/erosion·프로파일러) 필드를 1차 문헌 3편(Park 1999 CMP-MIC 전문·Tugbawa
+  2002 hdl 1721.1/8083·US7300602B2)에서 근거. 파라미터 분해: **스케일 B·τ₃·Y₁ 데이터 피팅 / 형상 지수
+  α₂β₂·ψ·Cu:배리어 선택비 literature prior 고정 / r_cu·r_ox NPW prior**(film-oxide "절대×배율"의 패턴판).
+  핵심 verify: (1) Tugbawa 선폭 스윕(dishing비 10/1µm) 재현 오차 5.3 %·밀도 스윕 Y₁(90 %) 4.8 %(50 %는
+  41 % 과대 계승), (2) **오버폴리시 시간 스윕 없으면 (d_max,τ₃) 조건수 4.3×10¹⁰·군집 시 상관 +0.999 비식별,
+  시간 스윕 시 조건수 4.9×10³ 식별**, (3) 포화 dishing 1점은 (d_max,r_ox) 무한해·선택비 P·V 매칭 필수·
+  배리어 250 Å 얇아 선택비 prior 고정.
+  노트: [[../../knowledge/cmp/film-cu-calibration-data-schema-pattern-dependent-parameters]]
+  (1차출처: Park et al. 1999 CMP-MIC 전문(papers/boning-electrical-characterization-cu-cmp.pdf, E2) +
+  Tugbawa 2002·US7300602B2·Guo 2004 doi 10.1149/1.1640632·Li&Babu 2001 doi 10.1149/1.1342185 재인용.
+  verify 2블록 통과, verify_claims 출처 3건 실존·check_knowledge 통과. sim/·팩·스키마 파일 무수정.)
 
 ## 구현 요청
 - **[P1] Cu-H₂O Pourbaix 경계 함수** ✅ 9/10 완료 — `sim/tier2_physics/cu_pourbaix.py`(S40, 커밋 495ed90).
@@ -111,3 +124,18 @@ Lv1 학부지식 → Lv2 대학원/리뷰논문 → Lv3 최신논문 추적 + �
   (판정#20, 단조감소)를 동시 보유. Seal/Gopal 2007(산성 pH4 정점 3.6 wt%)과 US20110165777A1(알칼리 pH10.3 단조감소)은 pH 레짐이
   달라 **평균 금지·레짐 분리**(노트 §5.1). 구현 시 두 경로를 pH로 분기하거나 우선순위를 명시할 것 — 현재 상호배타 우선순위(판정#20)가
   산성 정점을 덮지 않는지 확인 필요. 근거노트 §5.1, [[../../knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization]].
+
+- **[P1] PTWVMInput Cu dishing 커널 필드 + 시간 스윕 식별 게이트** (Cal-1, 2026-09-20): 현행 `sim/calibration/ptw_vm_schema.py`의
+  `PTWVMInput`은 밀도·mrr_lag는 담지만 **dishing 커널 식별 필드가 전무**하다. 추가 요청(파일은 cmp-data-engineer/소프트웨어 부문 소유,
+  film-cu는 무수정): `line_width_um`·`line_space_um`(d_max=B·w^α₂·s^β₂ 입력), `overpolish_time_s: Optional[List[float]]`·
+  `dishing_nm`/`erosion_nm: Optional[List[float]]`(시간 대응 응답 배열), `profile_method`(enum profilometer/AFM/e_test),
+  `barrier_type`/`barrier_thickness_nm`·`cu_seed_thickness_nm`/`ecp_thickness_nm`·`anneal_flag`, `pressure_kPa`/`velocity_m_per_s`(필수).
+  **핵심: `is_dishing_identifiable()` 검증함수 신설** — `overpolish_time_s` 길이<2이거나 전부 포화영역(t−t₃ ≫ τ₃)이면 τ₃ 비식별
+  플래그를 띄우고 "d_max·τ₃ 분리 불가 — prior 고정·최종 dishing만 D_ss로 사용"을 반환. 검증문헌값(근거노트 §4-B): 포화만 재면
+  (d_max,τ₃) 정규행렬 조건수 4.3×10¹⁰, 단일 시점 군집이면 상관 +0.999, 과도영역 시간 스윕 시 조건수 4.9×10³. 우선순위 P1 —
+  PTW 보정의 대표 사례이고 조건수 식별 게이트가 오학습 방지의 핵심. 근거노트: [[../../knowledge/cmp/film-cu-calibration-data-schema-pattern-dependent-parameters]] §4·§5.
+- **[P2] dishing 커널 파라미터 분해 — 피팅/고정 축 명시** (Cal-1): fit_ptw.py의 PTW 잔차 학습(cmp-calibrator 소관)에 넘길 때,
+  **B(d_max 스케일)·τ₃·Y₁는 데이터 피팅 대상, α₂·β₂·s_l·ψ(C,s_c)·Cu:배리어 선택비는 literature prior 고정, r_cu·r_ox는
+  NPW prior**로 표식해야 한다(근거노트 §2 표). α₂ 재추정은 넓은 선폭 스윕(0.25~10 µm)이 있는 팹에서만 허용. prior 중심값은
+  근거노트 §3(Tugbawa Table 3.9: α₂ 0.303·β₂ 0.259·s_l 100 µm·C 3.04·s_c 22.5 µm; US7300602B2 TaN:Cu ≥3–4:1). 우선순위 P2 —
+  cmp-calibrator가 GP prior/자유 파라미터를 가를 때의 근거표.

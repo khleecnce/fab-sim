@@ -273,3 +273,51 @@ LB2024의 일반 이론을 FabSim에 적용한 이 노트의 설계 판단이며
 재보정 사례를 검증한 것은 아니다(⚠ 미검증·적용 판단). 출처: Lai & Bernstein (2024)
 Table I, Corollary 2; PST2014 Table 4.1; NIST/SEMATECH e-Handbook §6.3.2.4;
 [[hierarchical-shrinkage-npw-prior-ptw-fit-drift-design]] §3.
+
+## Cal-1 통합 보정 파라미터 레지스트리 + 식별가능성 + 순차 피팅
+
+**Q1. film-oxide는 `Kp=Kp_ref·m_f·P·V`, slurry-abrasive는 `Kp=Kp0·κ_size·κ_conc·χ_pH`로
+전부 곱셈 구조를 물려줬다. 이 곱셈 구조가 한 조건의 데이터로 "왜" 분리되지 않는지를
+Raue 2009의 프로파일 우도 언어로 설명하고, 무엇이 이를 풀어주는가?**
+
+A. 곱은 로그공간에서 합이 된다: `log MRR = logKp_ref + log m_f + logκ_size(+logP+logV)`.
+한 조건(한 막·한 입경·한 P·V)만 있으면 각 인자에 대응하는 design 열이 상수(또는 0)라
+정규행렬이 랭크결손(조건수 ∞)이다. Raue(2009) 식10의 프로파일 우도
+`χ²_PL(θ_i)=min_{j≠i} χ²(θ)`로 보면, 한 인자를 격자로 고정하고 나머지를 재최적화해도
+다른 인자가 정확히 상쇄해 `χ²`가 **완전 평탄**("a perfect flat valley, infinitely extended
+along the functional relation") — 곧 **구조적 비식별**이다. 이를 풀어주는 것은 정보적 prior가
+아니라 **그 축을 흔든 데이터(스윕)**다: 입경 축을 실제로 2점 이상 흔들면 κ_size 열이 비상수가
+되어 프로파일에 곡률(유일 최소)이 생긴다. §4 verify(1)이 세 레짐(단일=cond∞·Δχ²=0 →
+P·V스윕=Kp_ref만 복원(오차<0.05) → +막+입경스윕=전부 복원(오차<0.06)·Δχ²>1)으로 이를
+재현했다. 출처: Raue et al. (2009) 식4·8·10·Def.1(DOI 10.1093/bioinformatics/btp358);
+[[../../knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting]] §2.1·§4.
+
+**Q2. 레지스트리에서 절대 스케일 Kp_ref(P1)는 estimated(σ_log=0.811)로 데이터에 피팅하고,
+막종류 배율 m_f(P2)는 literature(σ_log=0.405) prior로 고정한다 — m_f를 데이터로 재추정하지
+않는 이유를 δ(불일치)·θ 교락 관점에서 답하라.**
+
+A. 반경 형상 잔차 δ(r)(P11, KOH 불일치항)가 존재하는 한, 물리 파라미터를 δ와 동시에 자유
+추정하면 θ가 비식별로 흐른다 — Tuo & Wu(2015)는 KOH의 θ가 불완전 모델에서 "unidentifiable"
+하고 "unreasonable" 추정으로 이어질 수 있음을 보였고, Brynjarsdóttir & O'Hagan(2014)은 δ와
+보정 파라미터의 교락이 "only be resolved with meaningful priors"라고 결론짓는다(=Arendt2012의
+두 처방과 동일). 따라서 소량 레짐에서 **가장 넓은 prior(P1 estimated)만 데이터로 눌러 lumped
+스케일에 흡수**하고, 그보다 좁은 prior로 고정 가능한 물성(P2 배율 — 도핑 화학·수화 확산이라
+팹이 바뀌어도 보존)은 고정한다. m_f 재추정은 기준막+대상막을 동일 P·V에서 동시측정한 드문
+경우(`is_reference_film` 게이트)에만 열린다. §4-A에서 기준막이 없으면 Kp_ref·m_f가 rank 3/5로
+얽혀 m_f 프로파일이 평탄함을 확인했다. 출처: Tuo & Wu (2015) 식2.2·초록(DOI 10.1214/15-AOS1314);
+Brynjarsdóttir & O'Hagan (2014) 초록(DOI 10.1088/0266-5611/30/11/114007); [[../../knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting]] §1·§2.2.
+
+**Q3. "NPW 먼저·PTW 잔차 후"의 순차 분해가 결합 적합의 근사가 아니라 정확한 이유를
+Le Gratiet & Garnier 2014로 답하고, 이것이 fit_ptw.py의 어떤 코드 계약에 대응하는가?**
+
+A. Le Gratiet & Garnier(2014)의 재귀 co-kriging `Z_t(x)=ρ_{t-1}(x)Z_{t-1}(x)+δ_t(x)` (식1)은
+하위 레벨 `Z_{t-1}`과 잔차 `δ_t`가 **독립**(`Z_{t-1}⊥δ_t`)이라는 가정 위에 서고, Proposition 1이
+이 재귀 모형의 예측 평균·분산이 KOH(2000)의 원 co-kriging과 **동일함**("identical to the ones
+of the original co-kriging model")을 증명한다. 즉 하위(NPW)를 먼저 적합하고 상위 잔차(PTW)를
+따로 적합해도 결합 적합과 같은 사후분포를 준다 — 순차가 근사가 아니라 정확하다. 이 독립성이
+`fit_ptw.fit`이 `npw_correction`을 **읽기전용 필수 인자**로 받고(None이면 ValueError), 자기가
+새로 학습하는 것은 "관측−물리−NPW보정(r)" 두 번 뺀 잔차뿐이라는 코드 계약(fit_ptw.py
+docstring)의 통계적 정본이다. 반대로 PTW가 NPW를 되먹이면 독립성이 깨져 Prop.1 동일성이
+성립하지 않는다. Perdikaris2015 마르코프 가정과 독립적인 두 번째 근거다. 출처: Le Gratiet &
+Garnier (2014) 식1·Prop.1(DOI 10.1615/int.j.uncertaintyquantification.2014006914);
+[[../../knowledge/calibration/calibration-parameter-registry-identifiability-sequential-fitting]] §2.3·§3.

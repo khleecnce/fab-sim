@@ -11,7 +11,7 @@
 - [x] Lv3-2 Cu 막질 Kp·화학 상수·dishing 커널 파라미터 + 문헌값 재현 (sim/tier2) (2026-09-15, knowledge/cmp/cu-kp-preston-coefficient-literature-back-calculation.md)
 
 ## 캘리브레이션 단원 (ORG.md §7.3 — Lv2 완료 후, G2 이후 활성)
-- [ ] Cal-1 Cu 실데이터(NPW MRR·PTW dishing/erosion 맵) 스키마 + 패턴 의존 보정 파라미터 — PTW 보정의 대표 사례
+- [x] Cal-1 Cu 실데이터(NPW MRR·PTW dishing/erosion 맵) 스키마 + 패턴 의존 보정 파라미터 — PTW 보정의 대표 사례 (2026-09-20, knowledge/cmp/film-cu-calibration-data-schema-pattern-dependent-parameters.md)
 
 ## 확장 (Lv4 — 교수급)
 - 최신 논문 상시 추적, 기존 모델의 한계 지적 및 개선 제안
