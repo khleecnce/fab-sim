@@ -57,62 +57,108 @@
 
 즉 **판정#59 와 판정#50 이 이미 막아둔 것이 대부분이고, 뚫려 있는 축은 입경 하나**다.
 
-## 4. 살아 있는 결함 — 입경축 (신규 발견)
+## 4. 살아 있던 결함 — 입경축 (판정#60 발견 → **판정#62 해소**)
+
+> ⚠ **2026-09-19 부채상환 갱신(학습총괄).** 이 절은 판정#60 시점(2026-09-18)의
+> 기록이었고, 그 뒤 **판정#62(커밋 8e0532e)가 입경 5키를 알루미나 실측으로
+> 자기선언해 결함을 해소**했다. 아래 표는 **당시 상태의 역사 기록**이고,
+> 현재 상태는 §4.1 이다. 노트를 고치지 않고 두면 다음 회차가 이미 고친 결함을
+> 살아 있다고 읽는다 — 그것이 이 갱신의 이유다.
+
+판정#60 당시 상태(현재는 성립하지 않음):
 
 ```
-sic_alumina_kmno4:
-  abrasive_size_nm      = 120.0 nm  (owner=sic_ceria_h2o2, confidence=literature)
-  abrasive_ref_size_nm  = 120.0 nm  (owner=sic_ceria_h2o2)
-  abrasive_size_peak_nm = 163.0 nm  (owner=sic_ceria_h2o2)
-  abrasive_size_exp_below_peak = 1.3333  (owner=sic_ceria_h2o2)
-  abrasive_size_exp_above_peak = -0.3333 (owner=sic_ceria_h2o2)
+sic_alumina_kmno4:   # ← 2026-09-18 시점, 전부 owner=sic_ceria_h2o2 (세리아 상속)
+  abrasive_size_nm      = 120.0 nm
+  abrasive_ref_size_nm  = 120.0 nm
+  abrasive_size_peak_nm = 163.0 nm
+  abrasive_size_exp_below_peak = 1.3333
+  abrasive_size_exp_above_peak = -0.3333
 ```
 
-이 다섯 값은 전부 **세리아 슬러리**(sic_ceria_h2o2)에서 온 것이고, 이 팩의
-연마입자는 알루미나다. 그리고 이 팩의 근거 문헌 두 건은 **다른 입경**을 적는다:
+이 다섯 값은 전부 **세리아 슬러리**(sic_ceria_h2o2)에서 온 것이었고, 이 팩의
+연마입자는 알루미나다. 그리고 이 팩의 근거 문헌은 **다른 입경**을 적는다:
 
 - Gong 2024 (doi:10.3390/ma17030679) Table 1 — 알루미나 **500 nm**
 - 데이터셋 YAML 의 `scope_note` 가 이미 이 사실을 적어뒀다: "입경도 원문 500 nm
   인데 팩은 이를 자기선언하지 않는다(절대값에만 영향, 이 DOE 는 입경을 고정하므로
   순위에는 무영향)"
 
-즉 **이미 알려져 있었으나 상속 경로가 보이지 않아 방치돼 있던 것**이다. 이번 감사가
-그 경로를 명시했다.
+즉 **이미 알려져 있었으나 상속 경로가 보이지 않아 방치돼 있던 것**이다. 판정#60 의
+감사가 그 경로를 명시했고, 판정#62 가 그것을 닫았다.
 
-**문헌값 대조**: 팩이 쓰는 값 **120 nm**(세리아 상속) vs Gong 2024 Table 1 인쇄값
-**500 nm**(알루미나) — **4.17배 불일치**이고, 두 값은 이 팩의 입경 정점
-163 nm 를 사이에 두고 **서로 반대편**에 있다(120 nm 는 below-peak 가지, 500 nm 는
-above-peak 가지). 즉 값만 다른 게 아니라 **적용되는 곡선 가지 자체가 다르다**.
-아래 verify 블록이 κ size 항 1.00000(120 nm) vs 1.03534(500 nm) 와 MRR 비
-1.0353배를 매번 재계산해 이 대조를 고정한다.
+### 4.1 현재 상태 (2026-09-19 실측)
 
-실측 κ(입경축) 값:
+입경 5키가 전부 `owner=sic_alumina_kmno4`(자기선언)이고 `confidence=literature` 다:
 
-| abrasive_size_nm | κ size 항 | κ 전체 |
+| 키 | 현재 값 | owner | 판정#60 당시 |
+|---|---|---|---|
+| `abrasive_size_nm` | 500.0 nm | sic_alumina_kmno4 | 120.0 (세리아 상속) |
+| `abrasive_ref_size_nm` | 500.0 nm | sic_alumina_kmno4 | 120.0 (세리아 상속) |
+| `abrasive_size_peak_nm` | 2500.0 nm | sic_alumina_kmno4 | 163.0 (세리아 상속) |
+| `abrasive_size_exp_below_peak` | 0.309289 | sic_alumina_kmno4 | 1.3333 (세리아 상속) |
+| `abrasive_size_exp_above_peak` | -0.066470 | sic_alumina_kmno4 | -0.3333 (세리아 상속) |
+
+본값과 기준점(`_ref`)이 **같은 편집에서 함께 500 nm 로** 옮겨졌으므로 기준 조건에서
+입경 항은 여전히 정확히 1.0 이다(Kp 이중 계상 없음). 아래 verify 블록이 그것을
+매번 확인한다.
+
+**정량 재현 — 문헌값 대조**: 팩이 현재 쓰는 `abrasive_size_nm` = **500.0 nm** vs
+Gong 2024 (doi:10.3390/ma17030679) Table 1 인쇄값 **500 nm** — **일치**(차이 0.0 nm,
+0.00%). 판정#60 당시 값 120.0 nm 와 문헌값 500 nm 의 차이는 380.0 nm(4.17배,
++316.7%)였으므로, 판정#62 는 그 380.0 nm 의 괴리를 0.0 nm 로 닫은 것이다.
+`abrasive_ref_size_nm` 도 같은 500.0 nm 이므로 기준 조건 입경 항 = (500.0/500.0)^n
+= 1.000000 (n 무관, 오차 < 1e-12). 아래 verify 블록의 assert 가 이 세 수치
+(500.0 nm · 동반 이동 · 배수 1.554869)를 매 실행마다 재계산해 고정한다.
+
+입경축 응답(현재 곡선, 알루미나 형상):
+
+| abrasive_size_nm | κ 전체 | MRR (nm/min) |
 |---|---|---|
-| 120 (현재, 세리아 상속) | 1.00000 | 0.483137 |
-| 163 (정점) | 1.50433 | 0.726796 |
-| 500 (Gong 실측 알루미나) | 1.03534 | 0.500209 |
+| 120 | 0.310725 | 1.424453 |
+| 163 | 0.341597 | 1.565978 |
+| 500 (팩 기본 = Gong 실측) | 0.483137 | 2.214838 |
 
-MRR 비(120 nm → 500 nm) = **1.0353배**. 영향이 3.5% 로 작은 이유는 정점(163 nm)을
-사이에 두고 양쪽 지수가 반대 부호(below +1.333 / above -0.333)라 120 과 500 이
-우연히 비슷한 배수로 떨어지기 때문이다 — **작은 것이 맞아서가 아니라 우연이다.**
+MRR 비(120 nm → 500 nm) = **1.554869배**. 판정#60 당시 세리아 곡선에서 잰
+1.0353배와 다른 이유는 §5 가 경고한 바로 그것이다 — **곡선 자체가 바뀌었기
+때문**이지 값 하나가 바뀌었기 때문이 아니다. 정점이 163 → 2500 nm 로 옮겨가
+500 nm 가 below-peak 가지로 들어왔다.
 
-## 5. 왜 이번에 고치지 않는가
+## 5. 왜 판정#60 에서는 고치지 않았나 (그리고 그 판단이 옳았다)
 
-값을 500 nm 로 바꾸는 것은 한 줄이지만, **그러면 안 되는 이유가 있다**:
+판정#60 은 값을 500 nm 로 바꾸는 한 줄 수정을 **의도적으로 거부**했다:
 
 `abrasive_size_peak_nm`(163)·`_exp_below_peak`(1.333)·`_exp_above_peak`(-0.333)이
-전부 **세리아 계에서 나온 형상**이다. 입경 값만 알루미나 것으로 바꾸면 **알루미나
+전부 **세리아 계에서 나온 형상**이었다. 입경 값만 알루미나 것으로 바꾸면 **알루미나
 입경을 세리아 입경-MRR 곡선에 대입**하게 된다 — 판정#59 §2 에서 실측으로 확인한
-"실리카 곡선을 알루미나에 씌우는" 것과 **정확히 같은 함정**이다. 정점 위치와 두
-지수가 알루미나 계에서도 같다는 근거는 없다(미검증).
+"실리카 곡선을 알루미나에 씌우는" 것과 **정확히 같은 함정**이다.
 
-정직한 상태 기술은 이것이다: **이 팩의 입경축은 값도 곡선도 남의 재료 것이다.**
-값 하나만 고치면 "부분적으로 맞는 것처럼 보이는" 더 나쁜 상태가 된다.
+**그 판단이 사후에 정량으로 정당화됐다**: 판정#62 가 형상 3키까지 알루미나 실측으로
+함께 옮기자 같은 입경 비의 MRR 영향이 1.0353배 → 1.554869배로 **15배 커졌다**.
+즉 판정#60 이 값 하나만 고쳤다면 "3.5% 영향"이라는 잘못된 크기 판단이 노트에 남고,
+그 위에서 우선순위가 정해졌을 것이다. **값과 형상은 같은 편집에서 함께 옮겨야 한다.**
 
-따라서 이번 회차의 산출은 **값 변경이 아니라 신고의 상시화**다. 코드·YAML 0줄 변경,
-격자 불변, MRR 비트 불변.
+판정#60 의 산출은 값 변경이 아니라 신고의 상시화였고(코드·YAML 0줄, MRR 비트 불변),
+그 신고가 이틀 뒤 판정#62 의 입력이 됐다.
+
+## 5.1 지금 살아 있는 상속 신고 (2026-09-19 재실행)
+
+감사 신고는 18건 → **19건**이고, `sic_alumina_kmno4` 의 연마입자축 신고는 아래 13건이다.
+입경 5키는 목록에서 **빠졌다**(자기선언됐으므로).
+
+```
+abrasive_d99_nm · abrasive_iep_ph · abrasive_ref_d99_nm ·
+abrasive_saturation_wt_pct · ce3_fraction · ce3_fraction_ref ·
+ceria_tooth_exponent · ceria_tooth_gain · oxide_nitride_selectivity ·
+oxidizer_langmuir_K · oxidizer_langmuir_species · ph_mrr_at_peak_rel · ph_peak
+```
+
+이 중 세리아 계수(`ce3_*`·`ceria_tooth_*`)와 pH 정점(`ph_peak`·`ph_mrr_at_peak_rel`)은
+판정#59·#61 이 **분기를 꺼서** MRR 에 도달하지 않고, 산화제 계수
+(`oxidizer_langmuir_*`)는 판정#50 의 종(species) 게이트가 막는다 — 즉 죽은 신고다.
+**미검증**: `abrasive_d99_nm`·`abrasive_iep_ph`·`abrasive_saturation_wt_pct` 3건이
+현재 MRR 을 움직이는지는 이번 회차에 재측정하지 않았다(판정#60 당시에는 무영향이었으나
+그 뒤 Δ 축 항이 신설됐으므로 그 결론이 여전히 유효한지 확인이 필요하다).
 
 ## 6. 미검증·확인 못 한 것
 
@@ -151,9 +197,10 @@ for k in ("ce3_fraction", "ceria_tooth_gain", "ceria_tooth_exponent"):
     m = ms[("sic_alumina_kmno4", k)]
     assert m["axis"] == "abrasive" and m["mine"] == "alumina" and m["theirs"] == "ceria", m
 
-# 2) 살아 있는 입경축 결함 2건이 신고된다
+# 2) 판정#62 해소 확인 — 입경 2키는 **더 이상 신고되지 않는다**
+#    (신고가 되살아나면 판정#62 가 되돌아간 것이므로 실패해야 한다)
 for k in ("abrasive_size_nm", "abrasive_ref_size_nm"):
-    assert ("sic_alumina_kmno4", k) in ms, k
+    assert ("sic_alumina_kmno4", k) not in ms, ("판정#62 회귀", k)
 
 # 3) 오탐 없음 — 패드/장비 키는 신고되지 않는다
 for (_p, k) in ms:
@@ -166,12 +213,17 @@ assert _axis_of("kp_m_per_pa") is None
 for k in AXIS_NONE:
     assert _axis_of(k) is None, k
 
-# 5) §4 표의 입경축 수치 재현
+# 5) §4.1 표 재현 — 입경 5키가 자기선언(판정#62)이고 값·곡선이 노트대로다
 pk = load_pack("sic_alumina_kmno4")
-assert not pk.has_own("abrasive_size_nm"), "이미 자기선언됐다면 이 노트는 낡았다"
-assert pk.param("abrasive_size_nm").owner == "sic_ceria_h2o2"
-assert abs(float(pk.get("abrasive_size_nm")) - 120.0) < 1e-9
-assert abs(float(pk.get("abrasive_size_peak_nm")) - 163.0) < 1e-9
+for k in ("abrasive_size_nm", "abrasive_ref_size_nm", "abrasive_size_peak_nm",
+          "abrasive_size_exp_below_peak", "abrasive_size_exp_above_peak"):
+    assert pk.has_own(k), ("판정#62 회귀 — 상속 상태로 돌아갔다", k)
+    assert pk.param(k).owner == "sic_alumina_kmno4", (k, pk.param(k).owner)
+assert abs(float(pk.get("abrasive_size_nm")) - 500.0) < 1e-9
+# 본값과 기준점이 함께 옮겨졌다 = 기준 조건에서 입경 항이 정확히 1.0
+assert (float(pk.get("abrasive_size_nm"))
+        == float(pk.get("abrasive_ref_size_nm"))), "_ref 동반 이동 깨짐"
+assert abs(float(pk.get("abrasive_size_peak_nm")) - 2500.0) < 1e-9
 
 def kappa(size):
     rr = E.Recipe(pack="sic_alumina_kmno4",
@@ -180,7 +232,7 @@ def kappa(size):
                                   "abrasive_size_nm": size}).resolve()
     return factors._f_kappa(rr).value
 
-for size, want in ((120, 0.483137), (163, 0.726796), (500, 0.500209)):
+for size, want in ((120, 0.310725), (163, 0.341597), (500, 0.483137)):
     got = kappa(size)
     assert abs(got - want) < 1e-5, (size, got, want)
 
@@ -192,7 +244,9 @@ def mrr(size):
                         "abrasive_size_nm": size})).mrr_nm_per_min))
 
 ratio = mrr(500) / mrr(120)
-assert abs(ratio - 1.0353) < 1e-3, ratio
+assert abs(ratio - 1.554869) < 1e-4, ratio
+# 판정#60 당시 세리아 곡선에서는 1.0353배였다 — 곡선 교체의 영향이 15배다
+assert ratio / 1.0353 > 1.4, ratio
 
 # 6) 감사는 읽기 전용 — MRR 을 건드리지 않는다
 before = mrr(120)
