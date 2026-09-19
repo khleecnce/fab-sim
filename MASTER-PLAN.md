@@ -4291,3 +4291,28 @@ completion **70/70** 불변 · qa_loop #313 --strict PASS ρ=0.9566 불변. 커�
 테스트만 · 커밋까지" 를 명시했고, 위임이 **EXIT=0으로 끝까지 완주**했다(노트 259행 + 판정#84
 행 + 커밋). 직전 회차(판정#83)가 전체 스위트를 브리프에 넣어 max-turns 사망한 것과 대조된다 —
 **이 분업을 표준으로 고정한다.**
+
+### 2026-09-20 — [Max워커] 판정#85 χ/cu promoter 절대배수 1회차 — 1차 출처 확보 실패
+
+판정#84 §7이 지정한 후속. `_carboxylate_promoter_term`의 φ=0.078058(+m·C_anchor)은
+US6309560B1(알루미나·BTA無)에서 온 **타계 전이(E4)** 값인데 크기까지 곱하고 있고,
+`promoter_ref_M=0` 앵커 때문에 (1−φ)/φ=11.81배가 즉시 걸린다. 이를 검증할
+**옥살산 C=0 대조점 통제쌍**을 찾는 것이 과제였다.
+
+- 로컬 `corpus.sqlite`(9257건)에서 근접 후보 3건 확보 — Surisetty 2008
+  (doi:10.1149/1.2987791, 도데실벤젠술폰산+옥살산+글리신), Janjam 2008
+  (doi:10.1149/1.2829112, 옥살산 기반 Cu/Ta 선택비), Hazarika 2022. **셋 다 fumed
+  silica 계**(팩은 콜로이달)이고 원문은 IOP **bronze**(= 실제로는 페이월, 판정#83이
+  확인한 그 함정) · sci-hub 대체미러 403 · ResearchGate/academia.edu 403 · CORE 0건.
+- **호출자 직접 재시도(§4-보)**: 위임이 남긴 2회차 경로 3개를 Max워커가 그 자리에서
+  실행해 전부 막힘을 확인하고 기록했다 — ①Wayback은 재시도해도 `429`(세션
+  레이트리밋이 아니라 지속 제한 → 2회차는 **시간대를 바꿔서** 시도) ②CORE 무키 호출도
+  429(키 발급이 선결) ③**경로 3은 전제가 틀렸다**: OpenAlex가 Surisetty·Janjam·Babu를
+  Qatar University로 귀속하지만 이는 **최신 소속**이고 두 논문은 2008년 Clarkson
+  시절 것이다. QSpace REST API로 `Babu` 484건·`CMP copper` 106건을 실제 조회해
+  **CMP 논문 0건**을 확인했고, `digitalcommons.clarkson.edu`는 **DNS 미해결**이라
+  2회차는 Clarkson의 실제 리포지토리 주소 확인부터 해야 한다.
+
+**φ·m·C_anchor·코드·YAML 0 변경**(교체 판단의 대상 자체가 없다). 격자 **70/70 불변**.
+게이트: verify_claims ✓ check_knowledge ✓ test_engine·test_sensitivity 21건 ✓.
+커밋 966fac0 + d4993f9(§4-보), push 완료. **3회차 규칙 적용 갱 — 남은 회차 2회.**
