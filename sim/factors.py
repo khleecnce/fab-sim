@@ -1552,7 +1552,8 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
     (proline 등)은 Prasad & Ramanathan 2006이 흡착량–억제 상관을 반증했으므로 이 폐형식
     대상이 아니다(America 2004 Table I 이산 룩업만). (d) 온도 의존 K(T) 없음.
     """
-    from sim.chemistry import _inhibitor_term, _dispersant_protection_term
+    from sim.chemistry import (_inhibitor_term, _dispersant_protection_term,
+                               _chelator_suppression_term)
     f = _new("psi")
     pk = rr.pack
     notes: List[str] = []
@@ -1584,14 +1585,30 @@ def _f_psi(rr: "ResolvedRecipe") -> Factor:
                 "inhibitor_ref_mM 이 검증 조건 범위의 하단이 아니라 중간에 "
                 "있다는 뜻이다. 기준점을 범위 하단(보통 0)으로 옮기거나, "
                 "억제 항을 ψ 가 아니라 별도 팩터로 분리해야 한다.")
+        # ── 착화제(글리신) 농도축 억제 — 억제제 항과 독립 가정으로 곱한다 ──
+        # 근거: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+        # (Jani 2025 doi:10.1149/2162-8777/adc59e Table I×II 통제쌍 2건 +
+        #  회귀 [glycine]=-440.91, p=4.08e-7). 종 게이트가 안 맞으면 None.
+        terms_metal = {"inhibitor": v}
+        v_chel = _chelator_suppression_term(pk, notes)
+        if v_chel is not None:
+            terms_metal["chelator_suppression"] = v_chel
+            v = v * v_chel
+            if pk.has("chelator_M"):
+                try:
+                    f.drivers["chelator_M"] = float(pk.get("chelator_M"))
+                except (TypeError, ValueError):
+                    pass
         f.value = v
-        f.terms = {"inhibitor": v}
+        f.terms = terms_metal
         f.status = "modeled"
         # 등급 하한 판정 (2026-09-13): 억제 항의 약한 고리는 흡착-제거 변환 계수다.
         # 그 계수도 팩 선언값이므로 리터럴 대신 읽는다.
-        f.confidence = _worst_conf(
-            _pack_conf(pk, "inhibitor_mM"),
-            _pack_conf(pk, "inhibitor_strength_k", "inhibitor_ref_mM"))
+        _confs_psi = [_pack_conf(pk, "inhibitor_mM"),
+                      _pack_conf(pk, "inhibitor_strength_k", "inhibitor_ref_mM")]
+        if v_chel is not None:
+            _confs_psi.append(_pack_conf(pk, "chelator_suppression_a"))
+        f.confidence = _worst_conf(*_confs_psi)
         f.sources = ["knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md",
                      "knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md"]
         f.notes.extend(notes)

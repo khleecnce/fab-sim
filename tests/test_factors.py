@@ -939,9 +939,20 @@ def test_psi_sic_pack_does_not_inherit_surfactant_constant():
 
 @pytest.mark.parametrize("pack", ["cu_h2o2_bta", "w_fe_oxidizer"])
 def test_psi_metal_packs_unchanged_by_oxide_extension(pack):
-    """금속 팩은 기존 억제제 경로 그대로 — terms 키가 inhibitor 하나, 기준 1.0."""
+    """금속 팩은 산화막 확장(adsorption_shield) 경로를 타지 않고, 기준에서 1.0.
+
+    [2026-09-19 판정#72] 허용 term 집합에 `chelator_suppression` 을 추가했다.
+    이름의 "oxide_extension"이 가리키는 것은 세리아/산화막용 `adsorption_shield`
+    경로이며, 착화제 억제는 금속계 고유의 ψ 갈래다(글리신 → Cu 표면 흡착 보호,
+    근거: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md).
+    금속 팩이 절대 가져서는 안 되는 것은 산화막 경로이므로 그것을 직접 금지한다 —
+    "term 이 하나여야 한다"는 원래 의도의 대리 조건이었을 뿐이다.
+    기준 조건 1.0 계약은 그대로 유지된다(각 항이 개별로 항등원).
+    """
     f = _factors(pack=pack)["psi"]
-    assert set(f.terms) == {"inhibitor"}
+    assert set(f.terms) <= {"inhibitor", "chelator_suppression"}
+    assert "inhibitor" in f.terms
+    assert "adsorption_shield" not in f.terms
     assert f.value == pytest.approx(1.0, abs=1e-9)
     assert "shield_additive_wt_pct" not in f.drivers
 

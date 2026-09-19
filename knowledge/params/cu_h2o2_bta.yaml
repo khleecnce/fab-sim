@@ -455,6 +455,47 @@ params:
       수 % 이내로 추정되나 검증되지 않았다). 10 g/L / 75.07 g/mol = 0.1332 mol/L.
       confidence=estimated인 이유: 몰농도 자체가 밀도 가정을 거친 환산값이라
       직접 측정치가 아니다(wt% 원값은 verified).
+  # ── 착화제 억제축 ψ (2026-09-19, EVIDENCE-RULES 판정#72) ──────────
+  chelator_ref_M:
+    value: 0.1332
+    unit: mol/L
+    confidence: estimated
+    source: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+    note: >
+      착화제 억제 배수가 항등적으로 1.0이 되는 기준 농도 — chelator_M 과 같은 값을
+      명시해 이중 계상을 막는다(inhibitor_ref_mM·oxidizer_ref_wt_pct 와 동일 설계).
+      등급은 chelator_M 과 같다(밀도 1.0 g/mL 가정을 거친 환산값).
+  chelator_suppression_a:
+    value: 1.5119
+    unit: "1/(mol/L)"
+    confidence: estimated
+    source: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+    note: >
+      글리신 농도 억제 지수. 잔여율 = exp(-a*(C - C_ref)).
+      값의 출처: Jani 2025(doi:10.1149/2162-8777/adc59e) Table I x Table II 에서
+      **연마입자가 있고 글리신만 바뀌는** 통제쌍 2건에 최소자승 적합 —
+      E5/6(글리신 0.13 M) / E7/8(0 M): 1329/1544.5 = 0.8605,
+      E15(0.26 M) / E27/28(0 M): 452/694 = 0.6513. 최적 a=1.5119 /M,
+      잔차 -4.5%(0.13 M) / +3.6%(0.26 M).
+      방향 근거(독립): 같은 논문 회귀 [glycine] = -440.91, p=4.08e-7(유의한 음수)
+      + 원문 결론 "glycine effectively functions as an inhibitor rather than a
+      dissolution promoter".
+      ⚠ confidence=estimated 이유 셋:
+      (1) 통제쌍이 2점뿐이라 Langmuir/Hill 피복형의 (K,k)가 분리되지 않는다
+          (K=0.13~32 /M 에서 SSE 가 7.7배 안에 다 들어옴) — 지수 1개로 축소했다.
+      (2) 이 계열에는 BTA 가 없다(팩에는 있다). BTA 와 글리신의 커플링은 미검증.
+      (3) 두 통제쌍의 고정 조건이 서로 다르다(실리카 3 vs 6 wt%, H2O2 5 vs 7 wt%,
+          옥살산 0.05 vs 0.02 M) — 점별 유도 a 가 1.156 / 1.649 로 1.4배 벌어진다.
+      상세: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+  chelator_suppression_species:
+    value: glycine
+    confidence: verified
+    source: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+    note: >
+      a=1.5119 가 실제로 적합된 착화제 종. `sim/chemistry.py::
+      _chelator_suppression_term` 이 이 값과 `chelator_species` 가 일치할 때만
+      항을 켠다 — 옥살산은 같은 회귀에서 +536.63 으로 부호가 반대다(판정#45).
+      적합에 쓴 종 이름을 그대로 옮긴 것이라 verified.
   oxidizer_acid_chelator_K:
     value: 0.7935
     unit: "1/wt%"

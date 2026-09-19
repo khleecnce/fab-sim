@@ -472,6 +472,69 @@ def _dispersant_protection_term(pack, notes: List[str]) -> Optional[float]:
     return rel
 
 
+def _chelator_suppression_term(pack, notes: List[str]) -> Optional[float]:
+    """착화제(글리신) 농도축 → Cu 제거율 **억제** 배수. ψ 경로(표면 흡착 보호).
+
+    왜 억제인가 (직관과 반대다): 착화제는 산화된 Cu(II)를 가용성 착물로 빼내
+    제거를 **촉진**할 것 같지만, Jani 2025 의 통제 실험쌍은 글리신을 넣을수록
+    Cu RR 이 내려간다고 말한다. 원문 결론도 같다 — "the higher Cu dissolution
+    in slurries without glycine indicates that glycine effectively functions as
+    an inhibitor rather than a dissolution promoter". 회귀표의 [glycine] 계수도
+    −440.91 (p=4.08e-7) 로 유의한 음수다.
+
+    함수형: 잔여율 = exp(-a·C) 를 기준 농도로 정규화한다.
+        f(C) = exp(-a·(C - C_ref))            → C = C_ref 에서 항등적으로 1.0
+    Langmuir/Hill 피복형(θ)을 쓰지 않은 이유: 확보된 통제쌍이 2점(0.13 / 0.26 M)
+    뿐이라 (K, k) 가 분리되지 않는다(K=0.13~32 /M 범위에서 SSE 가 7.7배 안에
+    다 들어온다 — 근거 노트 §5 축퇴 스캔). 지수 1개는 그 2점에서 식별되고
+    잔차가 -4.5% / +3.6% 다. 피복형의 포화 거동을 지어내지 않는다.
+
+    게이트: 이 항은 **적합된 착화제 종**(chelator_suppression_species)과 팩이
+    선언한 chelator_species 가 일치할 때만 켠다 — 옥살산은 같은 논문 회귀에서
+    +536.63 으로 부호가 반대라(판정#43·#45·#47) 착화제를 하나로 묶으면 안 된다.
+
+    근거 노트: knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md
+    """
+    if not pack.has("chelator_suppression_a"):
+        return None
+    if not pack.has("chelator_M"):
+        notes.append("⚠ chelator_suppression_a 는 있으나 chelator_M 이 없어 "
+                     "착화제 억제 항을 건너뛴다 — 농도를 지어내지 않는다.")
+        return None
+    if pack.has("chelator_suppression_species"):
+        fitted = str(pack.get("chelator_suppression_species")).strip().lower()
+        declared = str(pack.get_or("chelator_species", "")).strip().lower()
+        if not declared:
+            notes.append("⚠ chelator_suppression_species 가 선언됐으나 팩에 "
+                         "chelator_species 가 없어 종 일치를 확인할 수 없다 — "
+                         "항을 켜지 않는다.")
+            return None
+        if fitted != declared:
+            notes.append(
+                f"⚠ chelator_suppression_a 는 {fitted} 로 적합된 값이고 이 팩의 "
+                f"착화제는 {declared} 다 — 같은 논문 회귀에서 옥살산(+536.63)과 "
+                "글리신(−440.91)은 부호가 반대라 전이하지 않는다(판정#45). "
+                "착화제 억제 항을 켜지 않는다.")
+            return None
+    a = float(pack.get("chelator_suppression_a"))
+    C = float(pack.get("chelator_M"))
+    C_ref = float(pack.get_or("chelator_ref_M", C))
+    val = math.exp(-a * (C - C_ref))
+    if abs(C - C_ref) < 1e-12:
+        notes.append(
+            f"착화제 억제: {C:.4g} M = 기준 조성이라 배수 1.000 "
+            "(Kp 가 이 조성에서 역산됐다 — 절대 억제율을 다시 곱하면 이중 계상). "
+            "글리신 농도를 바꾸면 exp(-a·ΔC) 가 반영된다 "
+            "(knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.md).")
+    else:
+        notes.append(
+            f"착화제 억제: 글리신 {C:.4g} M / 기준 {C_ref:.4g} M, a={a:.4f} /M "
+            f"→ 배수 {val:.4f}. 방향은 Jani 2025 통제쌍 2건(0.13 M: 0.861, "
+            "0.26 M: 0.651)과 회귀 계수 −440.91(p=4.08e-7)이 지지한다. "
+            "⚠ 2점 적합이라 절대 크기는 순위 목적으로만 쓸 것.")
+    return val
+
+
 def _ceria_term(pack, notes: List[str]) -> Optional[float]:
     """세리아 chemical tooth — Ce³⁺ 활성점이 Si-O-Ce 결합을 만든다.
 
