@@ -1123,18 +1123,42 @@ def test_chi_oxidizer_reference_unity_for_sic_ceria_h2o2():
 
 
 def test_oxidizer_shape_is_not_transferred_across_oxidizer_species():
-    """산화제 종이 다른 자식 팩은 부모의 Langmuir 곡선을 상속하지 않는다.
+    """산화제 종이 다른 팩은 **부모의** Langmuir 곡선을 상속하지 않는다.
 
-    sic_alumina_kmno4는 KMnO4(E°(MnO4-/MnO2)=+1.68 V)를 쓰고, 부모의 K는 H2O2
-    데이터로 적합됐다. 종 게이트(판정#47과 같은 장치)가 꺼져 있으면 남의 산화제로
-    적합한 곡선으로 이 팩의 MRR을 예측하게 된다 — 그건 지어낸 값이다.
+    부모(sic_ceria_h2o2)의 K 는 H2O2 데이터로 적합됐고 sic_alumina_kmno4 는
+    KMnO4(E°(MnO4-/MnO2)=+1.68 V)를 쓴다. 종 게이트가 꺼져 있으면 남의 산화제로
+    적합한 곡선으로 이 팩의 MRR 을 예측하게 된다 — 그건 지어낸 값이다.
+
+    ⚠ 2026-09-19 갱신: 이 테스트는 원래 "sic_alumina_kmno4 는 산화제에 반응하지
+    않는다"를 고정했다. 그 무반응은 **목표가 아니라 증상**이었다 — 자기 종의 K 가
+    없어서 게이트가 막고 있던 상태다. 그 뒤 이 팩이 Gong 2024(자기 재료계 문헌)로
+    `oxidizer_langmuir_K` + `oxidizer_langmuir_species=KMnO4` 를 **자기선언**해
+    게이트를 정당하게 통과했다. 무반응을 계약으로 고정하면 게이트를 통과하는 정상
+    경로까지 막히므로, 고정할 계약을 원래 의도대로 다시 쓴다: **종이 일치할 때만
+    항이 선다.**
     """
+    from sim.params import load_pack
+
+    pk = load_pack("sic_alumina_kmno4")
+    # 전제: 이 팩은 자기 종의 K 를 자기선언했다(상속이 아니다)
+    assert pk.has_own("oxidizer_langmuir_K"), (
+        "K 가 상속 상태다 — 그렇다면 종 게이트가 막아야 하고 아래 반응은 결함이다.")
+    assert pk.has_own("oxidizer_langmuir_species")
+    assert str(pk.get("oxidizer_langmuir_species")) == str(pk.get("oxidizer")), (
+        "적합된 산화제 종과 팩의 실제 산화제가 다르다 — 종 게이트가 막아야 한다.")
+
+    # 종이 일치하므로 항이 서고 농도에 단조 반응한다
     vals = [_mean_mrr(pack="sic_alumina_kmno4", oxidizer_wt_pct=c)
             for c in (2.0, 4.0, 6.0)]
-    assert vals[0] == pytest.approx(vals[1], rel=1e-12) and \
-           vals[1] == pytest.approx(vals[2], rel=1e-12), (
-        f"sic_alumina_kmno4가 KMnO4 농도에 반응했다({vals}) — H2O2로 적합한 "
-        "형상을 상속했다는 뜻이다. 종 게이트를 확인하라.")
+    assert vals[0] < vals[1] < vals[2], (
+        f"자기 종 K 를 선언했는데도 KMnO4 농도에 무반응이다({vals}) — 종 게이트가 "
+        "일치하는 종까지 막고 있다.")
+
+    # 그리고 그 곡선은 부모(H2O2)의 것이 아니다
+    parent = load_pack("sic_ceria_h2o2")
+    assert float(pk.get("oxidizer_langmuir_K")) != pytest.approx(
+        float(parent.get("oxidizer_langmuir_K")), rel=1e-9), (
+        "이 팩의 K 가 부모(H2O2 적합값)와 같다 — 종이 다른데 곡선을 물려받았다.")
 
 
 def test_sic_kmno4_ph_floor_scales_with_oxidizer_concentration():
@@ -1160,11 +1184,30 @@ def test_sic_kmno4_ph_floor_scales_with_oxidizer_concentration():
 
 
 def test_sic_kmno4_ph_floor_reference_unity_unaffected_by_oxidizer():
-    """φ 를 농도로 흔들어도 **기준 pH 에서는** χ 가 1.0 이다.
+    """φ 를 농도로 흔들어도 **기준 pH 에서 pH 항은** 정확히 1.0 이다.
 
     φ 는 g(pH)/g(pH_ref) 의 분자·분모에 동시에 들어가므로 pH=pH_ref 에서
     상쇄된다. 이 계약이 깨지면 Kp 가 이중 계상된다.
+
+    ⚠ 2026-09-19 갱신: 원래 이 테스트는 χ **전체**가 1.0 이라고 단언했다. 그것이
+    성립했던 이유는 당시 이 팩의 산화제 항이 종 게이트에 막혀 꺼져 있어서지,
+    pH 항의 계약 때문이 아니었다. 이 팩이 자기 종의 K 를 선언해 산화제 항이
+    켜지자 χ 전체는 농도에 따라 움직인다(그게 정상이다 — C≠C_ref 에서 1.0 이면
+    오히려 산화제축이 죽은 것이다). 고정할 계약은 **pH 항 단독의 기준 단위성**
+    이므로 그렇게 좁힌다.
     """
     for c in (0.79, 4.0, 6.5):
         f = _factors(pack="sic_alumina_kmno4", oxidizer_wt_pct=c)["chi"]
-        assert f.value == pytest.approx(1.0, abs=1e-9), (c, f.value)
+        ph_terms = [v for k, v in f.terms.items() if k.startswith("ph_")]
+        assert ph_terms, (c, f.terms, "pH 항이 사라졌다")
+        for v in ph_terms:
+            assert v == pytest.approx(1.0, abs=1e-9), (c, f.terms)
+
+    # 그리고 기준 농도·기준 pH 에서는 χ 전체가 정확히 1.0 이다(Kp 이중 계상 방지)
+    ref = _factors(pack="sic_alumina_kmno4")["chi"]
+    assert ref.value == pytest.approx(1.0, abs=1e-9), ref.terms
+
+    # 산화제 항은 기준 농도를 벗어나면 반드시 움직인다(죽은 축 회귀 방지)
+    off = _factors(pack="sic_alumina_kmno4", oxidizer_wt_pct=0.79)["chi"]
+    assert off.value != pytest.approx(1.0, abs=1e-6), (
+        "기준을 벗어난 농도에서도 χ 가 1.0 이다 — 산화제축이 다시 죽었다.")
