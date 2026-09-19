@@ -1,5 +1,5 @@
 {
-  "ts": 1789799812.4699461,
+  "ts": 1789805609.114835,
   "complete": false,
   "cells_done": 66,
   "cells_total": 70,
@@ -63,7 +63,7 @@
       "rhos": [
         0.7174500322602797
       ],
-      "n_total": 4,
+      "n_total": 5,
       "mean_rho": 0.7175
     },
     "sic_ceria_h2o2": {
