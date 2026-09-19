@@ -3977,3 +3977,68 @@ check_knowledge ✓ · pytest **1295 passed / 1 skipped** 회귀 0 · completion
 판정#77 을 인용하면서 원장 행 커밋이 아직 안 된 **과도기 상태**를 정확히 잡은 것이다. 그쪽
 커밋(2e8d943)이 들어오자 해소됐다 — 즉 이 테스트는 #64·#72 같은 결함이 **몇 시간 이상 방치되는
 것을 구조적으로 막는다**. 병행 워커 체제에서 의도한 그대로 동작한다.
+
+
+### 2026-09-20 00시~02시 [Max워커] — 판정#79 Δ 3회차 종결(격자 67→68/70) + blockers 도구 결함 수정
+
+**1. 판정#79 — Δ/`cu_alkaline_benzenesulfonic` `abrasive_d99_nm` 3회차(최종), 커밋 151ed83**
+
+`blockers.py` 1위 칸을 **영구 종결**해 완성격자 **67/70 → 68/70**. 값(103.824688 nm)·등급
+(estimated)·`sim/`·YAML 전부 **0 변경**이다 — 종결은 값을 바꾸는 일이 아니라 "안 했다"와
+"못 한다"를 구분하는 일이다.
+
+- **대상계 연마입자를 처음 상품명으로 특정했다**: US6979252B1(DuPont Air Products
+  NanoMaterials, 현 Versum; Siddiqui 외)의 Example 1/33-34 조성 서술이 US9200180B2
+  COMPONENTS D)와 **문장 단위로 동일**(30 wt% 수분산·potassium-stabilized·50-60 nm·
+  CHDF 2000 Matec) → 이 팩의 연마입자는 **Syton® OX-K** 다. 1·2회차가 몰랐던 사실.
+- **그런데 그 특허조차 D99 를 인쇄하지 않는다.** 꼬리를 개수축(>1 µm particles/mL)으로만
+  보고하고, 그 개수축은 D99 로 **환산 불가능하다** — 30 wt%·D50 55 nm 구형 환산 시 전체
+  개수농도 1.872e15/mL 이라 50,354/mL 은 개수분율 2.69e-11, D99(1e-2)와 **8.6 자릿수**
+  격차. 메우려면 σ_g 가 필요한데 그것이 곧 구하려는 미지수라 **순환**이다.
+- 2회차 Hatch-Choate(자릿수 1 차이 = 원리적 가능, 3중 불일치로 기각)와 달리 이번은
+  **원리적 불가**. 제조사 데이터시트·Fujifilm 초순수 실리카 특허·EP2995662B1·lu2018
+  세 층위 전부 같은 패턴 → 미확보의 성격이 '탐색 부족'이 아니라 **산업 보고 관행의
+  구조적 부재**로 확정.
+
+**부수 발견 2개(둘 다 채택하지 않고 기록만)**
+
+1. **Δ 전제의 1차 반례**: 같은 TABLE 1 에서 oversize 개수와 결함 수가 **완전 역상관**
+   (Spearman ρ=-1.00, n=4)이고 특허 본문이 명시 결론화한다 — "defectivity ... is not
+   correlated with nor related to the number of oversize particles but rather relates to
+   the level of soluble polymeric silicates". 원심분리가 겔을 제거하며 1 µm 초과 개수를
+   7배 늘렸는데 결함은 1/14 로 줄었다. **반증으로 채택하지 않은 이유**: 대상이 PETEOS
+   산화막(이 팩은 알칼리 Cu) / 관측량이 개수축 / Remsen 2006 은 의도적 첨가 대입자.
+   Δ 함수형 재검토 시 반드시 대조할 것.
+2. **이 칸은 기준 예측에 영향이 0 이었다**: `_f_delta`(2085-2093행 직접 판독)는 D99 를
+   `abrasive_ref_d99_nm` 과의 **비로만** 소비하고 이 팩은 둘을 동반 선언했다 — 0.5/0.678/
+   1.0/2.0배 동반 스케일 전부 Δ=1.0(verify assert 고정). 영향은 what-if 감도에만 남는다.
+   **그럼에도 등급을 올리지 않았다** — "안 쓰이니까 맞다"는 비논리다.
+
+**2. `blockers.py` 종결칸 제외 — 도구가 4회차를 유도하던 결함, 커밋 7a11f2b**
+
+위 종결 **직후**에도 `blockers.py` 가 그 칸을 1위로 계속 출력하는 것을 발견했다. 이 도구는
+`validation/C2-CLOSURES.yaml` 을 **전혀 읽지 않는다** — 즉 3회차로 종결한 칸을 다음 회차
+작업자에게 최우선 배차 대상으로 계속 제시하고, **EVIDENCE-RULES 3회차 규칙 위반을 도구가
+유도하는** 구조였다(이 칸 자체가 1·2회차 모두 이 순위표를 보고 배차됐다).
+
+- 유효 종결 칸 기본 제외 + `--include-closed` 감사 보기(판정번호 마킹).
+- **과잉 필터 방지**: 필터를 켜니 순위표가 통째로 비어 "남은 병목 없음"으로 오독될 여지가
+  생겼다 — 형상 파라미터가 막는 칸(χ·κ/`cu_alkaline_benzenesulfonic`)은 애초에 blockers
+  dict(bad driver 에서만 채워짐)에 안 잡히기 때문이다. 하단에 그 칸들을 명시하는 절 신설.
+- 회귀 테스트 4건(`tests/test_blockers_closure_filter.py`). **필터 라인을 되돌리면 실제로
+  2건이 FAIL 함을 실행으로 확인**했다(판정#21 교훈 — 상대적 성질만 검사하는 테스트는
+  21,600 km 해에도 통과한다).
+
+**게이트(Max워커 직접 실행)**: verify_claims ✓(출처 25건 실존) · check_knowledge ✓ ·
+pytest **1299 passed/1 skipped**(1295→+4, 회귀 0) · completion **68/70** · qa_loop
+#304·#306 --strict PASS ρ 0.9566 불변.
+
+**남은 격자 2칸**: κ·χ/`cu_alkaline_benzenesulfonic`(둘 다 판정#71·#74 로 1회차만 소진 —
+2회차 여지 있음, 약한 고리는 드라이버가 아니라 **형상 파라미터**다: κ=`abrasive_conc_exponent`·
+`abrasive_size_exponent`, χ=`oxidizer_passivation_K`·`oxidizer_peak_wt_pct`).
+**C4 1칸**: `cu_h2o2_bta` ρ=0.7175 — 판정#78 로 이 코퍼스의 구조적 상한 확정.
+
+⚠ **위임 운영 기록**: Claude Code 위임이 §1-1(로컬 특허 471 + 논문 1,574 전수 스윕)을
+완료한 시점에 **Max워커 측 툴 타임아웃(420s)** 으로 끊겼다 — 위임의 max-turns 소진이 아니라
+**호출자 잘못**이다(백그라운드로 띄웠어야 했다). §1-2·§1-3·판정·verify·종결등록·게이트는
+Max워커가 직접 수행. 다음 회차: 위임은 반드시 `background=true` 로 띄우고 poll 할 것.
