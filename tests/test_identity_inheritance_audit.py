@@ -37,6 +37,19 @@ _KNOWN = {
     ("sic_alumina_kmno4", "ce3_fraction"),
     ("sic_alumina_kmno4", "ceria_tooth_gain"),
     ("sic_alumina_kmno4", "ceria_tooth_exponent"),
+}
+
+# ⚠ 2026-09-19 학습총괄 — oxidizer_langmuir_K / _species 를 이 목록에서 **뺐다.**
+# 원래 여기 있던 이유는 그 두 키가 부모(sic_ceria_h2o2, H2O2 로 적합)에서 상속돼
+# 재료 불일치로 신고되던 상태였기 때문이다. 그 뒤 이 팩이 자기 재료계 문헌
+# (Gong 2024, 4H-SiC×α-Al2O3×KMnO4)에서 K=2.28 을 역산해 **자기선언**했으므로
+# 더 이상 상속이 아니고, 감사가 신고하지 않는 것이 정답이다.
+#
+# 교훈(이 클래스의 실패가 이번 회차에만 3건 나왔다): 감사 테스트에 "지금 신고되는
+# 것"을 목록으로 박으면, 그 결함을 **정당하게 고치는 순간** 테스트가 깨진다.
+# 고정할 계약은 '현재 신고 목록'이 아니라 '남의 재료 값이 상속된 채로 쓰이면
+# 신고된다' 이다. 아래 회귀 가드가 그 형태로 다시 쓴 것이다.
+_RESOLVED_BY_SELF_DECLARATION = {
     ("sic_alumina_kmno4", "oxidizer_langmuir_K"),
     ("sic_alumina_kmno4", "oxidizer_langmuir_species"),
 }
@@ -62,6 +75,27 @@ def test_audit_reports_known_material_mismatches():
     got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
     missing = _KNOWN - got
     assert not missing, f"감사가 알려진 재료 불일치를 놓쳤다: {sorted(missing)}"
+
+
+def test_resolved_keys_are_self_declared_not_merely_unreported():
+    """해소된 키는 '신고 안 됨'이 아니라 '자기선언됨'이어야 한다.
+
+    목록에서 뺐다는 것만으로는 불충분하다 — 감사가 조용해진 이유가 (a) 팩이
+    자기 값을 선언해서인지 (b) 감사기가 그 키를 못 보게 돼서인지 구분되지
+    않으면, 규칙을 무력화해 위반을 없애는 일이 조용히 일어난다.
+    그래서 **팩 쪽에서** 자기선언을 직접 확인하고, 동시에 그 키가 상속으로
+    되돌아가면 감사가 다시 울어야 한다는 계약을 건다.
+    """
+    from sim.params import load_pack
+
+    got = {(m["pack"], m["key"]) for m in audit()["mismatches"]}
+    for pack_name, key in _RESOLVED_BY_SELF_DECLARATION:
+        pk = load_pack(pack_name)
+        assert pk.has_own(key), (
+            f"{pack_name}:{key} 가 자기선언이 아닌데 감사에서도 빠졌다 — "
+            "결함이 고쳐진 게 아니라 감사기가 눈을 감은 것이다.")
+        assert (pack_name, key) not in got, (
+            f"{pack_name}:{key} 는 자기선언인데 상속으로 신고됐다 — 감사기 오탐.")
 
 
 def test_audit_does_not_flag_pad_or_tool_keys():
