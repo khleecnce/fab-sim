@@ -217,6 +217,18 @@ def gaps_response():
                         "action": "sim/factors.py의 해당 항을 그 구간에서 문헌 형상을 재현하도록 "
                                   "고쳐라. 정점을 단조로 근사한 경우가 가장 흔하다.",
                         "why": "모델이 개발자에게 틀린 방향을 가리킨다 — 부정확한 게 아니라 위험하다"})
+        elif v == "SPLIT":
+            # 문헌이 조건에 따라 반대 방향을 준다 → 모델 방향을 뒤집는 게 아니라
+            # 팩/레짐을 쪼개야 하는 갱이다. CONFLICT 로 배차하면 크론이 멀쩡한
+            # 항의 부호를 뒤집어 다른 레짐을 망친다(2026-09-20 US8501625B2 사례).
+            out.append({"kind": "RESPONSE_SPLIT", "pack": r["pack"], "score": 110,
+                        "what": f"{r['pack']}/{r['label']}: 문헌이 조건별로 방향이 갈린다 "
+                                f"(n={r['lit_n']}, {', '.join(r['lit_sets'])}) — 모델은 "
+                                f"{r['model_shape']} 단일 레짐",
+                        "action": "부호를 뒤집지 마라. 층을 가르는 조건(압력·pH·착화제 등)을 "
+                                  "찾아 팩을 분리하거나 상호작용 항을 유도하라. 근거가 "
+                                  "없으면 EVIDENCE-RULES에 레짐 분기로 기록하고 --skip.",
+                        "why": "평균내면 어느 레짐에서도 안 맞는 제3의 곡선이 된다"})
         elif v == "DEAD":
             out.append({"kind": "RESPONSE_DEAD", "pack": r["pack"], "score": 95,
                         "what": f"{r['pack']}/{r['label']}: 문헌은 {r['lit_shape']}("

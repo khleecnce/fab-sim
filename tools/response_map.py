@@ -83,8 +83,34 @@ MIN_LIT_N = 3
 
 
 # ── 응답 형상 분류 ────────────────────────────────────────────
+def _collapse_replicates(xs: List[float], ys: List[float]
+                        ) -> Tuple[List[float], List[float]]:
+    """같은 x 의 반복측정을 중앙값 한 점으로 접는다.
+
+    왜 필요한가 (2026-09-20 발견) — `classify` 는 **인덱스 위치**로 정점/골을 찾는다.
+    같은 x 가 여러 번 들어오면 그 반복 산포가 인덱스 축에서 기복으로 보여
+    없는 형상이 생긴다. 실제 사례: hong2007_cu_ads_bta_polish_rate 의 BTA 0 mM
+    반복 3점(185/240/265 nm/min, 산포 1.43배)이 x=0 한 자리에서 "안쪽 정점"으로
+    잡혀 cu_h2o2_bta/억제제 축에 최우선 CONFLICT(score 120)를 찍고 있었다.
+    x 가 안 움직였는데 형상이 나오는 것은 물리가 아니라 채점 버그다.
+
+    반복은 형상의 증거가 아니라 **그 x 에서의 불확실성**이다. 접고 나서도
+    남는 기복만 형상으로 인정한다.
+    """
+    agg: Dict[float, List[float]] = {}
+    for x, y in zip(xs, ys):
+        agg.setdefault(round(float(x), 9), []).append(float(y))
+    items = sorted(agg.items())
+    return [k for k, _ in items], [float(np.median(v)) for _, v in items]
+
+
 def classify(xs: List[float], ys: List[float]) -> Tuple[str, float]:
-    """(x로 정렬된) 스윕 결과를 형상 라벨과 변화폭(max/min)으로 요약."""
+    """(x로 정렬된) 스윕 결과를 형상 라벨과 변화폭(max/min)으로 요약.
+
+    반복측정(같은 x)은 중앙값으로 접은 뒤 판정한다 — `_collapse_replicates` 참고.
+    """
+    if len(xs) == len(ys) and len(set(round(float(x), 9) for x in xs)) < len(xs):
+        xs, ys = _collapse_replicates(xs, ys)
     if len(ys) < 3 or min(ys) <= 0:
         return "invalid", float("nan")
     span = max(ys) / min(ys)
@@ -114,7 +140,12 @@ def classify(xs: List[float], ys: List[float]) -> Tuple[str, float]:
 
 SHAPE_KO = {"up": "단조↑", "down": "단조↓", "peak": "정점", "valley": "골",
             "saturating": "포화↑", "flat": "무반응", "invalid": "계산불가",
-            "unknown": "-", "na": "없음"}
+            "unknown": "-", "na": "없음", "mixed": "레짐분기"}
+
+
+# 형상 → 방향 계열. 같은 계열이면 실무 판단("올리면 오른다")이 같다.
+DIR_CLASS = {"up": "up", "saturating": "up", "down": "down",
+             "peak": "peak", "valley": "valley"}
 
 # 방향이 같다고 인정하는 (모델, 문헌) 쌍. 포화↑와 단조↑는 같은 방향으로 본다
 # — 실무 판단("올리면 오른다")이 동일하기 때문이다. 정점/골은 서로 다르면 충돌이다.
@@ -128,6 +159,11 @@ def verdict_of(model_shape: str, lit_shape: str) -> str:
         return "N/A"
     if lit_shape in ("unknown", None):
         return "NO-DATA" if model_shape not in ("flat", "invalid") else "BLANK"
+    if lit_shape == "mixed":
+        # 문헌 자체가 조건에 따라 반대 방향을 준다. 이건 모델이 틀렸다는 증거가
+        # 아니라 **한 팩으로 두 레짐을 덮고 있다**는 증거다(EVIDENCE-RULES:
+        # "상반된 두 지수를 평균내지 마라 — 스코프를 쪼개라").
+        return "SPLIT"
     if model_shape in ("flat", "invalid"):
         return "DEAD"
     return "AGREE" if (model_shape, lit_shape) in SAME_DIR else "CONFLICT"
@@ -145,7 +181,7 @@ NULL_CONFIRMED = {
 
 
 VERDICT_MARK = {"AGREE": "✅", "CONFLICT": "❌", "NO-DATA": "⚠", "DEAD": "🕳", "NULL_CONFIRMED": "∅",
-                "MISSING": "🔲", "BLANK": "·", "N/A": "·"}
+                "MISSING": "🔲", "BLANK": "·", "N/A": "·", "SPLIT": "🔀"}
 
 
 # ── 모델 스윕 ────────────────────────────────────────────────
@@ -240,6 +276,9 @@ class Evidence:
     read: str
 
     quarantined: bool = False
+    # 통제된 층이 2개 이상일 때 층별 형상(예: 2 psi에서 단조↓, 1 psi에서 정점).
+    # 층끼리 방향이 갈리면 shape="mixed" 가 되고 판정은 SPLIT 이 된다.
+    stratum_shapes: Optional[List[str]] = None
 
     def usable(self) -> bool:
         return (not self.confounded and self.in_scope and not self.calib
@@ -327,6 +366,23 @@ def literature_evidence() -> List[Evidence]:
         in_scope = d.get("in_scope") is not False
         calib = bool(d.get("used_for_calibration"))
         drivers = _drivers(conds)
+        # ── 선언된 미모델링 축 = **관측되지 않은 교란요인** (2026-09-20) ──────
+        # 데이터셋이 `excluded_axes` 로 "이 축도 같이 움직였지만 팩에 대응
+        # 파라미터가 없어 싣지 않았다"고 신고하면 그 축의 값은 conditions 에
+        # 아예 없다. 그래서 `_drivers` 는 그것을 못 보고 남은 축이 **단독으로**
+        # 변한 것처럼 착각한다.
+        #
+        # 실제로 터진 일: hong2007_cu_ads_bta_polish_rate 는 ADS(계면활성제)
+        # 농도를 excluded_axes 로 신고했는데, 그 결과 조건 A(ADS 0)·C(ADS 3mM)·
+        # D(ADS 5mM)가 전부 inhibitor_mM=0 한 자리에 겹쳐 265/240/185 로 흩어졌다.
+        # 이 세로 산포가 x 축에서 "안쪽 골"로 잡혀 cu_h2o2_bta/억제제에
+        # CONFLICT(최우선 갭, score 120)를 찍고 있었다 — BTA 를 실제로 움직인
+        # 점은 0→0.5→10 셋뿐이고 그 셋마저 ADS 유무가 같이 바뀐다. 즉 이
+        # 데이터셋에는 BTA 단독 증거가 **없다**.
+        #
+        # 데이터셋이 정직하게 신고한 한계를 판정 도구가 무시하면 그 정직함이
+        # 가짜 갱으로 되돌아온다. 선언이 있으면 교란으로 취급한다.
+        excluded_axes = d.get("excluded_axes") or {}
         reads = {c.get("read_method", "?") for c in conds}
         read = "digitized" if "digitized" in reads else "table"
         for k in keys:
@@ -336,16 +392,33 @@ def literature_evidence() -> List[Evidence]:
             if len({round(v, 9) for v in vals}) < MIN_LIT_N:
                 continue
             others = [o for o in drivers if o != k]
-            strata = _strata(conds, k, others) if others else [conds]
+            strata = ([] if excluded_axes
+                      else (_strata(conds, k, others) if others else [conds]))
+            stratum_shapes = None
             if strata:
                 # 통제된 층이 있다 → 층마다 자기 중앙값으로 정규화해 합친다.
                 # (층끼리 절대 스케일이 다르므로 정규화 없이 합치면 형상이 뭉갠다.)
+                #
+                # ⚠ 정규화는 스케일만 지운다 — **형상까지 같아지지는 않는다.**
+                # 층마다 형상이 다르면(레짐 분기) 합친 점구름은 어느 층에도 없는
+                # 제3의 형상을 만든다. 2026-09-20 실측: US8501625B2 의 H2O2 축은
+                # 2 psi 층에서 단조↓(820→720→630), 1 psi 층에서 정점(190→390→330)
+                # 인데 합치면 "정점"이 되어 모델(단조↓)에 CONFLICT 가 찍혔다.
+                # 2 psi 층만 보면 모델과 방향이 **일치**한다. 즉 진짜 결함은
+                # "모델이 반대로 간다"가 아니라 "압력×산화제 상호작용이 없어
+                # 저압 레짐을 못 담는다"이고, 고칠 곳도 처방도 다르다.
+                # 그래서 층 형상을 따로 보관해 갈리면 mixed 로 신고한다.
                 pts = []
+                shapes = []
                 for g in strata:
                     med = float(np.median([float(c["mrr_nm_per_min"]) for c in g])) or 1.0
-                    pts += [(_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
-                            for c in g]
+                    gp = sorted((_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
+                                for c in g)
+                    pts += gp
+                    gs, _ = classify([q[0] for q in gp], [q[1] for q in gp])
+                    shapes.append(gs)
                 pts.sort()
+                stratum_shapes = shapes
                 confounded = False
                 n_varying = 1
             else:
@@ -354,17 +427,24 @@ def literature_evidence() -> List[Evidence]:
                 pts = sorted((_cond_value(c, k), float(c["mrr_nm_per_min"]) / med)
                              for c in conds)
                 confounded = True
-                n_varying = len(drivers)
+                n_varying = len(drivers) + len(excluded_axes)
             xs = [p[0] for p in pts]
             ys = [p[1] for p in pts]
             if min(ys) <= 0:
                 continue
             shape, span = classify(xs, ys)
+            if stratum_shapes and len(stratum_shapes) > 1:
+                dirs = {DIR_CLASS.get(sh) for sh in stratum_shapes
+                        if sh not in ("flat", "invalid")}
+                dirs.discard(None)
+                if len(dirs) > 1:
+                    shape = "mixed"
             out.append(Evidence(
                 k, path.stem, pack, len(pts), shape, span, xs[0], xs[-1], xs, ys,
                 confounded=confounded, n_varying=n_varying,
                 in_scope=in_scope, calib=calib, read=read,
-                quarantined=path.stem in QUARANTINED))
+                quarantined=path.stem in QUARANTINED,
+                stratum_shapes=stratum_shapes))
     return out
 
 
@@ -381,6 +461,13 @@ def pooled(ev: List[Evidence], key: str, pack: str) -> Optional[Dict]:
     xs = [p[0] for p in pts]
     ys = [p[1] for p in pts]
     shape, span = classify(xs, ys)
+    # 한 데이터셋 안에서 층끼리 방향이 갈렸거나(mixed), 데이터셋끼리 방향이
+    # 갈리면 풀링 형상은 신뢰할 수 없다 — 평균이 아니라 분기로 신고한다.
+    dirs = {DIR_CLASS.get(e.shape) for e in use
+            if e.shape not in ("flat", "invalid", "mixed")}
+    dirs.discard(None)
+    if any(e.shape == "mixed" for e in use) or len(dirs) > 1:
+        shape = "mixed"
     return {"shape": shape, "span": span, "n": len(xs),
             "x_lo": xs[0], "x_hi": xs[-1],
             "datasets": [e.dataset for e in use],
@@ -447,8 +534,8 @@ def build(packs: List[str]) -> Dict:
     return {"rows": rows, "evidence": [e.__dict__ for e in ev]}
 
 
-ORDER = {"CONFLICT": 0, "DEAD": 1, "MISSING": 2, "AGREE": 3, "NO-DATA": 4,
-         "BLANK": 5, "N/A": 6, "NULL_CONFIRMED": 7}
+ORDER = {"CONFLICT": 0, "SPLIT": 1, "DEAD": 2, "MISSING": 3, "AGREE": 4,
+         "NO-DATA": 5, "BLANK": 6, "N/A": 7, "NULL_CONFIRMED": 8}
 
 
 def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
@@ -456,8 +543,8 @@ def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
     if not show_na:
         rows = [r for r in rows if r["verdict"] != "N/A"]
     print("■ 응답 지도 — 인자를 움직이면 결과가 어떻게 바뀌나 (문헌 형상과 같은 구간에서 대조)")
-    print("  ✅일치 ❌충돌(모델이 틀린 방향을 가리킴) 🕳모델무반응(문헌有) "
-          "🔲팩에 파라미터 없음(문헌有) ⚠문헌근거없음 ·둘다없음")
+    print("  ✅일치 ❌충돌(모델이 틀린 방향을 가리킴) 🔀레짐분기(문헌이 조건별로 반대) "
+          "🕳모델무반응(문헌有) 🔲팩에 파라미터 없음(문헌有) ⚠문헌근거없음 ·둘다없음")
     by_pack: Dict[str, List[Dict]] = {}
     for r in rows:
         by_pack.setdefault(r["pack"], []).append(r)
@@ -475,7 +562,7 @@ def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
                   f"{(r['lit_n'] or '-'):>3}  {VERDICT_MARK[r['verdict']]} {r['verdict']}")
     cnt = lambda v: len([r for r in rows if r["verdict"] == v])
     print()
-    print(f"  요약: ❌충돌 {cnt('CONFLICT')} · 🕳모델무반응 {cnt('DEAD')} · "
+    print(f"  요약: ❌충돌 {cnt('CONFLICT')} · 🔀레짐분기 {cnt('SPLIT')} · 🕳모델무반응 {cnt('DEAD')} · "
           f"🔲팩누락 {cnt('MISSING')} · ✅일치 {cnt('AGREE')} · "
           f"⚠문헌없음 {cnt('NO-DATA')} · ·미구현+문헌없음 {cnt('BLANK')}")
     print("  → 충돌·무반응이 0이 될 때까지 이 도구는 '방향 예측용'이라고만 말할 수 있다.")

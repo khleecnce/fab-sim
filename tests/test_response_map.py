@@ -153,3 +153,50 @@ def test_full_cross_doe_yields_controlled_strata():
     assert e is not None
     assert not e.confounded and e.usable()
     assert e.shape == "up"
+
+
+# ── 2026-09-20: 가짜 CONFLICT 3종 차단 ───────────────────────────────
+# 셋 다 실제로 최우선 갭(score 120)을 잘못 점유하고 크론 회차를 태웠던 결함이다.
+# 가짜 충돌의 대가는 "못 잡았다"가 아니라 **멀쩡한 항의 부호를 뒤집는 것**이라
+# 다른 레짐까지 망친다. 그래서 계약으로 못 박는다.
+
+def test_replicates_at_same_x_do_not_create_a_shape():
+    """같은 x 의 반복 산포는 형상이 아니다.
+
+    classify 는 인덱스 위치로 정점/골을 찾으므로, 같은 x 가 여러 번 들어오면
+    반복 산포가 x 축의 기복으로 오인된다. x 가 안 움직였는데 방향이 나오면
+    그건 물리가 아니라 채점 버그다.
+    """
+    # x=0 에서 3회 반복(185/240/265), 이후 단조 감소. 접으면 '단조↓'여야 한다.
+    xs = [0.0, 0.0, 0.0, 0.5, 10.0]
+    ys = [185.0, 240.0, 265.0, 170.0, 100.0]
+    assert classify(xs, ys)[0] == "down"
+    # 반복을 접은 뒤 3점 미만이면 형상을 말할 수 없다
+    assert classify([1.0, 1.0, 1.0, 2.0], [1.0, 2.0, 3.0, 4.0])[0] == "invalid"
+
+
+def test_split_regimes_are_not_reported_as_conflict():
+    """문헌이 조건별로 반대 방향이면 그건 모델이 틀렸다는 증거가 아니다.
+
+    US8501625B2 의 H2O2 축은 2 psi 층에서 단조↓, 1 psi 층에서 정점이다.
+    두 층을 합치면 어느 층에도 없는 '정점'이 나와 모델(단조↓)에 CONFLICT 가
+    찍혔다. 고칠 곳은 산화제 항의 부호가 아니라 압력×산화제 상호작용이다.
+    """
+    assert verdict_of("down", "mixed") == "SPLIT"
+    assert verdict_of("up", "mixed") == "SPLIT"
+    assert verdict_of("peak", "mixed") == "SPLIT"
+
+
+def test_declared_excluded_axes_count_as_confounding():
+    """데이터셋이 신고한 미모델링 축은 '관측되지 않은 교란요인'이다.
+
+    excluded_axes 의 값은 conditions 에 없으므로 _drivers 가 못 본다. 신고를
+    무시하면 정직한 데이터셋이 오히려 가짜 단독-변화 증거로 채점된다.
+    """
+    ev = [e for e in literature_evidence()
+          if e.dataset == "hong2007_cu_ads_bta_polish_rate"
+          and e.key == "inhibitor_mM"]
+    assert ev, "기준 데이터셋이 사라졌다 — 테스트 전제를 다시 확인하라"
+    for e in ev:
+        assert e.confounded, "excluded_axes 선언이 교란으로 반영되지 않았다"
+        assert not e.usable()
