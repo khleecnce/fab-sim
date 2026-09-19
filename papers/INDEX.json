@@ -747,6 +747,16 @@
   "title": "Effect of Secondary Foaming on the Structural Properties of Polyurethane Polishing Pad",
   "venue": "Materials 17(11) 2759 (2024), MDPI, CC-BY"
  },
+ "hu2018-electroanalytical-fao-h2o2-cu-cmp": {
+  "authors": "Hu Y, Su L, He Y, Liu W, Jiang M (Hebei Univ. of Technology)",
+  "doi": "10.21767/2470-9867.10004",
+  "note": "cmp/chi-cu-alkaline-oxidizer-K-round3.md",
+  "pdf_local": "papers/hu2018-electroanalytical-fao-h2o2-cu-cmp.pdf",
+  "src": "Unpaywall 발행처 링크 404(사이트 개편) -> Wayback Machine 2019 스냅샷 PDF",
+  "title": "Electrochemical Action of FA/O II Chelating Agent and H2O2 on Copper Film in the Polishing Process",
+  "venue": "Insights Anal. Electrochem. 3(1):4 (2017)",
+  "verdict": "판정#83 부적격 — pH 10.5 알칼리 + H2O2 0/0.5/2 vol% 3점 스윕은 있으나 측정량이 개방회로전위(26/250/380 mV)·분극·CV뿐이고 제거율(nm/min) 수치가 논문 전체에 없음(측정 자체를 안 함). 결론부의 제거율 서술은 선행연구 인용"
+ },
  "huang2019-npjmatdeg-pourbaix-magnetic-transition-metals": {
   "authors": "Huang L-F, Rondinelli JM",
   "doi": "10.1038/s41529-019-0088-z",
@@ -1100,6 +1110,16 @@
   "title": "Recursive co-kriging model for design of computer experiments with multiple levels of fidelity",
   "venue": "Int. J. Uncertainty Quantification 4(5):365-386 (2014)"
  },
+ "li2005-abrasive-size-cu-cmp-tribology": {
+  "authors": "Li Z, Ina K, Lefevre P, Koshiyama I, Philipossian A (Univ. Arizona / Fujimi)",
+  "doi": "10.1149/1.1869974",
+  "note": "cmp/kappa-cu-alkaline-size-exponent-round3.md",
+  "pdf_local": "papers/li2005-abrasive-size-cu-cmp-tribology.pdf",
+  "src": "sci-hub.ren -> sci.bban.top storage 직링크(Referer 헤더 필요). 1쪽 제목·저자·소속 원문 대조 확인",
+  "title": "Determining the Effects of Slurry Surfactant, Abrasive Size, and Abrasive Content on the Tribology and Kinetics of Copper CMP",
+  "venue": "J. Electrochem. Soc. 152(4), G299-G304 (2005)",
+  "verdict": "판정#82 부적격 — H2O2 기반 콜로이달 실리카·억제제(BTA/glycine/triazole) 언급 0건이나 Table I 입경이 13/35nm 2점뿐(3점 미달), pH 원문 미보고"
+ },
  "li2019-jss-marangoni-drying": {
   "authors": "Li Changkun; Zhao Dewen; Lu Xinchun (Tsinghua Univ.)",
   "doi": "10.1149/2.0061910jss",
@@ -1201,6 +1221,16 @@
   "src": "미러 사이트 → 미러 사이트/pdf (2026-09-09)",
   "title": "Competitive Adsorption of Metal Ions onto Hydrophilic Silicon Surfaces from Aqueous Solution",
   "venue": "J. Electrochem. Soc. 146(2) 719-727 (1999)"
+ },
+ "lu2003-monodispersed-colloids-cu-ta-polishing": {
+  "authors": "Lu Z, Lee SH, Babu SV, Matijevic E (Clarkson University)",
+  "doi": "10.1016/S0021-9797(02)00166-2",
+  "note": "cmp/kappa-cu-alkaline-size-exponent-round3.md",
+  "pdf_local": "papers/lu2003-monodispersed-colloids-cu-ta-polishing.pdf",
+  "src": "sci-hub.ren -> sci.bban.top storage 직링크(Referer 헤더 필요, 무헤더시 Cloudflare 차단). 1쪽 제목·저자·소속·권호 원문 대조 확인",
+  "title": "The use of monodispersed colloids in the polishing of copper and tantalum",
+  "venue": "J. Colloid Interface Sci. 261(1), 55-64 (2003)",
+  "verdict": "판정#82 부적격 — Table 7(pH10, Cu, 입경 100/200/300nm 3점)까지 요건 충족하나 슬러리가 5wt% H2O2+1wt% glycine(배제 대상 억제제 혼입)"
  },
  "luan2018-ecsjss-complexing-agent-shelf-life-cu-cmp": {
   "authors": "Luan X, Cheng J, Liu Y, Wang C",
@@ -2216,6 +2246,16 @@
   "title": "Particle Adhesion and Removal in Chemical Mechanical Polishing and Post-CMP Cleaning",
   "venue": "J. Electrochem. Soc. 146(7), 2665-2669 (1999)"
  },
+ "zhang2015-ecs-bta-free-alkaline-cu-barrier-cmp": {
+  "authors": "Zhang Z, Liu W, Wang C (Hebei Univ. of Technology)",
+  "doi": "10.1149/2.0171511jss",
+  "note": "cmp/chi-cu-alkaline-oxidizer-K-round3.md",
+  "pdf_local": "papers/zhang2015-ecs-bta-free-alkaline-cu-barrier-cmp.pdf",
+  "src": "OpenAlex oa_status=hybrid -> IOP 직접 PDF (curl). 7쪽 전문 확보",
+  "title": "BTA Free Alkaline Slurries Developed for Copper and Barrier CMP",
+  "venue": "ECS J. Solid State Sci. Technol. 4(11), P5112 (2015)",
+  "verdict": "판정#83 부적격 — BTA 무첨가·pH 9.5~10.0 알칼리 요건은 충족하나 Table II의 H2O2 농도가 슬러리별 단일값(P1 21.5 / P2 14.8 ml/l)이고 pH·킬레이트제가 동시에 다른 별개 처방이라 H2O2 단독 스윕 0점"
+ },
  "zheng-zhao-lu-2023-pad-wear-profile-mi14091683": {
   "doi": "10.3390/mi14091683",
   "host": "PMC (Europe PMC fullTextXML mirror)",
@@ -2243,25 +2283,5 @@
   "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료",
   "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
   "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)"
- },
- "lu2003-monodispersed-colloids-cu-ta-polishing": {
-  "authors": "Lu Z, Lee SH, Babu SV, Matijevic E (Clarkson University)",
-  "doi": "10.1016/S0021-9797(02)00166-2",
-  "note": "cmp/kappa-cu-alkaline-size-exponent-round3.md",
-  "pdf_local": "papers/lu2003-monodispersed-colloids-cu-ta-polishing.pdf",
-  "src": "sci-hub.ren -> sci.bban.top storage 직링크(Referer 헤더 필요, 무헤더시 Cloudflare 차단). 1쪽 제목·저자·소속·권호 원문 대조 확인",
-  "title": "The use of monodispersed colloids in the polishing of copper and tantalum",
-  "venue": "J. Colloid Interface Sci. 261(1), 55-64 (2003)",
-  "verdict": "판정#82 부적격 — Table 7(pH10, Cu, 입경 100/200/300nm 3점)까지 요건 충족하나 슬러리가 5wt% H2O2+1wt% glycine(배제 대상 억제제 혼입)"
- },
- "li2005-abrasive-size-cu-cmp-tribology": {
-  "authors": "Li Z, Ina K, Lefevre P, Koshiyama I, Philipossian A (Univ. Arizona / Fujimi)",
-  "doi": "10.1149/1.1869974",
-  "note": "cmp/kappa-cu-alkaline-size-exponent-round3.md",
-  "pdf_local": "papers/li2005-abrasive-size-cu-cmp-tribology.pdf",
-  "src": "sci-hub.ren -> sci.bban.top storage 직링크(Referer 헤더 필요). 1쪽 제목·저자·소속 원문 대조 확인",
-  "title": "Determining the Effects of Slurry Surfactant, Abrasive Size, and Abrasive Content on the Tribology and Kinetics of Copper CMP",
-  "venue": "J. Electrochem. Soc. 152(4), G299-G304 (2005)",
-  "verdict": "판정#82 부적격 — H2O2 기반 콜로이달 실리카·억제제(BTA/glycine/triazole) 언급 0건이나 Table I 입경이 13/35nm 2점뿐(3점 미달), pH 원문 미보고"
  }
 }

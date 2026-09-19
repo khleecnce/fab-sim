@@ -258,3 +258,44 @@ closures:
       pH10·글리신 조건을 억제제 없이 재현한 후속 실험이 나오거나, Li 2005 계열(Fujimi
       H2O2 콜로이달실리카, 억제제 무첨가)이 입경 3점 이상으로 확장된 후속 논문이 나오는
       경우.
+
+  # ── χ / cu_alkaline_benzenesulfonic — oxidizer_passivation_K (판정#74 → #81 → 판정#83 종결) ──
+  # 3회차 소진. 이 칸이 completion.py C2의 마지막 미충족 칸이었다.
+  - factor: chi
+    pack: cu_alkaline_benzenesulfonic
+    judgments: ["판정#74", "판정#81", "판정#83"]
+    note: knowledge/cmp/chi-cu-alkaline-oxidizer-K-round3.md
+    reason: >
+      Cu + 알칼리 pH≥7 + 벤젠술폰산계 또는 무억제제 + H2O2 단독 스윕(다른 축 고정)
+      MRR 인쇄값 3점 이상이라는 요건을 만족하는 독립 1차 문헌이, 판정#81이 미탐색으로
+      남긴 두 각도를 전부 소진한 뒤에도 확보되지 않았다.
+      각도 1(특허 어사이니 확장): 로컬 특허 코퍼스 471건을 Google Patents assignee
+      메타태그로 정밀 파싱해 Cabot/CMC·Applied Materials·Hitachi·JSR 73건을 식별하고
+      (문자열 grep은 인용 특허까지 잡는 오탐이 많아 폐기: "cabot" grep 140여 건 중 실제
+      Cabot 특허는 47건), copper+hydrogen peroxide+removal rate 동시출현 31건을 전수
+      재확인했다. 결과: Cu 억제제 계 특허는 전부 BTA 실사용(US7041599B1·US7128825B2·
+      US7803203B2·CN1158373C 등)이고, "copper"가 배경기술 인용뿐이며 실시예는 W·SiC·
+      poly-Si·Ni 등 다른 막질인 경우가 대다수(CN1131125C·US10676647B1·EP3161098B1)였다.
+      무억제제·알칼리·Cu 3요건을 만족하는 특허는 현재 K의 출처(US9200180B2 /
+      US20110165777A1) 외 0건 — 어사이니 필터를 바꿔도 신규 후보 0건.
+      각도 2(Hebei 공업대 그룹 후속 논문): OpenAlex Works API(institution I184843921)로
+      전수 나열해 5건을 후보로 좁혔다. 원문 확보 2건은 새 결격 유형으로 탈락 —
+      Zhang 2015(doi:10.1149/2.0171511jss, IOP hybrid 직접 PDF)는 BTA 무첨가·pH 9.5~10.0
+      까지 맞으나 Table II의 H2O2가 슬러리별 단일값이고 pH·킬레이트제가 동시에 다른
+      별개 처방이라 "처방 번들링"(H2O2 축 분리 불가, 스윕 0점); Hu 2017/2018
+      (doi:10.21767/2470-9867.10004, Wayback 스냅샷)은 pH 10.5·H2O2 0/0.5/2 vol% 3점
+      스윕까지 맞으나 측정량이 개방회로전위(26/250/380 mV)·분극·CV뿐이고 제거율 수치가
+      논문 전체에 없다("측정량 자체의 부재"). 나머지 3건은 원문 봉쇄로 판단 불가 —
+      Liu 2010(doi:10.4028/www.scientific.net/MSF.663-665.1111, Trans Tech 페이월,
+      로컬 사본은 메타데이터 페이지뿐), Chen 2014(doi:10.1088/1674-4926/35/2/026005,
+      OpenAlex oa_status=bronze였으나 실제로는 IOP 구매 페이지로 귀결 — bronze 태그가
+      무료 접근을 보장하지 않음을 직접 확인), Luan 2016(doi:10.1016/j.mee.2016.02.044,
+      제목이 요건과 가장 직접 일치하나 Elsevier closed + Cloudflare 봇차단 + sci-hub
+      5미러 전멸). 이 3건은 "부적격 확인"이 아니라 "확인 못 함"으로 구분해 기록한다.
+      값(0.8232 1/wt%)·confidence(estimated)·코드·YAML 0 변경.
+    reopen_if: >
+      Liu 2010 / Chen 2014 / Luan 2016 중 어느 하나의 원문이 그린 OA·기관 리포지토리·
+      발행처 접근정책 변동으로 확보되어 H2O2 단독 스윕 인쇄표(3점 이상)가 실재하는
+      것으로 확인되는 경우, 또는 Cu·알칼리·무억제제 계에서 H2O2 축만 스윕한 신규 1차
+      문헌(논문·특허 실시예표 무관)이 색인되는 경우. Hu 2017 계열이 같은 슬러리에
+      제거율 측정을 추가한 후속 논문을 낸 경우도 재개 사유다.
