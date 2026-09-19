@@ -193,3 +193,37 @@ closures:
       (any_repository_has_fulltext=true 로 바뀜), ceramint 2025.07.097 그린 OA 사본이
       새로 색인되거나(단, 확보해도 직교표 다인자 교란 여부를 먼저 점검해야 함), 이와
       독립인 4H/6H-SiC+알루미나+산성 pH 단독 스윕 3점 이상 신규 문헌이 색인됨.
+
+  # ── Δ / cu_alkaline_benzenesulfonic — abrasive_d99_nm (판정#71 → 2회차 → 판정#79 종결) ──
+  # 3회차 소진. 미확보의 성격이 "아직 못 찾았다"가 아니라 "이 산업이 꼬리를 D99 백분위로
+  # 보고하지 않는다"는 구조적 부재임이 이번 회차에 확정됐다.
+  - factor: delta
+    pack: cu_alkaline_benzenesulfonic
+    judgments: ["판정#71", "판정#79"]
+    note: knowledge/cmp/delta-cu-alkaline-d99-k-stabilized-silica-round3.md
+    reason: >
+      K-안정 콜로이달 실리카(이 팩의 연마입자)의 D99 **백분위** 실측값이 공개 접근 범위에
+      없다. 3회차에 이 팩의 연마입자를 상품명(Syton® OX-K)으로 특정하는 데까지는 성공했다 —
+      US6979252B1(DuPont Air Products NanoMaterials, 현 Versum)의 Example 1/33-34 조성
+      서술이 US9200180B2 COMPONENTS D)와 문장 단위로 동일(30 wt% 수분산 / potassium-
+      stabilized / 50-60 nm / CHDF 2000 Matec). 그런데 **그 특허조차 D99를 인쇄하지 않고**
+      꼬리를 개수축(>1 µm particles/mL: 50,354 / 350,561 / 62,542 / 384,556)으로만 보고한다.
+      이 개수축은 D99로 환산 불가능하다 — 30 wt%·D50 55 nm 구형 환산 시 전체 개수농도가
+      1.872e15/mL 이라 50,354/mL 은 개수분율 2.69e-11, 즉 D99(분율 1e-2)와 **8.6 자릿수**
+      떨어져 있다. 그 간극을 메우려면 분포 형상 σ_g 를 알아야 하는데 그것이 곧 구하려는
+      미지수라 순환이다(노트 §2.2 verify 블록이 assert 로 고정). 제조사 데이터시트
+      (Evonik IDISIL KE)·Fujifilm 초순수 콜로이달 실리카 특허(US20070254964A1/US8211193B2,
+      LPC 가 그래프 전용)·EP2995662B1(2차 재인용)·lu2018(doi:10.1149/2.0101806jss, SPOS
+      LPC) 세 층위 전부에서 같은 패턴 — 콜로이달 실리카 꼬리는 개수축으로 보고되고
+      백분위로는 보고되지 않는다.
+      ⚠ 부기: `sim/factors.py::_f_delta`(2085-2093행 직접 판독)는 이 값을
+      `abrasive_ref_d99_nm` 과의 **비로만** 소비하고 이 팩은 둘을 동반 선언했으므로,
+      절대값이 틀려도 **기준 예측에는 영향이 0**이다(어떤 배율로 동시에 흔들어도 Δ=1.0).
+      영향은 what-if 감도(D99 단독 스윕의 출발점)에만 남는다. 그 사실로 등급을 올리지는
+      않는다 — "안 쓰이니까 맞다"는 비논리이기 때문.
+    reopen_if: >
+      순수 콜로이달 실리카(제조사 무관)의 **백분위 PSD 표**(D50과 D90/D95/D99를 같은 표에
+      인쇄)가 신규 색인되거나, `_f_delta` 에 LPC 개수축 입력이 신설되어(현 docstring
+      "LPC 개수축 — 입력 축 미신설") D99 축 자체가 우회되는 경우. 후자가 더 유망하다 —
+      US6979252B1 TABLE 1 4점 + Fujifilm US10907074 + lu2018 로 세 계의 1차 실측이
+      이미 모인다(축 신설은 함수형 변경이므로 사용자 승인 사항, 노트 §5 제안).
