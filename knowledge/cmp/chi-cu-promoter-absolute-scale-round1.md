@@ -115,6 +115,29 @@ Liu2010 · Kim2008 · Krishnan2024 · sci-hub 5미러(판정#83에서 전멸 관
    BTA無)보다 근접한 E4 전이원으로 채택할지 여부를 다음 회차 판정에서
    결정 — 이번 회차는 원문 확보 자체가 안 됐으므로 이 판단을 유보한다.
 
+## §4-보 — 호출자(Max워커) 직접 재시도 결과 (2026-09-20, 같은 회차)
+
+위임 종료 후 Max워커가 §4의 경로 1·2·3을 **직접 실행**했다. 2회차가 같은 벽을
+다시 받지 않도록 결과를 그대로 남긴다.
+
+- **경로 1(Wayback) — 여전히 429.** `archive.org/wayback/available?url=...` 를 후보 A·B
+  두 DOI로 재호출했으나 둘 다 `429 Too Many Requests`(HTML 응답). 위임 세션의
+  레이트리밋이 아니라 **이 호스트에 대한 지속적 제한**으로 보인다 — 2회차는
+  "몇 분 뒤 재시도"가 아니라 **시간대를 바꿔서**(다른 회차에서) 시도해야 한다.
+- **경로 3(기관 리포지토리) — 소속 귀속이 틀렸다.** OpenAlex가 후보 A·B의 저자
+  Surisetty·Janjam·Babu 를 **Qatar University** 로 귀속하지만(OpenAlex는 최신 소속을
+  단다), 두 논문은 2008년 발표이고 당시 소속은 **Clarkson University** 다(같은 저자
+  목록의 Roy·Goonetilleke 는 OpenAlex에서도 Clarkson). 실제 확인:
+  QSpace(qu.edu.qa) REST API 로 `Babu`(484건)·`chemical mechanical planarization copper`
+  (106건)를 조회했으나 **CMP 논문은 한 건도 없다**(의료·재료·공학 잡다한 최신 논문뿐)
+  — QU 리포지토리에 이 논문들은 없다. Clarkson 쪽은 `digitalcommons.clarkson.edu`
+  자체가 **DNS 미해결**(호스트 없음)이라 2회차는 Clarkson의 실제 리포지토리 주소부터
+  확인해야 한다(`digitalcommons.clarkson.edu` 는 존재하지 않는 도메인이다).
+- **경로 2(CORE API v3) — 무키 호출이 429.** 키 발급 전에는 재시도해도 같다.
+
+> ⚠ 이번 회차에 새로 확보한 1차 출처는 **없다**. 위 3건은 전부 "경로가 막혔다"는
+> 기록이지 "문헌이 없다"는 증명이 아니다 — 1회차 실패 판정은 그대로다.
+
 ## verify
 
 문헌 미확보로 수치 재현 대상이 없다. 아래 블록은 이 노트가 인용한
