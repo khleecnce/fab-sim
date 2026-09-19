@@ -1359,7 +1359,8 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
     막혔는지 남긴다 — 조용히 다른 재료 곡선으로 떨어지지 않는다.
     """
     from sim.params import load_pack
-    from sim.chemistry import (_oxidizer_term, _ceria_term, _ph_softening_term)
+    from sim.chemistry import (_oxidizer_term, _ceria_term, _ph_softening_term,
+                               _carboxylate_promoter_term)
     f = _new("chi")
     pk = rr.pack
     notes: List[str] = []
@@ -1434,12 +1435,14 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
             "확보될 때까지 갭으로 남긴다(판정#59).")
 
     for name, fn in ([("oxidizer", _oxidizer_term),
-                      ("ceria_tooth", _ceria_term)] + ph_terms):
+                      ("ceria_tooth", _ceria_term),
+                      ("carboxylate_promoter", _carboxylate_promoter_term)]
+                     + ph_terms):
         v = fn(pk, notes)
         if v is not None:
             terms[name] = v
     for k in ("oxidizer_wt_pct", "slurry_ph", "ce3_fraction",
-              "booster_mM", "chelator_mM"):
+              "booster_mM", "chelator_mM", "promoter_M"):
         if pk.has(k):
             try:
                 f.drivers[k] = float(pk.get(k))
@@ -1488,10 +1491,15 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
         oxidizer_shape_keys = ("oxidizer_passivation_K",)
     else:
         oxidizer_shape_keys = ("oxidizer_curve_n", "oxidizer_peak_wt_pct")
+    # 촉진 항도 실제로 켜졌을 때만 등급 하한에 넣는다(산화제 키와 같은 규칙,
+    # 2026-09-16 보강 참조) — 종 게이트로 꺼진 팩에서 남의 상수가 χ를 강등하면
+    # 계산에 안 들어간 값이 등급을 정하는 것이 된다.
+    promoter_shape_keys = (("promoter_exponent_m", "promoter_floor_phi", "promoter_M")
+                           if "carboxylate_promoter" in terms else ())
     f.confidence = _worst_conf(
         _pack_conf(pk, "oxidizer_wt_pct", "slurry_ph", "ce3_fraction"),
-        _pack_conf(pk, *oxidizer_shape_keys, "ph_peak", "ceria_tooth_gain",
-                   "w_ph_acid_k", "sic_kmno4_ph_acid_k"))
+        _pack_conf(pk, *oxidizer_shape_keys, *promoter_shape_keys, "ph_peak",
+                   "ceria_tooth_gain", "w_ph_acid_k", "sic_kmno4_ph_acid_k"))
     f.sources = ["knowledge/cmp/ceria-slurry-ce-redox-selectivity.md",
                  "knowledge/cmp/particle-wafer-interaction-"
                  "mechanical-chemical-balance.md"]

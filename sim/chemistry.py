@@ -680,3 +680,90 @@ def chemistry_factor(pack) -> ChemistryEffect:
         notes.append("⚠ 화학 항들을 독립으로 보고 곱했다. 실제로는 pH-흡착, 산화제-세리아 "
                      "산화환원 같은 커플링이 있다 — 미모델링.")
     return ChemistryEffect(factor=factor, terms=terms, notes=notes, active=True)
+
+
+def _carboxylate_promoter_term(pack, notes: List[str]) -> Optional[float]:
+    """디카복실레이트 착화제(옥살산/옥살산암모늄) 농도축 → Cu 제거율 **촉진** 배수.
+
+    χ 경로(표면 반응성)다. 같은 팩의 글리신 축(ψ `_chelator_suppression_term`)과
+    **부호가 반대이고 서로 다른 팩터에 산다** — 이것은 임의 분리가 아니라
+    Jani 2025 회귀가 같은 표에서 [oxalic acid]=+536.63(p=1.7e-7) 과
+    [glycine]=−440.91(p=4.1e-7) 로 직접 갈라놓은 결과다(판정#45·#47).
+
+    함수형(멱 + 기계 바닥):
+        g(C) = phi + (1 - phi) * (C / C_anchor) ** m
+        f(C) = g(C) / g(C_ref)                 → C = C_ref 에서 항등적으로 1.0
+
+    phi 가 하는 일: 착화제가 0 이어도 제거가 0 이 되지 않는다(순수 기계 성분).
+    이 바닥이 없으면 C→0 에서 배수가 0 으로 떨어져 물리가 아니라 특이점이 된다.
+
+    값의 출처 — US6309560B1 (Cabot, Kaufman/Kistler/Wang) TABLE 1, 통제쌍 2건:
+      · 7% H2O2, wetting 50 ppm, BTA 0: 옥살산암모늄 0 → 0.5 wt% 에서
+        Cu 21.7 → 278.0 nm/min  ⇒ phi = 21.7/278.0 = 0.07806
+      · 11% H2O2, wetting 10 ppm, BTA 0: 0.5 → 1.0 wt% 에서
+        Cu 251.7 → 402.9 nm/min ⇒ 비 1.6007 ⇒ m = log2((1.6007-phi)/(1-phi)) = 0.7238
+    (NH4)2C2O4 MW 124.10 g/mol, 밀도 1.0 g/mL 근사로 wt% → mol/L 환산:
+    0.5 wt% = 0.04029 M(= C_anchor), 1.0 wt% = 0.08058 M.
+
+    독립 교차확인(적합에 쓰지 않음): Jani 2025(doi:10.1149/2162-8777/adc59e)
+    RSM 회귀로 옥살산 0.02 → 0.08 M 예상비는 (1044.65+536.63)/(1044.65−536.63)
+    = 3.113 인데 이 항은 2.515 — **19.2% 낮다**. 방향과 오더는 맞고 크기는
+    어긋난다. 어긋나는 대로 둔다(계를 덮어씌우지 않는다): 두 계는 연마입자
+    (알루미나 vs 실리카)·산 종(옥살산암모늄 vs 옥살산)·pH(7.5 자연 vs 3.0)가
+    모두 다르다.
+
+    게이트: 팩이 선언한 `promoter_species` 가 적합에 쓰인 종
+    (`promoter_fitted_species`)과 일치할 때만 켠다. 글리신을 여기로 흘리면
+    부호가 뒤집힌다.
+
+    근거 노트: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    """
+    for k in ("promoter_M", "promoter_anchor_M", "promoter_exponent_m",
+              "promoter_floor_phi"):
+        if not pack.has(k):
+            return None
+    if pack.has("promoter_fitted_species"):
+        fitted = str(pack.get("promoter_fitted_species")).strip().lower()
+        declared = str(pack.get_or("promoter_species", "")).strip().lower()
+        if not declared:
+            notes.append("⚠ promoter_fitted_species 는 있으나 팩에 promoter_species "
+                         "가 없어 종 일치를 확인할 수 없다 — 항을 켜지 않는다.")
+            return None
+        if fitted != declared:
+            notes.append(
+                f"⚠ 카복실레이트 촉진 계수는 {fitted} 로 적합됐고 이 팩의 촉진제는 "
+                f"{declared} 다 — 같은 회귀에서 옥살산(+536.63)과 글리신(−440.91)이 "
+                "부호가 반대라 종을 넘겨 전이하지 않는다(판정#45). 항을 켜지 않는다.")
+            return None
+    C = float(pack.get("promoter_M"))
+    C_ref = float(pack.get_or("promoter_ref_M", C))
+    C_anchor = float(pack.get("promoter_anchor_M"))
+    m = float(pack.get("promoter_exponent_m"))
+    phi = float(pack.get("promoter_floor_phi"))
+    if C < 0.0 or C_ref < 0.0:
+        notes.append(f"⚠ promoter_M={C} / ref={C_ref} 에 음수가 있다 — 항을 켜지 않는다.")
+        return None
+    if C_anchor <= 0.0:
+        notes.append("⚠ promoter_anchor_M 이 0 이하라 정규화가 불가능하다 — 항 생략.")
+        return None
+
+    def _g(x: float) -> float:
+        return phi + (1.0 - phi) * (x / C_anchor) ** m
+
+    denom = _g(C_ref)
+    if denom <= 0.0:
+        notes.append("⚠ 촉진 항 분모가 0 이하 — phi 가 0 이면 C_ref=0 에서 "
+                     "정의되지 않는다. 항을 켜지 않는다.")
+        return None
+    val = _g(C) / denom
+    if abs(C - C_ref) < 1e-12:
+        notes.append(
+            f"카복실레이트 촉진: {C:.4g} M = 기준 조성이라 배수 1.000 "
+            "(Kp 가 이 조성에서 역산됐다 — 절대 촉진율을 다시 곱하면 이중 계상).")
+    else:
+        notes.append(
+            f"카복실레이트 촉진: {C:.4g} M / 기준 {C_ref:.4g} M, "
+            f"m={m:.4f}, phi={phi:.4f} → 배수 {val:.4f}. "
+            "출처 US6309560B1 TABLE 1 통제쌍 2건. ⚠ 독립 교차확인(Jani 2025 RSM)은 "
+            "0.02→0.08 M 에서 이 항보다 19.2% 큰 비를 준다 — 크기는 순위 목적으로만.")
+    return val

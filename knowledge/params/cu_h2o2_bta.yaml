@@ -538,3 +538,95 @@ params:
       레짐으로 묶은 것이 과도한 일반화"라고 이미 판정했다 — 이 키는 그
       판정을 코드에 반영하는 스위치다. 지어낸 값이 아니라 판정#41이 실제로
       쓴 착화제 이름을 그대로 옮긴 것이라 confidence=verified.
+
+  # ── 카복실레이트 촉진축 χ (2026-09-19, EVIDENCE-RULES 판정#75) ──────
+  # 판정#73 §8-3 이 다음 회차 과제로 지목한 "옥살산 축 폐형식화"다.
+  # ψ 글리신 축(억제)과 **부호가 반대**이므로 같은 팩터에 넣지 않는다 —
+  # Jani 2025 회귀가 같은 표에서 [oxalic acid]=+536.63 / [glycine]=-440.91 로
+  # 직접 갈라놓은 결과다(판정#45·#47).
+  promoter_species:
+    value: oxalic_acid
+    confidence: verified
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      이 팩의 디카복실레이트 촉진제 종. 조회 키이지 수치가 아니다.
+      다른 촉진제로 바꾸면 엔진이 그 종의 계수를 요구한다 — 조용히 재사용하지
+      않는다(inhibitor_species·chelator_suppression_species 와 동일 설계).
+  promoter_M:
+    value: 0.0
+    unit: mol/L
+    confidence: verified
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      기준 운전점의 옥살산 농도. 이 팩의 기준 조성(US20080090500A1 TABLE 4:
+      글리신 1 wt% / BTA 1 mM / H2O2 3 wt%)에는 디카복실레이트가 **없다** —
+      0.0 은 추정이 아니라 기준 조성 원문에 부재한다는 사실이라 verified.
+      데이터셋이 overrides 로 이 값을 주면 촉진 배수가 살아난다.
+  promoter_ref_M:
+    value: 0.0
+    unit: mol/L
+    confidence: verified
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      촉진 배수가 항등적으로 1.0 이 되는 기준 농도 — promoter_M 과 같은 값을
+      명시해 Kp 이중 계상을 막는다. Kp 가 옥살산 없는 조성에서 역산됐으므로
+      기준점도 0 이어야 한다.
+  promoter_anchor_M:
+    value: 0.040290
+    unit: mol/L
+    confidence: literature
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      멱함수 정규화 앵커 = US6309560B1 TABLE 1 의 옥살산암모늄 0.5 wt%.
+      (NH4)2C2O4 MW 124.10 g/mol, 밀도 1.0 g/mL 근사로 5.0 g/L ÷ 124.10 = 0.040290 M.
+      기준점(promoter_ref_M)과 역할이 다르다 — 이것은 적합 좌표계의 원점이고
+      기준점은 이 팩 Kp 의 조성이다. 값 자체는 특허 인쇄값의 단위 환산이라
+      literature. ⚠ 밀도 1.0 g/mL 근사는 chelator_M 과 동일한 가정이다.
+  promoter_exponent_m:
+    value: 0.7238
+    unit: "-"
+    confidence: estimated
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      멱지수. g(C) = phi + (1-phi)*(C/C_anchor)^m.
+      값의 출처: US6309560B1 TABLE 1 통제쌍 — 11% H2O2 / wetting 10 ppm / BTA 0
+      고정에서 옥살산암모늄 0.5 → 1.0 wt% 일 때 Cu 251.7 → 402.9 nm/min(비 1.6007).
+      m = log2((1.6007 - phi)/(1 - phi)) = 0.7238 (2점 통과라 잔차 0).
+      m<1 = 포화형(농도를 올릴수록 한계효용 감소) — 착화제 흡착 사이트 포화와
+      정성적으로 일치하나 이 데이터가 포화 곡률을 **증명하지는** 않는다(2점).
+      ⚠ confidence=estimated 이유 셋:
+      (1) 통제쌍이 각 1건씩이라 (phi, m)을 동시에 풀 수 없어 서로 다른 H2O2 수준의
+          두 쌍에서 하나씩 뽑았다 — phi 는 7% 계열, m 은 11% 계열이다.
+          두 계열은 wetting agent 농도도 다르다(50 vs 10 ppm, 미모델링 축).
+      (2) 독립 교차확인(Jani 2025 doi:10.1149/2162-8777/adc59e RSM, 적합에 미사용)은
+          0.02→0.08 M 예상비 3.113 인데 이 항은 2.515 — **19.2% 낮다**. 방향·오더는
+          맞고 크기는 어긋난다. 계가 다르다(알루미나/옥살산암모늄/pH 7.5 자연 vs
+          실리카/옥살산/pH 3.0) — 덮어씌우지 않고 차이를 그대로 남긴다.
+      (3) 옥살산암모늄(염)과 옥살산(산)을 같은 종으로 묶었다. 촉진의 활성종이
+          옥살레이트 음이온이라면 같지만, 암모늄 자신의 Cu 착화 기여
+          (US6309560B1 본문이 고pH에서 Cu(NH3)x 형성을 언급)는 분리되지 않았다.
+  promoter_floor_phi:
+    value: 0.078058
+    unit: "-"
+    confidence: estimated
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      착화제 0 에서의 잔여 배수(순수 기계 성분 바닥). 이 바닥이 없으면
+      C→0 에서 멱함수가 0 으로 붕괴해 물리가 아니라 특이점이 된다.
+      값의 출처: US6309560B1 TABLE 1 통제쌍 — 7% H2O2 / wetting 50 ppm / BTA 0
+      고정에서 옥살산암모늄 0 → 0.5 wt% 일 때 Cu 21.7 → 278.0 nm/min,
+      phi = 21.7/278.0 = 0.078058.
+      ⚠ 이 값은 "화학 없이 남는 기계 제거"의 상한이 아니라 **그 특정 조건의 비**다.
+      같은 특허 TABLE 4(urea-peroxide 5.65%, 옥살산 0→1 wt%)는 9.5 → 796.3 으로
+      비 83.8 을 준다 — 이 항의 예측(20.5)과 4배 어긋난다. 단 그 쌍은 wetting
+      agent 가 0 → 50 ppm 으로 함께 바뀌어 **교란이 분리되지 않았다**(TABLE 1 쌍은
+      wetting 이 고정). 그래서 TABLE 1 을 채택하고 TABLE 4 불일치를 여기 남긴다.
+  promoter_fitted_species:
+    value: oxalic_acid
+    confidence: verified
+    source: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md
+    note: >
+      (phi, m)이 실제로 적합된 종. sim/chemistry.py::_carboxylate_promoter_term
+      이 이 값과 promoter_species 가 일치할 때만 항을 켠다 — 글리신을 이 경로로
+      흘리면 부호가 뒤집힌다(같은 회귀에서 -440.91). 적합에 쓴 종 이름을 그대로
+      옮긴 것이라 verified.

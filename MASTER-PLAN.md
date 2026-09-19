@@ -3793,3 +3793,34 @@ pytest 전체 **1284 passed / 1 skipped**(회귀 0 — 첫 전체 실행에서 �
 코드 결함이 아니라 동시 실행 경합으로 판단), completion **66/70 불변**(C4 그대로
 실패 — 판정#73의 결론과 일치), qa_loop --strict PASS ρ 불변.
 노트: knowledge/cmp/c4-cu-h2o2-bta-heldout-rho-diagnosis.md (판정#73)
+
+---
+
+### [성장엔진] 판정#75 — χ 카복실레이트(옥살산) 촉진축 신설 (2026-09-19)
+
+판정#73 §8-3이 "다음 회차 구체 경로"로 지목한 옥살산 축을 **held-out 밖 독립
+1차 문헌**에서 배선했다. #73이 배선을 보류한 이유는 정량 근거의 유일한 출처가
+held-out 자신(Jani 2025 RSM 회귀)이라 자기채점이 되기 때문이었는데, 이번 회차가
+US6309560B1(Cabot, 2001) TABLE 1에서 **옥살산암모늄만 바뀌는 통제쌍 2건**을 찾아
+그 제약을 풀었다.
+
+신설: `sim/chemistry.py::_carboxylate_promoter_term` + `_f_chi` 등록 +
+`cu_h2o2_bta` 팩 파라미터 7종(promoter_*). 함수형은 멱+기계바닥
+`g(C)=φ+(1−φ)(C/C_anchor)^m`, φ=0.078058 / m=0.7238 / C_anchor=0.040290 M.
+**ψ(글리신 억제, 판정#72)와 다른 팩터에 둔 것이 요점** — Jani 회귀가 같은 표에서
+옥살산 +536.63 / 글리신 −440.91로 부호를 갈랐고, 판정#45·#47의 종 분리를
+팩터 경계까지 밀었다. 종 게이트(`promoter_fitted_species`)로 글리신 유입 차단.
+
+실측: `jani2025_cu_rsm_composition_heldout`(n=13, held-out) ρ **−0.3494 → +0.3018**
+(부호 역전, p 0.877→0.158로 아직 비유의), held-out 13개 전체 평균 ρ +0.689→+0.739,
+유의 평균 ρ **0.9566 불변**(이 데이터셋 비유의라 집계 밖), completion **67/70 불변**
+(C4 여전히 실패 — 숨기지 않는다), qa_loop #299 `--strict` **PASS**,
+`verify_claims` ✓(assert 13항) `check_knowledge` ✓, pytest 신규 5건 포함 회귀 0.
+
+⚠ MAPE 848%→11730% 악화를 함께 기록한다 — 팩 Kp가 옥살산 0 조성에서 역산됐는데
+이 데이터셋은 전 조건이 0.02 M 이상이라 촉진 배수가 곱해진다. 순위 전용 데이터셋이고
+절대값 교정은 held-out Kp 역산(자기채점)을 요구하므로 하지 않았다.
+⚠ `tests/test_sic_alumina_abrasive_identity_judgement59.py` 스냅샷의 cu 항목 term
+집합에 `carboxylate_promoter`를 추가했다 — 기대 **값**(1.0 / 1.153499078778735)은
+소수점 끝자리까지 불변이다(기준 조성에서 항등적 1.0). 값까지 움직였다면 회귀였다.
+노트: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md

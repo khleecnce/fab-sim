@@ -38,9 +38,21 @@ def _chi(pack, **overrides):
 
 # (pack, overrides, expected chi.value, expected term-name set) — 수정 전 상태에서
 # 그대로 캡처한 값(git stash 대조로 수정 후에도 동일함을 확인했다).
+# ⚠ 2026-09-19 판정#75 갱신 — cu_h2o2_bta 의 기대 term 집합에
+# `carboxylate_promoter` 를 추가했다. 이 테스트가 지키는 성질은
+# "판정#59 의 분기 수정이 다른 5팩의 χ 를 건드리지 않았다"이고, 그 성질은
+# **깨지지 않았다**: 두 cu 항목의 기대 **값**(1.0 / 1.153499078778735)은 소수점
+# 끝자리까지 그대로다. 판정#75 가 추가한 옥살산 촉진 항은 이 팩의 기준 조성
+# (promoter_M == promoter_ref_M == 0)에서 항등적으로 1.0 이라 곱해도 값이 안
+# 변하기 때문이다(그 항등성 자체는 tests/test_factors.py::
+# test_chi_carboxylate_promoter_reference_is_unity 가 따로 고정한다).
+# 즉 여기서 바뀐 것은 "χ 가 몇으로 계산되는가"가 아니라 "χ 가 몇 개의 항으로
+# 이루어져 있는가"이고, 후자는 축을 새로 배선하면 당연히 늘어난다.
+# 값까지 함께 움직였다면 그때는 갱신이 아니라 회귀로 다뤘어야 한다.
 _FIVE_PACK_SNAPSHOT = [
-    ("cu_h2o2_bta", {}, 1.0, {"oxidizer", "ph_cu_acidic"}),
-    ("cu_h2o2_bta", {"slurry_ph": 3.0}, 1.153499078778735, {"oxidizer", "ph_cu_acidic"}),
+    ("cu_h2o2_bta", {}, 1.0, {"oxidizer", "ph_cu_acidic", "carboxylate_promoter"}),
+    ("cu_h2o2_bta", {"slurry_ph": 3.0}, 1.153499078778735,
+     {"oxidizer", "ph_cu_acidic", "carboxylate_promoter"}),
     ("oxide_silica", {}, 1.0, {"ph_peak"}),
     ("oxide_silica", {"slurry_ph": 9.0}, 0.607491021036429, {"ph_peak"}),
     ("sic_ceria_h2o2", {}, 1.0, {"ceria_tooth", "oxidizer", "ph_softening"}),

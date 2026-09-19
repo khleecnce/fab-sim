@@ -1211,3 +1211,64 @@ def test_sic_kmno4_ph_floor_reference_unity_unaffected_by_oxidizer():
     off = _factors(pack="sic_alumina_kmno4", oxidizer_wt_pct=0.79)["chi"]
     assert off.value != pytest.approx(1.0, abs=1e-6), (
         "기준을 벗어난 농도에서도 χ 가 1.0 이다 — 산화제축이 다시 죽었다.")
+
+
+# ═══════════════ χ 카복실레이트 촉진축 (판정#75, US6309560B1)
+
+def test_chi_carboxylate_promoter_reference_is_unity():
+    """기준 농도(promoter_M == promoter_ref_M)에서 촉진 항은 정확히 1.0.
+
+    이 팩의 Kp 는 옥살산이 **없는** 조성(US20080090500A1 TABLE 4)에서 역산됐다.
+    기준점에서 1.0 이 아니면 Kp 가 이미 삼킨 화학을 두 번 센다 — 2026-09-06
+    Cu MRR 20배 붕괴 사고와 같은 유형이다.
+    """
+    f = _factors(pack="cu_h2o2_bta")["chi"]
+    assert "carboxylate_promoter" in f.terms, f.terms
+    assert f.terms["carboxylate_promoter"] == pytest.approx(1.0, abs=1e-12)
+    # χ 전체도 기준에서 1.0 (다른 항들의 계약과 함께)
+    assert f.value == pytest.approx(1.0, abs=1e-9), f.terms
+
+
+def test_chi_carboxylate_promoter_monotonic_increasing():
+    """옥살산 농도를 올리면 촉진 배수는 **단조 증가**한다(부호 계약).
+
+    글리신(ψ, 판정#72)은 반대로 억제다. 부호가 섞이면 두 축이 서로를 지운다.
+    """
+    vals = []
+    for C in (0.0, 0.02, 0.05, 0.08):
+        f = _factors(pack="cu_h2o2_bta", promoter_M=C)["chi"]
+        vals.append(f.terms["carboxylate_promoter"])
+    assert vals == sorted(vals), vals
+    assert vals[0] < vals[-1], vals
+    # C=0 에서도 0 으로 붕괴하지 않는다(기계 바닥 φ)
+    assert vals[0] > 0.0, vals
+
+
+def test_chi_carboxylate_promoter_reproduces_patent_control_pair():
+    """US6309560B1 TABLE 1 통제쌍(0.5 → 1.0 wt%)의 배수 1.6007 을 재현한다.
+
+    근거 노트: knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560.md §4
+    """
+    MW = 124.10
+    C_half, C_one = 0.5 * 10.0 / MW, 1.0 * 10.0 / MW
+    a = _factors(pack="cu_h2o2_bta", promoter_M=C_half)["chi"].terms["carboxylate_promoter"]
+    b = _factors(pack="cu_h2o2_bta", promoter_M=C_one)["chi"].terms["carboxylate_promoter"]
+    assert b / a == pytest.approx(1.6007, rel=1e-3), (a, b, b / a)
+
+
+def test_chi_carboxylate_promoter_species_gate_blocks_glycine():
+    """종 게이트: 글리신을 촉진 경로로 흘리면 항을 켜지 않는다(부호 반전 방지).
+
+    같은 Jani 2025 회귀에서 옥살산 +536.63 / 글리신 −440.91 로 부호가 반대다
+    (판정#45·#47). 종이 다르면 계수를 전이하지 않는다.
+    """
+    f = _factors(pack="cu_h2o2_bta", promoter_species="glycine", promoter_M=0.08)["chi"]
+    assert "carboxylate_promoter" not in f.terms, f.terms
+    assert any("부호가 반대" in n for n in f.notes), f.notes
+
+
+@pytest.mark.parametrize("pack", ["oxide_silica", "w_fe_oxidizer", "sti_ceria"])
+def test_chi_carboxylate_promoter_absent_in_unrelated_packs(pack):
+    """촉진 파라미터를 선언하지 않은 팩은 이 항을 갖지 않는다(조용한 전이 금지)."""
+    f = _factors(pack=pack)["chi"]
+    assert "carboxylate_promoter" not in f.terms, f.terms
