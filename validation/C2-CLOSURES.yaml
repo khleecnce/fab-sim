@@ -155,3 +155,41 @@ closures:
     note: knowledge/cmp/delta-damage-exponent-cu-system-primary-data.md
     reason: Cu 계 입경-스크래치 대응쌍 1차데이터 부재(1·2회차) + R1(소거) 성립으로 3회차 종결 — Δ는 MRR 비결합 진단 전용이라 이 값의 절대치가 필요 없다
     reopen_if: Cu 막질 직접 D99-스크래치 밀도 대응쌍 실측 문헌 출현
+
+  # ── χ/sic_alumina_kmno4 — sic_kmno4_ph_acid_k (판정#61 → #69 → #69-종결, 3회차 종결) ──
+  # 4H/6H-SiC + 알루미나 + 산성 pH 단독 스윕 3점 이상(인쇄값) 1차 실측이 공개 접근 범위에
+  # 없다. 3회차에 걸쳐 시도한 경로:
+  #   #61 Chen 2020(Russ. J. Appl. Chem.) Fig.1(a) 막대그래프 판독 5점 적합(k=0.546/pH,
+  #       φ=0.268) — 그래프 판독이라 estimated. 본문 인쇄값은 pH2 최댓값 2개뿐.
+  #   #69 저자군 전수·로컬 코퍼스·OpenAlex 재탐색 → 신규 후보 없음. 웹 검색으로 Wei 2026
+  #       (doi:10.1007/s00170-026-17750-1, 같은 4H-SiC Si면·Al2O3 pH전용연구) 발견했으나
+  #       원문 완전 봉쇄로 미확보.
+  #   #69-종결 노트 4단계 지정 경로 3개(Wei 2026 재시도·ceramint 2025.07.097 재시도·
+  #       Al2O3@MnO2 DOI 확정) 전부 재시도 → 전부 벽에 막힘(아래 reason 참조).
+  - factor: chi
+    pack: sic_alumina_kmno4
+    judgments: ["판정#61", "판정#69", "판정#69-종결"]
+    note: knowledge/cmp/chi-sic-alumina-kmno4-ph-independent-sweep.md
+    reason: >
+      4H/6H-SiC + 알루미나 연마입자 + 산성 pH 단독 스윕(다른 축 고정) 3점 이상 인쇄값
+      1차 실측이 공개 접근 범위(OA API + sci-hub 미러 + 기관 리포지토리 색인 + 로컬
+      코퍼스)에 없다. 3회차에 시도한 지정 경로 3개 전부 봉쇄됨을 확인:
+      (1) Wei et al. 2026, doi:10.1007/s00170-026-17750-1 — Unpaywall(`has_repository_
+      copy:false`)·OpenAlex(`any_repository_has_fulltext:false`) 둘 다 그린 OA 없음
+      확인, Springer PDF 링크 직접 요청은 idp 로그인 HTML 스텁 반환(페이월), sci-hub
+      3미러(.bban.top/.ru/.se) 전부 미색인(2026-03 출간이라 sci-hub 갱신 중단 이후
+      시기). (2) doi:10.1016/j.ceramint.2025.07.097(Song 2025, 판정#56-종결과 동일
+      DOI·다른 팩) — Unpaywall이 `is_oa:true`로 오표기하나 실제 `url_for_pdf:null`이고
+      최종 착지는 ScienceDirect HTTP 403(Cloudflare); 초록 확인 결과 4연마입자×4산화제
+      스크리닝 후 직교표 최적화 구조로, 확보해도 pH 단독 스윕 요건을 못 채울 개연성이
+      높음. (3) Al2O3@MnO2 논문 — `find_open_access.py --title`로 DOI 확정
+      (10.1016/j.ceramint.2024.03.120, 2회차는 이 DOI를 못 얻어 시도조차 못 했던 지점)
+      했으나 Unpaywall/OpenAlex/Semantic Scholar 전부 초록 자체가 없고(closed, abstract
+      null), sci-hub.ru→sci-hub.kr 리다이렉트는 altcha 로봇확인 벽(판정#68과 동일 증상)
+      — 초록 수준 확인조차 불가능했다. 세 경로 모두 "미조사"가 아니라 "확인했지만 이
+      코퍼스 접근 수단으로는 못 넘는 벽"이다.
+    reopen_if: >
+      Wei 2026 이 출간 후 시간 경과로 그린 OA/기관 리포지토리에 셀프아카이브되거나
+      (any_repository_has_fulltext=true 로 바뀜), ceramint 2025.07.097 그린 OA 사본이
+      새로 색인되거나(단, 확보해도 직교표 다인자 교란 여부를 먼저 점검해야 함), 이와
+      독립인 4H/6H-SiC+알루미나+산성 pH 단독 스윕 3점 이상 신규 문헌이 색인됨.

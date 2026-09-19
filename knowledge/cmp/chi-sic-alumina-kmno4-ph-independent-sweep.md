@@ -218,3 +218,152 @@ assert f.confidence == "estimated", f.confidence   # 이번 회차 승격 실패
   다음 회차가 원문을 확보하면 이 노트의 §1(B-4) 부터 다시 봐야 한다.
 - EVIDENCE-RULES.md 의 판정#64 누락(§ "부수 발견")은 이번 과제 범위 밖이라
   고치지 않았다 — 원장 정합성 문제로 별도 기록해 둔다.
+
+---
+
+# 3회차(최종, 2026-09-19) — EVIDENCE-RULES 3회차 규칙 적용
+
+> 회차 카운트: 판정#61(1회차) → 이번 2회차 절의 판정(2회차, 판정 번호는 §6 확정 시
+> 기록) → **이번이 3회차, 마지막**. 확보 또는 종결로 끝낸다, 4회차는 없다.
+
+## 경로 실행 기록
+
+### 1. Wei et al. 2026, doi:10.1007/s00170-026-17750-1 — 재확인, 실패(불변)
+- `find_open_access.py --title "Influences of pH environment on abrasive..."` →
+  DOI 재확정(`10.1007/s00170-026-17750-1`, 제목 일치 확인)됐으나 `pdf`/`landing`
+  둘 다 없음 — OA 소스 전무.
+- Unpaywall 직접 조회(`api.unpaywall.org/v2/...`): `is_oa: false`,
+  `has_repository_copy: false`, `oa_locations: []` — 그린 OA 사본 없음(신규
+  변동 없음).
+- OpenAlex 직접 조회: `open_access.any_repository_has_fulltext: false`,
+  `best_oa_location: null`. 저자-소속 매핑은 이번 조회에서 처음 나왔다(Ying
+  Wei/Ruhao Meng/Ke Fang Dai/Guoyan Huo/Haitao Wu → "Economic Research
+  Institute"; Bing Liu → Xinxiang University; Wenbo Bie → Pingdingshan
+  University; **Jianxiu Su → Zhongyuan University of Technology**[판정#62 Su
+  2011 저자와 동일 소속으로 교차확인]; Yanan Peng → Shanghai Civil Aviation
+  College) — 그러나 "Economic Research Institute"는 재료공학 논문 저자 소속으로
+  개연성이 낮아(OpenAlex 저자 명 중복 해소 오류로 추정) **신뢰하지 않는다**.
+  이 소속 정보로 개별 대학 리포지토리를 추적해도 신뢰도 낮은 단서라 실행하지
+  않았다(중국 지방대 영문 리포지토리는 통상 색인되지 않음, `any_repository_
+  has_fulltext=false`가 이미 이를 반영).
+- Crossref 링크(`link.springer.com/content/pdf/....pdf`)를 curl 직접 요청 →
+  HTTP 200 이지만 본문이 PDF 매직바이트가 아니라 HTML(idp 로그인 리다이렉트
+  스텁, 2회차와 동일 증상) — 페이월 그대로.
+- sci-hub 미러(`sci.bban.top`·`sci-hub.ru`·`sci-hub.se`) DOI 조회 → 전부
+  PDF 링크 없음(2026-03 출판이라 미색인, 2회차 판단과 일치).
+- **결론: 완전 봉쇄, 2회차와 상태 불변.**
+
+### 2. Ceramics International doi:10.1016/j.ceramint.2025.07.097 — 재확인, 실패(불변)
+- 저자: Xin Song, Jiani Guo, Changqi Xu, Zhigang Dong, Renke Kang, Shang Gao
+  (OpenAlex) — 이 논문은 **판정#56-종결**(χ/sic_ceria_h2o2 항목, "Song 2025")과
+  **동일 DOI·동일 논문**이다. 즉 이 팩(sic_alumina_kmno4)에서도 같은 벽을
+  다시 만난다.
+- Unpaywall: `is_oa: true`(hybrid) 이지만 `best_oa_location.url_for_pdf: null`,
+  `url`은 `doi.org/...`(퍼블리셔 랜딩페이지 자체를 "OA 위치"로 잘못 표시하는
+  Unpaywall 메타데이터 결함 — 실제로는 로그인 필요). `has_repository_copy: false`.
+- doi.org → linkinghub.elsevier.com → sciencedirect.com 리다이렉트 체인을 직접
+  curl 추적 → **최종 ScienceDirect 페이지 HTTP 403**(Cloudflare 봇 차단,
+  2회차와 동일 증상). 그린 OA 리포지토리도 OpenAlex
+  `any_repository_has_fulltext: false`로 확인(전무).
+- 초록(OpenAlex `abstract_inverted_index` 복원) 확인: "4 abrasives(diamond,
+  SiO2, CeO2, Al2O3) × 4 oxidizers(KMnO4, H2O2, KIO4, K2S2O8)" 조합 스크리닝
+  후 **직교표 실험설계로 "slurry formulation and process parameters" 최적화**
+  — pH 전용 스윕이 아니라 다인자 동시변동 최적화 단계로 확인된다. 즉
+  **원문을 확보했더라도 사전 경고한 대로 Gong 2024 Table 3 와 동형인 다인자
+  교란 구조**라 이 칸의 요건(pH 단독 스윕 3점 이상, 인쇄값)을 애초에 못
+  채울 개연성이 높다(초록만으로 최종 판정은 안 하지만, 확보 우선순위를
+  낮추는 근거로는 충분하다).
+- **결론: 완전 봉쇄 + 확보해도 구조적으로 부적합할 가능성, 2회차 판단과 일치.**
+
+### 3. Al2O3@MnO2 논문 — DOI 확정, 초록 수준도 확인 불가로 실패
+- `find_open_access.py --title "Synthesis of Al2O3@MnO2 composite abrasives
+  and their application in chemical mechanical polishing of silicon carbide"`
+  → **DOI 확정**: `10.1016/j.ceramint.2024.03.120`, 정확 제목 "...and their
+  chemical mechanical polishing performance on silicon carbide (SiC)"
+  (Ceramics International, 2024-03-12, 저자 Pei-Jia Zhang, Hong Lei, Ze-Fang
+  Zhang, Jianhua Zhang, Shi-Dong Chen, Xiaogang Hu — Shanghai University
+  Research Center of Nano Science and Technology). 2회차는 이 DOI를 못 얻어
+  시도조차 못 했던 지점 — 이번 회차에서 그 격차는 메웠다.
+- Unpaywall: `is_oa: false`, `oa_locations: []`, `has_repository_copy: false`.
+  OpenAlex: `any_repository_has_fulltext: false`. **초록 자체가 어디에도
+  없다** — OpenAlex `abstract_inverted_index` 없음, Crossref `abstract`
+  필드 없음, Semantic Scholar `abstract: null`(`openAccessPdf.status:
+  CLOSED`).
+- sci-hub.ru → sci-hub.kr 로 리다이렉트 → **altcha 로봇확인 페이지**(판정#68 과
+  동일 증상, 자동화로 통과 불가).
+- CORE v3 검색은 API 키 없이 리다이렉트 루프만 반환(본문·초록 접근 불가).
+  ResearchGate 검색 페이지 403.
+- **결론: DOI는 확정했지만(2회차 대비 진전), 초록 수준 확인조차 이 세션의
+  접근 수단으로는 불가능 — pH 스윕 유무를 검증할 방법이 없다.** 산화제가
+  고체상 MnO2 코팅(액상 KMnO4 아님)이라 애초에 이 팩과 계 근접도가 낮다는
+  2회차의 판단도 유효하다.
+
+## 판정 — 영구 종결(3회차, 최종)
+
+노트 4단계가 지정한 경로 3개를 전부 실행했다. 결과:
+
+| 경로 | 이번 회차 진전 | 최종 상태 |
+|---|---|---|
+| Wei 2026 (10.1007/s00170-026-17750-1) | 없음(2회차와 동일 벽 재확인) | 완전 봉쇄 |
+| ceramint 2025.07.097 (Song 2025) | 초록 확인 → 직교표 다인자 구조로 요건 미달 개연성까지 드러남 | 완전 봉쇄 + 확보해도 부적합 위험 |
+| Al2O3@MnO2 (10.1016/j.ceramint.2024.03.120) | **DOI 신규 확정**(2회차는 여기서 막혔었다) | 초록 수준도 확인 불가 |
+
+3경로 모두 "안 했다"가 아니라 "확인했지만 이 세션의 접근 수단(공개 OA API +
+sci-hub 미러 + 기관 리포지토리 색인 + 로컬 코퍼스)으로는 못 넘는 벽"이다 —
+각 벽은 기계로 재현 가능한 근거(Unpaywall/OpenAlex JSON 응답, curl 리다이렉트
+추적 결과, sci-hub 로봇확인 페이지)로 기록했다.
+
+**EVIDENCE-RULES 3회차 규칙 적용 — 영구 종결. 값·confidence 0 변경.**
+`sic_kmno4_ph_acid_k`=0.546·`sic_kmno4_ph_anchor`=2.0·`sic_kmno4_ph_floor`=0.268
+전부 `estimated` 그대로 유지한다. held-out ρ 나 격자 숫자를 올리려고 계수를
+역산하지 않았다 — 값을 바꿀 근거 자체가 없다.
+
+- 판정 기록: EVIDENCE-RULES.md 판정#69-종결 (판정#61 1회차 → #69 2회차 →
+  #69-종결 3회차·최종).
+- 종결 등록: `validation/C2-CLOSURES.yaml`(factor=chi, pack=sic_alumina_kmno4,
+  judgments=["판정#61","판정#69","판정#69-종결"]).
+- `completion.py check` 격자: **66/70 → 67/70**. 이 칸은 C2(4)에서 빠지고
+  '검증된 한계' 목록(13→14칸)으로 이동했다 — 등급 자체는 `estimated`로 불변,
+  집계 분류만 "미조사"에서 "검증된 한계"로 바뀐 것이다.
+
+## 한계 (정직 표기, 3회차 갱신)
+- **핵심 파라미터(k=0.546/pH)는 여전히, 그리고 이제 영구적으로 그래프 판독
+  (estimated)이다.** 이 칸은 더 이상 재탐색 대상이 아니다 — 재오픈 조건은
+  위 C2-CLOSURES.yaml 항목의 `reopen_if`에 명시했다(Wei 2026 셀프아카이브,
+  ceramint 2025.07.097 그린 OA 색인, 또는 독립 신규 문헌).
+- Al2O3@MnO2 논문은 이번 회차에 DOI를 처음 확정했지만 초록조차 못 봤다 —
+  다음에 이 DOI로 재시도할 때는 이 세션에 없던 접근 수단(예: 저자 이메일
+  요청, 기관 계정)이 필요하다는 것이 이번 회차의 실질적 결론이다.
+- Wei 2026·ceramint 2025.07.097 모두 **출간 후 시간 경과**가 유일한 해소
+  경로로 보인다(그린 OA는 보통 발행 수개월~1년 뒤 올라온다) — 그러나
+  3회차 규칙상 이 칸에 대한 자동 재시도는 이제 없다.
+
+## 7단계 — verify(3회차 종결 재현 — 값 변경 없음)
+
+```python verify
+import yaml
+
+# ── 종결 등록에도 불구하고 값·confidence 는 절대 바뀌지 않았음을 재확인 ──
+pack = yaml.safe_load(open("knowledge/params/sic_alumina_kmno4.yaml"))
+for key, expected in (("sic_kmno4_ph_acid_k", 0.546),
+                      ("sic_kmno4_ph_anchor", 2.0),
+                      ("sic_kmno4_ph_floor", 0.268)):
+    p = pack["params"][key]
+    assert p["confidence"] == "estimated", (key, p["confidence"])
+    assert abs(p["value"] - expected) < 1e-9, (key, p["value"])
+
+# ── C2-CLOSURES.yaml 에 이 칸의 종결 등록이 실제로 존재하는지 직접 확인
+closures = yaml.safe_load(open("validation/C2-CLOSURES.yaml"))["closures"]
+match = [c for c in closures
+         if c["factor"] == "chi" and c["pack"] == "sic_alumina_kmno4"]
+assert len(match) == 1, match
+entry = match[0]
+assert "판정#69-종결" in entry["judgments"], entry["judgments"]
+assert entry["note"] == "knowledge/cmp/chi-sic-alumina-kmno4-ph-independent-sweep.md"
+
+# ── 엔진 계약: 값을 안 바꿨으므로 기준 pH 에서 χ = 1.0 이 그대로 유지된다.
+from sim.engine import Recipe, simulate
+f = simulate(Recipe(pack="sic_alumina_kmno4")).factors["chi"]
+assert abs(f.value - 1.0) < 1e-9, f.value
+assert f.confidence == "estimated", f.confidence
+```
