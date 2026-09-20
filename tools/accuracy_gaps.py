@@ -12,6 +12,8 @@
 가장 값어치 있는 갭 하나를 받아 간다. 순서는 사람이 정하지 않고 실측이 정한다.
 
 갭의 종류 (우선순위 순)
+  0b. RESPONSE_GATED — 모델이 그 구간을 "근거 없음"으로 **선언**했다(예측 포기).
+                         결함이 아니라 데이터 과제 → score 80
   0. RESPONSE_CONFLICT — 인자를 움직였을 때 모델이 문헌과 **반대 방향**을 가리킨다.
                          부정확한 게 아니라 위험하다 → 최우선 (tools/response_map.py)
   1. VALIDATION  — 팩에 유의한 held-out 데이터가 없다 → 정확한지 알 수조차 없다
@@ -229,6 +231,18 @@ def gaps_response():
                                   "찾아 팩을 분리하거나 상호작용 항을 유도하라. 근거가 "
                                   "없으면 EVIDENCE-RULES에 레짐 분기로 기록하고 --skip.",
                         "why": "평균내면 어느 레짐에서도 안 맞는 제3의 곡선이 된다"})
+        elif v == "GATED":
+            # 모델이 그 구간을 스스로 "근거 없음"으로 선언했다. 코드 결함이
+            # 아니므로 CONFLICT(120)/SPLIT(110)/DEAD(95)보다 낮게 둔다 —
+            # 처방이 "부호를 고쳐라"가 아니라 "그 레짐의 1차 데이터를 가져와라"다.
+            out.append({"kind": "RESPONSE_GATED", "pack": r["pack"], "score": 80,
+                        "what": f"{r['pack']}/{r['label']}: 모델이 이 구간을 "
+                                f"'근거 없는 레짐'으로 선언해 예측하지 않는다",
+                        "action": r["note"] or ("해당 레짐의 1차 데이터를 확보해 "
+                                                "계수를 선언하라 — 이웃 레짐 계수를 "
+                                                "빌려 오지 마라(부호가 반대일 수 있다)"),
+                        "why": "개발자가 그 조건을 물어도 도구가 답을 못 한다 — "
+                               "다만 틀린 답을 주는 것보다는 낫다"})
         elif v == "DEAD":
             out.append({"kind": "RESPONSE_DEAD", "pack": r["pack"], "score": 95,
                         "what": f"{r['pack']}/{r['label']}: 문헌은 {r['lit_shape']}("

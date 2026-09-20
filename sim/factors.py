@@ -26,6 +26,7 @@
 """
 from __future__ import annotations
 
+import inspect
 import math
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, TYPE_CHECKING
@@ -145,6 +146,20 @@ class Factor:
     confidence: str = "unverified"         # verified | literature | estimated | unverified
     sources: List[str] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    # 입력 키 → 그 입력의 항이 **의도적으로 꺼진** 이유 (2026-09-20 신설).
+    #
+    # 왜 필요한가: 이 파일의 여러 항은 "이 레짐은 관측이 없다"며 스스로 None 을
+    # 돌려주고 notes 에 이유를 적는다(예: _ph_cu_acidic_term 의 알칼리×억제제
+    # 레짐). 그 구간에서 MRR 이 평평한 것은 **"변하지 않는다는 예측"이 아니라
+    # "예측하지 않는다는 선언"**이다. 그런데 하류 도구(tools/response_map.py)는
+    # 숫자만 보므로 이 둘을 구분하지 못하고, 평평한 구간과 살아 있는 구간이
+    # 이어져 만든 인공 골짜기를 문헌 정점과 대조해 CONFLICT 로 신고했다
+    # (2026-09-20 cu_h2o2_bta/pH, score 120 최우선 갭). 모델이 침묵한 구간을
+    # 근거로 "모델이 틀린 방향을 가리킨다"고 채점하면 없는 결함을 고치게 된다.
+    #
+    # notes 문자열을 정규식으로 긁지 않고 구조화해 두는 이유도 같다 — 문구가
+    # 바뀌면 조용히 탐지가 꺼진다.
+    gated: Dict[str, str] = field(default_factory=dict)
 
     @property
     def mrr_coupled(self) -> bool:
@@ -166,6 +181,7 @@ class Factor:
             "drivers": self.drivers, "terms": self.terms,
             "confidence": self.confidence, "sources": self.sources,
             "notes": self.notes, "mrr_coupled": self.mrr_coupled,
+            "gated": self.gated,
         }
 
 
@@ -1039,7 +1055,8 @@ def _ph_ceria_electrostatic_term(pack, notes: List[str]) -> Optional[float]:
     return cur / ref
 
 
-def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
+def _ph_cu_acidic_term(pack, notes: List[str],
+                       gated: Optional[Dict[str, str]] = None) -> Optional[float]:
     """pH → MRR, **금속 Cu 산성역**의 산화제 매개 로그선형 항.
 
     근거 노트: knowledge/cmp/cu-cmp-ph-mechanism.md
@@ -1084,6 +1101,16 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
                     분리 불가(식별 불가로 기록).
       · 산화제 없음 : 대응쌍 미확보 → 미확인. 기본값 '적용 안 함'.
     """
+    def _gate(reason: str) -> None:
+        """이 pH 에서 **예측을 포기한다**는 선언을 구조화해 남긴다(판정#94).
+
+        notes 에만 적으면 하류 도구는 '평평한 예측'과 '예측 없음'을 구분하지
+        못한다 — 실제로 tools/response_map.py 가 그 둘을 섞어 없는 골짜기를
+        만들고 CONFLICT(score 120)를 찍고 있었다.
+        """
+        if gated is not None:
+            gated["slurry_ph"] = reason
+
     if not (pack.has("slurry_ph") and pack.has("cu_ph_acid_k")
             and pack.has("ph_ref")):
         return None
@@ -1111,6 +1138,8 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
         except (TypeError, ValueError):
             wt = None
         if wt is not None and wt < 2.0:
+            _gate(f"연마입자 {wt:g} wt% < 2 wt% — pH 가 바꾼 막을 벗길 "
+                  "기계 경로가 근거 표에서 검증되지 않았다(범위 선언).")
             notes.append(
                 f"Cu 산성역 pH 항 미적용: 연마입자 {wt:g} wt% < 2 wt%. "
                 "근거 표에서 저농도 행은 비단조(0 wt%)이거나 설명력이 낮다"
@@ -1152,6 +1181,9 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
 
     if alkaline and not has_inhibitor:
         if not pack.has("cu_ph_alkaline_k"):
+            _gate(f"pH {ph:g} 알칼리 × 억제제 없음 레짐인데 팩에 "
+                  "`cu_ph_alkaline_k` 가 없다 — 산성역 계수를 빌리면 부호가 반대라 "
+                  "예측하지 않는다.")
             notes.append(
                 f"⚠ pH {ph:g}는 알칼리 가지(골 {VALLEY_PH} 초과)이고 억제제가 "
                 "없는 레짐인데 `cu_ph_alkaline_k`가 팩에 없다 — 항을 켜지 "
@@ -1168,6 +1200,10 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
         return val
 
     if alkaline and has_inhibitor:
+        _gate(f"pH {ph:g} 알칼리 × 억제제 존재 레짐은 **관측이 없다** — "
+              "어느 계수도 이 조건에서 검증된 적이 없어 예측하지 않는다. "
+              "필요 데이터: 같은 조성에서 억제제 농도 2수준 × 골 양쪽 pH 3점 이상 "
+              "제거율 표.")
         notes.append(
             f"⚠ pH {ph:g} 알칼리 + 억제제 존재 레짐은 **관측이 없다**. "
             "산성역 계수(k=0.1428)도 억제제 없는 알칼리 계수(k=0.3329)도 "
@@ -1177,6 +1213,8 @@ def _ph_cu_acidic_term(pack, notes: List[str]) -> Optional[float]:
         return None
 
     if not alkaline and not has_inhibitor:
+        _gate(f"pH {ph:g} 산성 × 억제제 없음 레짐은 **관측이 없다** — "
+              "산성역 계수는 억제제가 있는 계열(BTA 1 mM)에서 나왔다.")
         notes.append(
             f"⚠ pH {ph:g} 산성 + 억제제 없음 레짐은 **관측이 없다**. "
             "산성역 계수는 억제제가 있는 계열(BTA 1 mM)에서 나왔다. "
@@ -1434,13 +1472,23 @@ def _f_chi(rr: "ResolvedRecipe") -> Factor:
             "소유한 계수라 재료 불일치로 막혔다 — 이 팩 고유의 pH 계수가 "
             "확보될 때까지 갭으로 남긴다(판정#59).")
 
+    # 항이 스스로 "이 조건은 관측이 없어 예측하지 않는다"고 신고하면(gated)
+    # 그 선언을 Factor 에 그대로 실어 보낸다 — 하류 도구가 '평평한 예측'과
+    # '예측 없음'을 구분할 수 있어야 한다(판정#94).
+    gate_decl: Dict[str, str] = {}
     for name, fn in ([("oxidizer", _oxidizer_term),
                       ("ceria_tooth", _ceria_term),
                       ("carboxylate_promoter", _carboxylate_promoter_term)]
                      + ph_terms):
-        v = fn(pk, notes)
+        # try/except TypeError 를 쓰지 않는다 — 항 **내부**에서 난 TypeError 까지
+        # 삼켜 조용히 재실행하게 된다. 시그니처를 보고 고른다.
+        if "gated" in inspect.signature(fn).parameters:
+            v = fn(pk, notes, gate_decl)
+        else:
+            v = fn(pk, notes)
         if v is not None:
             terms[name] = v
+    f.gated.update(gate_decl)
     for k in ("oxidizer_wt_pct", "slurry_ph", "ce3_fraction",
               "booster_mM", "chelator_mM", "promoter_M"):
         if pk.has(k):

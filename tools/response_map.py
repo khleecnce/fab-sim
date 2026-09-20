@@ -140,7 +140,8 @@ def classify(xs: List[float], ys: List[float]) -> Tuple[str, float]:
 
 SHAPE_KO = {"up": "단조↑", "down": "단조↓", "peak": "정점", "valley": "골",
             "saturating": "포화↑", "flat": "무반응", "invalid": "계산불가",
-            "unknown": "-", "na": "없음", "mixed": "레짐분기"}
+            "unknown": "-", "na": "없음", "mixed": "레짐분기",
+            "gated": "예측포기"}
 
 
 # 형상 → 방향 계열. 같은 계열이면 실무 판단("올리면 오른다")이 같다.
@@ -157,6 +158,12 @@ SAME_DIR = {("up", "up"), ("saturating", "up"), ("up", "saturating"),
 def verdict_of(model_shape: str, lit_shape: str) -> str:
     if model_shape == "na":
         return "N/A"
+    if model_shape == "gated":
+        # 모델이 이 구간을 통째로 "근거 없음"으로 선언했다. 문헌이 무슨 형상이든
+        # 이것은 "모델이 반대 방향을 가리킨다"(CONFLICT)가 아니라 "모델이 아직
+        # 이 레짐을 말하지 않는다"(GATED)다 — 고칠 곳이 다르다. CONFLICT 는
+        # 부호를 뒤집으라 하고, GATED 는 그 레짐의 1차 데이터를 가져오라 한다.
+        return "GATED"
     if lit_shape in ("unknown", None):
         return "NO-DATA" if model_shape not in ("flat", "invalid") else "BLANK"
     if lit_shape == "mixed":
@@ -181,7 +188,8 @@ NULL_CONFIRMED = {
 
 
 VERDICT_MARK = {"AGREE": "✅", "CONFLICT": "❌", "NO-DATA": "⚠", "DEAD": "🕳", "NULL_CONFIRMED": "∅",
-                "MISSING": "🔲", "BLANK": "·", "N/A": "·", "SPLIT": "🔀"}
+                "MISSING": "🔲", "BLANK": "·", "N/A": "·", "SPLIT": "🔀",
+                "GATED": "🚧"}
 
 
 # ── 모델 스윕 ────────────────────────────────────────────────
@@ -211,20 +219,64 @@ def sweep(pack: str, f, rng: Optional[Tuple[float, float]] = None,
         return None
     xs = [math.exp(t) for t in np.linspace(math.log(lo), math.log(hi), n)]
     ok, mrr, ttv = [], [], []
+    gated_x, gate_reasons = [], []
     for x in xs:
         try:
             r = simulate(_recipe(pack, f, x), model=MODEL)
         except Exception:
             continue
+        # ── 모델이 "이 조건은 예측하지 않는다"고 선언한 점은 곡선에서 뺀다 ──
+        #
+        # 왜 (2026-09-20 판정#94): sim/factors.py 의 여러 항은 근거가 없는
+        # 레짐에서 스스로 항을 끄고 이유를 `Factor.gated` 에 남긴다. 그 구간의
+        # MRR 은 **예측이 아니라 침묵**인데, 이 도구는 숫자만 보므로 침묵 구간을
+        # 상수 예측으로 읽는다. 살아 있는 구간과 침묵 구간이 이어지면 어느
+        # 문헌도 지지하지 않는 인공 골짜기/계단이 생기고, 그걸 문헌 형상과
+        # 대조해 CONFLICT 로 신고하게 된다 — 실제로 cu_h2o2_bta/pH 가 그렇게
+        # 최우선 갭(score 120)이 돼 있었다(pH>6.25 알칼리×억제제 레짐이 통째로
+        # 침묵인데 산성 가지의 감소와 이어져 "골"로 보였다).
+        #
+        # 침묵을 형상 판정에서 빼면 남는 선택지는 둘뿐이다: 근거 있는 구간만
+        # 채점하거나(점이 3개 이상 남을 때), 아예 판정하지 않거나. 둘 다
+        # "없는 결함을 만들지 않는다"는 점에서 정직하다.
+        gr = _gate_reason(r, f.key)
+        if gr is not None:
+            gated_x.append(float(x))
+            gate_reasons.append(gr)
+            continue
         ok.append(float(x))
         mrr.append(float(np.mean(r.mrr_nm_per_min)))
         ttv.append(float(r.metrics.ttv_nm))
     if len(ok) < 3:
+        # 근거 구간이 3점 미만 — 형상을 말할 수 없다. 침묵을 상수로 읽어
+        # 억지 형상을 만드느니 판정을 포기한다.
+        if gated_x:
+            return {"xs": [], "mrr": [], "ttv": [], "shape": "gated",
+                    "span": float("nan"), "ttv_shape": "gated",
+                    "ttv_span": float("nan"), "range": [lo, hi],
+                    "gated_x": gated_x, "gate_reason": gate_reasons[0]}
         return None
     shape, span = classify(ok, mrr)
     tshape, tspan = classify(ok, ttv)
     return {"xs": ok, "mrr": mrr, "ttv": ttv, "shape": shape, "span": span,
-            "ttv_shape": tshape, "ttv_span": tspan, "range": [lo, hi]}
+            "ttv_shape": tshape, "ttv_span": tspan, "range": [lo, hi],
+            "gated_x": gated_x,
+            "gate_reason": gate_reasons[0] if gate_reasons else ""}
+
+
+def _gate_reason(result, key: str) -> Optional[str]:
+    """이 시뮬레이션 결과에서 `key` 축이 **예측 포기**로 선언됐으면 그 사유.
+
+    `Factor.gated`(sim/factors.py)를 읽는다. notes 문자열을 정규식으로 긁지
+    않는 이유: 문구가 바뀌면 탐지가 조용히 꺼지고, 그러면 이 도구는 다시
+    침묵을 예측으로 읽는다.
+    """
+    facs = getattr(result, "factors", None) or {}
+    for fac in facs.values():
+        g = getattr(fac, "gated", None)
+        if isinstance(g, dict) and key in g:
+            return str(g[key])
+    return None
 
 
 def why_flat(f) -> str:
@@ -509,8 +561,48 @@ def build(packs: List[str]) -> Dict:
                 cmp_range = [lit["x_lo"], lit["x_hi"]]
             else:
                 cmp_sw, cmp_range = full, None
+            # ── 구간 재정렬: 모델이 침묵한 x 는 문헌 쪽에서도 빼야 한다 ──
+            #
+            # 이 도구의 제1원칙은 "같은 구간에서 비교하라"인데, 침묵(gated) 점을
+            # 곡선에서 빼면 **모델의 유효 구간만 조용히 줄어들고 문헌 구간은
+            # 그대로** 남는다. 그러면 다시 구간이 어긋난 비교가 된다 — 이번엔
+            # 형상이 아니라 범위에서.
+            #
+            # 실제 사례(2026-09-20): cu_h2o2_bta/pH 의 문헌 정점은 pH 3·8.3·10
+            # 세 점이 만드는데, 그 중 **둘(8.3·10)이 모델이 예측을 포기한
+            # 알칼리×억제제 레짐**에 있다. 모델의 산성 가지(단조↓)만 남겨 놓고
+            # 세 점짜리 정점과 대조하면 "모델이 반대 방향"이라는 결론이 나오지만,
+            # 정작 모델은 그 두 점에 대해 아무 말도 하지 않았다.
+            #
+            # 그래서 문헌 점도 모델 유효 구간으로 자르고, 남은 점이 판정 최소
+            # 개수에 못 미치면 **판정을 포기한다**(GATED). 이게 "근거가 있는
+            # 곳에서만 채점한다"의 범위판이다.
+            if lit and cmp_sw.get("gated_x") and cmp_sw["xs"]:
+                lo_ok, hi_ok = min(cmp_sw["xs"]), max(cmp_sw["xs"])
+                keep = [(x, y) for x, y in zip(lit["xs"], lit["ys"])
+                        if lo_ok <= x <= hi_ok]
+                if len(keep) < MIN_LIT_N:
+                    cmp_sw = dict(cmp_sw, shape="gated")
+                    lit = None
+                else:
+                    kx = [q[0] for q in keep]
+                    ky = [q[1] for q in keep]
+                    ksh, ksp = classify(kx, ky)
+                    lit = dict(lit, shape=ksh, span=ksp, n=len(keep),
+                               xs=kx, ys=ky, x_lo=kx[0], x_hi=kx[-1])
             v = verdict_of(cmp_sw["shape"], lit["shape"] if lit else "unknown")
             note = why_flat(f) if cmp_sw["shape"] == "flat" else ""
+            if v == "GATED":
+                note = ("모델이 이 구간을 스스로 '근거 없음'으로 선언했다 — "
+                        "예측이 평평한 게 아니라 예측을 안 한다. "
+                        f"사유: {cmp_sw.get('gate_reason', '')} "
+                        "처방은 부호 수정이 아니라 이 레짐의 1차 데이터 확보다.")
+            elif cmp_sw.get("gated_x"):
+                # 일부 점만 침묵 — 형상은 남은 근거 구간에서만 판정했다.
+                note = (note + " " if note else "") + (
+                    f"⚠ 비교 구간 중 {len(cmp_sw['gated_x'])}점은 모델이 예측을 "
+                    f"포기한 구간이라 형상 판정에서 제외했다(사유: "
+                    f"{cmp_sw.get('gate_reason', '')}).")
             # DEAD여도 EVIDENCE-RULES.md가 이미 "검증된 영 결과"로 종결한 축이면
             # 무한 재배차를 막는다 — 갭이 사라지는 게 아니라 종류가 바뀐다.
             if v == "DEAD" and (p, f.key) in NULL_CONFIRMED:
@@ -534,8 +626,11 @@ def build(packs: List[str]) -> Dict:
     return {"rows": rows, "evidence": [e.__dict__ for e in ev]}
 
 
-ORDER = {"CONFLICT": 0, "SPLIT": 1, "DEAD": 2, "MISSING": 3, "AGREE": 4,
-         "NO-DATA": 5, "BLANK": 6, "N/A": 7, "NULL_CONFIRMED": 8}
+# GATED 를 DEAD 보다 뒤, MISSING 보다 앞에 둔다 — 모델이 스스로 신고한
+# 레짐 공백은 결함이 아니라 **데이터 수집 과제**다. CONFLICT/DEAD 위에
+# 올리면 "지금 코드를 고쳐라"로 읽혀 판정#87이 만든 오진을 되풀이한다.
+ORDER = {"CONFLICT": 0, "SPLIT": 1, "DEAD": 2, "GATED": 3, "MISSING": 4,
+         "AGREE": 5, "NO-DATA": 6, "BLANK": 7, "N/A": 8, "NULL_CONFIRMED": 9}
 
 
 def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
@@ -544,7 +639,8 @@ def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
         rows = [r for r in rows if r["verdict"] != "N/A"]
     print("■ 응답 지도 — 인자를 움직이면 결과가 어떻게 바뀌나 (문헌 형상과 같은 구간에서 대조)")
     print("  ✅일치 ❌충돌(모델이 틀린 방향을 가리킴) 🔀레짐분기(문헌이 조건별로 반대) "
-          "🕳모델무반응(문헌有) 🔲팩에 파라미터 없음(문헌有) ⚠문헌근거없음 ·둘다없음")
+          "🕳모델무반응(문헌有) 🚧모델이 근거없음을 선언(레짐 공백) "
+          "🔲팩에 파라미터 없음(문헌有) ⚠문헌근거없음 ·둘다없음")
     by_pack: Dict[str, List[Dict]] = {}
     for r in rows:
         by_pack.setdefault(r["pack"], []).append(r)
@@ -564,6 +660,7 @@ def print_table(rep: Dict, pack_filter: Optional[str], show_na: bool) -> None:
     print()
     print(f"  요약: ❌충돌 {cnt('CONFLICT')} · 🔀레짐분기 {cnt('SPLIT')} · 🕳모델무반응 {cnt('DEAD')} · "
           f"🔲팩누락 {cnt('MISSING')} · ✅일치 {cnt('AGREE')} · "
+          f"🚧예측포기 {cnt('GATED')} · "
           f"⚠문헌없음 {cnt('NO-DATA')} · ·미구현+문헌없음 {cnt('BLANK')}")
     print("  → 충돌·무반응이 0이 될 때까지 이 도구는 '방향 예측용'이라고만 말할 수 있다.")
 
