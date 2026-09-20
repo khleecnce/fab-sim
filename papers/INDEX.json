@@ -2319,5 +2319,14 @@
   "src": "sci-hub.ren → sci.bban.top/pdf 직링크(Referer 필요), 1쪽 제목·저자·권호 원문 대조 완료(판정#85 2회차)",
   "title": "Role of Amine and Carboxyl Functional Groups of Complexing Agents in Slurries for Chemical Mechanical Polishing of Copper",
   "venue": "J. Electrochem. Soc. 152 (2005)"
+ },
+ "paul2001_model_of_cmp": {
+  "authors": "Paul E",
+  "doi": "10.1149/1.1372222",
+  "note": "cmp/pressure-oxidizer-interaction-series-model-falsification.md",
+  "pdf_local": "papers/paul2001-model-of-cmp.pdf",
+  "src": "J. Electrochem. Soc. 148(6) G355-G358 (2001) — sci-hub 미러 경유 확보",
+  "title": "A Model of Chemical Mechanical Polishing",
+  "year": 2001
  }
 }
