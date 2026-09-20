@@ -130,6 +130,34 @@ def heldout_by_pack() -> Dict[str, Dict[str, Any]]:
     return dict(out)
 
 
+def heldout_ceiling_by_pack() -> Dict[str, List[Any]]:
+    """C4 메시지 보강(판정#91): 유의 held-out 각각의 구조적 상한(rank ceiling)을
+    `tools/rank_ceiling.py`에서 그대로 가져온다 — 재구현하지 않는다(같은 문서
+    안에서 두 계산이 갈리면 모순이 된다). heldout_by_pack()이 세는 것과 **같은
+    집합**(in_scope·비캘리브레이션·유의)만 모은다.
+    """
+    import backtest
+    from tools.rank_ceiling import compute_all as _rc_compute_all
+    ceilmap = {r.dataset: r.rho_ceiling for r in _rc_compute_all()}
+    res = backtest.run_all()
+    ds = {}
+    for f in (ROOT / "validation" / "datasets").glob("*.yaml"):
+        if f.name.startswith("_"):
+            continue
+        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
+        ds[f.stem] = d.get("pack")
+    out: Dict[str, List[Any]] = defaultdict(list)
+    for r in res:
+        p = ds.get(r.dataset)
+        if not p:
+            continue
+        if r.in_scope and not r.used_for_calibration and r.significant:
+            cr = ceilmap.get(r.dataset)
+            if cr is not None:
+                out[p].append((r.dataset, cr))
+    return dict(out)
+
+
 def notes_with_verify(factor: str, g: Optional[Dict] = None) -> List[str]:
     """C5: 이 팩터의 Factor.sources 가 가리키는 노트 중 verify 블록(```python + assert)이 있는 것.
     코드가 실제로 근거로 대는 노트만 센다 — 기호 태그 검색은 노트가 태그를 안 달아 전부 놓쳤다.
@@ -332,12 +360,21 @@ def check(verbose: bool = True) -> Dict[str, Any]:
             fails.append(f"C3 {FACTOR_SPEC[k][0]} {k}: MRR 결합인데 어떤 팩에서도 반응 없음")
     # C4
     ho = heldout_by_pack()
+    ho_ceil = heldout_ceiling_by_pack()
     for p in packs:
         o = ho.get(p, {"n_sig": 0, "mean_rho": None})
         if o["n_sig"] < 1:
             fails.append(f"C4 {p}: 유의 held-out 0건")
         elif o["mean_rho"] is not None and o["mean_rho"] < RHO_MIN:
-            fails.append(f"C4 {p}: 유의 평균 ρ {o['mean_rho']} < {RHO_MIN}")
+            msg = f"C4 {p}: 유의 평균 ρ {o['mean_rho']} < {RHO_MIN}"
+            capped = ho_ceil.get(p, [])
+            if capped:
+                mean_ceil = sum(c for _, c in capped) / len(capped)
+                if mean_ceil < RHO_MIN:
+                    detail = ", ".join(f"{d}({c:.4f})" for d, c in capped)
+                    msg += (f" (구조적 상한 {mean_ceil:.4f} < {RHO_MIN} — "
+                            f"{detail} — 이 held-out 집합으로는 어떤 모델도 도달 불가, 판정#91)")
+            fails.append(msg)
     # C5
     c5 = {}
     for k in FACTOR_SPEC:
