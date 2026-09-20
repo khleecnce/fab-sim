@@ -2283,5 +2283,41 @@
   "src": "출판사(francis-press.com) 직링크, 저자·제목·DOI 대조 완료",
   "title": "The exploration of DLVO theory and adsorption principles during the polishing process of 6H-SiC wafers with SiO2 and CeO2 abrasives",
   "venue": "Acad. J. Mater. Chem. 5(1), 31-37 (2024)"
+ },
+ "gorantla2005-essl-oxalic-acid-complexing-cu-cmp": {
+  "authors": "Gorantla VRK, Babel A, Pandija S, Babu SV",
+  "doi": "10.1149/1.1883873",
+  "note": "cmp/chi-cu-promoter-absolute-scale-round2.md",
+  "pdf_local": "papers/gorantla2005-essl-oxalic-acid-complexing-cu-cmp.pdf",
+  "src": "sci-hub.ren → sci.bban.top/pdf 직링크(Referer 필요), 1쪽 제목·저자·권호 원문 대조 완료(판정#85 2회차)",
+  "title": "Oxalic Acid as a Complexing Agent in CMP Slurries for Copper",
+  "venue": "Electrochem. Solid-State Lett. 8(5), G131-G134 (2005)"
+ },
+ "surisetty2008-jes-dbsa-oxalic-glycine-cu-cmp": {
+  "authors": "Surisetty CVVS, Goonetilleke PC, Roy D, Babu SV",
+  "doi": "10.1149/1.2987791",
+  "note": "cmp/chi-cu-promoter-absolute-scale-round2.md",
+  "pdf_local": "papers/surisetty2008-jes-dbsa-oxalic-glycine-cu-cmp.pdf",
+  "src": "sci-hub.ren → sci.bban.top/pdf 직링크(Referer 필요), 1쪽 제목·저자·권호 원문 대조 완료(판정#85 2회차)",
+  "title": "Dissolution Inhibition in Cu-CMP Using Dodecyl-Benzene-Sulfonic Acid Surfactant with Oxalic Acid and Glycine as Complexing Agents",
+  "venue": "J. Electrochem. Soc. 155(12), H971-H980 (2008)"
+ },
+ "janjam2008-jes-oxalic-acid-cu-ta-selectivity": {
+  "authors": "Janjam SVSB, Surisetty CVVS, Pandija S, Roy D, Babu SV",
+  "doi": "10.1149/1.2829112",
+  "note": "cmp/chi-cu-promoter-absolute-scale-round2.md",
+  "pdf_local": "papers/janjam2008-jes-oxalic-acid-cu-ta-selectivity.pdf",
+  "src": "sci-hub.ren → sci.bban.top/pdf 직링크(Referer 필요), 1쪽 제목·저자·권호 원문 대조 완료(판정#85 2회차)",
+  "title": "Oxalic-Acid-Based Slurries with Tunable Selectivity for Copper and Tantalum Removal in CMP",
+  "venue": "J. Electrochem. Soc. 155 (2008)"
+ },
+ "gorantla2005-jes-amine-carboxyl-complexing-cu-cmp": {
+  "authors": "Gorantla VRK, Goia D, Matijević E, Babu SV",
+  "doi": "10.1149/1.2083287",
+  "note": "cmp/chi-cu-promoter-absolute-scale-round2.md",
+  "pdf_local": "papers/gorantla2005-jes-amine-carboxyl-complexing-cu-cmp.pdf",
+  "src": "sci-hub.ren → sci.bban.top/pdf 직링크(Referer 필요), 1쪽 제목·저자·권호 원문 대조 완료(판정#85 2회차)",
+  "title": "Role of Amine and Carboxyl Functional Groups of Complexing Agents in Slurries for Chemical Mechanical Polishing of Copper",
+  "venue": "J. Electrochem. Soc. 152 (2005)"
  }
 }
