@@ -105,23 +105,40 @@ def sensitivity_alive() -> Dict[str, bool]:
     return alive
 
 
-def heldout_by_pack() -> Dict[str, Dict[str, Any]]:
-    """C4: 팩별 유의 held-out 수와 평균 ρ."""
-    import backtest
-    res = backtest.run_all()
-    ds = {}
+def c4_eligible(r: Any) -> bool:
+    """C4 집계에 실제로 세는 held-out인가 — `heldout_by_pack()`가 쓰는 것과
+    **반드시 같은 조건**이어야 한다. 이 함수가 유일한 소스이고, 다른 도구
+    (`tools/rank_ceiling.py`)는 이걸 그대로 import해서 쓴다 — 각자 조건을
+    베껴 적으면 판정#58처럼 두 도구가 조용히 갈라진다(당시 `accuracy_gaps.
+    gaps_bias()`가 `used_for_calibration` 필터를 빠뜨려 자기 캘리브레이션
+    데이터를 재심사하는 순환을 만들었다)."""
+    return bool(r.in_scope and not r.used_for_calibration and r.significant)
+
+
+def dataset_pack_map() -> Dict[str, Optional[str]]:
+    """데이터셋 stem → pack 이름. `heldout_by_pack`/`heldout_ceiling_by_pack`이
+    각자 같은 glob을 반복하던 것을 한 곳으로 모은다."""
+    ds: Dict[str, Optional[str]] = {}
     for f in (ROOT / "validation" / "datasets").glob("*.yaml"):
         if f.name.startswith("_"):
             continue
         d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
         ds[f.stem] = d.get("pack")
+    return ds
+
+
+def heldout_by_pack() -> Dict[str, Dict[str, Any]]:
+    """C4: 팩별 유의 held-out 수와 평균 ρ."""
+    import backtest
+    res = backtest.run_all()
+    ds = dataset_pack_map()
     out: Dict[str, Dict[str, Any]] = defaultdict(lambda: {"n_sig": 0, "rhos": [], "n_total": 0})
     for r in res:
         p = ds.get(r.dataset)
         if not p:
             continue
         out[p]["n_total"] += 1
-        if r.in_scope and not r.used_for_calibration and r.significant:
+        if c4_eligible(r):
             out[p]["n_sig"] += 1
             out[p]["rhos"].append(r.spearman)
     for p in _packs():
@@ -140,18 +157,13 @@ def heldout_ceiling_by_pack() -> Dict[str, List[Any]]:
     from tools.rank_ceiling import compute_all as _rc_compute_all
     ceilmap = {r.dataset: r.rho_ceiling for r in _rc_compute_all()}
     res = backtest.run_all()
-    ds = {}
-    for f in (ROOT / "validation" / "datasets").glob("*.yaml"):
-        if f.name.startswith("_"):
-            continue
-        d = yaml.safe_load(f.read_text(encoding="utf-8")) or {}
-        ds[f.stem] = d.get("pack")
+    ds = dataset_pack_map()
     out: Dict[str, List[Any]] = defaultdict(list)
     for r in res:
         p = ds.get(r.dataset)
         if not p:
             continue
-        if r.in_scope and not r.used_for_calibration and r.significant:
+        if c4_eligible(r):
             cr = ceilmap.get(r.dataset)
             if cr is not None:
                 out[p].append((r.dataset, cr))
