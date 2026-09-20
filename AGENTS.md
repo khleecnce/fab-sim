@@ -56,3 +56,6 @@ cd ~/fab-sim && ./.venv/bin/python -m pytest -q     # 729 passed / 약 200초
 무료 분이 리셋되거나(매월) 결제 수단을 고치기 전까지는 Actions가
 전혀 돌지 않는다. 확인:
 https://github.com/settings/billing
+
+## 프로필 이전 (2026-09-20)
+이 트리를 쓰는 Hermes 프로필은 **newfabsim**(@FabsimBot)이다. 구 fabsim 프로필은 삭제 예정. 제품 정본은 ~/CMP-Sim(legacy/=이 트리 이관본).
