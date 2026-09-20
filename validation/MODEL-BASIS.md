@@ -1,8 +1,8 @@
 # FabSim 모델 근거 보고서 (MODEL-BASIS)
 
-생성: 2026-09-18 09:49 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
+생성: 2026-09-20 18:03 · 커밋 기준 자동 생성 — 손으로 고치지 말고 코드/팩/노트를 고쳐라.
 
-완성 판정: **완성** (60/60칸). 미충족 0건은 끝에.
+완성 판정: **미완** (70/70칸). 미충족 1건은 끝에.
 
 ## 요약 — 이 문서를 처음 읽는 사람에게
 
@@ -27,6 +27,7 @@
 
 | 팩(내부 식별자) | 공정 |
 |---|---|
+| `cu_alkaline_benzenesulfonic` | Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카 |
 | `cu_h2o2_bta` | Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정 |
 | `oxide_silica` | Oxide CMP: 실리카 슬러리, STI/ILD 평탄화 |
 | `sic_alumina_kmno4` | 4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐) |
@@ -36,11 +37,11 @@
 
 ### 현재 완성도
 
-격자(10개 팩터 × 6개 공정 = 60칸) 중 **60/60칸** 충족 — **완성 기준을 전부 만족한다.** 다만 이 중 일부 칸은 아래 "'종결 판정'이란 무엇인가"에서 설명하는 **검증된 한계**로 인정된 것이며, 그 칸의 수치는 1차 문헌이 아니라 자체 적합값이라는 사실이 각 표에 그대로 남아 있다.
+격자(10개 팩터 × 7개 공정 = 70칸) 중 **70/70칸** 충족. 남은 미충족 1칸: C4 cu_h2o2_bta: 유의 평균 ρ 0.7175 < 0.85 (구조적 상한 0.7175 < 0.85 — tw202115224a_cu_abrasive_size_pressure(0.7175) — 이 held-out 집합으로는 어떤 모델도 도달 불가, 판정#91).
 
 ### '종결 판정'이란 무엇인가
 
-아래 팩터별 표에서 confidence가 낮은데도 완성 판정에 포함된 칸이 있다. 이건 **"아직 안 했다"가 아니라 "확인했지만 없다"는 뜻이다.** 해당 수치를 뒷받침할 만한 1차 문헌(논문·특허)이 공개 문헌에 존재하지 않는다는 것을 서로 다른 시점에 3회에 걸쳐 재확인한 뒤, 그 결과를 `validation/C2-CLOSURES.yaml`에 판정 번호와 근거 노트로 등록해 **구조적 한계로 종결**한 것이다. 종결은 숫자나 등급을 바꾸지 않는다 — 다음에 새 문헌이 나오면 그때 재검토한다(각 칸의 재개 조건은 `reopen_if`에 있다). 지금 **12개 칸이 이 방식으로 종결**되어 있다.
+아래 팩터별 표에서 confidence가 낮은데도 완성 판정에 포함된 칸이 있다. 이건 **"아직 안 했다"가 아니라 "확인했지만 없다"는 뜻이다.** 해당 수치를 뒷받침할 만한 1차 문헌(논문·특허)이 공개 문헌에 존재하지 않는다는 것을 서로 다른 시점에 3회에 걸쳐 재확인한 뒤, 그 결과를 `validation/C2-CLOSURES.yaml`에 판정 번호와 근거 노트로 등록해 **구조적 한계로 종결**한 것이다. 종결은 숫자나 등급을 바꾸지 않는다 — 다음에 새 문헌이 나오면 그때 재검토한다(각 칸의 재개 조건은 `reopen_if`에 있다). 지금 **17개 칸이 이 방식으로 종결**되어 있다.
 
 ## 0. 결합식
 
@@ -69,6 +70,7 @@ Preston MRR = Kp·P·V 에서 Kp를 뺀 나머지 전부. 장비가 웨이퍼에
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | P×1.000, V×1.000 | pressure_psi, rpm_platen, rpm_wafer, center_offset_m | cmp-kinematics-rotary.md; preston-luo-dornfeld-mrr.md |
@@ -100,6 +102,7 @@ Preston MRR = Kp·P·V 에서 Kp를 뺀 나머지 전부. 장비가 웨이퍼에
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | verified | uniform×1.000 | edge_pressure_amp | cmp-multizone-carrier-radial-response.md |
@@ -154,6 +157,7 @@ knowledge/physics/frictional-heating-temperature-arrhenius-coupling.md 의
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | heat(Λ)×1.000, heat(ring)×1.000, cool(SFR)×1.000, cool(coolant_temp)×1.000, cool(rotation)×1.000 | sfr_ml_min, pressure_psi, rpm_platen, rpm_wafer, center_offset_m, platen_coolant_temp_c, retaining_ring_pressure_psi | frictional-heating-temperature-arrhenius; cmp-rpm-ratio-flowrate-temperature-mrr-s; cmp-theta-platen-coolant-temperature-dri; cmp-theta-rotation-convective-cooling-dr; cmp-theta-retaining-ring-pressure-heat-c |
@@ -237,6 +241,7 @@ PHM2016 실장비(드레서 사용량 vs MRR 저속군 ρ=−0.696)는 이 경�
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | estimated | force×1.000, velocity(rpm_platen)×1.000, duty×1.000, aging(pcr_decay)×1.000 | cond_downforce_lbf, rpm_platen, cond_duty_pct, cond_sweep_cpm(coverage_only,not_multiplied), cond_disk_usage_hours | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md; gamma-conditioning-load-confidence-basis |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | estimated | force×1.000, velocity(rpm_platen)×1.000, duty×1.000, aging(pcr_decay)×1.000 | cond_downforce_lbf, rpm_platen, cond_duty_pct, cond_sweep_cpm(coverage_only,not_multiplied), cond_disk_usage_hours | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md; gamma-conditioning-load-confidence-basis |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | estimated | force×1.000, velocity(rpm_platen)×1.000, duty×1.000, aging(pcr_decay)×1.000 | cond_downforce_lbf, rpm_platen, cond_duty_pct, cond_sweep_cpm(coverage_only,not_multiplied), cond_disk_usage_hours | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md; gamma-conditioning-load-confidence-basis |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | estimated | force×1.000, velocity(rpm_platen)×1.000, duty×1.000, aging(pcr_decay)×1.000 | cond_downforce_lbf, rpm_platen, cond_duty_pct, cond_sweep_cpm(coverage_only,not_multiplied), cond_disk_usage_hours | conditioner-disk-pad-cutting-model.md; disk-rpm-load-radius-pcr.md; gamma-conditioning-load-confidence-basis |
@@ -276,6 +281,7 @@ PHM2016 실장비(드레서 사용량 vs MRR 저속군 ρ=−0.696)는 이 경�
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | estimated | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-null-result-force-partitio; pad-hardness-porosity-measurement-method; gw-contact.md |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | conc×1.000, size×1.000, pad_hardness×1.000, asperity×1.000 | abrasive_wt_pct, abrasive_size_nm, pad_hardness_shore_d, asperity_density_per_m2 | abrasive-concentration-mrr-saturation-co; abrasive-size-concentration-ph-K-additiv; abrasive-size-concentration-ph-K-additiv; pad-hardness-porosity-measurement-method; gw-contact.md |
@@ -288,11 +294,11 @@ PHM2016 실장비(드레서 사용량 vs MRR 저속군 ρ=−0.696)는 이 경�
 - ⚠ Shore D는 경도의 대리지표다. H^-1.5의 H는 압입경도(GPa)인데 Shore D↔GPa 환산이 비선형이라 순위는 맞아도 절대값은 캘리브레이션이 필요하다. Qi/Joyce/Boyce 2003(DOI:10.5254/1.3547752, 위 노트 §8)이 범용 탄성체용 Shore D→탄성률 해석해(eq.11)를 주지만 confidence는 못 올린다 — ①62D 앵커점에서 FEA 대비 49% 편향만 확인됐고 60D에서의 편향 크기는 모름, ②범용 가황고무 대상(폴리우레탄 미검증), ③애초에 그 논문의 E는 압입경도가 아니라 단축인장 탄성률이라 물리량 자체가 다르다.
 - ⚠ asperity 밀도 지수 0.5는 GW 접촉에서 실접촉면적이 밀도의 제곱근에 가깝게 증가한다는 근사다 — 미검증.
 - ⚠ α 잠정(탄성): 접촉응력/벌크경도 = 0.0006. **확정이 아니다.** 이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 실제 응력은 이보다 크다 — θ_p 가 0.001 이하이면 소성으로 뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). ⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.
+- ⚠ α 잠정(탄성): 접촉응력/벌크경도 = 0.0010. **확정이 아니다.** 이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 실제 응력은 이보다 크다 — θ_p 가 0.001 이하이면 소성으로 뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). ⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.
 - ⚠ α 잠정(탄성): 접촉응력/벌크경도 = 0.0012. **확정이 아니다.** 이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 실제 응력은 이보다 크다 — θ_p 가 0.001 이하이면 소성으로 뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). ⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.
 - ⚠ α 잠정(탄성): 접촉응력/벌크경도 = 0.0016. **확정이 아니다.** 이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 실제 응력은 이보다 크다 — θ_p 가 0.002 이하이면 소성으로 뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). ⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.
 - ⚠ α 잠정(탄성): 접촉응력/벌크경도 = 0.0124. **확정이 아니다.** 이 σ 는 입자 피복률 θ_p=1(완전피복) 가정값이고 θ_p ≤ 1 이므로 실제 응력은 이보다 크다 — θ_p 가 0.012 이하이면 소성으로 뒤집힌다. 저농도 슬러리에서 충분히 가능한 값이다. θ_p 를 유도하려면 입자 밀도와 패드-웨이퍼 간극이 필요한데 둘 다 팩에 없다(R8: 연마 후 패드 SEM/AFM 입자 면밀도, 유막 두께 측정). ⚠ 이 미확정이 n_C 를 통해 농도 반응의 부호를 정한다.
 - ⚠ 농도 지수 n=-0.406 — 표면적 극한(1/3)은 US9499721B2 E1 실측 전역회귀(n≈0.30)로 압입 극한(4/3)보다 우세하다고 판정됐다(같은 데이터가 국소 지수는 0.56→0.11로 붕괴 — 순수 거듭제곱은 고농도 포화를 못 담는다는 별개의 구조적 한계는 남아있음).
-- ⚠ 농도 지수 n=-0.429 — 표면적 극한(1/3)은 US9499721B2 E1 실측 전역회귀(n≈0.30)로 압입 극한(4/3)보다 우세하다고 판정됐다(같은 데이터가 국소 지수는 0.56→0.11로 붕괴 — 순수 거듭제곱은 고농도 포화를 못 담는다는 별개의 구조적 한계는 남아있음).
 
 근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-concentration-mrr-saturation-contact-probability.md`, `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/cmp/abrasive-size-null-result-force-partition-theory.md`, `knowledge/materials/pad-hardness-porosity-measurement-methods.md`
 
@@ -321,15 +327,31 @@ validation/C4-SIC-PACK-DIAGNOSIS.md §2.3·§2.4에서 진단):
   (sic_ceria_h2o2는 세리아 IEP 창의 `abrasive_iep_ph`를 sti_ceria에서
   상속만 받았을 뿐 직접 선언한 적이 없는데, 이 분기가 최우선이라 자기
   이름으로 직접 역산해 선언한 `ph_softening_per_unit`이 가려지고 있었다.)
+
+2차 패스(own이 아무도 없을 때) 추가 규칙 — **소유 조상의 연마입자 검사**
+(EVIDENCE-RULES.md 판정#59): 아무도 own이 아니면 기존 우선순위로 처음
+적용 가능한 후보를 쓰지만, 그 전에 "이 고유 계수를 실제로 선언한 조상
+팩의 `abrasive`가 이 팩의 `abrasive`와 다른가"를 확인한다. 다르면 후보를
+건너뛴다 — 안 그러면 "own은 아무도 없지만 상속된 계수가 남의 재료
+곡선"인 경우를 그대로 적용하게 된다(sic_alumina_kmno4가 abrasive를
+alumina로 자기선언한 뒤에도 폴백이 오이드_silica 소유 ph_peak(정점 pH=11,
+실리카 전용)로 떨어져 산성 알루미나/KMnO4계에 실리카 곡선을 씌우던 사고가
+실측으로 확인됐다). own 계수는 이 검사를 항상 통과한다(자기 재료가 자기
+계수를 쓴 것이므로 불일치가 있을 수 없다) — 그래서 5팩(cu_h2o2_bta·
+oxide_silica·sic_ceria_h2o2·sti_ceria·w_fe_oxidizer)은 전부 1차 패스에서
+이미 선택이 끝나 이 검사에 닿지 않고, 분기 선택은 바뀌지 않는다. 모든
+후보가 재료 불일치로 막히면 pH 항 없이(terms에서 빠진 채) notes에 왜
+막혔는지 남긴다 — 조용히 다른 재료 곡선으로 떨어지지 않는다.
 ```
 
 ### 팩별 상태
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | estimated | oxidizer×1.000, ph_cu_acidic×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | estimated | oxidizer×1.000, ph_cu_acidic×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | estimated | oxidizer×1.000, carboxylate_promoter×1.000, ph_cu_acidic×1.000 | oxidizer_wt_pct, slurry_ph, promoter_M | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | partial | literature | ph_peak×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
-| sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | partial | literature | ceria_tooth×1.000 | oxidizer_wt_pct, slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
+| sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | estimated | oxidizer×1.000, ph_sic_kmno4_acidic×1.000 | oxidizer_wt_pct, slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 | sic_ceria_h2o2 (4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산) | modeled | estimated | oxidizer×1.000, ceria_tooth×1.000, ph_softening×1.000 | oxidizer_wt_pct, slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 | sti_ceria (STI CMP: 세리아 슬러리, oxide:nitride 고선택비) | modeled | literature | ceria_tooth×1.000, ph_ceria_window×1.000 | oxidizer_wt_pct, slurry_ph, ce3_fraction | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
 | w_fe_oxidizer (W plug CMP: Fe계 산화제 산성 슬러리, 알루미나 연마입자) | modeled | literature | oxidizer×1.000, ph_w_acidic×1.000 | oxidizer_wt_pct, slurry_ph | ceria-slurry-ce-redox-selectivity.md; particle-wafer-interaction-mechanical-ch |
@@ -337,13 +359,13 @@ validation/C4-SIC-PACK-DIAGNOSIS.md §2.3·§2.4에서 진단):
 엔진이 스스로 보고하는 한계:
 
 - Cu 산성역 pH: pH 4 (기준 4) → 상대 1.000. 산화제(H₂O₂) 환원 전위 경로 — dE/dpH=−59 mV, k=0.1428/pH (US20080090500A1 TABLE 4, 3계열 12점 pooled, R²=0.954, 산포 ±4.8%). 레짐: 산성 × 억제제 존재. ⚠ 함수형은 물리(Nernst+Tafel)이나 계수 크기는 경험값 — Tafel 독립 유도 시 b≈0.954 V/dec 로 전형값의 10배라 어긋난다.
+- Cu 알칼리역 pH: pH 9 (기준 9) → 상대 1.000. k=0.3329/pH — US9200180B2 TABLE 4 Ex.15~19, 5점 R²=0.9971. 레짐: 알칼리 × 억제제 없음. ⚠ 이 계열은 V자의 재상승을 보이지 않고 pH 9.9 까지 단조 감소한다 — 조성마다 재상승 지점이 다르다.
+- SiC×산성 KMnO4 pH: pH 2.3 (기준 2.3) → 상대 1.000. MnO4- 산화력 감쇠 경로 — k=0.546/pH, 기계 하한 φ=0.665745 (Chen 2020 doi:10.1134/S1070427220060099 Fig.1a 판독 5점 적합, 재현오차 -2.4~+2.6 %). φ 는 산화제 4 wt% 에서 앵커 보간값 (0.79→0.268, 6.5→0.7848 wt%, log 선형) ⚠ k 는 그래프 판독 기반이라 estimated.
 - W 산성역 pH: pH 2.5 (기준 2.5) → 상대 1.000. 산화(WO₃) 구동력 경로 — Nernst dE/dpH=−59 mV, k=0.1163/pH (Stojadinović 2016 Table 1, 산화제 존재 3조건 로그평균). ⚠ 개별 조건 재현오차 −0.8~+9.0 %, k 산포 ±22 % — 지수형 가정은 미검증.
 - pH 10.5 (정점 11, 기준 10.5) → 상대 1.000. 실측 3점(Li 2021 Fig.1) 기반 정점형(pH≳9.0), 산성(pH≤6)은 골 형태 로그이차(cn109609035b n=7, 반등 포함 피팅). ⚠ 염기 정점식은 3점을 지나는 최소 가정, 산성 골 로그이차는 n=7 피팅 — 둘 다 문헌 폐형식은 아니다. ⚠ 6~9 전환구간은 데이터 없어 로그-선형 보간(미검증 외삽).
 - pH 연화: pH 10 → 유효경도비 1.000 (⚠ 선형 가정, 미검증)
 - ⚠ R/R booster(glycine 등)가 팩에 없다 — 막질별 선택비를 만드는 주요 축인데 통로가 없다. 담당 R2-slurry.
 - ⚠ oxidizer_acid_chelator_K는 oxalic_acid로 적합됐는데 팩 착화제는 glycine — 판정#43이 두 종의 부호 반전(옥살산 증가/글리신 감소)을 실측했으므로 전이하지 않는다(판정#47). 기존 산화제 경로로 폴백한다.
-- ⚠ oxidizer_langmuir_K 는 H2O2 로 적합됐는데 이 팩의 산화제는 KMnO4 다 — 산화제 종이 다르면 곡선 형상을 전이할 수 없다(표준전극전위·흡착 거동이 다르다). 이 팩에서는 산화제 형상 항을 켜지 않는다 — 그 종의 데이터를 확보할 때까지 갭으로 남긴다.
-- ⚠ pH 창 항 건너뜀 — 막질 'sic_4h' 의 등전점(wafer_iep_ph)이 이 팩에 선언되지 않았다. 이 항의 창 경계는 입자 IEP 와 **막질 IEP** 로 정해지므로 상속된 IEP(다른 막질의 값)로 계산하면 창 위치가 틀린다. 이 막질의 IEP 를 팩에 명시하면 항이 활성화된다. 지금은 pH 효과가 Kp 에 뭉뚱그려진 상태 — pH 를 바꿔도 안 변한다.
 
 근거 노트(verify 블록 보유): `knowledge/cmp/ceria-slurry-ce-redox-selectivity.md`, `knowledge/cmp/particle-wafer-interaction-mechanical-chemical-balance.md`
 
@@ -404,7 +426,8 @@ Dandu 2009 pyridine계에 Park K를 대입하면 4배 어긋난다(부호·순�
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
-| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | unverified | inhibitor×1.000 | inhibitor_mM | cu-electrochemistry-pourbaix-bta-oxidize; inhibitor-chelator-adsorption-isotherm-p |
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | partial | literature | owned_by_chi×1.000 | — | psi-cu-alkaline-h2o2-passivation.md; chi-oxidizer-cu-h2o2-reparameterization. |
+| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | unverified | inhibitor×1.000, chelator_suppression×1.000 | inhibitor_mM, chelator_M | cu-electrochemistry-pourbaix-bta-oxidize; inhibitor-chelator-adsorption-isotherm-p |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | adsorption_shield×1.000, dispersant×1.000 | shield_additive_wt_pct, dispersant_type | psi-adsorption-shield-oxide-systems.md; psi-surface-adsorption-shield-oxide-ceri; abrasive-size-concentration-ph-K-additiv |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | partial | literature | dispersant×1.000 | shield_additive_wt_pct, dispersant_type | abrasive-size-concentration-ph-K-additiv |
 | sic_ceria_h2o2 (4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산) | partial | literature | dispersant×1.000 | shield_additive_wt_pct, dispersant_type | abrasive-size-concentration-ph-K-additiv |
@@ -417,12 +440,12 @@ Dandu 2009 pyridine계에 Park K를 대입하면 4배 어긋난다(부호·순�
 - ψ 정의 확장: 표면 흡착 보호(passivation/adsorption shield) — 이 팩은 금속 부동태가 아니라 첨가제/분산제 흡착 경로
 - ψ 흡착 보호(농도축): C=0 wt% (기준 0) → θ=0.000 (기준 θ=0.000), Hill K=1.2949/wt% n=4.62 k=3 → 배수 1.000 (Park 2003 doi:10.1143/jjap.42.5420 Fig.3 역산)
 - ψ 흡착 보호(농도축): 검증된 영 — 이 팩의 첨가제 클래스는 대상 막에 흡착하지 않아(K=0) 농도와 무관하게 배수 1.000. '모름'이 아니라 '효과 없음'(Penta 2013 doi:10.1016/j.apsusc.2013.07.057; US10526508B2 Table 2). 양이온 폴리머는 다른 클래스(스위치형 억제) — 미모델링.
+- ψ=1.000 (항등원): 이 팩의 표면 보호 메커니즘(H2O2/pH 유도 Cu 부동태화)은 실재하고 1차 문헌으로 계량됐으나(US9200180B2 [0077]·[0111]·TABLE 4), χ 가 자기선언 계수 oxidizer_passivation_K·cu_ph_alkaline_k 로 같은 물리량 θ(C) 를 이미 전담 모델링한다 — ψ 에 같은 θ(C) 를 다시 곱하면 이중계상이다(knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md §6c 수치 증명). 이 계 문헌에 ψ 가 독립으로 가져갈 흡착 화학종이 없다(§4: 억제제 없음, 벤젠술폰산은 Ta 착화제·산화제로 부호 반대, 분산제 라벨 없음) — 새 독립 흡착종이 확보될 때까지 항등원이 맞다.
 - ⚠ surfactant가 미연결 — 계면활성제도 피복을 통해 억제에 기여하는데 통로가 없다.
 - ⚠ ψ 흡착 보호 농도축 비활성: shield_langmuir_K 가 이 팩의 자기선언이 아니다(상속). 흡착상수는 첨가제×막질 쌍 고유 물성이라 부모 값을 쓰지 않는다 — 이 막질에서 첨가제 농도-RR 스윕 문헌이 확보되면 자기선언으로 활성화된다. 그때까지 첨가제 농도는 결과에 영향을 주지 않는다(partial).
 - ⚠ 첨가제 농도축 부재 사유: 이 막질·첨가제 쌍의 농도-RR 문헌 없음 (knowledge/cmp/psi-adsorption-shield-oxide-systems.md §6).
-- ⚠ 흡착 보호 항(농도축·분산제 종류)을 독립으로 보고 곱했다 — 같은 표면 자리를 두 종이 경쟁하는 커플링은 미모델링.
 
-근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md`, `knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md`, `knowledge/cmp/psi-adsorption-shield-oxide-systems.md`, `knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md`
+근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-size-concentration-ph-K-additive-mrr-quantitative.md`, `knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md`, `knowledge/cmp/cu-electrochemistry-pourbaix-bta-oxidizer-inhibitor.md`, `knowledge/cmp/inhibitor-chelator-adsorption-isotherm-passivation.md`, `knowledge/cmp/psi-adsorption-shield-oxide-systems.md`, `knowledge/cmp/psi-surface-adsorption-shield-oxide-ceria.md`, `knowledge/slurry/psi-cu-alkaline-h2o2-passivation.md`
 
 
 ## τ 슬러리 전달 (`tau`) — 축: consumable · 파트: slurry, pad, disk · MRR 결합: 예
@@ -467,6 +490,7 @@ Prasad III.D.2: 기공 2 µm 패드는 중심이 슬러리 기아로 처지고 �
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | literature | turnover×1.000, porosity×1.000 | groove_width_um, pad_porosity_pct, time_s | slurry-turnover-ratio-mrt-preston-consta; pad-porosity-slurry-transport-mrr.md §5 |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | literature | turnover×1.000, porosity×1.000 | groove_width_um, pad_porosity_pct, time_s | slurry-turnover-ratio-mrt-preston-consta; pad-porosity-slurry-transport-mrr.md §5 |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | turnover×1.000, porosity×1.000 | groove_width_um, pad_porosity_pct, time_s | slurry-turnover-ratio-mrt-preston-consta; pad-porosity-slurry-transport-mrr.md §5 |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | turnover×1.000, porosity×1.000 | groove_width_um, pad_porosity_pct, time_s | slurry-turnover-ratio-mrt-preston-consta; pad-porosity-slurry-transport-mrr.md §5 |
@@ -540,6 +564,7 @@ D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | estimated | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | d99×1.000 | abrasive_d99_nm | abrasive-d99-scratch-hitachi-us8439995.m; lpc-scratch-density-tail-correlation.md; colloidal-destabilization-lpc-defect-mec; delta-damage-model-synthesis.md |
@@ -549,6 +574,7 @@ D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/
 
 엔진이 스스로 보고하는 한계:
 
+- Δ 진단③ D99/d_c = 0.15 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
 - Δ 진단③ D99/d_c = 0.37 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
 - Δ 진단③ D99/d_c = 0.42 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
 - Δ 진단③ D99/d_c = 0.74 — 꼬리가 스크래치 임계 680 nm(Remsen 2006, Kwon 2023·Eusner 2009 교차) 아래. 배수에는 안 들어간다(위치 진단).
@@ -556,7 +582,6 @@ D99 없는 팩(cu_h2o2_bta·oxide_silica·w_fe_oxidizer)의 D99는 **D50 × D99/
 - Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈130 nm, 깊이 δ_max≈12.1 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=9.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
 - Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈254 nm, 깊이 δ_max≈64.6 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=1.2 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
 - Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈40 nm, 깊이 δ_max≈3.2 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=12.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
-- Δ 진단④ 스크래치 치수 상한(압력 무관): 폭 2a_max≈53 nm, 깊이 δ_max≈5.0 nm — Eusner 2009 식(10)(11), H_p,max=0.31 GPa, H_film=9.0 GPa. Δ 배수가 같아도 절대 심각도는 막 경도가 정한다.
 
 근거 노트(verify 블록 보유): `knowledge/cmp/abrasive-d99-scratch-hitachi-us8439995.md`, `knowledge/cmp/delta-damage-model-synthesis.md`, `knowledge/cmp/lpc-scratch-density-tail-correlation.md`, `knowledge/slurry/colloidal-destabilization-lpc-defect-mechanism.md`
 
@@ -610,6 +635,7 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 
 | 팩(공정) | status | confidence | 항(terms) | 드라이버 | 출처 |
 |---|---|---|---|---|---|
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
 | cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | modeled | literature | steady_state×1.000, R_ss(G)×0.993, R_ss(G_ref)×0.993, conditioning_strength_G×1.000, dresser_wear_A×1.000, k_g_band_dS×0.000 | time_s, cond_duty_pct, cond_disk_usage_hours | pad-steady-state-glazing-conditioning-ba; pad-glazing-mechanism-mrr-decay.md; disk-insitu-exsitu-conditioning-mrr-stab; conditioner-disk-pad-cutting-model.md; ma17081817 (PMC11051262) Fig.9; 978-981-18-6021-8_or-12-0224 Table 1 |
@@ -627,6 +653,35 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 
 ## 파라미터 도출 근거 (팩 YAML의 source/note/confidence 그대로)
 
+
+### 팩 `cu_alkaline_benzenesulfonic` — Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카
+
+| 키 | 값 | 단위 | confidence | 출처 | 도출 방법(note) |
+|---|---|---|---|---|---|
+| film | cu |  | verified |  |  |
+| abrasive | silica |  | literature | US9200180B2 실시예 전체 — "K-안정 콜로이달 실리카". 부모 팩(알루미나)과 다르다.
+ |  |
+| kp_m_per_pa | 1.9110383e-14 | m^2/N | estimated | US9200180B2 (Air Products / 현 Versum·Merck) TABLE 4, Example | ⚠ 2026-09-19 기준점 동반이동: cu_ph_alkaline_ref 를 6.25 → 9.0(운전점)으로 옮기면서 **같은 편집에서** 이 값에 0.400326 을 곱했다 (4.7737e-14 → 1.91104e-14). 기준점을 위로 올리면 pH 항이 운전점에서 0.400326  |
+| slurry_ph | 9.0 | pH | literature | US9200180B2 청구항 1 + 실시예 성분표 | 실시예 23개의 중앙값. 청구항 범위는 "a pH ranging from about 5 to 11"(광의 4.5~12, 최선호 7~10.5)이고 산성 실시예가 없다. KOH 로 조정된다. |
+| ph_ref | 4.0 | pH | literature | knowledge/cmp/cu-cmp-ph-mechanism.md | **산성** 가지(cu_ph_acid_k)의 기준점이다. 이 팩의 운전점은 pH 9 이므로 산성 가지를 타지 않지만, 키가 없으면 로더가 폴백해 조용한 기본값이 된다. 부모와 같은 물리적 의미(산성역 기준)를 유지한다. |
+| cu_ph_acid_k | 0.1428 | 1/pH | literature | knowledge/cmp/cu-cmp-ph-mechanism.md | 산성역 감쇠 계수. 이 팩의 운전 대역(pH 6~11)에서는 사용되지 않지만, 팩이 선언하지 않으면 부모 값이 조용히 상속돼 어느 쪽이 쓰였는지 추적이 끊긴다. ⚠ 단위 불일치는 의도된 표기다 — 접미사 _k 가 검사기에서 절대온도(K)를 뜻하지만 여기서는 감쇠 상수 k 이고 차원은 1 |
+| cu_ph_alkaline_k | 0.3329 | 1/pH | literature | US9200180B2 TABLE 4, Examples 15-19 | 알칼리역 감쇠 계수. **이 값의 출신이 곧 이 팩이 존재해야 하는 이유다** — US9200180B2 TABLE 4 Examples 15-19 (pH 6.2/7.1/8.7/9.4/9.9 → Cu RR 732/577/334/263/214 Å/min) 의 ln(RR) vs pH 최소자승에 |
+| cu_ph_alkaline_ref | 9.0 | pH | literature | 기준점 선택(좌표 원점) — 골 위치의 문헌 근거는 Du & Desai 2003 (DOI 10.1557/PR | 알칼리 가지의 기준점 = **이 팩의 운전점**(slurry_ph 와 동일). 2026-09-19 기준배수 위반 수정: 이전 값 6.25(V자 골 위치)로 두면 기준 조건에서 pH 항이 exp(−0.3329·(9−6.25)) = 0.4003 을 내어 **기준 조건 MRR 배수가 1.0  |
+| oxidizer | H2O2 |  | literature | US9200180B2 실시예 성분표 |  |
+| oxidizer_wt_pct | 1.0 | wt% | literature | US9200180B2 실시예 성분표 | 실시예 대표 농도. 청구항 범위 0.1~10 wt%. |
+| oxidizer_ref_wt_pct | 1.0 | wt% | literature | kp_m_per_pa 를 역산한 조건과 동일 | 기준 농도 — 화학 배수가 1.0 이 되는 지점. Kp 를 이 농도에서 역산했으므로 본값과 같아야 한다. 다르면 기준 조건에서 배수 ≠ 1.0 = 이중 계상이다. |
+| oxidizer_passivation_K | 0.8232 | 1/wt% | estimated | knowledge/cmp/chi-oxidizer-cu-h2o2-reparameterization.md | Langmuir 부동태 피복 상수. θ(C)=K·C/(1+K·C) 이고 산화제 항은 f(C) = φ + (1−φ)·(1−θ(C))/(1−θ(C_ref)) — 산화제가 많을수록 Cu 표면 부동태막이 활성 사이트를 덮어 제거율이 **낮아지는** 방향이다. **이 키가 이 팩에 와야 하는 이 |
+| oxidizer_peak_wt_pct | 1.0 | wt% | estimated | US9200180B2 명세서 (Cu 부동태 지배 서술) + US20110165777A1 TABLE 2 형상 | 이 계는 산화제 증가가 제거율을 **낮추는** 부동태 지배계라 관측 창 안에 정점이 없다. 정점을 운전점에 두어 관측 대역 전체가 정점 이후(감소) 구간이 되게 한다 — 부모 팩의 3.0(산성·착화제계의 Kaufman 정점)을 물려받으면 이 계에 없는 상승 구간이 생긴다. |
+| abrasive_wt_pct | 10.0 | wt% | literature | US9200180B2 TABLE 4 | US9200180B2 TABLE 4 조성(콜로이달 실리카 10 wt%). Kp 역산 조건. |
+| abrasive_ref_wt_pct | 10.0 | wt% | literature | kp_m_per_pa 를 역산한 조건과 동일 | 본값과 동반 이동. 부모 팩 값(3.0)을 물려받으면 기준 조건에서 농도 항 배수가 1.0 에서 깨져 Kp 가 이중 계상된다. |
+| abrasive_density_kg_m3 | 2200.0 | kg/m^3 | literature | CRC Handbook of Chemistry and Physics — amorphous SiO2 | 비정질 콜로이달 실리카 2.20 g/cm3 (CRC Handbook). |
+| abrasive_size_nm | 55.0 | nm | literature | US9200180B2, COMPONENTS D) — 원문 직접 대조 2026-09-19 | US9200180B2 명세서 COMPONENTS 목록 D) 원문: "an approximately 30 weight % potassium-stabilized dispersion in water with a particle size of 50-60 nanometers as measured |
+| abrasive_ref_size_nm | 55.0 | nm | literature | abrasive_size_nm과 동일 조건 | 본값과 동반 이동. 다르면 기준 조건에서 입경항 배수가 1.0에서 깨져 kp_m_per_pa가 이중 계상된다(kp_m_per_pa 주석의 cu_ph_alkaline_ref 사고와 동형). |
+| abrasive_size_exponent | 0.0 | - | estimated | knowledge/cmp/abrasive-size-null-result-force-partition-theo | **부모(cu_h2o2_bta) 판정#1 null 결과의 조건부 상속 — literature가 아니라 estimated로 한 단계 낮춰 상속한다.** 부모 null 결과(n=0.0)는 독립된 두 다리로 literature 등급을 받았다 (knowledge/cmp/abrasive-size |
+| abrasive_conc_exponent | 0.3333333333 | - | literature | knowledge/cmp/kappa-cu-alkaline-shape-exponents-round2.md §2 | **판정#80(2026-09-20)로 estimated→literature 승격.** 코드 기본값(1/3)과 같은 값이지만 팩이 own 선언해야 등급이 잡힌다는 사정은 그대로다. 1차 출처(신규): Cooper, K. et al. "Effects of Particle Concentrat |
+| abrasive_d99_nm | 103.824688 | nm | estimated | knowledge/cmp/abrasive-particle-size-distribution-d99-tail.m | **화학종 무관 일반비(Levitronix/Silco 2008, 5.00)를 쓰지 않은 이유**: knowledge/cmp/abrasive-particle-size-distribution-d99-tail.md §5 verify 블록이 바로 이 코퍼스 안에서 "일반비 5.00은 실리카 실 |
+| abrasive_ref_d99_nm | 103.824688 | nm | estimated | abrasive_d99_nm과 동일 조건 | 기준 조건(Δ=1.0)의 기준점 — abrasive_d99_nm과 동일값으로 이중 계상 방지. |
+| damage_exponent | 2.54 | - | estimated | knowledge/cmp/delta-scratch-damage-d99-oversize-particle-mod | 부모(cu_h2o2_bta)와 **동일값·동일 근거를 그대로 상속**한다 — 재적합이 아니라 판정 구조 자체가 이 팩에도 바뀌지 않고 적용된다는 뜻이다. delta-damage-model-synthesis.md §3 팩별 표의 "n 출처" 열이 이미 이 전이를 **막질 기준**으로 분류 |
 
 ### 팩 `cu_h2o2_bta` — Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정
 
@@ -666,8 +721,18 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 | abrasive_density_kg_m3 | 2200.0 | kg/m^3 | literature | 비정질 실리카(colloidal SiO2) 2.20 g/cm3 — CRC Handbook. 이 팩의 연마입자 |  |
 | chelator_species | glycine |  | verified | knowledge/cmp/cu-cmp-ph-mechanism.md (US20080090500A1 TABLE  | 기준 조성의 착화제. abrasive_wt_pct note 에 이미 있던 "글리신 1 wt%"를 조회 키로 승격했다. 다른 착화제로 바꾸려면 이 값과 chelator_M을 함께 바꿔야 한다 — 조용히 재사용하지 않는다(inhibitor_species와 동일 설계). |
 | chelator_M | 0.1332 | mol/L | estimated | knowledge/cmp/cu-cmp-ph-mechanism.md (US20080090500A1 TABLE  | 글리신 1 wt% -> 몰농도 환산. 글리신 MW=75.07 g/mol, **밀도 1.0 g/mL 근사** (슬러리 실측 밀도 미확보 — 수용액 희박 조성이라 물 밀도로 근사, 오차는 수 % 이내로 추정되나 검증되지 않았다). 10 g/L / 75.07 g/mol = 0.1332 mol |
+| chelator_ref_M | 0.1332 | mol/L | estimated | knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.m | 착화제 억제 배수가 항등적으로 1.0이 되는 기준 농도 — chelator_M 과 같은 값을 명시해 이중 계상을 막는다(inhibitor_ref_mM·oxidizer_ref_wt_pct 와 동일 설계). 등급은 chelator_M 과 같다(밀도 1.0 g/mL 가정을 거친 환산값). |
+| chelator_suppression_a | 1.5119 | 1/(mol/L) | estimated | knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.m | 글리신 농도 억제 지수. 잔여율 = exp(-a*(C - C_ref)). 값의 출처: Jani 2025(doi:10.1149/2162-8777/adc59e) Table I x Table II 에서 **연마입자가 있고 글리신만 바뀌는** 통제쌍 2건에 최소자승 적합 — E5/6(글리신 0 |
+| chelator_suppression_species | glycine |  | verified | knowledge/cmp/psi-glycine-chelator-suppression-cu-jani2025.m | a=1.5119 가 실제로 적합된 착화제 종. `sim/chemistry.py:: _chelator_suppression_term` 이 이 값과 `chelator_species` 가 일치할 때만 항을 켠다 — 옥살산은 같은 회귀에서 +536.63 으로 부호가 반대다(판정#45). 적합에 |
 | oxidizer_acid_chelator_K | 0.7935 | 1/wt% | estimated | knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9 | 산성×착화제 레짐(slurry_ph<6 AND chelator_M>0)의 촉진-포화형 Langmuir 상수. f(C) = phi + (1-phi)*theta(C)/theta(C_ref), theta(C)=K*C/(1+K*C). [EVIDENCE-RULES 판정#41, 2026-09-15 |
 | oxidizer_acid_chelator_species | oxalic_acid |  | verified | knowledge/cmp/chi-cu-h2o2-regime-reversal-jani2025.md §9 | [EVIDENCE-RULES 판정#47, 2026-09-16] `oxidizer_acid_chelator_K`(=0.7935)가 실제로 적합된 착화제 종 — Jani 2025 Expt 30/31/32는 글리신 0M, 옥살산 0.08M 조건이다(위 note). 이 팩의 `chelator_ |
+| promoter_species | oxalic_acid |  | verified | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 이 팩의 디카복실레이트 촉진제 종. 조회 키이지 수치가 아니다. 다른 촉진제로 바꾸면 엔진이 그 종의 계수를 요구한다 — 조용히 재사용하지 않는다(inhibitor_species·chelator_suppression_species 와 동일 설계). |
+| promoter_M | 0.0 | mol/L | verified | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 기준 운전점의 옥살산 농도. 이 팩의 기준 조성(US20080090500A1 TABLE 4: 글리신 1 wt% / BTA 1 mM / H2O2 3 wt%)에는 디카복실레이트가 **없다** — 0.0 은 추정이 아니라 기준 조성 원문에 부재한다는 사실이라 verified. 데이터셋이 ov |
+| promoter_ref_M | 0.0 | mol/L | verified | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 촉진 배수가 항등적으로 1.0 이 되는 기준 농도 — promoter_M 과 같은 값을 명시해 Kp 이중 계상을 막는다. Kp 가 옥살산 없는 조성에서 역산됐으므로 기준점도 0 이어야 한다. |
+| promoter_anchor_M | 0.04029 | mol/L | literature | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 멱함수 정규화 앵커 = US6309560B1 TABLE 1 의 옥살산암모늄 0.5 wt%. (NH4)2C2O4 MW 124.10 g/mol, 밀도 1.0 g/mL 근사로 5.0 g/L ÷ 124.10 = 0.040290 M. 기준점(promoter_ref_M)과 역할이 다르다 — 이것은 |
+| promoter_exponent_m | 0.7238 | - | estimated | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 멱지수. g(C) = phi + (1-phi)*(C/C_anchor)^m. 값의 출처: US6309560B1 TABLE 1 통제쌍 — 11% H2O2 / wetting 10 ppm / BTA 0 고정에서 옥살산암모늄 0.5 → 1.0 wt% 일 때 Cu 251.7 → 402.9 nm/m |
+| promoter_floor_phi | 0.078058 | - | estimated | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | 착화제 0 에서의 잔여 배수(순수 기계 성분 바닥). 이 바닥이 없으면 C→0 에서 멱함수가 0 으로 붕괴해 물리가 아니라 특이점이 된다. 값의 출처: US6309560B1 TABLE 1 통제쌍 — 7% H2O2 / wetting 50 ppm / BTA 0 고정에서 옥살산암모늄 0 →  |
+| promoter_fitted_species | oxalic_acid |  | verified | knowledge/cmp/chi-carboxylate-promoter-cu-oxalate-us6309560. | (phi, m)이 실제로 적합된 종. sim/chemistry.py::_carboxylate_promoter_term 이 이 값과 promoter_species 가 일치할 때만 항을 켠다 — 글리신을 이 경로로 흘리면 부호가 뒤집힌다(같은 회귀에서 -440.91). 적합에 쓴 종 이름을 |
 
 ### 팩 `oxide_silica` — Oxide CMP: 실리카 슬러리, STI/ILD 평탄화
 
@@ -711,17 +776,32 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 
 | 키 | 값 | 단위 | confidence | 출처 | 도출 방법(note) |
 |---|---|---|---|---|---|
+| abrasive | alumina |  | literature | US20220315802A1 Table 1 (alpha-alumina); Gong et al. 2024, D | 부모의 ceria 를 덮는다 — 연마입자가 다르다. |
 | kp_m_per_pa | 4.9872e-15 | m^2/N | literature | Wang W., Liu W., Song Z., ECS J. Solid State Sci. Technol. 1 | 기준 조건 역산. **어느 문헌을 기준으로 삼을지가 이 파라미터의 핵심 판정이다.** 산성 KMnO4/알루미나 SiC 계의 절대 MRR 은 문헌마다 크게 갈린다:   · Wang W. et al. 2021 (ECS J. Solid State Sci. Technol. 10, 074004, |
 | abrasive_conc_exponent | -0.406 | - | literature | knowledge/cmp/sic-alumina-concentration-negative-exponent-en | **판정#52 동반 이동(2026-09-16).** 이 지수는 원래 부모(sic_ceria_h2o2)에 선언돼 있었으나, 그 근거 데이터인 US20220315802A1 Table 1 은 판정#49-B 로 이 팩(산성 KMnO4/알루미나)으로 옮겨져 있었다 — 근거와 파라미터가 서로 다른 |
 | abrasive_ref_wt_pct | 0.5 | wt% | measured | US20220315802A1 Table 1 (중간 수준) | 조성축 기준점 선언(독립 측정값이 아니다). US20220315802A1 Table 1 의 중간 수준이자, Kp 역산 시 Wang 2021 의 농도로 가정한 값이기도 하다(위 참조). |
 | abrasive_wt_pct | 0.5 | wt% | measured | US20220315802A1 Table 1 — 기준 조성 |  |
+| abrasive_size_nm | 500.0 | nm | literature | Gong et al. 2024, DOI 10.3390/ma17030679 Table 1 | Gong et al. 2024 (DOI 10.3390/ma17030679) Table 1 — 이미 이 팩의 `abrasive:` 키가 인용 중이던 문헌, 알루미나 연마입자 500 nm 고정 스펙. 이번 회차에 abrasive_size_nm 기준값으로도 승격한다(이전에는 키가 없어 부모의 |
+| abrasive_ref_size_nm | 500.0 | nm | literature | 이 팩의 abrasive_size_nm 과 같은 출처 | κ 입경항 기준점 — 이 팩의 abrasive_size_nm(500 nm)과 일치시킨다(관례상 항상 동일, d==d_ref면 항=1.0으로 Kp 앵커에 영향 없음, sim/factors.py L680-722). |
+| abrasive_size_peak_nm | 2500.0 | nm | literature | knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6 | Su et al. 2011 §3.2 Fig.2(알루미나+6H-SiC 입경 스윕) — PyMuPDF 벡터 드로잉 좌표를 축 눈금 라벨(page.get_text("words")) 선형보정으로 기계판독한 4점(1.0/1.5/2.5/3.5 μm) 중 2.5 μm(W2.5)가 최대(원문 텍스트  |
+| abrasive_size_exp_below_peak | 0.3092888377 | dimensionless | literature | knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6 | Su et al. 2011 §3.2 Fig.2 기계판독+원문 인쇄값 3점(1.0/1.5/2.5 μm, 47.9(기계판독)/ 51.0(원문 텍스트)/63.3(원문 텍스트) nm/h) 로그-로그 최소자승 회귀. ⚠ n=3, 구간별 국소 기울기 편차 큼(그래프 판독오차 + 실제 비선형 혼재) |
+| abrasive_size_exp_above_peak | -0.0664695242 | dimensionless | literature | knowledge/cmp/alumina-abrasive-size-mrr-relation.md §2 §3 §6 | Su et al. 2011 §3.2 Fig.2 2점(2.5→3.5 μm, 63.3(원문 텍스트)→61.9(기계판독) nm/h) 직선 기울기(n=2, 회귀 아님). 하락폭이 작아(-2.2%) 측정 잡음과 구분 어려움 — 부호 (음수)만 신뢰, 크기는 약한 근거. |
 | ph_ref | 2.3 | pH | measured | US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3 | 이 팩의 운전 pH(Table 1 전 조건 고정). 부모의 10.0 을 상속하면 기준 조건에서 화학 pH 항 배수가 1.0 이 아니게 되어 Kp 역산이 이중 계상된다. |
 | slurry_ph | 2.3 | pH | measured | US20220315802A1 Table 1 |  |
 | ph_softening_ref | 2.3 |  | measured | US20220315802A1 Table 1 | 부모의 pH 연화 기준점(10.0)을 이 팩 운전 pH 로 옮긴다 — 기준 배수 1.0 계약. |
 | oxidizer | KMnO4 |  | measured | US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3 |  |
+| oxidizer_langmuir_species | KMnO4 |  | measured | Gong et al. 2024, DOI 10.3390/ma17030679 — 이 팩과 산화제 종 일치 | oxidizer_langmuir_K 가 KMnO4 데이터로 적합됐다는 선언 — 이 팩의 oxidizer(위, KMnO4)와 일치하므로 종 게이트를 통과한다(판정#47과 같은 장치). |
+| oxidizer_langmuir_K | 2.28 | 1/wt% | estimated | Gong et al. 2024, DOI 10.3390/ma17030679 Table 2/3 (L25 직교표, | 촉진-포화형 Langmuir 피복 상수. f(C)=φ+(1-φ)·θ(C)/θ(C_ref), θ(C)=K·C/(1+K·C), φ=0.15(_oxidizer_term 기본값, 이 팩은 새로 선언하지 않는다 — 아래 축퇴 참조), C_ref=4 wt%(=이 팩의 oxidizer_ref_wt_ |
 | oxidizer_wt_pct | 4.0 | wt% | measured | US20220315802A1 Table 1 — 4 wt% KMnO4 + 0.5 wt% 질산염, pH 2.3 | 이 팩의 기준 조성 산화제 농도 — KMnO4 4 wt%(ph_ref 와 같은 출처 줄). 부모의 H2O2 3.0 wt% 를 덮는다. |
 | oxidizer_ref_wt_pct | 4.0 | wt% | measured | US20220315802A1 Table 1 — 4 wt% KMnO4 | 기준점 동반 이동(본값과 같은 조성). 부모의 4.0 **vol%**(H2O2)를 덮는다 — 값이 우연히 같아도 단위와 재료가 다르므로 상속은 오답이다. |
 | abrasive_density_kg_m3 | 3950.0 | kg/m^3 | literature | CRC Handbook of Chemistry and Physics — alpha-Al2O3 density | alpha-Al2O3 3.95 g/cm3 — CRC Handbook. 부모의 세리아 7220 을 덮는다(연마입자가 다르다). |
+| sic_kmno4_ph_acid_k | 0.546 | 1/pH | estimated | Chen et al. 2020, DOI 10.1134/S1070427220060099, Fig. 1(a) ( | MnO4- 산화력의 pH 감쇠 상수. Chen 2020 Fig.1(a) Si면 5점(pH 2~10)을 로그공간 최소자승으로 적합(φ 동시 추정). 개별 재현오차 -2.4~+2.6 %, rms(log)=0.0171. C 면(같은 그림 (b))은 k=0.380·φ=0.308 로 더 완만한데 |
+| sic_kmno4_ph_anchor | 2.0 | pH | estimated | Chen et al. 2020, DOI 10.1134/S1070427220060099, Fig. 1(a) 최 | 지수의 기준점(위 적합이 pH 2 를 1.0 으로 두고 풀렸다). 측정값이 아니라 적합 좌표계 선언. |
+| sic_kmno4_ph_floor | 0.268 | - | estimated | Chen et al. 2020, DOI 10.1134/S1070427220060099, Fig. 1(a) ( | pH 가 올라 산화력이 꺼져도 남는 **기계 경로 하한**(연마입자 압흔). 위와 같은 적합에서 동시 추정. 실측 pH 10/pH 2 비 0.281 과 같은 자릿수이며, 이 하한이 없으면 pH 10 예측이 실측의 1/3 이하로 떨어진다. ⚠ 그래프 판독 기반 — estimated. |
+| sic_kmno4_ph_floor_lo_wt | 0.79 | wt% | literature | Chen et al. 2020, DOI 10.1134/S1070427220060099 (0.05 M KMnO | φ 농도 보간의 **저농도 앵커**. Chen 2020 의 0.05 M KMnO4 를 wt% 로 환산한 값 (0.05 mol/L x 158.03 g/mol = 7.90 g/L ≈ 0.79 wt%, 묽은 수용액 밀도 1 kg/L 가정). 이 농도에서 관측된 pH 감쇠가 φ=0.268 을  |
+| sic_kmno4_ph_floor_lo | 0.268 | - | estimated | Chen et al. 2020, DOI 10.1134/S1070427220060099, Fig. 1(a) ( | 저농도 앵커의 기계 하한. `sic_kmno4_ph_floor` 와 같은 적합에서 나온 값이다 (Chen 2020 Fig.1a 판독 5점). ⚠ 그래프 판독 기반 — estimated. |
+| sic_kmno4_ph_floor_hi_wt | 6.5 | wt% | literature | Wang W., Liu W., Song Z., ECS J. Solid State Sci. Technol. 1 | φ 농도 보간의 **고농도 앵커**. Wang 2021 이 최대 연마율을 얻은 조성이다 (pH 2.00, KMnO4 6.5 wt%, Al2O3 연마입자, 4H-SiC Si면). ※ 이 팩의 Kp 는 같은 Wang 2021 의 1.4 µm/h 에서 역산했는데, 그 Kp note 는 농도를 |
+| sic_kmno4_ph_floor_hi | 0.7848 | - | estimated | Wang et al. 2021 DOI 10.1149/2162-8777/ac12de (pH2 1.4 / pH1 | 고농도 앵커의 기계 하한. Wang 2021 의 두 인쇄 끝점(pH 2 → 1.4 µm/h, pH 12 → 1.1 µm/h, 비 0.7857)에 같은 형상 g(pH)=φ+(1-φ)exp(-k(pH-2)) 와 k=0.546 을 넣어 푼 값: φ = (0.7857 - e^-5.46)/(1  |
 
 ### 팩 `sic_ceria_h2o2` — 4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산
 
@@ -800,7 +880,7 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 |---|---|---|---|---|---|
 | film | w |  | verified |  |  |
 | abrasive | alumina |  | literature | knowledge/cmp/slurry-components-overview.md |  |
-| kp_m_per_pa | 2.8e-13 | m^2/N | estimated | knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md | ⚠ 문헌 W MRR 범위(300~600 nm/min @ 3psi)에서 역산한 대표값. 미재현. W는 Fe(III)/H2O2 산화 후 기계적 제거라 산화막과 메커니즘이 다르다. |
+| kp_m_per_pa | 2.8e-13 | m^2/N | estimated | knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md | ⚠ 문헌 W MRR 범위(300~600 nm/min @ 3psi)에서 역산한 대표값. 미재현. W는 Fe(III)/H2O2 산화 후 기계적 제거라 산화막과 메커니즘이 다르다. [EVIDENCE-RULES 판정#58, 2026-09-18] knowledge/cmp/w-cmp-preston |
 | slurry_ph | 2.5 | pH | literature | knowledge/cmp/surface-chemistry-cu-w-pourbaix-passivation.md | 강산성 — Pourbaix상 W 산화물 용해 억제하며 부동태막 유지 |
 | ph_ref | 2.5 | pH | literature | knowledge/cmp/w-cmp-ph-acidic-oxidizer-mediated-stojadinovic | 이 팩의 기준 pH. 기준조건에서 pH 항이 정확히 1.0 이 되도록 slurry_ph 와 같다. |
 | w_ph_acid_k | 0.1163 | 1/pH | literature | knowledge/cmp/w-cmp-ph-acidic-oxidizer-mediated-stojadinovic | f(pH)=exp(-k*(pH-ph_ref)). Stojadinovic 2016 Table 1 (3% 실리카 12nm, KIO3 4수준 고정, HCl 로 pH 만 5->2) 의 산화제 존재 3조건 MRR 비 1.429/1.533/1.300 을 로그평균해 dpH=3 으로 나눈 값. 재현오 |
@@ -832,7 +912,8 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 
 | 팩(공정) | 데이터셋 | 유의 | 유의 평균 ρ |
 |---|---|---|---|
-| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | 8 | 2 | 0.8587 |
+| cu_alkaline_benzenesulfonic (Cu CMP (step-2, 알칼리): H2O2 부동태화 지배, 억제제 없음, 벤젠술폰산 + 콜로이달 실리카) | 5 | 1 | 1.0 |
+| cu_h2o2_bta (Cu CMP: H2O2 산화 + BTA 패시베이션, dishing 지배 공정) | 9 | 1 | 0.7175 |
 | oxide_silica (Oxide CMP: 실리카 슬러리, STI/ILD 평탄화) | 7 | 2 | 0.996 |
 | sic_alumina_kmno4 (4H/6H-SiC CMP: 산성 KMnO4 산화제 + 알루미나 연마입자 (고속 레짐)) | 2 | 1 | 1.0 |
 | sic_ceria_h2o2 (4H-SiC CMP: 세리아/H2O2 알칼리 슬러리, pH 항 실측 역산) | 3 | 1 | 1.0 |
@@ -841,4 +922,4 @@ in-situ 기준 운전점의 S는 문헌 등급이다. 무컨디셔닝(duty=0) �
 
 ## 미충족 항목
 
-- 없음 — 완성 기준 전부 충족
+- C4 cu_h2o2_bta: 유의 평균 ρ 0.7175 < 0.85 (구조적 상한 0.7175 < 0.85 — tw202115224a_cu_abrasive_size_pressure(0.7175) — 이 held-out 집합으로는 어떤 모델도 도달 불가, 판정#91)
