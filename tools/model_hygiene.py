@@ -154,6 +154,23 @@ DIMLESS_SUFFIX = ("_exponent", "_ratio", "_fraction", "_factor", "_index",
                   "_per_unit", "_coefficient", "_curve_n", "_strength_k",
                   "_ph", "_ph_ref", "_softening_ref")
 
+# 이름 **중간**에 나와도 무차원을 뜻하는 표지 (EVIDENCE-RULES 판정#96).
+#
+# 왜 DIMLESS_SUFFIX 전체를 중위로 쓰면 안 되는가:
+#   접미 규칙을 중위로 확장한 본래 의도는 `promoter_exponent_m` 처럼 **지수**를
+#   가리키는 한 글자(m·n·k)가 뒤에 붙는 경우 하나였다(아래 check_dimensions
+#   주석의 근거 그대로). 그런데 튜플 전체를 중위로 돌리면 `_ph` 가
+#   `cu_ph_acid_k`(단위 1/pH)·`sic_kmno4_ph_floor_hi_wt`(단위 wt%) 같이
+#   **이름에 pH 가 들어가지만 그 자신은 무차원이 아닌** 키까지 집어삼킨다.
+#   그 결과 정당한 단위 선언이 매 회차 위반으로 보고되고(실측 8건), 진짜
+#   차원 결함이 그 잡음에 묻힌다.
+#
+#   판정 기준(물질명 없는 구조 규칙): 그 표지가 **키가 가리키는 양 자체**를
+#   무차원으로 만드는가(지수는 그렇다), 아니면 **어떤 축에 대한 양**인지를
+#   말할 뿐인가(pH 축의 감쇠계수는 1/pH 이고, pH 축의 앵커 농도는 wt% 다).
+#   후자는 중위 표지가 될 수 없다.
+DIMLESS_INFIX = ("_exponent",)
+
 
 def _norm(u: Optional[str]) -> str:
     return (u or "").strip().replace(" ", "")
@@ -198,7 +215,7 @@ def check_dimensions() -> List[Issue]:
             # 올린다(물질명 없는 구조 규칙). 반대로 진짜 길이 파라미터는 이름에
             # _exponent 가 들어갈 이유가 없으므로 사각지대가 생기지 않는다.
             if key.endswith(DIMLESS_SUFFIX) or any(
-                    f"{s}_" in key for s in DIMLESS_SUFFIX):
+                    f"{s}_" in key for s in DIMLESS_INFIX):
                 if unit and unit not in ("-", "1", "", "pH"):
                     out.append(Issue(
                         "D", "warn", f"{name}:{key} 는 무차원이어야 하는데 단위 '{unit}'",
