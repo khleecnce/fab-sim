@@ -189,9 +189,11 @@ def label_input_match() -> Dict[str, object]:
     r = _run([PY, str(ROOT / "tools" / "label_vs_input_audit.py")], timeout=300)
     m = re.search(r"결함\s+(\d+)건", r.stdout)
     if m:
-        return {"defects": int(m.group(1))}
+        rec = re.search(r"기록된 부채\s+(\d+)", r.stdout)
+        return {"defects": int(m.group(1)),
+                "recorded": int(rec.group(1)) if rec else 0}
     if "라벨과 전달값이 일치한다" in r.stdout:
-        return {"defects": 0}
+        return {"defects": 0, "recorded": 0}
     return {"ok": False, "error": "감사 결과를 읽지 못했다"}
 
 
@@ -289,9 +291,19 @@ def judge(cur: Dict[str, object], prev: Optional[Dict[str, object]]) -> List[str
             v.append(f"🔴 라벨↔전달값 감사를 읽지 못했다 ({li.get('error')})")
         elif int(li.get("defects", 0) or 0):
             n = int(li["defects"])
-            v.append(f"🔴 라벨에만 있고 모델에 전달되지 않는 축 {n}건 — "
-                     "그 축의 검증 결과는 무의미하다. **물리를 고치기 전에 "
-                     "이것을 먼저 고쳐라** (없는 결함을 쫓게 된다).")
+            rec = int(li.get("recorded", 0) or 0)
+            new = n - rec
+            if new:
+                v.append(f"🔴 라벨에만 있고 모델에 전달되지 않는 축 {new}건(신규) — "
+                         "그 축의 검증 결과는 무의미하다. **물리를 고치기 전에 "
+                         "이것을 먼저 고쳐라** (없는 결함을 쫓게 된다).")
+            if rec:
+                # 신규와 구분하지 않으면 매 회차가 같은 진단을 최상위로 올려
+                # 진짜 신규 결함을 가린다(물리 위생 검사의 adjudicated 구분과 같다).
+                v.append(f"⏹ 미전달 축 {rec}건은 데이터셋이 `excluded_axes:` 로 사유와 "
+                         "함께 선언한 **기록된 부채**다 — 면제가 아니라 기록이다. "
+                         "그 데이터셋의 지표를 성능 근거로 쓰지 마라. 해소는 "
+                         "①축을 모델에 넣거나 ②그 축이 고정인 부분집합만 남기는 것뿐이다.")
 
     # ── 축척 학습 — 개정 완료 기준 ──────────────────────────────
     # 절대값 3 % 를 목표에서 내린 대신(측정으로 원리적 불가 확인),

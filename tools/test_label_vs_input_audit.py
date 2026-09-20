@@ -64,6 +64,14 @@ def test_no_label_only_axis_in_scoped_datasets():
         if path.stem in KNOWN_OUT_OF_SCOPE or not _in_scope(path):
             continue
         probs = scan(path)
+        # 📖 는 데이터셋이 `excluded_axes:` 로 **사유와 함께** 선언한 미모델링 축이다.
+        # 이름 하드코딩(KNOWN_UNMODELED_LABEL_AXES)이 아니라 선언을 읽어 넘긴다 —
+        # 새 데이터셋이 같은 부채를 정직하게 선언했는데 이름을 목록에 못 넣어
+        # 테스트가 빨개지는 일을 막는다(2026-09-20 hong2007 이 정확히 그랬고,
+        # 이 파일이 tools/ 에 있어 메인 스위트가 수집하지 않은 탓에 빨간 채로
+        # 방치됐다). 면제가 아니라 **기록**이다 — 그 데이터셋의 지표는 여전히
+        # 구조적으로 달성 불가능하므로 성능 근거로 쓰면 안 된다.
+        probs = [p for p in probs if not p.startswith("🔴📖")]
         if path.stem in KNOWN_UNMODELED_LABEL_AXES:
             # 미모델링 축 부채는 위에 기록돼 있다. 다만 **그 종류만** 넘어간다 —
             # 같은 파일에서 다른 결함(🔴 이름 있는 축 미전달 등)이 나오면 실패다.

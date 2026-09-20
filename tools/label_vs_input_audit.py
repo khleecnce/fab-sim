@@ -246,8 +246,20 @@ def scan(path: pathlib.Path) -> List[str]:
                 and isinstance(v, (int, float, str, bool))
             )))
         if len(sigs) < len(set(labels)):
+            # 데이터셋이 `excluded_axes:` 로 **사유와 함께** 선언한 미모델링 축이
+            # 있으면, 이 구조 결함은 '새로 생긴 것'이 아니라 '이미 기록된 부채'다.
+            # 면제가 아니다 — 아래 문구는 여전히 🔴 이고 그 데이터셋의 지표는
+            # 여전히 구조적으로 달성 불가능하다. 바뀌는 것은 **다음 회차가
+            # 신규와 기록된 것을 구분할 수 있다**는 점뿐이다(물리 위생 검사가
+            # validation/adjudicated_violations.yaml 로 하는 것과 같은 구분).
+            #
+            # 왜 필요한가 (2026-09-20): 최적화 루프가 매 회차 "🔴 미전달 축 3건 —
+            # 물리를 고치기 전에 이것부터 고쳐라"를 최상위로 올렸는데, 3건 전부
+            # 이미 excluded_axes 로 선언되고 판정#87 로 종결된 것들이었다.
+            # 매 회차가 같은 진단을 되풀이하며 신규 결함을 가렸다.
+            tag = "🔴📖" if excluded else "🔴"
             problems.append(
-                f"🔴 라벨은 {len(set(labels))}종인데 모델이 받는 고유 입력은 "
+                f"{tag} 라벨은 {len(set(labels))}종인데 모델이 받는 고유 입력은 "
                 f"{len(sigs)}종뿐이다 — 라벨이 구분하는 축 중 최소 하나가 "
                 f"전달되지 않는다. 같은 입력에 다른 실측이 오므로 이 데이터셋의 "
                 f"순위·절대값 지표는 **구조적으로** 달성 불가능하다. "
@@ -265,6 +277,7 @@ def main() -> int:
     print("검증은 '모델이 그 축을 못 맞춘다'고 오진한다.")
     print()
     total = 0
+    recorded = 0
     for path in sorted(DATASET_DIR.glob("*.yaml")):
         probs = scan(path)
         if probs:
@@ -272,10 +285,18 @@ def main() -> int:
             for p in probs:
                 print(f"    {p}")
             total += len(probs)
+            recorded += sum(1 for p in probs if p.startswith("🔴📖"))
     print()
     print("-" * 84)
     if total:
-        print(f"결함 {total}건 — 고치기 전에는 그 축의 검증 결과를 믿을 수 없다.")
+        new = total - recorded
+        print(f"결함 {total}건 (신규 {new} · 기록된 부채 {recorded}) — "
+              f"고치기 전에는 그 축의 검증 결과를 믿을 수 없다.")
+        if recorded and not new:
+            print("📖 표시는 데이터셋이 `excluded_axes:` 로 사유와 함께 선언한 "
+                  "미모델링 축이다. 면제가 아니라 **기록**이다 — 지표는 여전히")
+            print("   구조적으로 달성 불가능하다. 해소 경로는 둘뿐: ①축을 모델에 "
+                  "넣는다 ②그 축이 고정인 부분집합만 남긴다.")
     else:
         print("✅ 라벨과 전달값이 일치한다.")
     return 0
