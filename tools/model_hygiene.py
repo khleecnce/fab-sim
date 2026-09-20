@@ -42,7 +42,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields as _dc_fields
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -242,40 +242,72 @@ import sys, warnings, json
 warnings.filterwarnings("ignore")
 sys.path.insert(0, "{root}")
 from sim.engine import Recipe, simulate
-rr = simulate(Recipe(pack="{pack}"))
+rr = simulate(Recipe(pack="{pack}"{recipe_kwargs}))
 m = 1.0
+driver_seen = False
+probe_key = {probe_key!r}
 for k, f in rr.factors.items():
     if f.mrr_coupled and f.value is not None:
         m *= f.value
-print(json.dumps({{"mult": m}}))
+        if probe_key and probe_key in (f.drivers or {{}}):
+            driver_seen = True
+print(json.dumps({{"mult": m, "driver_seen": driver_seen}}))
 '''
 
 
-def _run(pack_dir: Path, pack: str) -> Tuple[Optional[float], Optional[str]]:
+def _run(pack_dir: Path, pack: str, recipe_kwargs: str = "",
+         probe_key: Optional[str] = None) -> Tuple[Optional[float], Optional[bool], Optional[str]]:
+    """모델을 한 번 돌려 MRR 결합 배수를 얻는다.
+
+    recipe_kwargs: `Recipe(pack=...)` 호출에 그대로 이어붙일 추가 인자 문자열
+    (예: ", time_s=0.0"). `sim.engine.Recipe` 의 필드처럼 팩 YAML 이 아니라
+    런 자체가 소유하는 드라이버를 극한값으로 미는 통로 — `_write_value` 는
+    팩 파일을 고치므로 이런 드라이버에는 영원히 닿지 못한다.
+
+    probe_key: 지금 극한값으로 밀고 있는 드라이버 키. 반환하는 `driver_seen`
+    은 그 키가 이 실행에서 **어느 MRR 결합 팩터에도 여전히 드라이버로
+    보고됐는지**를 말한다. False 면 항이 스스로를 비활성화했다는 뜻이고
+    (예: `_f_tau` 의 `t_pol > 0` 가드), 그 상태의 배수 1.0 은 "극한에서 옳다"를
+    검증한 것이 아니라 "검증하지 않았다"는 뜻이다 — 호출자가 구분해야 한다.
+    """
     env = dict(os.environ)
     env["FABSIM_PACK_DIR"] = str(pack_dir)
     try:
-        r = subprocess.run([PY, "-c", PROBE.format(root=ROOT, pack=pack)],
-                           capture_output=True, text=True, env=env,
-                           cwd=str(ROOT), timeout=180)
+        r = subprocess.run(
+            [PY, "-c", PROBE.format(root=ROOT, pack=pack,
+                                     recipe_kwargs=recipe_kwargs,
+                                     probe_key=probe_key)],
+            capture_output=True, text=True, env=env, cwd=str(ROOT), timeout=180)
     except subprocess.TimeoutExpired:
-        return None, "타임아웃"
+        return None, None, "타임아웃"
     if r.returncode != 0:
-        return None, (r.stderr.strip().splitlines() or ["?"])[-1][:90]
+        return None, None, (r.stderr.strip().splitlines() or ["?"])[-1][:90]
     try:
-        return json.loads(r.stdout.strip().splitlines()[-1])["mult"], None
+        obj = json.loads(r.stdout.strip().splitlines()[-1])
+        return obj["mult"], obj.get("driver_seen"), None
     except Exception as e:
-        return None, f"파싱 실패: {e}"
+        return None, None, f"파싱 실패: {e}"
 
 
-def _write_value(pack_dir: Path, pack: str, key: str, val: float) -> bool:
+def _write_value(pack_dir: Path, pack: str, key: str, val) -> bool:
     """그 팩이 **실제로 읽게 될** 선언을 찾아 값을 바꾼다.
 
     ⚠ 순서가 물리적으로 중요하다. 상속 체인 밖의 팩을 고치면 대상 팩의 값은
     그대로이고, 검사기는 "0 으로 바꿨는데 배수가 안 변했다"를 **모델 결함**으로
     오판한다. 실제로는 검사기가 엉뚱한 파일을 건드린 것이다.
     그러므로 자식 → 부모 순(lineage 역순)으로만 훑고, 체인 밖은 보지 않는다.
+
+    `val` 이 문자열이면 범주형 드라이버(예: dispersant_type)로 보고 따옴표
+    붙은/안 붙은 문자열 리터럴을 찾아 치환한다. 숫자면 기존 그대로 숫자
+    정규식을 쓴다 — 범주형 지원을 넣으며 숫자 경로를 건드리지 않는다.
     """
+    if isinstance(val, str):
+        val_pat = r'"[^"]*"|\'[^\']*\'|[^\s#]+'
+        val_str = f'"{val}"'
+    else:
+        val_pat = r'[-\d.eE+]+'
+        val_str = repr(val)
+
     # 상속 체인을 실제 로더에게 물어본다 (파일명 추측 금지)
     chain: List[str] = []
     try:
@@ -299,13 +331,13 @@ def _write_value(pack_dir: Path, pack: str, key: str, val: float) -> bool:
         if not cand.exists():
             continue
         t = cand.read_text()
-        pat = re.compile(rf"^(\s+{re.escape(key)}:\s*\n\s+value:\s*)([-\d.eE+]+)", re.M)
+        pat = re.compile(rf"^(\s+{re.escape(key)}:\s*\n\s+value:\s*)({val_pat})", re.M)
         if pat.search(t):
-            cand.write_text(pat.sub(lambda m: f"{m.group(1)}{val!r}", t, count=1))
+            cand.write_text(pat.sub(lambda m: f"{m.group(1)}{val_str}", t, count=1))
             return True
-        pat2 = re.compile(rf"^(\s+{re.escape(key)}:\s+)([-\d.eE+]+)\s*$", re.M)
+        pat2 = re.compile(rf"^(\s+{re.escape(key)}:\s+)({val_pat})\s*$", re.M)
         if pat2.search(t):
-            cand.write_text(pat2.sub(lambda m: f"{m.group(1)}{val!r}", t, count=1))
+            cand.write_text(pat2.sub(lambda m: f"{m.group(1)}{val_str}", t, count=1))
             return True
     return False
 
@@ -382,18 +414,31 @@ def _ref_mismatch_hint(pack: str, pack_dir: Optional[Path] = None) -> str:
     return " · ".join(parts)
 
 
+def _recipe_field_names() -> set:
+    """`sim.engine.Recipe` 가 소유한 필드 이름 집합.
+
+    하드코딩 금지 — dataclass introspect 로 얻는다. 이 집합에 속하는
+    드라이버는 팩 YAML 이 아니라 **런 자체**가 소유하므로 `_write_value`
+    (팩 파일 정규식 치환)로는 영원히 닿지 못한다. Recipe 생성자 kwarg로
+    직접 주입해야 한다.
+    """
+    from sim.engine import Recipe
+    return {f.name for f in _dc_fields(Recipe)}
+
+
 def check_limits(packs: List[str]) -> List[Issue]:
     import warnings
     warnings.filterwarnings("ignore")
     from sim.engine import Recipe, simulate
-    from sim.factors import LIMIT_ROLE
+    from sim.factors import LIMIT_ROLE, CATEGORICAL_ABSENT
 
+    recipe_fields = _recipe_field_names()
     out: List[Issue] = []
     for pack in packs:
         # 기준 조건에서 배수 1.0 (Kp 이중 계상 방지 계약)
         d0 = Path(tempfile.mkdtemp(prefix="mh0_"))
         shutil.copytree(PACKS, d0 / "p")
-        base, err = _run(d0 / "p", pack)
+        base, _seen0, err = _run(d0 / "p", pack)
         shutil.rmtree(d0, ignore_errors=True)
         if base is None:
             out.append(Issue("L", "error", f"[{pack}] 기준 실행 실패", err or "?"))
@@ -412,17 +457,19 @@ def check_limits(packs: List[str]) -> List[Issue]:
                 "본값과 _ref 짝을 같은 편집에서 함께 옮기십시오. 항을 새로 "
                 "활성화한 경우에도 그 항이 쓰는 기준점을 자기 팩에 선언해야 합니다."))
 
-        # MRR 결합 팩터가 신고한 **모든** 드라이버를 순회한다
+        # MRR 결합 팩터가 신고한 **모든** 드라이버를 순회한다 (표본값도 같이
+        # 들고 있는다 — 문자열이면 범주형이라는 신호이고, 그건 검사기가
+        # 추측하는 게 아니라 실제 관측값에서 나온 사실이다).
         try:
             rr = simulate(Recipe(pack=pack))
         except Exception as e:
             out.append(Issue("L", "error", f"[{pack}] simulate 실패", repr(e)))
             continue
-        drivers: Dict[str, None] = {}
+        drivers: Dict[str, object] = {}
         for f in rr.factors.values():
             if f.mrr_coupled:
-                for d in (f.drivers or {}):
-                    drivers[d.split("(")[0]] = None    # 'x(note)' 형태 정리
+                for d, v in (f.drivers or {}).items():
+                    drivers[d.split("(")[0]] = v    # 'x(note)' 형태 정리
 
         for key in sorted(drivers):
             role = LIMIT_ROLE.get(key)
@@ -460,7 +507,7 @@ def check_limits(packs: List[str]) -> List[Issue]:
                     if not _write_value(d / "p", pack, key, probe):
                         shutil.rmtree(d, ignore_errors=True)
                         continue
-                    m, err = _run(d / "p", pack)
+                    m, _seen, err = _run(d / "p", pack)
                     shutil.rmtree(d, ignore_errors=True)
                     if m is None:
                         out.append(Issue(
@@ -475,43 +522,110 @@ def check_limits(packs: List[str]) -> List[Issue]:
                             "나옵니다.", "항의 정의역과 clamp 를 확인하십시오."))
                 continue
 
-            d = Path(tempfile.mkdtemp(prefix="mh_"))
-            shutil.copytree(PACKS, d / "p")
-            ok = _write_value(d / "p", pack, key, 0.0)
-            if not ok:
-                shutil.rmtree(d, ignore_errors=True)
+            # ── AGENT / MODULATOR — 0(부재) 극한값을 어떻게 밀어 넣을지 ──
+            #
+            # 세 경로가 있고, 어느 경로인지는 **관측 사실**로 정한다(추측 아님):
+            #   ① key 가 sim.engine.Recipe 의 dataclass 필드다
+            #      → 팩 YAML 이 아니라 이번 런 자체가 소유한 값이다.
+            #        Recipe(...) 생성자에 kwarg 로 직접 주입한다.
+            #   ② 관측된 드라이버 값이 문자열이다 → 범주형. "0"이라는 극한이
+            #      애초에 없으므로, 모델이 선언한 CATEGORICAL_ABSENT 값을
+            #      쓴다. 선언이 없으면 **검사 불가를 결함으로 격상**한다 —
+            #      조용히 건너뛰지 않는다(아래 target_missing 분기).
+            #   ③ 그 외엔 팩 YAML 이 소유한 숫자 파라미터 → 기존처럼
+            #      `_write_value` 로 0.0 을 써 넣는다.
+            sample = drivers[key]
+            is_recipe_field = key in recipe_fields
+            is_categorical = isinstance(sample, str)
+            target_missing = False
+            target: object = 0.0
+
+            if is_categorical and not is_recipe_field:
+                if key in CATEGORICAL_ABSENT:
+                    target = CATEGORICAL_ABSENT[key]
+                else:
+                    target_missing = True
+
+            if target_missing:
                 out.append(Issue(
-                    "L", "warn", f"[{pack}] 드라이버 '{key}' 를 극한값으로 바꾸지 못함",
-                    "이 드라이버가 팩 YAML 의 예상 형식으로 선언돼 있지 않아 "
-                    "극한 검사를 **수행하지 못했습니다**. 검사기가 조용히 건너뛰면 "
-                    "'위반 없음'으로 잘못 읽힙니다.",
-                    "팩에 이 키가 숫자 값으로 선언돼 있는지, 코드가 계산으로만 "
-                    "만들어내는 값은 아닌지 확인하십시오."))
+                    "L", "error",
+                    f"[{pack}] 범주형 드라이버 '{key}' 의 '없음' 값이 미선언",
+                    f"관측값 '{sample}' 은 문자열이라 0 극한이 없습니다. 모델이 "
+                    "'없음'에 해당하는 값을 선언하지 않으면 검사기는 무엇을 "
+                    "밀어야 할지 추측할 수 없고, 추측은 검사기가 물리를 "
+                    "판단하는 것과 같습니다.",
+                    "sim/factors.py 의 CATEGORICAL_ABSENT 에 이 키의 '없음' "
+                    "값을 등록하십시오(예: dispersant_type → 'NONE')."))
                 continue
-            m, err = _run(d / "p", pack)
-            shutil.rmtree(d, ignore_errors=True)
+
+            if is_recipe_field:
+                # 팩 YAML 을 건드릴 필요가 없다 — 값을 쓰지 않으므로 임시
+                # 디렉터리 복사도 불필요하다.
+                m, seen, err = _run(PACKS, pack, recipe_kwargs=f", {key}={target!r}",
+                                     probe_key=key)
+            else:
+                d = Path(tempfile.mkdtemp(prefix="mh_"))
+                shutil.copytree(PACKS, d / "p")
+                ok = _write_value(d / "p", pack, key, target)
+                if not ok:
+                    shutil.rmtree(d, ignore_errors=True)
+                    # 이 시점에는 Recipe 필드도, (미선언인) 범주형도 이미
+                    # 별도 경로로 처리됐다 — 여기 남는 실패는 "팩 YAML 이
+                    # 소유한 숫자 키인데 예상 형식으로 선언돼 있지 않다"는
+                    # 뜻이고, 그건 warn 이 아니라 **결함**이다(2026-09-20
+                    # 이전에는 13건이 여기서 warn 으로 조용히 묻혔다).
+                    out.append(Issue(
+                        "L", "error", f"[{pack}] 드라이버 '{key}' 를 극한값으로 바꾸지 못함",
+                        "이 드라이버가 팩 YAML 의 예상 형식으로 선언돼 있지 않아 "
+                        "극한 검사를 **수행하지 못했습니다**. Recipe 필드도, "
+                        "선언된 범주형도 아닌데 YAML 치환도 실패했습니다.",
+                        "팩에 이 키가 숫자 값으로 선언돼 있는지 확인하거나, "
+                        "Recipe 필드라면 tools/model_hygiene.py 의 Recipe 필드 "
+                        "판정 경로를, 범주형이라면 CATEGORICAL_ABSENT 를 확인하십시오."))
+                    continue
+                m, seen, err = _run(d / "p", pack, probe_key=key)
+                shutil.rmtree(d, ignore_errors=True)
 
             if m is None:
-                out.append(Issue("L", "error", f"[{pack}] {key}=0 에서 예외", err or "?",
+                out.append(Issue("L", "error", f"[{pack}] {key}={target!r} 에서 예외", err or "?",
                                  "극한값에서 죽지 않도록 정의역을 방어하십시오."))
                 continue
             if m != m or m in (float("inf"), float("-inf")):
-                out.append(Issue("L", "error", f"[{pack}] {key}=0 → MRR 배수 {m}",
+                out.append(Issue("L", "error", f"[{pack}] {key}={target!r} → MRR 배수 {m}",
                                  "NaN/발산은 비물리입니다.", "항의 정의역을 확인하십시오."))
-            elif m < 0:
-                out.append(Issue("L", "error", f"[{pack}] {key}=0 → MRR 배수 음수 ({m:.4g})",
+                continue
+            if m < 0:
+                out.append(Issue("L", "error", f"[{pack}] {key}={target!r} → MRR 배수 음수 ({m:.4g})",
                                  "제거율은 음수가 될 수 없습니다.", "clamp 를 추가하십시오."))
-            elif role == "AGENT" and m > 1e-9:
+                continue
+            if seen is False:
+                # 항이 **스스로를 비활성화**해서 드라이버 목록에서 사라진
+                # 경우다(예: _f_tau 의 t_pol>0 가드). 이때 배수 1.0 은 "AGENT/
+                # MODULATOR 정의를 만족한다"를 검증한 게 아니라 "이 항은 이
+                # 조건에서 아무 것도 예측하지 않는다"는 뜻이다 — 우연히 나온
+                # 값을 통과로 읽으면 안 되므로, 통과/위반 판정 대신 미확인으로
+                # 신고하고 역할별 검사는 건너뛴다(판정#95).
+                out.append(Issue(
+                    "L", "warn",
+                    f"[{pack}] {key}={target!r} → 항이 스스로 비활성화됨 (배수 {m:.4g})",
+                    "이 조건에서 항이 드라이버 목록에서 사라졌습니다 — 항이 "
+                    "살아서 낸 값이 아니라 항 자체가 꺼지며 남은 값입니다. "
+                    f"{role} 정의를 만족했는지는 **검증되지 않았습니다.**",
+                    "항이 이 조건을 notes 로 신고하는지 확인하십시오. 신고가 "
+                    "있으면 의도된 게이트(정직한 미검증)이고, 없으면 조용한 "
+                    "폴백이므로 신고를 추가해야 합니다."))
+                continue
+            if role == "AGENT" and m > 1e-9:
                 out.append(Issue(
                     "L", "error",
-                    f"[{pack}] {key}=0 인데 MRR 배수 {m:.4g} (AGENT 이므로 0 이어야)",
+                    f"[{pack}] {key}={target!r} 인데 MRR 배수 {m:.4g} (AGENT 이므로 0 이어야)",
                     "제거를 수행하는 주체가 없는데 제거율이 남아 있습니다. 항이 아예 "
                     "만들어지지 않아 '효과 없음(=1.0)'으로 남았을 가능성이 큽니다.",
                     "0 케이스를 분기로 잡아 terms[...] = 0.0 으로 계상하십시오."))
             elif role == "MODULATOR" and m <= 0:
                 out.append(Issue(
                     "L", "error",
-                    f"[{pack}] {key}=0 인데 MRR 배수 {m:.4g} (MODULATOR 이므로 양수여야)",
+                    f"[{pack}] {key}={target!r} 인데 MRR 배수 {m:.4g} (MODULATOR 이므로 양수여야)",
                     "조절 변수가 0 이라고 메커니즘 전체가 멈추지는 않습니다.",
                     "역할 선언이 틀렸는지, 항의 형태가 틀렸는지 확인하십시오."))
     return out
